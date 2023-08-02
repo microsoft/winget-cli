@@ -104,7 +104,7 @@ By enabling this policy, you allow any app or service to use the Windows Package
 
 WinGet CLI – Enables the use of the “winget” command.
 
-WinGet InProcess COM – enables other applications and services to load and execute winget libraries (Example: Mobile device management (MDM) app installations). Supports elevated, non-elevated user-context executions, and system-context installs.
+WinGet InProcess COM – enables other applications and services to load and execute winget libraries (Example: Mobile device management app installations). Supports elevated, non-elevated user-context executions, and system-context installs.
 
 WinGet OutOfProcess COM – enables other application and services to execute winget libraries remotely (Example: WinGet PowerShell cmdlets). Supports elevated and non-elevated user-context executions.
 

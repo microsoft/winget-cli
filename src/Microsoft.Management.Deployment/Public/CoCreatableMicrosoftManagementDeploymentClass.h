@@ -18,20 +18,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             *object = nullptr;
 
-            AppInstaller::Settings::PolicyState wingetCOMInProcOrOutOfProcPolicyState = AppInstaller::Settings::PolicyState::NotConfigured;
+            AppInstaller::Settings::PolicyState wingetCOMPolicyState = AppInstaller::Settings::PolicyState::NotConfigured;
 
             if (IsOutOfProcCOMCall())
             {
-                wingetCOMInProcOrOutOfProcPolicyState =  AppInstaller::Settings::GroupPolicies().GetState(::AppInstaller::Settings::TogglePolicy::Policy::WinGetOutOfProcessCOM);
+                wingetCOMPolicyState =  AppInstaller::Settings::GroupPolicies().GetState(::AppInstaller::Settings::TogglePolicy::Policy::WinGetOutOfProcessCOM);
             }
             else
             {
-                wingetCOMInProcOrOutOfProcPolicyState = AppInstaller::Settings::GroupPolicies().GetState(::AppInstaller::Settings::TogglePolicy::Policy::WinGetInProcessCOM);
+                wingetCOMPolicyState = AppInstaller::Settings::GroupPolicies().GetState(::AppInstaller::Settings::TogglePolicy::Policy::WinGetInProcessCOM);
             }
 
-            RETURN_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, wingetCOMInProcOrOutOfProcPolicyState == AppInstaller::Settings::PolicyState::Disabled);
+            RETURN_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, wingetCOMPolicyState == AppInstaller::Settings::PolicyState::Disabled);
 
-            RETURN_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, wingetCOMInProcOrOutOfProcPolicyState == AppInstaller::Settings::PolicyState::NotConfigured && !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet));
+            RETURN_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, wingetCOMPolicyState == AppInstaller::Settings::PolicyState::NotConfigured && !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet));
 
             return ::wil::wrl_factory_for_winrt_com_class<TCppWinRTClass>::CreateInstance(unknownOuter, riid, object);
         }

@@ -112,7 +112,7 @@ namespace AppInstallerCLIE2ETests.Interop
         /// Create PackageManager Instance when WinGetPackageManager policy is enabled and EnabledAppInstaller Policy Disabled.
         /// </summary>
         [Test]
-        public void PolicyWinGetPackageManagertNotConfiguredAndPolicyEnableWinGetEnabled()
+        public void PolicyWinGetPackageManagerNotConfiguredAndPolicyEnableWinGetEnabled()
         {
             // Scenario:
             // EnableWinGetOutOfProcessCOM = NotConfigured
@@ -126,7 +126,7 @@ namespace AppInstallerCLIE2ETests.Interop
         /// Create PackageManager Instance when WinGetPackageManager policy is enabled and EnabledAppInstaller Policy Disabled.
         /// </summary>
         [Test]
-        public void PolicyWinGetPackageManagertNotConfiguredAndPolicyEnableWinGetDisabled()
+        public void PolicyWinGetPackageManagerNotConfiguredAndPolicyEnableWinGetDisabled()
         {
             // Scenario :
             // EnableWinGetOutOfProcessCOM = NotConfigured
