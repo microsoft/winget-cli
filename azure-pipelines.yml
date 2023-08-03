@@ -269,6 +269,13 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
+    displayName: 'Copy Dev Package Dependencies'
+    inputs:
+      SourceFolder: '$(appxPackageDir)\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\'
+      TargetFolder: '$(artifactsDir)\E2ETests\DevPackageDependencies'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\net6.0'
@@ -433,6 +440,14 @@ jobs:
       SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PowerShell@2
+    displayName: Install Tests Dependencies
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-ChildItem E2ETests\DevPackageDependencies -Filter *.appx | %{ Add-AppxPackage $_.FullName }
+      workingDirectory: $(Pipeline.Workspace)\Build.x64release\
 
   - task: PowerShell@2
     displayName: Install Root Certificate
