@@ -11,13 +11,33 @@
 BeforeAll {
     $settingsFilePath = (ConvertFrom-Json (wingetdev.exe settings export)).userSettingsFile
 
-    # Source Add requires admin privileges, this will only execute successfully in an elevated PowerShell.
-    wingetdev source add 'TestSource' 'https://localhost:5001/TestKit/'
     Import-Module Microsoft.WinGet.Client
 
     function SetWinGetSettingsHelper($settings) {
         $content = ConvertTo-Json $settings -Depth 4
         Set-Content -Path $settingsFilePath -Value $content
+    }
+
+    # Source Add requires admin privileges, this will only execute successfully in an elevated PowerShell.
+    function AddTestSource {
+        try {
+            Get-WinGetSource -Name 'TestSource'
+        }
+        catch {
+            Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/'
+        }
+    }
+
+    function RemoveTestSource {
+        try {
+            Get-WinGetSource -Name 'TestSource'
+        }
+        catch {
+            # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
+            # This is a workaround to an issue where the server takes longer than expected to terminate when
+            # running from PowerShell. This can cause other E2E tests to fail when attempting to reset the test source.
+            Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
+        }
     }
 }
 
@@ -29,9 +49,13 @@ Describe 'Get-WinGetVersion' {
     }
 }
 
-Describe 'Get-WinGetSource' {
+Describe 'Get|Add|Reset-WinGetSource' {
 
-    It 'Get Test Source' {
+    BeforeAll {
+        AddTestSource
+    }
+
+    It 'Get Test source' {
         $source = Get-WinGetSource -Name 'TestSource'
 
         $source | Should -Not -BeNullOrEmpty -ErrorAction Stop
@@ -39,9 +63,23 @@ Describe 'Get-WinGetSource' {
         $source.Argument | Should -Be 'https://localhost:5001/TestKit/'
         $source.Type | Should -Be 'Microsoft.PreIndexed.Package'
     }
+
+    It 'Get fake source' {
+        { Get-WinGetSource -Name 'Fake' } | Should -Throw
+    }
+
+    # This tests require admin
+    It 'Reset Test source' {
+        Reset-WinGetSource -Name TestSource
+    }
 }
 
 Describe 'Find-WinGetPackage' {
+
+    BeforeAll {
+        AddTestSource
+    }
+
     It 'Given no parameters, lists all available packages' {
         $allPackages = Find-WinGetPackage -Source TestSource
         $allPackages.Count | Should -BeGreaterThan 0
@@ -90,6 +128,10 @@ Describe 'Find-WinGetPackage' {
 }
 
 Describe 'Install|Update|Uninstall-WinGetPackage' {
+
+    BeforeAll {
+        AddTestSource
+    }
 
     It 'Install by Id' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
@@ -162,6 +204,10 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
 }
 
 Describe 'Get-WinGetPackage' {
+
+    BeforeAll {
+        AddTestSource
+    }
 
     It 'Install by Id' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
@@ -402,7 +448,39 @@ Describe 'Set-WinGetUserSettings' {
     }
 }
 
+Describe 'Get|Enable|Disable-WinGetSetting' {
+
+    It 'Get-WinGetSetting' {
+        $settings = Get-WinGetSettings
+        $settings | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $settings.'$schema' | Should -Not -BeNullOrEmpty 
+        $settings.adminSettings | Should -Not -BeNullOrEmpty
+        $settings.userSettingsFile | Should -Be $settingsFilePath
+    }
+
+    # This tests require admin
+    It 'Enable|Disable' {
+        $settings = Get-WinGetSettings
+        $settings | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $settings.adminSettings | Should -Not -BeNullOrEmpty
+        $settings.adminSettings.LocalManifestFiles | Should -Be $false
+
+        Enable-WinGetSetting -Name LocalManifestFiles
+
+        $afterEnable = Get-WinGetSettings
+        $afterEnable | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $afterEnable.adminSettings | Should -Not -BeNullOrEmpty
+        $afterEnable.adminSettings.LocalManifestFiles | Should -Be $true
+
+        Disable-WingetSetting -Name LocalManifestFiles
+
+        $afterDisable = Get-WinGetSettings
+        $afterDisable | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $afterDisable.adminSettings | Should -Not -BeNullOrEmpty
+        $afterDisable.adminSettings.LocalManifestFiles | Should -Be $false
+    }
+}
+
 AfterAll {
-    # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
-    Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
+    RemoveTestSource
 }

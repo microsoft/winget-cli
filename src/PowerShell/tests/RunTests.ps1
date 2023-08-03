@@ -30,6 +30,7 @@ if (-not [System.String]::IsNullOrEmpty($packageLayoutPath))
 {
     $local:packageManifestPath = Join-Path $packageLayoutPath "AppxManifest.xml"
 
+    Import-Module Appx -UseWindowsPowerShell
     Add-AppxPackage -Register $local:packageManifestPath
 
     # Configure crash dump and log file settings
