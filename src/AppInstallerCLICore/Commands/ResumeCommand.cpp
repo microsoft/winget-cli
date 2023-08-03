@@ -39,7 +39,7 @@ namespace AppInstaller::CLI
     {
         GUID checkpointId = Utility::ConvertToGuid(std::string{ context.Args.GetArg(Execution::Args::Type::ResumeGuid) });
 
-        CheckpointManager::Instance().InitializeFromGuid(checkpointId);
+        CheckpointManager::Instance().Initialize(checkpointId);
 
         if (AppInstaller::Runtime::GetClientVersion().get() != CheckpointManager::Instance().GetClientVersion())
         {
@@ -70,8 +70,9 @@ namespace AppInstaller::CLI
         auto resumeContext = context.CreateEmptyContext(rootContextId);
         resumeContext->SetExecutingCommand(commandToResume.get());
 
-        // Set the current checkpoint of the root context.
-        resumeContext->SetCurrentCheckpoint(CheckpointManager::Instance().GetLastCheckpoint(rootContextId));
+        // Set the target checkpoint of the root context.
+        resumeContext->SetTargetCheckpoint(CheckpointManager::Instance().GetLastCheckpoint(rootContextId));
+        resumeContext->SetFlags(Execution::ContextFlag::Resume);
 
         // Load the arguments from the checkpoint index prior to executing the command.
         CheckpointManager::Instance().Checkpoint(*resumeContext, Execution::CheckpointFlag::CommandArguments);

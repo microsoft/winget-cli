@@ -7,6 +7,11 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
+    namespace
+    {
+        constexpr std::string_view s_Checkpoints = "Checkpoints"sv;
+    }
+
     CheckpointIndex CheckpointIndex::CreateNew(const std::string& filePath, Schema::Version version)
     {
         AICLI_LOG(Repo, Info, << "Creating new Checkpoint Index with version [" << version << "] at '" << filePath << "'");
@@ -28,15 +33,8 @@ namespace AppInstaller::Repository::Microsoft
 
     std::shared_ptr<CheckpointIndex> CheckpointIndex::OpenOrCreateDefault(GUID guid, OpenDisposition openDisposition)
     {
-        wchar_t buffer[256];
-        if (!StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)))
-        {
-            THROW_HR(E_UNEXPECTED);
-        }
-        
-        auto indexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / buffer;
-        indexPath.replace_extension(".db");
-        AICLI_LOG(Repo, Info, << "Opening savepoint index");
+        const auto& indexPath = GetCheckpointIndexPath(guid);
+        AICLI_LOG(Repo, Info, << "Opening checkpoint index");
 
         try
         {
@@ -46,13 +44,13 @@ namespace AppInstaller::Repository::Microsoft
                 {
                     try
                     {
-                        AICLI_LOG(Repo, Info, << "Opening existing savepoint index");
+                        AICLI_LOG(Repo, Info, << "Opening existing checkpoint index");
                         return std::make_shared<CheckpointIndex>(CheckpointIndex::Open(indexPath.u8string(), openDisposition));
                     }
                     CATCH_LOG();
                 }
 
-                AICLI_LOG(Repo, Info, << "Attempting to delete bad index file");
+                AICLI_LOG(Repo, Info, << "Attempting to delete bad checkpoint index file");
                 std::filesystem::remove_all(indexPath);
             }
 
@@ -61,6 +59,41 @@ namespace AppInstaller::Repository::Microsoft
         CATCH_LOG();
 
         return {};
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    std::optional<std::filesystem::path> s_CheckpointIndexDirectoryOverride{};
+    void TestHook_SetCheckpointIndexDirectory_Override(std::optional<std::filesystem::path>&& checkpointIndexDirectory)
+    {
+        s_CheckpointIndexDirectoryOverride = std::move(checkpointIndexDirectory);
+    }
+#endif
+
+    std::filesystem::path CheckpointIndex::GetCheckpointIndexPath(GUID guid)
+    {
+        wchar_t checkpointGuid[256];
+        THROW_HR_IF(E_UNEXPECTED, !StringFromGUID2(guid, checkpointGuid, ARRAYSIZE(checkpointGuid)));
+
+        const auto DefaultIndexDirectoryPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / s_Checkpoints;
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        const auto checkpointIndexDirectory = s_CheckpointIndexDirectoryOverride.has_value() ? s_CheckpointIndexDirectoryOverride.value() : DefaultIndexDirectoryPath;
+#else
+        const auto checkpointIndexDirectory = DefaultIndexDirectoryPath;
+#endif
+
+        if (!std::filesystem::exists(checkpointIndexDirectory))
+        {
+            std::filesystem::create_directories(checkpointIndexDirectory);
+            AICLI_LOG(Repo, Info, << "Creating checkpoint index directory: " << checkpointIndexDirectory);
+        }
+        else
+        {
+            THROW_HR_IF(ERROR_CANNOT_MAKE, !std::filesystem::is_directory(checkpointIndexDirectory));
+        }
+
+        auto indexPath = checkpointIndexDirectory / checkpointGuid;
+        indexPath.replace_extension(".db");
+        return indexPath;
     }
 
     bool CheckpointIndex::IsEmpty()

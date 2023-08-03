@@ -9,6 +9,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {
     using namespace SQLite;
     using namespace std::string_view_literals;
+
     static constexpr std::string_view s_CheckpointArgumentsTable_Table_Name = "CheckpointArguments"sv;
     static constexpr std::string_view s_CheckpointArgumentsTable_ContextId_Column = "contextId"sv;
     static constexpr std::string_view s_CheckpointArgumentsTable_CommandName_Column = "commandName"sv;

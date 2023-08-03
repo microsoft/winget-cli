@@ -49,7 +49,7 @@ namespace AppInstaller::Runtime
         SelfPackageRoot,
         // The location where user downloads are stored.
         UserProfileDownloads,
-        // Always one more than the last path; for being able to iterate paths in tests.
+        // The location where checkpoint database files are stored.
         Max
     };
 

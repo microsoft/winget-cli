@@ -119,11 +119,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
     void CheckpointIndexInterface::RemoveContextFromContextTable(SQLite::Connection& connection, int contextId)
     {
-        auto contextResult = GetExistingContextRowIdFromArgumentTable(connection, contextId);
+        auto contextResult = GetExistingContextRowIdFromContextTable(connection, contextId);
         THROW_HR_IF(E_NOT_SET, !contextResult);
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removeContextFromContextTable_v1_0");
-        CheckpointContextTable::RemoveContextById(connection, contextId);
+        CheckpointContextTable::RemoveContextById(connection, contextResult.value());
         savepoint.Commit();
     }
 
@@ -151,7 +151,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
     bool CheckpointIndexInterface::ContainsArgument(SQLite::Connection& connection, int contextId, std::string_view name)
     {
-        return CheckpointArgumentsTable::ContainsArgument(connection, contextId, name);
+        auto contextResult = GetExistingContextRowIdFromArgumentTable(connection, contextId);
+        THROW_HR_IF(E_NOT_SET, !contextResult);
+
+        return CheckpointArgumentsTable::ContainsArgument(connection, contextResult.value(), name);
     }
 
     std::string CheckpointIndexInterface::GetStringArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name)

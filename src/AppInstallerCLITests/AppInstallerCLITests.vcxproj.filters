@@ -182,6 +182,9 @@
     <ClCompile Include="RestInterface_1_1.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
+    <ClCompile Include="ResumeFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
     <ClCompile Include="SearchRequestSerializer.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
@@ -307,6 +310,9 @@
     </ClCompile>
     <ClCompile Include="PathVariable.cpp">
       <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="CheckpointIndex.cpp">
+      <Filter>Source Files\Repository</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

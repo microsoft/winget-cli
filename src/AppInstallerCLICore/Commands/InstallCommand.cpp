@@ -105,7 +105,9 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Context& context) const
     {
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
+        bool resumeExperimentalFeatureEnabled = Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume);
+
+        if (resumeExperimentalFeatureEnabled && WI_IsFlagClear(context.GetFlags(), Execution::ContextFlag::Resume))
         {
             CheckpointManager::Instance().Initialize();
             CheckpointManager::Instance().AddContext(context.GetContextId());
@@ -151,9 +153,10 @@ namespace AppInstaller::CLI
             }
         }
 
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
+        if (resumeExperimentalFeatureEnabled)
         {
-            if (context.IsTerminated())
+            // TODO: Only allow certain termination HRs to persist the checkpoint index.
+            if (!context.IsTerminated())
             {
                 CheckpointManager::Instance().RemoveContext(context.GetContextId());
             }

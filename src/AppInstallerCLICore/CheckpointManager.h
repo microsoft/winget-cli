@@ -25,17 +25,13 @@ namespace AppInstaller::CLI::Checkpoint
             return checkpointManager;
         }
 
-        void Initialize();
+        void Initialize(GUID checkpointId = {});
 
-        void InitializeFromGuid(GUID checkpointId);
+        void Checkpoint(Execution::Context& context, Execution::CheckpointFlag flag);
 
         void AddContext(int contextId);
 
         void RemoveContext(int contextId);
-
-        void Checkpoint(Execution::Context& context, Execution::CheckpointFlag flag);
-
-        std::unique_ptr<Execution::Context> CreateContextFromCheckpointIndex();
 
         std::string GetClientVersion();
 
@@ -60,4 +56,3 @@ namespace AppInstaller::CLI::Checkpoint
         void RecordContextArgsToIndex(Execution::Context& context);
     };
 }
-// 

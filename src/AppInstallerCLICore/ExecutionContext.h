@@ -72,6 +72,7 @@ namespace AppInstaller::CLI::Execution
         DisableInteractivity = 0x40,
         BypassIsStoreClientBlockedPolicyCheck = 0x80,
         InstallerDownloadOnly = 0x100,
+        Resume = 0x200
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
@@ -169,23 +170,20 @@ namespace AppInstaller::CLI::Execution
         // Enable tests to override behavior
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
-        // Sets the target checkpoint of the context.
-        void SetTargetCheckpoint(CheckpointFlag flag) { m_targetCheckpoint = flag; };
+        // Gets the id of the context.
+        int GetContextId() { return m_contextId; };
 
         // Gets the current checkpoint of the context.
         CheckpointFlag GetCurrentCheckpoint() { return m_currentCheckpoint; };
 
+        // Sets the current checkpoint flag of the context.
+        void SetCurrentCheckpoint(Execution::CheckpointFlag flag) { m_currentCheckpoint = flag; }
+
         // Gets the target checkpoint of the context.
         CheckpointFlag GetTargetCheckpoint() { return m_targetCheckpoint; };
 
-        // Sets the current checkpoint flag of the context.
-        void SetCurrentCheckpoint(Execution::CheckpointFlag flag)
-        {
-            m_currentCheckpoint = flag;
-        }
-
-        // Gets the id of the context.
-        int GetContextId() { return m_contextId; };
+        // Sets the target checkpoint of the context.
+        void SetTargetCheckpoint(CheckpointFlag flag) { m_targetCheckpoint = flag; };
 
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent

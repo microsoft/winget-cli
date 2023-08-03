@@ -32,6 +32,9 @@ namespace AppInstaller::Repository::Microsoft
         // Opens or creates a CheckpointIndex database on the default path.
         static std::shared_ptr<CheckpointIndex> OpenOrCreateDefault(GUID guid, OpenDisposition openDisposition = OpenDisposition::ReadWrite);
 
+        // Gets the file path of the CheckpointIndex database.
+        static std::filesystem::path GetCheckpointIndexPath(GUID guid);
+
         bool IsEmpty();
 
         IdType SetClientVersion(std::string_view clientVersion);
