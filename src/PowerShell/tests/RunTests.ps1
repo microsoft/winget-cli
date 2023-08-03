@@ -11,7 +11,10 @@ param(
 Install-Module -Name Pester -Force -SkipPublisherCheck
 Import-Module Pester
 
-$env:PSModulePath += ";$testModulesPath"
+if (-not [System.String]::IsNullOrEmpty($testModulesPath))
+{
+    $env:PSModulePath += ";$testModulesPath"
+}
 
 if (-not (Test-Path $outputPath))
 {

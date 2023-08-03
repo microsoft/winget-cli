@@ -9,15 +9,16 @@
 #>
 
 BeforeAll {
+    $settingsFilePath = (ConvertFrom-Json (wingetdev.exe settings export)).userSettingsFile
+
     # Source Add requires admin privileges, this will only execute successfully in an elevated PowerShell.
-    wingetdev source add 'TestSource' 'https://localhost:5001/TestKit/'
+    #wingetdev source add 'TestSource' 'https://localhost:5001/TestKit/'
     Import-Module Microsoft.WinGet.Client
 
-    # TODO:
-    # wingetdev settings export, parse to get settings file.
-    # Function that modified the file (just check in json files)
-    # test that calls Get-WinGetSettings and compares.
-    # Investigate server not released?
+    function SetWinGetSettingsHelper($settings) {
+        $content = ConvertTo-Json $settings -Depth 4
+        Set-Content -Path $settingsFilePath -Value $content
+    }
 }
 
 Describe 'Get-WinGetSource' {
@@ -153,7 +154,7 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
 }
 
 Describe 'Get-WinGetPackage' {
-    
+
     It 'Install by Id' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
 
@@ -193,6 +194,204 @@ Describe 'Get-WinGetPackage' {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller 
         } 
    }
+}
+
+Describe 'Get-WinGetUserSettings' {
+
+    It 'Get settings' {
+        $ogSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
+        $userSettings = Get-WinGetUserSettings
+        $userSettings | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $userSettings.Count | Should -Be 2
+        $userSettings.visual.progressBar | Should -Be 'rainbow'
+        $userSettings.experimentalFeatures.experimentalArg | Should -Be $false
+        $userSettings.experimentalFeatures.experimentalCmd | Should -Be $true
+    }
+
+    It 'Get settings. Bad json file' {
+        Set-Content -Path $settingsFilePath -Value "Hi, im not a json. Thank you, Test."
+        { Get-WinGetUserSettings } | Should -Throw
+    }
+}
+
+Describe 'Test-WinGetUserSettings' {
+
+    It 'Bad json file' {
+        Set-Content -Path $settingsFilePath -Value "Hi, im not a json. Thank you, Test."
+
+        $inputSettings = @{ visual= @{ progressBar="retro"} }
+        Test-WinGetUserSettings -UserSettings $inputSettings | Should -Be $false
+    }
+
+    It 'Equal' {
+        $ogSettings = @{ visual= @{ progressBar="retro"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
+        Test-WinGetUserSettings -UserSettings $ogSettings | Should -Be $true
+    }
+
+    It 'Equal. Ignore schema' {
+        Set-Content -Path $settingsFilePath -Value '{ "$schema": "https://aka.ms/winget-settings.schema.json", "visual": { "progressBar": "retro" } }'
+
+        $inputSettings = @{ visual= @{ progressBar="retro"} }
+        Test-WinGetUserSettings -UserSettings $inputSettings | Should -Be $true
+    }
+
+    It 'Not Equal string' {
+        $ogSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ visual= @{ progressBar="retro"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true}}
+        Test-WinGetUserSettings -UserSettings $inputSettings | Should -Be $false
+    }
+
+    It 'Not Equal bool' {
+        $ogSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$true ; experimentalCmd=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true}}
+        Test-WinGetUserSettings -UserSettings $inputSettings | Should -Be $false
+    }
+
+    It 'Not Equal. More settings' {
+        $ogSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true }}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false }}
+        Test-WinGetUserSettings -UserSettings $inputSettings | Should -Be $false
+    }
+
+    It 'Not Equal. More settings input' {
+        $ogSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false ; }}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true}}
+        Test-WinGetUserSettings -UserSettings $inputSettings | Should -Be $false
+    }
+
+    It 'Equal IgnoreNotSet' {
+        $ogSettings = @{ visual= @{ progressBar="retro"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
+        Test-WinGetUserSettings -UserSettings $ogSettings -IgnoreNotSet | Should -Be $true
+    }
+
+    It 'Equal IgnoreNotSet. More settings' {
+        $ogSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true }}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false }}
+        Test-WinGetUserSettings -UserSettings $inputSettings -IgnoreNotSet | Should -Be $true
+    }
+
+    It 'Not Equal IgnoreNotSet. More settings input' {
+        $ogSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false ; }}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true}}
+        Test-WinGetUserSettings -UserSettings $inputSettings -IgnoreNotSet | Should -Be $false
+    }
+
+    It 'Not Equal bool IgnoreNotSet' {
+        $ogSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$true ; experimentalCmd=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$false ; experimentalCmd=$true}}
+        Test-WinGetUserSettings -UserSettings $inputSettings -IgnoreNotSet | Should -Be $false
+    }
+
+    It 'Not Equal array IgnoreNotSet' {
+        $ogSettings = @{ installBehavior= @{ preferences= @{ architectures = @("x86", "x64")} }}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ installBehavior= @{ preferences= @{ architectures = @("x86", "arm64")} }}
+        Test-WinGetUserSettings -UserSettings $inputSettings -IgnoreNotSet | Should -Be $false
+    }
+
+    It 'Not Equal wrong type IgnoreNotSet' {
+        $ogSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$true ; experimentalCmd=$true}}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=4 ; experimentalCmd=$true}}
+        Test-WinGetUserSettings -UserSettings $inputSettings -IgnoreNotSet | Should -Be $false
+    }
+
+    AfterAll {
+        SetWinGetSettingsHelper @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
+    }
+}
+
+Describe 'Set-WinGetUserSettings' {
+
+    It 'Overwrites' {
+        $ogSettings = @{ source= @{ autoUpdateIntervalInMinutes=3}}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$true ; experimentalCmd=$false}}
+        $result = Set-WinGetUserSettings -UserSettings $inputSettings
+
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.'$schema' | Should -Not -BeNullOrEmpty 
+        $result.visual | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.visual.progressBar | Should -Be "rainbow"
+        $result.experimentalFeatures | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.experimentalFeatures.experimentalArg | Should -Be $true
+        $result.experimentalFeatures.experimentalCmd | Should -Be $false
+        $result.source | Should -BeNullOrEmpty
+    }
+
+    It 'Merge' {
+        $ogSettings = @{ source= @{ autoUpdateIntervalInMinutes=3}}
+        SetWinGetSettingsHelper $ogSettings
+
+        $inputSettings = @{ visual= @{ progressBar="rainbow"} ; experimentalFeatures= @{experimentalArg=$true ; experimentalCmd=$false}}
+        $result = Set-WinGetUserSettings -UserSettings $inputSettings -Merge
+
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.'$schema' | Should -Not -BeNullOrEmpty 
+        $result.visual | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.visual.progressBar | Should -Be "rainbow"
+        $result.experimentalFeatures | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.experimentalFeatures.experimentalArg | Should -Be $true
+        $result.experimentalFeatures.experimentalCmd | Should -Be $false
+        $result.source | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.source.autoUpdateIntervalInMinutes | Should -Be 3
+    }
+
+    It 'Schema.' {
+        Set-Content -Path $settingsFilePath -Value '{ "$schema": "https://aka.ms/winget-settings.schema.json", "visual": { "progressBar": "retro" } }'
+
+        $inputSettings = @{ visual= @{ progressBar="retro"} }
+        $result = Set-WinGetUserSettings -UserSettings $inputSettings
+
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.'$schema' | Should -Not -BeNullOrEmpty 
+        $result.visual.progressBar | Should -Be "retro"
+    }
+
+    It 'Overwrites Bad json file' {
+        Set-Content -Path $settingsFilePath -Value "Hi, im not a json. Thank you, Test."
+
+        $inputSettings = @{ visual= @{ progressBar="retro"} }
+        $result = Set-WinGetUserSettings -UserSettings $inputSettings
+
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.'$schema' | Should -Not -BeNullOrEmpty 
+        $result.visual.progressBar | Should -Be "retro"
+    }
+
+    It 'Overwrites Bad json file' {
+        Set-Content -Path $settingsFilePath -Value "Hi, im not a json. Thank you, Test."
+
+        $inputSettings = @{ visual= @{ progressBar="retro"} }
+        { Set-WinGetUserSettings -UserSettings $inputSettings -Merge } | Should -Throw
+    }
+
+    AfterAll {
+        SetWinGetSettingsHelper @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
+    }
 }
 
 AfterAll {
