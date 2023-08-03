@@ -445,7 +445,7 @@ jobs:
     displayName: Launch LocalhostWebServer
 
   - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
-    workingDirectory: $(Build.SourcesDirectory)\Tools\
+    workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
     displayName: Run Tests
 
   - task: PublishTestResults@2
