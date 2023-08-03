@@ -12,12 +12,20 @@ BeforeAll {
     $settingsFilePath = (ConvertFrom-Json (wingetdev.exe settings export)).userSettingsFile
 
     # Source Add requires admin privileges, this will only execute successfully in an elevated PowerShell.
-    #wingetdev source add 'TestSource' 'https://localhost:5001/TestKit/'
+    wingetdev source add 'TestSource' 'https://localhost:5001/TestKit/'
     Import-Module Microsoft.WinGet.Client
 
     function SetWinGetSettingsHelper($settings) {
         $content = ConvertTo-Json $settings -Depth 4
         Set-Content -Path $settingsFilePath -Value $content
+    }
+}
+
+Describe 'Get-WinGetVersion' {
+
+    It 'Get-WinGetVersion' {
+        $version = Get-WinGetVersion
+        $version | Should -Not -BeNullOrEmpty -ErrorAction Stop
     }
 }
 
