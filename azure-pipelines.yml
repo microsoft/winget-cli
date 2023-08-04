@@ -459,7 +459,7 @@ jobs:
     workingDirectory: $(Build.SourcesDirectory)\src\LocalhostWebServer
     displayName: Launch LocalhostWebServer
 
-  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
+  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage -sourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
     displayName: Run Tests
 
