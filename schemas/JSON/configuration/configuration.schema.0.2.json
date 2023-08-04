@@ -9,7 +9,8 @@
             "properties": {
                 "assertions": {
                     "type": "array",
-                    "items": { "$ref": "#/$defs/resource" }
+                    "items": { "$ref": "#/$defs/resource" },
+                    "description": "The preconditions required to run the configuration."
                 },
                 "resources": {
                     "type": "array",
