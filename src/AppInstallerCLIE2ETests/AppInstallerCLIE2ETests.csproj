@@ -35,6 +35,7 @@
     </PackageReference>
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.3" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.6" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="6.0.1" />
   </ItemGroup>
 
   <!-- CsWinRT properties -->
