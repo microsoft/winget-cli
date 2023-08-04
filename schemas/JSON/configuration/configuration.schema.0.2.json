@@ -14,7 +14,8 @@
                 },
                 "resources": {
                     "type": "array",
-                    "items": { "$ref": "#/$defs/resource" }
+                    "items": { "$ref": "#/$defs/resource" },
+                    "description": "A list of resources to be included in the configuration."
                 },
                 "parameters": {
                     "type": "array",
