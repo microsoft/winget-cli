@@ -30,7 +30,8 @@
                     "description": "The configuration syntax version."
                 }
             },
-            "required": ["configurationVersion"]
+            "required": ["configurationVersion"],
+            "description": "The properties of the configuration."
         }
     },
 
