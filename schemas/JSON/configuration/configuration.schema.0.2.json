@@ -39,7 +39,7 @@
                 "resource": {
                     "type": "string",
                     "maxLength": 128,
-                    "description": "The name of the resource. Optionally specify module and resource as module/resource"
+                    "description": "The name of the resource. Optionally specify module and resource as module/resource."
                 },
                 "id": {
                     "type": "string",
