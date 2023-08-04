@@ -76,7 +76,10 @@
                     },
                     "additionalProperties": true
                 },
-                "settings": { "type": "object" }
+                "settings": {
+                    "type": "object",
+                    "description": "Parameters as key-value pairs to be passed to the resource."
+                }
             },
             "required": ["resource"]
         }
