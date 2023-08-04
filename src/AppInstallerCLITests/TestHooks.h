@@ -9,6 +9,7 @@
 
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerRuntime.h>
+#include <CheckpointManager.h>
 #include <winget/UserSettings.h>
 #include <winget/Filesystem.h>
 #include <winget/WindowsFeature.h>
@@ -71,6 +72,11 @@ namespace AppInstaller
         void TestHook_SetDoesWindowsFeatureExistResult_Override(bool* status);
         void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(Utility::LocIndString* displayName);
         void TestHook_SetWindowsFeatureGetRestartStatusResult_Override(AppInstaller::WindowsFeature::DismRestartType* restartType);
+    }
+
+    namespace CLI::Checkpoint
+    {
+        void TestHook_MockCheckpointManagerCleanUp_Override(bool status);
     }
 }
 
@@ -241,5 +247,18 @@ namespace TestHook
 
     private:
         std::vector<AppInstaller::Repository::ExtractedIconInfo> m_extractedIcons;
+    };
+
+    struct MockCheckpointManagerCleanUp_Override
+    {
+        MockCheckpointManagerCleanUp_Override()
+        {
+            AppInstaller::CLI::Checkpoint::TestHook_MockCheckpointManagerCleanUp_Override(true);
+        }
+
+        ~MockCheckpointManagerCleanUp_Override()
+        {
+            AppInstaller::CLI::Checkpoint::TestHook_MockCheckpointManagerCleanUp_Override(false);
+        }
     };
 }

@@ -43,6 +43,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Cancelled);
         WINGET_DEFINE_RESOURCE_STRINGID(CancellingOperation);
         WINGET_DEFINE_RESOURCE_STRINGID(ChannelArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ClientVersionMismatchError);
         WINGET_DEFINE_RESOURCE_STRINGID(Command);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandLineArgumentDescription);
@@ -280,6 +281,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidPathToNestedInstaller);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidResumeGuidError);
         WINGET_DEFINE_RESOURCE_STRINGID(KeyDirectoriesHeader);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
@@ -406,6 +408,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeGuidArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeGuidNotFoundError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeStateDataNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandShortDescription);

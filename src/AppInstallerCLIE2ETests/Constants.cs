@@ -66,6 +66,8 @@ namespace AppInstallerCLIE2ETests
         public const string WinGetUtil = "WinGetUtil";
         public const string E2ETestLogsPathPackaged = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
         public const string E2ETestLogsPathUnpackaged = @"WinGet\defaultState";
+        public const string CheckpointDirectoryPackaged = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\Checkpoints";
+        public const string CheckpointDirectoryUnpackaged = @"Microsoft\WinGet\State\defaultState\Checkpoints";
 
         // Installer filename
         public const string TestCommandExe = "testCommand.exe";
@@ -246,6 +248,10 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_PACKAGE_IS_PINNED = unchecked((int)0x8A150068);
             public const int ERROR_PACKAGE_IS_STUB = unchecked((int)0x8A150069);
             public const int ERROR_DOWNLOAD_DEPENDENCIES = unchecked((int)0x8A15006A);
+            public const int ERROR_INVALID_RESUME_GUID = unchecked((int)0x8A15006B);
+            public const int ERROR_RESUME_GUID_NOT_FOUND = unchecked((int)0x8A15006C);
+            public const int ERROR_CLIENTVERSION_MISMATCH = unchecked((int)0x8A15006D);
+            public const int ERROR_INVALID_RESUME_STATE = unchecked((int)0x8A15006F);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

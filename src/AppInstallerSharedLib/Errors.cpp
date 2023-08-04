@@ -228,8 +228,14 @@ namespace AppInstaller
                 return "Application shutdown signal received";
             case APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES:
                 return "Failed to download package dependencies.";
+            case APPINSTALLER_CLI_ERROR_INVALID_RESUME_GUID:
+                return "Argument for resume guid is invalid.";
+            case APPINSTALLER_CLI_ERROR_RESUME_GUID_NOT_FOUND:
+                return "The guid provided does not correspond to a valid resume state.";
             case APPINSTALLER_CLI_ERROR_CLIENTVERSION_MISMATCH:
                 return "The current client version did not match the client version of the saved state.";
+            case APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE:
+                return "The resume state data is invalid.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

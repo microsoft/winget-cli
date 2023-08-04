@@ -4,7 +4,7 @@
 #include "AppInstallerRuntime.h"
 #include "CheckpointManager.h"
 #include "ResumeCommand.h"
-#include "RootCommand.h"
+#include "Workflows/ResumeFlow.h"
 #include "Resources.h"
 
 namespace AppInstaller::CLI
@@ -37,45 +37,25 @@ namespace AppInstaller::CLI
 
     void ResumeCommand::ExecuteInternal(Execution::Context& context) const
     {
-        GUID checkpointId = Utility::ConvertToGuid(std::string{ context.Args.GetArg(Execution::Args::Type::ResumeGuid) });
+        context <<
+            Workflow::EnsureSupportForResume;
 
-        CheckpointManager::Instance().Initialize(checkpointId);
-
-        if (AppInstaller::Runtime::GetClientVersion().get() != CheckpointManager::Instance().GetClientVersion())
+        if (context.IsTerminated())
         {
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENTVERSION_MISMATCH);
+            return;
         }
 
-        // Get the root context id from the index.
         int rootContextId = CheckpointManager::Instance().GetFirstContextId();
+        auto resumeContextPtr = context.CreateEmptyContext(rootContextId);
 
-        // Determine the command to execute.
-        std::string commandName = CheckpointManager::Instance().GetCommandName(rootContextId);
-        std::unique_ptr<Command> commandToResume;
+        Context& resumeContext = *resumeContextPtr;
+        auto previousThreadGlobals = resumeContext.SetForCurrentThread();
 
-        for (auto& command : std::make_unique<RootCommand>()->GetCommands())
-        {
-            if (
-                Utility::CaseInsensitiveEquals(commandName, command->Name()) ||
-                Utility::CaseInsensitiveContains(command->Aliases(), commandName)
-                )
-            {
-                AICLI_LOG(CLI, Info, << "Resuming command: " << commandName);
-                commandToResume = std::move(command);
-                break;
-            }
-        }
+        resumeContext <<
+            Workflow::LoadInitialResumeState;
 
-        // Create a new context, set the executing command and current checkpoint.
-        auto resumeContext = context.CreateEmptyContext(rootContextId);
-        resumeContext->SetExecutingCommand(commandToResume.get());
-
-        // Set the target checkpoint of the root context.
-        resumeContext->SetTargetCheckpoint(CheckpointManager::Instance().GetLastCheckpoint(rootContextId));
-        resumeContext->SetFlags(Execution::ContextFlag::Resume);
-
-        // Load the arguments from the checkpoint index prior to executing the command.
-        CheckpointManager::Instance().Checkpoint(*resumeContext, Execution::CheckpointFlag::CommandArguments);
-        commandToResume->Execute(*resumeContext);
+        auto executingCommandPtr = resumeContext.GetExecutingCommand();
+        Command& executingCommand = *executingCommandPtr;
+        executingCommand.Execute(resumeContext);
     }
 }

@@ -429,6 +429,22 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Gets the checkpoints directory based on whether the command is invoked in desktop package or not.
+        /// </summary>
+        /// <returns>The default checkpoints directory.</returns>
+        public static string GetCheckpointsDirectory()
+        {
+            if (TestSetup.Parameters.PackagedContext)
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), Constants.CheckpointDirectoryPackaged);
+            }
+            else
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), Constants.CheckpointDirectoryUnpackaged);
+            }
+        }
+
+        /// <summary>
         /// Verify portable package.
         /// </summary>
         /// <param name="installDir">Install dir.</param>

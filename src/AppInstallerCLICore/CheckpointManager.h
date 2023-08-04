@@ -29,6 +29,8 @@ namespace AppInstaller::CLI::Checkpoint
 
         void Checkpoint(Execution::Context& context, Execution::CheckpointFlag flag);
 
+        bool HasContext();
+
         void AddContext(int contextId);
 
         void RemoveContext(int contextId);
@@ -41,13 +43,23 @@ namespace AppInstaller::CLI::Checkpoint
 
         Execution::CheckpointFlag GetLastCheckpoint(int contextId);
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // Only used by unit tests for proper cleanup.
+        void ManualReset()
+        {
+            m_checkpointId = GUID_NULL;
+            m_checkpointIndex.reset();
+        }
+#endif
+
+
     private:
         CheckpointManager() = default;
         ~CheckpointManager();
         GUID m_checkpointId = {};
         std::shared_ptr<AppInstaller::Repository::Microsoft::CheckpointIndex> m_checkpointIndex = nullptr;
 
-        bool CleanUpIndex();
+        void CleanUpIndex();
 
         void SaveCheckpoint(Execution::Context& context, Execution::CheckpointFlag flag);
         void LoadCheckpoint(Execution::Context& context, Execution::CheckpointFlag flag);

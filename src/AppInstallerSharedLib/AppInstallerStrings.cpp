@@ -856,6 +856,30 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    bool IsValidGuidString(const std::string& value)
+    {
+        if (value.empty())
+        {
+            return false;
+        }
+
+        const std::regex guidPattern("^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$");
+
+        std::string guidString = value;
+
+        if (value.front() != '{')
+        {
+            guidString.insert(0, 1, '{');
+        }
+
+        if (value.back() != '}')
+        {
+            guidString.push_back('}');
+        }
+
+        return regex_match(value, guidPattern);
+    }
+
     GUID ConvertToGuid(const std::string& value)
     {
         std::string guidString = value;

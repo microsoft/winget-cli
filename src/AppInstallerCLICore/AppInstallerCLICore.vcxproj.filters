@@ -230,6 +230,9 @@
     <ClInclude Include="Commands\ResumeCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\ResumeFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
     <ClInclude Include="CheckpointManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -432,6 +435,9 @@
     </ClCompile>
     <ClCompile Include="PortableInstaller.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\ResumeFlow.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

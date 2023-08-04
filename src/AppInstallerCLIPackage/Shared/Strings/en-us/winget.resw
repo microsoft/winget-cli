@@ -2065,4 +2065,20 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ResumeGuidArgumentDescription" xml:space="preserve">
     <value>The unique guid identifier of the saved state to resume</value>
   </data>
+  <data name="InvalidResumeGuidError" xml:space="preserve">
+    <value>The resume guid string provided is invalid: {0}</value>
+    <comment>{Locked="{0}", "guid"}
+{0} represents the guid string that the user provided.
+{1} 'guid' is the short name form of a globally unique identifier.</comment>
+  </data>
+  <data name="ClientVersionMismatchError" xml:space="preserve">
+    <value>Resuming the state from a different client version is not supported.</value>
+  </data>
+  <data name="ResumeGuidNotFoundError" xml:space="preserve">
+    <value>The resume state does not exist: {0}</value>
+    <comment>{Locked="{0}" Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
+  </data>
+  <data name="ResumeStateDataNotFoundError" xml:space="preserve">
+    <value>No data found in the resume state.</value>
+  </data>
 </root>

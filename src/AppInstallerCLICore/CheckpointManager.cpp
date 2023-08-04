@@ -31,7 +31,7 @@ namespace AppInstaller::CLI::Checkpoint
         if (!checkpointIndex)
         {
             AICLI_LOG(CLI, Error, << "Unable to open checkpoint index.");
-            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), "The saved state could not be found.");
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), "The checkpoint state could not be found.");
         }
 
         m_checkpointIndex = std::move(checkpointIndex);
@@ -52,6 +52,11 @@ namespace AppInstaller::CLI::Checkpoint
         {
             SaveCheckpoint(context, checkpointFlag);
         }
+    }
+
+    bool CheckpointManager::HasContext()
+    {
+        return !m_checkpointIndex->IsEmpty();
     }
 
     void CheckpointManager::AddContext(int contextId)
@@ -85,20 +90,37 @@ namespace AppInstaller::CLI::Checkpoint
         return static_cast<Execution::CheckpointFlag>(m_checkpointIndex->GetLastCheckpoint(contextId));
     }
 
-    bool CheckpointManager::CleanUpIndex()
-    {
-        if (m_checkpointIndex->IsEmpty())
-        {
-            m_checkpointIndex.reset();
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool s_MockCheckpointManagerCleanUp_Override = false;
 
+    void TestHook_MockCheckpointManagerCleanUp_Override(bool status)
+    {
+        s_MockCheckpointManagerCleanUp_Override = status;
+    }
+#endif
+
+    void CheckpointManager::CleanUpIndex()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // Unit tests will handle clean up so this hook is needed to avoid attempting to reset and clean up again.
+        if (s_MockCheckpointManagerCleanUp_Override)
+        {
+            return;
+        }
+#endif
+
+        bool isIndexEmpty = m_checkpointIndex->IsEmpty();
+
+        m_checkpointIndex.reset();
+
+        if (isIndexEmpty)
+        {
             const auto& checkpointIndexPath = AppInstaller::Repository::Microsoft::CheckpointIndex::GetCheckpointIndexPath(m_checkpointId);
             if (std::filesystem::remove(checkpointIndexPath))
             {
                 AICLI_LOG(CLI, Info, << "Checkpoint index deleted: " << checkpointIndexPath);
             }
         }
-
-        return true;
     }
 
     CheckpointManager::~CheckpointManager()
