@@ -74,7 +74,8 @@
                             "description": "Enable using prerelease modules."
                         }
                     },
-                    "additionalProperties": true
+                    "additionalProperties": true,
+                    "description": "Information about the module and/or resource."
                 },
                 "settings": {
                     "type": "object",
