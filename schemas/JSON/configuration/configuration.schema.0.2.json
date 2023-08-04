@@ -83,7 +83,7 @@
                     "description": "Parameters as key-value pairs to be passed to the resource."
                 }
             },
-            "required": ["resource"]
+            "required": ["resource", "directives", "settings"]
         }
     }
 }
