@@ -44,7 +44,7 @@
                 "id": {
                     "type": "string",
                     "maxLength": 128,
-                    "description": "The identifier of this item."
+                    "description": "A unique identifier for this resource."
                 },
                 "dependsOn": {
                     "type": [ "array", "null" ],
