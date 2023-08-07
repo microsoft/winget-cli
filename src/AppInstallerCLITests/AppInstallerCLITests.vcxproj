@@ -206,6 +206,7 @@
     <ClCompile Include="CustomHeader.cpp" />
     <ClCompile Include="Dependencies.cpp" />
     <ClCompile Include="Downloader.cpp" />
+    <ClCompile Include="DownloadFlow.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="ExportFlow.cpp" />
     <ClCompile Include="Filesystem.cpp" />
@@ -244,6 +245,7 @@
     <ClCompile Include="RestInterface_1_1.cpp" />
     <ClCompile Include="RestInterface_1_4.cpp" />
     <ClCompile Include="RestInterface_1_5.cpp" />
+    <ClCompile Include="RestInterface_1_6.cpp" />
     <ClCompile Include="ResumeFlow.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="SearchRequestSerializer.cpp" />
@@ -283,6 +285,9 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\Manifest-Good.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\DownloadFlowTest_DownloadCommandProhibited.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_EncodedUrl.yaml">

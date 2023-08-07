@@ -263,6 +263,9 @@ namespace AppInstaller::Utility
         return inputStr;
     }
 
+    // Converts the given boolean value to a string.
+    std::string_view ConvertBoolToString(bool value);
+
     // Returns a boolean value indicating whether the provided string is a valid guid.
     bool IsValidGuidString(const std::string& value);
 

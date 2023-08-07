@@ -568,7 +568,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
-        /// Verify installer downloaded correctly and cleanup.
+        /// Verify installer and manifest downloaded correctly and cleanup.
         /// </summary>
         /// <param name="downloadDir">Download directory.</param>
         /// <param name="name">Package name.</param>
@@ -605,14 +605,14 @@ namespace AppInstallerCLIE2ETests.Helpers
                 expectedFileName += $"_{locale}";
             }
 
-            string extension;
+            string installerExtension;
             if (isArchive)
             {
-                extension = ".zip";
+                installerExtension = ".zip";
             }
             else
             {
-                extension = installerType switch
+                installerExtension = installerType switch
                 {
                     PackageInstallerType.Msi => ".msi",
                     PackageInstallerType.Msix => ".msix",
@@ -620,18 +620,19 @@ namespace AppInstallerCLIE2ETests.Helpers
                 };
             }
 
-            expectedFileName += extension;
-            string installerDownloadPath = Path.Combine(downloadDir, expectedFileName);
+            string installerDownloadPath = Path.Combine(downloadDir, expectedFileName + installerExtension);
+            string manifestDownloadPath = Path.Combine(downloadDir, expectedFileName + ".yaml");
 
             bool downloadResult = false;
 
-            if (Directory.Exists(downloadDir) && File.Exists(installerDownloadPath))
+            if (Directory.Exists(downloadDir) && File.Exists(installerDownloadPath) && File.Exists(manifestDownloadPath))
             {
                 downloadResult = true;
 
                 if (cleanup)
                 {
                     File.Delete(installerDownloadPath);
+                    File.Delete(manifestDownloadPath);
                     Directory.Delete(downloadDir, true);
                 }
             }

@@ -94,7 +94,7 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     resume.Execute(context);
     INFO(resumeOutput.str());
 
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_CLIENTVERSION_MISMATCH);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
     auto expectedMessage = Resource::String::ClientVersionMismatchError(AppInstaller::Utility::LocIndString(invalidClientVersion));
     REQUIRE(resumeOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
     

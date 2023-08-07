@@ -32,6 +32,7 @@ namespace AppInstaller::Manifest::YamlParser
             { "RequireExplicitUpgrade"sv, YamlScalarType::Bool },
             { "DisplayInstallWarnings"sv, YamlScalarType::Bool },
             { "InstallerReturnCode"sv, YamlScalarType::Int },
+            { "DownloadCommandProhibited", YamlScalarType::Bool }
         };
 
         YamlScalarType GetManifestScalarValueType(const std::string& key)

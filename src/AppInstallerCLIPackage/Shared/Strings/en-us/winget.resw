@@ -2056,6 +2056,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="InstallerDownloads" xml:space="preserve">
     <value>Installer Downloads</value>
   </data>
+  <data name="InstallerDownloadCommandProhibited" xml:space="preserve">
+    <value>Installer is prohibited from being downloaded for later offline installation. </value>
+  </data>
   <data name="ResumeCommandLongDescription" xml:space="preserve">
     <value>Resumes execution of a previously saved command by passing in the unique guid identifier of the saved command. This is used to resume an executed command that may have been terminated due to a reboot.</value>
   </data>

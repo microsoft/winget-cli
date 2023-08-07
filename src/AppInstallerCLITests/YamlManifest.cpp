@@ -4,11 +4,13 @@
 #include "TestCommon.h"
 #include <AppInstallerSHA256.h>
 #include <winget/ManifestYamlParser.h>
+#include <winget/ManifestYamlWriter.h>
 #include <winget/Yaml.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Manifest::YamlParser;
+using namespace AppInstaller::Manifest::YamlWriter;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::YAML;
 
@@ -392,7 +394,7 @@ void CopyTestDataFilesToFolder(const std::vector<std::string>& testDataFiles, co
     }
 }
 
-void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, ManifestVer manifestVer = { s_ManifestVersionV1 })
+void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, ManifestVer manifestVer = { s_ManifestVersionV1 }, bool isExported = false)
 {
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.Version == "1.7.32");
@@ -442,84 +444,92 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123"));
     }
 
-    REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
-    REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
-    REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
-    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Exe);
-    REQUIRE(manifest.DefaultInstallerInfo.Scope == ScopeEnum::Machine);
-    REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive, InstallModeEnum::Silent, InstallModeEnum::SilentWithProgress });
-
-    auto defaultSwitches = manifest.DefaultInstallerInfo.Switches;
-    REQUIRE(defaultSwitches.at(InstallerSwitchType::Custom) == "/custom");
-    REQUIRE(defaultSwitches.at(InstallerSwitchType::SilentWithProgress) == "/silentwithprogress");
-    REQUIRE(defaultSwitches.at(InstallerSwitchType::Silent) == "/silence");
-    REQUIRE(defaultSwitches.at(InstallerSwitchType::Interactive) == "/interactive");
-    REQUIRE(defaultSwitches.at(InstallerSwitchType::Log) == "/log=<LOGPATH>");
-    REQUIRE(defaultSwitches.at(InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
-    REQUIRE(defaultSwitches.at(InstallerSwitchType::Update) == "/upgrade");
-
-    REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<DWORD>{ 1, static_cast<DWORD>(0x80070005) });
-    REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
-    REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
-    REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
-    REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "msix", "appxbundle", "msixbundle" });
-
-    auto dependencies = manifest.DefaultInstallerInfo.Dependencies;
-    REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsFeature, "IIS"));
-    REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsLibrary, "VC Runtime"));
-    REQUIRE(dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDep", "1.0.0"));
-    REQUIRE(dependencies.HasExactDependency(DependencyType::External, "Outside dependencies"));
-    REQUIRE(dependencies.Size() == 4);
-
-    REQUIRE(manifest.DefaultInstallerInfo.Capabilities == MultiValue{ "internetClient" });
-    REQUIRE(manifest.DefaultInstallerInfo.RestrictedCapabilities == MultiValue{ "runFullTrust" });
-    REQUIRE(manifest.DefaultInstallerInfo.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
-    REQUIRE(manifest.DefaultInstallerInfo.ProductCode == "{Foo}");
-
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+    if (!isExported)
     {
-        REQUIRE(manifest.DefaultInstallerInfo.ReleaseDate == "2021-01-01");
-        REQUIRE(manifest.DefaultInstallerInfo.InstallerAbortsTerminal);
-        REQUIRE(manifest.DefaultInstallerInfo.InstallLocationRequired);
-        REQUIRE(manifest.DefaultInstallerInfo.RequireExplicitUpgrade);
-        REQUIRE(manifest.DefaultInstallerInfo.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
-        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.size() == 1);
-        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
-        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.size() == 1);
-        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
-        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
-        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
-        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
-        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
-        REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
-        REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.size() == 1);
-        REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.at(0) == "US");
-        REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.size() == 1);
-        REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.at(10).ReturnResponseEnum == ExpectedReturnCodeEnum::PackageInUse);
+        REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
+        REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
+        REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
+        REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Exe);
+        REQUIRE(manifest.DefaultInstallerInfo.Scope == ScopeEnum::Machine);
+        REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive, InstallModeEnum::Silent, InstallModeEnum::SilentWithProgress });
+
+        auto defaultSwitches = manifest.DefaultInstallerInfo.Switches;
+        REQUIRE(defaultSwitches.at(InstallerSwitchType::Custom) == "/custom");
+        REQUIRE(defaultSwitches.at(InstallerSwitchType::SilentWithProgress) == "/silentwithprogress");
+        REQUIRE(defaultSwitches.at(InstallerSwitchType::Silent) == "/silence");
+        REQUIRE(defaultSwitches.at(InstallerSwitchType::Interactive) == "/interactive");
+        REQUIRE(defaultSwitches.at(InstallerSwitchType::Log) == "/log=<LOGPATH>");
+        REQUIRE(defaultSwitches.at(InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
+        REQUIRE(defaultSwitches.at(InstallerSwitchType::Update) == "/upgrade");
+
+        REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<DWORD>{ 1, static_cast<DWORD>(0x80070005) });
+        REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
+        REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
+        REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
+        REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "msix", "appxbundle", "msixbundle" });
+
+        auto dependencies = manifest.DefaultInstallerInfo.Dependencies;
+        REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsFeature, "IIS"));
+        REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsLibrary, "VC Runtime"));
+        REQUIRE(dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDep", "1.0.0"));
+        REQUIRE(dependencies.HasExactDependency(DependencyType::External, "Outside dependencies"));
+        REQUIRE(dependencies.Size() == 4);
+
+        REQUIRE(manifest.DefaultInstallerInfo.Capabilities == MultiValue{ "internetClient" });
+        REQUIRE(manifest.DefaultInstallerInfo.RestrictedCapabilities == MultiValue{ "runFullTrust" });
+        REQUIRE(manifest.DefaultInstallerInfo.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+        REQUIRE(manifest.DefaultInstallerInfo.ProductCode == "{Foo}");
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            REQUIRE(manifest.DefaultInstallerInfo.ReleaseDate == "2021-01-01");
+            REQUIRE(manifest.DefaultInstallerInfo.InstallerAbortsTerminal);
+            REQUIRE(manifest.DefaultInstallerInfo.InstallLocationRequired);
+            REQUIRE(manifest.DefaultInstallerInfo.RequireExplicitUpgrade);
+            REQUIRE(manifest.DefaultInstallerInfo.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
+            REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.size() == 1);
+            REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
+            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.size() == 1);
+            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
+            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
+            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
+            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
+            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
+            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
+            REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.size() == 1);
+            REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.at(0) == "US");
+            REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.size() == 1);
+            REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.at(10).ReturnResponseEnum == ExpectedReturnCodeEnum::PackageInUse);
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            REQUIRE(manifest.DefaultInstallerInfo.DisplayInstallWarnings);
+            REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.size() == 1);
+            REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
+        {
+            REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerType == InstallerTypeEnum::Msi);
+            REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.size() == 1);
+            REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).RelativeFilePath == "RelativeFilePath");
+            REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).PortableCommandAlias == "PortableCommandAlias");
+            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp");
+            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.size() == 1);
+            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).RelativeFilePath == "main.exe");
+            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
+            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).InvocationParameter == "/arg");
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+        {
+            REQUIRE(manifest.DefaultInstallerInfo.DownloadCommandProhibited);
+        }
     }
 
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
-    {
-        REQUIRE(manifest.DefaultInstallerInfo.DisplayInstallWarnings);
-        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.size() == 1);
-        REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
-    }
-
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
-    {
-        REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerType == InstallerTypeEnum::Msi);
-        REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.size() == 1);
-        REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).RelativeFilePath == "RelativeFilePath");
-        REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).PortableCommandAlias == "PortableCommandAlias");
-        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp");
-        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.size() == 1);
-        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).RelativeFilePath == "main.exe");
-        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
-        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).InvocationParameter == "/arg");
-    }
-
-    if (isSingleton)
+    if (isSingleton || isExported)
     {
         REQUIRE(manifest.Installers.size() == 1);
     }
@@ -568,7 +578,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     auto installer1Dependencies = installer1.Dependencies;
     REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsFeature, "PreviewIIS"));
     REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsLibrary, "Preview VC Runtime"));
-    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDepPreview"));
+    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDepPreview", "1.0.0"));
     REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::External, "Preview Outside dependencies"));
     REQUIRE(installer1Dependencies.Size() == 4);
 
@@ -616,74 +626,87 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(installer1.InstallationMetadata.Files.at(0).DisplayName == "DisplayName");
     }
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+    {
+        REQUIRE_FALSE(installer1.DownloadCommandProhibited);
+    }
+
     if (!isSingleton)
     {
-        ManifestInstaller installer2 = manifest.Installers.at(1);
-        REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Exe);
-        REQUIRE(installer2.Arch == Architecture::X64);
-        REQUIRE(installer2.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
-        REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-        REQUIRE(installer2.ProductCode == "{Bar}");
-
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+        if (!isExported)
         {
-            REQUIRE(installer2.ReleaseDate == "2021-01-01");
-            REQUIRE(installer2.InstallerAbortsTerminal);
-            REQUIRE(installer2.InstallLocationRequired);
-            REQUIRE(installer2.RequireExplicitUpgrade);
-            REQUIRE(installer2.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
-            REQUIRE(installer2.UnsupportedOSArchitectures.size() == 1);
-            REQUIRE(installer2.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
-            REQUIRE(installer2.AppsAndFeaturesEntries.size() == 1);
-            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
-            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
-            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
-            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
-            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
-            REQUIRE(installer2.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
-            REQUIRE(installer2.Markets.AllowedMarkets.size() == 1);
-            REQUIRE(installer2.Markets.AllowedMarkets.at(0) == "US");
-            REQUIRE(installer2.ExpectedReturnCodes.size() == 1);
-            REQUIRE(installer2.ExpectedReturnCodes.at(10).ReturnResponseEnum == ExpectedReturnCodeEnum::PackageInUse);
-        }
+            ManifestInstaller installer2 = manifest.Installers.at(1);
+            REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Exe);
+            REQUIRE(installer2.Arch == Architecture::X64);
+            REQUIRE(installer2.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+            REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+            REQUIRE(installer2.ProductCode == "{Bar}");
 
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
-        {
-            ManifestInstaller installer3 = manifest.Installers.at(2);
-            REQUIRE(installer3.BaseInstallerType == InstallerTypeEnum::Portable);
-            REQUIRE(installer3.Arch == Architecture::X86);
-            REQUIRE(installer3.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.exe");
-            REQUIRE(installer3.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-            REQUIRE(installer3.Commands == MultiValue{ "standalone" });
-            REQUIRE(installer3.ExpectedReturnCodes.size() == 1);
-            REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
-            REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
-            REQUIRE_FALSE(installer3.DisplayInstallWarnings);
-            REQUIRE(installer3.UnsupportedArguments.size() == 1);
-            REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
-        }
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+            {
+                REQUIRE(installer2.ReleaseDate == "2021-01-01");
+                REQUIRE(installer2.InstallerAbortsTerminal);
+                REQUIRE(installer2.InstallLocationRequired);
+                REQUIRE(installer2.RequireExplicitUpgrade);
+                REQUIRE(installer2.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
+                REQUIRE(installer2.UnsupportedOSArchitectures.size() == 1);
+                REQUIRE(installer2.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
+                REQUIRE(installer2.AppsAndFeaturesEntries.size() == 1);
+                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
+                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
+                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
+                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
+                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
+                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
+                REQUIRE(installer2.Markets.AllowedMarkets.size() == 1);
+                REQUIRE(installer2.Markets.AllowedMarkets.at(0) == "US");
+                REQUIRE(installer2.ExpectedReturnCodes.size() == 1);
+                REQUIRE(installer2.ExpectedReturnCodes.at(10).ReturnResponseEnum == ExpectedReturnCodeEnum::PackageInUse);
+            }
 
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
-        {
-            ManifestInstaller installer4 = manifest.Installers.at(3);
-            REQUIRE(installer4.BaseInstallerType == InstallerTypeEnum::Zip);
-            REQUIRE(installer4.Arch == Architecture::X64);
-            REQUIRE(installer4.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
-            REQUIRE(installer4.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-            REQUIRE(installer4.ProductCode == "{Foo}");
-            REQUIRE(installer4.NestedInstallerType == InstallerTypeEnum::Portable);
-            REQUIRE(installer4.NestedInstallerFiles.size() == 2);
-            REQUIRE(installer4.NestedInstallerFiles.at(0).RelativeFilePath == "relativeFilePath1");
-            REQUIRE(installer4.NestedInstallerFiles.at(0).PortableCommandAlias == "portableAlias1");
-            REQUIRE(installer4.NestedInstallerFiles.at(1).RelativeFilePath == "relativeFilePath2");
-            REQUIRE(installer4.NestedInstallerFiles.at(1).PortableCommandAlias == "portableAlias2");
-            REQUIRE(installer4.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp2");
-            REQUIRE(installer4.InstallationMetadata.Files.size() == 1);
-            REQUIRE(installer4.InstallationMetadata.Files.at(0).RelativeFilePath == "main2.exe");
-            REQUIRE(installer4.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Other);
-            REQUIRE(installer4.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-            REQUIRE(installer4.InstallationMetadata.Files.at(0).InvocationParameter == "/arg2");
-            REQUIRE(installer4.InstallationMetadata.Files.at(0).DisplayName == "DisplayName2");
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+            {
+                ManifestInstaller installer3 = manifest.Installers.at(2);
+                REQUIRE(installer3.BaseInstallerType == InstallerTypeEnum::Portable);
+                REQUIRE(installer3.Arch == Architecture::X86);
+                REQUIRE(installer3.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.exe");
+                REQUIRE(installer3.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                REQUIRE(installer3.Commands == MultiValue{ "standalone" });
+                REQUIRE(installer3.ExpectedReturnCodes.size() == 1);
+                REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
+                REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
+                REQUIRE_FALSE(installer3.DisplayInstallWarnings);
+                REQUIRE(installer3.UnsupportedArguments.size() == 1);
+                REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
+            }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
+            {
+                ManifestInstaller installer4 = manifest.Installers.at(3);
+                REQUIRE(installer4.BaseInstallerType == InstallerTypeEnum::Zip);
+                REQUIRE(installer4.Arch == Architecture::X64);
+                REQUIRE(installer4.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+                REQUIRE(installer4.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                REQUIRE(installer4.ProductCode == "{Foo}");
+                REQUIRE(installer4.NestedInstallerType == InstallerTypeEnum::Portable);
+                REQUIRE(installer4.NestedInstallerFiles.size() == 2);
+                REQUIRE(installer4.NestedInstallerFiles.at(0).RelativeFilePath == "relativeFilePath1");
+                REQUIRE(installer4.NestedInstallerFiles.at(0).PortableCommandAlias == "portableAlias1");
+                REQUIRE(installer4.NestedInstallerFiles.at(1).RelativeFilePath == "relativeFilePath2");
+                REQUIRE(installer4.NestedInstallerFiles.at(1).PortableCommandAlias == "portableAlias2");
+                REQUIRE(installer4.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp2");
+                REQUIRE(installer4.InstallationMetadata.Files.size() == 1);
+                REQUIRE(installer4.InstallationMetadata.Files.at(0).RelativeFilePath == "main2.exe");
+                REQUIRE(installer4.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Other);
+                REQUIRE(installer4.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                REQUIRE(installer4.InstallationMetadata.Files.at(0).InvocationParameter == "/arg2");
+                REQUIRE(installer4.InstallationMetadata.Files.at(0).DisplayName == "DisplayName2");
+            }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+            {
+                REQUIRE(installer2.DownloadCommandProhibited);
+            }
         }
 
         // Localization
@@ -884,6 +907,192 @@ TEST_CASE("ValidateV1_6GoodManifestAndVerifyContents", "[ManifestValidation]")
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_6 });
+}
+
+TEST_CASE("WriteV1SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_1-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1 }, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1-MultiFile-Version.yaml",
+        "ManifestV1-MultiFile-Installer.yaml",
+        "ManifestV1-MultiFile-DefaultLocale.yaml",
+        "ManifestV1-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory);
+    TempDirectory exportedMultiFileDirectory{ "exportedMultiFile" };
+    std::filesystem::path generatedMultiFileManifestPath = exportedMultiFileDirectory.GetPath() / "testMultiFileManifest.yaml";
+    YamlWriter::OutputYamlFile(multiFileManifest, multiFileManifest.Installers[0], generatedMultiFileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
+    Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
+    VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1 }, true);
+}
+
+TEST_CASE("WriteV1_1SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_1-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_1 }, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_1-MultiFile-Version.yaml",
+        "ManifestV1_1-MultiFile-Installer.yaml",
+        "ManifestV1_1-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_1-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory);
+    TempDirectory exportedMultiFileDirectory{ "exportedMultiFile" };
+    std::filesystem::path generatedMultiFileManifestPath = exportedMultiFileDirectory.GetPath() / "testMultiFileManifest.yaml";
+    YamlWriter::OutputYamlFile(multiFileManifest, multiFileManifest.Installers[0], generatedMultiFileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
+    Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
+    VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_1 }, true);
+}
+
+TEST_CASE("WriteV1_2SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_2-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_2 }, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_2-MultiFile-Version.yaml",
+        "ManifestV1_2-MultiFile-Installer.yaml",
+        "ManifestV1_2-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_2-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory);
+    TempDirectory exportedMultiFileDirectory{ "exportedMultiFile" };
+    std::filesystem::path generatedMultiFileManifestPath = exportedMultiFileDirectory.GetPath() / "testMultiFileManifest.yaml";
+    YamlWriter::OutputYamlFile(multiFileManifest, multiFileManifest.Installers[0], generatedMultiFileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
+    Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
+    VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_2 }, true);
+}
+
+TEST_CASE("WriteV1_4SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_4-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_4 }, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_4-MultiFile-Version.yaml",
+        "ManifestV1_4-MultiFile-Installer.yaml",
+        "ManifestV1_4-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_4-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory);
+    TempDirectory exportedMultiFileDirectory{ "exportedMultiFile" };
+    std::filesystem::path generatedMultiFileManifestPath = exportedMultiFileDirectory.GetPath() / "testMultiFileManifest.yaml";
+    YamlWriter::OutputYamlFile(multiFileManifest, multiFileManifest.Installers[0], generatedMultiFileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
+    Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
+    VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_4 }, true);
+}
+
+TEST_CASE("WriteV1_5SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_5-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_5 }, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-MultiFile-Installer.yaml",
+        "ManifestV1_5-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_5-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory);
+    TempDirectory exportedMultiFileDirectory{ "exportedMultiFile" };
+    std::filesystem::path generatedMultiFileManifestPath = exportedMultiFileDirectory.GetPath() / "testMultiFileManifest.yaml";
+    YamlWriter::OutputYamlFile(multiFileManifest, multiFileManifest.Installers[0], generatedMultiFileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
+    Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
+    VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_5 }, true);
+}
+
+TEST_CASE("WriteV1_6SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_6-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_6 }, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_6-MultiFile-Version.yaml",
+        "ManifestV1_6-MultiFile-Installer.yaml",
+        "ManifestV1_6-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_6-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory);
+    TempDirectory exportedMultiFileDirectory{ "exportedMultiFile" };
+    std::filesystem::path generatedMultiFileManifestPath = exportedMultiFileDirectory.GetPath() / "testMultiFileManifest.yaml";
+    YamlWriter::OutputYamlFile(multiFileManifest, multiFileManifest.Installers[0], generatedMultiFileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
+    Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
+    VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_6 }, true);
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)

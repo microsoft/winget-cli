@@ -3,6 +3,7 @@ ACCESSDENIED
 ACTIONDATA
 ACTIONSTART
 activatable
+addcontext
 addfile
 addmanifest
 addpin
@@ -60,6 +61,7 @@ cdn
 cer
 certutil
 cguid
+checkpointindex
 chrono
 cin
 cla
@@ -115,6 +117,7 @@ debugbreak
 declspec
 decltype
 declval
+deconstructor
 defaultlocale
 delstore
 Demitrius
@@ -231,6 +234,7 @@ https
 HWND
 Hyperlink
 IAppx
+ICheckpoint
 IConfiguration
 icu
 IDX
@@ -491,6 +495,8 @@ seinfo
 selectany
 SERVICEPACKMAJOR
 SERVICEPACKMINOR
+setclientversion
+setcommandname
 setfill
 setschemaversion
 setupexitcodes
@@ -635,10 +641,13 @@ Unmarshal
 Unregister
 Unregisters
 untimes
+updateboolargument
 updatefile
+updatelastcheckpointflag
 updatemanifest
 updatepin
 updateportablefile
+updatestringargument
 UPLEVEL
 upvote
 uregex

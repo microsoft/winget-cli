@@ -50,7 +50,7 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     REQUIRE(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), {}, info, version)->GetVersion() == version);
 
     // Update this test to next version so that we don't forget to add to supported versions before rest e2e tests are available.
-    Version invalid{ "1.6.0" };
+    Version invalid{ "1.7.0" };
     REQUIRE_THROWS(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), {}, info, invalid));
 }
 

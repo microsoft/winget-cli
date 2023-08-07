@@ -856,6 +856,11 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::string_view ConvertBoolToString(bool value)
+    {
+        return value ? "true"sv : "false"sv;
+    }
+
     bool IsValidGuidString(const std::string& value)
     {
         if (value.empty())

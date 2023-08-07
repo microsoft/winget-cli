@@ -40,7 +40,7 @@ namespace AppInstaller::CLI::Workflow
         if (AppInstaller::Runtime::GetClientVersion().get() != resumeStateClientVersion)
         {
             context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ resumeStateClientVersion }) << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENTVERSION_MISMATCH);
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
         }
 
         if (!checkpointManager.HasContext())
