@@ -3,10 +3,10 @@
 #include "pch.h"
 #include "AppInstallerRuntime.h"
 #include "CheckpointManager.h"
-#include "ResumeCommand.h"
-#include "Workflows/ResumeFlow.h"
 #include "Resources.h"
+#include "ResumeCommand.h"
 #include "RootCommand.h"
+#include "Workflows/ResumeFlow.h"
 
 namespace AppInstaller::CLI
 {
@@ -46,13 +46,15 @@ namespace AppInstaller::CLI
             return;
         }
 
-        int rootContextId = CheckpointManager::Instance().GetFirstContextId();
+        auto& checkpointManager = CheckpointManager::Instance();
+
+        int rootContextId = checkpointManager.GetFirstContextId();
         auto resumeContextPtr = context.CreateEmptyContext(rootContextId);
 
         Context& resumeContext = *resumeContextPtr;
         auto previousThreadGlobals = resumeContext.SetForCurrentThread();
 
-        std::string commandName = CheckpointManager::Instance().GetCommandName(rootContextId);
+        std::string commandName = checkpointManager.GetCommandName(rootContextId);
         std::unique_ptr<Command> commandToResume;
 
         // Find the command using the command name.
@@ -72,10 +74,10 @@ namespace AppInstaller::CLI
         THROW_HR_IF_MSG(E_UNEXPECTED, !commandToResume, "Command to resume not found.");
 
         resumeContext.SetExecutingCommand(commandToResume.get());
-        resumeContext.SetTargetCheckpoint(CheckpointManager::Instance().GetLastCheckpoint(rootContextId));
+        resumeContext.SetTargetCheckpoint(checkpointManager.GetLastCheckpoint(rootContextId));
         resumeContext.SetFlags(Execution::ContextFlag::Resume);
 
-        CheckpointManager::Instance().Checkpoint(resumeContext, Execution::CheckpointFlag::CommandArguments);
+        checkpointManager.Checkpoint(resumeContext, Execution::CheckpointFlag::CommandArguments);
         
         commandToResume->Execute(resumeContext);
 

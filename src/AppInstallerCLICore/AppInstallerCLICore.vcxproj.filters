@@ -433,11 +433,11 @@
     <ClCompile Include="Commands\ResumeCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
-    <ClCompile Include="PortableInstaller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Workflows\ResumeFlow.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="CheckpointManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

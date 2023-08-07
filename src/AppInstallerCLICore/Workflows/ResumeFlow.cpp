@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "AppInstallerRuntime.h"
-#include "ResumeFlow.h"
 #include "CheckpointManager.h"
 #include "Microsoft/CheckpointIndex.h"
-#include "Commands/RootCommand.h"
+#include "ResumeFlow.h"
 
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::CLI::Checkpoint;
@@ -34,16 +33,17 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_GUID_NOT_FOUND);
         }
 
-        CheckpointManager::Instance().Initialize(checkpointId);
+        auto& checkpointManager = CheckpointManager::Instance();
+        checkpointManager.Initialize(checkpointId);
 
-        const auto& resumeStateClientVersion = CheckpointManager::Instance().GetClientVersion();
+        const auto& resumeStateClientVersion = checkpointManager.GetClientVersion();
         if (AppInstaller::Runtime::GetClientVersion().get() != resumeStateClientVersion)
         {
             context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ resumeStateClientVersion }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENTVERSION_MISMATCH);
         }
 
-        if (!CheckpointManager::Instance().HasContext())
+        if (!checkpointManager.HasContext())
         {
             context.Reporter.Error() << Resource::String::ResumeStateDataNotFoundError << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE);

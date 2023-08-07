@@ -15,7 +15,8 @@ namespace AppInstaller::CLI::Checkpoint
         // Initialize should only be called once.
         THROW_HR_IF(E_UNEXPECTED, m_checkpointId != GUID_NULL);
 
-        if (checkpointId == GUID_NULL)
+        bool createCheckpointIndex = (checkpointId == GUID_NULL);
+        if (createCheckpointIndex)
         {
             std::ignore = CoCreateGuid(&m_checkpointId);
             AICLI_LOG(CLI, Info, << "Creating checkpoint index with guid: " << m_checkpointId);
@@ -35,7 +36,11 @@ namespace AppInstaller::CLI::Checkpoint
         }
 
         m_checkpointIndex = std::move(checkpointIndex);
-        m_checkpointIndex->SetClientVersion(AppInstaller::Runtime::GetClientVersion());
+
+        if (createCheckpointIndex)
+        {
+            m_checkpointIndex->SetClientVersion(AppInstaller::Runtime::GetClientVersion());
+        }
     }
 
     void CheckpointManager::Checkpoint(Execution::Context& context, Execution::CheckpointFlag checkpointFlag)

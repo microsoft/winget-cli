@@ -109,9 +109,10 @@ namespace AppInstaller::CLI
 
         if (resumeExperimentalFeatureEnabled && WI_IsFlagClear(context.GetFlags(), Execution::ContextFlag::Resume))
         {
-            CheckpointManager::Instance().Initialize();
-            CheckpointManager::Instance().AddContext(context.GetContextId());
-            CheckpointManager::Instance().Checkpoint(context, Execution::CheckpointFlag::CommandArguments);
+            auto& checkpointManager = CheckpointManager::Instance();
+            checkpointManager.Initialize();
+            checkpointManager.AddContext(context.GetContextId());
+            checkpointManager.Checkpoint(context, Execution::CheckpointFlag::CommandArguments);
         }
         
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
