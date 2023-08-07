@@ -6,6 +6,7 @@
 #include "ResumeCommand.h"
 #include "Workflows/ResumeFlow.h"
 #include "Resources.h"
+#include "RootCommand.h"
 
 namespace AppInstaller::CLI
 {
@@ -51,11 +52,37 @@ namespace AppInstaller::CLI
         Context& resumeContext = *resumeContextPtr;
         auto previousThreadGlobals = resumeContext.SetForCurrentThread();
 
-        resumeContext <<
-            Workflow::LoadInitialResumeState;
+        std::string commandName = CheckpointManager::Instance().GetCommandName(rootContextId);
+        std::unique_ptr<Command> commandToResume;
 
-        auto executingCommandPtr = resumeContext.GetExecutingCommand();
-        Command& executingCommand = *executingCommandPtr;
-        executingCommand.Execute(resumeContext);
+        // Find the command using the command name.
+        AICLI_LOG(CLI, Info, << "Resuming command: " << commandName);
+        for (auto& command : std::make_unique<RootCommand>()->GetCommands())
+        {
+            if (
+                Utility::CaseInsensitiveEquals(commandName, command->Name()) ||
+                Utility::CaseInsensitiveContains(command->Aliases(), commandName)
+                )
+            {
+                commandToResume = std::move(command);
+                break;
+            }
+        }
+
+        THROW_HR_IF_MSG(E_UNEXPECTED, !commandToResume, "Command to resume not found.");
+
+        resumeContext.SetExecutingCommand(commandToResume.get());
+        resumeContext.SetTargetCheckpoint(CheckpointManager::Instance().GetLastCheckpoint(rootContextId));
+        resumeContext.SetFlags(Execution::ContextFlag::Resume);
+
+        CheckpointManager::Instance().Checkpoint(resumeContext, Execution::CheckpointFlag::CommandArguments);
+        
+        commandToResume->Execute(resumeContext);
+
+        // If the resumeContext is terminated, set the termination HR to report the correct HR from the resume context.
+        if (resumeContext.IsTerminated())
+        {
+            context.SetTerminationHR(resumeContext.GetTerminationHR());
+        }
     }
 }

@@ -10,10 +10,4 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: ResumeGuid
     // Outputs: None
     void EnsureSupportForResume(Execution::Context& context);
-
-    // Loads the initial state of the context from the initialized checkpoint index.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: None
-    void LoadInitialResumeState(Execution::Context& context);
 }

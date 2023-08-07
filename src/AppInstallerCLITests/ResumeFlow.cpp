@@ -60,7 +60,8 @@ TEST_CASE("ResumeFlow_IndexNotFound", "[Resume]")
     INFO(resumeOutput.str());
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_RESUME_GUID_NOT_FOUND);
-    REQUIRE(resumeOutput.str().find(Resource::LocString(Resource::String::ResumeGuidNotFoundError).get()) != std::string::npos);
+    auto expectedMessage = Resource::String::ResumeGuidNotFoundError(AppInstaller::Utility::LocIndString(tempGuidString));
+    REQUIRE(resumeOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
 }
 
 TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
@@ -74,12 +75,13 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     std::string tempGuidString = "{b157d11f-4487-4e03-9447-9f9d50d66d8e}";
     std::string tempFileName = tempGuidString + ".db";
     auto tempIndexPath = tempCheckpointIndexDirectoryPath / tempFileName;
+    std::string invalidClientVersion{ "1.2.3.4 "};
 
     INFO("Using temporary file named: " << tempIndexPath);
 
     {
         CheckpointIndex index = CheckpointIndex::CreateNew(tempIndexPath.u8string());
-        index.SetClientVersion("1.2.3.4");
+        index.SetClientVersion(invalidClientVersion);
     }
 
     std::ostringstream resumeOutput;
@@ -93,13 +95,14 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     INFO(resumeOutput.str());
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_CLIENTVERSION_MISMATCH);
-    REQUIRE(resumeOutput.str().find(Resource::LocString(Resource::String::ClientVersionMismatchError).get()) != std::string::npos);
+    auto expectedMessage = Resource::String::ClientVersionMismatchError(AppInstaller::Utility::LocIndString(invalidClientVersion));
+    REQUIRE(resumeOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
     
     // Manually reset index to allow for proper clean up. 
     Checkpoint::CheckpointManager::Instance().ManualReset();
 }
 
-TEST_CASE("ResumeFlow_EmptyCheckpointIndex", "Resume")
+TEST_CASE("ResumeFlow_EmptyIndex", "Resume")
 {
     TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
 
@@ -135,7 +138,7 @@ TEST_CASE("ResumeFlow_EmptyCheckpointIndex", "Resume")
     Checkpoint::CheckpointManager::Instance().ManualReset();
 }
 
-TEST_CASE("ResumeFlow_VerifyStateRemovedForSuccess", "[Resume]")
+TEST_CASE("ResumeFlow_VerifyContextStateRemovedForInstallSuccess", "[Resume]")
 {
     TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
 
@@ -189,7 +192,8 @@ TEST_CASE("ResumeFlow_VerifyStateRemovedForSuccess", "[Resume]")
     Checkpoint::CheckpointManager::Instance().ManualReset();
 }
 
-TEST_CASE("ResumeFlow_VerifyStateSavedForFailure", "[Resume]")
+// TODO: This test will need to be updated once saving the resume state is restricted to certain HRs.
+TEST_CASE("ResumeFlow_VerifyContextStateSavedForInstallFailure", "[Resume]")
 {
     TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
 

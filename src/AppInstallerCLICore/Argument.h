@@ -178,9 +178,6 @@ namespace AppInstaller::CLI
         // Gets the common arguments for all commands.
         static void GetCommon(std::vector<Argument>& args);
 
-        // Gets the name for a given argument type.
-        static std::string_view GetName(Execution::Args::Type type);
-
         // Static argument validation helpers; throw CommandException when validation fails.
 
         // Requires that at most one argument from the list is present.

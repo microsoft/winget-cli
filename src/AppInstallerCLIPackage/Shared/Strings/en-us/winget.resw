@@ -2072,7 +2072,8 @@ Please specify one of them using the --source option to proceed.</value>
 {1} 'guid' is the short name form of a globally unique identifier.</comment>
   </data>
   <data name="ClientVersionMismatchError" xml:space="preserve">
-    <value>Resuming the state from a different client version is not supported.</value>
+    <value>Resuming the state from a different client version is not supported: {0}</value>
+    <comment>{Locked= "{0}"} Message displayed to inform the user that the client version of the resume state does not match the current client version. {0} is a placeholder for the client version that created the resume state.</comment>
   </data>
   <data name="ResumeGuidNotFoundError" xml:space="preserve">
     <value>The resume state does not exist: {0}</value>

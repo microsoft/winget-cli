@@ -44,7 +44,7 @@ namespace AppInstaller::CLI::Checkpoint
         Execution::CheckpointFlag GetLastCheckpoint(int contextId);
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        // Only used by unit tests for proper cleanup.
+        // Only used by unit tests to release any test indexes for proper cleanup.
         void ManualReset()
         {
             m_checkpointId = GUID_NULL;

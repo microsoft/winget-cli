@@ -30,15 +30,16 @@ namespace AppInstaller::CLI::Workflow
 
         if (!std::filesystem::exists(AppInstaller::Repository::Microsoft::CheckpointIndex::GetCheckpointIndexPath(checkpointId)))
         {
-            context.Reporter.Error() << Resource::String::ResumeGuidNotFoundError << std::endl;
+            context.Reporter.Error() << Resource::String::ResumeGuidNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_GUID_NOT_FOUND);
         }
 
         CheckpointManager::Instance().Initialize(checkpointId);
 
-        if (AppInstaller::Runtime::GetClientVersion().get() != CheckpointManager::Instance().GetClientVersion())
+        const auto& resumeStateClientVersion = CheckpointManager::Instance().GetClientVersion();
+        if (AppInstaller::Runtime::GetClientVersion().get() != resumeStateClientVersion)
         {
-            context.Reporter.Error() << Resource::String::ClientVersionMismatchError << std::endl;
+            context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ resumeStateClientVersion }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENTVERSION_MISMATCH);
         }
 
@@ -47,31 +48,5 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::ResumeStateDataNotFoundError << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE);
         }
-    }
-
-    void LoadInitialResumeState(Execution::Context& context)
-    {
-        int contextId = context.GetContextId();
-        std::string commandName = CheckpointManager::Instance().GetCommandName(contextId);
-        std::unique_ptr<Command> commandToResume;
-
-        for (auto& command : std::make_unique<RootCommand>()->GetCommands())
-        {
-            if (
-                Utility::CaseInsensitiveEquals(commandName, command->Name()) ||
-                Utility::CaseInsensitiveContains(command->Aliases(), commandName)
-                )
-            {
-                AICLI_LOG(CLI, Info, << "Resuming command: " << commandName);
-                commandToResume = std::move(command);
-                break;
-            }
-        }
-
-        context.SetExecutingCommand(commandToResume.get());
-        context.SetTargetCheckpoint(CheckpointManager::Instance().GetLastCheckpoint(contextId));
-        context.SetFlags(Execution::ContextFlag::Resume);
-
-        CheckpointManager::Instance().Checkpoint(context, Execution::CheckpointFlag::CommandArguments);
     }
 }

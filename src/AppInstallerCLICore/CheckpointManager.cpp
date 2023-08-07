@@ -71,7 +71,6 @@ namespace AppInstaller::CLI::Checkpoint
 
     std::string CheckpointManager::GetClientVersion()
     {
-        // Need to throw exception if checkpoint index is null.
         return m_checkpointIndex->GetClientVersion();
     }
 
