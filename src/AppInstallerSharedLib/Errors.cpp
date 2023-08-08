@@ -270,6 +270,8 @@ namespace AppInstaller
                 return "Invalid parameter.";
             case APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED:
                 return "Package not supported by the system.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED:
+                return "The installer does not support upgrading an existing package.";
             
             // Status values for check package installed status results.
             case WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND:
@@ -340,6 +342,8 @@ namespace AppInstaller
                 return "Loading the module for the configuration unit failed.";
             case WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT:
                 return "The configuration unit returned an unexpected result during execution.";
+
+
 
             default:
                 return "Unknown Error Code";
