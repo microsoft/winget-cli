@@ -12,4 +12,4 @@ Installers:
     InstallerSha256: <EXEHASH>
     UpgradeBehavior: deny
 ManifestType: singleton
-ManifestVersion: 1.2.0
+ManifestVersion: 1.6.0

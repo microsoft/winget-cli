@@ -343,8 +343,6 @@ namespace AppInstaller
             case WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT:
                 return "The configuration unit returned an unexpected result during execution.";
 
-
-
             default:
                 return "Unknown Error Code";
             }

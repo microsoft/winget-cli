@@ -373,13 +373,6 @@ namespace AppInstaller::CLI::Workflow
     {
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
         UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
-/*
-        if (isUpdate && (updateBehavior == UpdateBehaviorEnum::Deny)) {
-            AICLI_LOG(CLI, Info, << "Manifest specifies update behavior is denied. The attempt will be cancelled.");
-            context.Reporter.Error() << Resource::String::UpgradeBlockedByManifest() << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED);
-        }
-*/
         bool doUninstallPrevious = isUpdate && (updateBehavior == UpdateBehaviorEnum::UninstallPrevious || context.Args.Contains(Execution::Args::Type::UninstallPrevious));
 
         Synchronization::CrossProcessInstallLock lock;
@@ -696,7 +689,6 @@ namespace AppInstaller::CLI::Workflow
                 if (!downloadInstallerOnly)
                 {
                     currentContext << Workflow::InstallPackageInstaller;
-                    //
                 }
             }
             catch (...)
