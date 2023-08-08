@@ -126,6 +126,7 @@ errmsg
 ERRORONEXIT
 ESource
 ESRB
+ests
 etest
 etl
 execustom
