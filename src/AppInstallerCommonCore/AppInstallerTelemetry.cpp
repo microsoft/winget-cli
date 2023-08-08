@@ -201,7 +201,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(failure.uLineNumber, "Line"),
                 TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -240,7 +240,7 @@ namespace AppInstaller::Logging
                 TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "Version"),
                 TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "PackageVersion"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -266,7 +266,7 @@ namespace AppInstaller::Logging
                 "CommandFound",
                 AICLI_TraceLoggingStringView(commandName, "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -285,7 +285,7 @@ namespace AppInstaller::Logging
                 "CommandSuccess",
                 AICLI_TraceLoggingStringView(commandName, "Command"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -308,7 +308,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt64(static_cast<UINT64>(line), "Line"),
                 TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -337,7 +337,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingWStringView(anonMessage, "Message"),
                 TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -358,7 +358,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TraceLoggingBool(isLocalManifest, "IsManifestLocal"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -378,7 +378,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(name, "Name"),
                 AICLI_TraceLoggingStringView(version, "Version"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -399,7 +399,7 @@ namespace AppInstaller::Logging
                 "NoAppMatch",
                 TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         AICLI_LOG(CLI, Info, << "No app found matching input criteria");
@@ -413,7 +413,7 @@ namespace AppInstaller::Logging
                 "MultiAppMatch",
                 TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
         }
 
         AICLI_LOG(CLI, Info, << "Multiple apps found matching input criteria");
@@ -429,7 +429,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(name, "Name"),
                 AICLI_TraceLoggingStringView(id, "Id"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -454,7 +454,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(scope, "Scope"),
                 AICLI_TraceLoggingStringView(language, "Language"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -500,7 +500,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt64(static_cast<UINT64>(maximum), "Maximum"),
                 AICLI_TraceLoggingStringView(request, "Request"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -526,7 +526,7 @@ namespace AppInstaller::Logging
                 TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
                 TraceLoggingUInt64(resultCount, "ResultCount"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -557,7 +557,7 @@ namespace AppInstaller::Logging
                 TraceLoggingBinary(actual.data(), static_cast<ULONG>(actual.size()), "Actual"),
                 TraceLoggingBool(overrideHashMismatch, "Override"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -591,7 +591,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(type, "Type"),
                 TraceLoggingUInt32(errorCode, "ErrorCode"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -618,7 +618,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(type, "Type"),
                 TraceLoggingUInt32(errorCode, "ErrorCode"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
@@ -671,7 +671,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(arpPublisher, "ARPPublisher"),
                 TraceLoggingUInt64(static_cast<UINT64>(languageNumber), "ARPLanguage"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {
