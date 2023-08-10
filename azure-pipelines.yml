@@ -219,8 +219,11 @@ jobs:
 
   - template: templates/e2e-setup.yml
     parameters:
-      source: $(Build.SourcesDirectory)
-      buildOutDir: $(buildOutDir)
+      sourceDir: $(Build.SourcesDirectory)
+      buildRoot: $(buildOutDir)\LocalhostWebServer
+      staticFileRoot: $(Agent.TempDirectory)\TestLocalIndex
+      localSourceJson: $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json
+      sourceCert: $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -412,18 +415,6 @@ jobs:
   condition: always()
 
   steps:
-  - task: DownloadSecureFile@1
-    name: AppInstallerTest
-    displayName: 'Download Source Package Certificate'
-    inputs:
-      secureFile: 'AppInstallerTest.pfx'
-
-  - task: DownloadSecureFile@1
-    name: HTTPSDevCert
-    displayName: 'Download Kestrel Certificate'
-    inputs:
-      secureFile: 'HTTPSDevCertV2.pfx'
-
   - task: DownloadPipelineArtifact@2
     displayName: 'Download Build Artifacts'
   
@@ -449,17 +440,14 @@ jobs:
         Get-ChildItem E2ETests\DevPackageDependencies -Filter *.appx | %{ Add-AppxPackage $_.FullName }
       workingDirectory: $(Pipeline.Workspace)\Build.x64release\
 
-  - task: PowerShell@2
-    displayName: Install Root Certificate
-    inputs:
-      filePath: '$(Build.SourcesDirectory)\src\LocalhostWebServer\InstallDevCert.ps1'
-      arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
+  - template: templates/e2e-setup.yml
+    parameters:
+      sourceDir: $(Build.SourcesDirectory)
+      buildRoot: $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer
+      staticFileRoot: $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex
+      sourceCert: $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer
 
-  - pwsh: .\Run-LocalhostWebServer.ps1 -BuildRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer -StaticFileRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft
-    workingDirectory: $(Build.SourcesDirectory)\src\LocalhostWebServer
-    displayName: Launch LocalhostWebServer
-
-  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage -sourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer
+  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
     displayName: Run Tests
 

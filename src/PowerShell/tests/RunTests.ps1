@@ -4,8 +4,7 @@
 param(
     [string]$testModulesPath,
     [string]$outputPath,
-    [string]$packageLayoutPath,
-    [string]$sourceCert
+    [string]$packageLayoutPath
 )
 
 # This updates pester not always necessary but worth noting
@@ -40,12 +39,6 @@ if (-not [System.String]::IsNullOrEmpty($packageLayoutPath))
     $local:settingsFileContent = ConvertTo-Json @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
 
     Set-Content -Path $local:settingsFilePath -Value $local:settingsFileContent
-}
-
-if (-not [System.String]::IsNullOrEmpty($sourceCert))
-{
-    # Requires admin
-    & certutil.exe -addstore -f "TRUSTEDPEOPLE" $sourceCert
 }
 
 Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Client.Tests.ps1 -OutputFile $outputPath\Tests-WinGetClient.XML -OutputFormat NUnitXML

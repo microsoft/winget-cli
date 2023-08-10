@@ -1,9 +1,17 @@
 # Configures local test source and local PowerShell repository.
 parameters:
-- name: source
+- name: sourceDir
   type: string
-- name: buildOutDir
+- name: buildRoot
   type: string
+- name: staticFileRoot
+  type: string
+- name: localSourceJson
+  type: string
+  default: ''
+- name: sourceCert
+  type: string
+  default: ''
 
 steps:
   - task: DownloadSecureFile@1
@@ -21,18 +29,18 @@ steps:
   - task: PowerShell@2
     displayName: Install Root Certificate
     inputs:
-      filePath: '${{ parameters.source }}\src\LocalhostWebServer\InstallDevCert.ps1'
+      filePath: '${{ parameters.sourceDir }}\src\LocalhostWebServer\InstallDevCert.ps1'
       arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
 
   - task: PowerShell@2
     displayName: Launch LocalhostWebServer
     inputs:
-      filePath: '${{ parameters.source }}\src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
-      arguments: '-BuildRoot ${{ parameters.buildOutDir }}\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft -OutCertFile $(Agent.TempDirectory)\servercert.cer -LocalSourceJson ${{ parameters.source }}\src\AppInstallerCLIE2ETests\TestData\localsource.json'
+      filePath: '${{ parameters.sourceDir }}\src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
+      arguments: '-BuildRoot ${{ parameters.buildRoot }} -StaticFileRoot ${{ parameters.staticFileRoot }} -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft -OutCertFile $(Agent.TempDirectory)\servercert.cer -LocalSourceJson ${{ parameters.localSourceJson }} -SourceCert ${{ parameters.sourceCert }}'
 
   - task: PowerShell@2
     displayName: Setup Local PS Repository
     inputs:
-      filePath: '${{ parameters.source }}\src\AppInstallerCLIE2ETests\TestData\Configuration\Init-TestRepository.ps1'
+      filePath: '${{ parameters.sourceDir }}\src\AppInstallerCLIE2ETests\TestData\Configuration\Init-TestRepository.ps1'
       arguments: '-Force'
       pwsh: true
