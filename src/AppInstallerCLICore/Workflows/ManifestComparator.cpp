@@ -330,6 +330,11 @@ namespace AppInstaller::CLI::Workflow
                     bool isFirstInstallerTypePreferred = (preferredInstallerType == firstBaseInstallerType) || (preferredInstallerType == firstEffectiveInstallerType);
                     bool isSecondInstallerTypePreferred = (preferredInstallerType == secondBaseInstallerType) || (preferredInstallerType == secondEffectiveInstallerType);
 
+                    if (isFirstInstallerTypePreferred && isSecondInstallerTypePreferred)
+                    {
+                        break;
+                    }
+
                     if (isFirstInstallerTypePreferred != isSecondInstallerTypePreferred)
                     {
                         return isFirstInstallerTypePreferred;
