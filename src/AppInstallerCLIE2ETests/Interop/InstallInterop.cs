@@ -598,6 +598,31 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
+        /// Test installing a package with a specific installer type install option.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallWithInstallerType()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestMultipleInstallers");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.InstallerType = PackageInstallerType.Msi;
+            installOptions.AcceptPackageAgreements = true;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(this.installDir));
+        }
+
+        /// <summary>
         /// Test to verify the GetApplicableInstaller() COM call returns the correct manifest installer metadata.
         /// </summary>
         [Test]

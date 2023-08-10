@@ -93,6 +93,28 @@
             "minItems": 1,
             "maxItems": 4
           }
+        },
+        "installerTypes": {
+          "description": "The installerType(s) to use for a package install",
+          "type": "array",
+          "items": {
+            "uniqueItems": "true",
+            "type": "string",
+            "enum": [
+              "inno",
+              "wix",
+              "msi",
+              "nullsoft",
+              "zip",
+              "msix",
+              "exe",
+              "burn",
+              "msstore",
+              "portable"
+            ],
+            "minItems": 1,
+            "maxItems": 9
+          }
         }
       }
     },

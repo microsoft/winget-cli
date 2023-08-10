@@ -247,26 +247,34 @@ namespace AppInstaller::CLI::Workflow
 
         struct InstallerTypeComparator : public details::ComparisonField
         {
-            InstallerTypeComparator(std::vector<InstallerTypeEnum> requirement) :
-                details::ComparisonField("Installer Type"), m_requirement(std::move(requirement))
+            InstallerTypeComparator(std::vector<InstallerTypeEnum> preference, std::vector<InstallerTypeEnum> requirement) :
+                details::ComparisonField("Installer Type"), m_preference(std::move(preference)), m_requirement(std::move(requirement))
             {
+                m_preferenceAsString = Utility::ConvertContainerToString(m_preference, InstallerTypeToString);
                 m_requirementAsString = Utility::ConvertContainerToString(m_requirement, InstallerTypeToString);
                 AICLI_LOG(CLI, Verbose,
-                    << "InstallerType Comparator created with Required InstallerTypes: " << m_requirementAsString);
+                    << "InstallerType Comparator created with Required InstallerTypes: " << m_requirementAsString
+                    << " , Preferred InstallerTypes: " << m_preferenceAsString);
             }
 
             static std::unique_ptr<InstallerTypeComparator> Create(const Execution::Args& args)
             {
+                std::vector<InstallerTypeEnum> preference;
                 std::vector<InstallerTypeEnum> requirement;
 
                 if (args.Contains(Execution::Args::Type::InstallerType))
                 {
                     requirement.emplace_back(Manifest::ConvertToInstallerTypeEnum(std::string(args.GetArg(Execution::Args::Type::InstallerType))));
                 }
-
-                if (!requirement.empty())
+                else
                 {
-                    return std::make_unique<InstallerTypeComparator>(requirement);
+                    preference = Settings::User().Get<Settings::Setting::InstallerTypePreference>();
+                    requirement = Settings::User().Get<Settings::Setting::InstallerTypeRequirement>();
+                }
+
+                if (!preference.empty() || !requirement.empty())
+                {
+                    return std::make_unique<InstallerTypeComparator>(preference, requirement);
                 }
                 else
                 {
@@ -306,15 +314,35 @@ namespace AppInstaller::CLI::Workflow
 
             bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
-                // TODO: Current implementation assumes there is only a single installer type requirement. This needs to be updated
-                // once multiple installerType requirements and preferences are accepted.
-                UNREFERENCED_PARAMETER(first);
-                UNREFERENCED_PARAMETER(second);
-                return true;
+                if (m_preference.empty())
+                {
+                    return false;
+                }
+
+                InstallerTypeEnum firstBaseInstallerType = first.BaseInstallerType;
+                InstallerTypeEnum firstEffectiveInstallerType = first.EffectiveInstallerType();
+
+                InstallerTypeEnum secondBaseInstallerType = second.BaseInstallerType;
+                InstallerTypeEnum secondEffectiveInstallerType = second.EffectiveInstallerType();
+
+                for (auto const& preferredInstallerType : m_preference)
+                {
+                    bool isFirstInstallerTypePreferred = (preferredInstallerType == firstBaseInstallerType) || (preferredInstallerType == firstEffectiveInstallerType);
+                    bool isSecondInstallerTypePreferred = (preferredInstallerType == secondBaseInstallerType) || (preferredInstallerType == secondEffectiveInstallerType);
+
+                    if (isFirstInstallerTypePreferred || isSecondInstallerTypePreferred)
+                    {
+                        return isFirstInstallerTypePreferred;
+                    }
+                }
+
+                return false;
             }
 
         private:
+            std::vector<InstallerTypeEnum> m_preference;
             std::vector<InstallerTypeEnum> m_requirement;
+            std::string m_preferenceAsString;
             std::string m_requirementAsString;
         };
 

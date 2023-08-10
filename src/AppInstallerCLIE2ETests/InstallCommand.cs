@@ -674,6 +674,58 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test install a package using a specific installer type.
+        /// </summary>
+        [Test]
+        public void InstallWithInstallerTypeArgument()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir} --installer-type exe");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+        }
+
+        /// <summary>
+        /// Test install package with installer type preference settings.
+        /// </summary>
+        [Test]
+        public void InstallWithInstallerTypePreference()
+        {
+            string[] installerTypePreference = { "msi" };
+            WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallerTypes, installerTypePreference);
+
+            string installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir}");
+
+            // Reinitialize settings file to reset preferences.
+            WinGetSettingsHelper.InitializeWingetSettings();
+
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
+        }
+
+        /// <summary>
+        /// Test install package with installer type requirement settings.
+        /// </summary>
+        [Test]
+        public void InstallWithInstallerTypeRequirement()
+        {
+            string[] installerTypeRequirement = { "inno" };
+            WinGetSettingsHelper.ConfigureInstallBehaviorRequirements(Constants.InstallerTypes, installerTypeRequirement);
+
+            string installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir}");
+
+            // Reinitialize settings file to reset requirements.
+            WinGetSettingsHelper.InitializeWingetSettings();
+
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
+            Assert.True(result.StdOut.Contains("No applicable installer found; see logs for more details."));
+        }
+
+        /// <summary>
         /// This test flow is intended to test an EXE that actually installs an MSIX internally, and whose name+publisher
         /// information resembles an existing installation. Given this, the goal is to get correlation to stick to the
         /// MSIX rather than the ARP entry that we would match with in the absence of the package family name being present.

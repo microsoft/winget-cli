@@ -386,6 +386,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 context->Args.AddArg(Execution::Args::Type::Silent);
             }
 
+            auto installerType = GetManifestInstallerType(options.InstallerType());
+            if (installerType != AppInstaller::Manifest::InstallerTypeEnum::Unknown)
+            {
+                context->Args.AddArg(Execution::Args::Type::InstallerType, AppInstaller::Manifest::InstallerTypeToString(installerType));
+            }
+
             if (!options.PreferredInstallLocation().empty())
             {
                 context->Args.AddArg(Execution::Args::Type::InstallLocation, ::AppInstaller::Utility::ConvertToUTF8(options.PreferredInstallLocation()));
