@@ -106,7 +106,7 @@ namespace AppInstaller::CLI::Execution
             PinInstalled,
 
             // Resume Command
-            ResumeGuid,
+            ResumeId,
 
             // Configuration
             ConfigurationFile,

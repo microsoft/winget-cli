@@ -8,6 +8,7 @@
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/MultiQueryFlow.h"
+#include "Workflows/ResumeFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -103,18 +104,16 @@ namespace AppInstaller::CLI
         Argument::ValidateCommonArguments(execArgs);
     }
 
+    void InstallCommand::Resume(Context& context) const
+    {
+        context.LoadCheckpoints();
+        context.SetFlags(Execution::ContextFlag::Resume);
+        context.DisableWorkflowExecution(true);
+        ExecuteInternal(context);
+    }
+
     void InstallCommand::ExecuteInternal(Context& context) const
     {
-        bool resumeExperimentalFeatureEnabled = Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume);
-
-        if (resumeExperimentalFeatureEnabled && WI_IsFlagClear(context.GetFlags(), Execution::ContextFlag::Resume))
-        {
-            auto& checkpointManager = CheckpointManager::Instance();
-            checkpointManager.Initialize();
-            checkpointManager.AddContext(context.GetContextId());
-            checkpointManager.Checkpoint(context, Execution::CheckpointFlag::CommandArguments);
-        }
-        
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))
@@ -123,6 +122,7 @@ namespace AppInstaller::CLI
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
+                Workflow::Checkpoint("InstallerSelected"sv, {Execution::Data::Installer}) <<
                 Workflow::EnsureApplicableInstaller <<
                 Workflow::InstallSinglePackage;
         }
@@ -151,15 +151,6 @@ namespace AppInstaller::CLI
             else
             {
                 context << Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
-            }
-        }
-
-        if (resumeExperimentalFeatureEnabled)
-        {
-            // TODO: Only allow certain termination HRs to persist the checkpoint index.
-            if (!context.IsTerminated())
-            {
-                CheckpointManager::Instance().RemoveContext(context.GetContextId());
             }
         }
     }

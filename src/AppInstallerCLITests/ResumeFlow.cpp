@@ -33,7 +33,7 @@ TEST_CASE("ResumeFlow_InvalidGuid", "[Resume]")
     TestContext context{ resumeOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
 
-    context.Args.AddArg(Execution::Args::Type::ResumeGuid, "badGuid"sv);
+    context.Args.AddArg(Execution::Args::Type::ResumeId, "badGuid"sv);
 
     ResumeCommand resume({});
     context.SetExecutingCommand(&resume);
@@ -52,7 +52,7 @@ TEST_CASE("ResumeFlow_IndexNotFound", "[Resume]")
     std::ostringstream resumeOutput;
     TestContext context{ resumeOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    context.Args.AddArg(Execution::Args::Type::ResumeGuid, tempGuidString);
+    context.Args.AddArg(Execution::Args::Type::ResumeId, tempGuidString);
 
     ResumeCommand resume({});
     context.SetExecutingCommand(&resume);
@@ -87,7 +87,7 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     std::ostringstream resumeOutput;
     TestContext context{ resumeOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    context.Args.AddArg(Execution::Args::Type::ResumeGuid, tempGuidString);
+    context.Args.AddArg(Execution::Args::Type::ResumeId, tempGuidString);
 
     ResumeCommand resume({});
     context.SetExecutingCommand(&resume);
@@ -124,7 +124,7 @@ TEST_CASE("ResumeFlow_EmptyIndex", "Resume")
     std::ostringstream resumeOutput;
     TestContext context{ resumeOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    context.Args.AddArg(Execution::Args::Type::ResumeGuid, tempGuidString);
+    context.Args.AddArg(Execution::Args::Type::ResumeId, tempGuidString);
 
     ResumeCommand resume({});
     context.SetExecutingCommand(&resume);

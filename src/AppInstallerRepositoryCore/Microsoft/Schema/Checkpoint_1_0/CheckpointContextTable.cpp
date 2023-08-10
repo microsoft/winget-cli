@@ -10,8 +10,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     using namespace SQLite;
     using namespace std::string_view_literals;
     static constexpr std::string_view s_CheckpointContextTable_Table_Name = "CheckpointContext"sv;
-    static constexpr std::string_view s_CheckpointContextTable_ContextId_Column = "ContextId"sv;
-    static constexpr std::string_view s_CheckpointContextTable_LastCheckpoint_Column = "LastCheckpoint"sv;
+    static constexpr std::string_view s_CheckpointContextTable_CheckpointName_Column = "CheckpointName"sv;
+    static constexpr std::string_view s_CheckpointContextTable_ContextData_Column = "ContextData"sv;
+    static constexpr std::string_view s_CheckpointContextTable_Name_Column = "Name"sv;
+    static constexpr std::string_view s_CheckpointContextTable_Value_Column = "Value"sv;
+
+    static constexpr std::string_view s_CheckpointMetadataTable_CheckpointName = "CheckpointName"sv;
+    static constexpr std::string_view s_CheckpointMetadataTable_ClientVersion = "ClientVersion"sv;
+    static constexpr std::string_view s_CheckpointMetadataTable_CommandName = "CommandName"sv;
+    static constexpr std::string_view s_CheckpointMetadataTable_CommandArguments = "CommandArguments"sv;
+    static constexpr std::string_view s_CheckpointMetadataTable_CommitTime = "CommandArguments"sv;
+
+    // Everytime we commit to the table we write here:
+
 
     std::string_view CheckpointContextTable::TableName()
     {
@@ -26,14 +37,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_CheckpointContextTable_Table_Name).BeginColumns();
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_ContextId_Column, Type::Int).Unique().NotNull());
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_LastCheckpoint_Column, Type::Int));
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_CheckpointName_Column, Type::Text).NotNull());
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_ContextData_Column, Type::Int));
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_Name_Column, Type::Text));
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_Value_Column, Type::Text));
         createTableBuilder.EndColumns();
         createTableBuilder.Execute(connection);
         savepoint.Commit();
     }
 
-    std::optional<SQLite::rowid_t> CheckpointContextTable::SelectByContextId(const SQLite::Connection& connection, int contextId)
+    std::optional<SQLite::rowid_t> CheckpointContextTable::SelectByCheckpointName(const SQLite::Connection& connection, std::string checkpointName)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select(SQLite::RowIDName).From(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_ContextId_Column);

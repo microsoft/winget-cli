@@ -5,10 +5,14 @@
 #include "COMContext.h"
 #include "Argument.h"
 #include "winget/UserSettings.h"
+#include "winget/Runtime.h"
+#include "CheckpointManager.h"
+#include "Command.h"
 
 namespace AppInstaller::CLI::Execution
 {
     using namespace Settings;
+    using namespace Checkpoint;
 
     namespace
     {
@@ -248,8 +252,6 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    int Context::s_contextCount = 0;
-
     Context::~Context()
     {
         if (m_disableSignalTerminationHandlerOnExit)
@@ -270,19 +272,6 @@ namespace AppInstaller::CLI::Execution
         }
         CopyArgsToSubContext(clone.get());
         return clone;
-    }
-
-    std::unique_ptr<Context> Context::CreateEmptyContext(int contextId)
-    {
-        auto emptyContext = std::make_unique<Context>(Reporter, m_threadGlobals);
-        // If the parent is hooked up to the CTRL signal, have the clone be as well
-        if (m_disableSignalTerminationHandlerOnExit)
-        {
-            emptyContext->EnableSignalTerminationHandler();
-        }
-
-        emptyContext->SetContextId(contextId);
-        return emptyContext;
     }
 
     void Context::CopyArgsToSubContext(Context* subContext)
@@ -422,4 +411,78 @@ namespace AppInstaller::CLI::Execution
         return SignalTerminationHandler::Instance().WaitForAppShutdownEvent();
     }
 #endif
+
+    std::string Context::GetCheckpointCommand()
+    {
+        return m_checkpointManager->GetCommandName();
+    }
+
+    void Context::LoadCheckpoints()
+    {
+        InitializeCheckpointManager();
+
+        // Call a function here that retrieves the checkpoint in reverse order so that the entire state is completely populated. 
+        // Retreives all metadata from the stored info in the checkpoint index and applies the state change to the context.
+    }
+
+    // Initialized the checkpoint manager if it does not exist, then captures the automatic metadata as well as the context data.
+    void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
+    {
+        InitializeCheckpointManager();
+
+        // Maybe store these in the checkpoint manager so that we don't have to compute them every time.
+        const auto& clientVersion = AppInstaller::Runtime::GetClientVersion().get();
+        const auto& command = GetExecutingCommand();
+
+        std::string_view commandName;
+        if (command != nullptr)
+        {
+            commandName = command->Name();
+        }
+
+        m_checkpointManager->RecordMetadata(checkpointName, commandName, m_commandLineString, clientVersion);
+
+        for (Execution::Data data : contextData)
+        {
+            switch (data)
+            {
+            case Execution::Data::Installer:
+                m_checkpointManager->RecordContextData(checkpointName, Get<Execution::Data::Installer>());
+            default:
+                THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+            }
+        }
+    }
+
+    void Context::SetCommandArguments(std::vector<std::string> args)
+    {
+        std::stringstream strstr;
+        for (const auto& arg : args)
+        {
+            strstr << arg << ' ';
+        }
+
+        const std::string& commandLine = strstr.str();
+    }
+
+    std::vector<std::string> Context::GetCommandArguments()
+    {
+        return m_commandLineArgs;
+    }
+
+    void Context::InitializeCheckpointManager()
+    {
+        if (!m_checkpointManager)
+        {
+            if (Args.Contains(Execution::Args::Type::ResumeId))
+            {
+                GUID resumeGuid = Utility::ConvertToGuid(std::string{ Args.GetArg(Execution::Args::Type::ResumeId) });
+                m_checkpointManager = std::make_unique<CheckpointManager>(resumeGuid);
+            }
+            else
+            {
+                m_checkpointManager = std::make_unique<CheckpointManager>();
+            }
+        }
+    }
 }

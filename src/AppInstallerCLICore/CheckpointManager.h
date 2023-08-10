@@ -3,6 +3,7 @@
 #pragma once
 #include "ExecutionContext.h"
 
+#include "Microsoft/CheckpointIndex.h"
 #include <guiddef.h>
 
 namespace AppInstaller::Repository::Microsoft
@@ -14,57 +15,24 @@ namespace AppInstaller::CLI::Checkpoint
 {
     struct CheckpointManager
     {
-        CheckpointManager(const CheckpointManager&) = delete;
-        CheckpointManager& operator=(const CheckpointManager&) = delete;
-        CheckpointManager(CheckpointManager&&) = delete;
-        CheckpointManager& operator=(CheckpointManager&&) = delete;
-
-        static CheckpointManager& Instance()
-        {
-            static CheckpointManager checkpointManager;
-            return checkpointManager;
-        }
-
-        void Initialize(GUID checkpointId = {});
-
-        void Checkpoint(Execution::Context& context, Execution::CheckpointFlag flag);
-
-        bool HasContext();
-
-        void AddContext(int contextId);
-
-        void RemoveContext(int contextId);
+        CheckpointManager(GUID id = {});
+        ~CheckpointManager();
 
         std::string GetClientVersion();
 
         std::string GetCommandName(int contextId);
 
-        int GetFirstContextId();
+        std::string GetArguments();
 
-        Execution::CheckpointFlag GetLastCheckpoint(int contextId);
+        void RecordMetadata(std::string_view checkpointName, std::string_view commandName, std::string_view commandLineString, std::string clientVersion);
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        // Only used by unit tests to release any test indexes for proper cleanup.
-        void ManualReset()
-        {
-            m_checkpointId = GUID_NULL;
-            m_checkpointIndex.reset();
-        }
-#endif
-
+        template<class T>
+        void RecordContextData(std::string_view checkpointName, T data) {};
 
     private:
-        CheckpointManager() = default;
-        ~CheckpointManager();
         GUID m_checkpointId = {};
         std::shared_ptr<AppInstaller::Repository::Microsoft::CheckpointIndex> m_checkpointIndex = nullptr;
 
         void CleanUpIndex();
-
-        void SaveCheckpoint(Execution::Context& context, Execution::CheckpointFlag flag);
-        void LoadCheckpoint(Execution::Context& context, Execution::CheckpointFlag flag);
-
-        void PopulateContextArgsFromIndex(Execution::Context& context);
-        void RecordContextArgsToIndex(Execution::Context& context);
     };
 }

@@ -112,6 +112,8 @@ namespace AppInstaller::CLI
 
         virtual void Execute(Execution::Context& context) const;
 
+        virtual void Resume(Execution::Context& context) const;
+
     protected:
         void SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value);
 

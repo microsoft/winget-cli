@@ -175,7 +175,7 @@ namespace AppInstaller::CLI
             return { type, "installed"_liv, ArgTypeCategory::None };
 
         // Resume command
-        case Execution::Args::Type::ResumeGuid:
+        case Execution::Args::Type::ResumeId:
             return { type, "resume-guid"_liv, 'g', ArgTypeCategory::None };
 
         // Configuration commands
@@ -349,7 +349,7 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::DownloadDirectoryArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
         case Args::Type::InstallerType:
             return Argument{ type, Resource::String::InstallerTypeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
-        case Args::Type::ResumeGuid:
+        case Args::Type::ResumeId:
             return Argument{ type, Resource::String::ResumeGuidArgumentDescription, ArgumentType::Standard, true };
         default:
             THROW_HR(E_UNEXPECTED);

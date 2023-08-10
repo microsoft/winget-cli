@@ -10,68 +10,41 @@
 
 namespace AppInstaller::CLI::Checkpoint
 {
-    void CheckpointManager::Initialize(GUID checkpointId)
+    CheckpointManager::CheckpointManager(GUID id)
     {
-        // Initialize should only be called once.
-        THROW_HR_IF(E_UNEXPECTED, m_checkpointId != GUID_NULL);
-
-        bool createCheckpointIndex = (checkpointId == GUID_NULL);
-        if (createCheckpointIndex)
+        if (m_checkpointId == GUID_NULL)
         {
             std::ignore = CoCreateGuid(&m_checkpointId);
-            AICLI_LOG(CLI, Info, << "Creating checkpoint index with guid: " << m_checkpointId);
         }
-        else
-        {
-            m_checkpointId = checkpointId;
-            AICLI_LOG(CLI, Info, << "Opening checkpoint index with guid: " << m_checkpointId);
-        }
+
+        AICLI_LOG(CLI, Info, << "Checkpoint manager id: " << m_checkpointId);
 
         auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
         auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
         if (!checkpointIndex)
         {
             AICLI_LOG(CLI, Error, << "Unable to open checkpoint index.");
-            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), "The checkpoint state could not be found.");
+            // TODO: Handle failure to open index gracefully.
         }
 
         m_checkpointIndex = std::move(checkpointIndex);
-
-        if (createCheckpointIndex)
-        {
-            m_checkpointIndex->SetClientVersion(AppInstaller::Runtime::GetClientVersion());
-        }
+        m_checkpointIndex->SetClientVersion(AppInstaller::Runtime::GetClientVersion());
     }
 
-    void CheckpointManager::Checkpoint(Execution::Context& context, Execution::CheckpointFlag checkpointFlag)
+    template<>
+    void CheckpointManager::RecordContextData(std::string_view checkpointName, Manifest::ManifestInstaller installer)
     {
-        Execution::CheckpointFlag contextCheckpointFlag = context.GetTargetCheckpoint();
+        // Capture all relevant data from the installer.
+        m_checkpointIndex->SetCommandName(0, installer.PackageFamilyName);
+    };
 
-        // If the context target checkpoint is ahead or equal to the current checkpoint, we have previously executed this state, load checkpoint state from index.
-        // If the context target checkpoint is behind the current checkpoint, we have not yet processed this state, save checkpoint state to index.
-        if (contextCheckpointFlag > checkpointFlag || contextCheckpointFlag == checkpointFlag)
-        {
-            LoadCheckpoint(context, checkpointFlag);
-        }
-        else if (contextCheckpointFlag < checkpointFlag)
-        {
-            SaveCheckpoint(context, checkpointFlag);
-        }
-    }
-
-    bool CheckpointManager::HasContext()
+    void CheckpointManager::RecordMetadata(
+        std::string_view checkpointName,
+        std::string_view commandName,
+        std::string_view commandLineString,
+        std::string clientVersion)
     {
-        return !m_checkpointIndex->IsEmpty();
-    }
-
-    void CheckpointManager::AddContext(int contextId)
-    {
-        m_checkpointIndex->AddContext(contextId);
-    }
-
-    void CheckpointManager::RemoveContext(int contextId)
-    {
-        m_checkpointIndex->RemoveContext(contextId);
+        // Capture these arguments from the checkpoint metadata.
     }
 
     std::string CheckpointManager::GetClientVersion()
@@ -84,35 +57,8 @@ namespace AppInstaller::CLI::Checkpoint
         return m_checkpointIndex->GetCommandName(contextId);
     }
 
-    int CheckpointManager::GetFirstContextId()
-    {
-        return m_checkpointIndex->GetFirstContextId();
-    }
-
-    Execution::CheckpointFlag CheckpointManager::GetLastCheckpoint(int contextId)
-    {
-        return static_cast<Execution::CheckpointFlag>(m_checkpointIndex->GetLastCheckpoint(contextId));
-    }
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    static bool s_MockCheckpointManagerCleanUp_Override = false;
-
-    void TestHook_MockCheckpointManagerCleanUp_Override(bool status)
-    {
-        s_MockCheckpointManagerCleanUp_Override = status;
-    }
-#endif
-
     void CheckpointManager::CleanUpIndex()
     {
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        // Unit tests will handle clean up so this hook is needed to avoid attempting to reset and clean up again.
-        if (s_MockCheckpointManagerCleanUp_Override)
-        {
-            return;
-        }
-#endif
-
         bool isIndexEmpty = m_checkpointIndex->IsEmpty();
 
         m_checkpointIndex.reset();
@@ -132,90 +78,9 @@ namespace AppInstaller::CLI::Checkpoint
         CleanUpIndex();
     }
 
-    void CheckpointManager::SaveCheckpoint(Execution::Context& context, Execution::CheckpointFlag flag)
+    std::string CheckpointManager::GetArguments()
     {
-        switch (flag)
-        {
-        case Execution::CheckpointFlag::CommandArguments:
-            RecordContextArgsToIndex(context);
-            break;
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
-
-        m_checkpointIndex->SetLastCheckpoint(context.GetContextId(), static_cast<int>(flag));
-        context.SetCurrentCheckpoint(flag);
-    }
-
-    void CheckpointManager::LoadCheckpoint(Execution::Context& context, Execution::CheckpointFlag flag)
-    {
-        switch (flag)
-        {
-        case Execution::CheckpointFlag::CommandArguments:
-            PopulateContextArgsFromIndex(context);
-            break;
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
-
-        context.SetCurrentCheckpoint(flag);
-    }
-
-    void CheckpointManager::PopulateContextArgsFromIndex(Execution::Context& context)
-    {
-        int contextId = context.GetContextId();
-
-        const auto& executingCommand = context.GetExecutingCommand();
-        if (executingCommand != nullptr)
-        {
-            const auto& commandArguments = executingCommand->GetArguments();
-            for (const auto& argument : commandArguments)
-            {
-                if (m_checkpointIndex->ContainsArgument(contextId, argument.Name()))
-                {
-                    Execution::Args::Type executionArgsType = argument.ExecArgType();
-                    if (argument.Type() == ArgumentType::Flag)
-                    {
-                        if (m_checkpointIndex->GetBoolArgument(contextId, argument.Name()))
-                        {
-                            context.Args.AddArg(executionArgsType);
-                        }
-                    }
-                    else
-                    {
-                        context.Args.AddArg(executionArgsType, m_checkpointIndex->GetStringArgument(contextId, argument.Name()));
-                    }
-                }
-            }
-        }
-    }
-
-    void CheckpointManager::RecordContextArgsToIndex(Execution::Context& context)
-    {
-        int contextId = context.GetContextId();
-
-        const auto& executingCommand = context.GetExecutingCommand();
-        if (executingCommand != nullptr)
-        {
-            m_checkpointIndex->SetCommandName(contextId, executingCommand->Name());
-
-            const auto& commandArguments = executingCommand->GetArguments();
-            for (const auto& argument : commandArguments)
-            {
-                Execution::Args::Type type = argument.ExecArgType();
-                if (context.Args.Contains(type))
-                {
-                    if (argument.Type() == ArgumentType::Flag)
-                    {
-                        m_checkpointIndex->UpdateArgument(contextId, argument.Name(), true);
-                    }
-                    else
-                    {
-                        const auto& argumentValue = context.Args.GetArg(type);
-                        m_checkpointIndex->UpdateArgument(contextId, argument.Name(), argumentValue);
-                    }
-                }
-            }
-        }
+        // Return the actual command line arguments.
+        m_checkpointIndex->GetCommandName(0);
     }
 }

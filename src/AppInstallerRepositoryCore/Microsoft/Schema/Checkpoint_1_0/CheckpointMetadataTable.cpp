@@ -12,17 +12,27 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     static constexpr std::string_view s_CheckpointMetadataTable_Name_Column = "Name"sv;
     static constexpr std::string_view s_CheckpointMetadataTable_Value_Column = "Value"sv;
 
+    static constexpr std::string_view s_CheckpointMetadataTable_CheckpointName = "CheckpointName"sv;
     static constexpr std::string_view s_CheckpointMetadataTable_ClientVersion = "ClientVersion"sv;
+    static constexpr std::string_view s_CheckpointMetadataTable_CommandName = "CommandName"sv;
+    static constexpr std::string_view s_CheckpointMetadataTable_CommandArguments = "CommandArguments"sv;
+    static constexpr std::string_view s_CheckpointMetadataTable_CommitTime = "CommandArguments"sv;
+
+    static constexpr std::string_view s_CheckpointContextTable_CheckpointName_Column = "CheckpointName"sv;
+    static constexpr std::string_view s_CheckpointContextTable_ContextData_Column = "ContextData"sv;
+    static constexpr std::string_view s_CheckpointContextTable_Name_Column = "Name"sv;
+    static constexpr std::string_view s_CheckpointContextTable_Value_Column = "Value"sv;
 
     namespace
     {
-        SQLite::rowid_t SetNamedValue(SQLite::Connection& connection, std::string_view name, std::string_view value)
+        SQLite::rowid_t SetNamedValue(SQLite::Connection& connection, std::string_view checkpoint, std::string_view name, std::string_view value)
         {
             SQLite::Builder::StatementBuilder builder;
             builder.InsertInto(s_CheckpointMetadataTable_Table_Name)
-                .Columns({ s_CheckpointMetadataTable_Name_Column,
+                .Columns({ s_CheckpointContextTable_CheckpointName_Column,
+                    s_CheckpointMetadataTable_Name_Column,
                     s_CheckpointMetadataTable_Value_Column })
-                .Values(name, value);
+                .Values(checkpoint, name, value);
 
             builder.Execute(connection);
             return connection.GetLastInsertRowID();

@@ -5,6 +5,7 @@
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 #include "ExecutionContextData.h"
+#include "CheckpointManager.h"
 #include "CompletionData.h"
 
 #include <string_view>
@@ -52,12 +53,6 @@ namespace AppInstaller::CLI::Workflow
 
 namespace AppInstaller::CLI::Execution
 {
-    enum class CheckpointFlag : uint32_t
-    {
-        None,
-        CommandArguments,
-    };
-
     // bit masks used as Context flags
     enum class ContextFlag : int
     {
@@ -88,12 +83,12 @@ namespace AppInstaller::CLI::Execution
     // arguments via Execution::Args.
     struct Context : EnumBasedVariantMap<Data, details::DataMapping>
     {
-        Context(std::ostream& out, std::istream& in) : Reporter(out, in) { s_contextCount++; }
+        Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
         // Constructor for creating a sub-context.
         Context(Execution::Reporter& reporter, ThreadLocalStorage::WingetThreadGlobals& threadGlobals) :
             Reporter(reporter, Execution::Reporter::clone_t{}),
-            m_threadGlobals(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{}) { s_contextCount++; }
+            m_threadGlobals(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{}) {}
 
         virtual ~Context();
 
@@ -105,9 +100,6 @@ namespace AppInstaller::CLI::Execution
 
         // Creates a child of this context.
         virtual std::unique_ptr<Context> CreateSubContext();
-
-        // Creates an empty context.
-        virtual std::unique_ptr<Context> CreateEmptyContext(int contextId = 0);
 
         // Enables reception of CTRL signals and window messages.
         void EnableSignalTerminationHandler(bool enabled = true);
@@ -170,20 +162,30 @@ namespace AppInstaller::CLI::Execution
         // Enable tests to override behavior
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
-        // Gets the id of the context.
-        int GetContextId() { return m_contextId; };
-
-        // Gets the current checkpoint of the context.
-        CheckpointFlag GetCurrentCheckpoint() { return m_currentCheckpoint; };
-
         // Sets the current checkpoint flag of the context.
-        void SetCurrentCheckpoint(Execution::CheckpointFlag flag) { m_currentCheckpoint = flag; }
+        void SetCurrentCheckpoint(std::string_view checkpointName) { m_checkpoint = checkpointName; }
 
-        // Gets the target checkpoint of the context.
-        CheckpointFlag GetTargetCheckpoint() { return m_targetCheckpoint; };
+        // Retrieves the checkpoints stored in the checkpoint index and populates the context state.
+        void LoadCheckpoints();
 
-        // Sets the target checkpoint of the context.
-        void SetTargetCheckpoint(CheckpointFlag flag) { m_targetCheckpoint = flag; };
+        // Records the provided context data to the checkpoint index. If it already exists, loads the context instead.
+        void Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);
+
+        // Gets the target checkpoint of the resume state.
+        std::string_view GetCheckpoint() { return m_checkpoint; };
+
+        std::string GetCheckpointCommand();
+
+        std::vector<std::string> GetCommandLineArgs() { return m_commandLineArgs; };
+
+        std::vector<std::string> GetCommandArguments();
+
+        void SetCommandArguments(std::vector<std::string> args);
+
+        void DisableWorkflowExecution(bool state) { m_disableWorkflowExecution = state; };
+
+        bool ShouldExecuteWorkflow() { return !m_disableWorkflowExecution; };
+
 
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent
@@ -194,9 +196,6 @@ namespace AppInstaller::CLI::Execution
         // use this if AICLI_DISABLE_TEST_HOOKS is defined.
         std::function<bool(const Workflow::WorkflowTask&)> m_shouldExecuteWorkflowTask;
 
-        // Sets the id of the context.
-        void SetContextId(int contextId) { m_contextId = contextId; };
-
     private:
         DestructionToken m_disableSignalTerminationHandlerOnExit = false;
         bool m_isTerminated = false;
@@ -206,9 +205,14 @@ namespace AppInstaller::CLI::Execution
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
-        CheckpointFlag m_currentCheckpoint = CheckpointFlag::None;
-        CheckpointFlag m_targetCheckpoint = CheckpointFlag::None;
-        static int s_contextCount;
-        int m_contextId = s_contextCount;
+
+        // This store the entire command line string that is used to execute a command. 
+        std::unique_ptr<Checkpoint::CheckpointManager> m_checkpointManager;
+        bool m_disableWorkflowExecution = false;
+        std::string_view m_checkpoint = {};
+        std::string m_commandLineString = {};
+        std::vector<std::string> m_commandLineArgs = {};
+
+        void InitializeCheckpointManager();
     };
 }

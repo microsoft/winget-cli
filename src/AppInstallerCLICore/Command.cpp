@@ -840,7 +840,7 @@ namespace AppInstaller::CLI
 
     void Command::Complete(Execution::Context&, Execution::Args::Type) const
     {
-        // Derived commands must suppy context sensitive argument values.
+        // Derived commands must supply context sensitive argument values.
     }
 
     void Command::Execute(Execution::Context& context) const
@@ -851,6 +851,16 @@ namespace AppInstaller::CLI
         {
             AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
             throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
+        }
+
+        if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
+        {
+            // Only the resume command requires a resume id. If not present, create checkpoint index and capture initial arguments.
+            if (!context.Args.Contains(Execution::Args::Type::ResumeId))
+            {
+                AICLI_LOG(CLI, Info, << "Initializing checkpoint manager.");
+                context.Checkpoint("CheckpointInitialized", {});
+            }
         }
 
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
@@ -874,6 +884,11 @@ namespace AppInstaller::CLI
         {
             context.Reporter.PromptForEnter();
         }
+    }
+
+    void Command::Resume(Execution::Context& context) const
+    {
+        // Command must implement this function, which should load everything from the context.
     }
     
     void Command::SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value)

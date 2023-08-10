@@ -2,22 +2,21 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "AppInstallerRuntime.h"
-#include "CheckpointManager.h"
 #include "Resources.h"
 #include "ResumeCommand.h"
 #include "RootCommand.h"
+#include "Microsoft/CheckpointIndex.h"
 #include "Workflows/ResumeFlow.h"
 
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
     using namespace Execution;
-    using namespace Checkpoint;
 
     std::vector<Argument> ResumeCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Execution::Args::Type::ResumeGuid),
+            Argument::ForType(Execution::Args::Type::ResumeId),
         };
     }
 
@@ -38,26 +37,29 @@ namespace AppInstaller::CLI
 
     void ResumeCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context <<
-            Workflow::EnsureSupportForResume;
-
-        if (context.IsTerminated())
+        std::string resumeGuidString { context.Args.GetArg(Execution::Args::Type::ResumeId) };
+        if (!Utility::IsValidGuidString(resumeGuidString))
         {
-            return;
+            context.Reporter.Error() << Resource::String::InvalidResumeGuidError(Utility::LocIndView{ resumeGuidString }) << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_GUID);
         }
 
-        auto& checkpointManager = CheckpointManager::Instance();
+        GUID checkpointId = Utility::ConvertToGuid(resumeGuidString);
 
-        int rootContextId = checkpointManager.GetFirstContextId();
-        auto resumeContextPtr = context.CreateEmptyContext(rootContextId);
+        if (!std::filesystem::exists(AppInstaller::Repository::Microsoft::CheckpointIndex::GetCheckpointIndexPath(checkpointId)))
+        {
+            context.Reporter.Error() << Resource::String::ResumeGuidNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_GUID_NOT_FOUND);
+        }
 
-        Context& resumeContext = *resumeContextPtr;
-        auto previousThreadGlobals = resumeContext.SetForCurrentThread();
+        Execution::Context resumeContext{ std::cout, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.EnableSignalTerminationHandler();
 
-        std::string commandName = checkpointManager.GetCommandName(rootContextId);
+        std::string commandName = context.GetCheckpointCommand();
         std::unique_ptr<Command> commandToResume;
 
-        // Find the command using the command name.
+        // Find the command using the root command.
         AICLI_LOG(CLI, Info, << "Resuming command: " << commandName);
         for (auto& command : std::make_unique<RootCommand>()->GetCommands())
         {
@@ -74,17 +76,7 @@ namespace AppInstaller::CLI
         THROW_HR_IF_MSG(E_UNEXPECTED, !commandToResume, "Command to resume not found.");
 
         resumeContext.SetExecutingCommand(commandToResume.get());
-        resumeContext.SetTargetCheckpoint(checkpointManager.GetLastCheckpoint(rootContextId));
         resumeContext.SetFlags(Execution::ContextFlag::Resume);
-
-        checkpointManager.Checkpoint(resumeContext, Execution::CheckpointFlag::CommandArguments);
-        
-        commandToResume->Execute(resumeContext);
-
-        // If the resumeContext is terminated, set the termination HR to report the correct HR from the resume context.
-        if (resumeContext.IsTerminated())
-        {
-            context.SetTerminationHR(resumeContext.GetTerminationHR());
-        }
+        commandToResume->Resume(resumeContext);
     }
 }

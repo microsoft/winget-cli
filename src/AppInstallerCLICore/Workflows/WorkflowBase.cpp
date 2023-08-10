@@ -1275,9 +1275,12 @@ AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::
 
 AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, const AppInstaller::CLI::Workflow::WorkflowTask& task)
 {
-    if (context.GetCurrentCheckpoint() < context.GetTargetCheckpoint())
+    if (AppInstaller::Settings::ExperimentalFeature::IsEnabled(AppInstaller::Settings::ExperimentalFeature::Feature::Resume))
     {
-        return context;
+        if (WI_IsFlagSet(context.GetFlags(), AppInstaller::CLI::Execution::ContextFlag::Resume) && !context.ShouldExecuteWorkflow())
+        {
+            return context;
+        }
     }
 
     if (!context.IsTerminated())
