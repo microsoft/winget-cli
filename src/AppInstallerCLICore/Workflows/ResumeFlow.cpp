@@ -57,7 +57,7 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        if (WI_IsFlagClear(context.GetFlags(), Execution::ContextFlag::Resume))
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::Resume))
         {
             if (context.GetCheckpoint() == m_checkpointName)
             {

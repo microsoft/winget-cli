@@ -106,7 +106,15 @@ namespace AppInstaller::CLI
 
     void InstallCommand::Resume(Context& context) const
     {
+        // Load arguments from index.
+        auto commandArguments = context.GetCommandArguments();
+        Invocation invocation{ std::move(commandArguments) };
+        ParseArguments(invocation, context.Args);
+
+        // Load checkpoints from index.
         context.LoadCheckpoints();
+
+        // Set flags and disable workflow execution.
         context.SetFlags(Execution::ContextFlag::Resume);
         context.DisableWorkflowExecution(true);
         ExecuteInternal(context);
@@ -130,7 +138,8 @@ namespace AppInstaller::CLI
         {
             context <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                Workflow::OpenSource();
+                Workflow::OpenSource() <<
+                Workflow::Checkpoint("SourceAdded"sv, { Execution::Data::Source });
 
             if (!context.Args.Contains(Execution::Args::Type::Force))
             {

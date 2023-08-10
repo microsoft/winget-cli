@@ -16,7 +16,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     static constexpr std::string_view s_CheckpointMetadataTable_ClientVersion = "ClientVersion"sv;
     static constexpr std::string_view s_CheckpointMetadataTable_CommandName = "CommandName"sv;
     static constexpr std::string_view s_CheckpointMetadataTable_CommandArguments = "CommandArguments"sv;
-    static constexpr std::string_view s_CheckpointMetadataTable_CommitTime = "CommandArguments"sv;
+    static constexpr std::string_view s_CheckpointMetadataTable_CommitTime = "CommandArguments"sv;c
 
     static constexpr std::string_view s_CheckpointContextTable_CheckpointName_Column = "CheckpointName"sv;
     static constexpr std::string_view s_CheckpointContextTable_ContextData_Column = "ContextData"sv;
