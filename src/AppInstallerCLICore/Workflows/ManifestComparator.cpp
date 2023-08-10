@@ -332,7 +332,7 @@ namespace AppInstaller::CLI::Workflow
 
                     if (isFirstInstallerTypePreferred && isSecondInstallerTypePreferred)
                     {
-                        break;
+                        return false;
                     }
 
                     if (isFirstInstallerTypePreferred != isSecondInstallerTypePreferred)
