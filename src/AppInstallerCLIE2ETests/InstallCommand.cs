@@ -6,6 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using System;
     using System.IO;
     using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
@@ -698,8 +699,8 @@ namespace AppInstallerCLIE2ETests
             string installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir}");
 
-            // Reinitialize settings file to reset preferences.
-            WinGetSettingsHelper.InitializeWingetSettings();
+            // Reset installer type preferences.
+            WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallerTypes, Array.Empty<string>());
 
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
@@ -718,8 +719,8 @@ namespace AppInstallerCLIE2ETests
             string installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir}");
 
-            // Reinitialize settings file to reset requirements.
-            WinGetSettingsHelper.InitializeWingetSettings();
+            // Reset installer type requirements.
+            WinGetSettingsHelper.ConfigureInstallBehaviorRequirements(Constants.InstallerTypes, Array.Empty<string>());
 
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
             Assert.True(result.StdOut.Contains("No applicable installer found; see logs for more details."));

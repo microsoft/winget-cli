@@ -45,7 +45,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool SkipDependencies();
         void SkipDependencies(bool value);
 
-
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         winrt::Microsoft::Management::Deployment::PackageVersionId m_packageVersionId{ nullptr };
