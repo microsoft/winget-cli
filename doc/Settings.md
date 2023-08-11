@@ -142,7 +142,7 @@ The `architectures` behavior affects what architectures will be selected when in
 
 ### Installer Types
 
-The `installerTypes` behavior affects what installer types will be selected when installing a package. The matching parameter is `--installer-type`. Note that if multiple preferred installer types are available for installation, the order the installer types are specified will dictate which installer type is more preferred.
+The `installerTypes` behavior affects what installer types will be selected when installing a package. The matching parameter is `--installer-type`.
 
 ```json
     "installBehavior": {

@@ -282,17 +282,29 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                std::string result = "InstallerType does not match required type: ";
+                result += InstallerTypeToString(installer.EffectiveInstallerType());
+                result += "Required InstallerTypes: ";
+                result += m_requirementAsString;
+                return result;
+            }
+
+            bool ContainsInstallerType(const std::vector<InstallerTypeEnum>& selection, InstallerTypeEnum installerType)
+            {
+                return std::find(selection.begin(), selection.end(), installerType) != selection.end();
+            }
+
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
                 if (!m_requirement.empty())
                 {
-                    for (auto requiredInstallerType : m_requirement)
+                    // The installer is applicable if the effective or base installer type matches.
+                    if (ContainsInstallerType(m_requirement, installer.EffectiveInstallerType()) ||
+                        ContainsInstallerType(m_requirement, installer.BaseInstallerType))
                     {
-                        // The installer is applicable if the installer type or nested installer type matches. (User should be allowed to specify 'zip')
-                        if (installer.EffectiveInstallerType() == requiredInstallerType || installer.BaseInstallerType == requiredInstallerType)
-                        {
-                            return InapplicabilityFlags::None;
-                        }
+                        return InapplicabilityFlags::None;
                     }
 
                     return InapplicabilityFlags::InstallerType;
@@ -303,15 +315,6 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
-            {
-                std::string result = "InstallerType does not match required type: ";
-                result += InstallerTypeToString(installer.EffectiveInstallerType());
-                result += "Required InstallerTypes: ";
-                result += m_requirementAsString;
-                return result;
-            }
-
             bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
                 if (m_preference.empty())
@@ -319,26 +322,22 @@ namespace AppInstaller::CLI::Workflow
                     return false;
                 }
 
-                InstallerTypeEnum firstBaseInstallerType = first.BaseInstallerType;
-                InstallerTypeEnum firstEffectiveInstallerType = first.EffectiveInstallerType();
+                bool isFirstInstallerTypePreferred =
+                    ContainsInstallerType(m_preference, first.EffectiveInstallerType()) ||
+                    ContainsInstallerType(m_preference, first.BaseInstallerType);
 
-                InstallerTypeEnum secondBaseInstallerType = second.BaseInstallerType;
-                InstallerTypeEnum secondEffectiveInstallerType = second.EffectiveInstallerType();
+                bool isSecondInstallerTypePreferred = 
+                    ContainsInstallerType(m_preference, second.EffectiveInstallerType()) ||
+                    ContainsInstallerType(m_preference, second.BaseInstallerType);
 
-                for (auto const& preferredInstallerType : m_preference)
+                if (isFirstInstallerTypePreferred && isSecondInstallerTypePreferred)
                 {
-                    bool isFirstInstallerTypePreferred = (preferredInstallerType == firstBaseInstallerType) || (preferredInstallerType == firstEffectiveInstallerType);
-                    bool isSecondInstallerTypePreferred = (preferredInstallerType == secondBaseInstallerType) || (preferredInstallerType == secondEffectiveInstallerType);
+                    return false;
+                }
 
-                    if (isFirstInstallerTypePreferred && isSecondInstallerTypePreferred)
-                    {
-                        return false;
-                    }
-
-                    if (isFirstInstallerTypePreferred != isSecondInstallerTypePreferred)
-                    {
-                        return isFirstInstallerTypePreferred;
-                    }
+                if (isFirstInstallerTypePreferred != isSecondInstallerTypePreferred)
+                {
+                    return isFirstInstallerTypePreferred;
                 }
 
                 return false;
