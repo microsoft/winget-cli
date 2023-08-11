@@ -41,6 +41,8 @@ namespace AppInstallerCLIE2ETests
 
                 shouldRevertDefaultFileTypeRiskOnExit = this.DecreaseFileTypeRisk(".exe;.msi", false);
 
+                Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
+
                 if (testParams.PackagedContext)
                 {
                     if (testParams.LooseFileRegistration)
@@ -57,7 +59,6 @@ namespace AppInstallerCLIE2ETests
             if (!testParams.SkipTestSource)
             {
                 TestIndex.GenerateE2ESource();
-                Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
             }
 
             WinGetSettingsHelper.InitializeWingetSettings();

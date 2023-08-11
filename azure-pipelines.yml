@@ -220,10 +220,7 @@ jobs:
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      buildRoot: $(buildOutDir)\LocalhostWebServer
-      staticFileRoot: $(Agent.TempDirectory)\TestLocalIndex
-      localSourceJson: $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json
-      sourceCert: $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -443,9 +440,7 @@ jobs:
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      buildRoot: $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer
-      staticFileRoot: $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex
-      sourceCert: $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer
+      localhostWebServerArgs: '-BuildRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer -StaticFileRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
 
   - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\

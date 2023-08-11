@@ -2,16 +2,8 @@
 parameters:
 - name: sourceDir
   type: string
-- name: buildRoot
+- name: localhostWebServerArgs
   type: string
-- name: staticFileRoot
-  type: string
-- name: localSourceJson
-  type: string
-  default: ''
-- name: sourceCert
-  type: string
-  default: ''
 
 steps:
   - task: DownloadSecureFile@1
@@ -36,7 +28,7 @@ steps:
     displayName: Launch LocalhostWebServer
     inputs:
       filePath: '${{ parameters.sourceDir }}\src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
-      arguments: '-BuildRoot ${{ parameters.buildRoot }} -StaticFileRoot ${{ parameters.staticFileRoot }} -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft -OutCertFile $(Agent.TempDirectory)\servercert.cer -LocalSourceJson ${{ parameters.localSourceJson }} -SourceCert ${{ parameters.sourceCert }}'
+      arguments: '-CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft -OutCertFile $(Agent.TempDirectory)\servercert.cer ${{ parameters.localhostWebServerArgs }}'
 
   - task: PowerShell@2
     displayName: Setup Local PS Repository
