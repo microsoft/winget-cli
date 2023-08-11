@@ -5,8 +5,6 @@
 #include "COMContext.h"
 #include "Argument.h"
 #include "winget/UserSettings.h"
-#include "winget/Runtime.h"
-#include "CheckpointManager.h"
 #include "Command.h"
 
 namespace AppInstaller::CLI::Execution
@@ -419,8 +417,6 @@ namespace AppInstaller::CLI::Execution
 
     void Context::LoadCheckpoints()
     {
-        InitializeCheckpointManager();
-
         // Call a function here that retrieves the checkpoint in reverse order so that the entire state is completely populated. 
         // Retreives all metadata from the stored info in the checkpoint index and applies the state change to the context.
     }
@@ -428,21 +424,7 @@ namespace AppInstaller::CLI::Execution
     // Initialized the checkpoint manager if it does not exist, then captures the automatic metadata as well as the context data.
     void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
     {
-        InitializeCheckpointManager();
-
-        // Maybe store these in the checkpoint manager so that we don't have to compute them every time.
-        const auto& clientVersion = AppInstaller::Runtime::GetClientVersion().get();
-        const auto& command = GetExecutingCommand();
-
-        std::string_view commandName;
-        if (command != nullptr)
-        {
-            commandName = command->Name();
-        }
-
-        m_checkpointManager->RecordMetadata(checkpointName, commandName, m_commandLineString, clientVersion);
-
-        for (Execution::Data data : contextData)
+        for (auto data : contextData)
         {
             switch (data)
             {
@@ -456,13 +438,14 @@ namespace AppInstaller::CLI::Execution
 
     void Context::SetCommandArguments(std::vector<std::string> args)
     {
-        std::stringstream strstr;
-        for (const auto& arg : args)
-        {
-            strstr << arg << ' ';
-        }
+        m_commandLineArgs = args;
+        //std::stringstream strstr;
+        //for (const auto& arg : args)
+        //{
+        //    strstr << arg << ' ';
+        //}
 
-        const std::string& commandLine = strstr.str();
+        //const std::string& commandLine = strstr.str();
     }
 
     std::vector<std::string> Context::GetCommandArguments()
@@ -470,19 +453,13 @@ namespace AppInstaller::CLI::Execution
         return m_commandLineArgs;
     }
 
-    void Context::InitializeCheckpointManager()
+    void Context::InitializeCheckpointManager(GUID id)
     {
-        if (!m_checkpointManager)
-        {
-            if (Args.Contains(Execution::Args::Type::ResumeId))
-            {
-                GUID resumeGuid = Utility::ConvertToGuid(std::string{ Args.GetArg(Execution::Args::Type::ResumeId) });
-                m_checkpointManager = std::make_unique<CheckpointManager>(resumeGuid);
-            }
-            else
-            {
-                m_checkpointManager = std::make_unique<CheckpointManager>();
-            }
-        }
+        m_checkpointManager = std::make_unique<CheckpointManager>(id);
+    }
+
+    void Context::InitializeCheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion)
+    {
+        m_checkpointManager = std::make_unique<CheckpointManager>(commandName, commandArguments, clientVersion);
     }
 }

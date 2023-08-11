@@ -18,36 +18,33 @@ namespace AppInstaller::CLI::Workflow
 {
     void EnsureSupportForResume(Execution::Context& context)
     {
-        std::string resumeGuidString { context.Args.GetArg(Execution::Args::Type::ResumeId) };
-        if (!Utility::IsValidGuidString(resumeGuidString))
-        {
-            context.Reporter.Error() << Resource::String::InvalidResumeGuidError(Utility::LocIndView{ resumeGuidString }) << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_GUID);
-        }
+        UNREFERENCED_PARAMETER(context);
+        //std::string resumeGuidString { context.Args.GetArg(Execution::Args::Type::ResumeId) };
+        //if (!Utility::IsValidGuidString(resumeGuidString))
+        //{
+        //    context.Reporter.Error() << Resource::String::InvalidResumeGuidError(Utility::LocIndView{ resumeGuidString }) << std::endl;
+        //    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_GUID);
+        //}
 
-        GUID checkpointId = Utility::ConvertToGuid(resumeGuidString);
+        //GUID checkpointId = Utility::ConvertToGuid(resumeGuidString);
 
-        if (!std::filesystem::exists(AppInstaller::Repository::Microsoft::CheckpointIndex::GetCheckpointIndexPath(checkpointId)))
-        {
-            context.Reporter.Error() << Resource::String::ResumeGuidNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_GUID_NOT_FOUND);
-        }
+        //if (!std::filesystem::exists(AppInstaller::Repository::Microsoft::CheckpointIndex::GetCheckpointIndexPath(checkpointId)))
+        //{
+        //    context.Reporter.Error() << Resource::String::ResumeGuidNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
+        //    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_GUID_NOT_FOUND);
+        //}
 
-        // Find a good place to check this.
-        checkpointManager.Initialize(checkpointId);
+        //if (AppInstaller::Runtime::GetClientVersion().get() != resumeStateClientVersion)
+        //{
+        //    context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ resumeStateClientVersion }) << std::endl;
+        //    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
+        //}
 
-        const auto& resumeStateClientVersion = checkpointManager.GetClientVersion();
-        if (AppInstaller::Runtime::GetClientVersion().get() != resumeStateClientVersion)
-        {
-            context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ resumeStateClientVersion }) << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
-        }
-
-        if (!checkpointManager.HasContext())
-        {
-            context.Reporter.Error() << Resource::String::ResumeStateDataNotFoundError << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE);
-        }
+        //if (!checkpointManager.HasContext())
+        //{
+        //    context.Reporter.Error() << Resource::String::ResumeStateDataNotFoundError << std::endl;
+        //    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE);
+        //}
     }
 
     void Checkpoint::operator()(Execution::Context& context) const

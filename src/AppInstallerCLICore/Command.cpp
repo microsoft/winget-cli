@@ -858,8 +858,7 @@ namespace AppInstaller::CLI
             // Only the resume command requires a resume id. If not present, create checkpoint index and capture initial arguments.
             if (!context.Args.Contains(Execution::Args::Type::ResumeId))
             {
-                AICLI_LOG(CLI, Info, << "Initializing checkpoint manager.");
-                context.Checkpoint("CheckpointInitialized", {});
+                context.InitializeCheckpointManager(Name(), "install Microsoft.PowerToys"sv, AppInstaller::Runtime::GetClientVersion());
             }
         }
 
@@ -888,7 +887,8 @@ namespace AppInstaller::CLI
 
     void Command::Resume(Execution::Context& context) const
     {
-        // Command must implement this function, which should load everything from the context.
+        context.Reporter.Error() << Resource::String::PendingWorkError << std::endl;
+        THROW_HR(E_NOTIMPL);
     }
     
     void Command::SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value)

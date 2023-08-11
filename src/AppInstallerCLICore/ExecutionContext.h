@@ -186,6 +186,9 @@ namespace AppInstaller::CLI::Execution
 
         bool ShouldExecuteWorkflow() { return !m_disableWorkflowExecution; };
 
+        void InitializeCheckpointManager(GUID id);
+
+        void InitializeCheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion);
 
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent
@@ -212,7 +215,5 @@ namespace AppInstaller::CLI::Execution
         std::string_view m_checkpoint = {};
         std::string m_commandLineString = {};
         std::vector<std::string> m_commandLineArgs = {};
-
-        void InitializeCheckpointManager();
     };
 }

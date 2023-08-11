@@ -3,7 +3,6 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/ICheckpointIndex.h"
-#include "Microsoft/Schema/Checkpoint_1_0/CheckpointArgumentsTable.h"
 #include "Microsoft/SQLiteStorageBase.h"
 #include <winget/ManagedFile.h>
 
@@ -41,29 +40,17 @@ namespace AppInstaller::Repository::Microsoft
 
         std::string GetClientVersion();
 
-        void AddContext(int contextId);
+        IdType SetCommandName(std::string_view commandName);
 
-        void RemoveContext(int contextId);
+        std::string GetCommandName();
 
-        IdType SetCommandName(int contextId, std::string_view commandName);
+        IdType SetCommandArguments(std::string_view commandArguments);
 
-        std::string GetCommandName(int contextId);
+        std::string GetCommandArguments();
 
-        bool ContainsArgument(int contextId, std::string_view name);
+        IdType AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value);
 
-        bool UpdateArgument(int contextId, std::string_view name, std::string_view value);
-
-        bool UpdateArgument(int contextId, std::string_view name, bool value);
-
-        std::string GetStringArgument(int contextId, std::string_view name);
-
-        bool GetBoolArgument(int contextId, std::string_view name);
-
-        int GetFirstContextId();
-
-        bool SetLastCheckpoint(int contextId, int checkpointFlag);
-
-        int GetLastCheckpoint(int contextId);
+        void RemoveContextData(std::string_view checkpointName, int contextData);
 
     private:
         // Constructor used to open an existing index.

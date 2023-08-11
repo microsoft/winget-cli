@@ -138,8 +138,7 @@ namespace AppInstaller::CLI
         {
             context <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                Workflow::OpenSource() <<
-                Workflow::Checkpoint("SourceAdded"sv, { Execution::Data::Source });
+                Workflow::OpenSource();
 
             if (!context.Args.Contains(Execution::Args::Type::Force))
             {

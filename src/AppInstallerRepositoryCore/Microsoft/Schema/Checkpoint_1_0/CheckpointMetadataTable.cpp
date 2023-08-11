@@ -9,30 +9,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {
     using namespace std::string_view_literals;
     static constexpr std::string_view s_CheckpointMetadataTable_Table_Name = "CheckpointMetadata"sv;
-    static constexpr std::string_view s_CheckpointMetadataTable_Name_Column = "Name"sv;
-    static constexpr std::string_view s_CheckpointMetadataTable_Value_Column = "Value"sv;
+    static constexpr std::string_view s_CheckpointMetadataTable_Name_Column = "Name";
+    static constexpr std::string_view s_CheckpointMetadataTable_Value_Column = "Value";
 
-    static constexpr std::string_view s_CheckpointMetadataTable_CheckpointName = "CheckpointName"sv;
     static constexpr std::string_view s_CheckpointMetadataTable_ClientVersion = "ClientVersion"sv;
     static constexpr std::string_view s_CheckpointMetadataTable_CommandName = "CommandName"sv;
     static constexpr std::string_view s_CheckpointMetadataTable_CommandArguments = "CommandArguments"sv;
-    static constexpr std::string_view s_CheckpointMetadataTable_CommitTime = "CommandArguments"sv;c
-
-    static constexpr std::string_view s_CheckpointContextTable_CheckpointName_Column = "CheckpointName"sv;
-    static constexpr std::string_view s_CheckpointContextTable_ContextData_Column = "ContextData"sv;
-    static constexpr std::string_view s_CheckpointContextTable_Name_Column = "Name"sv;
-    static constexpr std::string_view s_CheckpointContextTable_Value_Column = "Value"sv;
 
     namespace
     {
-        SQLite::rowid_t SetNamedValue(SQLite::Connection& connection, std::string_view checkpoint, std::string_view name, std::string_view value)
+        SQLite::rowid_t SetNamedValue(SQLite::Connection& connection, std::string_view name, std::string_view value)
         {
             SQLite::Builder::StatementBuilder builder;
             builder.InsertInto(s_CheckpointMetadataTable_Table_Name)
-                .Columns({ s_CheckpointContextTable_CheckpointName_Column,
-                    s_CheckpointMetadataTable_Name_Column,
+                .Columns({ s_CheckpointMetadataTable_Name_Column,
                     s_CheckpointMetadataTable_Value_Column })
-                .Values(checkpoint, name, value);
+                .Values(name, value);
 
             builder.Execute(connection);
             return connection.GetLastInsertRowID();
@@ -62,11 +54,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createCheckpointMetadataTable_v1_0");
 
         StatementBuilder createTableBuilder;
-        createTableBuilder.CreateTable(s_CheckpointMetadataTable_Table_Name).Columns({
-            ColumnBuilder(s_CheckpointMetadataTable_Name_Column, Type::Text).NotNull(),
-            ColumnBuilder(s_CheckpointMetadataTable_Value_Column, Type::Text).NotNull()
-            });
-
+        createTableBuilder.CreateTable(s_CheckpointMetadataTable_Table_Name).BeginColumns();
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointMetadataTable_Name_Column, Type::Text));
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointMetadataTable_Value_Column, Type::Text));
+        createTableBuilder.EndColumns();
         createTableBuilder.Execute(connection);
 
         savepoint.Commit();
@@ -80,5 +71,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     std::string CheckpointMetadataTable::GetClientVersion(SQLite::Connection& connection)
     {
         return GetNamedValue(connection, s_CheckpointMetadataTable_ClientVersion);
+    }
+
+    SQLite::rowid_t CheckpointMetadataTable::SetCommandName(SQLite::Connection& connection, std::string_view commandName)
+    {
+        return SetNamedValue(connection, s_CheckpointMetadataTable_CommandName, commandName);
+    }
+
+    std::string CheckpointMetadataTable::GetCommandName(SQLite::Connection& connection)
+    {
+        return GetNamedValue(connection, s_CheckpointMetadataTable_CommandName);
+    }
+
+    SQLite::rowid_t CheckpointMetadataTable::SetCommandArguments(SQLite::Connection& connection, std::string_view commandArguments)
+    {
+        return SetNamedValue(connection, s_CheckpointMetadataTable_CommandArguments, commandArguments);
+    }
+
+    std::string CheckpointMetadataTable::GetCommandArguments(SQLite::Connection& connection)
+    {
+        return GetNamedValue(connection, s_CheckpointMetadataTable_CommandArguments);
     }
 }

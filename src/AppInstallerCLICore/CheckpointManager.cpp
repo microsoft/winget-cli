@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "AppInstallerRuntime.h"
 #include "CheckpointManager.h"
 #include "Microsoft/CheckpointIndex.h"
 #include "Microsoft/SQLiteStorageBase.h"
@@ -12,13 +11,8 @@ namespace AppInstaller::CLI::Checkpoint
 {
     CheckpointManager::CheckpointManager(GUID id)
     {
-        if (m_checkpointId == GUID_NULL)
-        {
-            std::ignore = CoCreateGuid(&m_checkpointId);
-        }
-
-        AICLI_LOG(CLI, Info, << "Checkpoint manager id: " << m_checkpointId);
-
+        m_checkpointId = id;
+        AICLI_LOG(CLI, Info, << "Opening checkpoint index with id: " << m_checkpointId);
         auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
         auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
         if (!checkpointIndex)
@@ -28,33 +22,41 @@ namespace AppInstaller::CLI::Checkpoint
         }
 
         m_checkpointIndex = std::move(checkpointIndex);
-        m_checkpointIndex->SetClientVersion(AppInstaller::Runtime::GetClientVersion());
+    }
+
+    CheckpointManager::CheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion)
+    {
+        std::ignore = CoCreateGuid(&m_checkpointId);
+
+        AICLI_LOG(CLI, Info, << "Creating checkpoint index with id: " << m_checkpointId);
+        auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
+        if (!checkpointIndex)
+        {
+            AICLI_LOG(CLI, Error, << "Unable to open checkpoint index.");
+            // TODO: Handle failure to open index gracefully.
+        }
+
+        m_checkpointIndex = std::move(checkpointIndex);
+        m_checkpointIndex->SetCommandName(commandName);
+        m_checkpointIndex->SetCommandArguments(commandArguments);
+        m_checkpointIndex->SetClientVersion(clientVersion);
     }
 
     template<>
     void CheckpointManager::RecordContextData(std::string_view checkpointName, Manifest::ManifestInstaller installer)
     {
-        // Capture all relevant data from the installer.
-        m_checkpointIndex->SetCommandName(0, installer.PackageFamilyName);
+        m_checkpointIndex->AddContextData(checkpointName, 1, "installerUrl"sv, installer.Url);
     };
-
-    void CheckpointManager::RecordMetadata(
-        std::string_view checkpointName,
-        std::string_view commandName,
-        std::string_view commandLineString,
-        std::string clientVersion)
-    {
-        // Capture these arguments from the checkpoint metadata.
-    }
 
     std::string CheckpointManager::GetClientVersion()
     {
         return m_checkpointIndex->GetClientVersion();
     }
 
-    std::string CheckpointManager::GetCommandName(int contextId)
+    std::string CheckpointManager::GetCommandName()
     {
-        return m_checkpointIndex->GetCommandName(contextId);
+        return m_checkpointIndex->GetCommandName();
     }
 
     void CheckpointManager::CleanUpIndex()
@@ -80,7 +82,6 @@ namespace AppInstaller::CLI::Checkpoint
 
     std::string CheckpointManager::GetArguments()
     {
-        // Return the actual command line arguments.
-        m_checkpointIndex->GetCommandName(0);
+        return m_checkpointIndex->GetCommandArguments();
     }
 }

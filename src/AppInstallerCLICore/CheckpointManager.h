@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ExecutionContext.h"
-
 #include "Microsoft/CheckpointIndex.h"
 #include <guiddef.h>
 
@@ -15,19 +13,25 @@ namespace AppInstaller::CLI::Checkpoint
 {
     struct CheckpointManager
     {
-        CheckpointManager(GUID id = {});
+        // Constructor for an existing resume id.
+        CheckpointManager(GUID id);
+        // Constructor for a new resume save state.
+        CheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion);
+        
         ~CheckpointManager();
 
         std::string GetClientVersion();
 
-        std::string GetCommandName(int contextId);
+        std::string GetCommandName();
 
         std::string GetArguments();
 
-        void RecordMetadata(std::string_view checkpointName, std::string_view commandName, std::string_view commandLineString, std::string clientVersion);
-
         template<class T>
-        void RecordContextData(std::string_view checkpointName, T data) {};
+        void RecordContextData(std::string_view checkpointName, T data)
+        {
+            UNREFERENCED_PARAMETER(checkpointName);
+            UNREFERENCED_PARAMETER(data);
+        }
 
     private:
         GUID m_checkpointId = {};
