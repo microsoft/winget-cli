@@ -56,6 +56,7 @@ jobs:
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
     buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
+    buildOutDirAnyCpu: $(Build.SourcesDirectory)\src\AnyCPU\$(buildConfiguration)
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
     packageLayoutDir: $(Build.BinariesDirectory)\WingetPackageLayout
 
@@ -218,8 +219,8 @@ jobs:
 
   - template: templates/e2e-setup.yml
     parameters:
-      source: $(Build.SourcesDirectory)
-      buildOutDir: $(buildOutDir)
+      sourceDir: $(Build.SourcesDirectory)
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -258,6 +259,20 @@ jobs:
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
       TargetFolder: '$(artifactsDir)\E2ETests\TestData'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy LocalhostWebServer'
+    inputs:
+      SourceFolder: '$(buildOutDir)\LocalhostWebServer'
+      TargetFolder: '$(artifactsDir)\E2ETests\LocalhostWebServer'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Package Dependencies'
+    inputs:
+      SourceFolder: '$(appxPackageDir)\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\'
+      TargetFolder: '$(artifactsDir)\E2ETests\DevPackageDependencies'
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
@@ -336,6 +351,13 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
+    displayName: 'Copy PowerShell AnyCPU Module Files'
+    inputs:
+      SourceFolder: '$(buildOutDirAnyCpu)\PowerShell'
+      TargetFolder: '$(artifactsDir)\PowerShell'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
     displayName: 'Copy Dev Package (Loose Files)'
     inputs:
       SourceFolder: '$(packageLayoutDir)'
@@ -407,7 +429,32 @@ jobs:
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
+  - task: PowerShell@2
+    displayName: Install Tests Dependencies
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-ChildItem E2ETests\DevPackageDependencies -Filter *.appx | %{ Add-AppxPackage $_.FullName }
+      workingDirectory: $(Pipeline.Workspace)\Build.x64release\
+
+  - template: templates/e2e-setup.yml
+    parameters:
+      sourceDir: $(Build.SourcesDirectory)
+      localhostWebServerArgs: '-BuildRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer -StaticFileRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
+
+  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
+    workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
+    displayName: Run Tests
+
+  - task: PublishTestResults@2
+    displayName: Publish Pester Test Results
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\PesterTest\Test*.xml'
+      failTaskOnFailedTests: true
+
   - task: PublishPipelineArtifact@1
     displayName: Publish PowerShell Module Artifacts
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
+    condition: succeededOrFailed()

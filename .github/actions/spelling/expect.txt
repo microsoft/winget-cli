@@ -120,11 +120,13 @@ EFGH
 EFile
 endregion
 ENDSESSION
+epth
 EQU
 errmsg
 ERRORONEXIT
 ESource
 ESRB
+ests
 etest
 etl
 execustom
@@ -173,6 +175,7 @@ hmodule
 Howto
 hre
 hresults
+hrow
 hwnd
 IARP
 IAttachment
