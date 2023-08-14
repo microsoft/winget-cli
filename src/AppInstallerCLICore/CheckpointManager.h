@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Microsoft/CheckpointIndex.h"
 #include <guiddef.h>
 
 namespace AppInstaller::Repository::Microsoft

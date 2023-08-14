@@ -5,7 +5,6 @@
 #include "COMContext.h"
 #include "Argument.h"
 #include "winget/UserSettings.h"
-#include "Command.h"
 
 namespace AppInstaller::CLI::Execution
 {
@@ -424,12 +423,13 @@ namespace AppInstaller::CLI::Execution
     // Initialized the checkpoint manager if it does not exist, then captures the automatic metadata as well as the context data.
     void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
     {
+        UNREFERENCED_PARAMETER(checkpointName);
         for (auto data : contextData)
         {
             switch (data)
             {
             case Execution::Data::Installer:
-                m_checkpointManager->RecordContextData(checkpointName, Get<Execution::Data::Installer>());
+                break;
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
@@ -455,11 +455,13 @@ namespace AppInstaller::CLI::Execution
 
     void Context::InitializeCheckpointManager(GUID id)
     {
-        m_checkpointManager = std::make_unique<CheckpointManager>(id);
+        auto checkpointManager = std::make_unique<CheckpointManager>(id);
+        m_checkpointManager = std::move(checkpointManager);
     }
 
     void Context::InitializeCheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion)
     {
-        m_checkpointManager = std::make_unique<CheckpointManager>(commandName, commandArguments, clientVersion);
+        auto checkpointManager = std::make_unique<CheckpointManager>(commandName, commandArguments, clientVersion);
+        m_checkpointManager = std::move(checkpointManager);
     }
 }
