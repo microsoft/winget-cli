@@ -52,11 +52,13 @@ namespace AppInstaller::CLI
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_GUID_NOT_FOUND);
         }
 
-        Execution::Context resumeContext{ std::cout, std::cin };
-        auto previousThreadGlobals = context.SetForCurrentThread();
-        context.EnableSignalTerminationHandler();
 
-        std::string commandName = context.GetCheckpointCommand();
+        Execution::Context resumeContext{ std::cout, std::cin };
+        auto previousThreadGlobals = resumeContext.SetForCurrentThread();
+        resumeContext.EnableSignalTerminationHandler();
+        resumeContext.InitializeCheckpointManager(checkpointId);
+
+        std::string commandName = resumeContext.GetCheckpointCommand();
         std::unique_ptr<Command> commandToResume;
 
         // Find the command using the root command.

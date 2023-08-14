@@ -65,22 +65,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         savepoint.Commit();
     }
 
-    std::optional<SQLite::rowid_t> CheckpointContextTable::SelectByCheckpointName(const SQLite::Connection& connection, std::string_view checkpointName)
+    std::map<std::string, std::string> CheckpointContextTable::GetContextData(const SQLite::Connection& connection, std::string_view checkpointName, int contextData)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select(SQLite::RowIDName).From(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointName_Column);
-        builder.Equals(checkpointName);
+        builder.Equals(checkpointName).And(s_CheckpointContextTable_ContextData_Column).Equals(contextData);
 
         SQLite::Statement select = builder.Prepare(connection);
 
-        if (select.Step())
+        std::map<std::string, std::string> contextDataMap;
+        while (select.Step())
         {
-            return select.GetColumn<SQLite::rowid_t>(0);
+            auto [rowCheckpointName, rowContextData, name, value] = select.GetRow<std::string, int, std::string, std::string>();
+            contextDataMap.emplace(name, value);
         }
-        else
-        {
-            return {};
-        }
+
+        return contextDataMap;
     }
 
     bool CheckpointContextTable::ExistsById(const SQLite::Connection& connection, SQLite::rowid_t id)

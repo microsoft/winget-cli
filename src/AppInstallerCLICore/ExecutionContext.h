@@ -174,13 +174,15 @@ namespace AppInstaller::CLI::Execution
         // Gets the target checkpoint of the resume state.
         std::string_view GetCheckpoint() { return m_checkpoint; };
 
+        std::string GetCommandLineFromArgs();
+
         std::string GetCheckpointCommand();
 
-        std::vector<std::string> GetCommandLineArgs() { return m_commandLineArgs; };
+        void SetCommandLineArgs(std::vector<std::string> args) { m_commandLineArgs = args; };
 
-        std::vector<std::string> GetCommandArguments();
+        std::vector<std::string> GetArgsFromCheckpointIndex();
 
-        void SetCommandArguments(std::vector<std::string> args);
+        std::string GetCommandLineString();
 
         void DisableWorkflowExecution(bool state) { m_disableWorkflowExecution = state; };
 
@@ -188,7 +190,7 @@ namespace AppInstaller::CLI::Execution
 
         void InitializeCheckpointManager(GUID id);
 
-        void InitializeCheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion);
+        void InitializeCheckpointManager(std::string_view commandName);
 
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent

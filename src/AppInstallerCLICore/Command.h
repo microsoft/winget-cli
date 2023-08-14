@@ -129,6 +129,7 @@ namespace AppInstaller::CLI
         Settings::TogglePolicy::Policy m_groupPolicy;
         CommandOutputFlags m_outputFlags;
         bool m_selectCurrentCommandIfUnrecognizedSubcommandFound = false;
+        std::string m_commandArguments;
     };
 
     template <typename Container>

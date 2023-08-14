@@ -104,8 +104,6 @@ namespace AppInstaller::CLI
                 return strstr.str();
             }());
 
-
-        context.SetCommandArguments(utf8Args);
         Invocation invocation{ std::move(utf8Args) };
 
         // The root command is our fallback in the event of very bad or very little input

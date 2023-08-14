@@ -72,6 +72,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return rowId;
     }
 
+    std::map<std::string, std::string> CheckpointIndexInterface::GetContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData)
+    {
+        return CheckpointContextTable::GetContextData(connection, checkpointName, contextData);
+    }
+
     void CheckpointIndexInterface::RemoveContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removeContextData_v1_0");

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <guiddef.h>
+#include "winget/ManifestCommon.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -25,12 +26,9 @@ namespace AppInstaller::CLI::Checkpoint
 
         std::string GetArguments();
 
-        template<class T>
-        void RecordContextData(std::string_view checkpointName, T data)
-        {
-            UNREFERENCED_PARAMETER(checkpointName);
-            UNREFERENCED_PARAMETER(data);
-        }
+        void LoadContextData(std::string_view checkpointName, AppInstaller::Manifest::ManifestInstaller& installer);
+
+        void RecordContextData(std::string_view checkpointName, const AppInstaller::Manifest::ManifestInstaller& installer);
 
     private:
         GUID m_checkpointId = {};

@@ -146,7 +146,7 @@ namespace AppInstaller::Repository::Microsoft
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_setcommandarguments");
 
-        IdType result = m_interface->SetClientVersion(m_dbconn, commandArguments);
+        IdType result = m_interface->SetCommandArguments(m_dbconn, commandArguments);
 
         SetLastWriteTime();
         savepoint.Commit();
@@ -167,6 +167,11 @@ namespace AppInstaller::Repository::Microsoft
         SQLite::rowid_t rowId = m_interface->AddContextData(m_dbconn, checkpointName, contextData, name, value);
         savepoint.Commit();
         return rowId;
+    }
+
+    std::map<std::string, std::string> CheckpointIndex::GetContextData(std::string_view checkpointName, int contextData)
+    {
+        return m_interface->GetContextData(m_dbconn, checkpointName, contextData);
     }
 
     void CheckpointIndex::RemoveContextData(std::string_view checkpointName, int contextData)

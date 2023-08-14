@@ -41,6 +41,8 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Adds the context data property for a given checkpoint.
         virtual SQLite::rowid_t AddContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData, std::string_view name, std::string_view value) = 0;
 
+        virtual std::map<std::string, std::string> GetContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData) = 0;
+
         // Removes the context data for a given checkpoint.
         virtual void RemoveContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData) = 0;
     };

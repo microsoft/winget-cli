@@ -43,11 +43,24 @@ namespace AppInstaller::CLI::Checkpoint
         m_checkpointIndex->SetClientVersion(clientVersion);
     }
 
-    template<>
-    void CheckpointManager::RecordContextData(std::string_view checkpointName, Manifest::ManifestInstaller installer)
+    void CheckpointManager::LoadContextData(std::string_view checkpointName, AppInstaller::Manifest::ManifestInstaller& installer)
     {
-        m_checkpointIndex->AddContextData(checkpointName, 1, "installerUrl"sv, installer.Url);
-    };
+        int contextData = static_cast<int>(Execution::Data::Installer);
+        const auto& map = m_checkpointIndex->GetContextData(checkpointName, contextData);
+        installer.Url = map.at("url");
+        installer.Arch = Utility::ConvertToArchitectureEnum(map.at("arch"));
+    }
+
+    void CheckpointManager::RecordContextData(std::string_view checkpointName, const AppInstaller::Manifest::ManifestInstaller& installer)
+    {
+        int contextData = static_cast<int>(Execution::Data::Installer);
+        m_checkpointIndex->AddContextData(checkpointName, contextData, "url"sv, installer.Url);
+        m_checkpointIndex->AddContextData(checkpointName, contextData, "arch"sv, ToString(installer.Arch));
+        m_checkpointIndex->AddContextData(checkpointName, contextData, "scope"sv, ScopeToString(installer.Scope));
+        m_checkpointIndex->AddContextData(checkpointName, contextData, "installerType"sv, InstallerTypeToString(installer.BaseInstallerType));
+        m_checkpointIndex->AddContextData(checkpointName, contextData, "sha256"sv, Utility::SHA256::ConvertToString(installer.Sha256));
+        m_checkpointIndex->AddContextData(checkpointName, contextData, "locale"sv, installer.Locale);
+    }
 
     std::string CheckpointManager::GetClientVersion()
     {

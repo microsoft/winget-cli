@@ -855,10 +855,9 @@ namespace AppInstaller::CLI
 
         if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
         {
-            // Only the resume command requires a resume id. If not present, create checkpoint index and capture initial arguments.
             if (!context.Args.Contains(Execution::Args::Type::ResumeId))
             {
-                context.InitializeCheckpointManager(Name(), "install Microsoft.PowerToys"sv, AppInstaller::Runtime::GetClientVersion());
+                context.InitializeCheckpointManager(Name());
             }
         }
 
