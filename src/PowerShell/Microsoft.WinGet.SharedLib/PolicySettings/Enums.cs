@@ -88,9 +88,9 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
         BypassCertificatePinningForMicrosoftStore,
 
         /// <summary>
-        /// Enabled Command line Intefaces.
+        /// Enabled Command line Interfaces.
         /// </summary>
-        WinGetCommandLineIntefaces,
+        WinGetCommandLineInterfaces,
     }
 
     /// <summary>

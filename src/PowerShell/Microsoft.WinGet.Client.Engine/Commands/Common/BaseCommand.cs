@@ -37,9 +37,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
                 throw new GroupPolicyException(Policy.WinGet, GroupPolicyFailureType.BlockedByPolicy);
             }
 
-            if (!groupPolicy.IsEnabled(Policy.WinGetCommandLineIntefaces))
+            if (!groupPolicy.IsEnabled(Policy.WinGetCommandLineInterfaces))
             {
-                throw new GroupPolicyException(Policy.WinGetCommandLineIntefaces, GroupPolicyFailureType.BlockedByPolicy);
+                throw new GroupPolicyException(Policy.WinGetCommandLineInterfaces, GroupPolicyFailureType.BlockedByPolicy);
             }
 
             this.PsCmdlet = psCmdlet;

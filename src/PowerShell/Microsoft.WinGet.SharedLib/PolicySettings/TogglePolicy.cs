@@ -121,7 +121,7 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
                     return new TogglePolicy(policy, "EnableAllowedSources", GroupPolicyResource.PolicyAllowedSources);
                 case Policy.BypassCertificatePinningForMicrosoftStore:
                     return new TogglePolicy(policy, "EnableBypassCertificatePinningForMicrosoftStore", GroupPolicyResource.PolicyEnableBypassCertificatePinningForMicrosoftStore);
-                case Policy.WinGetCommandLineIntefaces:
+                case Policy.WinGetCommandLineInterfaces:
                     return new TogglePolicy(policy, "EnableWindowsPackageManagerCommandLineInterfaces", GroupPolicyResource.PolicyEnableWindowsPackageManagerCommandLineInterfaces);
                 default:
                     throw new ArgumentException(null, nameof(policy));

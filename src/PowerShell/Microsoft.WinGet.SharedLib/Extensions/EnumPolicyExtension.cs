@@ -45,7 +45,7 @@ namespace Microsoft.WinGet.SharedLib.Extensions
                     return GroupPolicyResource.PolicyAllowedSources;
                 case Policy.BypassCertificatePinningForMicrosoftStore:
                     return GroupPolicyResource.PolicyEnableBypassCertificatePinningForMicrosoftStore;
-                case Policy.WinGetCommandLineIntefaces:
+                case Policy.WinGetCommandLineInterfaces:
                     return GroupPolicyResource.PolicyEnableWindowsPackageManagerCommandLineInterfaces;
                 default:
                     return string.Empty;
