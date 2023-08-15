@@ -3,7 +3,7 @@ ACCESSDENIED
 ACTIONDATA
 ACTIONSTART
 activatable
-addcontext
+addcontextdata
 addfile
 addmanifest
 addpin
@@ -117,7 +117,6 @@ debugbreak
 declspec
 decltype
 declval
-deconstructor
 defaultlocale
 delstore
 Demitrius
@@ -496,6 +495,7 @@ selectany
 SERVICEPACKMAJOR
 SERVICEPACKMINOR
 setclientversion
+setcommandarguments
 setcommandname
 setfill
 setschemaversion
@@ -641,13 +641,10 @@ Unmarshal
 Unregister
 Unregisters
 untimes
-updateboolargument
 updatefile
-updatelastcheckpointflag
 updatemanifest
 updatepin
 updateportablefile
-updatestringargument
 UPLEVEL
 upvote
 uregex
