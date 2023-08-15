@@ -94,13 +94,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="status">Status.</param>
         public static void ConfigureFeature(string featureName, bool status)
         {
-            JObject settingsJson = JObject.Parse(File.ReadAllText(TestSetup.Parameters.SettingsJsonFilePath));
-
-            if (!settingsJson.ContainsKey("experimentalFeatures"))
-            {
-                settingsJson["experimentalFeatures"] = new JObject();
-            }
-
+            JObject settingsJson = GetJsonSettingsObject("experimentalFeatures");
             var experimentalFeatures = settingsJson["experimentalFeatures"];
             experimentalFeatures[featureName] = status;
 
@@ -114,13 +108,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="value">Setting value.</param>
         public static void ConfigureInstallBehavior(string settingName, string value)
         {
-            JObject settingsJson = JObject.Parse(File.ReadAllText(TestSetup.Parameters.SettingsJsonFilePath));
-
-            if (!settingsJson.ContainsKey("installBehavior"))
-            {
-                settingsJson["installBehavior"] = new JObject();
-            }
-
+            JObject settingsJson = GetJsonSettingsObject("installBehavior");
             var installBehavior = settingsJson["installBehavior"];
             installBehavior[settingName] = value;
 
@@ -134,8 +122,14 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="value">Setting value.</param>
         public static void ConfigureInstallBehaviorPreferences(string settingName, string value)
         {
-            JObject settingsJson = GetJsonSettingsObject("installBehavior", "preferences");
+            JObject settingsJson = GetJsonSettingsObject("installBehavior");
             var installBehavior = settingsJson["installBehavior"];
+
+            if (installBehavior["preferences"] == null)
+            {
+                installBehavior["preferences"] = new JObject();
+            }
+
             var preferences = installBehavior["preferences"];
             preferences[settingName] = value;
 
@@ -149,8 +143,14 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="value">Setting value array.</param>
         public static void ConfigureInstallBehaviorPreferences(string settingName, string[] value)
         {
-            JObject settingsJson = GetJsonSettingsObject("installBehavior", "preferences");
+            JObject settingsJson = GetJsonSettingsObject("installBehavior");
             var installBehavior = settingsJson["installBehavior"];
+
+            if (installBehavior["preferences"] == null)
+            {
+                installBehavior["preferences"] = new JObject();
+            }
+
             var preferences = installBehavior["preferences"];
             preferences[settingName] = new JArray(value);
 
@@ -164,8 +164,14 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="value">Setting value.</param>
         public static void ConfigureInstallBehaviorRequirements(string settingName, string value)
         {
-            JObject settingsJson = GetJsonSettingsObject("installBehavior", "requirements");
+            JObject settingsJson = GetJsonSettingsObject("installBehavior");
             var installBehavior = settingsJson["installBehavior"];
+
+            if (installBehavior["requirements"] == null)
+            {
+                installBehavior["requirements"] = new JObject();
+            }
+
             var requirements = installBehavior["requirements"];
             requirements[settingName] = value;
 
@@ -179,8 +185,14 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="value">Setting value array.</param>
         public static void ConfigureInstallBehaviorRequirements(string settingName, string[] value)
         {
-            JObject settingsJson = GetJsonSettingsObject("installBehavior", "requirements");
+            JObject settingsJson = GetJsonSettingsObject("installBehavior");
             var installBehavior = settingsJson["installBehavior"];
+
+            if (installBehavior["requirements"] == null)
+            {
+                installBehavior["requirements"] = new JObject();
+            }
+
             var requirements = installBehavior["requirements"];
             requirements[settingName] = new JArray(value);
 
@@ -203,20 +215,13 @@ namespace AppInstallerCLIE2ETests.Helpers
             ConfigureFeature("download", status);
         }
 
-        private static JObject GetJsonSettingsObject(string objectName, string propertyName)
+        private static JObject GetJsonSettingsObject(string objectName)
         {
             JObject settingsJson = JObject.Parse(File.ReadAllText(TestSetup.Parameters.SettingsJsonFilePath));
 
             if (!settingsJson.ContainsKey(objectName))
             {
                 settingsJson[objectName] = new JObject();
-            }
-
-            var installBehavior = settingsJson[objectName];
-
-            if (installBehavior[propertyName] == null)
-            {
-                installBehavior[propertyName] = new JObject();
             }
 
             return settingsJson;

@@ -284,9 +284,9 @@ namespace AppInstaller::CLI::Workflow
 
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
-                std::string result = "InstallerType does not match required type: ";
+                std::string result = "InstallerType [";
                 result += InstallerTypeToString(installer.EffectiveInstallerType());
-                result += "Required InstallerTypes: ";
+                result += "] does not match required InstallerTypes: ";
                 result += m_requirementAsString;
                 return result;
             }
@@ -330,17 +330,14 @@ namespace AppInstaller::CLI::Workflow
                     ContainsInstallerType(m_preference, second.EffectiveInstallerType()) ||
                     ContainsInstallerType(m_preference, second.BaseInstallerType);
 
-                if (isFirstInstallerTypePreferred && isSecondInstallerTypePreferred)
+                if (isFirstInstallerTypePreferred == isSecondInstallerTypePreferred)
                 {
                     return false;
                 }
-
-                if (isFirstInstallerTypePreferred != isSecondInstallerTypePreferred)
+                else
                 {
                     return isFirstInstallerTypePreferred;
                 }
-
-                return false;
             }
 
         private:
