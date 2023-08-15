@@ -64,7 +64,7 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableWinget { get; private set; } = new GroupPolicyHelper("EnableAppInstaller");
 
         /// <summary>
-        /// Gets the Enable Windows Package Manager CommandLine Intefaces policy.
+        /// Gets the Enable Windows Package Manager CommandLine Interfaces policy.
         /// </summary>
         public static GroupPolicyHelper EnableWinGetCommandLineInterfaces { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManagerCommandLineInterfaces");
 
