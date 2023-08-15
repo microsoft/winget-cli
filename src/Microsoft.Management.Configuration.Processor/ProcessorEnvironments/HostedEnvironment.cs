@@ -247,7 +247,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             var getModuleInfoFile = Path.Combine(module.ModuleBase, "PSGetModuleInfo.xml");
             if (!File.Exists(getModuleInfoFile))
             {
-                // Kepp Get-InstalledModule behaviour.
+                // Keep Get-InstalledModule behaviour.
                 return null;
             }
 
