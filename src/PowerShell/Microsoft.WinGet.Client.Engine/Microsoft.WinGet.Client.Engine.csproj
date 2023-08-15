@@ -30,6 +30,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Microsoft.WinGet.SharedLib\Exceptions\GroupPolicyException.cs" Link="Exceptions\GroupPolicyException.cs" />
+    <Compile Include="..\Microsoft.WinGet.SharedLib\Extensions\EnumPolicyExtension.cs" Link="Extensions\EnumPolicyExtension.cs" />
+    <Compile Include="..\Microsoft.WinGet.SharedLib\PolicySettings\Enums.cs" Link="PolicySettings\Enums.cs" />
+    <Compile Include="..\Microsoft.WinGet.SharedLib\PolicySettings\GroupPolicy.cs" Link="PolicySettings\GroupPolicy.cs" />
+    <Compile Include="..\Microsoft.WinGet.SharedLib\PolicySettings\TogglePolicy.cs" Link="PolicySettings\TogglePolicy.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Octokit" Version="4.0.3" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
@@ -38,7 +46,7 @@
     </PackageReference>
     <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" Condition="'$(TargetFramework)' == '$(DesktopFramework)'"/>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -108,6 +116,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Update="Resources\GroupPolicyResource.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GroupPolicyResource.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -134,6 +147,15 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Update="Resources\GroupPolicyResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>GroupPolicyResource.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.WinGet.SharedLib.Resources</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="PolicySettings\" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
