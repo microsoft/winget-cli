@@ -162,35 +162,26 @@ namespace AppInstaller::CLI::Execution
         // Enable tests to override behavior
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
-        // Sets the current checkpoint flag of the context.
-        void SetCurrentCheckpoint(std::string_view checkpointName) { m_checkpoint = checkpointName; }
+        // Initialize an existing checkpoint manager with a resume id.
+        void InitializeCheckpointManager(GUID id);
 
-        // Retrieves the checkpoints stored in the checkpoint index and populates the context state.
-        void LoadCheckpoints();
+        // Initialize a new checkpoint manager.
+        void InitializeCheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion);
 
         // Records the provided context data to the checkpoint index. If it already exists, loads the context instead.
         void Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);
 
-        // Gets the target checkpoint of the resume state.
-        std::string_view GetCheckpoint() { return m_checkpoint; };
-
+        // Gets the command line string from the store context arguments.
         std::string GetCommandLineFromArgs();
 
-        std::string GetCheckpointCommand();
+        // Gets the arguments from the checkpoint index.
+        std::vector<std::string> GetArgsFromCheckpoint();
 
-        void SetCommandLineArgs(std::vector<std::string> args) { m_commandLineArgs = args; };
+        // Gets the command name from the checkpoint index.
+        std::string GetCommandNameFromCheckpoint();
 
-        std::vector<std::string> GetArgsFromCheckpointIndex();
-
-        std::string GetCommandLineString();
-
-        void DisableWorkflowExecution(bool state) { m_disableWorkflowExecution = state; };
-
-        bool ShouldExecuteWorkflow() { return !m_disableWorkflowExecution; };
-
-        void InitializeCheckpointManager(GUID id);
-
-        void InitializeCheckpointManager(std::string_view commandName);
+        // Gets the client version from the checkpoint index.
+        std::string GetClientVersionFromCheckpoint();
 
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent
@@ -210,12 +201,6 @@ namespace AppInstaller::CLI::Execution
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
-
-        // This store the entire command line string that is used to execute a command. 
         std::unique_ptr<Checkpoint::CheckpointManager> m_checkpointManager;
-        bool m_disableWorkflowExecution = false;
-        std::string_view m_checkpoint = {};
-        std::string m_commandLineString = {};
-        std::vector<std::string> m_commandLineArgs = {};
     };
 }

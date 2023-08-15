@@ -252,6 +252,12 @@ namespace AppInstaller::CLI::Execution
 
     Context::~Context()
     {
+        // TODO: Update so that only certain terminated HRs allow the checkpoint index to persist.
+        if (!m_isTerminated)
+        {
+            m_checkpointManager->CleanUpIndex();
+        }
+
         if (m_disableSignalTerminationHandlerOnExit)
         {
             EnableSignalTerminationHandler(false);
@@ -410,60 +416,21 @@ namespace AppInstaller::CLI::Execution
     }
 #endif
 
-    std::string Context::GetCheckpointCommand()
+    void Context::InitializeCheckpointManager(GUID id)
     {
-        return m_checkpointManager->GetCommandName();
+        m_checkpointManager = std::make_unique<CheckpointManager>(id);
     }
 
-    void Context::LoadCheckpoints()
+    void Context::InitializeCheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion)
     {
-        // Hard code retrieve the installer
-        AppInstaller::Manifest::ManifestInstaller installer;
-        m_checkpointManager->LoadContextData("InstallerSelected"sv, installer);
-        Add<Execution::Data::Installer>(installer);
+        m_checkpointManager = std::make_unique<CheckpointManager>(commandName, commandArguments, clientVersion);
     }
 
     void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
     {
-        for (auto data : contextData)
-        {
-            switch (data)
-            {
-            case Execution::Data::Installer:
-            {
-                const auto& installer = Get<Execution::Data::Installer>().value();
-                m_checkpointManager->RecordContextData(checkpointName, installer);
-                break;
-            }
-            default:
-                THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-            }
-        }
-    }
-
-    std::string Context::GetCommandLineString()
-    {
-        std::stringstream strstr;
-        for (const auto& arg : m_commandLineArgs)
-        {
-            strstr << arg << ' ';
-        }
-
-        return strstr.str();
-    }
-
-    void Context::InitializeCheckpointManager(GUID id)
-    {
-        auto checkpointManager = std::make_unique<CheckpointManager>(id);
-        m_checkpointManager = std::move(checkpointManager);
-    }
-
-    void Context::InitializeCheckpointManager(std::string_view commandName)
-    {
-        const auto& clientVersion = AppInstaller::Runtime::GetClientVersion();
-        const auto& commandLineString = GetCommandLineFromArgs();
-        auto checkpointManager = std::make_unique<CheckpointManager>(commandName, commandLineString, clientVersion);
-        m_checkpointManager = std::move(checkpointManager);
+        // TODO: Implementation for capturing each context data specified in the provided vector.
+        UNREFERENCED_PARAMETER(checkpointName);
+        UNREFERENCED_PARAMETER(contextData);
     }
 
     std::string Context::GetCommandLineFromArgs()
@@ -478,9 +445,19 @@ namespace AppInstaller::CLI::Execution
         return commandLine;
     }
 
-    std::vector<std::string> Context::GetArgsFromCheckpointIndex()
+    std::vector<std::string> Context::GetArgsFromCheckpoint()
     {
         const auto& commandLineString = m_checkpointManager->GetArguments();
         return Utility::Split(commandLineString, ' ');
+    }
+
+    std::string Context::GetCommandNameFromCheckpoint()
+    {
+        return m_checkpointManager->GetCommandName();
+    }
+
+    std::string Context::GetClientVersionFromCheckpoint()
+    {
+        return m_checkpointManager->GetClientVersion();
     }
 }

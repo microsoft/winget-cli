@@ -169,9 +169,9 @@ namespace AppInstaller::Repository::Microsoft
         return rowId;
     }
 
-    std::map<std::string, std::string> CheckpointIndex::GetContextData(std::string_view checkpointName, int contextData)
+    std::string CheckpointIndex::GetContextData(std::string_view checkpointName, int contextData, std::string_view name)
     {
-        return m_interface->GetContextData(m_dbconn, checkpointName, contextData);
+        return m_interface->GetContextData(m_dbconn, checkpointName, contextData, name);
     }
 
     void CheckpointIndex::RemoveContextData(std::string_view checkpointName, int contextData)

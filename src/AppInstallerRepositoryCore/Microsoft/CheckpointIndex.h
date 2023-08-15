@@ -50,7 +50,7 @@ namespace AppInstaller::Repository::Microsoft
 
         IdType AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value);
 
-        std::map<std::string, std::string> GetContextData(std::string_view checkpointName, int contextData);
+        std::string GetContextData(std::string_view checkpointName, int contextData, std::string_view name);
 
         void RemoveContextData(std::string_view checkpointName, int contextData);
 

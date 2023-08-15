@@ -20,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         SQLite::rowid_t SetCommandArguments(SQLite::Connection& connection, std::string_view commandArguments) override;
         std::string GetCommandArguments(SQLite::Connection& connection) override;
         SQLite::rowid_t AddContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData, std::string_view name, std::string_view value) override;
-        std::map<std::string, std::string> GetContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData) override;
+        std::string GetContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData, std::string_view name) override;
         void RemoveContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData) override;
 
     };

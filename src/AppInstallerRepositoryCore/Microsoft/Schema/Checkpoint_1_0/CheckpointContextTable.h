@@ -25,14 +25,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         // Gets a value indicating whether the table is empty.
         static bool IsEmpty(SQLite::Connection& connection);
 
-        // Selects the context data by checkpoint name from the table, returning the rowid if it exists.
-        static std::map<std::string, std::string> GetContextData(const SQLite::Connection& connection, std::string_view checkpointName, int contextData);
-
         // Adds a checkpoint row.
         static SQLite::rowid_t AddCheckpoint(SQLite::Connection& connection, std::string_view checkpointName);
 
         static SQLite::rowid_t AddContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData, std::string_view name, std::string_view value);
         
+        static std::string GetContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData, std::string_view name);
+
         static void RemoveContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData);
     };
 }

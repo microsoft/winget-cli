@@ -73,11 +73,6 @@ namespace AppInstaller
         void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(Utility::LocIndString* displayName);
         void TestHook_SetWindowsFeatureGetRestartStatusResult_Override(AppInstaller::WindowsFeature::DismRestartType* restartType);
     }
-
-    namespace CLI::Checkpoint
-    {
-        void TestHook_MockCheckpointManagerCleanUp_Override(bool status);
-    }
 }
 
 namespace TestHook
@@ -247,18 +242,5 @@ namespace TestHook
 
     private:
         std::vector<AppInstaller::Repository::ExtractedIconInfo> m_extractedIcons;
-    };
-
-    struct MockCheckpointManagerCleanUp_Override
-    {
-        MockCheckpointManagerCleanUp_Override()
-        {
-            AppInstaller::CLI::Checkpoint::TestHook_MockCheckpointManagerCleanUp_Override(true);
-        }
-
-        ~MockCheckpointManagerCleanUp_Override()
-        {
-            AppInstaller::CLI::Checkpoint::TestHook_MockCheckpointManagerCleanUp_Override(false);
-        }
     };
 }

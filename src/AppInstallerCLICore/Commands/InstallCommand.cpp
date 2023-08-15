@@ -106,15 +106,11 @@ namespace AppInstaller::CLI
 
     void InstallCommand::Resume(Context& context) const
     {
-        auto commandLineArgs = context.GetArgsFromCheckpointIndex();
+        auto commandLineArgs = context.GetArgsFromCheckpoint();
         Invocation invocation{ std::move(commandLineArgs) };
         ParseArguments(invocation, context.Args);
 
-        context.LoadCheckpoints();
-
-        // Set flags and disable workflow execution.
         context.SetFlags(Execution::ContextFlag::Resume);
-        context.DisableWorkflowExecution(true);
         ExecuteInternal(context);
     }
 

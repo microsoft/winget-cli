@@ -350,7 +350,7 @@ namespace AppInstaller::CLI
         case Args::Type::InstallerType:
             return Argument{ type, Resource::String::InstallerTypeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
         case Args::Type::ResumeId:
-            return Argument{ type, Resource::String::ResumeGuidArgumentDescription, ArgumentType::Standard, true };
+            return Argument{ type, Resource::String::ResumeIdArgumentDescription, ArgumentType::Standard, true };
         default:
             THROW_HR(E_UNEXPECTED);
         }

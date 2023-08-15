@@ -17,16 +17,6 @@ using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Settings;
 using namespace TestCommon;
 
-namespace
-{
-    // IMPORTANT:
-    // Since checkpoint manager is a static singleton class, the deconstructor is not called until after the tests are done.
-    // This will cause issues with the teardown process, as the temp directory will try to remove itself while the checkpoint manager still holds
-    // the handle to the index file. To resolve this, clean up for the Checkpoint Manager has been disabled and any tests that involve an index must call
-    // 'Checkpoint::CheckpointManager::Instance().ManualReset()'.
-    auto mockCheckpointManagerCleanUp = TestHook::MockCheckpointManagerCleanUp_Override();
-}
-
 TEST_CASE("ResumeFlow_InvalidGuid", "[Resume]")
 {
     std::ostringstream resumeOutput;
@@ -40,8 +30,8 @@ TEST_CASE("ResumeFlow_InvalidGuid", "[Resume]")
     resume.Execute(context);
     INFO(resumeOutput.str());
 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INVALID_RESUME_GUID);
-    auto expectedMessage = Resource::String::InvalidResumeGuidError(AppInstaller::Utility::LocIndString{ "badGuid"s });
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INVALID_RESUME_ID);
+    auto expectedMessage = Resource::String::InvalidResumeIdError(AppInstaller::Utility::LocIndString{ "badGuid"s });
     REQUIRE(resumeOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
 }
 
@@ -59,8 +49,8 @@ TEST_CASE("ResumeFlow_IndexNotFound", "[Resume]")
     resume.Execute(context);
     INFO(resumeOutput.str());
 
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_RESUME_GUID_NOT_FOUND);
-    auto expectedMessage = Resource::String::ResumeGuidNotFoundError(AppInstaller::Utility::LocIndString(tempGuidString));
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND);
+    auto expectedMessage = Resource::String::ResumeIdNotFoundError(AppInstaller::Utility::LocIndString(tempGuidString));
     REQUIRE(resumeOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
 }
 
@@ -75,7 +65,7 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     std::string tempGuidString = "{b157d11f-4487-4e03-9447-9f9d50d66d8e}";
     std::string tempFileName = tempGuidString + ".db";
     auto tempIndexPath = tempCheckpointIndexDirectoryPath / tempFileName;
-    std::string invalidClientVersion{ "1.2.3.4 "};
+    std::string_view invalidClientVersion = "1.2.3.4"sv;
 
     INFO("Using temporary file named: " << tempIndexPath);
 
@@ -97,9 +87,6 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
     auto expectedMessage = Resource::String::ClientVersionMismatchError(AppInstaller::Utility::LocIndString(invalidClientVersion));
     REQUIRE(resumeOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
-    
-    // Manually reset index to allow for proper clean up. 
-    Checkpoint::CheckpointManager::Instance().ManualReset();
 }
 
 TEST_CASE("ResumeFlow_EmptyIndex", "Resume")
@@ -133,12 +120,9 @@ TEST_CASE("ResumeFlow_EmptyIndex", "Resume")
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE);
     REQUIRE(resumeOutput.str().find(Resource::LocString(Resource::String::ResumeStateDataNotFoundError).get()) != std::string::npos);
-
-    // Manually reset index to allow for proper clean up. 
-    Checkpoint::CheckpointManager::Instance().ManualReset();
 }
 
-TEST_CASE("ResumeFlow_VerifyContextStateRemovedForInstallSuccess", "[Resume]")
+TEST_CASE("ResumeFlow_InstallSuccess", "[Resume]")
 {
     TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
 
@@ -150,18 +134,21 @@ TEST_CASE("ResumeFlow_VerifyContextStateRemovedForInstallSuccess", "[Resume]")
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForShellExecute(context);
+    {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        OverrideForShellExecute(context);
 
-    const auto& testManifestPath = TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string();
-    context.Args.AddArg(Execution::Args::Type::Manifest, testManifestPath);
+        const auto& testManifestPath = TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string();
+        context.Args.AddArg(Execution::Args::Type::Manifest, testManifestPath);
 
-    InstallCommand install({});
-    context.SetExecutingCommand(&install);
-    install.Execute(context);
-
+        InstallCommand install({});
+        context.SetExecutingCommand(&install);
+        install.Execute(context);
+        INFO(installOutput.str());
+    }
+    
     // Verify Installer is called and parameters are passed in.
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());
@@ -171,29 +158,18 @@ TEST_CASE("ResumeFlow_VerifyContextStateRemovedForInstallSuccess", "[Resume]")
     REQUIRE(installResultStr.find("/custom") != std::string::npos);
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 
-    // Only one checkpoint file should be created.
+    // The checkpoint index should not exist if the context succeeded.
     std::vector<std::filesystem::path> checkpointFiles;
     for (const auto& entry : std::filesystem::directory_iterator(tempCheckpointIndexDirectoryPath))
     {
         checkpointFiles.emplace_back(entry.path());
     }
 
-    REQUIRE(checkpointFiles.size() == 1);
-
-    std::filesystem::path checkpointIndexPath = checkpointFiles[0];
-    REQUIRE(std::filesystem::exists(checkpointIndexPath));
-
-    {
-        CheckpointIndex index = CheckpointIndex::Open(checkpointIndexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
-        REQUIRE(index.IsEmpty());
-    }
-
-    // Manually reset index to allow for proper index clean up. 
-    Checkpoint::CheckpointManager::Instance().ManualReset();
+    REQUIRE(checkpointFiles.size() == 0);
 }
 
 // TODO: This test will need to be updated once saving the resume state is restricted to certain HRs.
-TEST_CASE("ResumeFlow_VerifyContextStateSavedForInstallFailure", "[Resume]")
+TEST_CASE("ResumeFlow_InstallFailure", "[Resume]")
 {
     TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
 
@@ -203,21 +179,23 @@ TEST_CASE("ResumeFlow_VerifyContextStateSavedForInstallFailure", "[Resume]")
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFResume>(true);
 
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
+    {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
 
-    const auto& testManifestPath = TestDataFile("InstallFlowTest_UnsupportedArguments.yaml").GetPath().u8string();
-    context.Args.AddArg(Execution::Args::Type::Manifest, testManifestPath);
-    context.Args.AddArg(Execution::Args::Type::InstallLocation, "installLocation"sv);
+        const auto& testManifestPath = TestDataFile("InstallFlowTest_UnsupportedArguments.yaml").GetPath().u8string();
+        context.Args.AddArg(Execution::Args::Type::Manifest, testManifestPath);
+        context.Args.AddArg(Execution::Args::Type::InstallLocation, "installLocation"sv);
 
-    InstallCommand install({});
-    context.SetExecutingCommand(&install);
-    install.Execute(context);
-    INFO(installOutput.str());
+        InstallCommand install({});
+        context.SetExecutingCommand(&install);
+        install.Execute(context);
+        INFO(installOutput.str());
 
-    // Verify unsupported arguments error message is shown 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+        // Verify unsupported arguments error message is shown 
+        REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+    }
 
     // Only one checkpoint file should be created.
     std::vector<std::filesystem::path> checkpointFiles;
@@ -230,15 +208,4 @@ TEST_CASE("ResumeFlow_VerifyContextStateSavedForInstallFailure", "[Resume]")
 
     std::filesystem::path checkpointIndexPath = checkpointFiles[0];
     REQUIRE(std::filesystem::exists(checkpointIndexPath));
-
-    {
-        CheckpointIndex index = CheckpointIndex::Open(checkpointIndexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
-        REQUIRE_FALSE(index.IsEmpty());
-        int contextId = index.GetFirstContextId();
-        REQUIRE(index.GetStringArgument(contextId, "manifest"sv) == testManifestPath);
-        REQUIRE(index.GetStringArgument(contextId, "location"sv) == "installLocation"sv);
-    }
-
-    // Manually reset index to allow for proper index clean up. 
-    Checkpoint::CheckpointManager::Instance().ManualReset();
 }

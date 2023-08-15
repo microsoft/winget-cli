@@ -4,21 +4,22 @@
 #include "CheckpointManager.h"
 #include "Microsoft/CheckpointIndex.h"
 #include "Microsoft/SQLiteStorageBase.h"
-#include <Argument.h>
-#include <Command.h>
+#include <AppInstallerErrors.h>
 
 namespace AppInstaller::CLI::Checkpoint
 {
+    using namespace AppInstaller::Repository::Microsoft;
+
     CheckpointManager::CheckpointManager(GUID id)
     {
         m_checkpointId = id;
         AICLI_LOG(CLI, Info, << "Opening checkpoint index with id: " << m_checkpointId);
-        auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
-        auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
+        auto openDisposition = SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto checkpointIndex = CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
         if (!checkpointIndex)
         {
             AICLI_LOG(CLI, Error, << "Unable to open checkpoint index.");
-            // TODO: Handle failure to open index gracefully.
+            THROW_HR_MSG(APPINSTALLER_CLI_ERROR_CANNOT_OPEN_CHECKPOINT_INDEX, "The checkpoint index could not be opened.");
         }
 
         m_checkpointIndex = std::move(checkpointIndex);
@@ -29,37 +30,18 @@ namespace AppInstaller::CLI::Checkpoint
         std::ignore = CoCreateGuid(&m_checkpointId);
 
         AICLI_LOG(CLI, Info, << "Creating checkpoint index with id: " << m_checkpointId);
-        auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
-        auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
+        auto openDisposition = SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto checkpointIndex = CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
         if (!checkpointIndex)
         {
             AICLI_LOG(CLI, Error, << "Unable to open checkpoint index.");
-            // TODO: Handle failure to open index gracefully.
+            return;
         }
 
         m_checkpointIndex = std::move(checkpointIndex);
         m_checkpointIndex->SetCommandName(commandName);
         m_checkpointIndex->SetCommandArguments(commandArguments);
         m_checkpointIndex->SetClientVersion(clientVersion);
-    }
-
-    void CheckpointManager::LoadContextData(std::string_view checkpointName, AppInstaller::Manifest::ManifestInstaller& installer)
-    {
-        int contextData = static_cast<int>(Execution::Data::Installer);
-        const auto& map = m_checkpointIndex->GetContextData(checkpointName, contextData);
-        installer.Url = map.at("url");
-        installer.Arch = Utility::ConvertToArchitectureEnum(map.at("arch"));
-    }
-
-    void CheckpointManager::RecordContextData(std::string_view checkpointName, const AppInstaller::Manifest::ManifestInstaller& installer)
-    {
-        int contextData = static_cast<int>(Execution::Data::Installer);
-        m_checkpointIndex->AddContextData(checkpointName, contextData, "url"sv, installer.Url);
-        m_checkpointIndex->AddContextData(checkpointName, contextData, "arch"sv, ToString(installer.Arch));
-        m_checkpointIndex->AddContextData(checkpointName, contextData, "scope"sv, ScopeToString(installer.Scope));
-        m_checkpointIndex->AddContextData(checkpointName, contextData, "installerType"sv, InstallerTypeToString(installer.BaseInstallerType));
-        m_checkpointIndex->AddContextData(checkpointName, contextData, "sha256"sv, Utility::SHA256::ConvertToString(installer.Sha256));
-        m_checkpointIndex->AddContextData(checkpointName, contextData, "locale"sv, installer.Locale);
     }
 
     std::string CheckpointManager::GetClientVersion()
@@ -72,29 +54,23 @@ namespace AppInstaller::CLI::Checkpoint
         return m_checkpointIndex->GetCommandName();
     }
 
+    std::string CheckpointManager::GetArguments()
+    {
+        return m_checkpointIndex->GetCommandArguments();
+    }
+
     void CheckpointManager::CleanUpIndex()
     {
-        bool isIndexEmpty = m_checkpointIndex->IsEmpty();
-
-        m_checkpointIndex.reset();
-
-        if (isIndexEmpty)
+        if (m_checkpointIndex != nullptr)
         {
-            const auto& checkpointIndexPath = AppInstaller::Repository::Microsoft::CheckpointIndex::GetCheckpointIndexPath(m_checkpointId);
-            if (std::filesystem::remove(checkpointIndexPath))
+            m_checkpointIndex.reset();
+            const auto& checkpointIndexPath = CheckpointIndex::GetCheckpointIndexPath(m_checkpointId);
+
+            std::error_code error;
+            if (std::filesystem::remove(checkpointIndexPath, error))
             {
                 AICLI_LOG(CLI, Info, << "Checkpoint index deleted: " << checkpointIndexPath);
             }
         }
-    }
-
-    CheckpointManager::~CheckpointManager()
-    {
-        CleanUpIndex();
-    }
-
-    std::string CheckpointManager::GetArguments()
-    {
-        return m_checkpointIndex->GetCommandArguments();
     }
 }

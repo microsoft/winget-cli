@@ -1275,14 +1275,6 @@ AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::
 
 AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, const AppInstaller::CLI::Workflow::WorkflowTask& task)
 {
-    if (AppInstaller::Settings::ExperimentalFeature::IsEnabled(AppInstaller::Settings::ExperimentalFeature::Feature::Resume))
-    {
-        if (WI_IsFlagSet(context.GetFlags(), AppInstaller::CLI::Execution::ContextFlag::Resume) && !context.ShouldExecuteWorkflow())
-        {
-            return context;
-        }
-    }
-
     if (!context.IsTerminated())
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS

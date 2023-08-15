@@ -40,16 +40,16 @@ namespace AppInstaller::CLI
         std::string resumeGuidString { context.Args.GetArg(Execution::Args::Type::ResumeId) };
         if (!Utility::IsValidGuidString(resumeGuidString))
         {
-            context.Reporter.Error() << Resource::String::InvalidResumeGuidError(Utility::LocIndView{ resumeGuidString }) << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_GUID);
+            context.Reporter.Error() << Resource::String::InvalidResumeIdError(Utility::LocIndView{ resumeGuidString }) << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_ID);
         }
 
         GUID checkpointId = Utility::ConvertToGuid(resumeGuidString);
 
         if (!std::filesystem::exists(AppInstaller::Repository::Microsoft::CheckpointIndex::GetCheckpointIndexPath(checkpointId)))
         {
-            context.Reporter.Error() << Resource::String::ResumeGuidNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_GUID_NOT_FOUND);
+            context.Reporter.Error() << Resource::String::ResumeIdNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND);
         }
 
 
@@ -58,7 +58,14 @@ namespace AppInstaller::CLI
         resumeContext.EnableSignalTerminationHandler();
         resumeContext.InitializeCheckpointManager(checkpointId);
 
-        std::string commandName = resumeContext.GetCheckpointCommand();
+        const auto& checkpointClientVersion = resumeContext.GetClientVersionFromCheckpoint();
+        if (checkpointClientVersion != AppInstaller::Runtime::GetClientVersion().get())
+        {
+            context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ checkpointClientVersion }) << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
+        }
+
+        std::string commandName = resumeContext.GetCommandNameFromCheckpoint();
         std::unique_ptr<Command> commandToResume;
 
         // Find the command using the root command.
