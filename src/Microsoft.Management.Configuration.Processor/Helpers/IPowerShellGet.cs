@@ -79,13 +79,15 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// </summary>
         /// <param name="pwsh">PowerShell instance.</param>
         /// <param name="inputObject">Input object.</param>
-        void InstallModule(PowerShell pwsh, PSObject inputObject);
+        /// <param name="allUsers">If to install to all users.</param>
+        void InstallModule(PowerShell pwsh, PSObject inputObject, bool allUsers);
 
         /// <summary>
         /// Calls Install-Module with a module specification.
         /// </summary>
         /// <param name="pwsh">PowerShell instance.</param>
         /// <param name="moduleSpecification">Module specification.</param>
-        void InstallModule(PowerShell pwsh, ModuleSpecification moduleSpecification);
+        /// <param name="allUsers">If to install to all users.</param>
+        void InstallModule(PowerShell pwsh, ModuleSpecification moduleSpecification, bool allUsers);
     }
 }

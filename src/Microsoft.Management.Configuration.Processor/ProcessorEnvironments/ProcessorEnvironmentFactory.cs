@@ -71,7 +71,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
                 var runspace = RunspaceFactory.CreateRunspace(initialSessionState);
                 runspace.Open();
 
-                return new HostedEnvironment(runspace, this.type, dscModule)
+                return new HostedEnvironment(runspace, this.type, PowerShellConfigurationProcessorScope.CurrentUser, dscModule)
                 {
                     SetProcessorFactory = setProcessorFactory,
                 };
