@@ -285,7 +285,7 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableAllowedSources"sv, String::PolicyAllowedSources);
         case TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore:
             return TogglePolicy(policy, "EnableBypassCertificatePinningForMicrosoftStore"sv, String::PolicyEnableBypassCertificatePinningForMicrosoftStore);
-        case TogglePolicy::Policy::WinGetCommandLineIntefaces:
+        case TogglePolicy::Policy::WinGetCommandLineInterfaces:
             return TogglePolicy(policy, "EnableWindowsPackageManagerCommandLineInterfaces"sv, String::PolicyEnableWindowsPackageManagerCommandLineInterfaces);
         default:
             THROW_HR(E_UNEXPECTED);
