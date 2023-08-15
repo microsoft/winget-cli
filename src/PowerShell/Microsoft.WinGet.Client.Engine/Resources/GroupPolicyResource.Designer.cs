@@ -187,7 +187,7 @@ namespace Microsoft.WinGet.SharedLib.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error occurred when retreiving policy settings for the Group Policy : {0}.
+        ///   Looks up a localized string similar to Error occurred when retrieving policy settings for the Group Policy : {0}.
         /// </summary>
         internal static string PolicyNotFound {
             get {

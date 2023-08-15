@@ -51,7 +51,7 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
         /// Gets the current of status of Policy.
         /// </summary>
         /// <param name="policy">Policy.</param>
-        /// <returns>Policy cofiguration status.</returns>
+        /// <returns>Policy configuration status.</returns>
         public PolicyState GetPolicyState(Policy policy)
         {
             if (!this.togglePolicyMap.ContainsKey(policy))
@@ -86,9 +86,9 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
         }
 
         /// <summary>
-        /// Loads the list of inputed policies.
+        /// Loads the collection of TogglePolicy.
         /// </summary>
-        /// <param name="policies">Enumberable list of policies to be loaded.</param>
+        /// <param name="policies">Enumerable collection of TogglePolicy.</param>
         internal void Load(IEnumerable<TogglePolicy> policies)
         {
             using (RegistryKey regKey = Registry.LocalMachine.OpenSubKey(AppInstallerPolicyRegistryPath) !)

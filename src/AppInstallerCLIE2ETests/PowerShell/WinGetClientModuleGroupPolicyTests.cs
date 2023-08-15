@@ -6,14 +6,7 @@
 
 namespace AppInstallerCLIE2ETests.PowerShell
 {
-    using System;
-    using System.Diagnostics;
-    using System.IO.Packaging;
-    using System.Linq;
-    using System.Management.Automation.Runspaces;
-    using System.Text.RegularExpressions;
     using AppInstallerCLIE2ETests.Helpers;
-    using Markdig.Extensions.Tables;
     using NUnit.Framework;
 
     /// <summary>
@@ -82,7 +75,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
         public void EnableWinGetCLIInterfacesPolicy()
         {
             GroupPolicyHelper.EnableWinget.Enable();
-            GroupPolicyHelper.EnableWinGetCommandLineIntefaces.Disable();
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
 
             var result = TestCommon.RunPowerShellCoreCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode, $"ExitCode: {result.ExitCode} exited with success status: {result.StdOut}, {result.StdErr}");

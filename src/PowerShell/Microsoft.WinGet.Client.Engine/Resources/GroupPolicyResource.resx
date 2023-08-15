@@ -160,6 +160,6 @@
     <value>Error occurred when loading Windows Package Manager Group Policy Settings</value>
   </data>
   <data name="PolicyNotFound" xml:space="preserve">
-    <value>Error occurred when retreiving policy settings for the Group Policy : {0}</value>
+    <value>Error occurred when retrieving policy settings for the Group Policy : {0}</value>
   </data>
 </root>

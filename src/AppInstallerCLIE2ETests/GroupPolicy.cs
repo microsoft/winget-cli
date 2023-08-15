@@ -46,24 +46,24 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
 
             // Scenario if Policy WinGet is disabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is Enabled.
-            GroupPolicyHelper.EnableWinGetCommandLineIntefaces.Enable();
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Enable();
             result = TestCommon.RunAICLICommand("search", "foo");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
 
             // Scenario if Policy WinGet is disabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is Not-Configured.
-            GroupPolicyHelper.EnableWinGetCommandLineIntefaces.SetNotConfigured();
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.SetNotConfigured();
             result = TestCommon.RunAICLICommand("search", "foo");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
 
             // Scenario if Policy WinGet is enabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is disabled.
             GroupPolicyHelper.EnableWinget.Enable();
-            GroupPolicyHelper.EnableWinGetCommandLineIntefaces.Disable();
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
             result = TestCommon.RunAICLICommand("search", "foo");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
 
             // Scenario if Policy WinGet is Not-Configured  but Policy EnableWindowsPackageManagerCommandLineInterfaces is disabled.
             GroupPolicyHelper.EnableWinget.SetNotConfigured();
-            GroupPolicyHelper.EnableWinGetCommandLineIntefaces.Disable();
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
             result = TestCommon.RunAICLICommand("search", "foo");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }

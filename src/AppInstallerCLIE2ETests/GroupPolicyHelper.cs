@@ -66,7 +66,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Gets the Enable Windows Package Manager CommandLine Intefaces policy.
         /// </summary>
-        public static GroupPolicyHelper EnableWinGetCommandLineIntefaces { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManagerCommandLineInterfaces");
+        public static GroupPolicyHelper EnableWinGetCommandLineInterfaces { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManagerCommandLineInterfaces");
 
         /// <summary>
         /// Gets the Enable settings policy.
@@ -131,7 +131,7 @@ namespace AppInstallerCLIE2ETests
             EnableAdditionalSources,
             EnableAllowedSources,
             SourceAutoUpdateInterval,
-            EnableWinGetCommandLineIntefaces,
+            EnableWinGetCommandLineInterfaces,
         };
 
         /// <summary>

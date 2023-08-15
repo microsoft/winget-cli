@@ -853,7 +853,7 @@ namespace AppInstaller::CLI
             throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
         }
 
-        // Block CLI execution if WinGetCLIAndPowerShell is disabled by Policy
+        // Block CLI execution if WinGetCommandLineIntefaces is disabled by Policy
         if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGetCommandLineIntefaces))
         {
             AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
