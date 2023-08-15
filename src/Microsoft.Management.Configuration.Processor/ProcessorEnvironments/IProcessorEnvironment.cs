@@ -139,6 +139,13 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         void SaveModule(PSObject inputObject, string location);
 
         /// <summary>
+        /// Calls Save-Module.
+        /// </summary>
+        /// <param name="moduleSpecification">Module specification.</param>
+        /// <param name="location">Location to save module.</param>
+        void SaveModule(ModuleSpecification moduleSpecification, string location);
+
+        /// <summary>
         /// Calls Install-Module -InputObject object.
         /// Input object must be the result of Find cmdlets of PowerShellGet.
         /// </summary>
