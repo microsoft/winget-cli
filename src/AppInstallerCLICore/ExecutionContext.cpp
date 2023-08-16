@@ -252,13 +252,10 @@ namespace AppInstaller::CLI::Execution
 
     Context::~Context()
     {
-        if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
+        // TODO: Update so that only certain terminated HRs allow the checkpoint index to persist.
+        if (!m_isTerminated && m_checkpointManager != nullptr)
         {
-            // TODO: Update so that only certain terminated HRs allow the checkpoint index to persist.
-            if (!m_isTerminated && m_checkpointManager != nullptr)
-            {
-                m_checkpointManager->CleanUpIndex();
-            }
+            m_checkpointManager->CleanUpIndex();
         }
 
         if (m_disableSignalTerminationHandlerOnExit)
