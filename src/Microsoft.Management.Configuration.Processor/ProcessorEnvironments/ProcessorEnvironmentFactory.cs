@@ -35,6 +35,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// </summary>
         /// <param name="setProcessorFactory">Optional processor factory.</param>
         /// <param name="policy">Configuration processor policy.</param>
+        /// <param name="scope">Module scope.</param>
         /// <returns>IProcessorEnvironment.</returns>
         public IProcessorEnvironment CreateEnvironment(
             PowerShellConfigurationSetProcessorFactory? setProcessorFactory,
@@ -71,7 +72,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
                 var runspace = RunspaceFactory.CreateRunspace(initialSessionState);
                 runspace.Open();
 
-                return new HostedEnvironment(runspace, this.type, PowerShellConfigurationProcessorScope.CurrentUser, dscModule)
+                return new HostedEnvironment(runspace, this.type, dscModule)
                 {
                     SetProcessorFactory = setProcessorFactory,
                 };

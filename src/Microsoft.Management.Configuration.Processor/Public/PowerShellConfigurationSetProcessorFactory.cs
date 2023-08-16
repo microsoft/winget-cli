@@ -53,6 +53,16 @@ namespace Microsoft.Management.Configuration.Processor
         public PowerShellConfigurationProcessorPolicy Policy { get; set; } = PowerShellConfigurationProcessorPolicy.Default;
 
         /// <summary>
+        /// Gets or sets the module scope.
+        /// </summary>
+        public PowerShellConfigurationProcessorScope Scope { get; set; } = PowerShellConfigurationProcessorScope.CurrentUser;
+
+        /// <summary>
+        /// Gets or sets the install module path. Only used for Scope = Custom.
+        /// </summary>
+        public string? CustomInstallModulePath { get; set; }
+
+        /// <summary>
         /// Gets the configuration unit processor details for the given unit.
         /// </summary>
         /// <param name="set">Configuration Set.</param>
@@ -72,6 +82,8 @@ namespace Microsoft.Management.Configuration.Processor
                 {
                     processorEnvironment.PrependPSModulePaths(this.AdditionalModulePaths);
                 }
+
+                processorEnvironment.SetScope(this.Scope, this.CustomInstallModulePath);
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"  Effective module path:\n{processorEnvironment.GetVariable<string>(Variables.PSModulePath)}");
 

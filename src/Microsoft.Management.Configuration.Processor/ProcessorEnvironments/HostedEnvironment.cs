@@ -31,31 +31,28 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     internal class HostedEnvironment : IProcessorEnvironment
     {
         private readonly PowerShellConfigurationProcessorType type;
-        private readonly PowerShellConfigurationProcessorScope scope;
         private readonly IPowerShellGet powerShellGet;
+
+        private PowerShellConfigurationProcessorScope scope = PowerShellConfigurationProcessorScope.CurrentUser;
+        private string customInstallModulePath = string.Empty;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HostedEnvironment"/> class.
         /// </summary>
         /// <param name="runspace">PowerShell Runspace.</param>
         /// <param name="type">Configuration processor type.</param>
-        /// <param name="scope">Scope.</param>
         /// <param name="dscModule">IDscModule.</param>
         public HostedEnvironment(
             Runspace runspace,
             PowerShellConfigurationProcessorType type,
-            PowerShellConfigurationProcessorScope scope,
             IDscModule dscModule)
         {
             this.Runspace = runspace;
             this.type = type;
-            this.scope = scope;
             this.DscModule = dscModule;
 
             // TODO: once v3 is release implement v3 version.
             this.powerShellGet = new PowerShellGetV2();
-
-            this.PrependPSModulePath(GetWinGetPath());
         }
 
         /// <inheritdoc/>
@@ -332,9 +329,9 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <inheritdoc/>
         public void InstallModule(PSObject inputObject)
         {
-            if (this.scope == PowerShellConfigurationProcessorScope.WinGet)
+            if (this.scope == PowerShellConfigurationProcessorScope.Custom)
             {
-                this.SaveModule(inputObject, GetWinGetPath());
+                this.SaveModule(inputObject, this.customInstallModulePath);
             }
             else
             {
@@ -351,9 +348,9 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             if (!this.ValidateModule(moduleSpecification))
             {
                 // Ok, we have to get it.
-                if (this.scope == PowerShellConfigurationProcessorScope.WinGet)
+                if (this.scope == PowerShellConfigurationProcessorScope.Custom)
                 {
-                    this.SaveModule(moduleSpecification, GetWinGetPath());
+                    this.SaveModule(moduleSpecification, this.customInstallModulePath);
                 }
                 else
                 {
@@ -454,15 +451,20 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             this.SetPSModulePath(newModulePath);
         }
 
-        // TODO: maybe this goes somewhere else.
-        private static string GetWinGetPath()
+        /// <inheritdoc/>
+        public void SetScope(PowerShellConfigurationProcessorScope scope, string? path)
         {
-            return Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Microsoft",
-                "WinGet",
-                "Configuration",
-                "Modules");
+            this.scope = scope;
+            if (scope == PowerShellConfigurationProcessorScope.Custom)
+            {
+                if (path == null)
+                {
+                    throw new ArgumentNullException(nameof(path));
+                }
+
+                this.customInstallModulePath = path;
+                this.PrependPSModulePath(path);
+            }
         }
 
         private bool ValidateModule(ModuleSpecification moduleSpecification)

@@ -22,8 +22,8 @@ namespace Microsoft.Management.Configuration.Processor
         AllUsers = 1,
 
         /// <summary>
-        /// WinGet path.
+        /// Custom path.
         /// </summary>
-        WinGet = 2,
+        Custom = 2,
     }
 }
