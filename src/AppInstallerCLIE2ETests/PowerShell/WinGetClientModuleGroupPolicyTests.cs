@@ -81,6 +81,12 @@ namespace AppInstallerCLIE2ETests.PowerShell
         [Test]
         public void EnableWinGetCLIInterfacesPolicy()
         {
+            // Skip x86 test run as powershell modules for x86 doesn't work as expected.
+            if (!Environment.Is64BitProcess)
+            {
+                return;
+            }
+
             GroupPolicyHelper.EnableWinget.Enable();
             GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
 
