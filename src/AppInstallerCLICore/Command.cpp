@@ -858,7 +858,7 @@ namespace AppInstaller::CLI
         {
             if (!context.Args.Contains(Execution::Args::Type::ResumeId))
             {
-                const auto& clientVersion = AppInstaller::Runtime::GetClientVersion().get();
+                const auto& clientVersion = AppInstaller::Runtime::GetClientVersion();
                 const auto& commandLineString = context.GetCommandLineFromArgs();
                 context.InitializeCheckpointManager(Name(), commandLineString, clientVersion);
             }
