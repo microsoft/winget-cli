@@ -265,6 +265,7 @@ namespace AppInstaller::Logging
         bool m_isSettingEnabled = true;
         CopyConstructibleAtomic<bool> m_isRuntimeEnabled{ true };
         CopyConstructibleAtomic<bool> m_isInitialized{ false };
+        std::unique_ptr<std::mutex> m_initializationLock = std::make_unique<std::mutex>();
 
         CopyConstructibleAtomic<uint32_t> m_executionStage{ 0 };
 

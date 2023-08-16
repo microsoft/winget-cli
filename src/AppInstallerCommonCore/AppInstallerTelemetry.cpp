@@ -111,6 +111,7 @@ namespace AppInstaller::Logging
 
     void TelemetryTraceLogger::Initialize()
     {
+        std::lock_guard<std::mutex> lockInitialization{ *m_initializationLock };
         if (!m_isInitialized)
         {
             InitializeInternal(Settings::User());
@@ -119,6 +120,7 @@ namespace AppInstaller::Logging
 
     bool TelemetryTraceLogger::TryInitialize()
     {
+        std::lock_guard<std::mutex> lockInitialization{ *m_initializationLock };
         if (!m_isInitialized)
         {
             auto userSettings = Settings::TryGetUser();
