@@ -223,6 +223,26 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Policy(Convert(value));
             }
 
+            SetProcessorFactory::PwshConfigurationProcessorScope Scope() const
+            {
+                return Convert(m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Scope());
+            }
+
+            void Scope(SetProcessorFactory::PwshConfigurationProcessorScope value)
+            {
+                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Scope(Convert(value));
+            }
+
+            winrt::hstring CustomInstallModulePath() const
+            {
+                return m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().CustomInstallModulePath();
+            }
+
+            void CustomInstallModulePath(winrt::hstring value)
+            {
+                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().CustomInstallModulePath(value);
+            }
+
             HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
             {
                 return WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
@@ -239,6 +259,18 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             {
                 // We have used the same values intentionally; if that changes, update this.
                 return ToEnum<Processor::PowerShellConfigurationProcessorPolicy>(ToIntegral(policy));
+            }
+
+            static SetProcessorFactory::PwshConfigurationProcessorScope Convert(Processor::PowerShellConfigurationProcessorScope scope)
+            {
+                // We have used the same values intentionally; if that changes, update this.
+                return ToEnum<SetProcessorFactory::PwshConfigurationProcessorScope>(ToIntegral(scope));
+            }
+
+            static Processor::PowerShellConfigurationProcessorScope Convert(SetProcessorFactory::PwshConfigurationProcessorScope scope)
+            {
+                // We have used the same values intentionally; if that changes, update this.
+                return ToEnum<Processor::PowerShellConfigurationProcessorScope>(ToIntegral(scope));
             }
 
             IConfigurationSetProcessorFactory m_remoteFactory;

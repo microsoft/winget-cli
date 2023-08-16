@@ -35,7 +35,6 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// </summary>
         /// <param name="setProcessorFactory">Optional processor factory.</param>
         /// <param name="policy">Configuration processor policy.</param>
-        /// <param name="scope">Module scope.</param>
         /// <returns>IProcessorEnvironment.</returns>
         public IProcessorEnvironment CreateEnvironment(
             PowerShellConfigurationSetProcessorFactory? setProcessorFactory,

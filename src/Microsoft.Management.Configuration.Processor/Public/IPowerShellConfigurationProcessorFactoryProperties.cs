@@ -36,6 +36,6 @@ namespace Microsoft.Management.Configuration.Processor
         /// <summary>
         /// Gets or sets the install module path. Only used for Scope.Custom.
         /// </summary>
-        string CustomInstallModulePath { get; set; }
+        string? CustomInstallModulePath { get; set; }
     }
 }
