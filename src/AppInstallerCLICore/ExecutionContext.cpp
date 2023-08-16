@@ -252,12 +252,6 @@ namespace AppInstaller::CLI::Execution
 
     Context::~Context()
     {
-        // TODO: Update so that only certain terminated HRs allow the checkpoint index to persist.
-        if (!m_isTerminated && m_checkpointManager != nullptr)
-        {
-            m_checkpointManager->CleanUpIndex();
-        }
-
         if (m_disableSignalTerminationHandlerOnExit)
         {
             EnableSignalTerminationHandler(false);
@@ -459,5 +453,13 @@ namespace AppInstaller::CLI::Execution
     std::string Context::GetClientVersionFromCheckpoint()
     {
         return m_checkpointManager->GetClientVersion();
+    }
+
+    void Context::CleanUpCheckpoints()
+    {
+        if (m_checkpointManager)
+        {
+            m_checkpointManager->CleanUpIndex();
+        }
     }
 }

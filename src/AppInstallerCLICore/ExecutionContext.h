@@ -183,6 +183,9 @@ namespace AppInstaller::CLI::Execution
         // Gets the client version from the checkpoint index.
         std::string GetClientVersionFromCheckpoint();
 
+        // Removes the checkpoint index file.
+        void CleanUpCheckpoints();
+
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent
         void CopyArgsToSubContext(Context* subContext);

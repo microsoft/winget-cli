@@ -61,15 +61,22 @@ namespace AppInstaller::CLI::Checkpoint
 
     void CheckpointManager::CleanUpIndex()
     {
-        if (m_checkpointIndex != nullptr)
+        if (m_checkpointIndex)
         {
             m_checkpointIndex.reset();
+        }
+
+        if (m_checkpointId != GUID_NULL)
+        {
             const auto& checkpointIndexPath = CheckpointIndex::GetCheckpointIndexPath(m_checkpointId);
 
-            std::error_code error;
-            if (std::filesystem::remove(checkpointIndexPath, error))
+            if (std::filesystem::exists(checkpointIndexPath))
             {
-                AICLI_LOG(CLI, Info, << "Checkpoint index deleted: " << checkpointIndexPath);
+                std::error_code error;
+                if (std::filesystem::remove(checkpointIndexPath, error))
+                {
+                    AICLI_LOG(CLI, Info, << "Checkpoint index deleted: " << checkpointIndexPath);
+                }
             }
         }
     }

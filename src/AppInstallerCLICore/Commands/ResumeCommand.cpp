@@ -52,7 +52,6 @@ namespace AppInstaller::CLI
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND);
         }
 
-
         Execution::Context resumeContext{ std::cout, std::cin };
         auto previousThreadGlobals = resumeContext.SetForCurrentThread();
         resumeContext.EnableSignalTerminationHandler();
@@ -87,5 +86,6 @@ namespace AppInstaller::CLI
         resumeContext.SetExecutingCommand(commandToResume.get());
         resumeContext.SetFlags(Execution::ContextFlag::Resume);
         commandToResume->Resume(resumeContext);
+        context.SetTerminationHR(resumeContext.GetTerminationHR());
     }
 }

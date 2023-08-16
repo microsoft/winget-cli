@@ -176,7 +176,7 @@ namespace AppInstaller::CLI
 
         // Resume command
         case Execution::Args::Type::ResumeId:
-            return { type, "resume-guid"_liv, 'g', ArgTypeCategory::None };
+            return { type, "resume-id"_liv, 'g', ArgTypeCategory::None };
 
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:

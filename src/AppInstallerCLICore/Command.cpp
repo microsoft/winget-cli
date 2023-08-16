@@ -853,7 +853,8 @@ namespace AppInstaller::CLI
             throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
         }
 
-        if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
+        bool isResumeFeatureEnabled = Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume);
+        if (isResumeFeatureEnabled)
         {
             if (!context.Args.Contains(Execution::Args::Type::ResumeId))
             {
@@ -871,6 +872,11 @@ namespace AppInstaller::CLI
         else
         {
             ExecuteInternal(context);
+        }
+
+        if (isResumeFeatureEnabled && !context.IsTerminated())
+        {
+            context.CleanUpCheckpoints();
         }
 
         if (context.Args.Contains(Execution::Args::Type::OpenLogs))
