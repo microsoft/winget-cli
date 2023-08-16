@@ -251,16 +251,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### dependencies
-
-Experimental feature with the aim of managing dependencies, as of now it only shows package dependency information. You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "dependencies": true
-   },
-```
-
 ### configuration
 
 This feature enables the configuration commands. These commands allow configuring the system into a desired state.

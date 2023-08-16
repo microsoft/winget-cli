@@ -21,7 +21,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
             WinGetSettingsHelper.ConfigureFeature("windowsFeature", true);
         }
 

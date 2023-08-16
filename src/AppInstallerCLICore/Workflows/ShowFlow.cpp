@@ -169,45 +169,42 @@ namespace AppInstaller::CLI::Workflow
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerProductId, installer->ProductId, true);
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerReleaseDate, installer->ReleaseDate, true);
 
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+            const auto& dependencies = installer->Dependencies;
+
+            if (dependencies.HasAny())
             {
-                const auto& dependencies = installer->Dependencies;
+                info << Execution::ManifestInfoEmphasis << "  "_liv << Resource::String::ShowLabelDependencies << ' ' << std::endl;
 
-                if (dependencies.HasAny())
+                if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsFeature))
                 {
-                    info << Execution::ManifestInfoEmphasis << "  "_liv << Resource::String::ShowLabelDependencies << ' ' << std::endl;
+                    info << "    - "_liv << Resource::String::ShowLabelWindowsFeaturesDependencies << ' ' << std::endl;
+                    dependencies.ApplyToType(Manifest::DependencyType::WindowsFeature, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id() << std::endl; });
+                }
 
-                    if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsFeature))
-                    {
-                        info << "    - "_liv << Resource::String::ShowLabelWindowsFeaturesDependencies << ' ' << std::endl;
-                        dependencies.ApplyToType(Manifest::DependencyType::WindowsFeature, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id() << std::endl; });
-                    }
+                if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsLibrary))
+                {
+                    info << "    - "_liv << Resource::String::ShowLabelWindowsLibrariesDependencies << ' ' << std::endl;
+                    dependencies.ApplyToType(Manifest::DependencyType::WindowsLibrary, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id() << std::endl; });
+                }
 
-                    if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsLibrary))
-                    {
-                        info << "    - "_liv << Resource::String::ShowLabelWindowsLibrariesDependencies << ' ' << std::endl;
-                        dependencies.ApplyToType(Manifest::DependencyType::WindowsLibrary, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id() << std::endl; });
-                    }
-
-                    if (dependencies.HasAnyOf(Manifest::DependencyType::Package))
-                    {
-                        info << "    - "_liv << Resource::String::ShowLabelPackageDependencies << ' ' << std::endl;
-                        dependencies.ApplyToType(Manifest::DependencyType::Package, [&info](Manifest::Dependency dependency)
+                if (dependencies.HasAnyOf(Manifest::DependencyType::Package))
+                {
+                    info << "    - "_liv << Resource::String::ShowLabelPackageDependencies << ' ' << std::endl;
+                    dependencies.ApplyToType(Manifest::DependencyType::Package, [&info](Manifest::Dependency dependency)
+                        {
+                            info << "        "_liv << dependency.Id();
+                            if (dependency.MinVersion)
                             {
-                                info << "        "_liv << dependency.Id();
-                                if (dependency.MinVersion)
-                                {
-                                    info << " [>= " << dependency.MinVersion.value().ToString() << "]";
-                                }
-                                info << std::endl;
-                            });
-                    }
+                                info << " [>= " << dependency.MinVersion.value().ToString() << "]";
+                            }
+                            info << std::endl;
+                        });
+                }
 
-                    if (dependencies.HasAnyOf(Manifest::DependencyType::External))
-                    {
-                        info << "    - "_liv << Resource::String::ShowLabelExternalDependencies << ' ' << std::endl;
-                        dependencies.ApplyToType(Manifest::DependencyType::External, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id() << std::endl; });
-                    }
+                if (dependencies.HasAnyOf(Manifest::DependencyType::External))
+                {
+                    info << "    - "_liv << Resource::String::ShowLabelExternalDependencies << ' ' << std::endl;
+                    dependencies.ApplyToType(Manifest::DependencyType::External, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id() << std::endl; });
                 }
             }
         }

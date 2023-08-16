@@ -625,9 +625,6 @@ TEST_CASE("UpdateFlow_Dependencies", "[UpdateFlow][workflow][dependencies]")
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_Dependencies.Query);;
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
     UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());

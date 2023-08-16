@@ -76,9 +76,6 @@ TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Args::Type::ValidateManifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
     ValidateCommand validate({});
     validate.Execute(context);
     INFO(validateOutput.str());

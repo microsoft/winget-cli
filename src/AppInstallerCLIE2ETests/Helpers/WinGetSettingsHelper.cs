@@ -41,7 +41,6 @@ namespace AppInstallerCLIE2ETests.Helpers
                     {
                         { "experimentalArg", false },
                         { "experimentalCmd", false },
-                        { "dependencies", false },
                         { "directMSI", false },
                         { "download", false },
                     }
@@ -189,7 +188,6 @@ namespace AppInstallerCLIE2ETests.Helpers
         {
             ConfigureFeature("experimentalArg", status);
             ConfigureFeature("experimentalCmd", status);
-            ConfigureFeature("dependencies", status);
             ConfigureFeature("directMSI", status);
             ConfigureFeature("pinning", status);
             ConfigureFeature("configuration", status);

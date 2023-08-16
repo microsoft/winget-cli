@@ -69,7 +69,6 @@ namespace AppInstaller::Settings
         // Experimental
         EFExperimentalCmd,
         EFExperimentalArg,
-        EFDependencies,
         EFDirectMSI,
         EFConfiguration,
         EFWindowsFeature,
@@ -146,7 +145,6 @@ namespace AppInstaller::Settings
         // Experimental
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFDependencies, bool, bool, false, ".experimentalFeatures.dependencies"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfiguration, bool, bool, false, ".experimentalFeatures.configuration"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFWindowsFeature, bool, bool, false, ".experimentalFeatures.windowsFeature"sv);

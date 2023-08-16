@@ -210,11 +210,6 @@
           "type": "boolean",
           "default": false
         },
-        "dependencies": {
-          "description": "Support for package dependencies",
-          "type": "boolean",
-          "default": false
-        },
         "directMSI": {
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
           "type": "boolean",

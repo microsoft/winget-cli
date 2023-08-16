@@ -69,9 +69,6 @@ TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGr
     context.Add<Execution::Data::Manifest>(manifest);
     context.Add<Execution::Data::Installer>(manifest.Installers[0]);
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
     context << CreateDependencySubContexts(Resource::String::PackageRequiresDependencies);
 
     auto& dependencyPackages = context.Get<Execution::Data::PackageSubContexts>();
@@ -92,9 +89,6 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
     context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
     context.Add<Execution::Data::Manifest>(manifest);
     context.Add<Execution::Data::Installer>(manifest.Installers[0]);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
     context << CreateDependencySubContexts(Resource::String::PackageRequiresDependencies);
 
@@ -118,9 +112,6 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
     context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
     context.Add<Execution::Data::Manifest>(manifest);
     context.Add<Execution::Data::Installer>(manifest.Installers[0]);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
     context << CreateDependencySubContexts(Resource::String::PackageRequiresDependencies);
 
@@ -148,9 +139,6 @@ TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyG
 
     context.Args.AddArg(Execution::Args::Type::Query, "StackOrderIsOk"sv);
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
@@ -176,9 +164,6 @@ TEST_CASE("DependencyGraph_MultipleDependenciesFromManifest", "[InstallFlow][wor
 
     context.Args.AddArg(Execution::Args::Type::Query, "MultipleDependenciesFromManifest"sv);
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
@@ -202,9 +187,6 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesOnRoot.yaml").GetPath().u8string());
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
@@ -224,9 +206,6 @@ TEST_CASE("InstallerWithDependencies_SkipDependencies", "[dependencies]")
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::SkipDependencies);
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
     InstallCommand install({});
     install.Execute(context);
@@ -248,7 +227,6 @@ TEST_CASE("InstallerWithDependencies_IgnoreDependenciesSetting", "[dependencies]
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
 
     TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
     settings.Set<AppInstaller::Settings::Setting::InstallSkipDependencies>({ true });
 
     InstallCommand install({});
@@ -270,9 +248,6 @@ TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[depe
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesMultideclaration.yaml").GetPath().u8string());
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
@@ -293,9 +268,6 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
     OverrideDependencySource(context);
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
     InstallCommand install({});
     install.Execute(context);

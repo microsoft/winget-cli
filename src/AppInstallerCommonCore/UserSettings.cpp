@@ -258,7 +258,6 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
-        WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EFConfiguration)
         WINGET_VALIDATE_PASS_THROUGH(EFWindowsFeature)
