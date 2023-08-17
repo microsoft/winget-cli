@@ -31,6 +31,7 @@ namespace AppInstaller::Logging
         static const uint32_t s_RootExecutionId = 0;
         static std::atomic_uint32_t s_subExecutionId{ s_RootExecutionId };
 
+        // Data that is needed by AnonymizeString
         constexpr std::wstring_view s_UserProfileReplacement = L"%USERPROFILE%"sv;
 
         // TODO: Temporary code to keep existing telemetry behavior
@@ -121,6 +122,8 @@ namespace AppInstaller::Logging
     {
         if (!m_isInitialized)
         {
+            // Only initialize if we already have the user settings, so that we can respect the telemetry setting.
+            // We may not yet have the user settings if we are trying to report an error while reading them.
             auto userSettings = Settings::TryGetUser();
             if (userSettings)
             {
@@ -809,7 +812,6 @@ namespace AppInstaller::Logging
     void TelemetryTraceLogger::InitializeInternal(const AppInstaller::Settings::UserSettings& userSettings)
     {
         m_isSettingEnabled = !userSettings.Get<Settings::Setting::TelemetryDisable>();
-        m_userProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
         m_isInitialized = true;
     }
 
@@ -820,7 +822,11 @@ namespace AppInstaller::Logging
 
     std::wstring TelemetryTraceLogger::AnonymizeString(std::wstring_view input) const noexcept try
     {
-        return Utility::ReplaceWhileCopying(input, m_userProfile, s_UserProfileReplacement);
+        // GetPathTo() may need to read the settings, so this function should only be called after settings are initialized.
+        // To ensure that, this function is only called when emitting an event, and we disable the telemetry until settings are ready.
+        static const std::wstring s_UserProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
+
+        return Utility::ReplaceWhileCopying(input, s_UserProfile, s_UserProfileReplacement);
     }
     catch (...) { return std::wstring{ input }; }
 
@@ -843,6 +849,9 @@ namespace AppInstaller::Logging
         }
         else
         {
+            // For the global telemetry object, we may not have yet read the settings file.
+            // In that case, we will not be able to initialize it, so we need to try it
+            // each time we get the object.
             static TelemetryTraceLogger processGlobalTelemetry(/* useSummary */ false);
             processGlobalTelemetry.TryInitialize();
             return processGlobalTelemetry;
