@@ -110,6 +110,9 @@ namespace AppInstaller::CLI::Execution
             ConfigurationAcceptWarning,
             ConfigurationEnable,
             ConfigurationDisable,
+            ConfigurationAllUsersLocation,
+            ConfigurationCurrentUserLocation,
+            ConfigurationCustomLocationPath,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs

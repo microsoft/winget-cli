@@ -7,6 +7,7 @@
 #include "ConfigureValidateCommand.h"
 #include "Workflows/ConfigurationFlow.h"
 #include "Workflows/MSStoreInstallerHandler.h"
+#include <AppInstallerRuntime.h>
 
 using namespace AppInstaller::CLI::Workflow;
 
@@ -34,6 +35,9 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::ConfigurationEnable, Resource::String::ConfigurationEnableMessage, ArgumentType::Flag, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::ConfigurationDisable, Resource::String::ConfigurationDisableMessage, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::ConfigurationAllUsersLocation, Resource::String::ConfigurationAllUsers, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::ConfigurationCurrentUserLocation, Resource::String::ConfigurationCurrentUser, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::ConfigurationCustomLocationPath, Resource::String::ConfigurationCustomLocationPath, ArgumentType::Positional },
         };
     }
 
@@ -89,9 +93,17 @@ namespace AppInstaller::CLI
                 throw CommandException(Resource::String::ConfigurationEnableArgumentError);
             }
         }
-        else if (!execArgs.Contains(Execution::Args::Type::ConfigurationFile))
+        else
         {
-            throw CommandException(Resource::String::RequiredArgError("file"_liv));
+            if (!execArgs.Contains(Execution::Args::Type::ConfigurationFile))
+            {
+                throw CommandException(Resource::String::RequiredArgError("file"_liv));
+            }
+
+            if (execArgs.Contains(Execution::Args::Type::ConfigurationAllUsersLocation) && !Runtime::IsRunningAsAdmin())
+            {
+                throw CommandException(Resource::String::ConfigurationAllUsersElevated);
+            }
         }
     }
 }

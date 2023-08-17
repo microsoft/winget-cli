@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigureShowCommand.h"
 #include "Workflows/ConfigurationFlow.h"
+#include <AppInstallerRuntime.h>
 
 using namespace AppInstaller::CLI::Workflow;
 
@@ -13,6 +14,9 @@ namespace AppInstaller::CLI
         return {
             // Required for now, make exclusive when history implemented
             Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::ConfigurationAllUsersLocation, Resource::String::ConfigurationAllUsers, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::ConfigurationCurrentUserLocation, Resource::String::ConfigurationCurrentUser, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::ConfigurationCustomLocationPath, Resource::String::ConfigurationCustomLocationPath, ArgumentType::Positional },
         };
     }
 
@@ -39,5 +43,13 @@ namespace AppInstaller::CLI
             CreateConfigurationProcessor <<
             OpenConfigurationSet <<
             ShowConfigurationSet;
+    }
+
+    void ConfigureShowCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        if (execArgs.Contains(Execution::Args::Type::ConfigurationAllUsersLocation) && !Runtime::IsRunningAsAdmin())
+        {
+            throw CommandException(Resource::String::ConfigurationAllUsersElevated);
+        }
     }
 }

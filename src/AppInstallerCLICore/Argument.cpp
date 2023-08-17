@@ -183,6 +183,12 @@ namespace AppInstaller::CLI
             return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
         case Execution::Args::Type::ConfigurationDisable:
             return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
+        case Execution::Args::Type::ConfigurationAllUsersLocation:
+            return { type, "allUsers"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
+        case Execution::Args::Type::ConfigurationCurrentUserLocation:
+            return { type, "currentUser"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
+        case Execution::Args::Type::ConfigurationCustomLocationPath:
+            return { type, "installModulePath"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:
