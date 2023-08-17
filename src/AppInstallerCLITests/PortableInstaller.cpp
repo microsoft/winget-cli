@@ -23,7 +23,7 @@ using namespace AppInstaller::Repository::Microsoft::Schema;
 using namespace AppInstaller::Utility;
 using namespace TestCommon;
 
-TEST_CASE("PortableInstaller_InstallToRegistry", "[PortableInstaller]")
+TEST_CASE("PortableInstaller_SingleInstall", "[PortableInstaller]")
 {
     TempDirectory tempDirectory = TestCommon::TempDirectory("TempDirectory", false);
 
@@ -48,16 +48,14 @@ TEST_CASE("PortableInstaller_InstallToRegistry", "[PortableInstaller]")
 
     PortableInstaller portableInstaller2 = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
     REQUIRE(portableInstaller2.ARPEntryExists());
-    REQUIRE(std::filesystem::exists(portableInstaller2.PortableTargetFullPath));
-    REQUIRE(AppInstaller::Filesystem::SymlinkExists(portableInstaller2.PortableSymlinkFullPath));
+    REQUIRE(AppInstaller::Filesystem::SymlinkExists(symlinkPath));
 
     portableInstaller2.Uninstall();
-    REQUIRE_FALSE(std::filesystem::exists(portableInstaller2.PortableTargetFullPath));
-    REQUIRE_FALSE(AppInstaller::Filesystem::SymlinkExists(portableInstaller2.PortableSymlinkFullPath));
+    REQUIRE_FALSE(AppInstaller::Filesystem::SymlinkExists(symlinkPath));
     REQUIRE_FALSE(std::filesystem::exists(portableInstaller2.InstallLocation));
 }
 
-TEST_CASE("PortableInstaller_InstallToIndex_CreateInstallRoot", "[PortableInstaller]")
+TEST_CASE("PortableInstaller_CreateInstallRoot", "[PortableInstaller]")
 {
     TempDirectory installRootDirectory = TestCommon::TempDirectory("PortableInstallRoot", false);
 
@@ -88,7 +86,6 @@ TEST_CASE("PortableInstaller_InstallToIndex_CreateInstallRoot", "[PortableInstal
 
     PortableInstaller portableInstaller = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
     portableInstaller.TargetInstallLocation = installRootDirectory.GetPath();
-    portableInstaller.RecordToIndex = true;
     portableInstaller.SetDesiredState(desiredTestState);
     REQUIRE(portableInstaller.VerifyExpectedState());
 
@@ -115,7 +112,7 @@ TEST_CASE("PortableInstaller_InstallToIndex_CreateInstallRoot", "[PortableInstal
     REQUIRE_FALSE(std::filesystem::exists(directoryPath));
 }
 
-TEST_CASE("PortableInstaller_InstallToIndex_ExistingInstallRoot", "[PortableInstaller]")
+TEST_CASE("PortableInstaller_InstallToExistingRoot", "[PortableInstaller]")
 {
     TempDirectory installRootDirectory = TestCommon::TempDirectory("PortableInstallRoot", true);
 
@@ -146,7 +143,6 @@ TEST_CASE("PortableInstaller_InstallToIndex_ExistingInstallRoot", "[PortableInst
 
     PortableInstaller portableInstaller = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
     portableInstaller.TargetInstallLocation = installRootDirectory.GetPath();
-    portableInstaller.RecordToIndex = true;
     portableInstaller.SetDesiredState(desiredTestState);
     REQUIRE(portableInstaller.VerifyExpectedState());
 

@@ -28,6 +28,7 @@ namespace AppInstaller
         void TestHook_SetPathOverride(PathName target, const std::filesystem::path& path);
         void TestHook_SetPathOverride(PathName target, const PathDetails& details);
         void TestHook_ClearPathOverrides();
+        void TestHook_SetIsSymlinkCreationSupportedResult_Override(bool* status);
     }
 
     namespace Repository
@@ -85,6 +86,22 @@ namespace TestHook
         ~SetCreateSymlinkResult_Override()
         {
             AppInstaller::Filesystem::TestHook_SetCreateSymlinkResult_Override(nullptr);
+        }
+
+    private:
+        bool m_status;
+    };
+
+    struct SetIsSymlinkCreationSupportedResult_Override
+    {
+        SetIsSymlinkCreationSupportedResult_Override(bool status) : m_status(status)
+        {
+            AppInstaller::Runtime::TestHook_SetIsSymlinkCreationSupportedResult_Override(&m_status);
+        }
+
+        ~SetIsSymlinkCreationSupportedResult_Override()
+        {
+            AppInstaller::Runtime::TestHook_SetIsSymlinkCreationSupportedResult_Override(nullptr);
         }
 
     private:

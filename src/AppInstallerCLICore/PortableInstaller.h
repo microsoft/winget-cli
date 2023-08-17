@@ -37,7 +37,6 @@ namespace AppInstaller::CLI::Portable
 
         bool IsUpdate = false;
         bool Purge = false;
-        bool RecordToIndex = false;
 
         // This is the incoming target install location determined from the context args.
         std::filesystem::path TargetInstallLocation;

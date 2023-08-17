@@ -6,6 +6,7 @@
 #include "WorkflowBase.h"
 #include "winget/Filesystem.h"
 #include "winget/PortableFileEntry.h"
+#include <AppInstallerRuntime.h>
 #include <Microsoft/PortableIndex.h>
 
 using namespace AppInstaller::Manifest;
@@ -169,11 +170,11 @@ namespace AppInstaller::CLI::Workflow
         const std::filesystem::path& targetInstallDirectory = portableInstaller.TargetInstallLocation;
         const std::filesystem::path& symlinkDirectory = GetPortableLinksLocation(portableInstaller.GetScope());
 
+        bool isSymlinkCreationSupported = AppInstaller::Runtime::IsSymlinkCreationSupported();
+
         // InstallerPath will point to a directory if it is extracted from an archive.
         if (std::filesystem::is_directory(installerPath))
         {
-            portableInstaller.RecordToIndex = true;
-
             for (const auto& entry : std::filesystem::directory_iterator(installerPath))
             {
                 std::filesystem::path entryPath = entry.path();
@@ -208,7 +209,11 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 Filesystem::AppendExtension(commandAlias, ".exe");
-                entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath)));
+
+                if (isSymlinkCreationSupported)
+                {
+                    entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath)));
+                }
             }
         }
         else
@@ -239,9 +244,17 @@ namespace AppInstaller::CLI::Workflow
             AppInstaller::Filesystem::AppendExtension(fileName, ".exe");
             AppInstaller::Filesystem::AppendExtension(commandAlias, ".exe");
 
-            const std::filesystem::path& targetFullPath = targetInstallDirectory / fileName;
-            entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, {})));
-            entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetFullPath)));
+            if (AppInstaller::Runtime::IsSymlinkCreationSupported())
+            {
+                const std::filesystem::path& targetFullPath = targetInstallDirectory / fileName;
+                entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, {})));
+                entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetFullPath)));
+            }
+            else
+            {
+                const std::filesystem::path& targetFullPath = targetInstallDirectory / commandAlias;
+                entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, {})));
+            }
         }
 
         return entries;
@@ -268,7 +281,7 @@ namespace AppInstaller::CLI::Workflow
                 else
                 {
                     context.Reporter.Warn() << Resource::String::PortableHashMismatchOverrideRequired << std::endl;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
                 }
             }
 
@@ -285,8 +298,9 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
                 portableInstaller.PrepareForCleanUp();
 ;               portableInstaller.Uninstall();
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
             }
+            
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
         }
     }
 

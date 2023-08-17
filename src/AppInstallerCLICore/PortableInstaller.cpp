@@ -98,13 +98,12 @@ namespace AppInstaller::CLI::Portable
 
             AICLI_LOG(Core, Info, << "Moving portable exe to: " << filePath);
 
-            if (!RecordToIndex)
-            {
-                CommitToARPEntry(PortableValueName::PortableTargetFullPath, filePath);
-                CommitToARPEntry(PortableValueName::SHA256, entry.SHA256);
-            }
-
             Filesystem::RenameFile(entry.CurrentPath, filePath);
+
+            if (InstallDirectoryAddedToPath)
+            {
+                m_stream << Resource::String::PortableAliasAdded << ' ' << filePath.stem() << std::endl;
+            }
         }
         else if (fileType == PortableFileType::Directory)
         {
@@ -122,38 +121,29 @@ namespace AppInstaller::CLI::Portable
         }
         else if (entry.FileType == PortableFileType::Symlink)
         {
-            if (!InstallDirectoryAddedToPath)
+            std::filesystem::file_status status = std::filesystem::status(filePath);
+            if (std::filesystem::is_directory(status))
             {
-                std::filesystem::file_status status = std::filesystem::status(filePath);
-                if (std::filesystem::is_directory(status))
-                {
-                    AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << filePath << "points to an existing directory.");
-                    THROW_HR(APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY);
-                }
-
-                if (!RecordToIndex)
-                {
-                    CommitToARPEntry(PortableValueName::PortableSymlinkFullPath, filePath);
-                }
-
-                if (std::filesystem::remove(filePath))
-                {
-                    AICLI_LOG(CLI, Info, << "Removed existing file at " << filePath);
-                    m_stream << Resource::String::OverwritingExistingFileAtMessage(Utility::LocIndView{ filePath.u8string() }) << std::endl;
-                }
-
-                if (Filesystem::CreateSymlink(entry.SymlinkTarget, filePath))
-                {
-                    AICLI_LOG(Core, Info, << "Symlink created at: " << filePath);
-                }
-                else
-                {
-                    // If symlink creation fails, resort to adding the package directory to PATH.
-                    AICLI_LOG(Core, Info, << "Failed to create symlink at: " << filePath);
-                    AddToPathVariable(std::filesystem::path(entry.SymlinkTarget).parent_path());
-                    CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
-                }
+                AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << filePath << "points to an existing directory.");
+                THROW_HR(APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY);
             }
+
+            if (std::filesystem::remove(filePath))
+            {
+                AICLI_LOG(CLI, Info, << "Removed existing file at " << filePath);
+                m_stream << Resource::String::OverwritingExistingFileAtMessage(Utility::LocIndView{ filePath.u8string() }) << std::endl;
+            }
+
+            if (Filesystem::CreateSymlink(entry.SymlinkTarget, filePath))
+            {
+                AICLI_LOG(Core, Info, << "Symlink created at: " << filePath);
+            }
+            else
+            {
+                AICLI_LOG(Core, Info, << "Failed to create symlink at: " << filePath);
+                THROW_HR(HRESULT_FROM_WIN32(ERROR_SYMLINK_NOT_SUPPORTED));
+            }
+
             m_stream << Resource::String::PortableAliasAdded << ' ' << filePath.stem() << std::endl;
         }
     }
@@ -232,9 +222,10 @@ namespace AppInstaller::CLI::Portable
             RemoveInstallDirectory();
         }
 
-        if (RecordToIndex)
+        if (!m_desiredEntries.empty())
         {
             std::filesystem::path targetIndexPath = TargetInstallLocation / GetPortableIndexFileName();
+
             PortableIndex targetIndex = std::filesystem::exists(targetIndexPath) ?
                 PortableIndex::Open(targetIndexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :
                 PortableIndex::CreateNew(targetIndexPath.u8string());
@@ -242,13 +233,6 @@ namespace AppInstaller::CLI::Portable
             for (auto desiredEntry : m_desiredEntries)
             {
                 targetIndex.AddOrUpdatePortableFile(desiredEntry);
-                InstallFile(desiredEntry);
-            }
-        }
-        else
-        {
-            for (auto desiredEntry : m_desiredEntries)
-            {
                 InstallFile(desiredEntry);
             }
         }
@@ -276,10 +260,7 @@ namespace AppInstaller::CLI::Portable
 
         ApplyDesiredState();
 
-        if (!InstallDirectoryAddedToPath)
-        {
-            AddToPathVariable(GetPortableLinksLocation(GetScope()));
-        }
+        AddToPathVariable(InstallDirectoryAddedToPath ? TargetInstallLocation : GetPortableLinksLocation(GetScope()));
     }
 
     void PortableInstaller::Uninstall()
@@ -288,10 +269,7 @@ namespace AppInstaller::CLI::Portable
 
         RemoveInstallDirectory();
 
-        if (!InstallDirectoryAddedToPath)
-        {
-            RemoveFromPathVariable(GetPortableLinksLocation(GetScope()));
-        }
+        RemoveFromPathVariable(InstallDirectoryAddedToPath ? InstallLocation : GetPortableLinksLocation(GetScope()));
 
         m_portableARPEntry.Delete();
         AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
@@ -455,6 +433,7 @@ namespace AppInstaller::CLI::Portable
         CommitToARPEntry(PortableValueName::WinGetSourceIdentifier, WinGetSourceIdentifier);
         CommitToARPEntry(PortableValueName::UninstallString, "winget uninstall --product-code " + GetProductCode());
         CommitToARPEntry(PortableValueName::WinGetInstallerType, InstallerTypeToString(Manifest::InstallerTypeEnum::Portable));
+        CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = !AppInstaller::Runtime::IsSymlinkCreationSupported());
         CommitToARPEntry(PortableValueName::DisplayName, DisplayName);
         CommitToARPEntry(PortableValueName::DisplayVersion, DisplayVersion);
         CommitToARPEntry(PortableValueName::Publisher, Publisher);

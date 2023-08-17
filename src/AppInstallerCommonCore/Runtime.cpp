@@ -632,6 +632,27 @@ namespace AppInstaller::Runtime
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_IsSymlinkCreationSupportedResult_TestHook_Override = nullptr;
+
+    void TestHook_SetIsSymlinkCreationSupportedResult_Override(bool* status)
+    {
+        s_IsSymlinkCreationSupportedResult_TestHook_Override = status;
+    }
+#endif
+
+    bool IsSymlinkCreationSupported()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_IsSymlinkCreationSupportedResult_TestHook_Override)
+        {
+            return *s_IsSymlinkCreationSupportedResult_TestHook_Override;
+        }
+#endif
+
+        return IsDevModeEnabled() || IsRunningAsAdmin();
+    }
+
     // Using "standard" user agent format
     // Keeping `winget-cli` for historical reasons
     Utility::LocIndString GetDefaultUserAgent()
