@@ -140,6 +140,7 @@ namespace AppInstaller::CLI::Portable
             }
             else
             {
+                // This scenario should not occur since symlink entries should only exist if they are supported.
                 AICLI_LOG(Core, Info, << "Failed to create symlink at: " << filePath);
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_SYMLINK_NOT_SUPPORTED));
             }
