@@ -823,7 +823,7 @@ namespace AppInstaller::Logging
     std::wstring TelemetryTraceLogger::AnonymizeString(std::wstring_view input) const noexcept try
     {
         // GetPathTo() may need to read the settings, so this function should only be called after settings are initialized.
-        // To ensure that, this function is only called when emiting an event, and we disable the telemetry until settings are ready.
+        // To ensure that, this function is only called when emitting an event, and we disable the telemetry until settings are ready.
         static const std::wstring s_UserProfile = Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring();
 
         return Utility::ReplaceWhileCopying(input, s_UserProfile, s_UserProfileReplacement);
