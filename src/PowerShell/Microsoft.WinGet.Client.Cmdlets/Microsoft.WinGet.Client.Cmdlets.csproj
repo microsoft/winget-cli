@@ -142,6 +142,7 @@
       <ModuleEngineDependency Include="$(EngineOutDir)Microsoft.Management.Deployment.winmd" />
       <ModuleEngineDependency Include="$(EngineOutDir)WindowsPackageManager.dll" />
       <ModuleEngineDependency Include="$(EngineOutDir)winrtact.dll" />
+      <ModuleEngineDependency Include="$(EngineOutDir)Microsoft.WinGet.SharedLib.dll" />
     </ItemGroup>
     <Message Importance="high" Text="Copying CopyEngineDependencies: '@(ModuleEngineDependency)'" />
     <Copy SourceFiles="@(ModuleEngineDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />

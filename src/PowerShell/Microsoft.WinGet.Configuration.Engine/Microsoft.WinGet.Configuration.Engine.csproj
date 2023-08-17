@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <!-- Keep in sync with attributes in AssemblyInfo.cs -->
@@ -25,14 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\Microsoft.WinGet.SharedLib\Exceptions\GroupPolicyException.cs" Link="Exceptions\GroupPolicyException.cs" />
-    <Compile Include="..\Microsoft.WinGet.SharedLib\Extensions\EnumPolicyExtension.cs" Link="Extensions\EnumPolicyExtension.cs" />
-    <Compile Include="..\Microsoft.WinGet.SharedLib\PolicySettings\Enums.cs" Link="PolicySettings\Enums.cs" />
-    <Compile Include="..\Microsoft.WinGet.SharedLib\PolicySettings\GroupPolicy.cs" Link="PolicySettings\GroupPolicy.cs" />
-    <Compile Include="..\Microsoft.WinGet.SharedLib\PolicySettings\TogglePolicy.cs" Link="PolicySettings\TogglePolicy.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
@@ -51,14 +43,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj" />
+    <ProjectReference Include="..\Microsoft.WinGet.SharedLib\Microsoft.WinGet.SharedLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Resources\GroupPolicyResource.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>GroupPolicyResource.resx</DependentUpon>
-    </Compile>
     <Compile Update="Resources\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -67,19 +55,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Resources\GroupPolicyResource.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>GroupPolicyResource.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>Microsoft.WinGet.SharedLib.Resources</CustomToolNamespace>
-    </EmbeddedResource>
     <EmbeddedResource Update="Resources\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="PolicySettings\" />
   </ItemGroup>
 
 </Project>

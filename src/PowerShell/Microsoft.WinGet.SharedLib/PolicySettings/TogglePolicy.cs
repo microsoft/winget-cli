@@ -134,7 +134,7 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
         /// <returns>List of type <see cref="TogglePolicy"/> class.</returns>
         internal static List<TogglePolicy> GetAllPolicies()
         {
-            List<TogglePolicy> togglePolicies = new ();
+            List<TogglePolicy> togglePolicies = new List<TogglePolicy>();
 
             foreach (Policy policy in Enum.GetValues(typeof(Policy)))
             {

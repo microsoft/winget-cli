@@ -39,7 +39,7 @@ namespace Microsoft.WinGet.SharedLib.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.WinGet.Client.Engine.Resources.GroupPolicyResource", typeof(GroupPolicyResource).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.WinGet.SharedLib.Resources.GroupPolicyResource", typeof(GroupPolicyResource).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

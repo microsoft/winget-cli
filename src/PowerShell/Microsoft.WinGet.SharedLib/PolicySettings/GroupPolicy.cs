@@ -91,7 +91,7 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
         /// <param name="policies">Enumerable collection of TogglePolicy.</param>
         internal void Load(IEnumerable<TogglePolicy> policies)
         {
-            using (RegistryKey regKey = Registry.LocalMachine.OpenSubKey(AppInstallerPolicyRegistryPath) !)
+            using (RegistryKey regKey = Registry.LocalMachine.OpenSubKey(AppInstallerPolicyRegistryPath))
             {
                 foreach (TogglePolicy togglePolicy in policies)
                 {
