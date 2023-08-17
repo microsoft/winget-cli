@@ -165,12 +165,10 @@ namespace AppInstaller::CLI::Workflow
     {
         std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
         PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
-        std::vector<PortableFileEntry> entries;
 
+        std::vector<PortableFileEntry> entries;
         const std::filesystem::path& targetInstallDirectory = portableInstaller.TargetInstallLocation;
         const std::filesystem::path& symlinkDirectory = GetPortableLinksLocation(portableInstaller.GetScope());
-
-        bool isSymlinkCreationSupported = AppInstaller::Runtime::IsSymlinkCreationSupported();
 
         // InstallerPath will point to a directory if it is extracted from an archive.
         if (std::filesystem::is_directory(installerPath))
@@ -210,7 +208,7 @@ namespace AppInstaller::CLI::Workflow
 
                 Filesystem::AppendExtension(commandAlias, ".exe");
 
-                if (isSymlinkCreationSupported)
+                if (AppInstaller::Runtime::IsSymlinkCreationSupported())
                 {
                     entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath)));
                 }
