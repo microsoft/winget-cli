@@ -33,7 +33,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         private readonly PowerShellConfigurationProcessorType type;
         private readonly IPowerShellGet powerShellGet;
 
-        private PowerShellConfigurationProcessorScope scope = PowerShellConfigurationProcessorScope.CurrentUser;
+        private PowerShellConfigurationProcessorLocation scope = PowerShellConfigurationProcessorLocation.CurrentUser;
         private string customInstallModulePath = string.Empty;
 
         /// <summary>
@@ -329,14 +329,14 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <inheritdoc/>
         public void InstallModule(PSObject inputObject)
         {
-            if (this.scope == PowerShellConfigurationProcessorScope.Custom)
+            if (this.scope == PowerShellConfigurationProcessorLocation.Custom)
             {
                 this.SaveModule(inputObject, this.customInstallModulePath);
             }
             else
             {
                 using PowerShell pwsh = PowerShell.Create(this.Runspace);
-                this.powerShellGet.InstallModule(pwsh, inputObject, this.scope == PowerShellConfigurationProcessorScope.AllUsers);
+                this.powerShellGet.InstallModule(pwsh, inputObject, this.scope == PowerShellConfigurationProcessorLocation.AllUsers);
                 this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             }
         }
@@ -348,14 +348,14 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             if (!this.ValidateModule(moduleSpecification))
             {
                 // Ok, we have to get it.
-                if (this.scope == PowerShellConfigurationProcessorScope.Custom)
+                if (this.scope == PowerShellConfigurationProcessorLocation.Custom)
                 {
                     this.SaveModule(moduleSpecification, this.customInstallModulePath);
                 }
                 else
                 {
                     using PowerShell pwsh = PowerShell.Create(this.Runspace);
-                    this.powerShellGet.InstallModule(pwsh, moduleSpecification, this.scope == PowerShellConfigurationProcessorScope.AllUsers);
+                    this.powerShellGet.InstallModule(pwsh, moduleSpecification, this.scope == PowerShellConfigurationProcessorLocation.AllUsers);
                     this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
                 }
             }
@@ -452,10 +452,10 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         }
 
         /// <inheritdoc/>
-        public void SetScope(PowerShellConfigurationProcessorScope scope, string? path)
+        public void SetScope(PowerShellConfigurationProcessorLocation scope, string? path)
         {
             this.scope = scope;
-            if (scope == PowerShellConfigurationProcessorScope.Custom)
+            if (scope == PowerShellConfigurationProcessorLocation.Custom)
             {
                 if (path == null)
                 {

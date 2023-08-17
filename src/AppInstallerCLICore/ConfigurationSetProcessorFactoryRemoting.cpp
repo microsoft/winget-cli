@@ -223,24 +223,24 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Policy(Convert(value));
             }
 
-            SetProcessorFactory::PwshConfigurationProcessorScope Scope() const
+            SetProcessorFactory::PwshConfigurationProcessorLocation Location() const
             {
-                return Convert(m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Scope());
+                return Convert(m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Location());
             }
 
-            void Scope(SetProcessorFactory::PwshConfigurationProcessorScope value)
+            void Location(SetProcessorFactory::PwshConfigurationProcessorLocation value)
             {
-                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Scope(Convert(value));
+                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Location(Convert(value));
             }
 
-            winrt::hstring CustomInstallModulePath() const
+            winrt::hstring CustomLocation() const
             {
-                return m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().CustomInstallModulePath();
+                return m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().CustomLocation();
             }
 
-            void CustomInstallModulePath(winrt::hstring value)
+            void CustomLocation(winrt::hstring value)
             {
-                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().CustomInstallModulePath(value);
+                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().CustomLocation(value);
             }
 
             HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
@@ -261,16 +261,16 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 return ToEnum<Processor::PowerShellConfigurationProcessorPolicy>(ToIntegral(policy));
             }
 
-            static SetProcessorFactory::PwshConfigurationProcessorScope Convert(Processor::PowerShellConfigurationProcessorScope scope)
+            static SetProcessorFactory::PwshConfigurationProcessorLocation Convert(Processor::PowerShellConfigurationProcessorLocation location)
             {
                 // We have used the same values intentionally; if that changes, update this.
-                return ToEnum<SetProcessorFactory::PwshConfigurationProcessorScope>(ToIntegral(scope));
+                return ToEnum<SetProcessorFactory::PwshConfigurationProcessorLocation>(ToIntegral(location));
             }
 
-            static Processor::PowerShellConfigurationProcessorScope Convert(SetProcessorFactory::PwshConfigurationProcessorScope scope)
+            static Processor::PowerShellConfigurationProcessorLocation Convert(SetProcessorFactory::PwshConfigurationProcessorLocation location)
             {
                 // We have used the same values intentionally; if that changes, update this.
-                return ToEnum<Processor::PowerShellConfigurationProcessorScope>(ToIntegral(scope));
+                return ToEnum<Processor::PowerShellConfigurationProcessorLocation>(ToIntegral(location));
             }
 
             IConfigurationSetProcessorFactory m_remoteFactory;

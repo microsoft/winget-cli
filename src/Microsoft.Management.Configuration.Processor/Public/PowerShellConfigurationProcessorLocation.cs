@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="PowerShellConfigurationProcessorScope.cs" company="Microsoft Corporation">
+// <copyright file="PowerShellConfigurationProcessorLocation.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -7,9 +7,9 @@
 namespace Microsoft.Management.Configuration.Processor
 {
     /// <summary>
-    /// The scope where modules are going to be installed.
+    /// The location where modules are going to be installed.
     /// </summary>
-    public enum PowerShellConfigurationProcessorScope
+    public enum PowerShellConfigurationProcessorLocation
     {
         /// <summary>
         /// Current user path.

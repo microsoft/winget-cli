@@ -227,6 +227,6 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// </summary>
         /// <param name="scope">Scope.</param>
         /// <param name="path">Path for custom scope.</param>
-        void SetScope(PowerShellConfigurationProcessorScope scope, string? path);
+        void SetScope(PowerShellConfigurationProcessorLocation scope, string? path);
     }
 }

@@ -757,7 +757,7 @@ namespace Microsoft.Management.Configuration
             Default = RemoteSigned,
         };
 
-        enum PwshConfigurationProcessorScope
+        enum PwshConfigurationProcessorLocation
         {
             CurrentUser = 0,
             AllUsers = 1,
@@ -774,11 +774,11 @@ namespace Microsoft.Management.Configuration
             // The execution policy to apply; must be set before taking actions with the processor.
             PwshConfigurationProcessorPolicy Policy;
 
-            // The scope to install modules. Default is CurrentUser
-            PwshConfigurationProcessorScope Scope;
+            // The location to install modules. Default is CurrentUser
+            PwshConfigurationProcessorLocation Location;
 
-            // The custom install module path. Only applicable for Scope.Custom
-            String CustomInstallModulePath;
+            // The custom location. Only applicable for Scope.Custom
+            String CustomLocation;
         };
     }
 }

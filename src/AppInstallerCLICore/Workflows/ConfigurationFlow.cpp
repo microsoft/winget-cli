@@ -88,17 +88,17 @@ namespace AppInstaller::CLI::Workflow
 
             if (context.Args.Contains(Args::Type::ConfigurationAllUsersLocation))
             {
-                pwshFactory.Scope(SetProcessorFactory::PwshConfigurationProcessorScope::AllUsers);
+                pwshFactory.Location(SetProcessorFactory::PwshConfigurationProcessorLocation::AllUsers);
             }
             else if (context.Args.Contains(Args::Type::ConfigurationCustomLocationPath))
             {
-                pwshFactory.Scope(SetProcessorFactory::PwshConfigurationProcessorScope::Custom);
-                pwshFactory.CustomInstallModulePath(winrt::to_hstring(context.Args.GetArg(Args::Type::ConfigurationCustomLocationPath)));
+                pwshFactory.Location(SetProcessorFactory::PwshConfigurationProcessorLocation::Custom);
+                pwshFactory.CustomLocation(winrt::to_hstring(context.Args.GetArg(Args::Type::ConfigurationCustomLocationPath)));
             }
             else
             {
                 // TODO: add a setting that says the default custom location.
-                pwshFactory.Scope(SetProcessorFactory::PwshConfigurationProcessorScope::CurrentUser);
+                pwshFactory.Location(SetProcessorFactory::PwshConfigurationProcessorLocation::CurrentUser);
             }
 
             return factory;

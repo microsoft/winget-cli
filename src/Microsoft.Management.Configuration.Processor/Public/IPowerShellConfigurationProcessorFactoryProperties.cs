@@ -29,13 +29,13 @@ namespace Microsoft.Management.Configuration.Processor
         PowerShellConfigurationProcessorPolicy Policy { get; set; }
 
         /// <summary>
-        /// Gets or sets the module scope.
+        /// Gets or sets the module location.
         /// </summary>
-        PowerShellConfigurationProcessorScope Scope { get; set; }
+        PowerShellConfigurationProcessorLocation Location { get; set; }
 
         /// <summary>
         /// Gets or sets the install module path. Only used for Scope.Custom.
         /// </summary>
-        string? CustomInstallModulePath { get; set; }
+        string? CustomLocation { get; set; }
     }
 }
