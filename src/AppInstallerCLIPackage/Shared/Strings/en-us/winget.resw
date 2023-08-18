@@ -2082,4 +2082,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ResumeStateDataNotFoundError" xml:space="preserve">
     <value>No data found in the resume state.</value>
   </data>
+  <data name="CommandDoesNotSupportResumeMessage" xml:space="preserve">
+    <value>This command does not support resuming.</value>
+  </data>
 </root>

@@ -106,9 +106,10 @@ namespace AppInstaller::CLI
 
     void InstallCommand::Resume(Context& context) const
     {
-        auto commandLineArgs = context.GetArgsFromCheckpoint();
-        Invocation invocation{ std::move(commandLineArgs) };
-        ParseArguments(invocation, context.Args);
+        // Move this to the resume command to load arguments.
+        //auto commandLine = context.CheckpointManager.GetArguments();
+        //Invocation invocation{ std::move(commandLine) };
+        //ParseArguments(invocation, context.Args);
 
         context.SetFlags(Execution::ContextFlag::Resume);
         ExecuteInternal(context);

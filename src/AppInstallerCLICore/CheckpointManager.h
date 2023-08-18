@@ -6,19 +6,22 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
-    struct CheckpointIndex;
+    struct CheckpointRecord;
 }
 
 namespace AppInstaller::CLI::Checkpoint
 {
     struct CheckpointManager
     {
-        // Constructor for an existing resume id.
-        CheckpointManager(GUID id);
+        CheckpointManager();
 
-        // Constructor for a new resume save state.
-        CheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion);
-        
+        bool IsLoaded() { return m_checkpointRecord ? true: false; };
+
+        void CreateRecord();
+
+        // Loads an existing record from an id.
+        void LoadExistingRecord(GUID id);
+
         // Gets the client version from the checkpoint index.
         std::string GetClientVersion();
 
@@ -28,11 +31,18 @@ namespace AppInstaller::CLI::Checkpoint
         // Gets the command arguments from the checkpoint index.
         std::string GetArguments();
 
+        void SetClientVersion(std::string_view value);
+
+        void SetCommandName(std::string_view value);
+
+        // Adds a context data to the checkpoint record.
+        void AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index);
+
         // Releases and deletes the checkpoint index.
         void CleanUpIndex();
 
     private:
         GUID m_checkpointId;
-        std::shared_ptr<AppInstaller::Repository::Microsoft::CheckpointIndex> m_checkpointIndex;
+        std::shared_ptr<AppInstaller::Repository::Microsoft::CheckpointRecord> m_checkpointRecord;
     };
 }

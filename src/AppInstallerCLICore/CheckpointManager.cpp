@@ -2,80 +2,86 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "CheckpointManager.h"
-#include "Microsoft/CheckpointIndex.h"
-#include "Microsoft/SQLiteStorageBase.h"
-#include <AppInstallerErrors.h>
+#include "Microsoft/CheckpointRecord.h"
 
 namespace AppInstaller::CLI::Checkpoint
 {
     using namespace AppInstaller::Repository::Microsoft;
 
-    CheckpointManager::CheckpointManager(GUID id)
+    void CheckpointManager::CreateRecord()
+    {
+        THROW_HR_IF(E_UNEXPECTED, IsLoaded());
+        std::ignore = CoCreateGuid(&m_checkpointId);
+        AICLI_LOG(CLI, Info, << "Creating checkpoint index with id: " << m_checkpointId);
+        m_checkpointRecord = CheckpointRecord::CreateDefault(m_checkpointId);
+    }
+
+    CheckpointManager::CheckpointManager()
+    {
+        m_checkpointId = {};
+    }
+
+    void CheckpointManager::LoadExistingRecord(GUID id)
     {
         m_checkpointId = id;
         AICLI_LOG(CLI, Info, << "Opening checkpoint index with id: " << m_checkpointId);
-        auto openDisposition = SQLiteStorageBase::OpenDisposition::ReadWrite;
-        auto checkpointIndex = CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
-        if (!checkpointIndex)
-        {
-            AICLI_LOG(CLI, Error, << "Unable to open checkpoint index.");
-            THROW_HR_MSG(APPINSTALLER_CLI_ERROR_CANNOT_OPEN_CHECKPOINT_INDEX, "The checkpoint index could not be opened.");
-        }
-
-        m_checkpointIndex = std::move(checkpointIndex);
-    }
-
-    CheckpointManager::CheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion)
-    {
-        std::ignore = CoCreateGuid(&m_checkpointId);
-
-        AICLI_LOG(CLI, Info, << "Creating checkpoint index with id: " << m_checkpointId);
-        auto openDisposition = SQLiteStorageBase::OpenDisposition::ReadWrite;
-        auto checkpointIndex = CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
-        if (!checkpointIndex)
-        {
-            AICLI_LOG(CLI, Error, << "Unable to open checkpoint index.");
-            return;
-        }
-
-        m_checkpointIndex = std::move(checkpointIndex);
-        m_checkpointIndex->SetCommandName(commandName);
-        m_checkpointIndex->SetCommandArguments(commandArguments);
-        m_checkpointIndex->SetClientVersion(clientVersion);
+        m_checkpointRecord = CheckpointRecord::OpenDefault(m_checkpointId);
     }
 
     std::string CheckpointManager::GetClientVersion()
     {
-        return m_checkpointIndex->GetClientVersion();
+        THROW_HR_IF(E_UNEXPECTED, !IsLoaded());
+        return m_checkpointRecord->GetMetadata(CheckpointMetadata::ClientVersion);
     }
 
     std::string CheckpointManager::GetCommandName()
     {
-        return m_checkpointIndex->GetCommandName();
+        THROW_HR_IF(E_UNEXPECTED, !IsLoaded());
+        return m_checkpointRecord->GetMetadata(CheckpointMetadata::CommandName);
     }
 
     std::string CheckpointManager::GetArguments()
     {
-        return m_checkpointIndex->GetCommandArguments();
+        return {};
+    }
+
+    void CheckpointManager::SetClientVersion(std::string_view value)
+    {
+        m_checkpointRecord->SetMetadata(CheckpointMetadata::ClientVersion, value);
+    }
+
+    void CheckpointManager::SetCommandName(std::string_view value)
+    {
+        m_checkpointRecord->SetMetadata(CheckpointMetadata::CommandName, value);
+    }
+
+    void CheckpointManager::AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index)
+    {
+        const auto& checkpointId = m_checkpointRecord->GetCheckpointId(checkpointName);
+
+        if (checkpointId)
+        {
+            m_checkpointRecord->AddContextData(checkpointId.value(), contextData, name, value, index);
+        }
     }
 
     void CheckpointManager::CleanUpIndex()
     {
-        if (m_checkpointIndex)
+        if (m_checkpointRecord)
         {
-            m_checkpointIndex.reset();
+            m_checkpointRecord.reset();
         }
 
         if (m_checkpointId != GUID_NULL)
         {
-            const auto& checkpointIndexPath = CheckpointIndex::GetCheckpointIndexPath(m_checkpointId);
+            const auto& checkpointRecordPath = CheckpointRecord::GetCheckpointRecordPath(m_checkpointId);
 
-            if (std::filesystem::exists(checkpointIndexPath))
+            if (std::filesystem::exists(checkpointRecordPath))
             {
                 std::error_code error;
-                if (std::filesystem::remove(checkpointIndexPath, error))
+                if (std::filesystem::remove(checkpointRecordPath, error))
                 {
-                    AICLI_LOG(CLI, Info, << "Checkpoint index deleted: " << checkpointIndexPath);
+                    AICLI_LOG(CLI, Info, << "Checkpoint index deleted: " << checkpointRecordPath);
                 }
             }
         }

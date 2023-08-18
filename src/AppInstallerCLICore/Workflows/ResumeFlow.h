@@ -5,19 +5,13 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Ensures that the arguments provided supports a resume.
-    // Required Args: None
-    // Inputs: ResumeGuid
-    // Outputs: None
-    void EnsureSupportForResume(Execution::Context& context);
-
     // Applies a checkpoint to the context workflow.
     struct Checkpoint : public WorkflowTask
     {
         Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData) :
-            WorkflowTask("ApplyCheckpoint"),
+            WorkflowTask("Checkpoint"),
             m_checkpointName(checkpointName),
-            m_contextData(contextData) {}
+            m_contextData(std::move(contextData)) {}
 
         void operator()(Execution::Context& context) const override;
 

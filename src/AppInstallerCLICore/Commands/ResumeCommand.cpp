@@ -5,13 +5,15 @@
 #include "Resources.h"
 #include "ResumeCommand.h"
 #include "RootCommand.h"
-#include "Microsoft/CheckpointIndex.h"
+#include "CheckpointManager.h"
+#include "Microsoft/CheckpointRecord.h"
 #include "Workflows/ResumeFlow.h"
 
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
     using namespace Execution;
+    using namespace Checkpoint;
 
     std::vector<Argument> ResumeCommand::GetArguments() const
     {
@@ -37,44 +39,36 @@ namespace AppInstaller::CLI
 
     void ResumeCommand::ExecuteInternal(Execution::Context& context) const
     {
-        std::string resumeGuidString { context.Args.GetArg(Execution::Args::Type::ResumeId) };
-        if (!Utility::IsValidGuidString(resumeGuidString))
-        {
-            context.Reporter.Error() << Resource::String::InvalidResumeIdError(Utility::LocIndView{ resumeGuidString }) << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_ID);
-        }
-
+        std::string resumeGuidString{ context.Args.GetArg(Execution::Args::Type::ResumeId) };
         GUID checkpointId = Utility::ConvertToGuid(resumeGuidString);
 
-        if (!std::filesystem::exists(AppInstaller::Repository::Microsoft::CheckpointIndex::GetCheckpointIndexPath(checkpointId)))
+        if (!std::filesystem::exists(AppInstaller::Repository::Microsoft::CheckpointRecord::GetCheckpointRecordPath(checkpointId)))
         {
             context.Reporter.Error() << Resource::String::ResumeIdNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND);
         }
 
-        Execution::Context resumeContext{ std::cout, std::cin };
-        auto previousThreadGlobals = resumeContext.SetForCurrentThread();
-        resumeContext.EnableSignalTerminationHandler();
-        resumeContext.InitializeCheckpointManager(checkpointId);
+        Execution::Context resumeContext = context.CreateEmptyContext();
 
-        const auto& checkpointClientVersion = resumeContext.GetClientVersionFromCheckpoint();
+        CheckpointManager checkpointManager = resumeContext.CheckpointManager;
+        checkpointManager.LoadExistingRecord(checkpointId);
+
+
+        const auto& checkpointClientVersion = checkpointManager.GetClientVersion();
         if (checkpointClientVersion != AppInstaller::Runtime::GetClientVersion().get())
         {
             context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ checkpointClientVersion }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
         }
 
-        std::string commandName = resumeContext.GetCommandNameFromCheckpoint();
+        std::string commandName = checkpointManager.GetCommandName();
         std::unique_ptr<Command> commandToResume;
 
         // Find the command using the root command.
         AICLI_LOG(CLI, Info, << "Resuming command: " << commandName);
         for (auto& command : std::make_unique<RootCommand>()->GetCommands())
         {
-            if (
-                Utility::CaseInsensitiveEquals(commandName, command->Name()) ||
-                Utility::CaseInsensitiveContains(command->Aliases(), commandName)
-                )
+            if (Utility::CaseInsensitiveEquals(commandName, command->Name()))
             {
                 commandToResume = std::move(command);
                 break;
@@ -85,7 +79,21 @@ namespace AppInstaller::CLI
 
         resumeContext.SetExecutingCommand(commandToResume.get());
         resumeContext.SetFlags(Execution::ContextFlag::Resume);
+
+        // Load arguments here:
+
+        auto previousThreadGlobals = resumeContext.SetForCurrentThread();
+        resumeContext.EnableSignalTerminationHandler();
         commandToResume->Resume(resumeContext);
         context.SetTerminationHR(resumeContext.GetTerminationHR());
+    }
+
+    void ResumeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        std::string resumeGuidString{ execArgs.GetArg(Execution::Args::Type::ResumeId) };
+        if (!Utility::IsValidGuidString(resumeGuidString))
+        {
+            throw CommandException(Resource::String::InvalidResumeIdError(Utility::LocIndView{ resumeGuidString }));
+        }
     }
 }

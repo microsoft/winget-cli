@@ -6,6 +6,7 @@
 #include "Argument.h"
 #include "winget/UserSettings.h"
 #include "AppInstallerRuntime.h"
+#include "Command.h"
 
 namespace AppInstaller::CLI::Execution
 {
@@ -252,10 +253,20 @@ namespace AppInstaller::CLI::Execution
 
     Context::~Context()
     {
+        if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume) && !IsTerminated())
+        {
+            CheckpointManager.CleanUpIndex();
+        }
+
         if (m_disableSignalTerminationHandlerOnExit)
         {
             EnableSignalTerminationHandler(false);
         }
+    }
+
+    Context Context::CreateEmptyContext()
+    {
+        return Context(Reporter, m_threadGlobals);
     }
 
     std::unique_ptr<Context> Context::CreateSubContext()
@@ -410,56 +421,32 @@ namespace AppInstaller::CLI::Execution
     }
 #endif
 
-    void Context::InitializeCheckpointManager(GUID id)
-    {
-        m_checkpointManager = std::make_unique<CheckpointManager>(id);
-    }
-
-    void Context::InitializeCheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion)
-    {
-        m_checkpointManager = std::make_unique<CheckpointManager>(commandName, commandArguments, clientVersion);
-    }
-
     void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
     {
+        CheckpointManager.CreateRecord();
+
+        if (contextData.empty())
+        {
+            // Capture automatic metadata.
+            CheckpointManager.SetClientVersion(AppInstaller::Runtime::GetClientVersion());
+
+            const auto& executingCommand = m_executingCommand;
+            if (executingCommand != nullptr)
+            {
+                CheckpointManager.SetCommandName(executingCommand->Name());
+            }
+
+            // Capture arguments
+
+        }
+        else
+        {
+            // Capture context data.
+        }
+
         // TODO: Implementation for capturing each context data specified in the provided vector.
         UNREFERENCED_PARAMETER(checkpointName);
         UNREFERENCED_PARAMETER(contextData);
     }
 
-    std::string Context::GetCommandLineFromArgs()
-    {
-        std::string commandLine;
-        for (auto type : Args.GetTypes())
-        {
-            const auto& argument = Argument::ForType(type);
-            commandLine += "--" + std::string{ argument.Name() } + " " + std::string{ Args.GetArg(type) };
-        }
-
-        return commandLine;
-    }
-
-    std::vector<std::string> Context::GetArgsFromCheckpoint()
-    {
-        const auto& commandLineString = m_checkpointManager->GetArguments();
-        return Utility::Split(commandLineString, ' ');
-    }
-
-    std::string Context::GetCommandNameFromCheckpoint()
-    {
-        return m_checkpointManager->GetCommandName();
-    }
-
-    std::string Context::GetClientVersionFromCheckpoint()
-    {
-        return m_checkpointManager->GetClientVersion();
-    }
-
-    void Context::CleanUpCheckpoints()
-    {
-        if (m_checkpointManager)
-        {
-            m_checkpointManager->CleanUpIndex();
-        }
-    }
 }

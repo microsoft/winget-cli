@@ -70,7 +70,7 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     INFO("Using temporary file named: " << tempIndexPath);
 
     {
-        CheckpointIndex index = CheckpointIndex::CreateNew(tempIndexPath.u8string());
+        CheckpointRecord index = CheckpointRecord::CreateNew(tempIndexPath.u8string());
         index.SetClientVersion(invalidClientVersion);
     }
 
@@ -104,7 +104,7 @@ TEST_CASE("ResumeFlow_EmptyIndex", "Resume")
     INFO("Using temporary file named: " << tempIndexPath);
 
     {
-        CheckpointIndex index = CheckpointIndex::CreateNew(tempGuidString);
+        CheckpointRecord index = CheckpointRecord::CreateNew(tempGuidString);
         index.SetClientVersion(AppInstaller::Runtime::GetClientVersion());
     }
 

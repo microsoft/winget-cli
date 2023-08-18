@@ -387,6 +387,10 @@ namespace AppInstaller::Runtime
             result.Path = GetKnownFolderPath(FOLDERID_Downloads);
             mayBeInProfilePath = true;
             break;
+        case PathName::CheckpointsLocation:
+            result.Path = GetPathDetailsFor(PathName::LocalState).Path;
+            result.Path /= s_CheckpointsDirectory;
+            break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -533,6 +537,7 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
         case PathName::UserProfileDownloads:
+        case PathName::CheckpointsLocation:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:

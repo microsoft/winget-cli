@@ -98,6 +98,9 @@ namespace AppInstaller::CLI::Execution
         // The arguments given to execute with.
         Args Args;
 
+        // Creates a empty context, inheriting 
+        Context CreateEmptyContext();
+
         // Creates a child of this context.
         virtual std::unique_ptr<Context> CreateSubContext();
 
@@ -162,29 +165,11 @@ namespace AppInstaller::CLI::Execution
         // Enable tests to override behavior
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
-        // Initialize an existing checkpoint manager with a resume id.
-        void InitializeCheckpointManager(GUID id);
 
-        // Initialize a new checkpoint manager.
-        void InitializeCheckpointManager(std::string_view commandName, std::string_view commandArguments, std::string_view clientVersion);
+        Checkpoint::CheckpointManager CheckpointManager;
 
         // Records the provided context data to the checkpoint index. If it already exists, loads the context instead.
         void Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);
-
-        // Gets the command line string from the store context arguments.
-        std::string GetCommandLineFromArgs();
-
-        // Gets the arguments from the checkpoint index.
-        std::vector<std::string> GetArgsFromCheckpoint();
-
-        // Gets the command name from the checkpoint index.
-        std::string GetCommandNameFromCheckpoint();
-
-        // Gets the client version from the checkpoint index.
-        std::string GetClientVersionFromCheckpoint();
-
-        // Removes the checkpoint index file.
-        void CleanUpCheckpoints();
 
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent
@@ -204,6 +189,5 @@ namespace AppInstaller::CLI::Execution
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
-        std::unique_ptr<Checkpoint::CheckpointManager> m_checkpointManager;
     };
 }

@@ -853,14 +853,11 @@ namespace AppInstaller::CLI
             throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
         }
 
-        bool isResumeFeatureEnabled = Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume);
-        if (isResumeFeatureEnabled)
+        if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
         {
             if (!context.Args.Contains(Execution::Args::Type::ResumeId))
             {
-                const auto& clientVersion = AppInstaller::Runtime::GetClientVersion();
-                const auto& commandLineString = context.GetCommandLineFromArgs();
-                context.InitializeCheckpointManager(Name(), commandLineString, clientVersion);
+                context.Checkpoint("Start"sv, {});
             }
         }
 
@@ -872,11 +869,6 @@ namespace AppInstaller::CLI
         else
         {
             ExecuteInternal(context);
-        }
-
-        if (isResumeFeatureEnabled && !context.IsTerminated())
-        {
-            context.CleanUpCheckpoints();
         }
 
         if (context.Args.Contains(Execution::Args::Type::OpenLogs))
@@ -894,7 +886,7 @@ namespace AppInstaller::CLI
 
     void Command::Resume(Execution::Context& context) const
     {
-        context.Reporter.Error() << Resource::String::PendingWorkError << std::endl;
+        context.Reporter.Error() << Resource::String::CommandDoesNotSupportResumeMessage << std::endl;
         THROW_HR(E_NOTIMPL);
     }
     

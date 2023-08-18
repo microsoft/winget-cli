@@ -230,8 +230,6 @@ namespace AppInstaller
                 return "Failed to download package dependencies.";
             case APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED:
                 return "Failed to download package. Download for offline installation is prohibited.";
-            case APPINSTALLER_CLI_ERROR_INVALID_RESUME_ID:
-                return "Argument for resume guid is invalid.";
             case APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND:
                 return "The guid provided does not correspond to a valid resume state.";
             case APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH:

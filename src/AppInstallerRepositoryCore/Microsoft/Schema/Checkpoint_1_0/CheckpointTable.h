@@ -8,7 +8,7 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {
-    struct CheckpointMetadataTable
+    struct CheckpointTable
     {
         // Get the table name.
         static std::string_view TableName();
@@ -16,10 +16,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         // Creates the table with named indices.
         static void Create(SQLite::Connection& connection);
 
-        // Gets the metadata value of the checkpoint state.
-        static std::string GetNamedValue(SQLite::Connection& connection, std::string_view name);
+        // Adds a checkpoint.
+        static SQLite::rowid_t AddCheckpoint(SQLite::Connection& connection, std::string_view checkpointName);
 
-        // Sets the metadata value of the checkpoint state.
-        static SQLite::rowid_t SetNamedValue(SQLite::Connection& connection, std::string_view name, std::string_view value);
+        // Gets the id of a checkpoint.
+        static std::optional<SQLite::rowid_t> GetCheckpointId(SQLite::Connection& connection, std::string_view checkpointName);
     };
 }

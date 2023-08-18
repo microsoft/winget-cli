@@ -46,6 +46,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ClientVersionMismatchError);
         WINGET_DEFINE_RESOURCE_STRINGID(Command);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(CommandDoesNotSupportResumeMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandLineArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandRequiresAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
