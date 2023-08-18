@@ -37,8 +37,10 @@ if (-not [System.String]::IsNullOrEmpty($packageLayoutPath))
     $local:settingsExport = ConvertFrom-Json (wingetdev.exe settings export)
     $local:settingsFilePath = $local:settingsExport.userSettingsFile
     $local:settingsFileContent = ConvertTo-Json @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
+    $local:settingsFileContent = ConvertTo-Json @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
 
     Set-Content -Path $local:settingsFilePath -Value $local:settingsFileContent
 }
 
 Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Client.Tests.ps1 -OutputFile $outputPath\Tests-WinGetClient.XML -OutputFormat NUnitXML
+Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Configuration.Tests.ps1 -OutputFile $outputPath\Tests-WinGetConfiguration.XML -OutputFormat NUnitXML

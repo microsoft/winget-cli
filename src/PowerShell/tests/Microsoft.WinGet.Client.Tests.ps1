@@ -10,7 +10,10 @@
 
 BeforeAll {
     $settingsFilePath = (ConvertFrom-Json (wingetdev.exe settings export)).userSettingsFile
-    $wingetGroupPolicyRegistryRoot = "HKLM:\Software\Policies\Microsoft\Windows\AppInstaller"
+
+    $deviceGroupPolicyRoot = "HKLM:\Software\Policies\Microsoft\Windows"
+    $wingetPolicyKeyName = "AppInstaller"
+    $wingetGroupPolicyRegistryRoot = $deviceGroupPolicyRoot + "\" + $wingetPolicyKeyName
 
     Import-Module Microsoft.WinGet.Client
 
@@ -41,9 +44,34 @@ BeforeAll {
         }
     }
 
+    function CreatePolicyKeyIfNotExists()
+    {
+        $registryExists = test-path  -Path $wingetGroupPolicyRegistryRoot
+
+       if(-Not($registryExists))
+       {
+           New-Item -Path $deviceGroupPolicyRoot -Name $wingetPolicyKeyName
+       }
+    }
+
+    function CleanupGroupPolicyKeyIfExists()
+    {
+        $registryExists = test-path  -Path $wingetGroupPolicyRegistryRoot
+
+        if($registryExists)
+        {
+           Remove-Item -Path  $wingetGroupPolicyRegistryRoot -Recurse
+        }
+    }
+
     function CleanupGroupPolicies()
     {
-        Remove-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name *
+        $registryExists = test-path  -Path $wingetGroupPolicyRegistryRoot
+
+        if($registryExists)
+        {
+            Remove-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name *
+        }
     }
 }
 
@@ -490,6 +518,7 @@ Describe 'Get|Enable|Disable-WinGetSetting' {
 Describe 'Test-GroupPolicies' {
     BeforeAll {
         CleanupGroupPolicies
+        CreatePolicyKeyIfNotExists
     }
 
     It "Disable WinGetPolicy and run Get-WinGetSources" {
@@ -520,6 +549,7 @@ Describe 'Test-GroupPolicies' {
 
     AfterAll {
       CleanupGroupPolicies
+      CleanupGroupPolicyKeyIfExists
     }
 }
 
