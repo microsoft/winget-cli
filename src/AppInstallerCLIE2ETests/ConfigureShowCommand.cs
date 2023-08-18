@@ -52,12 +52,22 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Simple test to confirm that a resource that is already locally available shows that way.
         /// </summary>
-        [Test]
-        public void ShowDetailsFromLocal()
+        /// <param name="location">The location the module should be before running.</param>
+        [TestCase(TestCommon.TestModuleLocation.CurrentUser)]
+        [TestCase(TestCommon.TestModuleLocation.AllUsers)]
+        [TestCase(TestCommon.TestModuleLocation.WinGetModulePath)]
+        [TestCase(TestCommon.TestModuleLocation.Custom)]
+        public void ShowDetailsFromLocal(TestCommon.TestModuleLocation location)
         {
-            TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: true, repository: Constants.TestRepoName);
+            TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: true, repository: Constants.TestRepoName, location: location);
 
-            var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")} --verbose");
+            string args = $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")} --verbose";
+            if (location == TestCommon.TestModuleLocation.Custom)
+            {
+                args += " --installModulePath " + TestCommon.GetExpectedModulePath(location);
+            }
+
+            var result = TestCommon.RunAICLICommand("configure show", args);
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.LocalModuleDescriptor));
         }

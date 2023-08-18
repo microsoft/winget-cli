@@ -84,14 +84,27 @@ namespace Microsoft.Management.Configuration.Processor
                     processorEnvironment.PrependPSModulePaths(this.AdditionalModulePaths);
                 }
 
+                // Always add the winget path.
+                var wingetModulePath = GetWinGetModulePath();
+                processorEnvironment.PrependPSModulePath(wingetModulePath);
                 if (this.Location == PowerShellConfigurationProcessorLocation.WinGetModulePath)
                 {
                     this.OnDiagnostics(DiagnosticLevel.Verbose, "Using winget module path");
-                    processorEnvironment.SetScope(PowerShellConfigurationProcessorLocation.Custom, GetWinGetModulePath());
+                    processorEnvironment.SetLocation(PowerShellConfigurationProcessorLocation.Custom, wingetModulePath);
+                }
+                else if (this.Location == PowerShellConfigurationProcessorLocation.Custom)
+                {
+                    if (string.IsNullOrEmpty(this.CustomLocation))
+                    {
+                        throw new ArgumentNullException(nameof(this.CustomLocation));
+                    }
+
+                    processorEnvironment.SetLocation(this.Location, this.CustomLocation);
+                    processorEnvironment.PrependPSModulePath(this.CustomLocation);
                 }
                 else
                 {
-                    processorEnvironment.SetScope(this.Location, this.CustomLocation);
+                    processorEnvironment.SetLocation(this.Location, null);
                 }
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"  Effective module path:\n{processorEnvironment.GetVariable<string>(Variables.PSModulePath)}");
@@ -107,6 +120,17 @@ namespace Microsoft.Management.Configuration.Processor
                 this.OnDiagnostics(DiagnosticLevel.Error, ex.ToString());
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Gets the winget module path.
+        /// </summary>
+        /// <returns>The winget module path.</returns>
+        internal static string GetWinGetModulePath()
+        {
+            return Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    @"Microsoft\WinGet\Configuration\Modules");
         }
 
         /// <summary>
@@ -161,13 +185,6 @@ namespace Microsoft.Management.Configuration.Processor
 
                 this.InvokeDiagnostics(diagnostics, level, builder.ToString());
             }
-        }
-
-        private static string GetWinGetModulePath()
-        {
-            return Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    @"Microsoft\WinGet\Configuration\Modules");
         }
 
         private void InvokeDiagnostics(EventHandler<IDiagnosticInformation> diagnostics, DiagnosticLevel level, string message)

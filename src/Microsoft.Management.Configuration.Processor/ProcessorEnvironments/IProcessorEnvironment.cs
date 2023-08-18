@@ -223,10 +223,10 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         void CleanupPSModulePath(string path);
 
         /// <summary>
-        /// Sets the scope for installing modules.
+        /// Sets the location for installing modules.
         /// </summary>
-        /// <param name="scope">Scope.</param>
-        /// <param name="path">Path for custom scope.</param>
-        void SetScope(PowerShellConfigurationProcessorLocation scope, string? path);
+        /// <param name="location">Location.</param>
+        /// <param name="customLocation">Path for custom location.</param>
+        void SetLocation(PowerShellConfigurationProcessorLocation location, string? customLocation);
     }
 }
