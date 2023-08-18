@@ -44,6 +44,28 @@ namespace AppInstallerCLIE2ETests
             GroupPolicyHelper.EnableWinget.Disable();
             var result = TestCommon.RunAICLICommand("search", "foo");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Scenario if Policy WinGet is disabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is Enabled.
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Enable();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Scenario if Policy WinGet is disabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is Not-Configured.
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.SetNotConfigured();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Scenario if Policy WinGet is enabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is disabled.
+            GroupPolicyHelper.EnableWinget.Enable();
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Scenario if Policy WinGet is Not-Configured  but Policy EnableWindowsPackageManagerCommandLineInterfaces is disabled.
+            GroupPolicyHelper.EnableWinget.SetNotConfigured();
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
         /// <summary>

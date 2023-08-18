@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <!-- Keep in sync with attributes in AssemblyInfo.cs -->
@@ -43,6 +43,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj" />
+    <ProjectReference Include="..\Microsoft.WinGet.SharedLib\Microsoft.WinGet.SharedLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

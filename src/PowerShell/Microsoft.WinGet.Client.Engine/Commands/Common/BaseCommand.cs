@@ -9,6 +9,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
+    using Microsoft.WinGet.SharedLib.Exceptions;
+    using Microsoft.WinGet.SharedLib.PolicySettings;
 
     /// <summary>
     /// Base class for all Cmdlets.
@@ -26,6 +28,18 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             if (Utilities.UsesInProcWinget && Utilities.ThreadIsSTA)
             {
                 throw new SingleThreadedApartmentException();
+            }
+
+            GroupPolicy groupPolicy = GroupPolicy.GetInstance();
+
+            if (!groupPolicy.IsEnabled(Policy.WinGet))
+            {
+                throw new GroupPolicyException(Policy.WinGet, GroupPolicyFailureType.BlockedByPolicy);
+            }
+
+            if (!groupPolicy.IsEnabled(Policy.WinGetCommandLineInterfaces))
+            {
+                throw new GroupPolicyException(Policy.WinGetCommandLineInterfaces, GroupPolicyFailureType.BlockedByPolicy);
             }
 
             this.PsCmdlet = psCmdlet;

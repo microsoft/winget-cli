@@ -43,6 +43,7 @@ namespace AppInstaller::Settings
             AdditionalSources,
             AllowedSources,
             BypassCertificatePinningForMicrosoftStore,
+            WinGetCommandLineInterfaces,
             Max,
         };
 
