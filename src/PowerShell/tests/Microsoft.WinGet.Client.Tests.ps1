@@ -10,6 +10,7 @@
 
 BeforeAll {
     $settingsFilePath = (ConvertFrom-Json (wingetdev.exe settings export)).userSettingsFile
+    $wingetGroupPolicyRegistryRoot = "HKLM:\Software\Policies\Microsoft\Windows\AppInstaller"
 
     Import-Module Microsoft.WinGet.Client
 
@@ -38,6 +39,11 @@ BeforeAll {
             # running from PowerShell. This can cause other E2E tests to fail when attempting to reset the test source.
             Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
         }
+    }
+
+    function CleanupGroupPolicies()
+    {
+        Remove-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name *
     }
 }
 
@@ -478,6 +484,42 @@ Describe 'Get|Enable|Disable-WinGetSetting' {
         $afterDisable | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $afterDisable.adminSettings | Should -Not -BeNullOrEmpty
         $afterDisable.adminSettings.LocalManifestFiles | Should -Be $false
+    }
+}
+
+Describe 'Test-GroupPolicies' {
+    BeforeAll {
+        CleanupGroupPolicies
+    }
+
+    It "Disable WinGetPolicy and run Get-WinGetSources" {
+        $policyKeyValueName =  "EnableAppInstaller"
+
+        Set-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name $policyKeyValueName -Value 0
+        $registryKey  =  Get-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name $policyKeyValueName
+        $registryKey | Should -Not -BeNullOrEmpty
+        $registryKey.EnableAppInstaller | Should -Be 0
+
+        { Get-WinGetSource } | Should -Throw "This operation is disabled by Group Policy : Enable Windows Package Manager"
+
+        CleanupGroupPolicies
+    }
+
+    It "Disable EnableWindowsPackageManagerCommandLineInterfaces Policy and run Get-WinGetSources" {
+       $policyKeyValueName =  "EnableWindowsPackageManagerCommandLineInterfaces"
+
+        Set-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name $policyKeyValueName -Value 0
+        $registryKey  =  Get-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name $policyKeyValueName
+        $registryKey | Should -Not -BeNullOrEmpty
+        $registryKey.EnableWindowsPackageManagerCommandLineInterfaces | Should -Be 0
+
+        { Get-WinGetSource } | Should -Throw "This operation is disabled by Group Policy : Enable Windows Package Manager command line interfaces"
+
+        CleanupGroupPolicies
+    }
+
+    AfterAll {
+      CleanupGroupPolicies
     }
 }
 
