@@ -548,8 +548,8 @@ Describe 'Test-GroupPolicies' {
     }
 
     AfterAll {
-      CleanupGroupPolicies
-      CleanupGroupPolicyKeyIfExists
+        CleanupGroupPolicies
+        CleanupGroupPolicyKeyIfExists
     }
 }
 
