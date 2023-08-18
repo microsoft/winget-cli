@@ -74,11 +74,21 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Open a configuration set.
         /// </summary>
         /// <param name="configFile">Configuration file path.</param>
+        /// <param name="allUsers">If use all users location.</param>
+        /// <param name="currentUser">If use current user location.</param>
+        /// <param name="customLocation">The custom location path.</param>
         /// <param name="executionPolicy">Execution policy.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
-        public void Get(string configFile, ExecutionPolicy executionPolicy, bool canUseTelemetry)
+        public void Get(
+            string configFile,
+            bool allUsers,
+            bool currentUser,
+            string customLocation,
+            ExecutionPolicy executionPolicy,
+            bool canUseTelemetry)
         {
-            configFile = this.VerifyFile(configFile);
+            var openParams = new OpenConfigurationParameters(
+                this.PsCmdlet, configFile, allUsers, currentUser, customLocation, executionPolicy, canUseTelemetry);
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
@@ -86,7 +96,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 {
                     try
                     {
-                        return await this.OpenConfigurationSetAsync(configFile, executionPolicy, canUseTelemetry);
+                        return await this.OpenConfigurationSetAsync(openParams);
                     }
                     finally
                     {
@@ -199,29 +209,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.ContinueHelper(psConfigurationJob);
         }
 
-        /// <summary>
-        /// Verifies file exists and return the full path, if not already.
-        /// </summary>
-        /// <param name="filePath">File path.</param>
-        /// <returns>Full path.</returns>
-        private string VerifyFile(string filePath)
-        {
-            if (!Path.IsPathRooted(filePath))
-            {
-                filePath = Path.GetFullPath(
-                    Path.Combine(
-                        this.PsCmdlet.SessionState.Path.CurrentFileSystemLocation.Path,
-                        filePath));
-            }
-
-            if (!File.Exists(filePath))
-            {
-                throw new FileNotFoundException(filePath);
-            }
-
-            return filePath;
-        }
-
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
         {
             // Signal the command that it can write to streams and wait for task.
@@ -230,39 +217,44 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
         }
 
-        private PSConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy, bool canUseTelemetry)
+        private IConfigurationSetProcessorFactory CreateFactory(OpenConfigurationParameters openParams)
         {
-            this.Write(StreamType.Information, Resources.ConfigurationInitializing);
-
             var factory = new PowerShellConfigurationSetProcessorFactory();
 
             var properties = factory.As<IPowerShellConfigurationProcessorFactoryProperties>();
-            properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
+            properties.Policy = openParams.Policy;
             properties.ProcessorType = PowerShellConfigurationProcessorType.Default;
+            properties.Location = openParams.Location;
+            if (properties.Location == PowerShellConfigurationProcessorLocation.Custom)
+            {
+                properties.CustomLocation = openParams.CustomLocation;
+            }
 
-            return new PSConfigurationProcessor(factory, this, canUseTelemetry);
+            return factory;
         }
 
-        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(string configFile, ExecutionPolicy executionPolicy, bool canUseTelemetry)
+        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(OpenConfigurationParameters openParams)
         {
-            var psProcessor = this.CreateConfigurationProcessor(executionPolicy, canUseTelemetry);
+            this.Write(StreamType.Verbose, Resources.ConfigurationInitializing);
 
-            this.Write(StreamType.Information, Resources.ConfigurationReadingConfigFile);
-            var stream = await FileRandomAccessStream.OpenAsync(configFile, FileAccessMode.Read);
+            var psProcessor = new PSConfigurationProcessor(this.CreateFactory(openParams), this, openParams.CanUseTelemetry);
+
+            this.Write(StreamType.Verbose, Resources.ConfigurationReadingConfigFile);
+            var stream = await FileRandomAccessStream.OpenAsync(openParams.ConfigFile, FileAccessMode.Read);
 
             OpenConfigurationSetResult openResult = await psProcessor.Processor.OpenConfigurationSetAsync(stream);
             if (openResult.ResultCode != null)
             {
-                throw new OpenConfigurationSetException(openResult, configFile);
+                throw new OpenConfigurationSetException(openResult, openParams.ConfigFile);
             }
 
             var set = openResult.Set;
 
             // This should match winget's OpenConfigurationSet or OpenConfigurationSetAsync
             // should be modify to take the full path and handle it.
-            set.Name = Path.GetFileName(configFile);
-            set.Origin = Path.GetDirectoryName(configFile);
-            set.Path = configFile;
+            set.Name = Path.GetFileName(openParams.ConfigFile);
+            set.Origin = Path.GetDirectoryName(openParams.ConfigFile);
+            set.Path = openParams.ConfigFile;
 
             return new PSConfigurationSet(psProcessor, set);
         }
@@ -367,12 +359,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             if (detailsProgressOutput.UnitsShown == 0)
             {
                 this.Write(StreamType.Warning, Resources.ConfigurationFailedToGetDetails);
-                foreach (var unit in set.ConfigurationUnits)
-                {
-                    var information = new ConfigurationUnitInformation(unit);
-                    this.Write(StreamType.Information, information.GetHeader());
-                    this.Write(StreamType.Information, information.GetInformation());
-                }
             }
             else
             {
@@ -393,19 +379,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     errorMessage,
                     resultInformation.ResultCode);
             }
-        }
-
-        private PowerShellConfigurationProcessorPolicy GetConfigurationProcessorPolicy(ExecutionPolicy policy)
-        {
-            return policy switch
-            {
-                ExecutionPolicy.Unrestricted => PowerShellConfigurationProcessorPolicy.Unrestricted,
-                ExecutionPolicy.RemoteSigned => PowerShellConfigurationProcessorPolicy.RemoteSigned,
-                ExecutionPolicy.AllSigned => PowerShellConfigurationProcessorPolicy.AllSigned,
-                ExecutionPolicy.Restricted => PowerShellConfigurationProcessorPolicy.Restricted,
-                ExecutionPolicy.Bypass => PowerShellConfigurationProcessorPolicy.Bypass,
-                _ => throw new InvalidOperationException(),
-            };
         }
     }
 }

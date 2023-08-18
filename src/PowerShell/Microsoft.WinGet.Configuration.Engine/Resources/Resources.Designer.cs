@@ -70,6 +70,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to -AllUsers require administrator privileges to execute.
+        /// </summary>
+        internal static string ConfigurationAllUsersElevated {
+            get {
+                return ResourceManager.GetString("ConfigurationAllUsersElevated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Apply.
         /// </summary>
         internal static string ConfigurationApply {
@@ -219,6 +228,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         internal static string ConfigurationLocal {
             get {
                 return ResourceManager.GetString("ConfigurationLocal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to -AllUsers, -CurrentUser and -CustomLocation are mutualy exclusive parameters.
+        /// </summary>
+        internal static string ConfigurationLocationExclusive {
+            get {
+                return ResourceManager.GetString("ConfigurationLocationExclusive", resourceCulture);
             }
         }
         

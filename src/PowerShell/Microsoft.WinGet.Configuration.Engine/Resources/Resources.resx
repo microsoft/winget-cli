@@ -298,4 +298,12 @@
   <data name="DebugNotSupported" xml:space="preserve">
     <value>Debug parameter not supported</value>
   </data>
+  <data name="ConfigurationAllUsersElevated" xml:space="preserve">
+    <value>-AllUsers require administrator privileges to execute</value>
+    <comment>{Locked="-AllUsers"}</comment>
+  </data>
+  <data name="ConfigurationLocationExclusive" xml:space="preserve">
+    <value>-AllUsers, -CurrentUser and -CustomLocation are mutualy exclusive parameters</value>
+    <comment>{Locked="-AllUsers, -CurrentUser, -CustomLocation"}</comment>
+  </data>
 </root>

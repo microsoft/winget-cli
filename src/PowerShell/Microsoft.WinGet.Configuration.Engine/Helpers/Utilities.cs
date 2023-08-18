@@ -11,12 +11,27 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
     using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Host;
+    using System.Security.Principal;
 
     /// <summary>
     /// Helper methods.
     /// </summary>
     internal static class Utilities
     {
+        /// <summary>
+        /// Gets a value indicating whether the current assembly is executing in an administrative context.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only API")]
+        public static bool ExecutingAsAdministrator
+        {
+            get
+            {
+                WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                WindowsPrincipal principal = new (identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+        }
+
         /// <summary>
         /// Helper for StreamType.Information. Creates a HostInformationMessage with
         /// the specified information.
