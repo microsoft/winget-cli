@@ -95,6 +95,10 @@ namespace AppInstaller::CLI::Workflow
                 pwshFactory.Location(SetProcessorFactory::PwshConfigurationProcessorLocation::Custom);
                 pwshFactory.CustomLocation(winrt::to_hstring(context.Args.GetArg(Args::Type::ConfigurationCustomLocationPath)));
             }
+            else if (context.Args.Contains(Args::Type::ConfigurationWinGetLocation))
+            {
+                pwshFactory.Location(SetProcessorFactory::PwshConfigurationProcessorLocation::WinGetModulePath);
+            }
             else
             {
                 // TODO: add a setting that says the default custom location.

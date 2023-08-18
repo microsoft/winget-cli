@@ -112,6 +112,7 @@ namespace AppInstaller::CLI::Execution
             ConfigurationDisable,
             ConfigurationAllUsersLocation,
             ConfigurationCurrentUserLocation,
+            ConfigurationWinGetLocation,
             ConfigurationCustomLocationPath,
 
             // Common arguments

@@ -187,6 +187,8 @@ namespace AppInstaller::CLI
             return { type, "allUsers"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
         case Execution::Args::Type::ConfigurationCurrentUserLocation:
             return { type, "currentUser"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
+        case Execution::Args::Type::ConfigurationWinGetLocation:
+            return { type, "wingetModulePath"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
         case Execution::Args::Type::ConfigurationCustomLocationPath:
             return { type, "installModulePath"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
 

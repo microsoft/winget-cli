@@ -41,6 +41,14 @@ namespace Microsoft.WinGet.Configuration.Cmdlets.Common
         public SwitchParameter CurrentUser { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to use the winget location to install modules.
+        /// </summary>
+        [Parameter(
+            ValueFromPipelineByPropertyName = true,
+            ParameterSetName = Constants.ParameterSet.OpenConfigurationSet)]
+        public SwitchParameter WingetModulePath { get; set; }
+
+        /// <summary>
         /// Gets or sets custom location to install modules.
         /// </summary>
         [Parameter(

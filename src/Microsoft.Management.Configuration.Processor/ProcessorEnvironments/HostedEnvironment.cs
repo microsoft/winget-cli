@@ -463,7 +463,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                 }
 
                 this.customInstallModulePath = path;
-                this.PrependPSModulePath(path);
+                this.PrependPSModulePath(this.customInstallModulePath);
             }
         }
 

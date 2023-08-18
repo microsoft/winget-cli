@@ -22,8 +22,13 @@ namespace Microsoft.Management.Configuration.Processor
         AllUsers = 1,
 
         /// <summary>
+        /// The winget location %LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules.
+        /// </summary>
+        WinGetModulePath = 2,
+
+        /// <summary>
         /// Custom path.
         /// </summary>
-        Custom = 2,
+        Custom = 3,
     }
 }

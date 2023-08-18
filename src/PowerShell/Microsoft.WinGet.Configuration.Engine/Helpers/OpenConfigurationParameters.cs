@@ -23,8 +23,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// </summary>
         /// <param name="psCmdlet">PsCmdlet caller.</param>
         /// <param name="file">The configuration file.</param>
-        /// <param name="allUsers">If use all users location.</param>
-        /// <param name="currentUser">If use current user location.</param>
+        /// <param name="allUsers">If to use all users location.</param>
+        /// <param name="currentUser">If to use current user location.</param>
+        /// <param name="wingetModulePath">If to use the winget module path.</param>
         /// <param name="customLocation">The custom location.</param>
         /// <param name="executionPolicy">Execution policy.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
@@ -33,13 +34,17 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             string file,
             bool allUsers,
             bool currentUser,
+            bool wingetModulePath,
             string customLocation,
             ExecutionPolicy executionPolicy,
             bool canUseTelemetry)
         {
             this.ConfigFile = this.VerifyFile(file, psCmdlet);
 
-            if (Convert.ToInt32(allUsers) + Convert.ToInt32(currentUser) + Convert.ToInt32(!string.IsNullOrEmpty(customLocation)) > 1)
+            if (Convert.ToInt32(allUsers) +
+                Convert.ToInt32(currentUser) +
+                Convert.ToInt32(wingetModulePath) +
+                Convert.ToInt32(!string.IsNullOrEmpty(customLocation)) > 1)
             {
                 throw new ArgumentException(Resources.ConfigurationLocationExclusive);
             }
@@ -53,6 +58,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
 
                 this.Location = PowerShellConfigurationProcessorLocation.AllUsers;
             }
+            else if (wingetModulePath)
+            {
+                this.Location = PowerShellConfigurationProcessorLocation.WinGetModulePath;
+            }
             else if (!string.IsNullOrEmpty(customLocation))
             {
                 this.CustomLocation = customLocation;
@@ -60,7 +69,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             }
             else
             {
-                // TODO: read from the global object.
+                // TODO: Create cmdlet that specify the global custom location for a PowerShell session.
                 this.Location = PowerShellConfigurationProcessorLocation.CurrentUser;
             }
 

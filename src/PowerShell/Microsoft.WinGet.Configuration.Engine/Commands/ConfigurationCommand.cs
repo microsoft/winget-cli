@@ -74,8 +74,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Open a configuration set.
         /// </summary>
         /// <param name="configFile">Configuration file path.</param>
-        /// <param name="allUsers">If use all users location.</param>
-        /// <param name="currentUser">If use current user location.</param>
+        /// <param name="allUsers">If to use all users location.</param>
+        /// <param name="currentUser">If to use current user location.</param>
+        /// <param name="wingetModulePath">If to use the winget module path.</param>
         /// <param name="customLocation">The custom location path.</param>
         /// <param name="executionPolicy">Execution policy.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
@@ -83,12 +84,13 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             string configFile,
             bool allUsers,
             bool currentUser,
+            bool wingetModulePath,
             string customLocation,
             ExecutionPolicy executionPolicy,
             bool canUseTelemetry)
         {
             var openParams = new OpenConfigurationParameters(
-                this.PsCmdlet, configFile, allUsers, currentUser, customLocation, executionPolicy, canUseTelemetry);
+                this.PsCmdlet, configFile, allUsers, currentUser, wingetModulePath, customLocation, executionPolicy, canUseTelemetry);
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(

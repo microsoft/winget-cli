@@ -2075,4 +2075,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationCustomLocationPath" xml:space="preserve">
     <value>Specifies the location on the local computer to store modules</value>
   </data>
+  <data name="ConfigurationWinGetLocation" xml:space="preserve">
+    <value>The winget location to install modules. %LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules</value>
+    <comment>{Locked="%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
+  </data>
 </root>
