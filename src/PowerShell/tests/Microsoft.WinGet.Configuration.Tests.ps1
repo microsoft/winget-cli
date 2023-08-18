@@ -60,7 +60,8 @@ Describe 'Test-GroupPolicies' {
         $registryKey | Should -Not -BeNullOrEmpty
         $registryKey.EnableAppInstaller | Should -Be 0
 
-        # [NOTE:] We don't need a valid yml file path to test Group Policy blocking scenario as it is the earliest check, so just using some random non existing path for this test.
+        # [NOTE:] We don't need a valid yml file path to test Group Policy blocking scenario as it is the earliest check, 
+        # so just using some random file path for this test.
         { Get-WinGetConfiguration -File "Z:\NonExisting_SettingsFile.yml" } | Should -Throw "This operation is disabled by Group Policy : Enable Windows Package Manager"
 
         CleanupGroupPolicies
@@ -74,7 +75,8 @@ Describe 'Test-GroupPolicies' {
         $registryKey | Should -Not -BeNullOrEmpty
         $registryKey.EnableWindowsPackageManagerCommandLineInterfaces | Should -Be 0
 
-        # [NOTE:] We don't  need a valid yml file path to test Group Policy blocking scenario as it is the earliest check, so just using some random non existing path for this test.
+        # [NOTE:] We don't  need a valid yml file path to test Group Policy blocking scenario as it is the earliest check, 
+        # so just using some random file path for this test.
         { Get-WinGetConfiguration -File "Z:\NonExisting_SettingsFile.yml" } | Should -Throw "This operation is disabled by Group Policy : Enable Windows Package Manager command line interfaces"
 
         CleanupGroupPolicies
