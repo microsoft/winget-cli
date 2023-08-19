@@ -2066,8 +2066,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Installs modules in a location that's accessible to all users of the computer</value>
   </data>
   <data name="ConfigurationAllUsersElevated" xml:space="preserve">
-    <value>--allUsers require administrator privileges to execute</value>
-    <comment>{Locked="--allUsers"}</comment>
+    <value>all-users require administrator privileges to execute</value>
+    <comment>{Locked="all-users"}</comment>
   </data>
   <data name="ConfigurationCurrentUser" xml:space="preserve">
     <value>Installs modules in a location that's accessible only to the current user of the computer</value>

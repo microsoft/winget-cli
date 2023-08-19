@@ -87,21 +87,21 @@ namespace AppInstallerCLIE2ETests
             string args = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_Location.yml");
             if (location == TestCommon.TestModuleLocation.CurrentUser)
             {
-                args += " --currentUser";
+                args += " --current-user";
             }
             else if (location == TestCommon.TestModuleLocation.AllUsers)
             {
-                args += " --allUsers";
+                args += " all-users";
             }
             else if (location == TestCommon.TestModuleLocation.WinGetModulePath)
             {
-                args += " --wingetModulePath";
+                args += " --winget-module-path";
             }
 
             /* location == TestCommon.TestModuleLocation.Custom) */
             else
             {
-                args += " --installModulePath " + TestCommon.GetExpectedModulePath(location);
+                args += " --install-module-path " + TestCommon.GetExpectedModulePath(location);
             }
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreements, args);
