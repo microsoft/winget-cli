@@ -184,13 +184,13 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::ConfigurationDisable:
             return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
         case Execution::Args::Type::ConfigurationAllUsersLocation:
-            return { type, "allUsers"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
+            return { type, "all-users"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
         case Execution::Args::Type::ConfigurationCurrentUserLocation:
-            return { type, "currentUser"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
+            return { type, "current-user"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
         case Execution::Args::Type::ConfigurationWinGetLocation:
-            return { type, "wingetModulePath"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
+            return { type, "winget-module-path"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
         case Execution::Args::Type::ConfigurationCustomLocationPath:
-            return { type, "installModulePath"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
+            return { type, "install-module-path"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ConfigurationLocation };
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:

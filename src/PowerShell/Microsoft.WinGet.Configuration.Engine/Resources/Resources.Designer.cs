@@ -232,7 +232,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to -AllUsers, -CurrentUser, -WinGetModulePath and -CustomLocation are mutualy exclusive parameters.
+        ///   Looks up a localized string similar to -AllUsers, -CurrentUser, -WinGetModulePath and -InstallModulePath are mutually exclusive parameters.
         /// </summary>
         internal static string ConfigurationLocationExclusive {
             get {

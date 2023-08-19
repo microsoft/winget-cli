@@ -858,7 +858,7 @@ namespace AppInstallerCLIE2ETests.Helpers
 
             if (isPresent)
             {
-                // If the module was saved in a different location we can't Unintall-Module.
+                // If the module was saved in a different location we can't Uninstall-Module.
                 foreach (var module in e2eModule)
                 {
                     var moduleBase = module.Path;

@@ -303,7 +303,7 @@
     <comment>{Locked="-AllUsers"}</comment>
   </data>
   <data name="ConfigurationLocationExclusive" xml:space="preserve">
-    <value>-AllUsers, -CurrentUser, -WinGetModulePath and -CustomLocation are mutualy exclusive parameters</value>
-    <comment>{Locked="-AllUsers, -CurrentUser, -WinGetModulePath, -CustomLocation"}</comment>
+    <value>-AllUsers, -CurrentUser, -WinGetModulePath and -InstallModulePath are mutually exclusive parameters</value>
+    <comment>{Locked="-AllUsers, -CurrentUser, -WinGetModulePath, -InstallModulePath"}</comment>
   </data>
 </root>

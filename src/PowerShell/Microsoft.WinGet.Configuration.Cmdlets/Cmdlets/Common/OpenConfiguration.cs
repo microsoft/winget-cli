@@ -54,7 +54,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets.Common
         [Parameter(
             ValueFromPipelineByPropertyName = true,
             ParameterSetName = Constants.ParameterSet.OpenConfigurationSet)]
-        public string CustomLocation { get; set; }
+        public string InstallModulePath { get; set; }
 
         /// <summary>
         /// Gets the execution policy to use.

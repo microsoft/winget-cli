@@ -28,7 +28,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
                 this.AllUsers.ToBool(),
                 this.CurrentUser.ToBool(),
                 this.WingetModulePath.ToBool(),
-                this.CustomLocation,
+                this.InstallModulePath,
                 this.ExecutionPolicy,
                 this.CanUseTelemetry);
         }
