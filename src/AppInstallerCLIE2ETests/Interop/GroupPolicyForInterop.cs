@@ -12,17 +12,17 @@ namespace AppInstallerCLIE2ETests.Interop
     using NUnit.Framework;
 
     /// <summary>
-    /// Group Policy Tests for Interops
+    /// Group Policy Tests for COM/WinRT Interop classes.
     /// </summary>
     [TestFixtureSource(typeof(InstanceInitializersSource), nameof(InstanceInitializersSource.InProcess), Category = nameof(InstanceInitializersSource.InProcess))]
     [TestFixtureSource(typeof(InstanceInitializersSource), nameof(InstanceInitializersSource.OutOfProcess), Category = nameof(InstanceInitializersSource.OutOfProcess))]
-    public class GroupPolicyForInterops : BaseInterop
+    public class GroupPolicyForInterop : BaseInterop
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="GroupPolicyForInterops"/> class.
+        /// Initializes a new instance of the <see cref="GroupPolicyForInterop"/> class.
         /// </summary>
         /// <param name="initializer">Initializer.</param>
-        public GroupPolicyForInterops(IInstanceInitializer initializer)
+        public GroupPolicyForInterop(IInstanceInitializer initializer)
           : base(initializer)
         {
         }
@@ -46,7 +46,7 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
-        /// Validates disabling WinGetPolicy should block COM/WinRT Objects creation (InProcess and OutofProcess).
+        /// Validates disabling WinGetPolicy should block COM/WinRT Objects creation (InProcess and OutOfProcess).
         /// </summary>
         [Test]
         public void DisableWinGetPolicy()
