@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="GroupPolicyForInterops.cs" company="Microsoft Corporation">
+// <copyright file="GroupPolicyForInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
