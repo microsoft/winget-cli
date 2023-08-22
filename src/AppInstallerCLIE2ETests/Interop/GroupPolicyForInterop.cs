@@ -80,16 +80,27 @@ namespace AppInstallerCLIE2ETests.Interop
             }
             else
             {
-                try
-                {
-                    // Attempt to learn how it behaves on test pipeline.
-                    PackageManager packageManager = this.TestFactory.CreatePackageManager();
-                    Assert.IsNotNull(packageManager);
-                }
-                catch (Exception ex)
-                {
-                    Assert.AreEqual("Random String", ex.ToString());
-                }
+                // [NOTE:] Currently there is a design limitation in CS WinRT/C++ WinRT that the application specific error code returned from the
+                // DllActivationFactory implementation will not be surfaced to caller as it is instead WinRT auto generated implementation override the actual HRESULT with one of
+                // the standard HRESULT that we can expect from RoActivationInstance:
+                // https://learn.microsoft.com/en-us/windows/win32/api/roapi/nf-roapi-roactivateinstance?source=recommendations  call.
+                // For more details look at WinRT.cs  BaseActivationFactory::BaseActivationFactory(string typeNamespace, string typeFullName) auto generated code implementation
+                // where there is a set preference that keeps HRESULT from RoGetActivationFactory over LoadLibrary call (used as a fallback approach load module form LoadLibrary).
+                Assert.Throws<TargetInvocationException>(() => { PackageManager packageManager = this.TestFactory.CreatePackageManager(); });
+
+                Assert.Throws<TargetInvocationException>(() => { FindPackagesOptions findPackagesOptions = this.TestFactory.CreateFindPackagesOptions(); });
+
+                Assert.Throws<TargetInvocationException>(() => { CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions = this.TestFactory.CreateCreateCompositePackageCatalogOptions(); });
+
+                Assert.Throws<TargetInvocationException>(() => { InstallOptions installOptions = this.TestFactory.CreateInstallOptions(); });
+
+                Assert.Throws<TargetInvocationException>(() => { UninstallOptions uninstallOptions = this.TestFactory.CreateUninstallOptions(); });
+
+                Assert.Throws<TargetInvocationException>(() => { DownloadOptions downloadOptions = this.TestFactory.CreateDownloadOptions(); });
+
+                Assert.Throws<TargetInvocationException>(() => { PackageMatchFilter packageMatchFilter = this.TestFactory.CreatePackageMatchFilter(); });
+
+                Assert.Throws<TargetInvocationException>(() => { PackageManagerSettings packageManagerSettings = this.TestFactory.CreatePackageManagerSettings(); });
             }
         }
     }
