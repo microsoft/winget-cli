@@ -148,12 +148,11 @@ namespace AppInstaller::CLI::Portable
                 }
                 else
                 {
-                    // If symlink creation fails, resort to adding the package directory to PATH.
-                    AICLI_LOG(Core, Info, << "Failed to create symlink at: " << filePath);
-                    AddToPathVariable(std::filesystem::path(entry.SymlinkTarget).parent_path());
-                    CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
+                    AICLI_LOG(Core, Error, << "Failed to create symlink at: " << filePath);
+                    THROW_HR(HRESULT_FROM_WIN32(ERROR_SYMLINK_NOT_SUPPORTED));
                 }
             }
+       
             m_stream << Resource::String::PortableAliasAdded << ' ' << filePath.stem() << std::endl;
         }
     }
@@ -276,10 +275,7 @@ namespace AppInstaller::CLI::Portable
 
         ApplyDesiredState();
 
-        if (!InstallDirectoryAddedToPath)
-        {
-            AddToPathVariable(GetPortableLinksLocation(GetScope()));
-        }
+        AddToPathVariable(InstallDirectoryAddedToPath ? TargetInstallLocation : GetPortableLinksLocation(GetScope()));
     }
 
     void PortableInstaller::Uninstall()
@@ -288,10 +284,7 @@ namespace AppInstaller::CLI::Portable
 
         RemoveInstallDirectory();
 
-        if (!InstallDirectoryAddedToPath)
-        {
-            RemoveFromPathVariable(GetPortableLinksLocation(GetScope()));
-        }
+        RemoveFromPathVariable(InstallDirectoryAddedToPath ? InstallLocation : GetPortableLinksLocation(GetScope()));
 
         m_portableARPEntry.Delete();
         AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
@@ -455,6 +448,7 @@ namespace AppInstaller::CLI::Portable
         CommitToARPEntry(PortableValueName::WinGetSourceIdentifier, WinGetSourceIdentifier);
         CommitToARPEntry(PortableValueName::UninstallString, "winget uninstall --product-code " + GetProductCode());
         CommitToARPEntry(PortableValueName::WinGetInstallerType, InstallerTypeToString(Manifest::InstallerTypeEnum::Portable));
+        CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = !AppInstaller::Runtime::IsSymlinkCreationSupported());
         CommitToARPEntry(PortableValueName::DisplayName, DisplayName);
         CommitToARPEntry(PortableValueName::DisplayVersion, DisplayVersion);
         CommitToARPEntry(PortableValueName::Publisher, Publisher);

@@ -177,15 +177,14 @@ TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
 }
 
-TEST_CASE("UpdateFlow_Portable_SymlinkCreationFail", "[UpdateFlow][workflow]")
+TEST_CASE("UpdateFlow_Portable_SymlinkCreationNotSupported", "[UpdateFlow][workflow]")
 {
     // Update portable with symlink creation failure verify that it succeeds.
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto PreviousThreadGlobals = context.SetForCurrentThread();
-    bool overrideCreateSymlinkStatus = false;
-    AppInstaller::Filesystem::TestHook_SetCreateSymlinkResult_Override(&overrideCreateSymlinkStatus);
+    TestHook::SetIsSymlinkCreationSupportedResult_Override isSymlinkCreationSupportedResultOverride(false);
     OverridePortableInstaller(context);
     OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Portable }));
     const auto& targetDirectory = tempDirectory.GetPath();
@@ -212,6 +211,33 @@ TEST_CASE("UpdateFlow_Portable_SymlinkCreationFail", "[UpdateFlow][workflow]")
     INFO(uninstallOutput.str());
 
     REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
+}
+
+TEST_CASE("UpdateFlow_Portable_SymlinkCreationFail", "[UpdateFlow][workflow]")
+{
+    // Update portable with symlink creation failure verify that it succeeds.
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto PreviousThreadGlobals = context.SetForCurrentThread();
+    bool overrideCreateSymlinkStatus = false;
+    AppInstaller::Filesystem::TestHook_SetCreateSymlinkResult_Override(&overrideCreateSymlinkStatus);
+
+    OverridePortableInstaller(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Portable }));
+    const auto& targetDirectory = tempDirectory.GetPath();
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Portable.Query);
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, targetDirectory.u8string());
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
+
+    const auto& portableTargetPath = targetDirectory / "AppInstallerTestExeInstaller.exe";
+    REQUIRE(std::filesystem::exists(portableTargetPath));
 }
 
 TEST_CASE("UpdateFlow_UpdateExeWithUnsupportedArgs", "[UpdateFlow][workflow]")

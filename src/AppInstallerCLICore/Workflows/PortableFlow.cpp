@@ -6,6 +6,7 @@
 #include "WorkflowBase.h"
 #include "winget/Filesystem.h"
 #include "winget/PortableFileEntry.h"
+#include <AppInstallerRuntime.h>
 #include <Microsoft/PortableIndex.h>
 
 using namespace AppInstaller::Manifest;
@@ -168,11 +169,14 @@ namespace AppInstaller::CLI::Workflow
 
         const std::filesystem::path& targetInstallDirectory = portableInstaller.TargetInstallLocation;
         const std::filesystem::path& symlinkDirectory = GetPortableLinksLocation(portableInstaller.GetScope());
+        bool isSymlinkCreationSupported = AppInstaller::Runtime::IsSymlinkCreationSupported();
 
         // InstallerPath will point to a directory if it is extracted from an archive.
         if (std::filesystem::is_directory(installerPath))
         {
             portableInstaller.RecordToIndex = true;
+
+            const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
 
             for (const auto& entry : std::filesystem::directory_iterator(installerPath))
             {
@@ -187,16 +191,36 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {})));
+                    if (isSymlinkCreationSupported)
+                    {
+                        entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {})));
+                    }
+                    else
+                    {
+                        // Find matching nested installer file and rename the symlink target with the corresponding command alias if available.
+                        for (const auto& nestedInstallerFile : nestedInstallerFiles)
+                        {
+                            if (relativePath == std::filesystem::path{ ConvertToUTF16(nestedInstallerFile.RelativeFilePath) })
+                            {
+                                if (!nestedInstallerFile.PortableCommandAlias.empty())
+                                {
+                                    std::filesystem::path targetWithCommandAlias = targetInstallDirectory / ConvertToUTF16(nestedInstallerFile.PortableCommandAlias);
+                                    Filesystem::AppendExtension(targetWithCommandAlias, ".exe");
+                                    entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(entryPath, targetWithCommandAlias, {})));
+                                }
+
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 
-            const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
-
+            // Even if symlinks are not supported, symlink entries are still needed for accurate reporting of the command aliases.
             for (const auto& nestedInstallerFile : nestedInstallerFiles)
             {
                 const std::filesystem::path& targetPath = targetInstallDirectory / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
-                
+
                 std::filesystem::path commandAlias;
                 if (nestedInstallerFile.PortableCommandAlias.empty())
                 {
@@ -239,7 +263,10 @@ namespace AppInstaller::CLI::Workflow
             AppInstaller::Filesystem::AppendExtension(fileName, ".exe");
             AppInstaller::Filesystem::AppendExtension(commandAlias, ".exe");
 
-            const std::filesystem::path& targetFullPath = targetInstallDirectory / fileName;
+            const std::filesystem::path& targetFullPath = isSymlinkCreationSupported ?
+                targetInstallDirectory / fileName :
+                targetInstallDirectory / commandAlias;
+
             entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, {})));
             entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetFullPath)));
         }
@@ -268,7 +295,7 @@ namespace AppInstaller::CLI::Workflow
                 else
                 {
                     context.Reporter.Warn() << Resource::String::PortableHashMismatchOverrideRequired << std::endl;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
                 }
             }
 
@@ -285,8 +312,9 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
                 portableInstaller.PrepareForCleanUp();
 ;               portableInstaller.Uninstall();
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
             }
+
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
         }
     }
 

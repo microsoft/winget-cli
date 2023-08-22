@@ -635,14 +635,14 @@ TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
 }
 
-TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_Portable_SymlinkNotSupported", "[InstallFlow][workflow]")
 {
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     std::ostringstream installOutput;
     TestContext installContext{ installOutput, std::cin };
     auto PreviousThreadGlobals = installContext.SetForCurrentThread();
     OverridePortableInstaller(installContext);
-    TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(false);
+    TestHook::SetIsSymlinkCreationSupportedResult_Override isSymlinkCreationSupportedResultOverride(false);
     const auto& targetDirectory = tempDirectory.GetPath();
     installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
     installContext.Args.AddArg(Execution::Args::Type::InstallLocation, targetDirectory.u8string());
@@ -667,6 +667,29 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     uninstall.Execute(uninstallContext);
     INFO(uninstallOutput.str());
     REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
+}
+
+TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
+{
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
+    std::ostringstream installOutput;
+    TestContext installContext{ installOutput, std::cin };
+    auto PreviousThreadGlobals = installContext.SetForCurrentThread();
+    OverridePortableInstaller(installContext);
+    TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(false);
+    const auto& targetDirectory = tempDirectory.GetPath();
+    installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    installContext.Args.AddArg(Execution::Args::Type::InstallLocation, targetDirectory.u8string());
+
+    InstallCommand install({});
+    install.Execute(installContext);
+    INFO(installOutput.str());
+
+    REQUIRE_TERMINATED_WITH(installContext, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED);
+
+    const auto& portableTargetPath = targetDirectory / "AppInstallerTestExeInstaller.exe";
+    REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
+    REQUIRE_FALSE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
 }
 
 TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")

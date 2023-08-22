@@ -110,6 +110,9 @@ namespace AppInstaller::Runtime
     // Determines whether developer mode is enabled.
     bool IsDevModeEnabled();
 
+    // Determines whether symlinks can be created
+    bool IsSymlinkCreationSupported();
+
     // Gets the default user agent string for the Windows Package Manager.
     Utility::LocIndString GetDefaultUserAgent();
 
