@@ -126,6 +126,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
+                // Example: Checkpoint an installer 
                 Workflow::InstallSinglePackage;
         }
         else

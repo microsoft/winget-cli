@@ -605,6 +605,8 @@ namespace AppInstaller::CLI
 
         ParseArgumentsStateMachine stateMachine{ inv, execArgs, std::move(definedArgs) };
 
+        // Add function to save all of the execArgs, store in context Args data, store it in the record. 
+
         while (stateMachine.Step())
         {
             stateMachine.ThrowIfError();
@@ -853,6 +855,7 @@ namespace AppInstaller::CLI
             throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
         }
 
+        // Remove this. 
         if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
         {
             if (!context.Args.Contains(Execution::Args::Type::ResumeId))

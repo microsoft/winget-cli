@@ -44,7 +44,7 @@ namespace AppInstaller::CLI::Checkpoint
         std::vector<int> GetAvailableContextData(std::string_view checkpointName);
 
         // Adds a context data to the checkpoint record.
-        void AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int record);
+        void AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index);
 
         // Gets the values associated with a context data
         std::vector<std::string> GetContextData(std::string_view checkpointName, int contextData);

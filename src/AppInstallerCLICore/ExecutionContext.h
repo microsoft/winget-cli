@@ -167,6 +167,7 @@ namespace AppInstaller::CLI::Execution
 #endif
 
         // Interacts with the checkpoint record for writing and loading checkpoints.
+        // Change to smart pointer and add a getter function.
         Checkpoint::CheckpointManager CheckpointManager;
 
         // Returns a value indicating whether the current checkpoint matches the target checkpoint.

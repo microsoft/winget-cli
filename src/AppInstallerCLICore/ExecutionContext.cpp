@@ -266,6 +266,7 @@ namespace AppInstaller::CLI::Execution
 
     Context Context::CreateEmptyContext()
     {
+        // make own thread globals
         return Context(Reporter, m_threadGlobals);
     }
 
@@ -483,6 +484,7 @@ namespace AppInstaller::CLI::Execution
                     int index = 0;
                     if (values.empty())
                     {
+                        // 
                         CheckpointManager.AddContextData(checkpointName, static_cast<int>(type), argName, {}, index);
                     }
                     else

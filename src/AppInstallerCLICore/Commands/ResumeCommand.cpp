@@ -42,6 +42,7 @@ namespace AppInstaller::CLI
         std::string resumeGuidString{ context.Args.GetArg(Execution::Args::Type::ResumeId) };
         GUID checkpointId = Utility::ConvertToGuid(resumeGuidString);
 
+        // Change this to a CheckpointRecord helepr function like Exists
         if (!std::filesystem::exists(AppInstaller::Repository::Microsoft::CheckpointRecord::GetCheckpointRecordPath(checkpointId)))
         {
             context.Reporter.Error() << Resource::String::ResumeIdNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
@@ -75,12 +76,18 @@ namespace AppInstaller::CLI
         THROW_HR_IF_MSG(E_UNEXPECTED, !commandToResume, "Command to resume not found.");
 
         resumeContext.SetExecutingCommand(commandToResume.get());
-        resumeContext.SetFlags(Execution::ContextFlag::Resume);
+        resumeContext.SetFlags(Execution::ContextFlag::Resume); // this should be captured by telemetry
 
         resumeContext.Checkpoint("Start"sv);
 
+
         auto previousThreadGlobals = resumeContext.SetForCurrentThread();
+
+        // Must be after or call initialize
+        // move local objects to resume context 
         resumeContext.EnableSignalTerminationHandler();
+        // double check this context, 
+
         commandToResume->Resume(resumeContext);
         context.SetTerminationHR(resumeContext.GetTerminationHR());
     }
