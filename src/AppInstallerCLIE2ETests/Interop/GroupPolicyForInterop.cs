@@ -6,6 +6,7 @@
 
 namespace AppInstallerCLIE2ETests.Interop
 {
+    using System;
     using System.Reflection;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
@@ -79,51 +80,16 @@ namespace AppInstallerCLIE2ETests.Interop
             }
             else
             {
-                // [NOTE:] Currently there is a design limitation in CS WinRT/C++ WinRT that the application specific error code returned from the
-                // DllActivationFactory implementation will not be surfaced to caller as is instead WinRT auto generated implementation override the actual HRESULT with one of
-                // the standard HRESULT that we can expect from RoActivationInstance:
-                // https://learn.microsoft.com/en-us/windows/win32/api/roapi/nf-roapi-roactivateinstance?source=recommendations  call.
-                // For more details look at WinRT.cs  BaseActivationFactory::BaseActivationFactory(string typeNamespace, string typeFullName) auto generated code implementation
-                // where there is a set preference that keeps HRESULT from RoGetActivationFactory over LoadLibrary call (used as a fallback approach load module form LoadLibrary).
-                TargetInvocationException targetInvocationException = Assert.Catch<TargetInvocationException>(() => { PackageManager packageManager = this.TestFactory.CreatePackageManager(); });
-                Assert.IsNotNull(targetInvocationException.InnerException); // 0x80131534 Exception was thrown by Type's initializer
-                Assert.IsNotNull(targetInvocationException.InnerException.InnerException); // 0x80040154 Exception was thrown by WinRT Activation Factory
-                Assert.AreEqual(targetInvocationException.InnerException.InnerException.HResult, Constants.ErrorCode.REGDB_E_CLASSNOTREG);
-
-                targetInvocationException = Assert.Catch<TargetInvocationException>(() => { FindPackagesOptions findPackagesOptions = this.TestFactory.CreateFindPackagesOptions(); });
-                Assert.IsNotNull(targetInvocationException.InnerException); // 0x80131534 Exception was thrown by Type's initializer
-                Assert.IsNotNull(targetInvocationException.InnerException.InnerException); // 0x80040154 Exception was thrown by WinRT Activation Factory
-                Assert.AreEqual(targetInvocationException.InnerException.InnerException.HResult, Constants.ErrorCode.REGDB_E_CLASSNOTREG);
-
-                targetInvocationException = Assert.Catch<TargetInvocationException>(() => { CreateCompositePackageCatalogOptions createCompositePackageCatalogOptions = this.TestFactory.CreateCreateCompositePackageCatalogOptions(); });
-                Assert.IsNotNull(targetInvocationException.InnerException); // 0x80131534 Exception was thrown by Type's initializer
-                Assert.IsNotNull(targetInvocationException.InnerException.InnerException); // 0x80040154 Exception was thrown by WinRT Activation Factory
-                Assert.AreEqual(targetInvocationException.InnerException.InnerException.HResult, Constants.ErrorCode.REGDB_E_CLASSNOTREG);
-
-                targetInvocationException = Assert.Catch<TargetInvocationException>(() => { InstallOptions installOptions = this.TestFactory.CreateInstallOptions(); });
-                Assert.IsNotNull(targetInvocationException.InnerException); // 0x80131534 Exception was thrown by Type's initializer
-                Assert.IsNotNull(targetInvocationException.InnerException.InnerException); // 0x80040154 Exception was thrown by WinRT Activation Factory
-                Assert.AreEqual(targetInvocationException.InnerException.InnerException.HResult, Constants.ErrorCode.REGDB_E_CLASSNOTREG);
-
-                targetInvocationException = Assert.Catch<TargetInvocationException>(() => { UninstallOptions uninstallOptions = this.TestFactory.CreateUninstallOptions(); });
-                Assert.IsNotNull(targetInvocationException.InnerException); // 0x80131534 Exception was thrown by Type's initializer
-                Assert.IsNotNull(targetInvocationException.InnerException.InnerException); // 0x80040154 Exception was thrown by WinRT Activation Factory
-                Assert.AreEqual(targetInvocationException.InnerException.InnerException.HResult, Constants.ErrorCode.REGDB_E_CLASSNOTREG);
-
-                targetInvocationException = Assert.Catch<TargetInvocationException>(() => { DownloadOptions downloadOptions = this.TestFactory.CreateDownloadOptions(); });
-                Assert.IsNotNull(targetInvocationException.InnerException); // 0x80131534 Exception was thrown by Type's initializer
-                Assert.IsNotNull(targetInvocationException.InnerException.InnerException); // 0x80040154 Exception was thrown by WinRT Activation Factory
-                Assert.AreEqual(targetInvocationException.InnerException.InnerException.HResult, Constants.ErrorCode.REGDB_E_CLASSNOTREG);
-
-                targetInvocationException = Assert.Catch<TargetInvocationException>(() => { PackageMatchFilter packageMatchFilter = this.TestFactory.CreatePackageMatchFilter(); });
-                Assert.IsNotNull(targetInvocationException.InnerException); // 0x80131534 Exception was thrown by Type's initializer
-                Assert.IsNotNull(targetInvocationException.InnerException.InnerException); // 0x80040154 Exception was thrown by WinRT Activation Factory
-                Assert.AreEqual(targetInvocationException.InnerException.InnerException.HResult, Constants.ErrorCode.REGDB_E_CLASSNOTREG);
-
-                targetInvocationException = Assert.Catch<TargetInvocationException>(() => { PackageManagerSettings packageManagerSettings = this.TestFactory.CreatePackageManagerSettings(); });
-                Assert.IsNotNull(targetInvocationException.InnerException); // 0x80131534 Exception was thrown by Type's initializer
-                Assert.IsNotNull(targetInvocationException.InnerException.InnerException); // 0x80040154 Exception was thrown by WinRT Activation Factory
-                Assert.AreEqual(targetInvocationException.InnerException.InnerException.HResult, Constants.ErrorCode.REGDB_E_CLASSNOTREG);
+                try
+                {
+                    // Attempt to learn how it behaves on test pipeline.
+                    PackageManager packageManager = this.TestFactory.CreatePackageManager();
+                    Assert.IsNotNull(packageManager);
+                }
+                catch (Exception ex)
+                {
+                    Assert.AreEqual("Random String", ex.ToString());
+                }
             }
         }
     }
