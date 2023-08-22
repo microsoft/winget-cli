@@ -857,7 +857,7 @@ namespace AppInstaller::CLI
         {
             if (!context.Args.Contains(Execution::Args::Type::ResumeId))
             {
-                context.Checkpoint("Start"sv, {});
+                context.Checkpoint("Start"sv);
             }
         }
 

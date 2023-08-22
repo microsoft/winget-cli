@@ -61,7 +61,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_ContextData_Column, Type::Int));
         createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_Name_Column, Type::Text));
         createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_Value_Column, Type::Text));
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_Value_Column, Type::Text));
         createTableBuilder.Column(ColumnBuilder(s_CheckpointContextTable_Index_Column, Type::Int));
         createTableBuilder.EndColumns();
         createTableBuilder.Execute(connection);
@@ -80,6 +79,24 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return (countStatement.GetColumn<int>(0) == 0);
     }
 
+    std::vector<int> CheckpointContextTable::GetAvailableData(SQLite::Connection& connection, SQLite::rowid_t checkpointId)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select(s_CheckpointContextTable_ContextData_Column).From(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column);
+        builder.Equals(checkpointId);
+
+        SQLite::Statement select = builder.Prepare(connection);
+
+        std::vector<int> availableData;
+
+        while (select.Step())
+        {
+            availableData.emplace_back(select.GetColumn<int>(0));
+        }
+
+        return availableData;
+    }
+
     SQLite::rowid_t CheckpointContextTable::AddContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name, std::string_view value, int index)
     {
         SQLite::Builder::StatementBuilder builder;
@@ -95,7 +112,33 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return connection.GetLastInsertRowID();
     }
 
-    std::vector<std::string> CheckpointContextTable::GetContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name)
+    void CheckpointContextTable::RemoveContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.DeleteFrom(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column).Equals(checkpointId)
+            .And(s_CheckpointContextTable_ContextData_Column).Equals(contextData);
+        builder.Execute(connection);
+    }
+
+    std::vector<std::string> CheckpointContextTable::GetContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select(s_CheckpointContextTable_Value_Column).From(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column);
+        builder.Equals(checkpointId).And(s_CheckpointContextTable_ContextData_Column).Equals(contextData);
+
+        SQLite::Statement select = builder.Prepare(connection);
+
+        std::vector<std::string> values;
+
+        while (select.Step())
+        {
+            values.emplace_back(select.GetColumn<std::string>(0));
+        }
+
+        return values;
+    }
+
+    std::vector<std::string> CheckpointContextTable::GetContextDataByName(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select(s_CheckpointContextTable_Value_Column).From(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column);
@@ -111,18 +154,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         }
 
         return values;
-    }
-
-    void CheckpointContextTable::RemoveContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.Select(SQLite::RowIDName).From(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column).Equals(checkpointId)
-            .And(s_CheckpointContextTable_ContextData_Column).Equals(contextData);
-
-        SQLite::Statement select = builder.Prepare(connection);
-        while (select.Step())
-        {
-            //DeleteById(connection, select.GetColumn<SQLite::rowid_t>(0));
-        }
     }
 }

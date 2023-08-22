@@ -8,6 +8,21 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {
+    namespace
+    {
+        std::optional<SQLite::rowid_t> GetExistingCheckpointId(SQLite::Connection& connection, std::string_view checkpointName)
+        {
+            auto result = CheckpointTable::GetCheckpointId(connection, checkpointName);
+
+            if (!result)
+            {
+                AICLI_LOG(Repo, Verbose, << "Did not find checkpoint " << checkpointName);
+            }
+
+            return result;
+        }
+    }
+
     Schema::Version CheckpointRecordInterface::GetVersion() const
     {
         return { 1, 0 };
@@ -22,6 +37,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         savepoint.Commit();
     }
 
+    bool CheckpointRecordInterface::IsEmpty(SQLite::Connection& connection)
+    {
+        return CheckpointContextTable::IsEmpty(connection);
+    }
+
     SQLite::rowid_t CheckpointRecordInterface::SetMetadata(SQLite::Connection& connection, std::string_view name, std::string_view value)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "setMetadata_v1_0");
@@ -29,48 +49,84 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         savepoint.Commit();
         return argumentId;
     }
-    
+
+    bool CheckpointRecordInterface::CheckpointExists(SQLite::Connection& connection, std::string_view checkpointName)
+    {
+        return GetExistingCheckpointId(connection, checkpointName).has_value();
+    }
+
     std::string CheckpointRecordInterface::GetMetadata(SQLite::Connection& connection, std::string_view name)
     {
         return CheckpointMetadataTable::GetNamedValue(connection, name);
     }
 
-    bool CheckpointRecordInterface::IsEmpty(SQLite::Connection& connection)
+    std::string CheckpointRecordInterface::GetLastCheckpoint(SQLite::Connection& connection)
     {
-        return CheckpointContextTable::IsEmpty(connection);
+        return CheckpointTable::GetLastCheckpoint(connection);
+    }
+
+    std::vector<int> CheckpointRecordInterface::GetAvailableContextData(SQLite::Connection& connection, std::string_view checkpointName)
+    {
+        auto existingCheckpointId = GetExistingCheckpointId(connection, checkpointName);
+        if (!existingCheckpointId)
+        {
+            return {};
+        }
+
+        return CheckpointContextTable::GetAvailableData(connection, existingCheckpointId.value());
     }
 
     SQLite::rowid_t CheckpointRecordInterface::AddCheckpoint(SQLite::Connection& connection, std::string_view checkpointName)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addCheckpoint_v1_0");
+        auto existingCheckpointId = GetExistingCheckpointId(connection, checkpointName);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), existingCheckpointId);
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addcheckpoint_v1_0");
         SQLite::rowid_t checkpointId = CheckpointTable::AddCheckpoint(connection, checkpointName);
         savepoint.Commit();
         return checkpointId;
     }
 
-    std::optional<SQLite::rowid_t> CheckpointRecordInterface::GetCheckpointId(SQLite::Connection& connection, std::string_view checkpointName)
+    SQLite::rowid_t CheckpointRecordInterface::AddContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index)
     {
-        return CheckpointTable::GetCheckpointId(connection, checkpointName);
-    }
+        auto existingCheckpointId = GetExistingCheckpointId(connection, checkpointName);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), !existingCheckpointId);
 
-
-    SQLite::rowid_t CheckpointRecordInterface::AddContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name, std::string_view value, int index)
-    {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addContextData_v1_0");
-        SQLite::rowid_t rowId = CheckpointContextTable::AddContextData(connection, checkpointId, contextData, name, value, index);
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addcontextdata_v1_0");
+        SQLite::rowid_t rowId = CheckpointContextTable::AddContextData(connection, existingCheckpointId.value(), contextData, name, value, index);
         savepoint.Commit();
         return rowId;
     }
 
-    std::vector<std::string> CheckpointRecordInterface::GetContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name)
+    std::vector<std::string> CheckpointRecordInterface::GetContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData)
     {
-        return CheckpointContextTable::GetContextData(connection, checkpointId, contextData, name);
+        auto existingCheckpointId = GetExistingCheckpointId(connection, checkpointName);
+        if (!existingCheckpointId)
+        {
+            return {};
+        }
+
+        return CheckpointContextTable::GetContextData(connection, existingCheckpointId.value(), contextData);
     }
 
-    void CheckpointRecordInterface::RemoveContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData)
+    std::vector<std::string> CheckpointRecordInterface::GetContextDataByName(SQLite::Connection& connection, std::string_view checkpointName, int contextData, std::string_view name)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removeContextData_v1_0");
-        CheckpointContextTable::RemoveContextData(connection, checkpointId, contextData);
+        auto existingCheckpointId = GetExistingCheckpointId(connection, checkpointName);
+        if (!existingCheckpointId)
+        {
+            return {};
+        }
+
+        return CheckpointContextTable::GetContextDataByName(connection, existingCheckpointId.value(), contextData, name);
+    }
+
+    void CheckpointRecordInterface::RemoveContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData)
+    {
+        auto existingCheckpointId = GetExistingCheckpointId(connection, checkpointName);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), !existingCheckpointId);
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removecontextdata_v1_0");
+        CheckpointContextTable::RemoveContextData(connection, existingCheckpointId.value(), contextData);
         savepoint.Commit();
     }
 }

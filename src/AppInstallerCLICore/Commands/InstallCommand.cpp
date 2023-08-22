@@ -106,10 +106,10 @@ namespace AppInstaller::CLI
 
     void InstallCommand::Resume(Context& context) const
     {
-        // Move this to the resume command to load arguments.
-        //auto commandLine = context.CheckpointManager.GetArguments();
-        //Invocation invocation{ std::move(commandLine) };
-        //ParseArguments(invocation, context.Args);
+        const auto& lastCheckpoint = context.CheckpointManager.GetLastCheckpoint();
+        context.SetTargetCheckpoint(lastCheckpoint);
+
+        // TODO: Load context data from checkpoint for install command.
 
         context.SetFlags(Execution::ContextFlag::Resume);
         ExecuteInternal(context);
@@ -125,7 +125,6 @@ namespace AppInstaller::CLI
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
-                Workflow::Checkpoint("InstallerSelected"sv, {Execution::Data::Installer}) <<
                 Workflow::EnsureApplicableInstaller <<
                 Workflow::InstallSinglePackage;
         }

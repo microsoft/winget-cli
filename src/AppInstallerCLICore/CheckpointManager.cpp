@@ -10,39 +10,43 @@ namespace AppInstaller::CLI::Checkpoint
 
     void CheckpointManager::CreateRecord()
     {
-        THROW_HR_IF(E_UNEXPECTED, IsLoaded());
         std::ignore = CoCreateGuid(&m_checkpointId);
         AICLI_LOG(CLI, Info, << "Creating checkpoint index with id: " << m_checkpointId);
-        m_checkpointRecord = CheckpointRecord::CreateDefault(m_checkpointId);
+        const auto& indexPath = CheckpointRecord::GetCheckpointRecordPath(m_checkpointId);
+        m_checkpointRecord = std::make_shared<CheckpointRecord>(CheckpointRecord::CreateNew(indexPath.u8string()));
     }
 
-    CheckpointManager::CheckpointManager()
-    {
-        m_checkpointId = {};
-    }
-
-    void CheckpointManager::LoadExistingRecord(GUID id)
+    void CheckpointManager::LoadRecord(GUID id)
     {
         m_checkpointId = id;
         AICLI_LOG(CLI, Info, << "Opening checkpoint index with id: " << m_checkpointId);
-        m_checkpointRecord = CheckpointRecord::OpenDefault(m_checkpointId);
+        const auto& indexPath = CheckpointRecord::GetCheckpointRecordPath(m_checkpointId);
+        m_checkpointRecord = std::make_shared<CheckpointRecord>(CheckpointRecord::Open(indexPath.u8string()));
+    }
+
+    bool CheckpointManager::Exists(std::string_view checkpointName)
+    {
+        return m_checkpointRecord->CheckpointExists(checkpointName);
     }
 
     std::string CheckpointManager::GetClientVersion()
     {
-        THROW_HR_IF(E_UNEXPECTED, !IsLoaded());
         return m_checkpointRecord->GetMetadata(CheckpointMetadata::ClientVersion);
     }
 
     std::string CheckpointManager::GetCommandName()
     {
-        THROW_HR_IF(E_UNEXPECTED, !IsLoaded());
         return m_checkpointRecord->GetMetadata(CheckpointMetadata::CommandName);
     }
 
-    std::string CheckpointManager::GetArguments()
+    std::string CheckpointManager::GetLastCheckpoint()
     {
-        return {};
+        return m_checkpointRecord->GetLastCheckpoint();
+    }
+
+    std::vector<int> CheckpointManager::GetAvailableContextData(std::string_view checkpointName)
+    {
+        return m_checkpointRecord->GetAvailableData(checkpointName);
     }
 
     void CheckpointManager::SetClientVersion(std::string_view value)
@@ -57,15 +61,25 @@ namespace AppInstaller::CLI::Checkpoint
 
     void CheckpointManager::AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index)
     {
-        const auto& checkpointId = m_checkpointRecord->GetCheckpointId(checkpointName);
-
-        if (checkpointId)
+        if (!Exists(checkpointName))
         {
-            m_checkpointRecord->AddContextData(checkpointId.value(), contextData, name, value, index);
+            m_checkpointRecord->AddCheckpoint(checkpointName);
         }
+
+        m_checkpointRecord->AddContextData(checkpointName, contextData, name, value, index);
     }
 
-    void CheckpointManager::CleanUpIndex()
+    std::vector<std::string> CheckpointManager::GetContextData(std::string_view checkpointName, int contextData)
+    {
+        return m_checkpointRecord->GetContextData(checkpointName, contextData);
+    }
+
+    std::vector<std::string> CheckpointManager::GetContextDataByName(std::string_view checkpointName, int contextData, std::string_view name)
+    {
+        return m_checkpointRecord->GetContextDataByName(checkpointName, contextData, name);
+    }
+
+    void CheckpointManager::DeleteRecord()
     {
         if (m_checkpointRecord)
         {

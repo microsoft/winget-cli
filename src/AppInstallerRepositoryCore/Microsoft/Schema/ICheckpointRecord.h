@@ -26,17 +26,28 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Gets the metadata value.
         virtual std::string GetMetadata(SQLite::Connection& connection, std::string_view name) = 0;
 
+        // Gets the latest checkpoint.
+        virtual std::string GetLastCheckpoint(SQLite::Connection& connection) = 0;
+
+        // Returns a value indicating whether the checkpoint exists.
+        virtual bool CheckpointExists(SQLite::Connection& connection, std::string_view checkpointName) = 0;
+
+        // Gets the available context data from a checkpoint.
+        virtual std::vector<int> GetAvailableContextData(SQLite::Connection& connection, std::string_view checkpointName) = 0;
+
+        // Adds a checkpoint.
         virtual SQLite::rowid_t AddCheckpoint(SQLite::Connection& connection, std::string_view checkpointName) = 0;
 
-        virtual std::optional<SQLite::rowid_t> GetCheckpointId(SQLite::Connection& connection, std::string_view checkpointName) = 0;
+        // Adds a context data value for a checkpoint.
+        virtual SQLite::rowid_t AddContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index) = 0;
 
-        // Adds the context data property for a given checkpoint.
-        virtual SQLite::rowid_t AddContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name, std::string_view value, int index) = 0;
+        // Gets the context data values from a checkpoint.
+        virtual std::vector<std::string> GetContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData) = 0;
 
-        // Gets the context data property for a given checkpoint.
-        virtual std::vector<std::string> GetContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name) = 0;
+        // Gets the context data values by property name from a checkpoint.
+        virtual std::vector<std::string> GetContextDataByName(SQLite::Connection& connection, std::string_view checkpointName, int contextData, std::string_view name) = 0;
 
-        // Removes the context data for a given checkpoint.
-        virtual void RemoveContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData) = 0;
+        // Removes the context data from a checkpoint.
+        virtual void RemoveContextData(SQLite::Connection& connection, std::string_view checkpointName, int contextData) = 0;
     };
 }

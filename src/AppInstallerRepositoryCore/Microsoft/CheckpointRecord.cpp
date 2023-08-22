@@ -48,34 +48,6 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    std::shared_ptr<CheckpointRecord> CheckpointRecord::CreateDefault(GUID guid)
-    {
-        const auto& indexPath = GetCheckpointRecordPath(guid);
-        AICLI_LOG(Repo, Info, << "Creating checkpoint index");
-
-        try
-        {
-            return std::make_shared<CheckpointRecord>(CheckpointRecord::CreateNew(indexPath.u8string()));
-        }
-        CATCH_LOG();
-
-        return {};
-    }
-
-    std::shared_ptr<CheckpointRecord> CheckpointRecord::OpenDefault(GUID guid)
-    {
-        const auto& indexPath = GetCheckpointRecordPath(guid);
-        AICLI_LOG(Repo, Info, << "Opening existing checkpoint index");
-
-        try
-        {
-            return std::make_shared<CheckpointRecord>(CheckpointRecord::Open(indexPath.u8string(), OpenDisposition::ReadWrite));
-        }
-        CATCH_LOG();
-
-        return {};
-    }
-
     std::filesystem::path CheckpointRecord::GetCheckpointRecordPath(GUID guid)
     {
         wchar_t checkpointGuid[256];
@@ -100,6 +72,11 @@ namespace AppInstaller::Repository::Microsoft
     bool CheckpointRecord::IsEmpty()
     {
         return m_interface->IsEmpty(m_dbconn);
+    }
+
+    std::vector<int> CheckpointRecord::GetAvailableData(std::string_view name)
+    {
+        return m_interface->GetAvailableContextData(m_dbconn, name);
     }
 
     std::string CheckpointRecord::GetMetadata(CheckpointMetadata checkpointMetadata)
@@ -137,34 +114,44 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    std::optional<CheckpointRecord::IdType> CheckpointRecord::GetCheckpointId(std::string_view checkpointName)
+    bool CheckpointRecord::CheckpointExists(std::string_view checkpointName)
     {
-        return m_interface->GetCheckpointId(m_dbconn, checkpointName);
+        return m_interface->CheckpointExists(m_dbconn, checkpointName);
     }
 
-    CheckpointRecord::IdType CheckpointRecord::AddContextData(SQLite::rowid_t checkpointId, int contextData, std::string_view name, std::string_view value, int index)
+    CheckpointRecord::IdType CheckpointRecord::AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Setting context data [" << contextData << "] for [" << name << "] with value [" << value << "] value");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_addcontextdata");
-        SQLite::rowid_t rowId = m_interface->AddContextData(m_dbconn, checkpointId, contextData, name, value, index);
+        SQLite::rowid_t rowId = m_interface->AddContextData(m_dbconn, checkpointName, contextData, name, value, index);
         savepoint.Commit();
         return rowId;
     }
 
-    std::vector<std::string> CheckpointRecord::GetContextData(SQLite::rowid_t checkpointId, int contextData, std::string_view name)
+    std::string CheckpointRecord::GetLastCheckpoint()
     {
-        return m_interface->GetContextData(m_dbconn, checkpointId, contextData, name);
+        return m_interface->GetLastCheckpoint(m_dbconn);
     }
 
-    void CheckpointRecord::RemoveContextData(SQLite::rowid_t checkpointId, int contextData)
+    std::vector<std::string> CheckpointRecord::GetContextData(std::string_view checkpointName, int contextData)
+    {
+        return m_interface->GetContextData(m_dbconn, checkpointName, contextData);
+    }
+
+    std::vector<std::string> CheckpointRecord::GetContextDataByName(std::string_view checkpointName, int contextData, std::string_view name)
+    {
+        return m_interface->GetContextDataByName(m_dbconn, checkpointName, contextData, name);
+    }
+
+    void CheckpointRecord::RemoveContextData(std::string_view checkpointName, int contextData)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Removing context data [" << contextData << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_addcontextdata");
-        m_interface->RemoveContextData(m_dbconn, checkpointId, contextData);
+        m_interface->RemoveContextData(m_dbconn, checkpointName, contextData);
         savepoint.Commit();
     }
 

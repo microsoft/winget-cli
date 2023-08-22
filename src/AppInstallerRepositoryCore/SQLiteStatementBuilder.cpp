@@ -495,6 +495,18 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Ascending()
+    {
+        m_stream << " ASC";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Descending()
+    {
+        m_stream << " DESC";
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::InsertInto(std::string_view table)
     {
         OutputOperationAndTable(m_stream, "INSERT INTO", table);

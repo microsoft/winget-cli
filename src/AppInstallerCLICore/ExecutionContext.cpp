@@ -255,7 +255,7 @@ namespace AppInstaller::CLI::Execution
     {
         if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume) && !IsTerminated())
         {
-            CheckpointManager.CleanUpIndex();
+            CheckpointManager.DeleteRecord();
         }
 
         if (m_disableSignalTerminationHandlerOnExit)
@@ -421,32 +421,87 @@ namespace AppInstaller::CLI::Execution
     }
 #endif
 
+    bool Context::IsCurrentCheckpointAtTarget()
+    {
+        return m_currentCheckpoint == m_targetCheckpoint;
+    }
+
     void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
     {
-        CheckpointManager.CreateRecord();
-
-        if (contextData.empty())
+        // Create record if it does not exist.
+        if (!CheckpointManager.IsLoaded())
         {
-            // Capture automatic metadata.
-            CheckpointManager.SetClientVersion(AppInstaller::Runtime::GetClientVersion());
+            CheckpointManager.CreateRecord();
+        }
 
-            const auto& executingCommand = m_executingCommand;
-            if (executingCommand != nullptr)
+        if (CheckpointManager.Exists(checkpointName))
+        {
+            if (contextData.empty())
             {
-                CheckpointManager.SetCommandName(executingCommand->Name());
+                // Load arguments if there is no context data 
+                const auto& availableData = CheckpointManager.GetAvailableContextData(checkpointName);
+                for (auto data : availableData)
+                {
+                    const auto& values = CheckpointManager.GetContextData(checkpointName, data);
+                    Execution::Args::Type type = static_cast<Execution::Args::Type>(data);
+                    if (values.empty())
+                    {
+                        Args.AddArg(type);
+                    }
+                    else
+                    {
+                        for (const auto& value : values)
+                        {
+                            Args.AddArg(type, value);
+                        }
+                    }
+                }
             }
-
-            // Capture arguments
-
+            else
+            {
+                // Load context data from checkpoint.
+            }
         }
         else
         {
-            // Capture context data.
+            if (contextData.empty())
+            {
+                CheckpointManager.SetClientVersion(AppInstaller::Runtime::GetClientVersion());
+
+                const auto& executingCommand = m_executingCommand;
+                if (executingCommand != nullptr)
+                {
+                    CheckpointManager.SetCommandName(executingCommand->Name());
+                }
+
+                const auto& argTypes = Args.GetTypes();
+
+                for (auto type : argTypes)
+                {
+                    const auto& argName = Argument::ForType(type).Name();
+                    const auto& values = *Args.GetArgs(type);
+                    int index = 0;
+                    if (values.empty())
+                    {
+                        CheckpointManager.AddContextData(checkpointName, static_cast<int>(type), argName, {}, index);
+                    }
+                    else
+                    {
+                        for (const auto& value : values)
+                        {
+                            CheckpointManager.AddContextData(checkpointName, static_cast<int>(type), argName, value, index);
+                            index++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // TODO: Capture context data.
+            }
         }
 
-        // TODO: Implementation for capturing each context data specified in the provided vector.
-        UNREFERENCED_PARAMETER(checkpointName);
-        UNREFERENCED_PARAMETER(contextData);
+        m_currentCheckpoint = checkpointName;
     }
 
 }

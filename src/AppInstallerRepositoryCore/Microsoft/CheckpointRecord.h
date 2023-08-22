@@ -26,7 +26,7 @@ namespace AppInstaller::Repository::Microsoft
         CheckpointRecord& operator=(CheckpointRecord&&) = default;
 
         // Opens an existing CheckpointRecord database.
-        static CheckpointRecord Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {})
+        static CheckpointRecord Open(const std::string& filePath, OpenDisposition disposition = OpenDisposition::ReadWrite, Utility::ManagedFile&& indexFile = {})
         {
             return { filePath, disposition, std::move(indexFile) };
         }
@@ -34,28 +34,41 @@ namespace AppInstaller::Repository::Microsoft
         // Create a new CheckpointRecord database.
         static CheckpointRecord CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
 
-        static std::shared_ptr<CheckpointRecord> OpenDefault(GUID guid);
-
-        static std::shared_ptr<CheckpointRecord> CreateDefault(GUID guid);
-
         // Gets the file path of the CheckpointRecord database.
         static std::filesystem::path GetCheckpointRecordPath(GUID guid);
 
+        // Returns a value indicating whether the record is empty.
         bool IsEmpty();
 
+        // Gets all available context data for a checkpoint.
+        std::vector<int> GetAvailableData(std::string_view checkpointName);
+
+        // Gets the specified metadata value.
         std::string GetMetadata(CheckpointMetadata checkpointMetadata);
 
+        // Sets the specified metadata value.
         IdType SetMetadata(CheckpointMetadata checkpointMetadata, std::string_view value);
 
+        // Adds a new checkpoint.
         IdType AddCheckpoint(std::string_view checkpointName);
 
-        std::optional<IdType> GetCheckpointId(std::string_view checkpointName);
+        // Gets the latest checkpoint.
+        std::string GetLastCheckpoint();
 
-        IdType AddContextData(SQLite::rowid_t checkpointId, int contextData, std::string_view name, std::string_view value, int index);
+        // Returns a value indicating whether the checkpoint exists.
+        bool CheckpointExists(std::string_view checkpointName);
 
-        std::vector<std::string> GetContextData(SQLite::rowid_t checkpointId, int contextData, std::string_view name);
+        // Adds a context data value.
+        IdType AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index);
 
-        void RemoveContextData(SQLite::rowid_t checkpointId, int contextData);
+        // Gets the context data values.
+        std::vector<std::string> GetContextData(std::string_view checkpointName, int contextData);
+
+        // Gets the context data values by property name.
+        std::vector<std::string> GetContextDataByName(std::string_view checkpointName, int contextData, std::string_view name);
+
+        // Removes the context data.
+        void RemoveContextData(std::string_view checkpointName, int contextData);
 
     private:
         // Constructor used to open an existing index.

@@ -294,6 +294,10 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& OrderBy(std::string_view column);
         StatementBuilder& OrderBy(const QualifiedColumn& column);
 
+        // Specify the ordering behavior.
+        StatementBuilder& Ascending();
+        StatementBuilder& Descending();
+
         // Limits the result set to the given number of rows.
         StatementBuilder& Limit(size_t rowCount);
 

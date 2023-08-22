@@ -9,7 +9,6 @@
 
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerRuntime.h>
-#include <CheckpointManager.h>
 #include <winget/UserSettings.h>
 #include <winget/Filesystem.h>
 #include <winget/WindowsFeature.h>
@@ -41,7 +40,6 @@ namespace AppInstaller
     namespace Repository::Microsoft
     {
         void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath);
-        void TestHook_SetCheckpointIndexDirectory_Override(std::optional<std::filesystem::path>&& checkpointIndexDirectory);
     }
 
     namespace Logging
@@ -119,19 +117,6 @@ namespace TestHook
         ~SetPinningIndex_Override()
         {
             AppInstaller::Repository::Microsoft::TestHook_SetPinningIndex_Override({});
-        }
-    };
-
-    struct SetCheckpointIndexDirectory_Override
-    {
-        SetCheckpointIndexDirectory_Override(const std::filesystem::path& checkpointIndexDirectoryPath)
-        {
-            AppInstaller::Repository::Microsoft::TestHook_SetCheckpointIndexDirectory_Override(checkpointIndexDirectoryPath);
-        }
-
-        ~SetCheckpointIndexDirectory_Override()
-        {
-            AppInstaller::Repository::Microsoft::TestHook_SetCheckpointIndexDirectory_Override({});
         }
     };
 

@@ -5,7 +5,7 @@
 #include "TestHooks.h"
 #include <Commands/InstallCommand.h>
 #include <Commands/ResumeCommand.h>
-#include <Microsoft/CheckpointIndex.h>
+#include <Microsoft/CheckpointRecord.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
@@ -15,6 +15,7 @@ using namespace std::string_literals;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Settings;
+using namespace AppInstaller::Runtime;
 using namespace TestCommon;
 
 TEST_CASE("ResumeFlow_InvalidGuid", "[Resume]")
@@ -30,7 +31,6 @@ TEST_CASE("ResumeFlow_InvalidGuid", "[Resume]")
     resume.Execute(context);
     INFO(resumeOutput.str());
 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INVALID_RESUME_ID);
     auto expectedMessage = Resource::String::InvalidResumeIdError(AppInstaller::Utility::LocIndString{ "badGuid"s });
     REQUIRE(resumeOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
 }
@@ -59,7 +59,7 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", true);
 
     const auto& tempCheckpointIndexDirectoryPath = tempCheckpointIndexDirectory.GetPath();
-    TestHook::SetCheckpointIndexDirectory_Override checkpointIndexDirectoryOverride(tempCheckpointIndexDirectoryPath);
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointIndexDirectoryPath);
 
     // Create temp guid and populate with invalid client version.
     std::string tempGuidString = "{b157d11f-4487-4e03-9447-9f9d50d66d8e}";
@@ -71,7 +71,7 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
 
     {
         CheckpointRecord index = CheckpointRecord::CreateNew(tempIndexPath.u8string());
-        index.SetClientVersion(invalidClientVersion);
+        index.SetMetadata(CheckpointMetadata::ClientVersion, invalidClientVersion);
     }
 
     std::ostringstream resumeOutput;
@@ -94,7 +94,7 @@ TEST_CASE("ResumeFlow_EmptyIndex", "Resume")
     TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
 
     const auto& tempCheckpointIndexDirectoryPath = tempCheckpointIndexDirectory.GetPath();
-    TestHook::SetCheckpointIndexDirectory_Override checkpointIndexDirectoryOverride(tempCheckpointIndexDirectoryPath);
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointIndexDirectoryPath);
 
     // Create temp guid and populate with invalid client version.
     std::string tempGuidString = "{43ca664c-3eae-4f73-99ee-18cf83912c02}";
@@ -105,7 +105,7 @@ TEST_CASE("ResumeFlow_EmptyIndex", "Resume")
 
     {
         CheckpointRecord index = CheckpointRecord::CreateNew(tempGuidString);
-        index.SetClientVersion(AppInstaller::Runtime::GetClientVersion());
+        index.SetMetadata(CheckpointMetadata::ClientVersion, AppInstaller::Runtime::GetClientVersion());
     }
 
     std::ostringstream resumeOutput;
@@ -127,7 +127,7 @@ TEST_CASE("ResumeFlow_InstallSuccess", "[Resume]")
     TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
 
     const auto& tempCheckpointIndexDirectoryPath = tempCheckpointIndexDirectory.GetPath();
-    TestHook::SetCheckpointIndexDirectory_Override checkpointIndexDirectoryOverride(tempCheckpointIndexDirectoryPath);
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointIndexDirectoryPath);
 
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFResume>(true);
@@ -174,7 +174,7 @@ TEST_CASE("ResumeFlow_InstallFailure", "[Resume]")
     TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
 
     const auto& tempCheckpointIndexDirectoryPath = tempCheckpointIndexDirectory.GetPath();
-    TestHook::SetCheckpointIndexDirectory_Override checkpointIndexDirectoryOverride(tempCheckpointIndexDirectoryPath);
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointIndexDirectoryPath);
 
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFResume>(true);

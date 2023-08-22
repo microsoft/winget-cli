@@ -49,19 +49,16 @@ namespace AppInstaller::CLI
         }
 
         Execution::Context resumeContext = context.CreateEmptyContext();
+        resumeContext.CheckpointManager.LoadRecord(checkpointId);
 
-        CheckpointManager checkpointManager = resumeContext.CheckpointManager;
-        checkpointManager.LoadExistingRecord(checkpointId);
-
-
-        const auto& checkpointClientVersion = checkpointManager.GetClientVersion();
+        const auto& checkpointClientVersion = resumeContext.CheckpointManager.GetClientVersion();
         if (checkpointClientVersion != AppInstaller::Runtime::GetClientVersion().get())
         {
             context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ checkpointClientVersion }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
         }
 
-        std::string commandName = checkpointManager.GetCommandName();
+        std::string commandName = resumeContext.CheckpointManager.GetCommandName();
         std::unique_ptr<Command> commandToResume;
 
         // Find the command using the root command.
@@ -80,7 +77,7 @@ namespace AppInstaller::CLI
         resumeContext.SetExecutingCommand(commandToResume.get());
         resumeContext.SetFlags(Execution::ContextFlag::Resume);
 
-        // Load arguments here:
+        resumeContext.Checkpoint("Start"sv);
 
         auto previousThreadGlobals = resumeContext.SetForCurrentThread();
         resumeContext.EnableSignalTerminationHandler();
