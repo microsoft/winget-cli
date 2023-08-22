@@ -304,6 +304,8 @@ namespace AppInstallerCLIE2ETests
             public const int CONFIG_ERROR_UNIT_IMPORT_MODULE = unchecked((int)0x8A15C108);
             public const int CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT = unchecked((int)0x8A15C109);
             public const int CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT = unchecked((int)0x8A15C110);
+
+            public const int REGDB_E_CLASSNOTREG = unchecked((int)0x80040154);
         }
 
 #pragma warning restore SA1310 // Field names should not contain underscore
