@@ -6,6 +6,7 @@
 #include <wil/resource.h>
 
 #include <chrono>
+#include <functional>
 #include <string_view>
 #include <vector>
 
@@ -45,13 +46,15 @@ namespace AppInstaller::Synchronization
         static CrossProcessReaderWriteLock LockExclusive(std::string_view name);
         static CrossProcessReaderWriteLock LockExclusive(std::string_view name, IProgressCallback& progress);
         static CrossProcessReaderWriteLock LockExclusive(std::string_view name, std::chrono::milliseconds timeout);
+        // Attempts to acquire an exclusive lock so long as the condition continues to return `true`.
+        static CrossProcessReaderWriteLock LockExclusive(std::string_view name, const std::function<bool()>& condition);
 
         operator bool() const;
 
         void Release();
 
     private:
-        static CrossProcessReaderWriteLock Lock(bool shared, std::string_view name, std::chrono::milliseconds timeout, IProgressCallback* progress);
+        static CrossProcessReaderWriteLock Lock(bool shared, std::string_view name, std::chrono::milliseconds timeout, IProgressCallback* progress, const std::function<bool()>& condition);
 
         std::vector<wil::unique_mutex> m_mutexesHeld;
     };

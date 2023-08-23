@@ -54,27 +54,32 @@ namespace AppInstaller::Synchronization
 
     CrossProcessReaderWriteLock CrossProcessReaderWriteLock::LockShared(std::string_view name)
     {
-        return Lock(true, name, s_CrossProcessReaderWriteLock_Infinite, nullptr);
+        return Lock(true, name, s_CrossProcessReaderWriteLock_Infinite, nullptr, {});
     }
 
     CrossProcessReaderWriteLock CrossProcessReaderWriteLock::LockShared(std::string_view name, IProgressCallback& progress)
     {
-        return Lock(true, name, s_CrossProcessReaderWriteLock_Infinite, &progress);
+        return Lock(true, name, s_CrossProcessReaderWriteLock_Infinite, &progress, {});
     }
 
     CrossProcessReaderWriteLock CrossProcessReaderWriteLock::LockExclusive(std::string_view name)
     {
-        return Lock(false, name, s_CrossProcessReaderWriteLock_Infinite, nullptr);
+        return Lock(false, name, s_CrossProcessReaderWriteLock_Infinite, nullptr, {});
     }
 
     CrossProcessReaderWriteLock CrossProcessReaderWriteLock::LockExclusive(std::string_view name, IProgressCallback& progress)
     {
-        return Lock(false, name, s_CrossProcessReaderWriteLock_Infinite, &progress);
+        return Lock(false, name, s_CrossProcessReaderWriteLock_Infinite, &progress, {});
     }
 
     CrossProcessReaderWriteLock CrossProcessReaderWriteLock::LockExclusive(std::string_view name, std::chrono::milliseconds timeout)
     {
-        return Lock(false, name, timeout, nullptr);
+        return Lock(false, name, timeout, nullptr, {});
+    }
+
+    CrossProcessReaderWriteLock CrossProcessReaderWriteLock::LockExclusive(std::string_view name, const std::function<bool()>& condition)
+    {
+        return Lock(false, name, s_CrossProcessReaderWriteLock_Infinite, nullptr, condition);
     }
 
     CrossProcessReaderWriteLock::operator bool() const
@@ -95,7 +100,8 @@ namespace AppInstaller::Synchronization
         bool shared,
         std::string_view name,
         std::chrono::milliseconds timeout,
-        IProgressCallback* progress)
+        IProgressCallback* progress,
+        const std::function<bool()>& condition)
     {
         auto start = std::chrono::steady_clock::now();
 
@@ -104,6 +110,20 @@ namespace AppInstaller::Synchronization
         THROW_HR_IF(E_INVALIDARG, timeout.count() > INFINITE);
 
         CrossProcessReaderWriteLock result;
+
+        // Merge the external conditions into a single concept
+        bool hasExternalConditions = progress || condition;
+        auto externalConditionsIndicateStop = [&]()
+            {
+                return (progress && progress->IsCancelledBy(CancelReason::Any)) ||
+                    (condition && !condition());
+            };
+
+        if (externalConditionsIndicateStop())
+        {
+            return result;
+        }
+
         std::wstring wideName = Utility::ConvertToUTF16(name);
 
         // Acquire overall control mutex
@@ -112,7 +132,7 @@ namespace AppInstaller::Synchronization
         auto lock = controlMutex.acquire(&status, static_cast<DWORD>(timeout.count()));
         THROW_LAST_ERROR_IF(status == WAIT_FAILED);
 
-        if (status == WAIT_TIMEOUT || (progress && progress->IsCancelledBy(CancelReason::Any)))
+        if (status == WAIT_TIMEOUT || externalConditionsIndicateStop())
         {
             return result;
         }
@@ -165,10 +185,10 @@ namespace AppInstaller::Synchronization
 
         // Wait for one/all of the mutexes (or cancellation)
         bool waitAgain = true;
-        while (waitAgain && (!progress || !progress->IsCancelledBy(CancelReason::Any)))
+        while (waitAgain && !externalConditionsIndicateStop())
         {
             DWORD millisecondsToWait = 0;
-            if (progress)
+            if (hasExternalConditions)
             {
                 if (timeout == s_CrossProcessReaderWriteLock_Infinite)
                 {
@@ -200,7 +220,7 @@ namespace AppInstaller::Synchronization
             }
             else
             {
-                // If there is no progress, we will do the full wait this time
+                // If there is no external condition, we will do the full wait this time
                 waitAgain = false;
 
                 if (timeout == s_CrossProcessReaderWriteLock_Infinite)
@@ -231,7 +251,7 @@ namespace AppInstaller::Synchronization
             }
         }
 
-        if (status == WAIT_TIMEOUT || (progress && progress->IsCancelledBy(CancelReason::Any)))
+        if (status == WAIT_TIMEOUT || externalConditionsIndicateStop())
         {
             return result;
         }

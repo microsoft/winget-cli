@@ -52,11 +52,11 @@ namespace AppInstaller::Repository
 
                 std::string lockName = CreateNameForCPRWL(m_details.Arg);
 
-                if (!std::filesystem::exists(trackingDB))
                 {
-                    auto exclusiveLock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName);
+                    // Attempt to acquire an exclusive lock so long as the tracking database file does not exist.
+                    auto exclusiveLock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName, [&]() { return !std::filesystem::exists(trackingDB); });
 
-                    if (!std::filesystem::exists(trackingDB))
+                    if (exclusiveLock)
                     {
                         std::filesystem::create_directories(trackingDB.parent_path());
                         SQLiteIndex::CreateNew(trackingDB.u8string(), Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
