@@ -24,12 +24,11 @@ TEST_CASE("InstallFlow_WindowsFeatureDoesNotExist", "[windowsFeature]")
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideOpenDependencySource(context);
+
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
 
     auto mockDismHelperOverride = TestHook::MockDismHelper_Override();
@@ -58,12 +57,11 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideOpenDependencySource(context);
+
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
 
     // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
@@ -94,9 +92,6 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
-
     // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
     HRESULT dismErrorResult = 0xc0040001;
     LocIndString testFeatureDisplayName = LocIndString{ "Test Windows Feature"_liv };
@@ -110,7 +105,9 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideOpenDependencySource(context);
     OverrideForShellExecute(context);
+
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Force);
 
@@ -142,9 +139,6 @@ TEST_CASE("InstallFlow_RebootRequired", "[windowsFeature]")
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
-
     // Override with reboot required HRESULT.
     auto mockDismHelperOverride = TestHook::MockDismHelper_Override();
     auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
@@ -156,6 +150,8 @@ TEST_CASE("InstallFlow_RebootRequired", "[windowsFeature]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideOpenDependencySource(context);
+
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
 
     InstallCommand install({});
@@ -177,9 +173,6 @@ TEST_CASE("InstallFlow_RebootRequired_Force", "[windowsFeature]")
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
-
     // Override with reboot required HRESULT.
     auto mockDismHelperOverride = TestHook::MockDismHelper_Override();
     auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
@@ -192,6 +185,8 @@ TEST_CASE("InstallFlow_RebootRequired_Force", "[windowsFeature]")
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
+    OverrideOpenDependencySource(context);
+
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Force);
 

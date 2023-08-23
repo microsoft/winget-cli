@@ -18,15 +18,6 @@ namespace AppInstallerCLIE2ETests
     public class DownloadCommand : BaseCommand
     {
         /// <summary>
-        /// One time setup.
-        /// </summary>
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            WinGetSettingsHelper.ConfigureFeature("download", true);
-        }
-
-        /// <summary>
         /// Downloads the test installer and its package dependencies.
         /// </summary>
         [Test]

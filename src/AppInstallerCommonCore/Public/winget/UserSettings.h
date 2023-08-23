@@ -71,8 +71,6 @@ namespace AppInstaller::Settings
         EFExperimentalArg,
         EFDirectMSI,
         EFConfiguration,
-        EFWindowsFeature,
-        EFDownload,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -147,8 +145,6 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfiguration, bool, bool, false, ".experimentalFeatures.configuration"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFWindowsFeature, bool, bool, false, ".experimentalFeatures.windowsFeature"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFDownload, bool, bool, false, ".experimentalFeatures.download"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior

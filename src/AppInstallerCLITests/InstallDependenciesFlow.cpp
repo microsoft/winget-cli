@@ -12,35 +12,6 @@ using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Repository;
 
-void OverrideOpenSourceForDependencies(TestContext& context)
-{
-    context.Override({ "OpenSource", [](TestContext& context)
-    {
-        context.Add<Execution::Data::Source>(Source{ std::make_shared<DependenciesTestSource>() });
-    } });
-
-    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
-    {
-        context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
-    } });
-}
-
-void OverrideDependencySource(TestContext& context)
-{
-    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
-    {
-        context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
-    } });
-}
-
-void OverrideOpenDependencySource(TestContext& context)
-{
-    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
-    {
-        context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
-    } });
-}
-
 void OverrideForProcessMultiplePackages(TestContext& context)
 {
     context.Override({ Workflow::ProcessMultiplePackages(
