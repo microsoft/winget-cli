@@ -42,7 +42,6 @@ namespace AppInstallerCLIE2ETests.Helpers
                         { "experimentalArg", false },
                         { "experimentalCmd", false },
                         { "directMSI", false },
-                        { "download", false },
                     }
                 },
                 {
@@ -191,8 +190,6 @@ namespace AppInstallerCLIE2ETests.Helpers
             ConfigureFeature("directMSI", status);
             ConfigureFeature("pinning", status);
             ConfigureFeature("configuration", status);
-            ConfigureFeature("windowsFeature", status);
-            ConfigureFeature("download", status);
         }
     }
 }
