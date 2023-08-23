@@ -9,8 +9,14 @@ namespace AppInstaller::Repository::Microsoft
     struct CheckpointRecord;
 }
 
-namespace AppInstaller::CLI::Checkpoint
+namespace AppInstaller::CLI::Checkpoints
 {
+    enum class CheckpointData
+    {
+        Args,
+    };
+
+
     struct CheckpointManager
     {
         // Returns a bool value indicating whether a record has been loaded.
@@ -21,6 +27,8 @@ namespace AppInstaller::CLI::Checkpoint
 
         // Loads an existing record from an id.
         void LoadRecord(GUID id);
+
+        Checkpoint CreateCheckpoint(std::string_view checkpointName, T );
 
         // Gets a boolean value indicating whether the checkpoint name exists in the record.
         bool Exists(std::string_view checkpointName);

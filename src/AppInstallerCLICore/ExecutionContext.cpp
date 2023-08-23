@@ -427,6 +427,68 @@ namespace AppInstaller::CLI::Execution
         return m_currentCheckpoint == m_targetCheckpoint;
     }
 
+
+    // Representation of a single checkpoint 
+    enum class CheckpointData
+    {
+        Args,
+    };
+
+    template<typename T>
+    struct CheckpointContextData
+    {
+        CheckpointContextData(T data) {};
+
+        std::map<std::string, std::vector<std::string>> GetContextDataMap() { return m_contextDataMap; };
+
+    private:
+        std::map<std::string, std::vector<std::string>> m_contextDataMap;
+    };
+
+    template<>
+    CheckpointContextData<Execution::Args>::CheckpointContextData(Execution::Args args)
+    {
+        const auto& argTypes = args.GetTypes();
+
+        for (auto type : argTypes)
+        {
+            const auto& argName = Argument::ForType(type).Name();
+            const auto& values = *args.GetArgs(type);
+            int index = 0;
+            int castedType = static_cast<int>(type);
+            m_contextDataMap.emplace(castedType, values);
+        }
+    }
+
+    struct Checkpoint
+    {
+        template<typename CheckpointContextData>
+        void AddContextData(CheckpointData type, const CheckpointContextData& data)
+        {
+            m_checkpointData[type] = std::move(data);
+        };
+
+        std::map<std::string, std::vector<std::string>> GetDataItem(CheckpointData checkpointData) { };
+
+    private:
+        std::string_view m_checkpointName;
+        std::map<CheckpointData, std::map<std::string, std::vector<std::string>>> m_checkpointData;
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
     {
         // Create record if it does not exist.
@@ -505,5 +567,7 @@ namespace AppInstaller::CLI::Execution
 
         m_currentCheckpoint = checkpointName;
     }
+
+
 
 }

@@ -166,15 +166,13 @@ namespace AppInstaller::CLI::Execution
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
 
-        // Interacts with the checkpoint record for writing and loading checkpoints.
-        // Change to smart pointer and add a getter function.
-        Checkpoint::CheckpointManager CheckpointManager;
-
         // Returns a value indicating whether the current checkpoint matches the target checkpoint.
         bool IsCurrentCheckpointAtTarget();
 
         // Sets the target checkpoint.
         void SetTargetCheckpoint(std::string_view checkpointName) { m_targetCheckpoint = checkpointName; };
+
+        Checkpoints::Checkpoint CreateCheckpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);
 
         // Writes the context data to the checkpoint record if the checkpoint does not yet exist.
         // If no context data is provided, writes the automatic checkpoint metadata.
@@ -199,6 +197,8 @@ namespace AppInstaller::CLI::Execution
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
+
+        std::unique_ptr<Checkpoints::CheckpointManager> m_checkpointManager;
         std::string_view m_targetCheckpoint = {};
         std::string_view m_currentCheckpoint = {};
     };
