@@ -18,9 +18,9 @@ namespace AppInstaller::Repository
     {
         constexpr std::string_view c_PackageTrackingFileName = "installed.db";
 
-        std::string CreateNameForCPRWL(const std::string& pathName)
+        std::string CreateNameForCPL(const std::string& pathName)
         {
-            return "PackageTrackingCPRWL_"s + pathName;
+            return "PackageTrackingCPL_"s + pathName;
         }
 
         std::filesystem::path GetPackageTrackingFilePath(const std::string& pathName)
@@ -29,6 +29,22 @@ namespace AppInstaller::Repository
             result /= pathName;
             result /= c_PackageTrackingFileName;
             return result;
+        }
+
+        // Call while holding the CrossProcessLock
+        SQLiteIndex CreateOrOpenTrackingIndex(const std::filesystem::path& trackingDB)
+        {
+            if (!std::filesystem::exists(trackingDB))
+            {
+                std::filesystem::create_directories(trackingDB.parent_path());
+                return SQLiteIndex::CreateNew(trackingDB.u8string(), Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
+            }
+            else
+            {
+                // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
+                //       Could write this all now but it will be better tested when there is a new schema.
+                return SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
+            }
         }
 
         struct PackageTrackingCatalogSourceReference : public ISourceReference
@@ -45,32 +61,18 @@ namespace AppInstaller::Repository
                 return m_details.Identifier;
             }
 
-            std::shared_ptr<ISource> Open(IProgressCallback&) override
+            std::shared_ptr<ISource> Open(IProgressCallback& callback) override
             {
                 m_details.Arg = Utility::MakeSuitablePathPart(m_details.Data);
                 std::filesystem::path trackingDB = GetPackageTrackingFilePath(m_details.Arg);
 
-                std::string lockName = CreateNameForCPRWL(m_details.Arg);
-
+                Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details.Arg));
+                if (!lock.Acquire(callback))
                 {
-                    // Attempt to acquire an exclusive lock so long as the tracking database file does not exist.
-                    auto exclusiveLock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName, [&]() { return !std::filesystem::exists(trackingDB); });
-
-                    if (exclusiveLock)
-                    {
-                        std::filesystem::create_directories(trackingDB.parent_path());
-                        SQLiteIndex::CreateNew(trackingDB.u8string(), Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
-                    }
+                    return {};
                 }
 
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(lockName);
-
-                SQLiteIndex index = SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
-
-                // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
-                //       Could write this all now but it will be better tested when there is a new schema.
-
-                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock));
+                return std::make_shared<SQLiteIndexSource>(m_details, CreateOrOpenTrackingIndex(trackingDB));
             }
 
         private:
@@ -108,10 +110,8 @@ namespace AppInstaller::Repository
 
                 std::string pathName = Utility::MakeSuitablePathPart(details.Data);
 
-                std::string lockName = CreateNameForCPRWL(pathName);
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName, progress);
-
-                if (!lock)
+                Synchronization::CrossProcessLock lock(CreateNameForCPL(pathName));
+                if (!lock.Acquire(progress))
                 {
                     return false;
                 }

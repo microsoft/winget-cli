@@ -158,7 +158,7 @@ namespace AppInstaller::Repository::Microsoft
                     PopulateIndexFromMSIX(index, Manifest::ScopeEnum::Machine);
                 }
 
-                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), true);
             }
 
         private:
