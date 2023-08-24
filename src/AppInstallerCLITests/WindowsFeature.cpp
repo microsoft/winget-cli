@@ -105,8 +105,8 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideOpenDependencySource(context);
     OverrideForShellExecute(context);
+    OverrideOpenDependencySource(context);
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Force);

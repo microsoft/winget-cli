@@ -12,6 +12,19 @@ using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Repository;
 
+void OverrideOpenSourceForDependencies(TestContext& context)
+{
+    context.Override({ "OpenSource", [](TestContext& context)
+    {
+        context.Add<Execution::Data::Source>(Source{ std::make_shared<DependenciesTestSource>() });
+    } });
+
+    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
+    {
+        context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
+    } });
+}
+
 void OverrideForProcessMultiplePackages(TestContext& context)
 {
     context.Override({ Workflow::ProcessMultiplePackages(
@@ -132,6 +145,7 @@ TEST_CASE("DependencyGraph_MultipleDependenciesFromManifest", "[InstallFlow][wor
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideOpenSourceForDependencies(context);
     OverrideForShellExecute(context, installationOrder);
+    OverrideEnableWindowsFeaturesDependencies(context);
 
     context.Args.AddArg(Execution::Args::Type::Query, "MultipleDependenciesFromManifest"sv);
 
@@ -154,7 +168,8 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
-    OverrideDependencySource(context);
+    OverrideOpenDependencySource(context);
+    OverrideEnableWindowsFeaturesDependencies(context);
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesOnRoot.yaml").GetPath().u8string());
 
@@ -215,7 +230,8 @@ TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[depe
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
-    OverrideDependencySource(context);
+    OverrideOpenDependencySource(context);
+    OverrideEnableWindowsFeaturesDependencies(context);
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_DependenciesMultideclaration.yaml").GetPath().u8string());
 
@@ -236,7 +252,8 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
-    OverrideDependencySource(context);
+    OverrideOpenDependencySource(context);
+    OverrideEnableWindowsFeaturesDependencies(context);
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
 
