@@ -7,7 +7,7 @@ namespace Microsoft.Management.Deployment.Projection.Initializers
     using Microsoft.WinGet.SharedLib.PolicySettings;
 
     /// <summary>
-    /// An abstract base that enforces group policy before creating drived class instance.
+    /// An abstract base that enforces group policy before creating derived class instance.
     /// </summary>
     public abstract class PolicyEnforcedInstanceInitializer : IInstanceInitializer
     {
