@@ -128,10 +128,10 @@ namespace AppInstallerCLIE2ETests
         // Group Policy Error Message
         public const string BlockByWinGetPolicyErrorMessage = "This operation is disabled by Group Policy : Enable Windows Package Manager";
 
-    /// <summary>
-    /// Error codes.
-    /// </summary>
-    public class ErrorCode
+        /// <summary>
+        /// Error codes.
+        /// </summary>
+        public class ErrorCode
         {
             public const int S_OK = 0;
             public const int S_FALSE = 1;
