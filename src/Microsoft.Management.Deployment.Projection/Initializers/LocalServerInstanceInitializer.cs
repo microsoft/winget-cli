@@ -3,15 +3,16 @@
 
 namespace Microsoft.Management.Deployment.Projection
 {
+    using Microsoft.Management.Deployment.Projection.Initializers;
     using WinRT;
 
     // Out-of-process COM instance initializer.
-    public class LocalServerInstanceInitializer : IInstanceInitializer
+    public class LocalServerInstanceInitializer : PolicyEnforcedInstanceInitializer
     {
         /// <summary>
         /// Out-of-process context.
         /// </summary>
-        public ClsidContext Context => UseDevClsids ? ClsidContext.OutOfProcDev : ClsidContext.OutOfProc;
+        public override ClsidContext Context => UseDevClsids ? ClsidContext.OutOfProcDev : ClsidContext.OutOfProc;
 
         /// <summary>
         /// Allow lower trust registration.
@@ -29,8 +30,7 @@ namespace Microsoft.Management.Deployment.Projection
         /// </summary>
         /// <typeparam name="T">Projected class type.</typeparam>
         /// <returns>Instance of the provided type.</returns>
-        public T CreateInstance<T>()
-            where T : new()
+        protected override T CreateInstanceInternal<T>()
         {
             var clsid = ClassesDefinition.GetClsid<T>(Context);
             var iid = ClassesDefinition.GetIid<T>();

@@ -24,6 +24,7 @@ namespace Microsoft.WinGet.SharedLib.Exceptions
         public GroupPolicyException(Policy policy, GroupPolicyFailureType policyFailureType)
             : base(string.Format(policyFailureType.GetFailureString(), policy.GetResourceString()))
         {
+            this.HResult = policyFailureType.GetErrorCode();
         }
 
         /// <summary>
@@ -34,6 +35,7 @@ namespace Microsoft.WinGet.SharedLib.Exceptions
         public GroupPolicyException(GroupPolicyFailureType policyFailureType, Exception innerException)
             : base(policyFailureType.GetFailureString(), innerException)
         {
+            this.HResult = policyFailureType.GetErrorCode();
         }
     }
 }

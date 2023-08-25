@@ -125,6 +125,9 @@ namespace AppInstallerCLIE2ETests
         public const string SimpleTestModuleName = "xE2ETestResource";
         public const string LocalModuleDescriptor = "[Local]";
 
+        // Group Policy Error Message
+        public const string BlockByWinGetPolicyErrorMessage = "This operation is disabled by Group Policy : Enable Windows Package Manager";
+
         /// <summary>
         /// Error codes.
         /// </summary>

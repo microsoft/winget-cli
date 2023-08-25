@@ -6,6 +6,7 @@
 
 namespace Microsoft.WinGet.SharedLib.Extensions
 {
+    using Microsoft.WinGet.SharedLib.Exceptions;
     using Microsoft.WinGet.SharedLib.PolicySettings;
     using Microsoft.WinGet.SharedLib.Resources;
 
@@ -68,6 +69,24 @@ namespace Microsoft.WinGet.SharedLib.Extensions
                 case GroupPolicyFailureType.LoadError:
                     return GroupPolicyResource.PolicyLoadError;
                 default: return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Gets ErrorCode mapped to GroupPolicyFailureType.
+        /// </summary>
+        /// <param name="policyFailure">GroupPolicyFailureType.</param>
+        /// <returns>ErrorCode.</returns>
+        public static int GetErrorCode(this GroupPolicyFailureType policyFailure)
+        {
+            switch (policyFailure)
+            {
+                case GroupPolicyFailureType.BlockedByPolicy:
+                    return ErrorCodes.AppInstallerCLIErrorBlockedByPolicy;
+                case GroupPolicyFailureType.NotFound:
+                case GroupPolicyFailureType.LoadError:
+                default:
+                    return ErrorCodes.AppInstallerCLIErrorInternalError;
             }
         }
     }
