@@ -299,11 +299,7 @@
     <value>Debug parameter not supported</value>
   </data>
   <data name="ConfigurationAllUsersElevated" xml:space="preserve">
-    <value>-AllUsers require administrator privileges to execute</value>
-    <comment>{Locked="-AllUsers"}</comment>
-  </data>
-  <data name="ConfigurationLocationExclusive" xml:space="preserve">
-    <value>-AllUsers, -CurrentUser, -WinGetModulePath and -InstallModulePath are mutually exclusive parameters</value>
-    <comment>{Locked="-AllUsers, -CurrentUser, -WinGetModulePath, -InstallModulePath"}</comment>
+    <value>-ModulePath AllUsers require administrator privileges to execute</value>
+    <comment>{Locked="-ModulePath AllUsers"}</comment>
   </data>
 </root>

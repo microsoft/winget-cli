@@ -30,5 +30,10 @@ namespace Microsoft.Management.Configuration.Processor
         /// Custom path.
         /// </summary>
         Custom = 3,
+
+        /// <summary>
+        /// Default.
+        /// </summary>
+        Default = WinGetModulePath,
     }
 }

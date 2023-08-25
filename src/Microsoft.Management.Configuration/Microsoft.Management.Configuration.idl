@@ -763,6 +763,7 @@ namespace Microsoft.Management.Configuration
             AllUsers = 1,
             WinGetModulePath = 2,
             Custom = 3,
+            Default = WinGetModulePath,
         };
 
         // The properties provided by the "pwsh" processor factory.

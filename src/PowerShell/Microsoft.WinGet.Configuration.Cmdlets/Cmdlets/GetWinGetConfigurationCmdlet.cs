@@ -25,10 +25,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
             var configCommand = new ConfigurationCommand(this);
             configCommand.Get(
                 this.File,
-                this.AllUsers.ToBool(),
-                this.CurrentUser.ToBool(),
-                this.WingetModulePath.ToBool(),
-                this.InstallModulePath,
+                this.ModulePath,
                 this.ExecutionPolicy,
                 this.CanUseTelemetry);
         }

@@ -80,6 +80,7 @@ namespace AppInstallerCLIE2ETests
         [TestCase(TestCommon.TestModuleLocation.AllUsers)]
         [TestCase(TestCommon.TestModuleLocation.WinGetModulePath)]
         [TestCase(TestCommon.TestModuleLocation.Custom)]
+        [TestCase(TestCommon.TestModuleLocation.Default)]
         public void ConfigureFromTestRepo_Location(TestCommon.TestModuleLocation location)
         {
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
@@ -87,30 +88,27 @@ namespace AppInstallerCLIE2ETests
             string args = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_Location.yml");
             if (location == TestCommon.TestModuleLocation.CurrentUser)
             {
-                args += " --current-user";
+                args += " --module-path currentuser";
             }
             else if (location == TestCommon.TestModuleLocation.AllUsers)
             {
-                args += " --all-users";
+                args += " --module-path allusers";
             }
-            else if (location == TestCommon.TestModuleLocation.WinGetModulePath)
+            else if (location == TestCommon.TestModuleLocation.Default)
             {
-                args += " --winget-module-path";
+                args += " --module-path default";
             }
-
-            /* location == TestCommon.TestModuleLocation.Custom) */
-            else
+            else if (location == TestCommon.TestModuleLocation.Custom)
             {
-                args += " --install-module-path " + TestCommon.GetExpectedModulePath(location);
+                args += " --module-path " + TestCommon.GetExpectedModulePath(location);
             }
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
             Assert.AreEqual(0, result.ExitCode);
 
-            var dir = Path.Combine(
-                    TestCommon.GetExpectedModulePath(location),
-                    Constants.SimpleTestModuleName);
-            Assert.True(Directory.Exists(dir));
+            Assert.True(Directory.Exists(Path.Combine(
+                TestCommon.GetExpectedModulePath(location),
+                Constants.SimpleTestModuleName)));
         }
 
         /// <summary>

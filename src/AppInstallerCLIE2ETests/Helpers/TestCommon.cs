@@ -71,6 +71,11 @@ namespace AppInstallerCLIE2ETests.Helpers
             /// Custom.
             /// </summary>
             Custom,
+
+            /// <summary>
+            /// Default winget configure.
+            /// </summary>
+            Default,
         }
 
         /// <summary>
@@ -1009,6 +1014,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                 case TestModuleLocation.AllUsers:
                     return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"PowerShell\Modules");
                 case TestModuleLocation.WinGetModulePath:
+                case TestModuleLocation.Default:
                     return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Microsoft\WinGet\Configuration\Modules");
                 case TestModuleLocation.Custom:
                     return Path.Combine(Path.GetTempPath(), "E2ECustomModules");

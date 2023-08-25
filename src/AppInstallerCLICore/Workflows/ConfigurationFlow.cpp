@@ -7,7 +7,7 @@
 #include <AppInstallerErrors.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winget/SelfManagement.h>
-#include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
+#include "ConfigurationCommon.h"
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -84,27 +84,7 @@ namespace AppInstaller::CLI::Workflow
 #endif
 
             auto factory = ConfigurationRemoting::CreateOutOfProcessFactory();
-            auto pwshFactory = factory.as<SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties>();
-
-            if (context.Args.Contains(Args::Type::ConfigurationAllUsersLocation))
-            {
-                pwshFactory.Location(SetProcessorFactory::PwshConfigurationProcessorLocation::AllUsers);
-            }
-            else if (context.Args.Contains(Args::Type::ConfigurationCustomLocationPath))
-            {
-                pwshFactory.Location(SetProcessorFactory::PwshConfigurationProcessorLocation::Custom);
-                pwshFactory.CustomLocation(winrt::to_hstring(context.Args.GetArg(Args::Type::ConfigurationCustomLocationPath)));
-            }
-            else if (context.Args.Contains(Args::Type::ConfigurationWinGetLocation))
-            {
-                pwshFactory.Location(SetProcessorFactory::PwshConfigurationProcessorLocation::WinGetModulePath);
-            }
-            else
-            {
-                // TODO: add a setting that says the default custom location.
-                pwshFactory.Location(SetProcessorFactory::PwshConfigurationProcessorLocation::CurrentUser);
-            }
-
+            Configuration::SetModulePath(context, factory);
             return factory;
         }
 

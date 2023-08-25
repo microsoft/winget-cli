@@ -50,12 +50,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationAcceptWarningArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationAllUsers);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationAllUsersElevated);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationApply);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationAssert);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationCurrentUser);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationCustomLocationPath);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDescriptionWasTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDisabledMessage);
@@ -82,6 +79,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInitializing);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationLocal);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleNameOnly);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModulePath);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleWithDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotEnabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNoTestRun);
@@ -122,7 +120,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPromptApply);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPromptTest);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWinGetLocation);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandLongDescription);

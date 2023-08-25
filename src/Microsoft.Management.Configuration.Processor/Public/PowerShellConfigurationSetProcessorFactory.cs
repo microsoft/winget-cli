@@ -56,7 +56,7 @@ namespace Microsoft.Management.Configuration.Processor
         /// <summary>
         /// Gets or sets the module scope.
         /// </summary>
-        public PowerShellConfigurationProcessorLocation Location { get; set; } = PowerShellConfigurationProcessorLocation.CurrentUser;
+        public PowerShellConfigurationProcessorLocation Location { get; set; } = PowerShellConfigurationProcessorLocation.Default;
 
         /// <summary>
         /// Gets or sets the install module path. Only used for Scope = Custom.

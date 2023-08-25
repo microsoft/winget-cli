@@ -25,36 +25,12 @@ namespace Microsoft.WinGet.Configuration.Cmdlets.Common
         public string File { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to use the all users location to install modules.
-        /// </summary>
-        [Parameter(
-            ValueFromPipelineByPropertyName = true,
-            ParameterSetName = Constants.ParameterSet.OpenConfigurationSet)]
-        public SwitchParameter AllUsers { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to use the current user location to install modules.
-        /// </summary>
-        [Parameter(
-            ValueFromPipelineByPropertyName = true,
-            ParameterSetName = Constants.ParameterSet.OpenConfigurationSet)]
-        public SwitchParameter CurrentUser { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to use the winget location to install modules.
-        /// </summary>
-        [Parameter(
-            ValueFromPipelineByPropertyName = true,
-            ParameterSetName = Constants.ParameterSet.OpenConfigurationSet)]
-        public SwitchParameter WingetModulePath { get; set; }
-
-        /// <summary>
         /// Gets or sets custom location to install modules.
         /// </summary>
         [Parameter(
             ValueFromPipelineByPropertyName = true,
             ParameterSetName = Constants.ParameterSet.OpenConfigurationSet)]
-        public string InstallModulePath { get; set; }
+        public string ModulePath { get; set; }
 
         /// <summary>
         /// Gets the execution policy to use.
