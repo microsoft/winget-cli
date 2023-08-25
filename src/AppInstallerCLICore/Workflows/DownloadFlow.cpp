@@ -344,7 +344,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!hash)
         {
-            context.Reporter.Info() << "Package download canceled." << std::endl;
+            context.Reporter.Info() << Resource::String::Cancelled << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
 
