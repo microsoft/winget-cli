@@ -6,6 +6,7 @@
 #include <wil/resource.h>
 
 #include <chrono>
+#include <functional>
 #include <string_view>
 #include <vector>
 
@@ -14,52 +15,20 @@ using namespace std::chrono_literals;
 
 namespace AppInstaller::Synchronization
 {
-    // A fairly simple cross process (same session) reader-writer lock.
-    // The primary purpose is for sources to control access to their backing stores.
-    // Due to this design goal, these limitations exist:
-    // - Starves new readers when a writer comes in.
-    // - Readers are limited to an arbitrarily chosen limit.
-    // - Not re-entrant (although repeated read locking will work, it will consume additional slots).
-    // - No upgrade from reader to writer.
-    //      In order to change from reader/write, one must release and reacquire the lock:
-    //          auto lock = CrossProcessReaderWriteLock::LockShared(same_name);
-    //          ... Determine that an exclusive is needed ...
-    //          lock.Release();
-    //          lock = CrossProcessReaderWriteLock::LockExclusive(same_name);
-    struct CrossProcessReaderWriteLock
+    // This is a standard named mutex.
+    // It must be acquired and released (or destroyed) on the same thread, just as all Windows mutexes must be.
+    struct CrossProcessLock
     {
-        // Create unheld lock.
-        CrossProcessReaderWriteLock() = default;
+        CrossProcessLock(std::string_view name);
+        CrossProcessLock(const std::wstring& name);
 
-        ~CrossProcessReaderWriteLock();
+        ~CrossProcessLock();
 
-        CrossProcessReaderWriteLock(const CrossProcessReaderWriteLock&) = delete;
-        CrossProcessReaderWriteLock& operator=(const CrossProcessReaderWriteLock&) = delete;
+        CrossProcessLock(const CrossProcessLock&) = delete;
+        CrossProcessLock& operator=(const CrossProcessLock&) = delete;
 
-        CrossProcessReaderWriteLock(CrossProcessReaderWriteLock&&) = default;
-        CrossProcessReaderWriteLock& operator=(CrossProcessReaderWriteLock&&) = default;
-
-        static CrossProcessReaderWriteLock LockShared(std::string_view name);
-        static CrossProcessReaderWriteLock LockShared(std::string_view name, IProgressCallback& progress);
-
-        static CrossProcessReaderWriteLock LockExclusive(std::string_view name);
-        static CrossProcessReaderWriteLock LockExclusive(std::string_view name, IProgressCallback& progress);
-        static CrossProcessReaderWriteLock LockExclusive(std::string_view name, std::chrono::milliseconds timeout);
-
-        operator bool() const;
-
-        void Release();
-
-    private:
-        static CrossProcessReaderWriteLock Lock(bool shared, std::string_view name, std::chrono::milliseconds timeout, IProgressCallback* progress);
-
-        std::vector<wil::unique_mutex> m_mutexesHeld;
-    };
-
-    // This lock is used to prevent multiple winget related processes from attempting to install (or uninstall) at the same time.
-    struct CrossProcessInstallLock
-    {
-        CrossProcessInstallLock();
+        CrossProcessLock(CrossProcessLock&&) = default;
+        CrossProcessLock& operator=(CrossProcessLock&&) = default;
 
         // Acquires the lock; cancellation is enabled via the progress object.
         // Returns true when the lock is acquired and false if the wait is cancelled.
@@ -78,5 +47,13 @@ namespace AppInstaller::Synchronization
     private:
         wil::unique_mutex m_mutex;
         wil::mutex_release_scope_exit m_lock;
+        DWORD m_lockThreadId = 0;
+    };
+
+    // This lock is used to prevent multiple winget related processes from attempting to install (or uninstall) at the same time.
+    // It must be acquired and released (or destroyed) on the same thread, just as all Windows mutexes must be.
+    struct CrossProcessInstallLock : public CrossProcessLock
+    {
+        CrossProcessInstallLock() : CrossProcessLock(L"WinGetCrossProcessInstallLock") {}
     };
 }

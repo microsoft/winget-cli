@@ -396,10 +396,9 @@ namespace AppInstaller::Repository::Microsoft
     SQLiteIndexSource::SQLiteIndexSource(
         const SourceDetails& details,
         SQLiteIndex&& index,
-        Synchronization::CrossProcessReaderWriteLock&& lock,
         bool isInstalledSource,
         bool requireManifestHash) :
-        m_details(details), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index)), m_requireManifestHash(requireManifestHash)
+        m_details(details), m_isInstalled(isInstalledSource), m_index(std::move(index)), m_requireManifestHash(requireManifestHash)
     {
     }
 
@@ -458,8 +457,8 @@ namespace AppInstaller::Repository::Microsoft
         return const_cast<SQLiteIndexSource*>(this)->shared_from_this();
     }
 
-    SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
-        SQLiteIndexSource(details, std::move(index), std::move(lock), isInstalledSource)
+    SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, SQLiteIndex&& index, bool isInstalledSource) :
+        SQLiteIndexSource(details, std::move(index), isInstalledSource)
     {
     }
 

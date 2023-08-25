@@ -3,7 +3,6 @@
 #pragma once
 #include "Microsoft/SQLiteIndex.h"
 #include "ISource.h"
-#include <AppInstallerSynchronization.h>
 
 #include <memory>
 
@@ -18,7 +17,6 @@ namespace AppInstaller::Repository::Microsoft
         SQLiteIndexSource(
             const SourceDetails& details,
             SQLiteIndex&& index,
-            Synchronization::CrossProcessReaderWriteLock&& lock = {},
             bool isInstalledSource = false, 
             bool requireManifestHash = false);
 
@@ -57,7 +55,6 @@ namespace AppInstaller::Repository::Microsoft
         std::shared_ptr<SQLiteIndexSource> NonConstSharedFromThis() const;
 
         SourceDetails m_details;
-        Synchronization::CrossProcessReaderWriteLock m_lock;
         bool m_requireManifestHash;
         bool m_isInstalled;
 
@@ -71,7 +68,6 @@ namespace AppInstaller::Repository::Microsoft
         SQLiteIndexWriteableSource(
             const SourceDetails& details,
             SQLiteIndex&& index,
-            Synchronization::CrossProcessReaderWriteLock&& lock = {},
             bool isInstalledSource = false);
 
         // Casts to the requested type.
