@@ -64,7 +64,7 @@ namespace AppInstallerCLIE2ETests
             string args = $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")} --verbose";
             if (location == TestCommon.TestModuleLocation.Custom)
             {
-                args += " --install-module-path " + TestCommon.GetExpectedModulePath(location);
+                args += " --module-path " + TestCommon.GetExpectedModulePath(location);
             }
 
             var result = TestCommon.RunAICLICommand("configure show", args);

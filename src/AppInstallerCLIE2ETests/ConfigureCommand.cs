@@ -68,7 +68,7 @@ namespace AppInstallerCLIE2ETests
 
             Assert.True(Directory.Exists(
                 Path.Combine(
-                    TestCommon.GetExpectedModulePath(TestCommon.TestModuleLocation.CurrentUser),
+                    TestCommon.GetExpectedModulePath(TestCommon.TestModuleLocation.Default),
                     Constants.SimpleTestModuleName)));
         }
 
