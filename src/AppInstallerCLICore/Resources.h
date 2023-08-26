@@ -80,6 +80,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationLocal);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleNameOnly);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModulePath);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModulePathArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleWithDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotEnabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNoTestRun);

@@ -8,6 +8,7 @@ AFAIK
 agg
 aicli
 AICLIC
+allusers
 alreadyinstalled
 AMap
 amrutha
@@ -95,6 +96,7 @@ cplusplus
 createmanifestmetadata
 cswinrt
 ctc
+currentuser
 DACL
 Dbg
 debian

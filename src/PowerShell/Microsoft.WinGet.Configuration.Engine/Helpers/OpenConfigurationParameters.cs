@@ -38,7 +38,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             bool canUseTelemetry)
         {
             this.ConfigFile = this.VerifyFile(file, psCmdlet);
-            this.InitializeModulePath(modulePath, psCmdlet);
+            this.InitializeModulePath(modulePath);
             this.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
             this.CanUseTelemetry = canUseTelemetry;
         }
@@ -99,7 +99,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             };
         }
 
-        private void InitializeModulePath(string modulePath, PSCmdlet psCmdlet)
+        private void InitializeModulePath(string modulePath)
         {
             // TODO: Create cmdlet that specify the global custom location for a PowerShell session.
             if (!string.IsNullOrEmpty(modulePath))
@@ -126,10 +126,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                     string customLocation = modulePath;
                     if (!Path.IsPathRooted(customLocation))
                     {
-                        customLocation = Path.GetFullPath(
-                            Path.Combine(
-                                psCmdlet.SessionState.Path.CurrentFileSystemLocation.Path,
-                                modulePath));
+                        throw new ArgumentException(Resources.ConfigurationModulePathArgError);
                     }
 
                     this.CustomLocation = customLocation;

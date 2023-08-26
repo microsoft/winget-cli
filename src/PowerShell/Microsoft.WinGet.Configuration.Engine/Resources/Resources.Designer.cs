@@ -70,7 +70,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to -ModulePath AllUsers require administrator privileges to execute.
+        ///   Looks up a localized string similar to `-ModulePath AllUsers` require administrator privileges to execute..
         /// </summary>
         internal static string ConfigurationAllUsersElevated {
             get {
@@ -237,6 +237,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         internal static string ConfigurationModuleNameOnly {
             get {
                 return ResourceManager.GetString("ConfigurationModuleNameOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to `-ModulePath` value must be `CurrentUser`, `AllUsers`, `Default` or an absolute path..
+        /// </summary>
+        internal static string ConfigurationModulePathArgError {
+            get {
+                return ResourceManager.GetString("ConfigurationModulePathArgError", resourceCulture);
             }
         }
         

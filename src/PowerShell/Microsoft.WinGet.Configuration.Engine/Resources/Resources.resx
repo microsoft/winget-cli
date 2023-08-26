@@ -299,7 +299,11 @@
     <value>Debug parameter not supported</value>
   </data>
   <data name="ConfigurationAllUsersElevated" xml:space="preserve">
-    <value>-ModulePath AllUsers require administrator privileges to execute</value>
+    <value>`-ModulePath AllUsers` require administrator privileges to execute.</value>
     <comment>{Locked="-ModulePath AllUsers"}</comment>
+  </data>
+  <data name="ConfigurationModulePathArgError" xml:space="preserve">
+    <value>`-ModulePath` value must be `CurrentUser`, `AllUsers`, `Default` or an absolute path.</value>
+    <comment>{Locked="{-ModulePath}, {CurrentUser}, {AllUsers}, {Default}}</comment>
   </data>
 </root>
