@@ -706,7 +706,7 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
     <value>Mostra e executa atualizações disponíveis</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>uso: {0}{1}</value>
+    <value>uso: {0} {1}</value>
     <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
@@ -833,7 +833,7 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
     <comment>{Locked="{0}"} Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
-    <value>Versão instalada do pacote não disponível em nenhuma fonte: {0}{1}{2}</value>
+    <value>Versão instalada do pacote não disponível em nenhuma fonte: {0} {1} {2}</value>
     <comment>{Locked="{0} {1} {2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
