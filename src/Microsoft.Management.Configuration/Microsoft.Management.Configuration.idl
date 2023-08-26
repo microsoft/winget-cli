@@ -776,7 +776,7 @@ namespace Microsoft.Management.Configuration
             // The execution policy to apply; must be set before taking actions with the processor.
             PwshConfigurationProcessorPolicy Policy;
 
-            // The location to install modules. Default is CurrentUser
+            // The location to install modules. Default is WinGetModulePath
             PwshConfigurationProcessorLocation Location;
 
             // The custom location. Only applicable for Scope.Custom
