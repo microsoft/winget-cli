@@ -563,6 +563,7 @@ SUBLANG
 subresource
 subselect
 substr
+SUPPRESSMSGBOXES
 SWIPECONTROL
 SYMED
 symlink
