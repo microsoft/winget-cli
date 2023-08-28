@@ -475,22 +475,53 @@ namespace AppInstaller::CLI::Execution
         std::map<CheckpointData, std::map<std::string, std::vector<std::string>>> m_checkpointData;
     };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
     {
+        // Create automatic checkpoints
+        // If the checkpoint index doesn't already create it, and also add the automatic checkpoints.
+        if (!m_checkpointRecord)
+        {
+            GUID checkpointId;
+            std::ignore = CoCreateGuid(&checkpointId);
+            const auto& checkpointRecordPath = Checkpoints::CheckpointRecord::GetCheckpointRecordPath(checkpointId);
+            m_checkpointRecord = std::make_unique<Checkpoints::CheckpointRecord>(Checkpoints::CheckpointRecord::CreateNew(checkpointRecordPath.u8string()));
+        
+            std::vector<Checkpoints::CheckpointData> checkpointData;
+
+            // Create automatic checkpoint data:
+            Checkpoints::CheckpointData clientVersionData{ 0 };
+            clientVersionData.Set("clientVersion", { AppInstaller::Runtime::GetClientVersion() });
+            checkpointData.emplace_back(clientVersionData);
+
+            Checkpoints::CheckpointData commandName{ 1 };
+            const auto& executingCommand = m_executingCommand;
+            if (executingCommand != nullptr)
+            {
+                commandName.Set("commandName", { std::string{ m_executingCommand->Name() } });
+            }
+            checkpointData.emplace_back(commandName);
+
+
+            Checkpoints::CheckpointData commandArguments{ 2 };
+            const auto& argTypes = Args.GetTypes();
+
+            for (auto type : argTypes)
+            {
+                const auto& argName = Argument::ForType(type).Name();
+                const auto& values = *Args.GetArgs(type);
+                commandArguments.Set(std::string{ argName }, values);
+            }
+            checkpointData.emplace_back(commandArguments);
+
+            Checkpoints::Checkpoint<Checkpoints::CheckpointNames::Automatic> automaticCheckpoint;
+
+
+
+            Checkpoints::Checkpoint checkpoint{ checkpointData };
+            
+
+        }
+
         // Create record if it does not exist.
         if (!CheckpointManager.IsLoaded())
         {

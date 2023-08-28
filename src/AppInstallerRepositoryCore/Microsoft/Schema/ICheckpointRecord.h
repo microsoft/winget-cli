@@ -20,6 +20,22 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Returns a bool value indicating whether all checkpoint tables are empty.
         virtual bool IsEmpty(SQLite::Connection& connection) = 0;
 
+        virtual std::vector<std::string> GetCheckpoints(SQLite::Connection& connection) = 0;
+
+        virtual std::
+
+
+
+
+
+
+
+
+
+
+
+
+
         // Sets the metadata value.
         virtual SQLite::rowid_t SetMetadata(SQLite::Connection& connection, std::string_view name, std::string_view value) = 0;
 

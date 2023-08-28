@@ -42,6 +42,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return CheckpointContextTable::IsEmpty(connection);
     }
 
+
+    
+
+
     SQLite::rowid_t CheckpointRecordInterface::SetMetadata(SQLite::Connection& connection, std::string_view name, std::string_view value)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "setMetadata_v1_0");

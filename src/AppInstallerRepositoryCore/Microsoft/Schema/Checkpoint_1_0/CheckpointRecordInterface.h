@@ -13,6 +13,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
     private:
         bool IsEmpty(SQLite::Connection& connection) override;
+
+        std::vector<std::string> GetCheckpoints(SQLite::Connection& connection) override;
+
+
+
+
         SQLite::rowid_t SetMetadata(SQLite::Connection& connection, std::string_view name, std::string_view value) override;
         std::string GetMetadata(SQLite::Connection& connection, std::string_view name) override;
         std::string GetLastCheckpoint(SQLite::Connection& connection) override;

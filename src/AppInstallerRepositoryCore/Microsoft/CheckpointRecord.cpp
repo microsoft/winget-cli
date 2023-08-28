@@ -74,6 +74,8 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->IsEmpty(m_dbconn);
     }
 
+
+
     std::vector<int> CheckpointRecord::GetAvailableData(std::string_view name)
     {
         return m_interface->GetAvailableContextData(m_dbconn, name);

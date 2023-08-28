@@ -198,7 +198,7 @@ namespace AppInstaller::CLI::Execution
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
 
-        std::unique_ptr<Checkpoints::CheckpointManager> m_checkpointManager;
+        std::unique_ptr<Checkpoints::CheckpointRecord> m_checkpointRecord;
         std::string_view m_targetCheckpoint = {};
         std::string_view m_currentCheckpoint = {};
     };

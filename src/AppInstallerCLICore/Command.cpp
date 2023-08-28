@@ -855,15 +855,6 @@ namespace AppInstaller::CLI
             throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
         }
 
-        // Remove this. 
-        if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
-        {
-            if (!context.Args.Contains(Execution::Args::Type::ResumeId))
-            {
-                context.Checkpoint("Start"sv);
-            }
-        }
-
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
         if (context.Args.Contains(Execution::Args::Type::Help))
         {

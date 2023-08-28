@@ -2,102 +2,106 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "CheckpointManager.h"
-#include "Microsoft/CheckpointRecord.h"
+#include "Microsoft/Schema/Checkpoint_1_0/CheckpointRecordInterface.h"
+#include <AppInstallerRuntime.h>
 
-namespace AppInstaller::CLI::Checkpoint
+namespace AppInstaller::Checkpoints
 {
     using namespace AppInstaller::Repository::Microsoft;
+    using namespace AppInstaller::Repository::SQLite;
 
-    void CheckpointManager::CreateRecord()
+    namespace
     {
-        std::ignore = CoCreateGuid(&m_checkpointId);
-        AICLI_LOG(CLI, Info, << "Creating checkpoint index with id: " << m_checkpointId);
-        const auto& indexPath = CheckpointRecord::GetCheckpointRecordPath(m_checkpointId);
-        m_checkpointRecord = std::make_shared<CheckpointRecord>(CheckpointRecord::CreateNew(indexPath.u8string()));
-    }
+        constexpr std::string_view s_checkpoints_filename = "checkpoints.db"sv;
 
-    void CheckpointManager::LoadRecord(GUID id)
-    {
-        m_checkpointId = id;
-        AICLI_LOG(CLI, Info, << "Opening checkpoint index with id: " << m_checkpointId);
-        const auto& indexPath = CheckpointRecord::GetCheckpointRecordPath(m_checkpointId);
-        m_checkpointRecord = std::make_shared<CheckpointRecord>(CheckpointRecord::Open(indexPath.u8string()));
-    }
+        constexpr std::string_view s_Checkpoints = "Checkpoints"sv;
+        constexpr std::string_view s_ClientVersion = "ClientVersion"sv;
+        constexpr std::string_view s_CommandName = "CommandName"sv;
 
-    bool CheckpointManager::Exists(std::string_view checkpointName)
-    {
-        return m_checkpointRecord->CheckpointExists(checkpointName);
-    }
-
-    std::string CheckpointManager::GetClientVersion()
-    {
-        return m_checkpointRecord->GetMetadata(CheckpointMetadata::ClientVersion);
-    }
-
-    std::string CheckpointManager::GetCommandName()
-    {
-        return m_checkpointRecord->GetMetadata(CheckpointMetadata::CommandName);
-    }
-
-    std::string CheckpointManager::GetLastCheckpoint()
-    {
-        return m_checkpointRecord->GetLastCheckpoint();
-    }
-
-    std::vector<int> CheckpointManager::GetAvailableContextData(std::string_view checkpointName)
-    {
-        return m_checkpointRecord->GetAvailableData(checkpointName);
-    }
-
-    void CheckpointManager::SetClientVersion(std::string_view value)
-    {
-        m_checkpointRecord->SetMetadata(CheckpointMetadata::ClientVersion, value);
-    }
-
-    void CheckpointManager::SetCommandName(std::string_view value)
-    {
-        m_checkpointRecord->SetMetadata(CheckpointMetadata::CommandName, value);
-    }
-
-    void CheckpointManager::AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index)
-    {
-        if (!Exists(checkpointName))
+        std::string_view GetCheckpointMetadataString(AutomaticCheckpointData checkpointMetadata)
         {
-            m_checkpointRecord->AddCheckpoint(checkpointName);
-        }
-
-        m_checkpointRecord->AddContextData(checkpointName, contextData, name, value, index);
-    }
-
-    std::vector<std::string> CheckpointManager::GetContextData(std::string_view checkpointName, int contextData)
-    {
-        return m_checkpointRecord->GetContextData(checkpointName, contextData);
-    }
-
-    std::vector<std::string> CheckpointManager::GetContextDataByName(std::string_view checkpointName, int contextData, std::string_view name)
-    {
-        return m_checkpointRecord->GetContextDataByName(checkpointName, contextData, name);
-    }
-
-    void CheckpointManager::DeleteRecord()
-    {
-        if (m_checkpointRecord)
-        {
-            m_checkpointRecord.reset();
-        }
-
-        if (m_checkpointId != GUID_NULL)
-        {
-            const auto& checkpointRecordPath = CheckpointRecord::GetCheckpointRecordPath(m_checkpointId);
-
-            if (std::filesystem::exists(checkpointRecordPath))
+            switch (checkpointMetadata)
             {
-                std::error_code error;
-                if (std::filesystem::remove(checkpointRecordPath, error))
-                {
-                    AICLI_LOG(CLI, Info, << "Checkpoint index deleted: " << checkpointRecordPath);
-                }
+            case AutomaticCheckpointData::ClientVersion:
+                return s_ClientVersion;
+            case AutomaticCheckpointData::CommandName:
+                return s_CommandName;
+            default:
+                return "unknown"sv;
             }
         }
+    }
+
+    CheckpointRecord CheckpointRecord::CreateNew(const std::string& filePath, Schema::Version version)
+    {
+        AICLI_LOG(Repo, Info, << "Creating new Checkpoint Index with version [" << version << "] at '" << filePath << "'");
+        CheckpointRecord result{ filePath, version };
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "CheckpointRecord_createnew");
+
+        // Use calculated version, as incoming version could be 'latest'
+        result.m_version.SetSchemaVersion(result.m_dbconn);
+
+        result.m_interface->CreateTables(result.m_dbconn);
+
+        result.SetLastWriteTime();
+
+        savepoint.Commit();
+
+        return result;
+    }
+
+    std::filesystem::path CheckpointRecord::GetCheckpointRecordPath(GUID guid)
+    {
+        wchar_t checkpointGuid[256];
+        THROW_HR_IF(E_UNEXPECTED, !StringFromGUID2(guid, checkpointGuid, ARRAYSIZE(checkpointGuid)));
+
+        const auto checkpointsDirectory = Runtime::GetPathTo(Runtime::PathName::CheckpointsLocation) / checkpointGuid;
+
+        if (!std::filesystem::exists(checkpointsDirectory))
+        {
+            std::filesystem::create_directories(checkpointsDirectory);
+            AICLI_LOG(Repo, Info, << "Creating checkpoint index directory: " << checkpointsDirectory);
+        }
+        else
+        {
+            THROW_HR_IF(ERROR_CANNOT_MAKE, !std::filesystem::is_directory(checkpointsDirectory));
+        }
+
+        auto indexPath = checkpointsDirectory / s_checkpoints_filename;
+        return indexPath;
+    }
+
+    bool CheckpointRecord::IsEmpty()
+    {
+        return m_interface->IsEmpty(m_dbconn);
+    }
+
+    
+
+    std::unique_ptr<Schema::ICheckpointRecord> CheckpointRecord::CreateICheckpointRecord() const
+    {
+        if (m_version == Schema::Version{ 1, 0 } ||
+            m_version.MajorVersion == 1 ||
+            m_version.IsLatest())
+        {
+            return std::make_unique<Schema::Checkpoint_V1_0::CheckpointRecordInterface>();
+        }
+
+        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+    }
+
+    CheckpointRecord::CheckpointRecord(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
+        SQLiteStorageBase(target, disposition, std::move(indexFile))
+    {
+        AICLI_LOG(Repo, Info, << "Opened Checkpoint Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
+        m_interface = CreateICheckpointRecord();
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
+    }
+
+    CheckpointRecord::CheckpointRecord(const std::string& target, Schema::Version version) : SQLiteStorageBase(target, version)
+    {
+        m_interface = CreateICheckpointRecord();
+        m_version = m_interface->GetVersion();
     }
 }

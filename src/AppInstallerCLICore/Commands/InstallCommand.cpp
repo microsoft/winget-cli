@@ -121,6 +121,8 @@ namespace AppInstaller::CLI
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
+            context.CreateCheckpoint("start", {});
+
             context <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 Workflow::GetManifestFromArg <<

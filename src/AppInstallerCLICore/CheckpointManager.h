@@ -2,69 +2,143 @@
 // Licensed under the MIT License.
 #pragma once
 #include <guiddef.h>
-#include "winget/ManifestCommon.h"
+#include "SQLiteWrapper.h"
+#include "Microsoft/Schema/ICheckpointRecord.h"
+#include "Microsoft/SQLiteStorageBase.h"
+#include <winget/ManagedFile.h>
+#include "ExecutionContextData.h"
 
-namespace AppInstaller::Repository::Microsoft
+using namespace AppInstaller::Repository;
+using namespace AppInstaller::Repository::SQLite;
+
+namespace AppInstaller::Checkpoints
 {
-    struct CheckpointRecord;
-}
-
-namespace AppInstaller::CLI::Checkpoints
-{
-    enum class CheckpointData
+    // A representation of a single context data (all rows for a single checkpoint and single context data).
+    struct CheckpointData
     {
-        Args,
-    };
+        CheckpointData(int64_t contextDataId) : m_contextDataId(contextDataId) {};
 
+        // Returns a boolean value indicating whether the field name exists.
+        bool Has(std::string fieldName)
+        {
+            return m_values.find(fieldName) != m_values.end();
+        }
 
-    struct CheckpointManager
-    {
-        // Returns a bool value indicating whether a record has been loaded.
-        bool IsLoaded() { return m_checkpointRecord ? true: false; };
+        // Gets all available field names.
+        std::vector<std::string> GetFieldNames()
+        {
+            std::vector<std::string> fieldNames;
+            for (auto it = m_values.begin(); it != m_values.end(); ++it) {
+                fieldNames.push_back(it->first);
+            }
+            return fieldNames;
+        }
 
-        // Creates a new checkpoint record.
-        void CreateRecord();
+        std::vector<std::string> Get(std::string fieldName)
+        {
+            auto it = m_values.find(fieldName);
+            return it->second;
+        }
 
-        // Loads an existing record from an id.
-        void LoadRecord(GUID id);
+        void Set(std::string fieldName, std::vector<std::string> values)
+        {
+            m_values.insert({ fieldName, values });
+        }
 
-        Checkpoint CreateCheckpoint(std::string_view checkpointName, T );
+        // This will be used to rebuild our data objects later...
+        //template<typename T>
+        //T Get(std::string fieldName);
 
-        // Gets a boolean value indicating whether the checkpoint name exists in the record.
-        bool Exists(std::string_view checkpointName);
-
-        // Sets the client version.
-        void SetClientVersion(std::string_view value);
-
-        // Gets the client version from the checkpoint record.
-        std::string GetClientVersion();
-
-        // Sets the command name.
-        void SetCommandName(std::string_view value);
-
-        // Gets the command name from the checkpoint record.
-        std::string GetCommandName();
-
-        // Gets the latest checkpoint.
-        std::string GetLastCheckpoint();
-
-        // Gets the available context data items for a given checkpoint.
-        std::vector<int> GetAvailableContextData(std::string_view checkpointName);
-
-        // Adds a context data to the checkpoint record.
-        void AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index);
-
-        // Gets the values associated with a context data
-        std::vector<std::string> GetContextData(std::string_view checkpointName, int contextData);
-
-        // Gets the values by property name associated with a context data.
-        std::vector<std::string> GetContextDataByName(std::string_view checkpointName, int contextData, std::string_view name);
-
-        // Releases and deletes the checkpoint record.
-        void DeleteRecord();
+        //template<typename T>
+        //void Set(std::string fieldName, T data);
 
     private:
-        GUID m_checkpointId = {};
-        std::shared_ptr<AppInstaller::Repository::Microsoft::CheckpointRecord> m_checkpointRecord;
+        int64_t m_contextDataId;
+        std::map<std::string, std::vector<std::string>> m_values;
+    };
+
+    // Enum to define the types of checkpoint data
+    enum AutomaticCheckpointData
+    {
+        ClientVersion,
+        CommandName,
+        Arguments
+    };
+
+    struct CheckpointRecord : SQLiteStorageBase
+    {
+        // An id that refers to a specific Checkpoint.
+        using IdType = SQLite::rowid_t;
+
+        CheckpointRecord(const CheckpointRecord&) = delete;
+        CheckpointRecord& operator=(const CheckpointRecord&) = delete;
+
+        CheckpointRecord(CheckpointRecord&&) = default;
+        CheckpointRecord& operator=(CheckpointRecord&&) = default;
+
+        // Opens an existing CheckpointRecord database.
+        static CheckpointRecord Open(const std::string& filePath, OpenDisposition disposition = OpenDisposition::ReadWrite, Utility::ManagedFile&& indexFile = {})
+        {
+            return { filePath, disposition, std::move(indexFile) };
+        }
+
+        // Create a new CheckpointRecord database.
+        static CheckpointRecord CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
+
+        // Gets the file path of the CheckpointRecord database.
+        static std::filesystem::path GetCheckpointRecordPath(GUID guid);
+
+        // Returns a value indicating whether the record is empty.
+        bool IsEmpty();
+
+        Checkpoint<CheckpointDataEnum> GetStartingCheckpoint()
+        {
+            // Gets the checkpoint metadata 
+        }
+
+        std::map<std::string, Checkpoint<CLI::Execution::Data>> GetCheckpoints();
+
+
+    private:
+        // Constructor used to open an existing index.
+        CheckpointRecord(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
+
+        // Constructor used to create a new index.
+        CheckpointRecord(const std::string& target, Schema::Version version);
+
+        // Creates the ICheckpointRecord interface object for this version.
+        std::unique_ptr<Schema::ICheckpointRecord> CreateICheckpointRecord() const;
+
+        std::unique_ptr<Schema::ICheckpointRecord> m_interface;
+    };
+
+    enum class CheckpointNames
+    {
+        Automatic,
+        Installer,
+    };
+
+    // A representation of a row in the Checkpoint table. 
+    template <typename T>
+    struct Checkpoint
+    {
+        friend CheckpointRecord;
+
+        Checkpoint(std::vector<CheckpointData> checkpointData) : m_checkpointData(checkpointData) {};
+
+        CheckpointData GetData(T type)
+        {
+
+        }
+
+        std::vector<T> GetCheckpointDataTypes()
+        {
+
+        }
+
+    private:
+        Checkpoint(SQLite::rowid_t id) : m_rowid(id) {};
+        SQLite::rowid_t m_rowId;
+        std::vector<CheckpointData> m_checkpointData;
     };
 }

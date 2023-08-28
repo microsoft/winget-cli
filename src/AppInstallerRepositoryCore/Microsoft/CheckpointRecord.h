@@ -8,7 +8,7 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
-    enum CheckpointMetadata
+    enum AutomaticCheckpointData
     {
         ClientVersion,
         CommandName
@@ -39,6 +39,11 @@ namespace AppInstaller::Repository::Microsoft
 
         // Returns a value indicating whether the record is empty.
         bool IsEmpty();
+
+        Checkpoint<AutomaticCheckpointData> GetAutomaticCheckpoint();
+
+        std::map<std::string, Checkpoint<Execution::ContextData>> GetCheckpoints();
+
 
         // Gets all available context data for a checkpoint.
         std::vector<int> GetAvailableData(std::string_view checkpointName);
