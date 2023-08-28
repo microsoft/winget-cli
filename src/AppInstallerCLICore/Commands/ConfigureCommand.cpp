@@ -7,6 +7,7 @@
 #include "ConfigureValidateCommand.h"
 #include "Workflows/ConfigurationFlow.h"
 #include "Workflows/MSStoreInstallerHandler.h"
+#include "ConfigurationCommon.h"
 
 using namespace AppInstaller::CLI::Workflow;
 
@@ -31,6 +32,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional },
+            Argument{ Execution::Args::Type::ConfigurationModulePath, Resource::String::ConfigurationModulePath, ArgumentType::Positional },
             Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::ConfigurationEnable, Resource::String::ConfigurationEnableMessage, ArgumentType::Flag, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::ConfigurationDisable, Resource::String::ConfigurationDisableMessage, ArgumentType::Flag, Argument::Visibility::Help },
@@ -89,9 +91,14 @@ namespace AppInstaller::CLI
                 throw CommandException(Resource::String::ConfigurationEnableArgumentError);
             }
         }
-        else if (!execArgs.Contains(Execution::Args::Type::ConfigurationFile))
+        else
         {
-            throw CommandException(Resource::String::RequiredArgError("file"_liv));
+            if (!execArgs.Contains(Execution::Args::Type::ConfigurationFile))
+            {
+                throw CommandException(Resource::String::RequiredArgError("file"_liv));
+            }
+
+            Configuration::ValidateCommonArguments(execArgs);
         }
     }
 }

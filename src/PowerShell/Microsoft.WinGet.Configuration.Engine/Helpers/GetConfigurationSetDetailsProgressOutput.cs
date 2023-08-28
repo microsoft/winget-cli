@@ -74,10 +74,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             {
                 GetConfigurationUnitDetailsResult unitResult = unitResults[this.UnitsShown];
                 this.LogFailedGetConfigurationUnitDetails(unitResult.Unit, unitResult.ResultInformation);
-                var information = new ConfigurationUnitInformation(unitResult.Unit);
-                this.cmd.Write(StreamType.Information, information.GetHeader());
-                this.cmd.Write(StreamType.Information, information.GetInformation());
-
                 ++this.UnitsShown;
                 this.cmd.WriteProgressWithPercentage(this.activityId, this.activity, $"{this.inProgressMessage} {this.UnitsShown}/{this.totalUnitsExpected}", this.UnitsShown, this.totalUnitsExpected);
             }

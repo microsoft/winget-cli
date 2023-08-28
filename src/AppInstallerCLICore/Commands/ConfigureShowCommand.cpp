@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigureShowCommand.h"
 #include "Workflows/ConfigurationFlow.h"
+#include "ConfigurationCommon.h"
 
 using namespace AppInstaller::CLI::Workflow;
 
@@ -13,6 +14,7 @@ namespace AppInstaller::CLI
         return {
             // Required for now, make exclusive when history implemented
             Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::ConfigurationModulePath, Resource::String::ConfigurationModulePath, ArgumentType::Positional },
         };
     }
 
@@ -39,5 +41,10 @@ namespace AppInstaller::CLI
             CreateConfigurationProcessor <<
             OpenConfigurationSet <<
             ShowConfigurationSet;
+    }
+
+    void ConfigureShowCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        Configuration::ValidateCommonArguments(execArgs);
     }
 }

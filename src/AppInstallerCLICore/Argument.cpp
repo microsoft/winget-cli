@@ -183,6 +183,8 @@ namespace AppInstaller::CLI
             return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
         case Execution::Args::Type::ConfigurationDisable:
             return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
+        case Execution::Args::Type::ConfigurationModulePath:
+            return { type, "module-path"_liv };
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:

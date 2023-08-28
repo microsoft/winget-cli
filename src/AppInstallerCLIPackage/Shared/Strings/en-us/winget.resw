@@ -2062,4 +2062,16 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="InstallerDownloadCommandProhibited" xml:space="preserve">
     <value>Installer is prohibited from being downloaded for later offline installation. </value>
   </data>
+  <data name="ConfigurationAllUsersElevated" xml:space="preserve">
+    <value>`--module-path allusers` requires administrator privileges to execute.</value>
+    <comment>{Locked="--module-path allusers"}</comment>
+  </data>
+  <data name="ConfigurationModulePath" xml:space="preserve">
+    <value>Specifies the location on the local computer to store modules. Default %LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules</value>
+    <comment>{Locked="allusers","currentuser","default","%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
+  </data>
+  <data name="ConfigurationModulePathArgError" xml:space="preserve">
+    <value>`--module-path` value must be `currentuser`, `allusers`, `default` or an absolute path.</value>
+    <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
+  </data>
 </root>

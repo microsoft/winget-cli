@@ -6,14 +6,9 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Management.Automation;
-    using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Moq;
-    using Windows.Security.Authentication.OnlineId;
     using Xunit;
     using Xunit.Abstractions;
     using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
@@ -120,6 +115,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             processorEnv.AppendPSModulePath(psModulePathInput);
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
             Assert.EndsWith($";{psModulePathInput}", psModulePath);
+
+            // No duplicates
+            processorEnv.AppendPSModulePath(psModulePathInput);
+            psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
+            Assert.False(psModulePath.EndsWith($";{psModulePathInput};{psModulePathInput}"));
+            Assert.EndsWith($";{psModulePathInput}", psModulePath);
         }
 
         /// <summary>
@@ -145,6 +146,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             processorEnv.AppendPSModulePaths(psModulePathInput);
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
             Assert.EndsWith($";{psModulePathExpected}", psModulePath);
+
+            // No duplicates
+            psModulePathInput = new List<string>()
+            {
+                "AppendPSModulePathsPath1",
+                "AppendPSModulePathsPath5",
+                "AppendPSModulePathsPath2",
+            };
+            processorEnv.AppendPSModulePaths(psModulePathInput);
+            psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
+            Assert.EndsWith($";{psModulePathExpected};AppendPSModulePathsPath5", psModulePath);
         }
 
         /// <summary>
@@ -161,6 +173,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             processorEnv.PrependPSModulePath(psModulePathInput);
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
+            Assert.StartsWith($"{psModulePathInput};", psModulePath);
+
+            // No duplicates
+            processorEnv.PrependPSModulePath(psModulePathInput);
+            psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
+            Assert.False(psModulePath.StartsWith($"{psModulePathInput};{psModulePathInput};"));
             Assert.StartsWith($"{psModulePathInput};", psModulePath);
         }
 
@@ -187,6 +205,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             processorEnv.PrependPSModulePaths(psModulePathInput);
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
             Assert.StartsWith($"{psModulePathExpected};", psModulePath);
+
+            // No duplicates
+            psModulePathInput = new List<string>()
+            {
+                "PrependPSModulePathsPath1",
+                "PrependPSModulePathsPath5",
+                "PrependPSModulePathsPath2",
+            };
+            processorEnv.PrependPSModulePaths(psModulePathInput);
+            psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
+            Assert.StartsWith($"PrependPSModulePathsPath5;{psModulePathExpected};", psModulePath);
         }
 
         /// <summary>

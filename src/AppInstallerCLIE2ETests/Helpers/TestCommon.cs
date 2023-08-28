@@ -7,11 +7,16 @@
 namespace AppInstallerCLIE2ETests.Helpers
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
+    using System.Management.Automation;
     using System.Reflection;
     using System.Threading;
+    using System.Xml.Linq;
     using AppInstallerCLIE2ETests;
+    using AppInstallerCLIE2ETests.PowerShell;
     using Microsoft.Management.Deployment;
     using Microsoft.Win32;
     using NUnit.Framework;
@@ -40,6 +45,37 @@ namespace AppInstallerCLIE2ETests.Helpers
             /// Machine.
             /// </summary>
             Machine,
+        }
+
+        /// <summary>
+        /// The type of location.
+        /// </summary>
+        public enum TestModuleLocation
+        {
+            /// <summary>
+            /// Current user.
+            /// </summary>
+            CurrentUser,
+
+            /// <summary>
+            /// All users.
+            /// </summary>
+            AllUsers,
+
+            /// <summary>
+            /// Winget module path.
+            /// </summary>
+            WinGetModulePath,
+
+            /// <summary>
+            /// Custom.
+            /// </summary>
+            Custom,
+
+            /// <summary>
+            /// Default winget configure.
+            /// </summary>
+            Default,
         }
 
         /// <summary>
@@ -809,24 +845,89 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="moduleName">The module.</param>
         /// <param name="present">Whether the module is present or not.</param>
         /// <param name="repository">The repository to get the module from if needed.</param>
-        public static void EnsureModuleState(string moduleName, bool present, string repository = null)
+        /// <param name="location">The location to install the module.</param>
+        public static void EnsureModuleState(string moduleName, bool present, string repository = null, TestCommon.TestModuleLocation location = TestModuleLocation.CurrentUser)
         {
-            var result = RunCommandWithResult("pwsh", $"-Command \"Get-Module {moduleName} -ListAvailable\"");
-            bool isPresent = !string.IsNullOrWhiteSpace(result.StdOut);
+            string wingetModulePath = TestCommon.GetExpectedModulePath(TestModuleLocation.WinGetModulePath);
+            string customPath = TestCommon.GetExpectedModulePath(TestModuleLocation.Custom);
 
-            if (isPresent && !present)
+            ICollection<PSModuleInfo> e2eModule;
+            bool isPresent = false;
             {
-                RunCommand("pwsh", $"-Command \"Uninstall-Module {moduleName}\"");
+                using var pwsh = new PowerShellHost(false);
+                pwsh.AddModulePath($"{wingetModulePath};{customPath}");
+
+                e2eModule = pwsh.PowerShell.AddCommand("Get-Module").AddParameter("Name", moduleName).AddParameter("ListAvailable").Invoke<PSModuleInfo>();
+                isPresent = e2eModule.Any();
             }
-            else if (!isPresent && present)
+
+            if (isPresent)
             {
-                if (string.IsNullOrEmpty(repository))
+                // If the module was saved in a different location we can't Uninstall-Module.
+                foreach (var module in e2eModule)
                 {
-                    RunCommand("pwsh", $"-Command \"Install-Module {moduleName} -Force\"");
+                    var moduleBase = module.Path;
+                    while (Path.GetFileName(moduleBase) != moduleName)
+                    {
+                        moduleBase = Path.GetDirectoryName(moduleBase);
+                    }
+
+                    if (!present)
+                    {
+                        Directory.Delete(moduleBase, true);
+                    }
+                    else
+                    {
+                        // Must be present in the right location.
+                        var expectedLocation = TestCommon.GetExpectedModulePath(location);
+                        if (!moduleBase.StartsWith(expectedLocation))
+                        {
+                            Directory.Delete(moduleBase, true);
+                            isPresent = false;
+                        }
+                    }
+                }
+            }
+
+            if (!isPresent && present)
+            {
+                if (location == TestModuleLocation.CurrentUser ||
+                    location == TestModuleLocation.AllUsers)
+                {
+                    using var pwsh = new PowerShellHost(false);
+                    pwsh.AddModulePath($"{wingetModulePath};{customPath}");
+                    pwsh.PowerShell.AddCommand("Install-Module").AddParameter("Name", moduleName).AddParameter("Force");
+
+                    if (!string.IsNullOrEmpty(repository))
+                    {
+                        pwsh.PowerShell.AddParameter("Repository", repository);
+                    }
+
+                    if (location == TestModuleLocation.AllUsers)
+                    {
+                        pwsh.PowerShell.AddParameter("Scope", "AllUsers");
+                    }
+
+                    _ = pwsh.PowerShell.Invoke();
                 }
                 else
                 {
-                    RunCommand("pwsh", $"-Command \"Install-Module {moduleName} -Repository {repository} -Force\"");
+                    string path = customPath;
+                    if (location == TestModuleLocation.WinGetModulePath)
+                    {
+                        path = wingetModulePath;
+                    }
+
+                    using var pwsh = new PowerShellHost(false);
+                    pwsh.AddModulePath($"{wingetModulePath};{customPath}");
+                    pwsh.PowerShell.AddCommand("Save-Module").AddParameter("Name", moduleName).AddParameter("Path", path).AddParameter("Force");
+
+                    if (!string.IsNullOrEmpty(repository))
+                    {
+                        pwsh.PowerShell.AddParameter("Repository", repository);
+                    }
+
+                    _ = pwsh.PowerShell.Invoke();
                 }
             }
         }
@@ -896,6 +997,29 @@ namespace AppInstallerCLIE2ETests.Helpers
             {
                 string temppath = Path.Combine(destDirName, subdir.Name);
                 CopyDirectory(subdir.FullName, temppath);
+            }
+        }
+
+        /// <summary>
+        /// Gets the expected module path.
+        /// </summary>
+        /// <param name="location">Location.</param>
+        /// <returns>The expected path of the module.</returns>
+        public static string GetExpectedModulePath(TestModuleLocation location)
+        {
+            switch (location)
+            {
+                case TestModuleLocation.CurrentUser:
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"PowerShell\Modules");
+                case TestModuleLocation.AllUsers:
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"PowerShell\Modules");
+                case TestModuleLocation.WinGetModulePath:
+                case TestModuleLocation.Default:
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Microsoft\WinGet\Configuration\Modules");
+                case TestModuleLocation.Custom:
+                    return Path.Combine(Path.GetTempPath(), "E2ECustomModules");
+                default:
+                    throw new ArgumentException(location.ToString());
             }
         }
 

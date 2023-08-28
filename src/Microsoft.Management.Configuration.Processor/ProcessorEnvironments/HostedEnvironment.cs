@@ -33,6 +33,9 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         private readonly PowerShellConfigurationProcessorType type;
         private readonly IPowerShellGet powerShellGet;
 
+        private PowerShellConfigurationProcessorLocation location = PowerShellConfigurationProcessorLocation.CurrentUser;
+        private string? customLocation;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="HostedEnvironment"/> class.
         /// </summary>
@@ -326,9 +329,21 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <inheritdoc/>
         public void InstallModule(PSObject inputObject)
         {
-            using PowerShell pwsh = PowerShell.Create(this.Runspace);
-            this.powerShellGet.InstallModule(pwsh, inputObject);
-            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
+            if (this.location == PowerShellConfigurationProcessorLocation.Custom)
+            {
+                if (string.IsNullOrEmpty(this.customLocation))
+                {
+                    throw new ArgumentNullException(nameof(this.customLocation));
+                }
+
+                this.SaveModule(inputObject, this.customLocation);
+            }
+            else
+            {
+                using PowerShell pwsh = PowerShell.Create(this.Runspace);
+                this.powerShellGet.InstallModule(pwsh, inputObject, this.location == PowerShellConfigurationProcessorLocation.AllUsers);
+                this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
+            }
         }
 
         /// <inheritdoc/>
@@ -338,9 +353,21 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             if (!this.ValidateModule(moduleSpecification))
             {
                 // Ok, we have to get it.
-                using PowerShell pwsh = PowerShell.Create(this.Runspace);
-                this.powerShellGet.InstallModule(pwsh, moduleSpecification);
-                this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
+                if (this.location == PowerShellConfigurationProcessorLocation.Custom)
+                {
+                    if (string.IsNullOrEmpty(this.customLocation))
+                    {
+                        throw new ArgumentNullException(nameof(this.customLocation));
+                    }
+
+                    this.SaveModule(moduleSpecification, this.customLocation);
+                }
+                else
+                {
+                    using PowerShell pwsh = PowerShell.Create(this.Runspace);
+                    this.powerShellGet.InstallModule(pwsh, moduleSpecification, this.location == PowerShellConfigurationProcessorLocation.AllUsers);
+                    this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
+                }
             }
         }
 
@@ -399,29 +426,59 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <inheritdoc/>
         public void PrependPSModulePath(string path)
         {
-            string oldModulePath = this.GetVariable<string>(Variables.PSModulePath);
-            this.SetPSModulePath($"{path};{oldModulePath}");
+            var oldModulePath = this.GetModulePaths();
+            if (!oldModulePath.Contains(path))
+            {
+                this.SetPSModulePath($"{path};{string.Join(";", oldModulePath)}");
+            }
         }
 
         /// <inheritdoc/>
         public void PrependPSModulePaths(IReadOnlyList<string> paths)
         {
-            string oldModulePath = this.GetVariable<string>(Variables.PSModulePath);
-            this.SetPSModulePath($"{string.Join(";", paths)};{oldModulePath}");
+            var newPaths = paths.ToList();
+            var oldModulePath = this.GetModulePaths();
+            foreach (var newPath in paths)
+            {
+                if (oldModulePath.Contains(newPath))
+                {
+                    newPaths.Remove(newPath);
+                }
+            }
+
+            if (newPaths.Any())
+            {
+                this.SetPSModulePath($"{string.Join(";", newPaths)};{string.Join(";", oldModulePath)}");
+            }
         }
 
         /// <inheritdoc/>
         public void AppendPSModulePath(string path)
         {
-            string oldModulePath = this.GetVariable<string>(Variables.PSModulePath);
-            this.SetPSModulePath($"{oldModulePath};{path}");
+            var oldModulePath = this.GetModulePaths();
+            if (!oldModulePath.Contains(path))
+            {
+                this.SetPSModulePath($"{string.Join(";", oldModulePath)};{path}");
+            }
         }
 
         /// <inheritdoc/>
         public void AppendPSModulePaths(IReadOnlyList<string> paths)
         {
-            string oldModulePath = this.GetVariable<string>(Variables.PSModulePath);
-            this.SetPSModulePath($"{oldModulePath};{string.Join(";", paths)}");
+            var newPaths = paths.ToList();
+            var oldModulePath = this.GetModulePaths();
+            foreach (var newPath in paths)
+            {
+                if (oldModulePath.Contains(newPath))
+                {
+                    newPaths.Remove(newPath);
+                }
+            }
+
+            if (newPaths.Any())
+            {
+                this.SetPSModulePath($"{string.Join(";", oldModulePath)};{string.Join(";", newPaths)}");
+            }
         }
 
         /// <inheritdoc/>
@@ -432,6 +489,21 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                                        .Replace($";{path}", null);
 
             this.SetPSModulePath(newModulePath);
+        }
+
+        /// <inheritdoc/>
+        public void SetLocation(PowerShellConfigurationProcessorLocation location, string? customLocation)
+        {
+            this.location = location;
+            if (this.location == PowerShellConfigurationProcessorLocation.Custom)
+            {
+                if (string.IsNullOrEmpty(customLocation))
+                {
+                    throw new ArgumentNullException(nameof(customLocation));
+                }
+
+                this.customLocation = customLocation;
+            }
         }
 
         private bool ValidateModule(ModuleSpecification moduleSpecification)
@@ -460,6 +532,11 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         private void OnDiagnostics(DiagnosticLevel level, string message)
         {
             this.SetProcessorFactory?.OnDiagnostics(level, message);
+        }
+
+        private HashSet<string> GetModulePaths()
+        {
+            return this.GetVariable<string>(Variables.PSModulePath).Split(";").ToHashSet<string>();
         }
     }
 }

@@ -64,6 +64,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 var dscResourceInfo = this.PrepareUnitForProcessing(configurationUnitInternal);
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, "... done creating unit processor.");
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Using unit from location: {dscResourceInfo.Path}");
                 return new ConfigurationUnitProcessor(
                     this.ProcessorEnvironment,
                     new ConfigurationUnitAndResource(configurationUnitInternal, dscResourceInfo))

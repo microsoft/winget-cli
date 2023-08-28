@@ -17,6 +17,8 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     /// </summary>
     internal class PowerShellGetV2 : IPowerShellGet
     {
+        private const string AllUsers = "AllUsers";
+
         /// <inheritdoc/>
         public PSObject? FindModule(
             PowerShell pwsh,
@@ -181,8 +183,19 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// <inheritdoc/>
         public void InstallModule(
             PowerShell pwsh,
-            PSObject inputObject)
+            PSObject inputObject,
+            bool allUsers)
         {
+            var parameters = new Dictionary<string, object>()
+            {
+                { Parameters.InputObject, inputObject },
+            };
+
+            if (allUsers)
+            {
+                parameters.Add(Parameters.Scope, AllUsers);
+            }
+
             // If the repository is untrusted, it will fail with:
             //   Microsoft.PowerShell.Commands.WriteErrorException : Exception calling "ShouldContinue" with "5"
             //   argument(s): "A command that prompts the user failed because the host program or the command type
@@ -191,7 +204,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             // TODO: Once we have policies, we should remove Force. For hosted environments and depending
             // on the policy we will trust PSGallery when we create the Runspace or add Force here.
             _ = pwsh.AddCommand(Commands.InstallModule)
-                    .AddParameter(Parameters.InputObject, inputObject)
+                    .AddParameters(parameters)
                     .AddParameter(Parameters.Force)
                     .Invoke();
         }
@@ -199,12 +212,14 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// <inheritdoc/>
         public void InstallModule(
             PowerShell pwsh,
-            ModuleSpecification moduleSpecification)
+            ModuleSpecification moduleSpecification,
+            bool allUsers)
         {
             var parameters = new Dictionary<string, object>()
-                {
-                    { Parameters.Name, moduleSpecification.Name },
-                };
+            {
+                { Parameters.Name, moduleSpecification.Name },
+            };
+
             if (moduleSpecification.Version is not null)
             {
                 parameters.Add(Parameters.MinimumVersion, moduleSpecification.Version);
@@ -218,6 +233,11 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             if (moduleSpecification.RequiredVersion is not null)
             {
                 parameters.Add(Parameters.RequiredVersion, moduleSpecification.RequiredVersion);
+            }
+
+            if (allUsers)
+            {
+                parameters.Add(Parameters.Scope, AllUsers);
             }
 
             _ = pwsh.AddCommand(Commands.InstallModule)

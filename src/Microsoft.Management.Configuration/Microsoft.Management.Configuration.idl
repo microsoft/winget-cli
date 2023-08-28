@@ -757,6 +757,15 @@ namespace Microsoft.Management.Configuration
             Default = RemoteSigned,
         };
 
+        enum PwshConfigurationProcessorLocation
+        {
+            CurrentUser = 0,
+            AllUsers = 1,
+            WinGetModulePath = 2,
+            Custom = 3,
+            Default = WinGetModulePath,
+        };
+
         // The properties provided by the "pwsh" processor factory.
         interface IPwshConfigurationSetProcessorFactoryProperties
         {
@@ -766,6 +775,12 @@ namespace Microsoft.Management.Configuration
 
             // The execution policy to apply; must be set before taking actions with the processor.
             PwshConfigurationProcessorPolicy Policy;
+
+            // The location to install modules. Default is WinGetModulePath
+            PwshConfigurationProcessorLocation Location;
+
+            // The custom location. Only applicable for Scope.Custom
+            String CustomLocation;
         };
     }
 }

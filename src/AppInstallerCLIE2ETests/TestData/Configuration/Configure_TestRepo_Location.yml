@@ -1,0 +1,8 @@
+properties:
+    configurationVersion: 0.2
+    assertions:
+      - resource: xE2ETestResource/E2ETestResource
+        directives:
+          repository: AppInstallerCLIE2ETestsRepo
+        settings:
+          SecretCode: 4815162342
