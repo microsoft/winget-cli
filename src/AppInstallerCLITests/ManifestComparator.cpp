@@ -812,6 +812,17 @@ TEST_CASE("ManifestComparator_InstallerType", "[manifest_comparator]")
         RequireInstaller(result, exe);
         REQUIRE(inapplicabilities.size() == 0);
     }
+    SECTION("Multiple preferences alternate order")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallerTypePreference>({ InstallerTypeEnum::Msix, InstallerTypeEnum::Exe });
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, msix);
+        REQUIRE(inapplicabilities.size() == 0);
+    }
     SECTION("Exe requirement")
     {
         TestUserSettings settings;

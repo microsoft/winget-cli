@@ -291,11 +291,6 @@ namespace AppInstaller::CLI::Workflow
                 return result;
             }
 
-            bool ContainsInstallerType(const std::vector<InstallerTypeEnum>& selection, InstallerTypeEnum installerType)
-            {
-                return std::find(selection.begin(), selection.end(), installerType) != selection.end();
-            }
-
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
                 if (!m_requirement.empty())
@@ -322,22 +317,28 @@ namespace AppInstaller::CLI::Workflow
                     return false;
                 }
 
-                bool isFirstInstallerTypePreferred =
-                    ContainsInstallerType(m_preference, first.EffectiveInstallerType()) ||
-                    ContainsInstallerType(m_preference, first.BaseInstallerType);
-
-                bool isSecondInstallerTypePreferred = 
-                    ContainsInstallerType(m_preference, second.EffectiveInstallerType()) ||
-                    ContainsInstallerType(m_preference, second.BaseInstallerType);
-
-                if (isFirstInstallerTypePreferred == isSecondInstallerTypePreferred)
+                for (Manifest::InstallerTypeEnum installerTypePreference : m_preference)
                 {
-                    return false;
+                    bool isFirstInstallerTypePreferred =
+                        first.EffectiveInstallerType() == installerTypePreference ||
+                        first.BaseInstallerType == installerTypePreference;
+
+                    bool isSecondInstallerTypePreferred =
+                        second.EffectiveInstallerType() == installerTypePreference ||
+                        second.BaseInstallerType == installerTypePreference;
+
+                    if (isFirstInstallerTypePreferred && isSecondInstallerTypePreferred)
+                    {
+                        return false;
+                    }
+
+                    if (isFirstInstallerTypePreferred != isSecondInstallerTypePreferred)
+                    {
+                        return isFirstInstallerTypePreferred > isSecondInstallerTypePreferred;
+                    }
                 }
-                else
-                {
-                    return isFirstInstallerTypePreferred;
-                }
+
+                return false;
             }
 
         private:
@@ -345,6 +346,11 @@ namespace AppInstaller::CLI::Workflow
             std::vector<InstallerTypeEnum> m_requirement;
             std::string m_preferenceAsString;
             std::string m_requirementAsString;
+
+            bool ContainsInstallerType(const std::vector<InstallerTypeEnum>& selection, InstallerTypeEnum installerType)
+            {
+                return std::find(selection.begin(), selection.end(), installerType) != selection.end();
+            }
         };
 
         struct InstalledTypeComparator : public details::ComparisonField
@@ -757,11 +763,11 @@ namespace AppInstaller::CLI::Workflow
 
         // Filter order is not important, but comparison order determines priority.
         // TODO: There are improvements to be made here around ordering, especially in the context of implicit vs explicit vs command line preferences.
-        AddComparator(InstallerTypeComparator::Create(context.Args));
         AddComparator(InstalledTypeComparator::Create(installationMetadata));
         AddComparator(LocaleComparator::Create(context.Args, installationMetadata));
         AddComparator(ScopeComparator::Create(context));
         AddComparator(MachineArchitectureComparator::Create(context, installationMetadata));
+        AddComparator(InstallerTypeComparator::Create(context.Args));
     }
 
     InstallerAndInapplicabilities ManifestComparator::GetPreferredInstaller(const Manifest::Manifest& manifest)
