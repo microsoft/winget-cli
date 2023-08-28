@@ -214,6 +214,11 @@
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
           "type": "boolean",
           "default": false
+        },
+        "configuration": {
+          "description": "Enable support for configuration",
+          "type": "boolean",
+          "default": false
         }
       }
     }
