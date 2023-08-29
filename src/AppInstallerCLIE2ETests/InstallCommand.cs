@@ -704,7 +704,7 @@ namespace AppInstallerCLIE2ETests
 
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), "/S");
         }
 
         /// <summary>
