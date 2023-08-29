@@ -251,16 +251,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### dependencies
-
-Experimental feature with the aim of managing dependencies, as of now it only shows package dependency information. You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "dependencies": true
-   },
-```
-
 ### configuration
 
 This feature enables the configuration commands. These commands allow configuring the system into a desired state.
@@ -269,27 +259,5 @@ You can enable the feature as shown below.
 ```json
    "experimentalFeatures": {
        "configuration": true
-   },
-```
-
-### windowsFeature
-
-This feature enables the ability to enable Windows Feature dependencies during installation.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "windowsFeature": true
-   },
-```
-
-### download
-
-This feature enables the download command. This command allows users to download the installers of a specified package.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "download": true
    },
 ```
