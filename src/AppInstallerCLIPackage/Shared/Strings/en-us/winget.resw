@@ -1695,7 +1695,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
   <data name="UpgradeBlockedByManifest" xml:space="preserve">
-    <value>The package cannot be upgraded using winget. Please use the method provided by the publisher for updating this package.</value>
+    <value>The package cannot be upgraded using winget. Please use the method provided by the publisher for upgrading this package.</value>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if they have a non-blocking pin</value>

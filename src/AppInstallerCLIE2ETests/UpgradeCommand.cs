@@ -117,13 +117,13 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void UpgradeBehaviorDeny()
         {
-            string packageId = "AppInstallerTest.TestPortableExe";
+            string packageId = "AppInstallerTest.TestUpgradeDeny";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
 
-            var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 4.0.0.0");
+            var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
             Assert.AreEqual(Constants.ErrorCode.APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("package cannot be upgraded using winget"));
         }

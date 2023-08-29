@@ -1,10 +1,10 @@
-PackageIdentifier: AppInstallerTest.TestPortableExe
-PackageVersion: 4.0.0.0
-PackageName: TestPortableExe
+PackageIdentifier: AppInstallerTest.TestUpgradeDeny
+PackageVersion: 1.0.0.0
+PackageName: TestUpgradeDeny
 PackageLocale: en-US
 Publisher: AppInstallerTest
 License: Test
-ShortDescription: E2E test for portable install.
+ShortDescription: E2E test for upgrade deny.
 Installers:
   - Architecture: x64
     InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
