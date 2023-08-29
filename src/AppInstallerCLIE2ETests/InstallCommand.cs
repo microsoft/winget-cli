@@ -693,7 +693,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallWithInstallerTypePreference()
         {
-            string[] installerTypePreference = { "exe" };
+            string[] installerTypePreference = { "nullsoft" };
             WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallerTypes, installerTypePreference);
 
             string installDir = TestCommon.GetRandomTestDir();
@@ -704,7 +704,7 @@ namespace AppInstallerCLIE2ETests
 
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         /// <summary>
