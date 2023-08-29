@@ -10,6 +10,7 @@
 
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::Repository::Microsoft;
 
 namespace AppInstaller::Checkpoints
 {
@@ -57,6 +58,8 @@ namespace AppInstaller::Checkpoints
         std::map<std::string, std::vector<std::string>> m_values;
     };
 
+    // The other enum would be execution context data.
+
     // Enum to define the types of checkpoint data
     enum AutomaticCheckpointData
     {
@@ -91,13 +94,9 @@ namespace AppInstaller::Checkpoints
         // Returns a value indicating whether the record is empty.
         bool IsEmpty();
 
-        Checkpoint<CheckpointDataEnum> GetStartingCheckpoint()
-        {
-            // Gets the checkpoint metadata 
-        }
+        Checkpoint<AutomaticCheckpointData> GetStartingCheckpoint();
 
         std::map<std::string, Checkpoint<CLI::Execution::Data>> GetCheckpoints();
-
 
     private:
         // Constructor used to open an existing index.
@@ -128,17 +127,23 @@ namespace AppInstaller::Checkpoints
 
         CheckpointData GetData(T type)
         {
-
+            return m_checkpointDataMap[type];
         }
 
         std::vector<T> GetCheckpointDataTypes()
         {
+            std::vector<T> dataTypes;
+            for (const auto& data : m_checkpointDataMap)
+            {
+                dataTypes.emplace_back(data.first);
+            }
 
+            return dataTypes;
         }
 
     private:
         Checkpoint(SQLite::rowid_t id) : m_rowid(id) {};
         SQLite::rowid_t m_rowId;
-        std::vector<CheckpointData> m_checkpointData;
+        std::map<T, CheckpointData> m_checkpointDataMap;
     };
 }

@@ -77,7 +77,17 @@ namespace AppInstaller::Checkpoints
         return m_interface->IsEmpty(m_dbconn);
     }
 
-    
+    Checkpoint<AutomaticCheckpointData> CheckpointRecord::GetStartingCheckpoint()
+    {
+        // Get just the initial first checkpoint.
+        return m_interface->GetCheckpointByName("start"sv);
+    }
+
+    std::map<std::string, Checkpoint<CLI::Execution::Data>> CheckpointRecord::GetCheckpoints()
+    {
+        // Get all of the available data items for a checkpoint....
+        return m_interface->GetCheckpoints();
+    }
 
     std::unique_ptr<Schema::ICheckpointRecord> CheckpointRecord::CreateICheckpointRecord() const
     {
