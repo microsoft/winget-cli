@@ -481,8 +481,11 @@ namespace AppInstallerCLIE2ETests.Helpers
             bool shouldExist,
             Scope scope = Scope.User)
         {
+            // When portables are installed, if the exe path is inside a directory it will not be aliased
+            // if the exe path is at the root level, it will be aliased. Therefore, if either exist, the exe exists
             string exePath = Path.Combine(installDir, filename);
-            bool exeExists = File.Exists(exePath);
+            string exeAliasedPath = Path.Combine(installDir, commandAlias);
+            bool exeExists = File.Exists(exePath) || File.Exists(exeAliasedPath);
 
             string symlinkDirectory = GetPortableSymlinkDirectory(scope);
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
