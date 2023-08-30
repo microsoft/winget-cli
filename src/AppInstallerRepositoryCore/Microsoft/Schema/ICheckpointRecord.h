@@ -22,18 +22,13 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         virtual std::vector<std::string> GetAvailableCheckpoints(SQLite::Connection& connection) = 0;
 
-        virtual std::map<int, std::vector<std::string>> GetContextDataByContextId(SQLite::Connection& connection, std::string checkpointName, int64_t dataId) = 0;
+        virtual std::map<std::string, std::vector<std::string>> GetContextDataByContextId(SQLite::Connection& connection, std::string checkpointName, int64_t dataId) = 0;
 
         virtual std::vector<int> GetAvailableDataTypes(SQLite::Connection& connection, std::string checkpointName) = 0;
 
-
-
-        // Adding a checkpoint
-
-        virtual SQLite::rowid_t AddCheckpoint(SQLite::Connection& connection) = 0;
+        virtual SQLite::rowid_t AddCheckpoint(SQLite::Connection& connection, std::string checkpointName) = 0;
 
         virtual void AddContextData(SQLite::Connection& connection, std::string checkpointName, int dataId, std::string name, std::vector<std::string> values) = 0;
-
 
         // Sets the metadata value.
         //virtual SQLite::rowid_t SetMetadata(SQLite::Connection& connection, std::string_view name, std::string_view value) = 0;

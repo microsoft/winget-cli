@@ -16,7 +16,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         std::vector<std::string> GetAvailableCheckpoints(SQLite::Connection& connection) override;
 
-        std::map<int, std::vector<std::string>> GetContextDataByContextId(SQLite::Connection& connection, std::string checkpointName, int64_t dataId) override;
+        std::map<std::string, std::vector<std::string>> GetContextDataByContextId(SQLite::Connection& connection, std::string checkpointName, int64_t dataId) override;
 
         std::vector<int> GetAvailableDataTypes(SQLite::Connection& connection, std::string checkpointName) override;
 

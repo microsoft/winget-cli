@@ -13,6 +13,8 @@ namespace AppInstaller::Checkpoints
     namespace
     {
         constexpr std::string_view s_checkpoints_filename = "checkpoints.db"sv;
+        constexpr std::string_view s_StartCheckpoint = "start"sv;
+
 
         constexpr std::string_view s_Checkpoints = "Checkpoints"sv;
         constexpr std::string_view s_ClientVersion = "ClientVersion"sv;
@@ -79,6 +81,11 @@ namespace AppInstaller::Checkpoints
 
     Checkpoint<AutomaticCheckpointData> CheckpointRecord::GetStartingCheckpoint()
     {
+        int rowId = GetCheckpointIdByName(s_StartCheckpoint);
+        Checkpoint<AutomaticCheckpointData> checkpoint{ rowId };
+        checkpoint.GetData(AutomaticCheckpointData::Arguments);
+
+
         // Get just the initial first checkpoint.
         return m_interface->GetCheckpointByName("start"sv);
     }
