@@ -406,7 +406,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         std::optional<std::string> updateBehavior = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(UpgradeBehavior));
         if (updateBehavior)
         {
-            installer.UpdateBehavior = Manifest::ConvertToUpdateBehaviorEnum(updateBehavior.value());
+            installer.UpdateBehavior = ConvertToUpdateBehavior(updateBehavior.value());
         }
 
         installer.Commands = ConvertToManifestStringArray(JSON::GetRawStringArrayFromJsonNode(installerJsonObject, JSON::GetUtilityString(Commands)));
@@ -516,6 +516,22 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         return InstallerTypeEnum::Unknown;
+    }
+
+    Manifest::UpdateBehaviorEnum ManifestDeserializer::ConvertToUpdateBehavior(std::string_view in) const
+    {
+        std::string inStrLower = Utility::ToLower(in);
+
+        if (inStrLower == "install")
+        {
+            return UpdateBehaviorEnum::Install;
+        }
+        else if (inStrLower == "uninstallprevious")
+        {
+            return UpdateBehaviorEnum::UninstallPrevious;
+        }
+
+        return UpdateBehaviorEnum::Unknown;
     }
 
     std::vector<Manifest::string_t> ManifestDeserializer::ConvertToManifestStringArray(const std::vector<std::string>& values) const
