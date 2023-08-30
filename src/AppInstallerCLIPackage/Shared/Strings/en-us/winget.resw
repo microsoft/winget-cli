@@ -261,6 +261,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filter results by id</value>
   </data>
+  <data name="IgnoreWarningsArgumentDescription" xml:space="preserve">
+    <value>Suppresses warning outputs.</value>
+  </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
     <value>This application is licensed to you by its owner.</value>
   </data>
