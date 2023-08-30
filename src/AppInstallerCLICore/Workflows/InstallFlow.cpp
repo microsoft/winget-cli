@@ -594,6 +594,17 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION);
         }
 
+        // This installer cannot be used to upgrade the currently installed application
+        // Because the upgrade mechanism may be package-specific, simply block.
+        bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+        UpdateBehaviorEnum updateBehavior = installer->UpdateBehavior;
+        if (isUpdate && (updateBehavior == UpdateBehaviorEnum::Deny))
+        {
+            AICLI_LOG(CLI, Info, << "Manifest specifies update behavior is denied. The attempt will be cancelled.");
+            context.Reporter.Error() << Resource::String::UpgradeBlockedByManifest << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED);
+        }
+
         context <<
             Workflow::EnsureRunningAsAdminForMachineScopeInstall <<
             Workflow::EnsureSupportForPortableInstall <<

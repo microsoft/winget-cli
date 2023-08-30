@@ -178,6 +178,10 @@ namespace AppInstaller::Manifest
         {
             result = UpdateBehaviorEnum::UninstallPrevious;
         }
+        else if (Utility::CaseInsensitiveEquals(in, "deny"))
+        {
+            result = UpdateBehaviorEnum::Deny;
+        }
 
         return result;
     }
@@ -641,6 +645,8 @@ namespace AppInstaller::Manifest
             return "install"sv;
         case UpdateBehaviorEnum::UninstallPrevious:
             return "uninstallPrevious"sv;
+        case UpdateBehaviorEnum::Deny:
+            return "deny"sv;
         }
 
         return "unknown"sv;

@@ -96,6 +96,7 @@ namespace AppInstaller::Manifest
         Unknown,
         Install,
         UninstallPrevious,
+        Deny,
     };
 
     enum class InstallerSwitchType
