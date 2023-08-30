@@ -474,6 +474,16 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_5.begin(), fields_v1_5.end(), std::inserter(result, result.end()));
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_6 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_6 =
+                {
+                    { "DonationUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::DonationUrl>(value.as<std::string>()); return {}; } },
+                };
+
+                std::move(fields_v1_6.begin(), fields_v1_6.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;

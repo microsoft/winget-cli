@@ -37,6 +37,7 @@ Localization:
   PublisherUrl: https://localePublisherUrl.com
   Moniker: localeMoniker
   PurchaseUrl: https://localePurchaseUrl.com
+  DonationUrl: https://localeDonationUrl.com
   ReleaseNotes: localeReleaseNotes
   ReleaseNotesUrl: https://localeReleaseNotesUrl.com
   Agreements:

@@ -95,6 +95,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual("testDescription", catalogPackageMetadata.Description);
             Assert.AreEqual("testShortDescription", catalogPackageMetadata.ShortDescription);
             Assert.AreEqual("https://testPurchaseUrl.com", catalogPackageMetadata.PurchaseUrl);
+            Assert.AreEqual("https://testDonationUrl.com", catalogPackageMetadata.DonationUrl);
 
             var tags = catalogPackageMetadata.Tags;
             Assert.AreEqual(2, tags.Count);
@@ -164,6 +165,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual("localeReleaseNotes", catalogPackageMetadata.ReleaseNotes);
             Assert.AreEqual("https://localeReleaseNotesUrl.com", catalogPackageMetadata.ReleaseNotesUrl);
             Assert.AreEqual("https://localePurchaseUrl.com", catalogPackageMetadata.PurchaseUrl);
+            Assert.AreEqual("https://localeDonationUrl.com", catalogPackageMetadata.DonationUrl);
 
             var tags = catalogPackageMetadata.Tags;
             Assert.AreEqual(2, tags.Count);

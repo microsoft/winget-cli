@@ -83,6 +83,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return winrt::to_hstring(m_manifestLocalization.Get<Localization::PurchaseUrl>());
     }
+    hstring CatalogPackageMetadata::DonationUrl()
+    {
+        return winrt::to_hstring(m_manifestLocalization.Get<Localization::DonationUrl>());
+    }
     hstring CatalogPackageMetadata::InstallationNotes()
     {
         return winrt::to_hstring(m_manifestLocalization.Get<Localization::InstallationNotes>());

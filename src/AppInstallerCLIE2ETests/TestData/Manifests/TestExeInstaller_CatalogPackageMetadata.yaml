@@ -34,6 +34,7 @@ CopyrightUrl: https://testCopyrightUrl.com
 Description: testDescription
 Moniker: testMoniker
 PurchaseUrl: https://testPurchaseUrl.com
+DonationUrl: https://testDonationUrl.com
 Tags:
   - "tag1"
   - "tag2"
@@ -50,4 +51,4 @@ Icons:
     IconTheme: default
     IconSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123
 ManifestType: singleton
-ManifestVersion: 1.5.0
+ManifestVersion: 1.6.0

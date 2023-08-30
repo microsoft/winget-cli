@@ -8,6 +8,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_6::Json
     // Manifest Deserializer.
     struct ManifestDeserializer : public V1_5::Json::ManifestDeserializer
     {
+        std::optional<Manifest::ManifestLocalization> DeserializeLocale(const web::json::value& localeJsonObject) const override;
+
     protected:
 
         std::optional<Manifest::ManifestInstaller> DeserializeInstaller(const web::json::value& installerJsonObject) const override;

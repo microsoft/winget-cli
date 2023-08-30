@@ -73,6 +73,7 @@ namespace
                     "AgreementUrl": "https://DefaultAgreementUrl.net"
                   }],
                   "PurchaseUrl": "http://DefaultPurchaseUrl.net",
+                  "DonationUrl": "http://DefaultDonationUrl.net",
                   "InstallationNotes": "Default Installation Notes",
                   "Documentations": [{
                     "DocumentLabel": "Default Document Label",
@@ -116,6 +117,7 @@ namespace
                       "AgreementUrl": "https://AgreementUrl.net"
                     }],
                     "PurchaseUrl": "http://purchaseUrl.net",
+                    "DonationUrl": "http://donationUrl.net",
                     "InstallationNotes": "Installation Notes",
                     "Documentations": [{
                       "DocumentLabel": "Document Label",
@@ -261,6 +263,7 @@ namespace
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementText == "DefaultText");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementUrl == "https://DefaultAgreementUrl.net");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::PurchaseUrl>() == "http://DefaultPurchaseUrl.net");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::DonationUrl>() == "http://DefaultDonationUrl.net");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::InstallationNotes>() == "Default Installation Notes");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().size() == 1);
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentLabel == "Default Document Label");
@@ -299,6 +302,7 @@ namespace
             REQUIRE(frenchLocalization.Get<Localization::Agreements>().at(0).AgreementText == "Text");
             REQUIRE(frenchLocalization.Get<Localization::Agreements>().at(0).AgreementUrl == "https://AgreementUrl.net");
             REQUIRE(frenchLocalization.Get<Localization::PurchaseUrl>() == "http://purchaseUrl.net");
+            REQUIRE(frenchLocalization.Get<Localization::DonationUrl>() == "http://donationUrl.net");
             REQUIRE(frenchLocalization.Get<Localization::InstallationNotes>() == "Installation Notes");
             REQUIRE(frenchLocalization.Get<Localization::Documentations>().size() == 1);
             REQUIRE(frenchLocalization.Get<Localization::Documentations>().at(0).DocumentLabel == "Document Label");

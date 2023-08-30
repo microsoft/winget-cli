@@ -97,6 +97,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view Localization = "Localization"sv;
         constexpr std::string_view InstallationNotes = "InstallationNotes"sv;
         constexpr std::string_view PurchaseUrl = "PurchaseUrl"sv;
+        constexpr std::string_view DonationUrl = "DonationUrl"sv;
         constexpr std::string_view Documentations = "Documentations"sv;
         constexpr std::string_view DocumentLabel = "DocumentLabel"sv;
         constexpr std::string_view DocumentUrl = "DocumentUrl"sv;
@@ -249,6 +250,7 @@ namespace AppInstaller::Manifest::YamlWriter
             WRITE_PROPERTY_IF_EXISTS(out, PublisherSupportUrl, manifest.Get<Localization::PublisherSupportUrl>());
             WRITE_PROPERTY_IF_EXISTS(out, PublisherUrl, manifest.Get<Localization::PublisherUrl>());
             WRITE_PROPERTY_IF_EXISTS(out, PurchaseUrl, manifest.Get<Localization::PurchaseUrl>());
+            WRITE_PROPERTY_IF_EXISTS(out, DonationUrl, manifest.Get<Localization::DonationUrl>());
             WRITE_PROPERTY_IF_EXISTS(out, ReleaseNotes, manifest.Get<Localization::ReleaseNotes>());
             WRITE_PROPERTY_IF_EXISTS(out, ReleaseNotesUrl, manifest.Get<Localization::ReleaseNotesUrl>());
             WRITE_PROPERTY_IF_EXISTS(out, InstallationNotes, manifest.Get<Localization::InstallationNotes>());

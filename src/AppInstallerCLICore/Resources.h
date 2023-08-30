@@ -445,6 +445,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDocumentation);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelDonationUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelExternalDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallationNotes);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstaller);

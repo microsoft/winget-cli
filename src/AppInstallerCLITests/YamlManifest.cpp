@@ -444,6 +444,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123"));
     }
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+    {
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::DonationUrl>() == "https://DefaultDonationUrl.com");
+    }
+
     if (!isExported)
     {
         REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
@@ -756,6 +761,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(localization1.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square32);
             REQUIRE(localization1.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Light);
             REQUIRE(localization1.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"));
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+        {
+            REQUIRE(localization1.Get<Localization::DonationUrl>() == "https://DefaultDonationUrl.com");
         }
     }
 }

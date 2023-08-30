@@ -57,6 +57,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         hstring PurchaseUrl();
 
+        hstring DonationUrl();
+
         hstring InstallationNotes();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

@@ -917,6 +917,10 @@
       "$ref": "#/$defs/Url",
       "description": "The purchase url for acquiring entitlement for the package."
     },
+    "DonationUrl": {
+      "$ref": "#/$defs/Url",
+      "description": "The url for making a donation to the publisher, author, or maintainer of the package."
+    },
     "InstallationNotes": {
       "type": [ "string", "null" ],
       "minLength": 1,

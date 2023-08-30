@@ -20,6 +20,7 @@ Tags:
 ReleaseNotes: Release notes
 ReleaseNotesUrl: https://ReleaseNotes.net
 PurchaseUrl: https://DefaultPurchaseUrl.com
+DonationUrl: https://DefaultDonationUrl.com
 InstallationNotes: Default installation notes
 Agreements:
   - AgreementLabel: Label

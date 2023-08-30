@@ -12,6 +12,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_6::Json
     {
         // Installer
         constexpr std::string_view DownloadCommandProhibited = "DownloadCommandProhibited"sv;
+
+        // Locale
+        constexpr std::string_view DonationUrl = "DonationUrl"sv;
     }
 
     std::optional<Manifest::ManifestInstaller> ManifestDeserializer::DeserializeInstaller(const web::json::value& installerJsonObject) const
@@ -38,6 +41,20 @@ namespace AppInstaller::Repository::Rest::Schema::V1_6::Json
         }
 
         return V1_5::Json::ManifestDeserializer::ConvertToUpdateBehavior(inStrLower);
+    }
+
+    std::optional<Manifest::ManifestLocalization> ManifestDeserializer::DeserializeLocale(const web::json::value& localeJsonObject) const
+    {
+        auto result = V1_1::Json::ManifestDeserializer::DeserializeLocale(localeJsonObject);
+
+        if (result)
+        {
+            auto& locale = result.value();
+
+            TryParseStringLocaleField<Manifest::Localization::DonationUrl>(locale, localeJsonObject, DonationUrl);
+        }
+
+        return result;
     }
 
     Manifest::ManifestVer ManifestDeserializer::GetManifestVersion() const

@@ -1122,6 +1122,8 @@ namespace Microsoft.Management.Deployment
 
         String PurchaseUrl { get; };
 
+        String DonationUrl{ get; };
+
         String InstallationNotes { get; };
     }
 

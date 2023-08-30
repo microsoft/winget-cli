@@ -13,6 +13,7 @@ LicenseUrl: https://www.microsoft.com/msixsdk/license
 Copyright: Copyright Microsoft Corporation
 CopyrightUrl: https://www.microsoft.com/msixsdk/copyright
 PurchaseUrl: https://DefaultPurchaseUrl.com
+DonationUrl: https://DefaultDonationUrl.com
 InstallationNotes: "Default installation notes"
 ShortDescription: This is MSIX SDK
 Description: The MSIX SDK project is an effort to enable developers

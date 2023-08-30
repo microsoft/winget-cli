@@ -32,6 +32,7 @@ namespace AppInstaller::Manifest
         PurchaseUrl,
         InstallationNotes,
         Icons,
+        DonationUrl,
         Max
     };
 
