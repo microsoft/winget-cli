@@ -286,7 +286,8 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
         {
             std::vector<Utility::Architecture> archs;
-            for (auto const& i : value) {
+            for (auto const& i : value)
+            {
                 Utility::Architecture arch = Utility::ConvertToArchitectureEnum(i);
                 if (Utility::IsApplicableArchitecture(arch) == Utility::InapplicableArchitecture)
                 {
@@ -340,6 +341,26 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(InstallLocaleRequirement)
         {
             return SettingMapping<Setting::InstallLocalePreference>::Validate(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallerTypePreference)
+        {
+            std::vector<Manifest::InstallerTypeEnum> installerTypes;
+            for (auto const& i : value)
+            {
+                Manifest::InstallerTypeEnum installerType = Manifest::ConvertToInstallerTypeEnum(i);
+                if (installerType == Manifest::InstallerTypeEnum::Unknown)
+                {
+                    return {};
+                }
+                installerTypes.emplace_back(installerType);
+            }
+            return installerTypes;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallerTypeRequirement)
+        {
+            return SettingMapping<Setting::InstallerTypePreference>::Validate(value);
         }
 
         WINGET_VALIDATE_SIGNATURE(InstallDefaultRoot)

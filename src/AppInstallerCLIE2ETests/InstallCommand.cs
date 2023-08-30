@@ -6,6 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using System;
     using System.IO;
     using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
@@ -661,6 +662,58 @@ namespace AppInstallerCLIE2ETests
 
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
+        }
+
+        /// <summary>
+        /// Test install a package using a specific installer type.
+        /// </summary>
+        [Test]
+        public void InstallWithInstallerTypeArgument()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir} --installer-type exe");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+        }
+
+        /// <summary>
+        /// Test install package with installer type preference settings.
+        /// </summary>
+        [Test]
+        public void InstallWithInstallerTypePreference()
+        {
+            string[] installerTypePreference = { "nullsoft" };
+            WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallerTypes, installerTypePreference);
+
+            string installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir}");
+
+            // Reset installer type preferences.
+            WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallerTypes, Array.Empty<string>());
+
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), "/S");
+        }
+
+        /// <summary>
+        /// Test install package with installer type requirement settings.
+        /// </summary>
+        [Test]
+        public void InstallWithInstallerTypeRequirement()
+        {
+            string[] installerTypeRequirement = { "inno" };
+            WinGetSettingsHelper.ConfigureInstallBehaviorRequirements(Constants.InstallerTypes, installerTypeRequirement);
+
+            string installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir}");
+
+            // Reset installer type requirements.
+            WinGetSettingsHelper.ConfigureInstallBehaviorRequirements(Constants.InstallerTypes, Array.Empty<string>());
+
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
+            Assert.True(result.StdOut.Contains("No applicable installer found; see logs for more details."));
         }
 
         /// <summary>

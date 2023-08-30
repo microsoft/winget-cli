@@ -140,6 +140,18 @@ The `architectures` behavior affects what architectures will be selected when in
     },
 ```
 
+### Installer Types
+
+The `installerTypes` behavior affects what installer types will be selected when installing a package. The matching parameter is `--installer-type`.
+
+```json
+    "installBehavior": {
+        "preferences": {
+            "installerTypes": ["msi", "msix"]
+        }
+    },
+```
+
 ### Default install root
 
 The `defaultInstallRoot` affects the install location when a package requires one. This can be overridden by the `--location` parameter. This setting is only used when a package manifest includes `InstallLocationRequired`, and the actual location is obtained by appending the package ID to the root.

@@ -738,3 +738,111 @@ TEST_CASE("ManifestComparator_Scope_AllowUnknown", "[manifest_comparator]")
         REQUIRE(inapplicabilities.size() == 0);
     }
 }
+
+TEST_CASE("ManifestComparator_InstallerType", "[manifest_comparator]")
+{
+    Manifest manifest;
+    ManifestInstaller msi = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User);
+    ManifestInstaller exe = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Exe, ScopeEnum::User);
+    ManifestInstaller msix = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msix, ScopeEnum::User);
+
+    SECTION("Msi arg requirement")
+    {
+        ManifestComparatorTestContext context;
+        context.Args.AddArg(Args::Type::InstallerType, "msi"s);
+
+        ManifestComparator mc(context, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, msi);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType });
+    }
+    SECTION("Msix arg requirement")
+    {
+        ManifestComparatorTestContext context;
+        context.Args.AddArg(Args::Type::InstallerType, "msix"s);
+
+        ManifestComparator mc(context, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, msix);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType });
+    }
+    SECTION("Portable arg requirement")
+    {
+        ManifestComparatorTestContext context;
+        context.Args.AddArg(Args::Type::InstallerType, "portable"s);
+
+        ManifestComparator mc(context, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        REQUIRE(!result);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType });
+    }
+    SECTION("Exe preference")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallerTypePreference>({ InstallerTypeEnum::Exe });
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, exe);
+        REQUIRE(inapplicabilities.size() == 0);
+    }
+    SECTION("Preference does not exist")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallerTypePreference>({ InstallerTypeEnum::Portable });
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, msi);
+        REQUIRE(inapplicabilities.size() == 0);
+    }
+    SECTION("Multiple preferences")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallerTypePreference>({ InstallerTypeEnum::Exe, InstallerTypeEnum::Msix });
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, exe);
+        REQUIRE(inapplicabilities.size() == 0);
+    }
+    SECTION("Multiple preferences alternate order")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallerTypePreference>({ InstallerTypeEnum::Msix, InstallerTypeEnum::Exe });
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, msix);
+        REQUIRE(inapplicabilities.size() == 0);
+    }
+    SECTION("Exe requirement")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallerTypeRequirement>({ InstallerTypeEnum::Exe });
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, exe);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType });
+    }
+    SECTION("Inno requirement")
+    {
+        TestUserSettings settings;
+        settings.Set<Setting::InstallerTypeRequirement>({ InstallerTypeEnum::Inno });
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        REQUIRE(!result);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType });
+    }
+}
