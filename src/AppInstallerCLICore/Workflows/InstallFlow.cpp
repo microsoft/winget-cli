@@ -590,6 +590,7 @@ namespace AppInstaller::CLI::Workflow
         // Implementation of de-elevation is complex; simply block for now.
         if (installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin())
         {
+            AICLI_LOG(CLI, Error, << "The installer cannot be run from an administrator context.");
             context.Reporter.Error() << Resource::String::InstallerProhibitsElevation << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION);
         }
@@ -600,7 +601,7 @@ namespace AppInstaller::CLI::Workflow
         UpdateBehaviorEnum updateBehavior = installer->UpdateBehavior;
         if (isUpdate && (updateBehavior == UpdateBehaviorEnum::Deny))
         {
-            AICLI_LOG(CLI, Info, << "Manifest specifies update behavior is denied. The attempt will be cancelled.");
+            AICLI_LOG(CLI, Error, << "Manifest specifies update behavior is denied. The attempt will be cancelled.");
             context.Reporter.Error() << Resource::String::UpgradeBlockedByManifest << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED);
         }
