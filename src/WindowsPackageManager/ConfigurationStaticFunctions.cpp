@@ -13,6 +13,13 @@
 #include <winget/GroupPolicy.h>
 #include <winget/Security.h>
 #include <winget/ThreadGlobals.h>
+#include <winget/SelfManagement.h>
+#include <winget/MSStore.h>
+#include <winrt/Microsoft.Management.Deployment.h>
+
+using namespace AppInstaller::SelfManagement;
+using namespace winrt::Microsoft::Management::Deployment;
+using namespace winrt::Windows::Foundation::Collections;
 
 namespace ConfigurationShim
 {
@@ -35,10 +42,20 @@ namespace ConfigurationShim
             diagnosticsLogger.EnableChannel(AppInstaller::Logging::Channel::All);
             diagnosticsLogger.SetLevel(AppInstaller::Logging::Level::Verbose);
             diagnosticsLogger.AddLogger(std::make_unique<AppInstaller::Logging::FileLogger>("ConfigStatics"sv));
+
+            if (IsConfigurationEnabled())
+            {
+                m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions();
+            }
         }
 
         winrt::Microsoft::Management::Configuration::ConfigurationUnit CreateConfigurationUnit()
         {
+            if (!m_statics)
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
+            }
+
             auto result = m_statics.CreateConfigurationUnit();
             result.as<AppInstaller::WinRT::ILifetimeWatcher>()->SetLifetimeWatcher(CreateLifetimeWatcher());
             return result;
@@ -46,6 +63,11 @@ namespace ConfigurationShim
 
         winrt::Microsoft::Management::Configuration::ConfigurationSet CreateConfigurationSet()
         {
+            if (!m_statics)
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
+            }
+
             auto result = m_statics.CreateConfigurationSet();
             result.as<AppInstaller::WinRT::ILifetimeWatcher>()->SetLifetimeWatcher(CreateLifetimeWatcher());
             return result;
@@ -81,9 +103,76 @@ namespace ConfigurationShim
 
         winrt::Microsoft::Management::Configuration::ConfigurationProcessor CreateConfigurationProcessor(winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory const& factory)
         {
+            if (!m_statics)
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
+            }
+
             auto result = m_statics.CreateConfigurationProcessor(factory);
             result.as<AppInstaller::WinRT::ILifetimeWatcher>()->SetLifetimeWatcher(CreateLifetimeWatcher());
             return result;
+        }
+
+        bool IsConfigurationEnabled()
+        {
+            return !IsStubPackage();
+        }
+
+        winrt::Windows::Foundation::IAsyncActionWithProgress<uint32_t> EnableConfigurationAsync()
+        {
+            if (IsConfigurationEnabled())
+            {
+                return;
+            }
+
+            co_await winrt::resume_background();
+
+            SetStubPreferred(false);
+
+            PackageManager packageManager;
+            PackageCatalogReference catalogRef{ packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog::MicrosoftStore) };
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR, !catalogRef);
+
+            ConnectResult connectResult = catalogRef.Connect();
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED, connectResult.Status() != ConnectResultStatus::Ok);
+
+            PackageCatalog catalog = connectResult.PackageCatalog();
+
+            FindPackagesOptions findPackagesOptions;
+            PackageMatchFilter filter;
+            filter.Field(PackageMatchField::Id);
+            filter.Option(PackageFieldMatchOption::Equals);
+            filter.Value(AppInstaller::MSStore::s_AppInstallerProductId);
+            findPackagesOptions.Filters().Append(filter);
+
+            FindPackagesResult findPackagesResult{ catalog.FindPackages(findPackagesOptions) };
+
+            auto matches = findPackagesResult.Matches();
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, matches.Size() == 0);
+            auto catalogPackage = matches.GetAt(0).CatalogPackage();
+
+            InstallOptions installOptions;
+            installOptions.AcceptPackageAgreements(true);
+            installOptions.AllowUpgradeToUnknownVersion(true);
+            installOptions.Force(true);
+
+            auto progress = co_await winrt::get_progress_token();
+
+            auto installTask = packageManager.InstallPackageAsync(catalogPackage, installOptions);
+
+            installTask.Progress([progress](auto const&, InstallProgress installProgress)
+            {
+                if (installProgress.State == PackageInstallProgressState::Downloading && installProgress.BytesRequired != 0)
+                {
+                    progress((uint32_t)(installProgress.DownloadProgress * 50));
+                }
+                else if (installProgress.State == PackageInstallProgressState::Installing)
+                {
+                    progress(((uint32_t)installProgress.InstallationProgress * 50) + 50);
+                }
+            });
+
+            co_await installTask;
         }
 
     private:
@@ -97,7 +186,7 @@ namespace ConfigurationShim
             return out.detach();
         }
 
-        winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions m_statics;
+        winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions m_statics = nullptr;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
     };
 
