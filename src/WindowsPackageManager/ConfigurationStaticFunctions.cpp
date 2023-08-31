@@ -158,8 +158,8 @@ namespace ConfigurationShim
 
             auto progress = co_await winrt::get_progress_token();
 
+            // Don't use UpgradePackageAsync
             auto installTask = packageManager.InstallPackageAsync(catalogPackage, installOptions);
-
             installTask.Progress([progress](auto const&, InstallProgress installProgress)
             {
                 if (installProgress.State == PackageInstallProgressState::Downloading && installProgress.BytesRequired != 0)
