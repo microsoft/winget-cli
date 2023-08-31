@@ -222,8 +222,10 @@ namespace AppInstaller::CLI
             return { type, "dependency-source"_liv, ArgTypeCategory::Source };
         case Execution::Args::Type::CustomHeader:
             return { type, "header"_liv, ArgTypeCategory::Source };
+
+        // This must specifically excluded from being a source argument due to dependencies in local manifests potentially requiring a source search and source agreements
         case Execution::Args::Type::AcceptSourceAgreements:
-            return { type, "accept-source-agreements"_liv, ArgTypeCategory::Source };
+            return { type, "accept-source-agreements"_liv };
 
         case Execution::Args::Type::ToolVersion:
             return { type, "version"_liv, 'v' };
