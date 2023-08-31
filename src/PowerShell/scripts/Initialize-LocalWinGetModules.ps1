@@ -41,14 +41,12 @@ class WinGetModule
     [string]$Name
     [string]$ModuleRoot
     [bool]$HasBinary
-    [bool]$ForceWinGetDev
 
-    WinGetModule([string]$n, [string]$m, [bool]$b, [bool]$d)
+    WinGetModule([string]$n, [string]$m, [bool]$b)
     {
         $this.Name = $n
         $this.ModuleRoot = $m
         $this.HasBinary = $b
-        $this.ForceWinGetDev = $d
     }
 }
 
@@ -66,18 +64,15 @@ if ($BuildRoot -eq "")
     [WinGetModule]::new(
         "Microsoft.WinGet.DSC",
         "$PSScriptRoot\..\Microsoft.WinGet.DSC\",
-        $false,
         $false),
     [WinGetModule]::new(
         "Microsoft.WinGet.Client",
         "$PSScriptRoot\..\Microsoft.WinGet.Client\ModuleFiles\",
-        $true,
         $true),
     [WinGetModule]::new(
         "Microsoft.WinGet.Configuration",
         "$PSScriptRoot\..\Microsoft.WinGet.Configuration\ModuleFiles\",
-        $true,
-        $false)
+        $true)
 
 foreach($module in $modules)
 {
@@ -101,17 +96,6 @@ foreach($module in $modules)
     # VS won't update the files if there's nothing to build...
     Write-Host "Copying module $($module.Name)" -ForegroundColor Green
     xcopy $module.ModuleRoot "$moduleRootOutput\$($module.Name)\" /d /s /f /y
-
-    if ($module.ForceWinGetDev)
-    {
-        # This is a terrible and shouldn't be used for real things. We must consider making something smarter and prettier.
-        # We could make the build system always take the crescendo json and generated the functions from it. The
-        # build system would know if the original name to be winget.exe or wingetdev.exe, set it on the json and produce
-        # the psm1 one. We could add a VS after build task that calls powershell and does it, or we could move away
-        # from crescendo and let the internal implementation knows which one to use based on the build preprocessor macro.
-        $psm1File = "$moduleRootOutput\$($module.Name)\$($module.Name).psm1"
-        (Get-Content $psm1File).replace("winget.exe", "wingetdev") | Set-Content $psm1File
-    }
 }
 
 # Add it to module path if not there.

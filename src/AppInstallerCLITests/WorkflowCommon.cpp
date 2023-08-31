@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "DependenciesTestSource.h"
 #include "WorkflowCommon.h"
 #include <winget/ManifestYamlParser.h>
 #include <Workflows/ArchiveFlow.h>
 #include <Workflows/DownloadFlow.h>
 #include <Workflows/InstallFlow.h>
 #include <Workflows/MSStoreInstallerHandler.h>
+#include <Workflows/DependenciesFlow.h>
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Execution;
@@ -677,4 +679,18 @@ namespace TestCommon
         } });
     }
 
+    void OverrideOpenDependencySource(TestContext& context)
+    {
+        context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
+        {
+            context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
+        } });
+    }
+
+    void OverrideEnableWindowsFeaturesDependencies(TestContext& context)
+    {
+        context.Override({ Workflow::EnableWindowsFeaturesDependencies, [](TestContext&)
+        {
+        } });
+    }
 }

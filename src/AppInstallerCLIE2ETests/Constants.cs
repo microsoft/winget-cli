@@ -22,13 +22,13 @@ namespace AppInstallerCLIE2ETests
         public const string LooseFileRegistrationParameter = "LooseFileRegistration";
         public const string InvokeCommandInDesktopPackageParameter = "InvokeCommandInDesktopPackage";
         public const string StaticFileRootPathParameter = "StaticFileRootPath";
+        public const string LocalServerCertPathParameter = "LocalServerCertPath";
         public const string ExeInstallerPathParameter = "ExeTestInstallerPath";
         public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
         public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
         public const string PowerShellModulePathParameter = "PowerShellModulePath";
-        public const string AppInstallerTestCert = "AppInstallerTest.cer";
-        public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
+        public const string SkipTestSourceParameter = "SkipTestSource";
 
         // Test Sources
         public const string DefaultWingetSourceName = @"winget";
@@ -42,7 +42,9 @@ namespace AppInstallerCLIE2ETests
         public const string TestSourceUrl = @"https://localhost:5001/TestKit";
         public const string TestSourceType = "Microsoft.PreIndexed.Package";
         public const string TestSourceIdentifier = @"WingetE2E.Tests_8wekyb3d8bbwe";
-        public const string TestSourceServerCertificateFileName = "servercert.cer";
+
+        public const string AppInstallerTestCert = "AppInstallerTest.cer";
+        public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
 
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";
@@ -115,6 +117,7 @@ namespace AppInstallerCLIE2ETests
         public const string PortablePackageUserRoot = "portablePackageUserRoot";
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
         public const string InstallBehaviorScope = "scope";
+        public const string InstallerTypes = "installerTypes";
 
         // Configuration
         public const string PSGalleryName = "PSGallery";
@@ -122,6 +125,9 @@ namespace AppInstallerCLIE2ETests
         public const string GalleryTestModuleName = "XmlContentDsc";
         public const string SimpleTestModuleName = "xE2ETestResource";
         public const string LocalModuleDescriptor = "[Local]";
+
+        // Group Policy Error Message
+        public const string BlockByWinGetPolicyErrorMessage = "This operation is disabled by Group Policy : Enable Windows Package Manager";
 
         /// <summary>
         /// Error codes.
@@ -243,7 +249,9 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_NOT_ALL_QUERIES_FOUND_SINGLE = unchecked((int)0x8A150067);
             public const int ERROR_PACKAGE_IS_PINNED = unchecked((int)0x8A150068);
             public const int ERROR_PACKAGE_IS_STUB = unchecked((int)0x8A150069);
-            public const int ERROR_DOWNLOAD_DEPENDENCIES = unchecked((int)0x8A15006A);
+            public const int ERROR_APPTERMINATION_RECEIVED = unchecked((int)0x8A15006A);
+            public const int ERROR_DOWNLOAD_DEPENDENCIES = unchecked((int)0x8A15006B);
+            public const int ERROR_DOWNLOAD_COMMAND_PROHIBITED = unchecked((int)0x8A15006C);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);
@@ -264,6 +272,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_PACKAGE_IN_USE_BY_APPLICATION = unchecked((int)0x8A150111);
             public const int ERROR_INSTALL_INVALID_PARAMETER = unchecked((int)0x8A150112);
             public const int ERROR_INSTALL_SYSTEM_NOT_SUPPORTED = unchecked((int)0x8A150113);
+            public const int APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED = unchecked((int)0x8A150114);
 
             public const int INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND = unchecked((int)0x8A150201);
             public const int INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE = unchecked((int)0x0A150202);

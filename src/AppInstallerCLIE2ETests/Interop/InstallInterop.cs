@@ -9,6 +9,7 @@ namespace AppInstallerCLIE2ETests.Interop
     using System;
     using System.IO;
     using System.Threading.Tasks;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
@@ -190,7 +191,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task InstallMSI()
         {
-            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            if (string.IsNullOrEmpty(TestIndex.MsiInstaller))
             {
                 Assert.Ignore("MSI installer not available");
             }
@@ -594,6 +595,31 @@ namespace AppInstallerCLIE2ETests.Interop
             string commandAlias = $"{Constants.ExeInstaller}.exe";
             string fileName = $"{Constants.ExeInstaller}.exe";
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, Constants.PortableExePackageDirName), commandAlias, fileName, productCode, false);
+        }
+
+        /// <summary>
+        /// Test installing a package with a specific installer type install option.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallWithInstallerType()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestMultipleInstallers");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.InstallerType = PackageInstallerType.Msi;
+            installOptions.AcceptPackageAgreements = true;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(this.installDir));
         }
 
         /// <summary>

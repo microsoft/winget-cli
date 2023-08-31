@@ -374,6 +374,7 @@ TEST_CASE("GroupPolicy_AllEnabled", "[groupPolicy]")
     SetRegistryValue(policiesKey.get(), AdditionalSourcesPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), AllowedSourcesPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), BypassCertificatePinningForMicrosoftStoreValueName, 1);
+    SetRegistryValue(policiesKey.get(), EnableWindowsPackageManagerCommandLineInterfaces, 1);
 
     GroupPolicy groupPolicy{ policiesKey.get() };
     for (const auto& policy : TogglePolicy::GetAllPolicies())

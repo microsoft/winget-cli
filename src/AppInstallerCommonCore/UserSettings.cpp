@@ -258,11 +258,8 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
-        WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EFConfiguration)
-        WINGET_VALIDATE_PASS_THROUGH(EFWindowsFeature)
-        WINGET_VALIDATE_PASS_THROUGH(EFDownload)
         WINGET_VALIDATE_PASS_THROUGH(AnonymizePathForDisplay)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
@@ -289,7 +286,8 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
         {
             std::vector<Utility::Architecture> archs;
-            for (auto const& i : value) {
+            for (auto const& i : value)
+            {
                 Utility::Architecture arch = Utility::ConvertToArchitectureEnum(i);
                 if (Utility::IsApplicableArchitecture(arch) == Utility::InapplicableArchitecture)
                 {
@@ -343,6 +341,26 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(InstallLocaleRequirement)
         {
             return SettingMapping<Setting::InstallLocalePreference>::Validate(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallerTypePreference)
+        {
+            std::vector<Manifest::InstallerTypeEnum> installerTypes;
+            for (auto const& i : value)
+            {
+                Manifest::InstallerTypeEnum installerType = Manifest::ConvertToInstallerTypeEnum(i);
+                if (installerType == Manifest::InstallerTypeEnum::Unknown)
+                {
+                    return {};
+                }
+                installerTypes.emplace_back(installerType);
+            }
+            return installerTypes;
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallerTypeRequirement)
+        {
+            return SettingMapping<Setting::InstallerTypePreference>::Validate(value);
         }
 
         WINGET_VALIDATE_SIGNATURE(InstallDefaultRoot)

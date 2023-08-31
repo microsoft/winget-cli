@@ -10,6 +10,7 @@ namespace AppInstallerCLIE2ETests.Interop
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;

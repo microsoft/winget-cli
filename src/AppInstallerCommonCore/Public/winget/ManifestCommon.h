@@ -96,6 +96,7 @@ namespace AppInstaller::Manifest
         Unknown,
         Install,
         UninstallPrevious,
+        Deny,
     };
 
     enum class InstallerSwitchType
@@ -368,6 +369,18 @@ namespace AppInstaller::Manifest
 
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
+    std::string_view InstallerSwitchTypeToString(InstallerSwitchType installerSwitchType);
+
+    std::string_view ElevationRequirementToString(ElevationRequirementEnum elevationRequirement);
+
+    std::string_view InstallModeToString(InstallModeEnum installMode);
+
+    std::string_view UnsupportedArgumentToString(UnsupportedArgumentEnum unsupportedArgument);
+
+    std::string_view UpdateBehaviorToString(UpdateBehaviorEnum updateBehavior);
+
+    std::string_view PlatformToString(PlatformEnum platform);
+
     std::string_view ScopeToString(ScopeEnum scope);
 
     std::string_view InstalledFileTypeToString(InstalledFileTypeEnum installedFileType);
@@ -377,6 +390,10 @@ namespace AppInstaller::Manifest
     std::string_view IconThemeToString(IconThemeEnum iconTheme);
 
     std::string_view IconResolutionToString(IconResolutionEnum iconResolution);
+
+    std::string_view ManifestTypeToString(ManifestTypeEnum manifestType);
+
+    std::string_view ExpectedReturnCodeToString(ExpectedReturnCodeEnum expectedReturnCode);
 
     // Gets a value indicating whether the given installer uses the PackageFamilyName system reference.
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);

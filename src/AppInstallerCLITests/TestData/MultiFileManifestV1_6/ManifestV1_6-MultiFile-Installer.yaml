@@ -86,6 +86,7 @@ InstallationMetadata:
       FileType: launch
       InvocationParameter: "/arg"
       DisplayName: "DisplayName"
+DownloadCommandProhibited: true
 
 Installers:
   - Architecture: x86
@@ -127,6 +128,7 @@ Installers:
         - Preview VC Runtime
       PackageDependencies:
         - PackageIdentifier: Microsoft.MsixSdkDepPreview
+          MinimumVersion: 1.0.0
       ExternalDependencies:
         - Preview Outside dependencies
     PackageFamilyName: Microsoft.DesktopAppInstallerPreview_8wekyb3d8bbwe
@@ -153,11 +155,13 @@ Installers:
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
     UnsupportedArguments:
       - location
+    DownloadCommandProhibited: false
   - Architecture: x64
     InstallerType: exe
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
     InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
     ProductCode: "{Bar}"
+    UpgradeBehavior: deny
   - Architecture: x86
     InstallerType: portable
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx86.exe

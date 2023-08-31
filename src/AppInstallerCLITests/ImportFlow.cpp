@@ -238,9 +238,6 @@ TEST_CASE("ImportFlow_Dependencies", "[ImportFlow][workflow][dependencies]")
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-Dependencies.json").GetPath().string());
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
     ImportCommand importCommand({});
     importCommand.Execute(context);
     INFO(importOutput.str());

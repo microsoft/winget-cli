@@ -26,5 +26,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\PowerShell\Microsoft.WinGet.SharedLib\Microsoft.WinGet.SharedLib.csproj" />
   </ItemGroup>
 </Project>

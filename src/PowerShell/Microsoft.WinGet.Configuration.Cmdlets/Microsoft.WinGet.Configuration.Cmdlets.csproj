@@ -88,6 +88,7 @@
       <ModuleSharedDependency Include="$(OutputPath)Microsoft.Management.Configuration.Processor.dll" />
       <ModuleSharedDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" />
       <ModuleSharedDependency Include="$(OutputPath)WinRT.Runtime.dll" />
+      <ModuleSharedDependency Include="$(OutputPath)Microsoft.WinGet.SharedLib.dll" />
     </ItemGroup>
     <Message Importance="high" Text="Copying shared dependencies: '@(ModuleSharedDependency)'" />
     <Copy SourceFiles="@(ModuleSharedDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />

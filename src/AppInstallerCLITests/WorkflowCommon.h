@@ -133,4 +133,7 @@ namespace TestCommon
 
     void OverrideForMSStore(TestContext& context, bool isUpdate);
 
+    void OverrideOpenDependencySource(TestContext& context);
+
+    void OverrideEnableWindowsFeaturesDependencies(TestContext& context);
 }

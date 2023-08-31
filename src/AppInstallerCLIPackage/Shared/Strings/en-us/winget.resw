@@ -903,6 +903,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicyEnableWinGet" xml:space="preserve">
     <value>Enable Windows Package Manager</value>
   </data>
+  <data name="PolicyEnableWindowsPackageManagerCommandLineInterfaces" xml:space="preserve">
+    <value>Enable Windows Package Manager command line interfaces</value>
+  </data>
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>Set Windows Package Manager Source Auto Update Interval In Minutes</value>
   </data>
@@ -1328,6 +1331,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if their current version cannot be determined</value>
   </data>
+  <data name="IncludeUnknownInListArgumentDescription" xml:space="preserve">
+    <value>List packages even if their current version cannot be determined. Can only be used with the --upgrade-available argument</value>
+    <comment>{Locked="--upgrade-available"}</comment>
+  </data>
   <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
     <value>This package's version number cannot be determined. To upgrade it anyway, add the argument --include-unknown to your previous command.</value>
     <comment>{Locked="--include-unknown"}</comment>
@@ -1655,6 +1662,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Multiple mutually exclusive arguments provided: {0}</value>
     <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
   </data>
+  <data name="DependencyArgumentMissing" xml:space="preserve">
+    <value>Argument {0} can only be used with {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message shown when having an argument needs another to be present, but that is missing. {0} and {1} are replaced by the arguments. For example "Argument --include-unknown can only be used with --upgrade"</comment>
+  </data>
   <data name="StateDisabled" xml:space="preserve">
     <value>Disabled</value>
     <comment>As in enabled/disabled</comment>
@@ -1686,8 +1697,15 @@ Please specify one of them using the --source option to proceed.</value>
     <value>{0} package(s) have a pin that needs to be removed before upgrade</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
+  <data name="UpgradeBlockedByManifest" xml:space="preserve">
+    <value>The package cannot be upgraded using winget. Please use the method provided by the publisher for upgrading this package.</value>
+  </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if they have a non-blocking pin</value>
+  </data>
+  <data name="IncludePinnedInListArgumentDescription" xml:space="preserve">
+    <value>List packages even if they have a pin that prevents upgrade. Can only be used with the --upgrade-available argument</value>
+    <comment>{Locked="--upgrade-available"}</comment>
   </data>
   <data name="PinRemovedSuccessfully" xml:space="preserve">
     <value>Pin removed successfully</value>
@@ -2043,5 +2061,20 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="InstallerDownloads" xml:space="preserve">
     <value>Installer Downloads</value>
+  </data>
+  <data name="InstallerDownloadCommandProhibited" xml:space="preserve">
+    <value>Installer is prohibited from being downloaded for later offline installation. </value>
+  </data>
+  <data name="ConfigurationAllUsersElevated" xml:space="preserve">
+    <value>`--module-path allusers` requires administrator privileges to execute.</value>
+    <comment>{Locked="--module-path allusers"}</comment>
+  </data>
+  <data name="ConfigurationModulePath" xml:space="preserve">
+    <value>Specifies the location on the local computer to store modules. Default %LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules</value>
+    <comment>{Locked="allusers","currentuser","default","%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
+  </data>
+  <data name="ConfigurationModulePathArgError" xml:space="preserve">
+    <value>`--module-path` value must be `currentuser`, `allusers`, `default` or an absolute path.</value>
+    <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
   </data>
 </root>

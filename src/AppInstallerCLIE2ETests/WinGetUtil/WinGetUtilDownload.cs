@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
 {
     using System.IO;
     using System.Linq;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>

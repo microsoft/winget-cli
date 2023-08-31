@@ -44,6 +44,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
             public const string InvokeDscResource = "Invoke-DscResource";
             public const string SaveModule = "Save-Module";
             public const string FindModule = "Find-Module";
+            public const string ImportCliXml = "Import-CliXml";
         }
 
         internal static class Parameters
@@ -66,6 +67,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
             public const string Recurse = "Recurse";
             public const string Repository = "Repository";
             public const string RequiredVersion = "RequiredVersion";
+            public const string Scope = "Scope";
         }
 
         internal static class DscMethods

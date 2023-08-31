@@ -57,6 +57,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::InstallLocation), // -l
             Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::InstallArchitecture), // -a
+            Argument::ForType(Args::Type::InstallerType),
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::SkipDependencies),

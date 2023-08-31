@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>
@@ -14,7 +15,7 @@ namespace AppInstallerCLIE2ETests
     /// </summary>
     public class ConfigureCommand
     {
-        private const string CommandAndAgreements = "configure --accept-configuration-agreements";
+        private const string CommandAndAgreementsAndVerbose = "configure --accept-configuration-agreements --verbose";
 
         /// <summary>
         /// Setup done once before all the tests here.
@@ -44,7 +45,7 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.EnsureModuleState(Constants.GalleryTestModuleName, present: false);
 
-            var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"), timeOut: 120000);
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"), timeOut: 120000);
             Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_SET_APPLY_FAILED, result.ExitCode);
             Assert.True(result.StdOut.Contains("The configuration unit failed while attempting to test the current system state."));
         }
@@ -57,13 +58,57 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
 
-            var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
             Assert.AreEqual(0, result.ExitCode);
 
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.txt");
             FileAssert.Exists(targetFilePath);
             Assert.AreEqual("Contents!", System.IO.File.ReadAllText(targetFilePath));
+
+            Assert.True(Directory.Exists(
+                Path.Combine(
+                    TestCommon.GetExpectedModulePath(TestCommon.TestModuleLocation.Default),
+                    Constants.SimpleTestModuleName)));
+        }
+
+        /// <summary>
+        /// Simple test to confirm that the module was installed in the right location.
+        /// </summary>
+        /// <param name="location">Location to pass.</param>
+        [TestCase(TestCommon.TestModuleLocation.CurrentUser)]
+        [TestCase(TestCommon.TestModuleLocation.AllUsers)]
+        [TestCase(TestCommon.TestModuleLocation.WinGetModulePath)]
+        [TestCase(TestCommon.TestModuleLocation.Custom)]
+        [TestCase(TestCommon.TestModuleLocation.Default)]
+        public void ConfigureFromTestRepo_Location(TestCommon.TestModuleLocation location)
+        {
+            TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
+
+            string args = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo_Location.yml");
+            if (location == TestCommon.TestModuleLocation.CurrentUser)
+            {
+                args += " --module-path currentuser";
+            }
+            else if (location == TestCommon.TestModuleLocation.AllUsers)
+            {
+                args += " --module-path allusers";
+            }
+            else if (location == TestCommon.TestModuleLocation.Default)
+            {
+                args += " --module-path default";
+            }
+            else if (location == TestCommon.TestModuleLocation.Custom)
+            {
+                args += " --module-path " + TestCommon.GetExpectedModulePath(location);
+            }
+
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
+            Assert.AreEqual(0, result.ExitCode);
+
+            Assert.True(Directory.Exists(Path.Combine(
+                TestCommon.GetExpectedModulePath(location),
+                Constants.SimpleTestModuleName)));
         }
 
         /// <summary>
@@ -72,7 +117,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void IndependentResourceWithSingleFailure()
         {
-            var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\IndependentResources_OneFailure.yml"));
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\IndependentResources_OneFailure.yml"));
             Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_SET_APPLY_FAILED, result.ExitCode);
 
             // The configuration creates a file next to itself with the given contents
@@ -87,7 +132,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void DependentResourceWithFailure()
         {
-            var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\DependentResources_Failure.yml"));
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\DependentResources_Failure.yml"));
             Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_SET_APPLY_FAILED, result.ExitCode);
 
             // The configuration creates a file next to itself with the given contents
@@ -102,7 +147,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ConfigServerUnexpectedExit()
         {
-            var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\ConfigServerUnexpectedExit.yml"));
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\ConfigServerUnexpectedExit.yml"));
             Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_SET_APPLY_FAILED, result.ExitCode);
 
             // The configuration creates a file next to itself with the given contents

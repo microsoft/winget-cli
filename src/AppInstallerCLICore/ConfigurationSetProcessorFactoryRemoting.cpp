@@ -223,6 +223,26 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Policy(Convert(value));
             }
 
+            SetProcessorFactory::PwshConfigurationProcessorLocation Location() const
+            {
+                return Convert(m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Location());
+            }
+
+            void Location(SetProcessorFactory::PwshConfigurationProcessorLocation value)
+            {
+                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Location(Convert(value));
+            }
+
+            winrt::hstring CustomLocation() const
+            {
+                return m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().CustomLocation();
+            }
+
+            void CustomLocation(winrt::hstring value)
+            {
+                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().CustomLocation(value);
+            }
+
             HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
             {
                 return WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
@@ -239,6 +259,18 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             {
                 // We have used the same values intentionally; if that changes, update this.
                 return ToEnum<Processor::PowerShellConfigurationProcessorPolicy>(ToIntegral(policy));
+            }
+
+            static SetProcessorFactory::PwshConfigurationProcessorLocation Convert(Processor::PowerShellConfigurationProcessorLocation location)
+            {
+                // We have used the same values intentionally; if that changes, update this.
+                return ToEnum<SetProcessorFactory::PwshConfigurationProcessorLocation>(ToIntegral(location));
+            }
+
+            static Processor::PowerShellConfigurationProcessorLocation Convert(SetProcessorFactory::PwshConfigurationProcessorLocation location)
+            {
+                // We have used the same values intentionally; if that changes, update this.
+                return ToEnum<Processor::PowerShellConfigurationProcessorLocation>(ToIntegral(location));
             }
 
             IConfigurationSetProcessorFactory m_remoteFactory;

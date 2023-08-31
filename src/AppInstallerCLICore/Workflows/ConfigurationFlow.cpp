@@ -7,6 +7,7 @@
 #include <AppInstallerErrors.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winget/SelfManagement.h>
+#include "ConfigurationCommon.h"
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -72,7 +73,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        IConfigurationSetProcessorFactory CreateConfigurationSetProcessorFactory()
+        IConfigurationSetProcessorFactory CreateConfigurationSetProcessorFactory(Execution::Context& context)
         {
 #ifndef AICLI_DISABLE_TEST_HOOKS
             // Test could override the entire workflow task, but that may require keeping more in sync than simply setting the factory.
@@ -82,7 +83,9 @@ namespace AppInstaller::CLI::Workflow
             }
 #endif
 
-            return ConfigurationRemoting::CreateOutOfProcessFactory();
+            auto factory = ConfigurationRemoting::CreateOutOfProcessFactory();
+            Configuration::SetModulePath(context, factory);
+            return factory;
         }
 
         std::optional<Utility::LocIndString> GetValueSetString(const ValueSet& valueSet, std::wstring_view value)
@@ -779,7 +782,7 @@ namespace AppInstaller::CLI::Workflow
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
 
-        ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory() };
+        ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory(context)};
 
         // Set the processor to the current level of the logging.
         processor.MinimumLevel(ConvertLevel(Logging::Log().GetLevel()));

@@ -19,6 +19,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void PackageInstallScope(winrt::Microsoft::Management::Deployment::PackageInstallScope const& value);
         winrt::Microsoft::Management::Deployment::PackageInstallMode PackageInstallMode();
         void PackageInstallMode(winrt::Microsoft::Management::Deployment::PackageInstallMode const& value);
+        winrt::Microsoft::Management::Deployment::PackageInstallerType InstallerType();
+        void InstallerType(winrt::Microsoft::Management::Deployment::PackageInstallerType const& value);
         hstring LogOutputPath();
         void LogOutputPath(hstring const& value);
         bool AllowHashMismatch();
@@ -49,6 +51,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::wstring m_preferredInstallLocation = L"";
         winrt::Microsoft::Management::Deployment::PackageInstallScope m_packageInstallScope = winrt::Microsoft::Management::Deployment::PackageInstallScope::Any;
         winrt::Microsoft::Management::Deployment::PackageInstallMode m_packageInstallMode = winrt::Microsoft::Management::Deployment::PackageInstallMode::Default;
+        winrt::Microsoft::Management::Deployment::PackageInstallerType m_installerType = winrt::Microsoft::Management::Deployment::PackageInstallerType::Unknown;
         std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
         bool m_bypassIsStoreClientBlockedPolicyCheck = false;

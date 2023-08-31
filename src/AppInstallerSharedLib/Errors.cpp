@@ -228,6 +228,8 @@ namespace AppInstaller
                 return "Application shutdown signal received";
             case APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES:
                 return "Failed to download package dependencies.";
+            case APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED:
+                return "Failed to download package. Download for offline installation is prohibited.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
@@ -268,6 +270,8 @@ namespace AppInstaller
                 return "Invalid parameter.";
             case APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED:
                 return "Package not supported by the system.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED:
+                return "The installer does not support upgrading an existing package.";
             
             // Status values for check package installed status results.
             case WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND:

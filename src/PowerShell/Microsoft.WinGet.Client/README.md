@@ -1,10 +1,9 @@
 ﻿# Windows Package Manager PowerShell Module
 
-The Windows Package Manager PowerShell Module is made up on three components
+The Windows Package Manager PowerShell Module is made up on two components
 
-1. Generated functions using `Crescendo`
-2. The `Microsoft.WinGet.Client.Cmdlets` project which contains cmdlet implementations.
-3. The `Microsoft.WinGet.Client.Engine` project which contain the real logic for the cmdlets.
+1. The `Microsoft.WinGet.Client.Cmdlets` project which contains cmdlet implementations.
+2. The `Microsoft.WinGet.Client.Engine` project which contain the real logic for the cmdlets.
 
 ## Building the PowerShell Module Locally
 
@@ -12,27 +11,16 @@ After building the Microsoft.WinGet.Client.Cmdlets project, the `Microsoft.WinGe
 
 This project has after build targets that will copy all the necessary files in the correct location.
 
-## Adding a new function
-
-We don't have an automatic way of producing the psm1 from Crescendo. If a new function is going to be added:
-1. Modify `Crescendo\Crescendo.json`
-2. Run `Crescendo\Create-CrescendoFunctions.ps1`
-3. Copy the new psm1 in `ModulesFiles\Microsoft.WinGet.Client.psm1`
-4. Add new function in `ModulesFiles\Microsoft.WinGet.Client.psd1`
-
 ## Adding a new cmdlet
+In order to avoid [assembly dependency conflicts](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts?view=powershell-7.3) this project uses a custom `AssemblyLoadContext` that load all dependencies.
 
-This project uses a custom `AssemblyLoadContext` that handles all dependencies loading. The only two binaries that are loaded in the default context are Microsoft.WinGet.Client.Cmdlets.dll and Microsoft.WinGet.Client.Engine.dll. This is to handle [assembly dependency conflicts](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts?view=powershell-7.3). Because of that, the cmdlet must be defined in Microsoft.WinGet.Client.Cmdlets but the actual implementation in Microsoft.WinGet.Client.Engine.
+Microsoft.WinGet.Client.Cmdlets.dll is the binary that gets loaded when the module is imported. When Microsoft.WinGet.Client.Engine.dll is getting loaded the resolving handler use the custom ALC to load it. Then all the dependencies of that binary will be loaded using that custom context.
+
+The dependencies are laid out in two directories: `DirectDependencies` and `SharedDependencies`. The resolving handler looks for binaries under `DirectDependencies` and uses the custom ALC to load them. The custom ALC load any binaries in `DirectDependencies` and `SharedDependencies`.
+
+Exception: WinRT.Runtime.dll doesn't support getting loaded in multiple times in the same process, because it affects static state in the CLR itself. We special case it to get loaded in by the default loader.
 
 If the new cmdlet introduces a new dependency, please make sure to add it in the after build targets to copy it in the Dependencies directory.
-
-## Functions
-- Add-WinGetSource
-- Disable-WinGetSetting
-- Enable-WinGetSetting
-- Get-WinGetSettings
-- Remove-WinGetSource
-- Reset-WinGetSource
 
 ## Cmdlets
 - Assert-WinGetPackageManager
@@ -47,6 +35,12 @@ If the new cmdlet introduces a new dependency, please make sure to add it in the
 - Test-WinGetUserSettings
 - Uninstall-WinGetPackage
 - Update-WinGetPackage
+- Add-WinGetSource
+- Disable-WinGetSetting
+- Enable-WinGetSetting
+- Get-WinGetSettings
+- Remove-WinGetSource
+- Reset-WinGetSource
 
 ## Quick Start Guide
 

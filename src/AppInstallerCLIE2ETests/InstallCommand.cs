@@ -6,7 +6,9 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using System;
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>
@@ -14,16 +16,6 @@ namespace AppInstallerCLIE2ETests
     /// </summary>
     public class InstallCommand : BaseCommand
     {
-        /// <summary>
-        /// One time setup.
-        /// </summary>
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
-            WinGetSettingsHelper.ConfigureFeature("windowsFeature", true);
-        }
-
         /// <summary>
         /// Set up.
         /// </summary>
@@ -673,6 +665,58 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test install a package using a specific installer type.
+        /// </summary>
+        [Test]
+        public void InstallWithInstallerTypeArgument()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir} --installer-type exe");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+        }
+
+        /// <summary>
+        /// Test install package with installer type preference settings.
+        /// </summary>
+        [Test]
+        public void InstallWithInstallerTypePreference()
+        {
+            string[] installerTypePreference = { "nullsoft" };
+            WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallerTypes, installerTypePreference);
+
+            string installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir}");
+
+            // Reset installer type preferences.
+            WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallerTypes, Array.Empty<string>());
+
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), "/S");
+        }
+
+        /// <summary>
+        /// Test install package with installer type requirement settings.
+        /// </summary>
+        [Test]
+        public void InstallWithInstallerTypeRequirement()
+        {
+            string[] installerTypeRequirement = { "inno" };
+            WinGetSettingsHelper.ConfigureInstallBehaviorRequirements(Constants.InstallerTypes, installerTypeRequirement);
+
+            string installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir}");
+
+            // Reset installer type requirements.
+            WinGetSettingsHelper.ConfigureInstallBehaviorRequirements(Constants.InstallerTypes, Array.Empty<string>());
+
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
+            Assert.True(result.StdOut.Contains("No applicable installer found; see logs for more details."));
+        }
+
+        /// <summary>
         /// This test flow is intended to test an EXE that actually installs an MSIX internally, and whose name+publisher
         /// information resembles an existing installation. Given this, the goal is to get correlation to stick to the
         /// MSIX rather than the ARP entry that we would match with in the absence of the package family name being present.
@@ -698,7 +742,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
             // Add the MSIX to simulate an installer doing it
-            TestCommon.InstallMsix(TestCommon.MsixInstallerPath);
+            TestCommon.InstallMsix(TestIndex.MsixInstaller);
 
             // Install our exe that "installs" the MSIX
             result = TestCommon.RunAICLICommand("install", $"{targetPackageIdentifier} --force");

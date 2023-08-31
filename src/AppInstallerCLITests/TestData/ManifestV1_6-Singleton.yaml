@@ -121,6 +121,7 @@ InstallationMetadata:
       FileType: launch
       InvocationParameter: "/arg"
       DisplayName: "DisplayName"
+DownloadCommandProhibited: true
 
 Installers:
   - Architecture: x86
@@ -162,6 +163,7 @@ Installers:
         - Preview VC Runtime
       PackageDependencies:
         - PackageIdentifier: Microsoft.MsixSdkDepPreview
+          MinimumVersion: 1.0.0
       ExternalDependencies:
         - Preview Outside dependencies
     PackageFamilyName: Microsoft.DesktopAppInstallerPreview_8wekyb3d8bbwe
@@ -188,5 +190,6 @@ Installers:
       - InstallerReturnCode: 3
         ReturnResponse: custom
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
+    DownloadCommandProhibited: false
 ManifestType: singleton
 ManifestVersion: 1.6.0

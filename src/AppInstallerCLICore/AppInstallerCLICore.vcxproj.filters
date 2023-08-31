@@ -227,6 +227,9 @@
     <ClInclude Include="Commands\DownloadCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="ConfigurationCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -418,9 +421,12 @@
     <ClCompile Include="Commands\TestCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
-    <ClInclude Include="Commands\DownloadCommand.cpp">
-      <Filter>Commands</Filter>
-    </ClInclude>
+    <ClCompile Include="Commands\DownloadCommand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationCommon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

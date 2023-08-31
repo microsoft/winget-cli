@@ -183,6 +183,8 @@ namespace AppInstaller::CLI
             return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
         case Execution::Args::Type::ConfigurationDisable:
             return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
+        case Execution::Args::Type::ConfigurationModulePath:
+            return { type, "module-path"_liv };
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:
@@ -408,6 +410,16 @@ namespace AppInstaller::CLI
 
                 throw CommandException(Resource::String::MultipleExclusiveArgumentsProvided(Utility::LocIndString{ argsString }));
             }
+        }
+    }
+
+    void Argument::ValidateArgumentDependency(const Execution::Args& args, Execution::Args::Type type, Execution::Args::Type dependencyArgType)
+    {
+        if (args.Contains(type) && !args.Contains(dependencyArgType))
+        {
+            throw CommandException(Resource::String::DependencyArgumentMissing(
+                Utility::LocIndString{ ArgumentCommon::ForType(type).Name },
+                Utility::LocIndString{ ArgumentCommon::ForType(dependencyArgType).Name }));
         }
     }
 

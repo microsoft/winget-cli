@@ -1,0 +1,38 @@
+# Configures local test source and local PowerShell repository.
+parameters:
+- name: sourceDir
+  type: string
+- name: localhostWebServerArgs
+  type: string
+
+steps:
+  - task: DownloadSecureFile@1
+    name: AppInstallerTest
+    displayName: 'Download Source Package Certificate'
+    inputs:
+      secureFile: 'AppInstallerTest.pfx'
+
+  - task: DownloadSecureFile@1
+    name: HTTPSDevCert
+    displayName: 'Download Kestrel Certificate'
+    inputs:
+      secureFile: 'HTTPSDevCertV2.pfx'
+
+  - task: PowerShell@2
+    displayName: Install Root Certificate
+    inputs:
+      filePath: '${{ parameters.sourceDir }}\src\LocalhostWebServer\InstallDevCert.ps1'
+      arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
+
+  - task: PowerShell@2
+    displayName: Launch LocalhostWebServer
+    inputs:
+      filePath: '${{ parameters.sourceDir }}\src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
+      arguments: '-CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft -OutCertFile $(Agent.TempDirectory)\servercert.cer ${{ parameters.localhostWebServerArgs }}'
+
+  - task: PowerShell@2
+    displayName: Setup Local PS Repository
+    inputs:
+      filePath: '${{ parameters.sourceDir }}\src\AppInstallerCLIE2ETests\TestData\Configuration\Init-TestRepository.ps1'
+      arguments: '-Force'
+      pwsh: true

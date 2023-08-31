@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Management.Deployment;
     using NUnit.Framework;
     using Windows.System;
@@ -16,16 +17,6 @@ namespace AppInstallerCLIE2ETests
     /// </summary>
     public class DownloadCommand : BaseCommand
     {
-        /// <summary>
-        /// One time setup.
-        /// </summary>
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            WinGetSettingsHelper.ConfigureFeature("download", true);
-            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
-        }
-
         /// <summary>
         /// Downloads the test installer and its package dependencies.
         /// </summary>

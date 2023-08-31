@@ -8,6 +8,7 @@ AFAIK
 agg
 aicli
 AICLIC
+allusers
 alreadyinstalled
 AMap
 amrutha
@@ -33,6 +34,7 @@ ASwitch
 ASYNCRTIMP
 Atest
 ATL
+attr
 AType
 AUrl
 Authenticode
@@ -56,6 +58,7 @@ boundparms
 bpp
 Browsable
 BSODs
+BUILDOUTDIR
 buildtransitive
 BUILTINS
 cancelledbyuser
@@ -93,6 +96,7 @@ cplusplus
 createmanifestmetadata
 cswinrt
 ctc
+currentuser
 DACL
 Dbg
 debian
@@ -114,14 +118,18 @@ dustojnikhummer
 dvinns
 ecfr
 ecfrbrowse
+ECustom
 EFGH
 EFile
 endregion
 ENDSESSION
+epth
 EQU
 errmsg
 ERRORONEXIT
+ESource
 ESRB
+ests
 etest
 etl
 execustom
@@ -170,6 +178,7 @@ hmodule
 Howto
 hre
 hresults
+hrow
 hwnd
 IARP
 IAttachment
@@ -224,6 +233,7 @@ Linq
 liv
 liwpx
 localizationpriority
+localsource
 LOWORD
 LPARAM
 LPBYTE
@@ -394,6 +404,7 @@ rzkzqaqjwj
 SARL
 schematab
 sddl
+SECUREFILEPATH
 seof
 servercert
 servercertificate
@@ -410,6 +421,7 @@ SLAPI
 SMTO
 sortof
 sourceforge
+SOURCESDIRECTORY
 spamming
 SPAPI
 Srinivasan
@@ -434,6 +446,7 @@ systemnotsupported
 Tagit
 TCpp
 tcs
+TEMPDIRECTORY
 Templating
 temppath
 testdata
@@ -476,9 +489,9 @@ userfilesetting
 userprofile
 UWP
 VALUENAMECASE
+vclib
 VERSI
 VERSIE
-vclib
 vns
 vsconfig
 vstest

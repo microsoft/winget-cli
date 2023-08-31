@@ -35,6 +35,7 @@
     </PackageReference>
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.3" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.6" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="6.0.1" />
   </ItemGroup>
 
   <!-- CsWinRT properties -->
@@ -62,6 +63,7 @@
     <None Remove="testdata\configuration\ResourcesNotASequence.yml" />
     <None Remove="testdata\configuration\UnitNotAMap.yml" />
     <None Remove="testdata\configuration\UnknownVersion.yml" />
+    <None Remove="TestData\localsource.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -80,6 +82,7 @@
     <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
       <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\WinGetSourceCreator\WinGetSourceCreator.csproj" />
     <ProjectReference Include="..\WinGetUtil\WinGetUtil.vcxproj">
       <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>

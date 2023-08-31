@@ -11,6 +11,7 @@ namespace AppInstallerCLIE2ETests
     using System.IO;
     using System.Linq;
     using System.Xml.Linq;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Win32;
     using Newtonsoft.Json;
     using NUnit.Framework;
@@ -61,6 +62,11 @@ namespace AppInstallerCLIE2ETests
         /// Gets the Enable winget policy.
         /// </summary>
         public static GroupPolicyHelper EnableWinget { get; private set; } = new GroupPolicyHelper("EnableAppInstaller");
+
+        /// <summary>
+        /// Gets the Enable Windows Package Manager CommandLine Interfaces policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableWinGetCommandLineInterfaces { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManagerCommandLineInterfaces");
 
         /// <summary>
         /// Gets the Enable settings policy.
@@ -125,6 +131,7 @@ namespace AppInstallerCLIE2ETests
             EnableAdditionalSources,
             EnableAllowedSources,
             SourceAutoUpdateInterval,
+            EnableWinGetCommandLineInterfaces,
         };
 
         /// <summary>

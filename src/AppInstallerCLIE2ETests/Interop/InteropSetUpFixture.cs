@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests.Interop
 {
     using System;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>
@@ -22,11 +23,6 @@ namespace AppInstallerCLIE2ETests.Interop
         public void Setup()
         {
             TestCommon.SetupTestSource();
-
-            // For the COM E2E tests, once the settings file is initialized, it persists throughout the entirety of the tests.
-            // Any experimental features needed must be declared prior to running the COM E2E tests.
-            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
-            WinGetSettingsHelper.ConfigureFeature("download", true);
         }
 
         /// <summary>

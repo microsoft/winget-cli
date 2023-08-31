@@ -30,6 +30,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Source),
             Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::InstallArchitecture),
+            Argument::ForType(Args::Type::InstallerType),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),

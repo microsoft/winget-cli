@@ -28,7 +28,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         private readonly string completeMessage;
         private readonly int totalUnitsExpected;
 
-        private readonly HashSet<Guid> unitsSeen = new ();
         private readonly HashSet<Guid> unitsCompleted = new ();
 
         private bool isFirstProgress = true;
@@ -70,15 +69,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
 
             switch (data.Change)
             {
-                case ConfigurationSetChangeEventType.SetStateChanged:
-                    switch (data.SetState)
-                    {
-                        case ConfigurationSetState.Pending:
-                            this.cmd.Write(StreamType.Information, Utilities.CreateInformationMessage(Resources.ConfigurationWaitingOnAnother));
-                            break;
-                    }
-
-                    break;
                 case ConfigurationSetChangeEventType.UnitStateChanged:
                     this.HandleUnitProgress(data.Unit, data.UnitState, data.ResultInformation);
                     break;
@@ -122,47 +112,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                     // The unreported progress handler may send pending units, just ignore them
                     break;
                 case ConfigurationUnitState.InProgress:
-                    this.OutputUnitInProgressIfNeeded(unit);
                     break;
                 case ConfigurationUnitState.Completed:
-                    this.OutputUnitInProgressIfNeeded(unit);
-                    if (resultInformation.ResultCode == null)
-                    {
-                        this.cmd.Write(StreamType.Information, Utilities.CreateInformationMessage($"  {Resources.ConfigurationSuccessfullyApplied}"));
-                    }
-                    else
+                    if (resultInformation.ResultCode != null)
                     {
                         string description = resultInformation.Description.Trim();
-                        var (message, showDescription) = this.GetUnitFailedMessage(unit, resultInformation);
-                        var sb = new StringBuilder();
-                        sb.AppendLine($"  {message}");
-
-                        if (showDescription && !string.IsNullOrEmpty(description))
-                        {
-                            bool wasLimited = false;
-                            const int maxLines = 3;
-                            var lines = Utilities.SplitIntoLines(description, maxLines + 1);
-
-                            for (int i = 0; i < lines.Length && i < maxLines; i++)
-                            {
-                                sb.AppendLine(lines[i]);
-                            }
-
-                            if (lines.Length > maxLines)
-                            {
-                                wasLimited = true;
-                            }
-
-                            if (wasLimited || string.IsNullOrEmpty(resultInformation.Details))
-                            {
-                                sb.AppendLine(Resources.ConfigurationDescriptionWasTruncated);
-                            }
-                        }
-
-                        this.cmd.Write(StreamType.Information, Utilities.CreateInformationMessage(sb.ToString(), foregroundColor: ConsoleColor.DarkRed));
+                        var message = this.GetUnitFailedMessage(unit, resultInformation);
 
                         string errorMessage = $"Configuration unit {unit.UnitName}[{unit.Identifier}] failed with code 0x{resultInformation.ResultCode.HResult:X}" +
-                            $" and error message:\n{description}\n{resultInformation.Details}";
+                            $" and error message:\n{description}\n{resultInformation.Details}\n{message}";
                         this.cmd.WriteError(
                             ErrorRecordErrorId.ConfigurationApplyError,
                             errorMessage,
@@ -172,7 +130,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                     this.CompleteUnit(unit);
                     break;
                 case ConfigurationUnitState.Skipped:
-                    this.OutputUnitInProgressIfNeeded(unit);
                     this.cmd.Write(StreamType.Warning, this.GetUnitSkippedMessage(resultInformation));
                     this.CompleteUnit(unit);
                     break;
@@ -187,68 +144,57 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             }
         }
 
-        private void OutputUnitInProgressIfNeeded(ConfigurationUnit unit)
-        {
-            var unitInstance = unit.InstanceIdentifier;
-            if (!this.unitsSeen.Contains(unitInstance))
-            {
-                this.unitsSeen.Add(unitInstance);
-                var unitInfo = new ConfigurationUnitInformation(unit);
-                this.cmd.Write(StreamType.Information, unitInfo.GetHeader());
-            }
-        }
-
-        private (string message, bool showDescription) GetUnitFailedMessage(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
+        private string GetUnitFailedMessage(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
         {
             if (resultInformation.ResultCode == null)
             {
-                return (string.Format(Resources.ConfigurationUnitFailed, "null"), false);
+                return string.Format(Resources.ConfigurationUnitFailed, "null");
             }
 
             int resultCode = resultInformation.ResultCode.HResult;
             switch (resultCode)
             {
                 case ErrorCodes.WingetConfigErrorDuplicateIdentifier:
-                    return (string.Format(Resources.ConfigurationUnitHasDuplicateIdentifier, unit.Identifier), false);
+                    return string.Format(Resources.ConfigurationUnitHasDuplicateIdentifier, unit.Identifier);
                 case ErrorCodes.WingetConfigErrorMissingDependency:
-                    return (string.Format(Resources.ConfigurationUnitHasMissingDependency, resultInformation.Details), false);
+                    return string.Format(Resources.ConfigurationUnitHasMissingDependency, resultInformation.Details);
                 case ErrorCodes.WingetConfigErrorAssertionFailed:
-                    return (Resources.ConfigurationUnitAssertHadNegativeResult, false);
+                    return Resources.ConfigurationUnitAssertHadNegativeResult;
                 case ErrorCodes.WinGetConfigUnitNotFound:
-                    return (Resources.ConfigurationUnitNotFoundInModule, false);
+                    return Resources.ConfigurationUnitNotFoundInModule;
                 case ErrorCodes.WinGetConfigUnitNotFoundRepository:
-                    return (Resources.ConfigurationUnitNotFound, false);
+                    return Resources.ConfigurationUnitNotFound;
                 case ErrorCodes.WinGetConfigUnitMultipleMatches:
-                    return (Resources.ConfigurationUnitMultipleMatches, false);
+                    return Resources.ConfigurationUnitMultipleMatches;
                 case ErrorCodes.WinGetConfigUnitInvokeGet:
-                    return (Resources.ConfigurationUnitFailedDuringGet, true);
+                    return Resources.ConfigurationUnitFailedDuringGet;
                 case ErrorCodes.WinGetConfigUnitInvokeTest:
-                    return (Resources.ConfigurationUnitFailedDuringTest, true);
+                    return Resources.ConfigurationUnitFailedDuringTest;
                 case ErrorCodes.WinGetConfigUnitInvokeSet:
-                    return (Resources.ConfigurationUnitFailedDuringSet, true);
+                    return Resources.ConfigurationUnitFailedDuringSet;
                 case ErrorCodes.WinGetConfigUnitModuleConflict:
-                    return (Resources.ConfigurationUnitModuleConflict, false);
+                    return Resources.ConfigurationUnitModuleConflict;
                 case ErrorCodes.WinGetConfigUnitImportModule:
-                    return (Resources.ConfigurationUnitModuleImportFailed, true);
+                    return Resources.ConfigurationUnitModuleImportFailed;
                 case ErrorCodes.WinGetConfigUnitInvokeInvalidResult:
-                    return (Resources.ConfigurationUnitReturnedInvalidResult, false);
+                    return Resources.ConfigurationUnitReturnedInvalidResult;
             }
 
             switch (resultInformation.ResultSource)
             {
                 case ConfigurationUnitResultSource.ConfigurationSet:
-                    return (string.Format(Resources.ConfigurationUnitFailedConfigSet, resultCode), true);
+                    return string.Format(Resources.ConfigurationUnitFailedConfigSet, resultCode);
                 case ConfigurationUnitResultSource.Internal:
-                    return (string.Format(Resources.ConfigurationUnitFailedInternal, resultCode), true);
+                    return string.Format(Resources.ConfigurationUnitFailedInternal, resultCode);
                 case ConfigurationUnitResultSource.Precondition:
-                    return (string.Format(Resources.ConfigurationUnitFailedPrecondition, resultCode), true);
+                    return string.Format(Resources.ConfigurationUnitFailedPrecondition, resultCode);
                 case ConfigurationUnitResultSource.SystemState:
-                    return (string.Format(Resources.ConfigurationUnitFailedSystemState, resultCode), true);
+                    return string.Format(Resources.ConfigurationUnitFailedSystemState, resultCode);
                 case ConfigurationUnitResultSource.UnitProcessing:
-                    return (string.Format(Resources.ConfigurationUnitFailedUnitProcessing, resultCode), true);
+                    return string.Format(Resources.ConfigurationUnitFailedUnitProcessing, resultCode);
             }
 
-            return (string.Format(Resources.ConfigurationUnitFailed, resultCode), true);
+            return string.Format(Resources.ConfigurationUnitFailed, resultCode);
         }
 
         private string GetUnitSkippedMessage(IConfigurationUnitResultInformation resultInformation)
