@@ -174,7 +174,8 @@ namespace ConfigurationShim
 
             auto progress = co_await winrt::get_progress_token();
 
-            // Don't use UpgradePackageAsync
+            // Don't use UpgradePackageAsync, we don't support upgrade for packages from the msstore
+            // it has to be install and internally we know is an update.
             auto installTask = packageManager.InstallPackageAsync(catalogPackage, installOptions);
             installTask.Progress([progress](auto const&, InstallProgress installProgress)
             {
