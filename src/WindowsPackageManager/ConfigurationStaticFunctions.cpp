@@ -140,6 +140,7 @@ namespace ConfigurationShim
                 return;
             }
 
+            auto strong_this{ get_strong() };
             co_await winrt::resume_background();
 
             SetStubPreferred(false);
