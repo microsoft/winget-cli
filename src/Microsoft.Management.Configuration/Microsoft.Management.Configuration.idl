@@ -717,10 +717,10 @@ namespace Microsoft.Management.Configuration
         ConfigurationProcessor CreateConfigurationProcessor(IConfigurationSetProcessorFactory factory);
 
         // Whether configuration is enabled.
-        Boolean IsConfigurationEnabled{ get; };
+        Boolean IsConfigurationAvailable{ get; };
 
         // Enables configuration. Requires store access.
-        Windows.Foundation.IAsyncActionWithProgress<UInt32> EnableConfigurationAsync();
+        Windows.Foundation.IAsyncActionWithProgress<UInt32> EnsureConfigurationAvailableAsync();
     }
 
     // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.

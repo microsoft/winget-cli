@@ -23,6 +23,11 @@ using namespace winrt::Windows::Foundation::Collections;
 
 namespace ConfigurationShim
 {
+    namespace
+    {
+        static std::atomic_bool s_canBeCreated{ true };
+    }
+
     CLSID CLSID_ConfigurationObjectLifetimeWatcher = { 0x89a8f1d4,0x1e24,0x46a4,{0x9f,0x6c,0x65,0x78,0xb0,0x47,0xf2,0xf7} };
 
     struct
@@ -51,6 +56,8 @@ namespace ConfigurationShim
 
         winrt::Microsoft::Management::Configuration::ConfigurationUnit CreateConfigurationUnit()
         {
+            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+
             if (!m_statics)
             {
                 THROW_HR(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
@@ -63,6 +70,8 @@ namespace ConfigurationShim
 
         winrt::Microsoft::Management::Configuration::ConfigurationSet CreateConfigurationSet()
         {
+            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+
             if (!m_statics)
             {
                 THROW_HR(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
@@ -75,6 +84,8 @@ namespace ConfigurationShim
 
         winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory> CreateConfigurationSetProcessorFactoryAsync(winrt::hstring const& handler)
         {
+            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+
             auto strong_this{ get_strong() };
             std::wstring lowerHandler = AppInstaller::Utility::ToLower(handler);
 
@@ -103,6 +114,8 @@ namespace ConfigurationShim
 
         winrt::Microsoft::Management::Configuration::ConfigurationProcessor CreateConfigurationProcessor(winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory const& factory)
         {
+            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+
             if (!m_statics)
             {
                 THROW_HR(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
@@ -120,6 +133,8 @@ namespace ConfigurationShim
 
         winrt::Windows::Foundation::IAsyncActionWithProgress<uint32_t> EnableConfigurationAsync()
         {
+            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+
             if (IsConfigurationEnabled())
             {
                 return;
@@ -173,6 +188,7 @@ namespace ConfigurationShim
             });
 
             co_await installTask;
+            s_canBeCreated = false;
         }
 
     private:
@@ -202,6 +218,8 @@ namespace ConfigurationShim
             RETURN_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet));
             // TODO: Review of security for configuration OOP
             RETURN_HR_IF(E_ACCESSDENIED, !::AppInstaller::Security::IsCOMCallerSameUserAndIntegrityLevel());
+
+            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
 
             return ::wil::wrl_factory_for_winrt_com_class<TCppWinRTClass>::CreateInstance(unknownOuter, riid, object);
         }

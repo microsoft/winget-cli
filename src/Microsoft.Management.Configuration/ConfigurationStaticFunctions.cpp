@@ -41,7 +41,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *result;
     }
 
-    Windows::Foundation::IAsyncActionWithProgress<uint32_t> ConfigurationStaticFunctions::EnableConfigurationAsync()
+    Windows::Foundation::IAsyncActionWithProgress<uint32_t> ConfigurationStaticFunctions::EnsureConfigurationAvailableAsync()
     {
         THROW_HR(E_NOTIMPL);
     }
