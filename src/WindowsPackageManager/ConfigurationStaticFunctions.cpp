@@ -181,11 +181,11 @@ namespace ConfigurationShim
             {
                 if (installProgress.State == PackageInstallProgressState::Downloading && installProgress.BytesRequired != 0)
                 {
-                    progress((uint32_t)(installProgress.DownloadProgress * 50));
+                    progress((uint32_t)(installProgress.DownloadProgress * 80));
                 }
                 else if (installProgress.State == PackageInstallProgressState::Installing)
                 {
-                    progress(((uint32_t)installProgress.InstallationProgress * 50) + 50);
+                    progress(((uint32_t)installProgress.InstallationProgress * 20) + 80);
                 }
             });
 
