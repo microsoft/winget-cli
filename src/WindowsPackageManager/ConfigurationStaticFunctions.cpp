@@ -48,7 +48,7 @@ namespace ConfigurationShim
             diagnosticsLogger.SetLevel(AppInstaller::Logging::Level::Verbose);
             diagnosticsLogger.AddLogger(std::make_unique<AppInstaller::Logging::FileLogger>("ConfigStatics"sv));
 
-            if (IsConfigurationEnabled())
+            if (IsConfigurationAvailable())
             {
                 m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions();
             }
@@ -56,7 +56,7 @@ namespace ConfigurationShim
 
         winrt::Microsoft::Management::Configuration::ConfigurationUnit CreateConfigurationUnit()
         {
-            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+            THROW_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
 
             if (!m_statics)
             {
@@ -70,7 +70,7 @@ namespace ConfigurationShim
 
         winrt::Microsoft::Management::Configuration::ConfigurationSet CreateConfigurationSet()
         {
-            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+            THROW_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
 
             if (!m_statics)
             {
@@ -84,7 +84,7 @@ namespace ConfigurationShim
 
         winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory> CreateConfigurationSetProcessorFactoryAsync(winrt::hstring const& handler)
         {
-            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+            THROW_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
 
             auto strong_this{ get_strong() };
             std::wstring lowerHandler = AppInstaller::Utility::ToLower(handler);
@@ -114,7 +114,7 @@ namespace ConfigurationShim
 
         winrt::Microsoft::Management::Configuration::ConfigurationProcessor CreateConfigurationProcessor(winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory const& factory)
         {
-            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+            THROW_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
 
             if (!m_statics)
             {
@@ -126,16 +126,16 @@ namespace ConfigurationShim
             return result;
         }
 
-        bool IsConfigurationEnabled()
+        bool IsConfigurationAvailable()
         {
             return !IsStubPackage();
         }
 
-        winrt::Windows::Foundation::IAsyncActionWithProgress<uint32_t> EnableConfigurationAsync()
+        winrt::Windows::Foundation::IAsyncActionWithProgress<uint32_t> EnsureConfigurationAvailableAsync()
         {
-            RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+            THROW_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
 
-            if (IsConfigurationEnabled())
+            if (IsConfigurationAvailable())
             {
                 return;
             }
