@@ -20,6 +20,7 @@
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
+#include <winget/GroupPolicy.h>
 
 using namespace std::chrono_literals;
 
@@ -115,6 +116,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     ConfigurationProcessor::ConfigurationProcessor()
     {
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet));
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::Configuration));
+
         AppInstaller::Logging::DiagnosticLogger& logger = m_threadGlobals.GetDiagnosticLogger();
         logger.EnableChannel(AppInstaller::Logging::Channel::All);
         logger.SetLevel(AppInstaller::Logging::Level::Verbose);

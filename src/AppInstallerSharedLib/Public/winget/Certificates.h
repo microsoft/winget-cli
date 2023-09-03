@@ -35,7 +35,7 @@ namespace AppInstaller::Certificates
         PinningDetails& operator=(PinningDetails&&) = default;
 
         // Loads the certificate context.
-        PinningDetails& LoadCertificate(int resource);
+        PinningDetails& LoadCertificate(int resource, int resourceType);
         PinningDetails& LoadCertificate(const std::vector<BYTE>& certificateBytes);
         PinningDetails& LoadCertificate(const std::pair<const BYTE*,size_t> certificateBytes);
         PCCERT_CONTEXT GetCertificate() const { return m_certificateContext.get(); }
