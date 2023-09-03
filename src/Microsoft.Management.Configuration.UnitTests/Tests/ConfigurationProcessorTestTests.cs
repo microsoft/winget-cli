@@ -64,7 +64,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationSet configurationSet = this.ConfigurationSet();
             ConfigurationUnit configurationUnitThrows = this.ConfigurationUnit();
             ConfigurationUnit configurationUnitWorks = this.ConfigurationUnit();
-            configurationSet.ConfigurationUnits = new ConfigurationUnit[] { configurationUnitThrows, configurationUnitWorks };
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnitThrows, configurationUnitWorks };
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
@@ -106,7 +106,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationSet configurationSet = this.ConfigurationSet();
             ConfigurationUnit configurationUnitThrows = this.ConfigurationUnit();
             ConfigurationUnit configurationUnitWorks = this.ConfigurationUnit();
-            configurationSet.ConfigurationUnits = new ConfigurationUnit[] { configurationUnitWorks, configurationUnitThrows };
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnitWorks, configurationUnitThrows };
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
@@ -149,12 +149,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationSet configurationSet = this.ConfigurationSet();
             ConfigurationUnit configurationUnitThrows = this.ConfigurationUnit();
             ConfigurationUnit configurationUnitWorks = this.ConfigurationUnit();
-            configurationSet.ConfigurationUnits = new ConfigurationUnit[] { configurationUnitWorks, configurationUnitThrows };
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnitWorks, configurationUnitThrows };
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
             TestConfigurationUnitProcessor unitProcessor = setProcessor.CreateTestProcessor(configurationUnitThrows);
-            TestSettingsResultInstance testResult = new TestSettingsResultInstance();
+            TestSettingsResultInstance testResult = new TestSettingsResultInstance(configurationUnitThrows);
             testResult.TestResult = ConfigurationTestResult.Failed;
             testResult.InternalResult.ResultCode = new NullReferenceException();
             testResult.InternalResult.Description = "Failed again";
@@ -229,13 +229,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
 
-            TestSettingsResultInstance positiveResult = new TestSettingsResultInstance();
+            TestSettingsResultInstance positiveResult = new TestSettingsResultInstance(configurationUnits[0]);
             positiveResult.TestResult = ConfigurationTestResult.Positive;
 
-            TestSettingsResultInstance negativeResult = new TestSettingsResultInstance();
+            TestSettingsResultInstance negativeResult = new TestSettingsResultInstance(configurationUnits[0]);
             negativeResult.TestResult = ConfigurationTestResult.Negative;
 
-            TestSettingsResultInstance failedResult = new TestSettingsResultInstance();
+            TestSettingsResultInstance failedResult = new TestSettingsResultInstance(configurationUnits[0]);
             failedResult.TestResult = ConfigurationTestResult.Failed;
             failedResult.InternalResult.ResultCode = new NullReferenceException();
             failedResult.InternalResult.Description = "Failed again";
@@ -244,7 +244,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             for (int i = 0; i < resultTypes.Length; ++i)
             {
                 configurationUnits[i] = this.ConfigurationUnit();
-                configurationUnits[i].UnitName = $"Unit {i}";
+                configurationUnits[i].Type = $"Unit {i}";
                 TestConfigurationUnitProcessor unitProcessor = setProcessor.CreateTestProcessor(configurationUnits[i]);
 
                 switch (resultTypes[i])
@@ -264,7 +264,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 }
             }
 
-            configurationSet.ConfigurationUnits = configurationUnits;
+            configurationSet.Units = configurationUnits;
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 

@@ -30,9 +30,6 @@
     <ClCompile Include="GetConfigurationUnitSettingsResult.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
-    <ClCompile Include="MutableFlag.cpp">
-      <Filter>Internals</Filter>
-    </ClCompile>
     <ClCompile Include="TestConfigurationSetResult.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
@@ -110,9 +107,6 @@
     </ClInclude>
     <ClInclude Include="GetConfigurationUnitSettingsResult.h">
       <Filter>API Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="MutableFlag.h">
-      <Filter>Internals</Filter>
     </ClInclude>
     <ClInclude Include="TestConfigurationSetResult.h">
       <Filter>API Headers</Filter>

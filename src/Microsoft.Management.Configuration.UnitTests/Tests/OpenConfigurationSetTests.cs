@@ -166,7 +166,7 @@ properties:
             Assert.Null(result.ResultCode);
             Assert.Equal(string.Empty, result.Field);
 
-            var units = result.Set.ConfigurationUnits;
+            var units = result.Set.Units;
             Assert.Equal(3, units.Count);
             bool sawAssert = false;
             bool sawInform = false;
@@ -174,7 +174,7 @@ properties:
 
             foreach (var unit in units)
             {
-                Assert.Equal(unit.UnitName, unit.Intent.ToString());
+                Assert.Equal(unit.Type, unit.Intent.ToString());
                 switch (unit.Intent)
                 {
                     case ConfigurationUnitIntent.Assert: sawAssert = true; break;
@@ -262,13 +262,13 @@ properties:
 
             Assert.NotEqual(Guid.Empty, result.Set.InstanceIdentifier);
 
-            var units = result.Set.ConfigurationUnits;
+            var units = result.Set.Units;
             Assert.NotNull(units);
             Assert.Equal(1, units.Count);
 
             ConfigurationUnit unit = units[0];
             Assert.NotNull(unit);
-            Assert.Equal("Resource", unit.UnitName);
+            Assert.Equal("Resource", unit.Type);
             Assert.NotEqual(Guid.Empty, unit.InstanceIdentifier);
             Assert.Equal("Identifier", unit.Identifier);
             Assert.Equal(ConfigurationUnitIntent.Apply, unit.Intent);
@@ -279,7 +279,7 @@ properties:
             Assert.Contains("Dependency1", dependencies);
             Assert.Contains("Dependency2", dependencies);
 
-            var directives = unit.Directives;
+            var directives = unit.Metadata;
             Assert.NotNull(directives);
             Assert.Equal(2, directives.Count);
             Assert.Contains("Directive1", directives);
@@ -298,7 +298,7 @@ properties:
             Assert.Null(unit.Details);
             Assert.Equal(ConfigurationUnitState.Unknown, unit.State);
             Assert.Null(unit.ResultInformation);
-            Assert.True(unit.ShouldApply);
+            Assert.True(unit.IsActive);
         }
 
         /// <summary>
@@ -324,7 +324,7 @@ properties:
             Assert.NotNull(result.Set);
             Assert.Null(result.ResultCode);
 
-            var units = result.Set.ConfigurationUnits;
+            var units = result.Set.Units;
             Assert.NotNull(units);
             Assert.Equal(1, units.Count);
 
@@ -366,13 +366,12 @@ properties:
             Assert.Null(result.ResultCode);
 
             Assert.Equal("0.1", result.Set.SchemaVersion);
-            Assert.Single(result.Set.ConfigurationUnits);
+            Assert.Single(result.Set.Units);
 
-            var unit = result.Set.ConfigurationUnits[0];
+            var unit = result.Set.Units[0];
             Assert.NotNull(unit);
-            Assert.Equal("0.1", unit.SchemaVersion);
-            Assert.Equal("Module/Resource", unit.UnitName);
-            Assert.Empty(unit.Directives);
+            Assert.Equal("Module/Resource", unit.Type);
+            Assert.Empty(unit.Metadata);
         }
 
         /// <summary>
@@ -399,15 +398,14 @@ properties:
             Assert.Null(result.ResultCode);
 
             Assert.Equal("0.2", result.Set.SchemaVersion);
-            Assert.Single(result.Set.ConfigurationUnits);
+            Assert.Single(result.Set.Units);
 
-            var unit = result.Set.ConfigurationUnits[0];
+            var unit = result.Set.Units[0];
             Assert.NotNull(unit);
-            Assert.Equal("0.2", unit.SchemaVersion);
-            Assert.Equal("Resource", unit.UnitName);
-            Assert.Single(unit.Directives);
-            Assert.True(unit.Directives.ContainsKey(ModuleDirective));
-            Assert.Equal("Module", unit.Directives[ModuleDirective]);
+            Assert.Equal("Resource", unit.Type);
+            Assert.Single(unit.Metadata);
+            Assert.True(unit.Metadata.ContainsKey(ModuleDirective));
+            Assert.Equal("Module", unit.Metadata[ModuleDirective]);
         }
 
         /// <summary>

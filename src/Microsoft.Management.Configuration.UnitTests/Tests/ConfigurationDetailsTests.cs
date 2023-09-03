@@ -98,9 +98,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                     getModuleInfo = this.CreateGetModuleInfo();
                 }
 
-                var details = new ConfigurationUnitProcessorDetails(unit.UnitName, dscResourceInfoInput, psModuleInfoInput, getModuleInfo, certsInput);
+                var details = new ConfigurationUnitProcessorDetails(unit.Type, dscResourceInfoInput, psModuleInfoInput, getModuleInfo, certsInput);
 
-                Assert.Equal(unit.UnitName, details.UnitName);
+                Assert.Equal(unit.Type, details.UnitType);
 
                 if (hasDscInfo)
                 {
@@ -110,35 +110,35 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                     Assert.NotNull(details.Settings);
                     Assert.True(details.Settings.Count == 5);
 
-                    var pathSetting = details.Settings.Where(s => s.Name == "Path").FirstOrDefault();
+                    var pathSetting = details.Settings.Where(s => s.Identifier == "Path").FirstOrDefault();
                     Assert.NotNull(pathSetting);
-                    Assert.Equal("[string]", pathSetting.Type);
+                    Assert.Equal(Windows.Foundation.PropertyType.String, pathSetting.Type);
                     Assert.True(pathSetting.IsRequired);
-                    Assert.Equal(string.Empty, pathSetting.Semantics);
+                    Assert.Equal(string.Empty, pathSetting.Schema);
 
-                    var contentSetting = details.Settings.Where(s => s.Name == "Content").FirstOrDefault();
+                    var contentSetting = details.Settings.Where(s => s.Identifier == "Content").FirstOrDefault();
                     Assert.NotNull(contentSetting);
-                    Assert.Equal("[string]", contentSetting.Type);
+                    Assert.Equal(Windows.Foundation.PropertyType.String, contentSetting.Type);
                     Assert.False(contentSetting.IsRequired);
-                    Assert.Equal(string.Empty, contentSetting.Semantics);
+                    Assert.Equal(string.Empty, contentSetting.Schema);
 
-                    var dependsOnSetting = details.Settings.Where(s => s.Name == "DependsOn").FirstOrDefault();
+                    var dependsOnSetting = details.Settings.Where(s => s.Identifier == "DependsOn").FirstOrDefault();
                     Assert.NotNull(dependsOnSetting);
-                    Assert.Equal("[string[]]", dependsOnSetting.Type);
+                    Assert.Equal(Windows.Foundation.PropertyType.StringArray, dependsOnSetting.Type);
                     Assert.False(dependsOnSetting.IsRequired);
-                    Assert.Equal(string.Empty, dependsOnSetting.Semantics);
+                    Assert.Equal(string.Empty, dependsOnSetting.Schema);
 
-                    var ensureSetting = details.Settings.Where(s => s.Name == "Ensure").FirstOrDefault();
+                    var ensureSetting = details.Settings.Where(s => s.Identifier == "Ensure").FirstOrDefault();
                     Assert.NotNull(ensureSetting);
-                    Assert.Equal("[string]", ensureSetting.Type);
+                    Assert.Equal(Windows.Foundation.PropertyType.String, ensureSetting.Type);
                     Assert.False(ensureSetting.IsRequired);
-                    Assert.Equal("Absent, Present", ensureSetting.Semantics);
+                    Assert.Equal(string.Empty, ensureSetting.Schema);
 
-                    var psDscRunAsCredentialSetting = details.Settings.Where(s => s.Name == "PsDscRunAsCredential").FirstOrDefault();
+                    var psDscRunAsCredentialSetting = details.Settings.Where(s => s.Identifier == "PsDscRunAsCredential").FirstOrDefault();
                     Assert.NotNull(psDscRunAsCredentialSetting);
-                    Assert.Equal("[PSCredential]", psDscRunAsCredentialSetting.Type);
+                    Assert.Equal(Windows.Foundation.PropertyType.Inspectable, psDscRunAsCredentialSetting.Type);
                     Assert.False(psDscRunAsCredentialSetting.IsRequired);
-                    Assert.Equal(string.Empty, psDscRunAsCredentialSetting.Semantics);
+                    Assert.Equal(string.Empty, psDscRunAsCredentialSetting.Schema);
                 }
 
                 if (hasPSModuleInfo)
@@ -177,9 +177,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         private ConfigurationUnit CreateConfigurationUnit()
         {
             var unit = new ConfigurationUnit();
-            unit.UnitName = "SimpleFileResource";
-            unit.Directives.Add("module", "xSimpleTestResource");
-            unit.Directives.Add("version", "0.0.0.1");
+            unit.Type = "SimpleFileResource";
+            unit.Metadata.Add("module", "xSimpleTestResource");
+            unit.Metadata.Add("version", "0.0.0.1");
 
             return unit;
         }
@@ -189,7 +189,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // This is easier than trying to mock sealed class from external code...
             var testEnv = this.fixture.PrepareTestProcessorEnvironment(true);
 
-            var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitInternal(unit, string.Empty, null));
+            var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitInternal(unit, string.Empty));
             var psModuleInfo = testEnv.GetAvailableModule(PowerShellHelpers.CreateModuleSpecification("xSimpleTestResource", "0.0.0.1"));
 
             if (dscResourceInfo is null || psModuleInfo is null)

@@ -97,8 +97,10 @@ namespace Microsoft.Management.Configuration
     interface IConfigurationUnitSettingDetails
     {
         // The name of the setting.
-        String Name{ get; };
-        // The description of the setting.
+        String Identifier{ get; };
+        // A brief description of the setting.
+        String Title{ get; };
+        // The detailed description of the setting.
         String Description{ get; };
         // Whether the setting is a key. This is used to determine if different settings are in conflict.
         Boolean IsKey{ get; };
@@ -108,7 +110,7 @@ namespace Microsoft.Management.Configuration
         // When the current settings are retrieved from the system, this can be used to exclude settings that are not relevant to a future application of the unit of configuration.
         Boolean IsInformational{ get; };
         // The data type for the value of this setting.
-        String Type{ get; };
+        Windows.Foundation.PropertyType Type{ get; };
 
         // The schema fragment to be used for this setting.
         // Using a single entry of the `properties` object from a JSON schema is suggested, for instance:
@@ -175,9 +177,6 @@ namespace Microsoft.Management.Configuration
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum ConfigurationUnitIntent
     {
-        // The configuration unit's intent is unknown.
-        // It will be treated as if to Apply.
-        Unknown,
         // The configuration unit will only be used to Test the current system state.
         Assert,
         // The configuration unit will only be used to Get the current system state.
@@ -185,6 +184,9 @@ namespace Microsoft.Management.Configuration
         // The configuration unit will be used to Apply the current system state.
         // The configuration unit will be used to Test and Get the current system state as part of that process.
         Apply,
+        // The configuration unit's intent is unknown.
+        // Currently not supported.
+        Unknown,
     };
 
     // A single unit of configuration.
@@ -208,15 +210,15 @@ namespace Microsoft.Management.Configuration
         ConfigurationUnitIntent Intent;
 
         // The `Identifier` values of the configuration units that this unit depends on.
-        Windows.Foundation.Collections.IVector<String> Dependencies{ get; };
+        Windows.Foundation.Collections.IVector<String> Dependencies;
 
         // The metadata properties associated with the configuration unit.
         // TODO: This is being used to drive processing decisions when it should not.
         //       There is ongoing discussion about this at https://github.com/PowerShell/DSC/issues/47 and https://github.com/PowerShell/DSC/issues/92.
-        Windows.Foundation.Collections.ValueSet Metadata{ get; };
+        Windows.Foundation.Collections.ValueSet Metadata;
 
         // Contains the values that are for use by the configuration unit itself.
-        Windows.Foundation.Collections.ValueSet Settings{ get; };
+        Windows.Foundation.Collections.ValueSet Settings;
 
         // Contains information on the origin of the configuration unit.
         // May be null if ConfigurationProcessor.GetDetailsAsync has not been called yet.
@@ -299,7 +301,7 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.DateTime ApplyEnded{ get; };
 
         // The configuration units that are part of this set.
-        Windows.Foundation.Collections.IVector<ConfigurationUnit> Units{ get; };
+        Windows.Foundation.Collections.IVector<ConfigurationUnit> Units;
 
         // The schema version to use for the set.
         // Will be set to the schema version when read in, and default to the latest if created manually.
