@@ -254,6 +254,7 @@ namespace AppInstaller::Runtime
         // Configuring permissions for both CurrentUser and SYSTEM while not having owner set as one of them is not valid because
         // below we use only the owner permissions in the case of running as SYSTEM.
         if ((hasCurrentUser && hasSystem) &&
+            IsRunningAsSystem() &&
             (!Owner || (Owner.value() != ACEPrincipal::CurrentUser && Owner.value() != ACEPrincipal::System)))
         {
             THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
@@ -441,7 +442,11 @@ namespace AppInstaller::Runtime
             if (path == PathName::SecureSettingsForWrite)
             {
                 result.SetOwner(ACEPrincipal::Admins);
-                result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+                // When running as system, we do not set current user permissions to avoid permission conflicts.
+                if (!IsRunningAsSystem())
+                {
+                    result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+                }
                 result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             }
             else
@@ -523,7 +528,11 @@ namespace AppInstaller::Runtime
             if (path == PathName::SecureSettingsForWrite)
             {
                 result.SetOwner(ACEPrincipal::Admins);
-                result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+                // When running as system, we do not set current user permissions to avoid permission conflicts.
+                if (!IsRunningAsSystem())
+                {
+                    result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+                }
                 result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             }
             else
