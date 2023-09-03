@@ -740,15 +740,15 @@ namespace Microsoft.Management.Configuration
         // Due to the way that metadata (WinMD) based marshalling works, in order for any of these to be IIterable<T>, they need to be
         // included in the manifest of the package. Update the DumpProxyStubRegistrationsCommand to add any new types to make it easier
         // to iterate over these collections, especially in C#.
-        interface Windows.Foundation.Collections.IVector<ConfigurationConflict>;
+        interface Windows.Foundation.Collections.IVector<ConfigurationUnit>;
         interface Windows.Foundation.Collections.IVector<ConfigurationSet>;
-        interface Windows.Foundation.Collections.IVectorView<ApplyConfigurationUnitResult>;
-        interface Windows.Foundation.Collections.IVectorView<ConfigurationConflictSetting>;
-        interface Windows.Foundation.Collections.IVectorView<ConfigurationSet>;
-        interface Windows.Foundation.Collections.IVectorView<ConfigurationUnit>;
-        interface Windows.Foundation.Collections.IVectorView<GetConfigurationUnitDetailsResult>;
+        interface Windows.Foundation.Collections.IVector<ConfigurationConflict>;
         interface Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails>;
+        interface Windows.Foundation.Collections.IVectorView<ConfigurationConflictSetting>;
+        interface Windows.Foundation.Collections.IVectorView<GetConfigurationUnitDetailsResult>;
+        interface Windows.Foundation.Collections.IVectorView<ApplyConfigurationUnitResult>;
         interface Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult>;
+        interface Windows.Foundation.Collections.IVectorView<ConfigurationSet>;
     }
 
     // Provides a way to centralize the distribution of interfaces relevant to specific implementations of IConfigurationSetProcessorFactory.
