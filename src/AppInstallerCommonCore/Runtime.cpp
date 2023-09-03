@@ -442,6 +442,7 @@ namespace AppInstaller::Runtime
             {
                 result.SetOwner(ACEPrincipal::Admins);
                 result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+                result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             }
             else
             {
