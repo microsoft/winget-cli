@@ -295,7 +295,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 Resources.ConfigurationApply,
                 Resources.OperationInProgress,
                 Resources.OperationCompleted,
-                set.ConfigurationUnits.Count);
+                set.Units.Count);
 
             var applyTask = processor.ApplySetAsync(set, ApplyConfigurationSetFlags.None);
             applyTask.Progress = applyProgressOutput.Progress;
@@ -317,7 +317,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             var processor = psConfigurationSet.PsProcessor.Processor;
             var set = psConfigurationSet.Set;
-            var totalUnitsCount = set.ConfigurationUnits.Count;
+            var totalUnitsCount = set.Units.Count;
 
             if (totalUnitsCount == 0)
             {
@@ -368,7 +368,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (resultInformation.ResultCode != null)
             {
-                string errorMessage = $"Failed to get unit details for {unit.UnitName} 0x{resultInformation.ResultCode.HResult:X}" +
+                string errorMessage = $"Failed to get unit details for {unit.Type} 0x{resultInformation.ResultCode.HResult:X}" +
                     $"{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'";
                 this.WriteError(
                     ErrorRecordErrorId.ConfigurationDetailsError,

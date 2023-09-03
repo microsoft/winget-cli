@@ -52,24 +52,24 @@ namespace TestCommon
         }
     }
 
-    IConfigurationUnitProcessor TestConfigurationSetProcessor::CreateUnitProcessor(const ConfigurationUnit& unit, const IMapView<winrt::hstring, IInspectable>& directivesOverlay)
+    IConfigurationUnitProcessor TestConfigurationSetProcessor::CreateUnitProcessor(const ConfigurationUnit& unit)
     {
         if (CreateUnitProcessorFunc)
         {
-            return CreateUnitProcessorFunc(unit, directivesOverlay);
+            return CreateUnitProcessorFunc(unit);
         }
         else
         {
-            return winrt::make<TestConfigurationUnitProcessor>(unit, directivesOverlay);
+            return winrt::make<TestConfigurationUnitProcessor>(unit);
         }
     }
 
     TestConfigurationUnitProcessorDetails::TestConfigurationUnitProcessorDetails(const ConfigurationUnit& unit) :
-        UnitNameValue(unit.UnitName())
+        UnitTypeValue(unit.Type())
     {}
 
-    TestConfigurationUnitProcessor::TestConfigurationUnitProcessor(const ConfigurationUnit& unit, const IMapView<winrt::hstring, IInspectable>& directivesOverlay) :
-        UnitValue(unit), DirectivesOverlayValue(directivesOverlay)
+    TestConfigurationUnitProcessor::TestConfigurationUnitProcessor(const ConfigurationUnit& unit) :
+        UnitValue(unit)
     {}
 
     ITestSettingsResult TestConfigurationUnitProcessor::TestSettings()
@@ -80,7 +80,7 @@ namespace TestCommon
         }
         else
         {
-            return winrt::make<TestSettingsResultInstance>();
+            return winrt::make<TestSettingsResultInstance>(UnitValue);
         }
     }
 
@@ -92,7 +92,7 @@ namespace TestCommon
         }
         else
         {
-            return winrt::make<GetSettingsResultInstance>();
+            return winrt::make<GetSettingsResultInstance>(UnitValue);
         }
     }
 
@@ -104,7 +104,7 @@ namespace TestCommon
         }
         else
         {
-            return winrt::make<ApplySettingsResultInstance>();
+            return winrt::make<ApplySettingsResultInstance>(UnitValue);
         }
     }
 }

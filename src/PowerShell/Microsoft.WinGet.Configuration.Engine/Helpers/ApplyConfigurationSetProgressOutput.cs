@@ -119,7 +119,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                         string description = resultInformation.Description.Trim();
                         var message = this.GetUnitFailedMessage(unit, resultInformation);
 
-                        string errorMessage = $"Configuration unit {unit.UnitName}[{unit.Identifier}] failed with code 0x{resultInformation.ResultCode.HResult:X}" +
+                        string errorMessage = $"Configuration unit {unit.Type}[{unit.Identifier}] failed with code 0x{resultInformation.ResultCode.HResult:X}" +
                             $" and error message:\n{description}\n{resultInformation.Details}\n{message}";
                         this.cmd.WriteError(
                             ErrorRecordErrorId.ConfigurationApplyError,
