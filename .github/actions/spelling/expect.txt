@@ -98,6 +98,7 @@ cswinrt
 ctc
 currentuser
 DACL
+datetimeoffset
 Dbg
 debian
 deigh
@@ -453,6 +454,7 @@ testdata
 testexampleinstaller
 thiscouldbeapc
 threehundred
+timespan
 timezone
 Tlg
 tombstoned
