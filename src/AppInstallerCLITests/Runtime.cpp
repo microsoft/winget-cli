@@ -79,7 +79,7 @@ TEST_CASE("ApplyACL_BothOwners", "[runtime]")
     details.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
     details.ACL[ACEPrincipal::System] = ACEPermissions::All;
 
-    if (IsRunningAsAdmin())
+    if (IsRunningAsSystem())
     {
         // Both cannot be owners
         REQUIRE_THROWS_HR(details.ApplyACL(), HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
