@@ -4,16 +4,17 @@ body:
   - type: markdown
     attributes:
       value: |
-        > This bug tracker is monitored by Windows Package Manager development team and other technical folks.
-        > 
-        > **Important: When reporting BSODs or security issues, DO NOT attach memory dumps, logs, or traces to GitHub issues**.
+        This bug tracker is monitored by Windows Package Manager development team and other technical folks.
+         
+        >[!IMPORTANT]
+        > When reporting BSODs or security issues, DO NOT attach memory dumps, logs, or traces to GitHub issues.
         > Instead, send dumps/traces to secure@microsoft.com, referencing this GitHub issue.
-        >
-        > If this is an application crash, please also provide a Feedback Hub submission link if at all possible so we can find your diagnostic data on the backend.
-        > You can open the Feedback Hub directly to the pre-populated form at https://aka.ms/winget-feedback
-        > Alternatively, use the category "Apps > Windows Package Manager" and choose "Share My Feedback" after submission to get the link.
-        >
-        > Please use this form and describe your issue, concisely but precisely, with as much detail as possible.
+        
+        If this is an application crash, please also provide a Feedback Hub submission link if at all possible so we can find your diagnostic data on the backend.
+        You can open the Feedback Hub directly to the pre-populated form at https://aka.ms/winget-feedback
+        Alternatively, use the category "Apps > Windows Package Manager" and choose "Share My Feedback" after submission to get the link.
+        
+        Please use this form and describe your issue, concisely but precisely, with as much detail as possible.
   - type: textarea
     attributes:
       label: Brief description of your issue
