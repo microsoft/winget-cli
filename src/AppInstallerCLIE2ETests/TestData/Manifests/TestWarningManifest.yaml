@@ -7,7 +7,7 @@ License: Test
 Installers:
   - Architecture: x86
     InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
-    InstallerSha256: <EXEHASH>
+    InstallerSha256: 0000000000000000000000000000000000000000000000000000000000000000
     InstallerType: exe
 ShortDescription: This manifest should have only warnings, no errors
 ManifestType: singleton
