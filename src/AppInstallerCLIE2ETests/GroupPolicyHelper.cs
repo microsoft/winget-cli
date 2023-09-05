@@ -137,6 +137,7 @@ namespace AppInstallerCLIE2ETests
             EnableAllowedSources,
             SourceAutoUpdateInterval,
             EnableWinGetCommandLineInterfaces,
+            EnableConfiguration,
         };
 
         /// <summary>

@@ -15,15 +15,6 @@ namespace AppInstallerCLIE2ETests
     public class ConfigureShowCommand
     {
         /// <summary>
-        /// Setup done once before all the tests here.
-        /// </summary>
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            WinGetSettingsHelper.ConfigureFeature("configuration", true);
-        }
-
-        /// <summary>
         /// Simple test to confirm that a resource without a module specified can be discovered in the PSGallery.
         /// </summary>
         [Test]

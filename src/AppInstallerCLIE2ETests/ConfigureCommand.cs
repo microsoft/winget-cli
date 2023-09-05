@@ -23,7 +23,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("configuration", true);
             this.DeleteTxtFiles();
         }
 
