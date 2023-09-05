@@ -4,12 +4,27 @@
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
+#include "Public/winget/Resources.h"
 
 
 namespace AppInstaller
 {
     namespace
     {
+        // HRESULT information for our errors
+        struct AICLIHResultInformation : public Errors::HResultInformation
+        {
+            AICLIHResultInformation(HRESULT value, std::string_view symbol, std::string_view unlocalizedDescription);
+
+            std::string GetDescription() override
+            {
+
+            }
+
+        private:
+            std::string_view m_unlocalizedDescription;
+        };
+
         const char* GetMessageForAppInstallerHR(HRESULT hr)
         {
             switch (hr)
@@ -400,4 +415,53 @@ namespace AppInstaller
         return strstr.str();
     }
 #endif
+
+    namespace Errors
+    {
+        constexpr HResultInformation::HResultInformation(HRESULT value) :
+            m_value(value) {}
+
+        constexpr HResultInformation::HResultInformation(HRESULT value, std::string_view symbol) :
+            m_value(value), m_symbol(symbol) {}
+
+        HRESULT HResultInformation::Value()
+        {
+            return m_value;
+        }
+
+        std::string_view HResultInformation::Symbol()
+        {
+            return m_symbol;
+        }
+
+        std::string HResultInformation::GetDescription()
+        {
+            if (HRESULT_FACILITY(m_value) == APPINSTALLER_CLI_ERROR_FACILITY)
+            {
+                // TODO: Replace this branch with implementation specific to our facility
+                return GetMessageForAppInstallerHR(m_value);
+            }
+            else
+            {
+                return std::system_category().message(m_value);
+            }
+        }
+
+        HResultInformation HResultInformation::Find(HRESULT value)
+        {
+            if (HRESULT_FACILITY(value) == APPINSTALLER_CLI_ERROR_FACILITY)
+            {
+                return FindAICLIHResultInformation(value);
+            }
+            else
+            {
+                return { value };
+            }
+        }
+
+        std::vector<const HResultInformation*> HResultInformation::Find(std::string_view value)
+        {
+            // This search 
+        }
+    }
 }
