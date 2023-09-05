@@ -13,6 +13,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Configuration::ConfigurationSet CreateConfigurationSet();
         Windows::Foundation::IAsyncOperation<IConfigurationSetProcessorFactory> CreateConfigurationSetProcessorFactoryAsync(hstring const& handler);
         Configuration::ConfigurationProcessor CreateConfigurationProcessor(IConfigurationSetProcessorFactory const& factory);
+        bool IsConfigurationAvailable() { return true; }
+        Windows::Foundation::IAsyncActionWithProgress<uint32_t> EnsureConfigurationAvailableAsync();
     };
 }
 namespace winrt::Microsoft::Management::Configuration::factory_implementation
