@@ -6,7 +6,7 @@ body:
       value: |
         This bug tracker is monitored by Windows Package Manager development team and other technical folks.
          
-        >[!IMPORTANT]
+        > [!IMPORTANT]
         > When reporting BSODs or security issues, DO NOT attach memory dumps, logs, or traces to GitHub issues.
         > Instead, send dumps/traces to secure@microsoft.com, referencing this GitHub issue.
         
