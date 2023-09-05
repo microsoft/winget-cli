@@ -207,7 +207,6 @@ namespace AppInstallerCLIE2ETests.Helpers
             ConfigureFeature("experimentalCmd", status);
             ConfigureFeature("directMSI", status);
             ConfigureFeature("pinning", status);
-            ConfigureFeature("configuration", status);
         }
 
         private static JObject GetJsonSettingsObject(string objectName)

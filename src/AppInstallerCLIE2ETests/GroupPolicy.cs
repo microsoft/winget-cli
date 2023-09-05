@@ -223,5 +223,19 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.IsTrue(result.StdOut.Contains("Source Auto Update Interval In Minutes 123"));
         }
+
+        /// <summary>
+        /// Test configuration is disabled by policy.
+        /// </summary>
+        [Test]
+        public void EnableConfiguration()
+        {
+            GroupPolicyHelper.EnableConfiguration.Disable();
+            var result = TestCommon.RunAICLICommand("configure", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+        }
     }
 }

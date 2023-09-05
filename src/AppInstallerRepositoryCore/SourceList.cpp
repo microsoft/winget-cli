@@ -312,19 +312,19 @@ namespace AppInstaller::Repository
 
                 PinningChain chain;
                 auto chainElement = chain.Root();
-                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1).SetPinning(PinningVerificationType::PublicKey);
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::PublicKey);
                 chainElement = chainElement.Next();
-                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
                 chainElement = chainElement.Next();
-                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
 
                 PinningChain chain2;
                 auto chainElement2 = chain2.Root();
-                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2).SetPinning(PinningVerificationType::PublicKey);
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::PublicKey);
                 chainElement2 = chainElement2.Next();
-                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
                 chainElement2 = chainElement2.Next();
-                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
 
                 details.CertificatePinningConfiguration = PinningConfiguration("Microsoft Store Source");
                 details.CertificatePinningConfiguration.AddChain(std::move(chain));

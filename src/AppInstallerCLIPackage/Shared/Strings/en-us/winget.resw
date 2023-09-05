@@ -2077,4 +2077,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>`--module-path` value must be `currentuser`, `allusers`, `default` or an absolute path.</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
   </data>
+  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+    <value>Enable Windows Package Manager Configuration</value>
+  </data>
 </root>

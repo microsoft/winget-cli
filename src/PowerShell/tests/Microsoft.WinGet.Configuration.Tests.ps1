@@ -82,6 +82,21 @@ Describe 'Test-GroupPolicies' {
         CleanupGroupPolicies
     }
 
+    It "Disable EnableWindowsPackageManagerConfiguration Policy and run Get-WinGetConfiguration" {
+       $policyKeyValueName =  "EnableWindowsPackageManagerConfiguration"
+
+        Set-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name $policyKeyValueName -Value 0
+        $registryKey  =  Get-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name $policyKeyValueName
+        $registryKey | Should -Not -BeNullOrEmpty
+        $registryKey.EnableWindowsPackageManagerConfiguration | Should -Be 0
+
+        # [NOTE:] We don't  need a valid yml file path to test Group Policy blocking scenario as it is the earliest check, 
+        # so just using some random file path for this test.
+        { Get-WinGetConfiguration -File "Z:\NonExisting_SettingsFile.yml" } | Should -Throw "This operation is disabled by Group Policy : Enable Windows Package Manager Configuration"
+
+        CleanupGroupPolicies
+    }
+
     AfterAll {
         CleanupGroupPolicies
         CleanupGroupPolicyKeyIfExists

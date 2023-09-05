@@ -390,13 +390,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DODownloader.h" />
-    <ClInclude Include="Public\winget\Certificates.h" />
     <ClInclude Include="Public\winget\FolderFileWatcher.h" />
     <ClInclude Include="Public\winget\MsixManifest.h" />
     <ClInclude Include="Public\winget\AdminSettings.h" />
     <ClInclude Include="Public\winget\Debugging.h" />
     <ClInclude Include="Public\winget\DependenciesGraph.h" />
-    <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="HttpStream\HttpClientWrapper.h" />
     <ClInclude Include="HttpStream\HttpLocalCache.h" />
     <ClInclude Include="HttpStream\HttpRandomAccessStream.h" />
@@ -413,7 +411,6 @@
     <ClInclude Include="Public\winget\Archive.h" />
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
-    <ClInclude Include="Public\winget\JsonUtil.h" />
     <ClInclude Include="Public\winget\Locale.h" />
     <ClInclude Include="Public\winget\ManagedFile.h" />
     <ClInclude Include="Public\winget\Manifest.h" />
@@ -432,7 +429,6 @@
     <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h" />
     <ClInclude Include="Public\winget\Pin.h" />
     <ClInclude Include="Public\winget\Regex.h" />
-    <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\PathVariable.h" />
     <ClInclude Include="Public\winget\PortableARPEntry.h" />
     <ClInclude Include="Public\winget\PortableFileEntry.h" />
@@ -447,15 +443,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
-    <ClCompile Include="Certificates.cpp" />
     <ClCompile Include="Debugging.cpp" />
     <ClCompile Include="DependenciesGraph.cpp" />
     <ClCompile Include="DODownloader.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FolderFileWatcher.cpp" />
-    <ClCompile Include="GroupPolicy.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Deployment.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
@@ -474,7 +466,6 @@
     <ClCompile Include="HttpStream\HttpRandomAccessStream.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="JsonUtil.cpp" />
     <ClCompile Include="Locale.cpp" />
     <ClCompile Include="ManagedFile.cpp" />
     <ClCompile Include="Manifest\Manifest.cpp" />
@@ -496,7 +487,6 @@
     <ClCompile Include="Pin.cpp" />
     <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Regex.cpp" />
-    <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
