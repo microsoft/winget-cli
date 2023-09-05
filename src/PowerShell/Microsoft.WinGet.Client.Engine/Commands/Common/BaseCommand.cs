@@ -37,11 +37,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
                 throw new GroupPolicyException(Policy.WinGet, GroupPolicyFailureType.BlockedByPolicy);
             }
 
-            if (!groupPolicy.IsEnabled(Policy.Configuration))
-            {
-                throw new GroupPolicyException(Policy.Configuration, GroupPolicyFailureType.BlockedByPolicy);
-            }
-
             if (!groupPolicy.IsEnabled(Policy.WinGetCommandLineInterfaces))
             {
                 throw new GroupPolicyException(Policy.WinGetCommandLineInterfaces, GroupPolicyFailureType.BlockedByPolicy);
