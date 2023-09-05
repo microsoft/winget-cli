@@ -319,6 +319,10 @@
     <value>Имя аргумента не распознано для текущей команды: "{0}"</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
+  <data name="KeyDirectoriesHeader" xml:space="preserve">
+    <value>Каталоги WinGet</value>
+    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
+  </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Используемый языковой стандарт (формат BCP47)</value>
     <comment>{Locked="BCP47"}</comment>
@@ -706,7 +710,7 @@
     <value>Отображает и выполняет доступные обновления</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>использование: {0}{1}</value>
+    <value>использование: {0} {1}</value>
     <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
@@ -761,6 +765,10 @@
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
     <value>Предоставляются аргументы и локального манифеста, и поискового запроса</value>
+  </data>
+  <data name="Logs" xml:space="preserve">
+    <value>Журналы</value>
+    <comment>Label displayed for diagnostic files containing information about the application use.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>Установщик заблокирован политикой</value>
@@ -833,7 +841,7 @@
     <comment>{Locked="{0}"} Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
-    <value>Установленная версия пакета недоступна из любого источника: {0}{1}{2}</value>
+    <value>Установленная версия пакета недоступна из любого источника: {0} {1} {2}</value>
     <comment>{Locked="{0} {1} {2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
@@ -894,6 +902,9 @@
   </data>
   <data name="PolicyEnableWinGet" xml:space="preserve">
     <value>Включить Диспетчер пакетов Windows</value>
+  </data>
+  <data name="PolicyEnableWindowsPackageManagerCommandLineInterfaces" xml:space="preserve">
+    <value>Включить интерфейсы командной строки Диспетчера пакетов Windows</value>
   </data>
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>Задать интервал автоматического обновления источника Диспетчера пакетов Windows в минутах</value>
@@ -972,9 +983,9 @@
     <value>У пакетов, обнаруженных в этом импорте, следующие зависимости:</value>
     <comment>Import command sentence showed before reporting dependencies</comment>
   </data>
-  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+  <data name="PackageRequiresDependencies" xml:space="preserve">
     <value>Для этого пакета требуются следующие зависимости:</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+    <comment>Message shown before reporting dependencies</comment>
   </data>
   <data name="DependenciesFlowInstall" xml:space="preserve">
     <value>Установка зависимостей:</value>
@@ -1314,11 +1325,15 @@
     <value>Диспетчер пакетов Windows (предварительная версия) версии {0}</value>
     <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
-  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
-    <value>Выберите архитектуру для установки</value>
+  <data name="ArchitectureArgumentDescription" xml:space="preserve">
+    <value>Выберите архитектуру</value>
   </data>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
     <value>Обновить пакеты, даже если не удается определить их текущую версию</value>
+  </data>
+  <data name="IncludeUnknownInListArgumentDescription" xml:space="preserve">
+    <value>Список пакетов, даже если их текущая версия не может быть определена. Можно использовать только с аргументом --upgrade-available.</value>
+    <comment>{Locked="--upgrade-available"}</comment>
   </data>
   <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
     <value>Невозможно определить номер версии этого пакета. Чтобы все равно обновить его, добавьте аргумент --include-unknown к предыдущей команде.</value>
@@ -1386,6 +1401,21 @@
   <data name="PortableAliasAdded" xml:space="preserve">
     <value>Добавлен псевдоним командной строки:</value>
   </data>
+  <data name="PortableLinksMachine" xml:space="preserve">
+    <value>Каталог переносимых ссылок (компьютер)</value>
+  </data>
+  <data name="PortableLinksUser" xml:space="preserve">
+    <value>Каталог переносимых ссылок (пользователь)</value>
+  </data>
+  <data name="PortableRootUser" xml:space="preserve">
+    <value>Корень переносимого пакета (пользователь)</value>
+  </data>
+  <data name="PortableRoot" xml:space="preserve">
+    <value>Корень переносимого пакета</value>
+  </data>
+  <data name="PortableRoot86" xml:space="preserve">
+    <value>Корень переносимого пакета (x86)</value>
+  </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Сбой переносной установки; Очистка...</value>
   </data>
@@ -1441,6 +1471,9 @@
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Указаны несовместимые аргументы командной строки</value>
+  </data>
+  <data name="UpgradeArgumentDescription" xml:space="preserve">
+    <value>Перечисляет только пакеты с доступным обновлением</value>
   </data>
   <data name="UpgradeAvailableForPinned" xml:space="preserve">
     <value>Для следующих пакетов доступно обновление, но для обновления требуется явный выбор целевого объекта.</value>
@@ -1557,11 +1590,22 @@
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
     <value>Блокировать обновление до тех пор, пока закрепление не будет удалено. Это предотвращает переопределение аргументов</value>
   </data>
+  <data name="PinInstalledArgumentDescription" xml:space="preserve">
+    <value>Закрепить определенную установленную версию</value>
+  </data>
+  <data name="PinInstalledSource" xml:space="preserve">
+    <value>Установлено</value>
+    <comment>Value used in a table to indicate that a package comes from the list of packages installed in the machine</comment>
+  </data>
   <data name="SettingsExportCommandLongDescription" xml:space="preserve">
     <value>Экспорт параметров в формате JSON</value>
   </data>
   <data name="SettingsExportCommandShortDescription" xml:space="preserve">
     <value>Параметры экспорта</value>
+  </data>
+  <data name="UserSettings" xml:space="preserve">
+    <value>Параметры пользователя</value>
+    <comment>Label displayed for the file containing the user settings.</comment>
   </data>
   <data name="SettingsWarningUsingDefault" xml:space="preserve">
     <value>Не удалось загрузить файл параметров. Используются значения по умолчанию.</value>
@@ -1618,6 +1662,10 @@
     <value>Указано несколько взаимоисключающих аргументов: {0}</value>
     <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
   </data>
+  <data name="DependencyArgumentMissing" xml:space="preserve">
+    <value>Аргумент {0} может использоваться только с {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message shown when having an argument needs another to be present, but that is missing. {0} and {1} are replaced by the arguments. For example "Argument --include-unknown can only be used with --upgrade"</comment>
+  </data>
   <data name="StateDisabled" xml:space="preserve">
     <value>Отключено</value>
     <comment>As in enabled/disabled</comment>
@@ -1645,8 +1693,16 @@
     <value>Сбой поиска для: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches fails. This message is for generic failures, we have more specific messages for when the search returns no results, or when it returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
   </data>
+  <data name="UpgradeBlockedByPinCount" xml:space="preserve">
+    <value>Несколько ({0}) пакетов используют закрепление, которое необходимо удалить перед обновлением</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
+  </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Обновление пакетов, даже если они используют неблокирующее закрепление</value>
+  </data>
+  <data name="IncludePinnedInListArgumentDescription" xml:space="preserve">
+    <value>Список пакетов, даже если у них есть ПИН-код, который блокирует обновление. Можно использовать только с аргументом --upgrade-available.</value>
+    <comment>{Locked="--upgrade-available"}</comment>
   </data>
   <data name="PinRemovedSuccessfully" xml:space="preserve">
     <value>Закрепление удалено</value>
@@ -1685,6 +1741,10 @@
   </data>
   <data name="ConfigureValidateCommandShortDescription" xml:space="preserve">
     <value>Проверяет файл конфигурации</value>
+  </data>
+  <data name="ConfigurationFieldInvalidType" xml:space="preserve">
+    <value>Недопустимый '{0}' в файле конфигурации.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file.</comment>
   </data>
   <data name="ConfigurationFileArgumentDescription" xml:space="preserve">
     <value>Путь к файлу конфигурации</value>
@@ -1747,7 +1807,7 @@
     <value>Вы самостоятельно отвечаете за понимание параметров конфигурации, которую собираетесь выполнить. Корпорация Майкрософт не несет ответственности за файл конфигурации, который вы создали или импортировали. Эта конфигурация может изменить параметры Windows, установить программное обеспечение, изменить параметры установленного программного обеспечения (включая параметры безопасности), а также принять от вашего имени пользовательские соглашения для сторонних пакетов программ и служб. Запуская этот файл конфигурации, вы подтверждаете, что понимаете состав этих ресурсов и параметров и соглашаетесь их применить. Любые установленные приложения лицензируются их владельцами. Майкрософт не несет ответственности за сторонние пакеты программ или службы и не предоставляет для них никаких лицензий.</value>
     <comment>Legal approved. Do not change without approval.</comment>
   </data>
-  <data name="ConfigurationWarningPrompt" xml:space="preserve">
+  <data name="ConfigurationWarningPromptApply" xml:space="preserve">
     <value>Вы проверили конфигурацию и хотите продолжить ее применение к системе?</value>
     <comment>PM approved.</comment>
   </data>
@@ -1786,5 +1846,232 @@
   </data>
   <data name="InstallWaitingOnAnother" xml:space="preserve">
     <value>Ожидание завершения другой установки или удаления...</value>
+  </data>
+  <data name="PinVersion" xml:space="preserve">
+    <value>Закрепленная версия</value>
+    <comment>Table header for the version to which a package is pinned; meaning it should not update from that version.</comment>
+  </data>
+  <data name="ConfigurationDescriptionWasTruncated" xml:space="preserve">
+    <value>&lt;Дополнительные сведения см. в файле журнала&gt;</value>
+    <comment>The brackets are intended to make the value stand out from other text which it will follow. Any locale appropriate mechanism that achieves this is acceptable.</comment>
+  </data>
+  <data name="ConfigurationGettingDetails" xml:space="preserve">
+    <value>Получение сведений о конфигурации</value>
+  </data>
+  <data name="ConfigurationInitializing" xml:space="preserve">
+    <value>Инициализация системы конфигурации</value>
+  </data>
+  <data name="ConfigurationReadingConfigFile" xml:space="preserve">
+    <value>Чтение файла конфигурации</value>
+  </data>
+  <data name="ConfigurationUnitAssertHadNegativeResult" xml:space="preserve">
+    <value>Система не находится в нужном состоянии, утвержденном конфигурацией.</value>
+  </data>
+  <data name="ConfigurationUnitFailed" xml:space="preserve">
+    <value>Сбой этой единицы конфигурации по неизвестной причине: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedConfigSet" xml:space="preserve">
+    <value>Сбой единицы конфигурации из-за конфигурации: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedDuringGet" xml:space="preserve">
+    <value>Сбой блока конфигурации при попытке получить текущее состояние системы.</value>
+  </data>
+  <data name="ConfigurationUnitFailedDuringSet" xml:space="preserve">
+    <value>Сбой блока конфигурации при попытке применить нужное состояние.</value>
+  </data>
+  <data name="ConfigurationUnitFailedDuringTest" xml:space="preserve">
+    <value>Сбой блока конфигурации при попытке проверить текущее состояние системы.</value>
+  </data>
+  <data name="ConfigurationUnitFailedInternal" xml:space="preserve">
+    <value>Сбой единицы конфигурации из-за внутренней ошибки: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedPrecondition" xml:space="preserve">
+    <value>Сбой единицы конфигурации из-за недопустимого предварительного условия: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedSystemState" xml:space="preserve">
+    <value>Сбой единицы конфигурации из-за состояния системы: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedUnitProcessing" xml:space="preserve">
+    <value>Сбой модуля конфигурации при попытке запуска: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitHasDuplicateIdentifier" xml:space="preserve">
+    <value>Конфигурация содержит идентификатор "{0}" несколько раз.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by the identifier string from the user input file.</comment>
+  </data>
+  <data name="ConfigurationUnitHasMissingDependency" xml:space="preserve">
+    <value>Зависимость "{0}" не найдена в конфигурации.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by the identifier string from the user input file.</comment>
+  </data>
+  <data name="ConfigurationUnitManuallySkipped" xml:space="preserve">
+    <value>Этот блок конфигурации был пропущен вручную.</value>
+  </data>
+  <data name="ConfigurationUnitModuleConflict" xml:space="preserve">
+    <value>Модуль для блока конфигурации доступен в нескольких расположениях с одинаковой версией.</value>
+  </data>
+  <data name="ConfigurationUnitModuleImportFailed" xml:space="preserve">
+    <value>Не удалось загрузить модуль для единицы конфигурации.</value>
+  </data>
+  <data name="ConfigurationUnitMultipleMatches" xml:space="preserve">
+    <value>Обнаружено несколько соответствий для блока конфигурации. Укажите модуль, чтобы выбрать правильный вариант.</value>
+  </data>
+  <data name="ConfigurationUnitNotFound" xml:space="preserve">
+    <value>Не удалось найти блок конфигурации.</value>
+  </data>
+  <data name="ConfigurationUnitNotFoundInModule" xml:space="preserve">
+    <value>Блок конфигурации отсутствовал в ожидаемом модуле.</value>
+  </data>
+  <data name="ConfigurationUnitNotRunDueToDependency" xml:space="preserve">
+    <value>Этот блок конфигурации не был запущен из-за сбоя зависимости или невыполненного запуска зависимости.</value>
+  </data>
+  <data name="ConfigurationUnitNotRunDueToFailedAssert" xml:space="preserve">
+    <value>Этот блок конфигурации не был запущен из-за сбоя утверждения или неверного утверждения.</value>
+  </data>
+  <data name="ConfigurationUnitReturnedInvalidResult" xml:space="preserve">
+    <value>Модуль конфигурации вернул непредвиденный результат во время выполнения.</value>
+  </data>
+  <data name="ConfigurationUnitSkipped" xml:space="preserve">
+    <value>Эта единица конфигурации не была запущена по неизвестной причине: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationFieldInvalidValue" xml:space="preserve">
+    <value>Поле '{0}' имеет недопустимое значение: {1}</value>
+    <comment>{Locked="{0}","{1}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file. {1} is a placeholder for the invalid value.</comment>
+  </data>
+  <data name="ConfigurationFieldMissing" xml:space="preserve">
+    <value>Поле "{0}" отсутствует или пусто.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the expected field name from the file.</comment>
+  </data>
+  <data name="SeeLineAndColumn" xml:space="preserve">
+    <value>См. {0} строку, столбец {1} в файле.</value>
+    <comment>{Locked="{0}","{1}"} Indicates the file location of the error, {0} and {1} are placeholders for numbers of the line and column, respectively.</comment>
+  </data>
+  <data name="CancellingOperation" xml:space="preserve">
+    <value>Выполняется отмена операции</value>
+  </data>
+  <data name="InstallStubPackageDescription" xml:space="preserve">
+    <value>Установить пакет заглушки для AppInstaller</value>
+  </data>
+  <data name="InstallFullPackageDescription" xml:space="preserve">
+    <value>Установить полный пакет для AppInstaller</value>
+  </data>
+  <data name="ConfigurationEnableMessage" xml:space="preserve">
+    <value>Включить компоненты конфигурации. Требуется доступ к хранилищу.</value>
+  </data>
+  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+    <value>Параметры "--enable" и "--disable" нельзя использовать с другими аргументами.</value>
+    <comment>{Locked="--enable", "--disable"}</comment>
+  </data>
+  <data name="ConfigurationEnablingMessage" xml:space="preserve">
+    <value>Включение компонентов конфигурации. Требуется доступ к хранилищу.</value>
+  </data>
+  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
+    <value>Конфигурация не включена. Запустите команду "winget configure --enable", чтобы включить ее.</value>
+  </data>
+  <data name="ConfigurationEnabledMessage" xml:space="preserve">
+    <value>Конфигурация включена.</value>
+  </data>
+  <data name="ConfigurationDisableMessage" xml:space="preserve">
+    <value>Отключить компоненты конфигурации. Требуется доступ к хранилищу.</value>
+  </data>
+  <data name="ConfigurationDisablingMessage" xml:space="preserve">
+    <value>Отключение компонентов конфигурации. Требуется доступ к хранилищу.</value>
+  </data>
+  <data name="ConfigurationDisabledMessage" xml:space="preserve">
+    <value>Конфигурация отключена.</value>
+  </data>
+  <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
+    <value>Пропускает обработку зависимостей пакетов и компонентов Windows</value>
+  </data>
+  <data name="DependenciesSkippedMessage" xml:space="preserve">
+    <value>Зависимости пропущены.</value>
+  </data>
+  <data name="FailedToRefreshPathWarning" xml:space="preserve">
+    <value>Не удалось обновить переменную PATH для процесса. Последующие установки, зависящие от изменений переменной PATH, могут быть завершиться сбоем.</value>
+    <comment>{Locked="PATH"}</comment>
+  </data>
+  <data name="ConfigurationFailedToTest" xml:space="preserve">
+    <value>Сбой некоторых модулей конфигурации при проверке их состояния.</value>
+  </data>
+  <data name="ConfigurationInDesiredState" xml:space="preserve">
+    <value>Система находится в описанном состоянии конфигурации.</value>
+  </data>
+  <data name="ConfigurationNoTestRun" xml:space="preserve">
+    <value>Состояние конфигурации не протестировано.</value>
+  </data>
+  <data name="ConfigurationNotInDesiredState" xml:space="preserve">
+    <value>Система не находится в описанном состоянии конфигурации.</value>
+  </data>
+  <data name="ConfigurationUnexpectedTestResult" xml:space="preserve">
+    <value>Непредвиденный результат теста: {0}</value>
+    <comment>{Locked="{0}"} Error message. {0} will be replaced with the unexpected value (a number).</comment>
+  </data>
+  <data name="ConfigurationWarningPromptTest" xml:space="preserve">
+    <value>Вы просмотрели конфигурацию и хотите продолжить ее проверку в системе?</value>
+  </data>
+  <data name="ConfigurationFileInvalidYAML" xml:space="preserve">
+    <value>Файл конфигурации не является допустимым YAML файла.</value>
+    <comment>{Locked="YAML"} YAML is a file format name.</comment>
+  </data>
+  <data name="ConfigurationUnitIsPartOfDependencyCycle" xml:space="preserve">
+    <value>Этот модуль конфигурации является частью цикла зависимостей.</value>
+  </data>
+  <data name="ConfigurationValidationFoundNoIssues" xml:space="preserve">
+    <value>Проверка не обнаружила проблем.</value>
+  </data>
+  <data name="ConfigurationUnitNeedsPrereleaseWarning" xml:space="preserve">
+    <value>Модуль конфигурации доступен только в качестве предварительной версии, но не помечен так в конфигурации. Добавьте "allowPrerelease: true" в "directives".</value>
+    <comment>{Locked="allowPrerelease: true","directives"} These are values in the configuration file that are not localized.</comment>
+  </data>
+  <data name="ConfigurationUnitNotInCatalogWarning" xml:space="preserve">
+    <value>Модуль конфигурации найден локально, но не найден ни в одном из настроенных каталогов. Перед применением конфигурации убедитесь, что он присутствует в какой-либо системе.</value>
+  </data>
+  <data name="ConfigurationUnitNotPublicWarning" xml:space="preserve">
+    <value>Модуль конфигурации не является общедоступным. Убедитесь, что у любого пользователя, который будет применять эту конфигурацию, есть к ней доступ.</value>
+  </data>
+  <data name="ConfigurationUnitModuleNotProvidedWarning" xml:space="preserve">
+    <value>Модуль не указан. Указание модуля повышает производительность и предотвращает конфликты имен в будущем.</value>
+  </data>
+  <data name="DownloadCommandLongDescription" xml:space="preserve">
+    <value>Скачивание установщика из выбранного пакета, найденного путем поиска настроенного источника или непосредственно из манифеста. По умолчанию запрос должен без учета регистра совпадать с идентификатором, именем или моникером пакета. Другие поля можно использовать путем передачи соответствующего параметра. По умолчанию команда скачивания загрузит соответствующий установщик в папку загрузок пользователя.</value>
+  </data>
+  <data name="DownloadCommandShortDescription" xml:space="preserve">
+    <value>Скачивание установщика из указанного пакета</value>
+  </data>
+  <data name="DownloadDirectoryArgumentDescription" xml:space="preserve">
+    <value>Каталог, в который скачиваются установщики</value>
+  </data>
+  <data name="DependenciesFlowDownload" xml:space="preserve">
+    <value>Загрузка зависимостей:</value>
+  </data>
+  <data name="InstallerDownloaded" xml:space="preserve">
+    <value>Установщик скачан: {0}</value>
+    <comment>{Locked="{0}"} Full path of the downloaded installer.</comment>
+  </data>
+  <data name="InstallerTypeArgumentDescription" xml:space="preserve">
+    <value>Выберите тип установщика</value>
+  </data>
+  <data name="InstallerDownloads" xml:space="preserve">
+    <value>Скачивания установщика</value>
+  </data>
+  <data name="InstallerDownloadCommandProhibited" xml:space="preserve">
+    <value>Загрузка установщика для более поздней автономной установки запрещена. </value>
+  </data>
+  <data name="ConfigurationAllUsersElevated" xml:space="preserve">
+    <value>Для выполнения команды --module-path allusers требуются права администратора.</value>
+    <comment>{Locked="--module-path allusers"}</comment>
+  </data>
+  <data name="ConfigurationModulePath" xml:space="preserve">
+    <value>Указывает расположение на локальном компьютере для хранения модулей. По умолчанию: %LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules.</value>
+    <comment>{Locked="allusers","currentuser","default","%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
+  </data>
+  <data name="ConfigurationModulePathArgError" xml:space="preserve">
+    <value>Для --module-path должно быть задано значение currentuser, allusers, default или абсолютный путь.</value>
+    <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
   </data>
 </root>

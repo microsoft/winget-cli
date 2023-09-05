@@ -95,6 +95,14 @@
 この設定を有効にした場合、ユーザーは、このプロトコルを使用する Web サイトからパッケージをインストールできます。
 
 この設定を無効にするか、未構成にした場合、ユーザーはこのプロトコルを使用する Web サイトからパッケージをインストールできなくなります。</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Windows パッケージ マネージャーのコマンド ライン インターフェイスを有効にする</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">このポリシーは、ユーザーがコマンド ライン インターフェイス (WinGet CLI または WinGet PowerShell) を通じて Windows パッケージ マネージャーを使用してアクションを実行できるかどうかを決定します。
+
+このポリシーを無効にすると、ユーザーは Windows パッケージ マネージャー CLI と PowerShell コマンドレットを実行できなくなります。
+
+このポリシーを有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージ マネージャー CLI コマンドと PowerShell コマンドレットを実行できます ([アプリ インストーラーを有効にする] ポリシーが無効になっている場合に限る)。
+
+このポリシーは、[アプリ インストーラーを有効にする] ポリシーをオーバーライドしません。</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

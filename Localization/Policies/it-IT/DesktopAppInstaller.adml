@@ -95,6 +95,14 @@ Se si disabilita questo criterio, non sarà possibile configurare altre origini 
 Se si abilita questa impostazione, gli utenti potranno installare pacchetti da siti Web che utilizzano questo protocollo.
 
 Se si disabilita o non si configura questa impostazione, gli utenti non potranno installare pacchetti da siti Web che utilizzano questo protocollo.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Abilita Gestione interfacce della riga di comando dei pacchetti Windows</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Questo criterio determina se un utente può eseguire un'azione usando la Gestione pacchetti Windows tramite un'interfaccia della riga di comando (interfaccia della riga di comando di WinGet o WinGet PowerShell).
+
+Se disabiliti questo criterio, gli utenti non potranno eseguire l'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell.
+
+Se abiliti o non configuri questo criterio, gli utenti potranno eseguire i comandi dell'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell. (Il criterio "Abilita Programma di installazione app" specificato non è disabilitato).
+
+Questo criterio non esegue l'override del criterio "Abilita Programma di installazione app".</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
