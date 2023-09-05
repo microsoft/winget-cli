@@ -95,6 +95,14 @@ Si vous désactivez ce paramètre de stratégie, aucune source supplémentaire n
 Si vous activez ce paramètre, les utilisateurs peuvent installer des packages à partir de sites web qui utilisent ce protocole.
 
 Si vous désactivez ou ne configurez pas ce paramètre, les utilisateurs ne peuvent pas installer de packages à partir de sites web qui utilisent ce protocole.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Activer les interfaces de ligne de commande Gestionnaire de package Windows</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Cette stratégie détermine si un utilisateur peut effectuer une action à l’aide du Gestionnaire de package Windows via une interface de ligne de commande (WinGet CLI ou WinGet PowerShell).
+
+Si vous désactivez cette stratégie, les utilisateurs ne peuvent pas exécuter l’interface CLI Gestionnaire de package Windows et les applets de commande PowerShell.
+
+Si vous activez ou ne configurez pas cette stratégie, les utilisateurs peuvent exécuter les commandes Gestionnaire de package Windows CLI et PowerShell. (La stratégie « Activer Programme d'installation d'application » fournie n’est pas désactivée).
+
+Cette stratégie ne remplace pas la stratégie « Activer Programme d'installation d'application ».</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

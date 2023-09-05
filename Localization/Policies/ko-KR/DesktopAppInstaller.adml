@@ -95,6 +95,14 @@
 이 설정을 사용하면 사용자가 이 프로토콜을 사용하는 웹 사이트의 패키지를 설치할 수 있습니다.
 
 이 설정을 사용하지 않거나 구성하지 않으면 사용자가 이 프로토콜을 사용하는 웹 사이트의 패키지를 설치할 수 없습니다.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Windows 패키지 관리자 명령줄 인터페이스 활성화</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">이 정책은 사용자가 명령줄 인터페이스(WinGet CLI 또는 WinGet PowerShell)를 통해 Windows 패키지 관리자를 사용하여 작업을 수행할 수 있는지 결정합니다.
+
+         이 정책을 비활성화하면 사용자는 Windows 패키지 관리자 CLI 및 PowerShell cmdlet을 실행할 수 없습니다.
+
+         이 정책을 활성화하거나 구성하지 않으면 사용자는 Windows 패키지 관리자 CLI 명령 및 PowerShell cmdlet을 실행할 수 있습니다. ('앱 설치 프로그램 활성화' 정책이 비활성화되지 않은 경우).
+
+         이 정책은 '앱 설치 프로그램 활성화' 정책보다 우선 적용되지 않습니다.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
