@@ -91,7 +91,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         {
             if (resultInformation.ResultCode != null)
             {
-                string errorMessage = $"Failed to get unit details for {unit.UnitName} 0x{resultInformation.ResultCode.HResult:X}" +
+                string errorMessage = $"Failed to get unit details for {unit.Type} 0x{resultInformation.ResultCode.HResult:X}" +
                     $"{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'";
                 this.cmd.WriteError(
                     ErrorRecordErrorId.ConfigurationDetailsError,

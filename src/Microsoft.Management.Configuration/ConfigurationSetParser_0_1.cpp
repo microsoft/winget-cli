@@ -154,7 +154,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             index++;
 
             auto configurationUnit = make_self<wil::details::module_count_wrapper<ConfigurationUnit>>();
-            configurationUnit->SchemaVersion(GetSchemaVersion());
 
             ParseConfigurationUnit(configurationUnit.get(), item, intent);
 
@@ -164,11 +163,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetParser_0_1::ParseConfigurationUnit(ConfigurationUnit* unit, const Node& unitNode, ConfigurationUnitIntent intent)
     {
-        CHECK_ERROR(GetStringValueForUnit(unitNode, GetFieldName(FieldName::Resource), true, unit, &ConfigurationUnit::UnitName));
+        CHECK_ERROR(GetStringValueForUnit(unitNode, GetFieldName(FieldName::Resource), true, unit, &ConfigurationUnit::Type));
         CHECK_ERROR(GetStringValueForUnit(unitNode, "id", false, unit, &ConfigurationUnit::Identifier));
         unit->Intent(intent);
         CHECK_ERROR(GetStringArrayForUnit(unitNode, "dependsOn", unit, &ConfigurationUnit::Dependencies));
-        CHECK_ERROR(GetValueSet(unitNode, "directives", false, unit->Directives()));
+        CHECK_ERROR(GetValueSet(unitNode, "directives", false, unit->Metadata()));
         CHECK_ERROR(GetValueSet(unitNode, "settings", false, unit->Settings()));
     }
 

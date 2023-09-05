@@ -47,7 +47,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 throw new ArgumentException();
             }
 
-            this.UnitName = unitName;
+            this.UnitType = unitName;
 
             if (dscResourceInfo is not null)
             {
@@ -114,7 +114,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <summary>
         /// Gets the name of the unit of configuration.
         /// </summary>
-        public string UnitName { get; private set; }
+        public string UnitType { get; private set; }
 
         /// <summary>
         /// Gets the description of the unit of configuration.

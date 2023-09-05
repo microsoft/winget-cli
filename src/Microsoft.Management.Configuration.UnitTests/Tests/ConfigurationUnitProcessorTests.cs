@@ -359,11 +359,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 new ConfigurationUnitInternal(
                     new ConfigurationUnit
                     {
-                        UnitName = resourceName,
+                        Type = resourceName,
                         Intent = intent,
                     },
-                    string.Empty,
-                    new Dictionary<string, object>()),
+                    string.Empty),
                 new DscResourceInfoInternal(resourceName, null, null));
         }
     }

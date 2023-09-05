@@ -30,14 +30,11 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// </summary>
         /// <param name="unit">Configuration unit.</param>
         /// <param name="configurationFilePath">The configuration file path.</param>
-        /// <param name="directivesOverlay">Directives overlay.</param>
         public ConfigurationUnitInternal(
             ConfigurationUnit unit,
-            string configurationFilePath,
-            IReadOnlyDictionary<string, object>? directivesOverlay = null)
+            string configurationFilePath)
         {
             this.Unit = unit;
-            this.DirectivesOverlay = directivesOverlay;
             this.InitializeDirectives();
 
             string? moduleName = this.GetDirective<string>(DirectiveConstants.Module);
@@ -72,11 +69,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         public ConfigurationUnit Unit { get; }
 
         /// <summary>
-        /// Gets the directives overlay.
-        /// </summary>
-        public IReadOnlyDictionary<string, object>? DirectivesOverlay { get; }
-
-        /// <summary>
         /// Gets the module specification.
         /// </summary>
         public ModuleSpecification? Module { get; }
@@ -87,7 +79,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// <returns>The string that identifies this unit for diagnostics.</returns>
         public string ToIdentifyingString()
         {
-            return $"{this.Unit.UnitName} [{this.Module?.ToString() ?? "<no module>"}]";
+            return $"{this.Unit.Type} [{this.Module?.ToString() ?? "<no module>"}]";
         }
 
         /// <summary>
@@ -205,7 +197,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
                 {
                     if (string.IsNullOrEmpty(this.configurationFileRootPath))
                     {
-                        throw new UnitSettingConfigRootException(this.Unit.UnitName, settingName);
+                        throw new UnitSettingConfigRootException(this.Unit.Type, settingName);
                     }
 
                     if (this.configurationFileRootPath == null)
@@ -222,20 +214,10 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
 
         private void InitializeDirectives()
         {
-            // Overlay directives have precedence.
-            if (this.DirectivesOverlay is not null)
-            {
-                foreach (var directive in this.DirectivesOverlay)
-                {
-                    var normalizedKey = StringHelpers.Normalize(directive.Key);
-                    this.normalizedDirectives.Add(normalizedKey, directive.Value);
-                }
-            }
-
-            foreach (var directive in this.Unit.Directives)
+            foreach (var directive in this.Unit.Metadata)
             {
                 var normalizedKey = StringHelpers.Normalize(directive.Key);
-                _ = this.normalizedDirectives.TryAdd(normalizedKey, directive.Value);
+                this.normalizedDirectives.Add(normalizedKey, directive.Value);
             }
         }
     }
