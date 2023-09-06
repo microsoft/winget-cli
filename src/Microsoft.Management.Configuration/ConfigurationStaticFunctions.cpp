@@ -6,6 +6,7 @@
 #include "ConfigurationUnit.h"
 #include "ConfigurationSet.h"
 #include "ConfigurationProcessor.h"
+#include "ConfigurationParameter.h"
 #include <AppInstallerStrings.h>
 #include <winget/ConfigurationSetProcessorHandlers.h>
 
@@ -44,5 +45,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     Windows::Foundation::IAsyncActionWithProgress<uint32_t> ConfigurationStaticFunctions::EnsureConfigurationAvailableAsync()
     {
         THROW_HR(E_NOTIMPL);
+    }
+
+    Configuration::ConfigurationParameter ConfigurationStaticFunctions::CreateConfigurationParameter()
+    {
+        return *make_self<wil::details::module_count_wrapper<implementation::ConfigurationParameter>>();
     }
 }

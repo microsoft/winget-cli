@@ -97,7 +97,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_MISSING_FIELD, result.ResultCode.HResult);
-            Assert.Equal("properties", result.Field);
+            Assert.Equal("$schema", result.Field);
             Assert.Equal(0U, result.Line);
             Assert.Equal(0U, result.Column);
         }

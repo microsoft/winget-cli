@@ -20,9 +20,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
     }
 
-    void ConfigurationSet::Initialize(std::vector<Configuration::ConfigurationUnit>&& units)
+    void ConfigurationSet::Units(std::vector<Configuration::ConfigurationUnit>&& units)
     {
         m_units = winrt::single_threaded_vector<Configuration::ConfigurationUnit>(std::move(units));
+    }
+
+    void ConfigurationSet::Parameters(std::vector<Configuration::ConfigurationParameter>&& value)
+    {
+        m_parameters = winrt::single_threaded_vector<Configuration::ConfigurationParameter>(std::move(value));
     }
 
     bool ConfigurationSet::IsFromHistory() const
@@ -126,6 +131,51 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSet::Remove()
     {
         THROW_HR(E_NOTIMPL);
+    }
+
+    Windows::Foundation::Collections::ValueSet ConfigurationSet::Metadata()
+    {
+        return m_metadata;
+    }
+
+    void ConfigurationSet::Metadata(const Windows::Foundation::Collections::ValueSet& value)
+    {
+        THROW_HR_IF(E_POINTER, !value);
+        m_metadata = value;
+    }
+
+    Windows::Foundation::Collections::IVector<ConfigurationParameter> ConfigurationSet::Parameters()
+    {
+        return m_parameters;
+    }
+
+    void ConfigurationSet::Parameters(const Windows::Foundation::Collections::IVector<ConfigurationParameter>& value)
+    {
+        THROW_HR_IF(E_POINTER, !value);
+        m_parameters = value;
+    }
+
+    Windows::Foundation::Collections::ValueSet ConfigurationSet::Variables()
+    {
+        return m_variables;
+    }
+
+    void ConfigurationSet::Variables(const Windows::Foundation::Collections::ValueSet& value)
+    {
+        THROW_HR_IF(E_POINTER, !value);
+        m_variables = value;
+    }
+
+    Windows::Foundation::Uri ConfigurationSet::SchemaUri()
+    {
+        return m_schemaUri;
+    }
+
+    void ConfigurationSet::SchemaUri(const Windows::Foundation::Uri& value)
+    {
+        THROW_HR_IF(E_INVALIDARG, !ConfigurationSetParser::IsRecognizedSchemaUri(value));
+        m_schemaUri = value;
+        m_schemaVersion = ConfigurationSetParser::GetSchemaVersionForUri(value);
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationSet::SetLifetimeWatcher(IUnknown* watcher)
