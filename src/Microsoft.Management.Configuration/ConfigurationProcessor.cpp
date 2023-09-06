@@ -502,7 +502,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
                     try
                     {
-                        // TODO: Directives overlay to prevent running elevated for test
                         unitProcessor = setProcessor.CreateUnitProcessor(unit);
                     }
                     catch (...)
@@ -596,7 +595,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            // TODO: Directives overlay to prevent running elevated for get
             unitProcessor = setProcessor.CreateUnitProcessor(unit);
         }
         catch (...)

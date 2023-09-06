@@ -87,6 +87,9 @@
     <ClCompile Include="ConfigurationSetParser_0_3.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
+    <ClCompile Include="DefaultSetGroupProcessor.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -182,6 +185,9 @@
     </ClInclude>
     <ClInclude Include="ConfigurationSetParser_0_3.h">
       <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="DefaultSetGroupProcessor.h">
+      <Filter>Internals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -212,6 +212,7 @@
     <ClInclude Include="ConfigurationStaticFunctions.h" />
     <ClInclude Include="ConfigurationUnit.h" />
     <ClInclude Include="ConfigurationUnitResultInformation.h" />
+    <ClInclude Include="DefaultSetGroupProcessor.h" />
     <ClInclude Include="DiagnosticInformationInstance.h" />
     <ClInclude Include="ExceptionResultHelpers.h" />
     <ClInclude Include="GetConfigurationSetDetailsResult.h" />
@@ -245,6 +246,7 @@
     <ClCompile Include="ConfigurationStaticFunctions.cpp" />
     <ClCompile Include="ConfigurationUnit.cpp" />
     <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
+    <ClCompile Include="DefaultSetGroupProcessor.cpp" />
     <ClCompile Include="DiagnosticInformationInstance.cpp" />
     <ClCompile Include="GetConfigurationSetDetailsResult.cpp" />
     <ClCompile Include="GetConfigurationUnitDetailsResult.cpp" />
