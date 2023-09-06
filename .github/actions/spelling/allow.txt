@@ -355,6 +355,7 @@ normalizedpackagenameandpublisher
 NOTHROW
 NOTIMPL
 NOTNULL
+nowarn
 npos
 NTFS
 NTSTATUS
