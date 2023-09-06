@@ -131,7 +131,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         public DscResourceInfoInternal? GetDscResource(ConfigurationUnitInternal unitInternal)
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
-            var result = this.DscModule.GetDscResource(pwsh, unitInternal.Unit.Type, unitInternal.Module);
+            var result = this.DscModule.GetDscResource(pwsh, unitInternal.ResourceName, unitInternal.Module);
             this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return result;
         }
@@ -298,7 +298,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
 
             var result = this.powerShellGet.FindDscResource(
                 pwsh,
-                unitInternal.Unit.Type,
+                unitInternal.ResourceName,
                 unitInternal.GetDirective<string>(DirectiveConstants.Module),
                 unitInternal.GetSemanticVersion(),
                 unitInternal.GetSemanticMinVersion(),

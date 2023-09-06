@@ -29,7 +29,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             ConfigurationUnitInternal configurationUnitInternal,
             DscResourceInfoInternal dscResourceInfoInternal)
         {
-            if (configurationUnitInternal.Unit.Type != dscResourceInfoInternal.Name)
+            if (configurationUnitInternal.ResourceName != dscResourceInfoInternal.Name)
             {
                 throw new ArgumentException();
             }

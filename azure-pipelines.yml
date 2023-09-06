@@ -305,6 +305,7 @@ jobs:
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
+      diagnosticsEnabled: true
     condition: succeededOrFailed()
 
   - task: PowerShell@2

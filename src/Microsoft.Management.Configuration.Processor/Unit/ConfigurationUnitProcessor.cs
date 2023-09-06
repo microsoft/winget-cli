@@ -52,7 +52,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <returns>A <see cref="IGetSettingsResult"/>.</returns>
         public IGetSettingsResult GetSettings()
         {
-            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Get` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Get` for resource: {this.unitResource.UnitInternal.QualifiedName}...");
 
             var result = new GetSettingsResult(this.Unit);
 
@@ -79,7 +79,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <returns>A <see cref="ITestSettingsResult"/>.</returns>
         public ITestSettingsResult TestSettings()
         {
-            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Test` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Test` for resource: {this.unitResource.UnitInternal.QualifiedName}...");
 
             if (this.Unit.Intent == ConfigurationUnitIntent.Inform)
             {
@@ -114,7 +114,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <returns>A <see cref="IApplySettingsResult"/>.</returns>
         public IApplySettingsResult ApplySettings()
         {
-            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Apply` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Apply` for resource: {this.unitResource.UnitInternal.QualifiedName}...");
 
             if (this.Unit.Intent == ConfigurationUnitIntent.Inform ||
                 this.Unit.Intent == ConfigurationUnitIntent.Assert)
