@@ -107,6 +107,7 @@ ctl
 ctls
 CURSORPOSITON
 CUSTOMHEADER
+cvd
 cwctype
 datatelemetry
 dbconn
@@ -396,6 +397,7 @@ pdbonly
 PEVENT
 pfp
 PGP
+pgp
 php
 PII
 pinnable
