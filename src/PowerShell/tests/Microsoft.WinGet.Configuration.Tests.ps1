@@ -274,8 +274,6 @@ Describe 'Get configuration' {
         $set | Should -Not -BeNullOrEmpty
     }
 
-    # TODO: details with file name
-
     It 'File doesnt exit' {
         $testFile = "c:\dir\fakefile.txt"
         { Get-WinGetConfiguration -File $testFile } | Should -Throw $testFile
@@ -397,7 +395,57 @@ Describe 'Invoke winget configuration' {
     }
 }
 
-# TODO: start|continue
+Describe 'Start and complete configuration' {
+
+    BeforeAll {
+        DeleteConfigTxtFiles
+    }
+
+    It 'From TestRepo' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $job | Should -Not -BeNullOrEmpty
+
+        $set = Complete-WinGetConfiguration -ConfigurationJob $job
+        $set | Should -Not -BeNullOrEmpty
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
+        Test-Path $expectedFile | Should -Be $true
+        Get-Content $expectedFile -Raw | Should -Be "Contents!"
+
+        { Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set } | Should -Throw "Operation is not valid due to the current state of the object."
+    }
+
+    It 'From TestRepo piped' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration -File $testFile | Start-WinGetConfiguration -AcceptConfigurationAgreements | Complete-WinGetConfiguration
+        $set | Should -Not -BeNullOrEmpty
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
+        Test-Path $expectedFile | Should -Be $true
+        Get-Content $expectedFile -Raw | Should -Be "Contents!"
+    }
+
+    It 'Dependent Resource - Failure' {
+        $testFile = GetConfigTestDataFile "DependentResources_Failure.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        # This should not throw
+        $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $job | Should -Not -BeNullOrEmpty
+
+        { Complete-WinGetConfiguration -ConfigurationJob $job } | Should -Throw "One or more errors occurred. (Some of the configuration was not applied successfully.)"
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "DependentResources_Failure.txt"
+        Test-Path $expectedFile | Should -Be $false
+    }
+}
 
 AfterAll {
     CleanupGroupPolicies

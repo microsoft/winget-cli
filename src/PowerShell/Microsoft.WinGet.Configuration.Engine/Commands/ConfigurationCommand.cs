@@ -117,8 +117,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             {
                 if (!psConfigurationSet.CanProcess())
                 {
-                    // TODO: better exception or just write info and return null.
-                    throw new Exception("Someone is using me!!!");
+                    throw new InvalidOperationException();
                 }
 
                 var runningTask = this.RunOnMTA<PSConfigurationSet>(
@@ -154,16 +153,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="psConfigurationSet">PSConfigurationSet.</param>
         public void StartApply(PSConfigurationSet psConfigurationSet)
         {
-            if (psConfigurationSet.Set.State == ConfigurationSetState.Completed)
+            // if (psConfigurationSet.Set.State == ConfigurationSetState.Completed)
+            if (psConfigurationSet.ApplyCompleted)
             {
                 this.Write(StreamType.Warning, "Processing this set is completed");
-                return;
+                throw new InvalidOperationException();
             }
 
             if (!psConfigurationSet.CanProcess())
             {
-                // TODO: better exception or just write info and return null.
-                throw new Exception("Someone is using me!!!");
+                throw new InvalidOperationException();
             }
 
             var configurationJob = this.StartApplyInternal(psConfigurationSet);
@@ -314,6 +313,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             finally
             {
                 applyProgressOutput.CompleteProgress();
+                psConfigurationSet.ApplyCompleted = true;
             }
 
             return psConfigurationSet;
