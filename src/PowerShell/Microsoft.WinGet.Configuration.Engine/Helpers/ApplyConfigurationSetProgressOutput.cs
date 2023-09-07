@@ -8,7 +8,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
     using Microsoft.Management.Configuration;
     using Microsoft.WinGet.Configuration.Engine.Commands;
     using Microsoft.WinGet.Configuration.Engine.Exceptions;
@@ -114,19 +113,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                 case ConfigurationUnitState.InProgress:
                     break;
                 case ConfigurationUnitState.Completed:
-                    if (resultInformation.ResultCode != null)
-                    {
-                        string description = resultInformation.Description.Trim();
-                        var message = this.GetUnitFailedMessage(unit, resultInformation);
-
-                        string errorMessage = $"Configuration unit {unit.Type}[{unit.Identifier}] failed with code 0x{resultInformation.ResultCode.HResult:X}" +
-                            $" and error message:\n{description}\n{resultInformation.Details}\n{message}";
-                        this.cmd.WriteError(
-                            ErrorRecordErrorId.ConfigurationApplyError,
-                            errorMessage,
-                            resultInformation.ResultCode);
-                    }
-
                     this.CompleteUnit(unit);
                     break;
                 case ConfigurationUnitState.Skipped:
@@ -142,59 +128,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             {
                 this.cmd.WriteProgressWithPercentage(this.activityId, this.activity, $"{this.inProgressMessage} {this.unitsCompleted.Count}/{this.totalUnitsExpected}", this.unitsCompleted.Count, this.totalUnitsExpected);
             }
-        }
-
-        private string GetUnitFailedMessage(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
-        {
-            if (resultInformation.ResultCode == null)
-            {
-                return string.Format(Resources.ConfigurationUnitFailed, "null");
-            }
-
-            int resultCode = resultInformation.ResultCode.HResult;
-            switch (resultCode)
-            {
-                case ErrorCodes.WingetConfigErrorDuplicateIdentifier:
-                    return string.Format(Resources.ConfigurationUnitHasDuplicateIdentifier, unit.Identifier);
-                case ErrorCodes.WingetConfigErrorMissingDependency:
-                    return string.Format(Resources.ConfigurationUnitHasMissingDependency, resultInformation.Details);
-                case ErrorCodes.WingetConfigErrorAssertionFailed:
-                    return Resources.ConfigurationUnitAssertHadNegativeResult;
-                case ErrorCodes.WinGetConfigUnitNotFound:
-                    return Resources.ConfigurationUnitNotFoundInModule;
-                case ErrorCodes.WinGetConfigUnitNotFoundRepository:
-                    return Resources.ConfigurationUnitNotFound;
-                case ErrorCodes.WinGetConfigUnitMultipleMatches:
-                    return Resources.ConfigurationUnitMultipleMatches;
-                case ErrorCodes.WinGetConfigUnitInvokeGet:
-                    return Resources.ConfigurationUnitFailedDuringGet;
-                case ErrorCodes.WinGetConfigUnitInvokeTest:
-                    return Resources.ConfigurationUnitFailedDuringTest;
-                case ErrorCodes.WinGetConfigUnitInvokeSet:
-                    return Resources.ConfigurationUnitFailedDuringSet;
-                case ErrorCodes.WinGetConfigUnitModuleConflict:
-                    return Resources.ConfigurationUnitModuleConflict;
-                case ErrorCodes.WinGetConfigUnitImportModule:
-                    return Resources.ConfigurationUnitModuleImportFailed;
-                case ErrorCodes.WinGetConfigUnitInvokeInvalidResult:
-                    return Resources.ConfigurationUnitReturnedInvalidResult;
-            }
-
-            switch (resultInformation.ResultSource)
-            {
-                case ConfigurationUnitResultSource.ConfigurationSet:
-                    return string.Format(Resources.ConfigurationUnitFailedConfigSet, resultCode);
-                case ConfigurationUnitResultSource.Internal:
-                    return string.Format(Resources.ConfigurationUnitFailedInternal, resultCode);
-                case ConfigurationUnitResultSource.Precondition:
-                    return string.Format(Resources.ConfigurationUnitFailedPrecondition, resultCode);
-                case ConfigurationUnitResultSource.SystemState:
-                    return string.Format(Resources.ConfigurationUnitFailedSystemState, resultCode);
-                case ConfigurationUnitResultSource.UnitProcessing:
-                    return string.Format(Resources.ConfigurationUnitFailedUnitProcessing, resultCode);
-            }
-
-            return string.Format(Resources.ConfigurationUnitFailed, resultCode);
         }
 
         private string GetUnitSkippedMessage(IConfigurationUnitResultInformation resultInformation)

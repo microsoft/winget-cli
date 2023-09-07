@@ -77,6 +77,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                         psCmdlet.SessionState.Path.CurrentFileSystemLocation.Path,
                         filePath));
             }
+            else
+            {
+                filePath = Path.GetFullPath(filePath);
+            }
 
             if (!File.Exists(filePath))
             {
@@ -129,7 +133,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                         throw new ArgumentException(Resources.ConfigurationModulePathArgError);
                     }
 
-                    this.CustomLocation = customLocation;
+                    this.CustomLocation = Path.GetFullPath(customLocation);
                     this.Location = PowerShellConfigurationProcessorLocation.Custom;
                 }
             }

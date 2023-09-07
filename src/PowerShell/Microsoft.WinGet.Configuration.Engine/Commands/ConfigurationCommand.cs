@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Management.Automation;
     using System.Threading.Tasks;
     using Microsoft.Management.Configuration;
@@ -125,7 +126,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 {
                     try
                     {
-                        psConfigurationSet = await this.GetSetDetailsAsync(psConfigurationSet);
+                        psConfigurationSet = await this.GetSetDetailsAsync(psConfigurationSet, false);
                     }
                     finally
                     {
@@ -283,7 +284,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             if (!psConfigurationSet.HasDetails)
             {
                 this.Write(StreamType.Verbose, "Getting details for configuration set");
-                await this.GetSetDetailsAsync(psConfigurationSet);
+                await this.GetSetDetailsAsync(psConfigurationSet, true);
             }
 
             var processor = psConfigurationSet.PsProcessor.Processor;
@@ -304,6 +305,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             {
                 var result = await applyTask;
                 applyProgressOutput.HandleUnreportedProgress(result);
+
+                if (result.ResultCode != null)
+                {
+                    throw new ApplyConfigurationException(result);
+                }
             }
             finally
             {
@@ -313,7 +319,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             return psConfigurationSet;
         }
 
-        private async Task<PSConfigurationSet> GetSetDetailsAsync(PSConfigurationSet psConfigurationSet)
+        private async Task<PSConfigurationSet> GetSetDetailsAsync(PSConfigurationSet psConfigurationSet, bool warnOnError)
         {
             var processor = psConfigurationSet.PsProcessor.Processor;
             var set = psConfigurationSet.Set;
@@ -325,56 +331,54 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 return psConfigurationSet;
             }
 
-            var detailsProgressOutput = new GetConfigurationSetDetailsProgressOutput(
-                this,
-                this.GetNewProgressActivityId(),
-                Resources.ConfigurationGettingDetails,
-                Resources.OperationInProgress,
-                Resources.OperationCompleted,
-                totalUnitsCount);
-
-            var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailFlags.ReadOnly);
-            detailsTask.Progress = detailsProgressOutput.Progress;
-
             try
             {
-                var result = await detailsTask;
-                detailsProgressOutput.HandleUnits(result.UnitResults);
+                var detailsProgressOutput = new GetConfigurationSetDetailsProgressOutput(
+                    this,
+                    this.GetNewProgressActivityId(),
+                    Resources.ConfigurationGettingDetails,
+                    Resources.OperationInProgress,
+                    Resources.OperationCompleted,
+                    totalUnitsCount);
+
+                var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailFlags.ReadOnly);
+                detailsTask.Progress = detailsProgressOutput.Progress;
+
+                try
+                {
+                    var result = await detailsTask;
+                    detailsProgressOutput.HandleUnits(result.UnitResults);
+
+                    if (result.UnitResults.Where(u => u.ResultInformation.ResultCode != null).Any())
+                    {
+                        throw new GetDetailsException(result.UnitResults);
+                    }
+
+                    if (detailsProgressOutput.UnitsShown == 0)
+                    {
+                        throw new GetDetailsException();
+                    }
+
+                    psConfigurationSet.HasDetails = true;
+                }
+                finally
+                {
+                    detailsProgressOutput.CompleteProgress();
+                }
             }
             catch (Exception e)
             {
-                this.WriteError(
-                    ErrorRecordErrorId.ConfigurationDetailsError,
-                    e);
-            }
-            finally
-            {
-                detailsProgressOutput.CompleteProgress();
-            }
-
-            if (detailsProgressOutput.UnitsShown == 0)
-            {
-                this.Write(StreamType.Warning, Resources.ConfigurationFailedToGetDetails);
-            }
-            else
-            {
-                psConfigurationSet.HasDetails = true;
+                if (warnOnError)
+                {
+                    this.Write(StreamType.Warning, e.Message);
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             return psConfigurationSet;
-        }
-
-        private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
-        {
-            if (resultInformation.ResultCode != null)
-            {
-                string errorMessage = $"Failed to get unit details for {unit.Type} 0x{resultInformation.ResultCode.HResult:X}" +
-                    $"{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'";
-                this.WriteError(
-                    ErrorRecordErrorId.ConfigurationDetailsError,
-                    errorMessage,
-                    resultInformation.ResultCode);
-            }
         }
     }
 }

@@ -72,8 +72,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         {
             while (this.UnitsShown < unitResults.Count)
             {
-                GetConfigurationUnitDetailsResult unitResult = unitResults[this.UnitsShown];
-                this.LogFailedGetConfigurationUnitDetails(unitResult.Unit, unitResult.ResultInformation);
                 ++this.UnitsShown;
                 this.cmd.WriteProgressWithPercentage(this.activityId, this.activity, $"{this.inProgressMessage} {this.UnitsShown}/{this.totalUnitsExpected}", this.UnitsShown, this.totalUnitsExpected);
             }
@@ -85,19 +83,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         public void CompleteProgress()
         {
             this.cmd.CompleteProgress(this.activityId, this.activity, this.completeMessage);
-        }
-
-        private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
-        {
-            if (resultInformation.ResultCode != null)
-            {
-                string errorMessage = $"Failed to get unit details for {unit.Type} 0x{resultInformation.ResultCode.HResult:X}" +
-                    $"{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'";
-                this.cmd.WriteError(
-                    ErrorRecordErrorId.ConfigurationDetailsError,
-                    errorMessage,
-                    resultInformation.ResultCode);
-            }
         }
     }
 }
