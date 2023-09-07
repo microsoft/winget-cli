@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DefaultSetGroupProcessor.h"
+#include "TestGroupSettingsResult.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -16,6 +17,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Windows::Foundation::IAsyncOperationWithProgress<ITestGroupSettingsResult, ITestSettingsResult> DefaultSetGroupProcessor::TestGroupSettingsAsync()
     {
+        auto strongThis = get_strong();
+        co_await resume_background();
+
+        auto progress = co_await get_progress_token();
         auto result = make_self<wil::details::module_count_wrapper<implementation::TestGroupSettingsResult>>();
         result->TestResult(ConfigurationTestResult::NotRun);
         progress.Result(*result);
