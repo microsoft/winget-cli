@@ -124,6 +124,7 @@ EFGH
 EFile
 endregion
 ENDSESSION
+EPester
 epth
 EQU
 errmsg

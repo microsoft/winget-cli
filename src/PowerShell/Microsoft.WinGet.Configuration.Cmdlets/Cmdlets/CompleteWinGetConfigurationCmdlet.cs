@@ -23,6 +23,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// Gets or sets the configuration task.
         /// </summary>
         [Parameter(
+            Position = 0,
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]

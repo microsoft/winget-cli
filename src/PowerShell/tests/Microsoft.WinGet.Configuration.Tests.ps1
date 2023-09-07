@@ -274,13 +274,22 @@ Describe 'Get configuration' {
         $set | Should -Not -BeNullOrEmpty
     }
 
+    It 'Get configuration and details positional' {
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $set = Get-WinGetConfigurationDetails $set
+        $set | Should -Not -BeNullOrEmpty
+    }
+
     It 'File doesnt exit' {
-        $testFile = "c:\dir\fakefile.txt"
+        $testFile = "c:\dir\fakeFile.txt"
         { Get-WinGetConfiguration -File $testFile } | Should -Throw $testFile
     }
 }
 
-Describe 'Invoke winget configuration' {
+Describe 'Invoke-WinGetConfiguration' {
 
     BeforeAll {
         DeleteConfigTxtFiles
@@ -312,17 +321,6 @@ Describe 'Invoke winget configuration' {
 
         $expectedModule = Join-Path $(GetExpectedModulePath DefaultLocation) $e2eTestModule
         Test-Path $expectedModule | Should -Be $true
-    }
-
-    It 'From TestRepo piped' {
-        DeleteConfigTxtFiles
-        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
-        $set = Get-WinGetConfiguration -File $testFile | Invoke-WinGetConfiguration -AcceptConfigurationAgreements
-        $set | Should -Not -BeNullOrEmpty
-
-        $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
-        Test-Path $expectedFile | Should -Be $true
-        Get-Content $expectedFile -Raw | Should -Be "Contents!"
     }
 
     It 'From TestRepo Location' -ForEach @(
@@ -371,6 +369,31 @@ Describe 'Invoke winget configuration' {
         Test-Path $expectedModule | Should -Be $true
     }
 
+    It 'Piped' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration -File $testFile | Invoke-WinGetConfiguration -AcceptConfigurationAgreements
+        $set | Should -Not -BeNullOrEmpty
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
+        Test-Path $expectedFile | Should -Be $true
+        Get-Content $expectedFile -Raw | Should -Be "Contents!"
+    }
+
+    It 'Positional' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $set = Invoke-WinGetConfiguration -AcceptConfigurationAgreements $set
+        $set | Should -Not -BeNullOrEmpty
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
+        Test-Path $expectedFile | Should -Be $true
+        Get-Content $expectedFile -Raw | Should -Be "Contents!"
+    }
+
     It 'Independent Resource - One Failure' {
         $testFile = GetConfigTestDataFile "IndependentResources_OneFailure.yml"
         $set = Get-WinGetConfiguration -File $testFile
@@ -395,10 +418,24 @@ Describe 'Invoke winget configuration' {
     }
 }
 
-Describe 'Start and complete configuration' {
+Describe 'Start|Complete-WinGetConfiguration' {
 
     BeforeAll {
         DeleteConfigTxtFiles
+    }
+
+    It 'From Gallery' {
+        EnsureModuleState "XmlContentDsc" $false
+
+        $testFile = GetConfigTestDataFile "PSGallery_NoModule_NoSettings.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $job | Should -Not -BeNullOrEmpty
+
+        { Complete-WinGetConfiguration -ConfigurationJob $job } | Should -Throw "One or more errors occurred. (Some of the configuration was not applied successfully.)"
+
     }
 
     It 'From TestRepo' {
@@ -417,16 +454,98 @@ Describe 'Start and complete configuration' {
         Test-Path $expectedFile | Should -Be $true
         Get-Content $expectedFile -Raw | Should -Be "Contents!"
 
+        # Verify can't be used after.
         { Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set } | Should -Throw "Operation is not valid due to the current state of the object."
     }
 
-    It 'From TestRepo piped' {
+    It 'From TestRepo Location' -ForEach @(
+        @{ Location = "CurrentUser"; }
+        @{ Location = "AllUsers"; }
+        @{ Location = "DefaultLocation"; }
+        @{ Location = "Custom"; }) {
+        $modulePath = "'"
+        switch ($location)
+        {
+            ([TestModuleLocation]::CurrentUser)
+            {
+                $modulePath = "currentuser"
+                break
+            }
+            ([TestModuleLocation]::AllUsers)
+            {
+                $modulePath = "allusers"
+                break
+            }
+            ([TestModuleLocation]::DefaultLocation)
+            {
+                $modulePath = "default"
+                break
+            }
+            ([TestModuleLocation]::Custom)
+            {
+                $modulePath = GetExpectedModulePath Custom
+                break
+            }
+            default {
+                throw $location
+            }
+        }
+    
+        EnsureModuleState $e2eTestModule $false
+
+        $testFile = GetConfigTestDataFile "Configure_TestRepo_Location.yml"
+        $set = Get-WinGetConfiguration -File $testFile -ModulePath $modulePath
+        $set | Should -Not -BeNullOrEmpty
+
+        $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $job | Should -Not -BeNullOrEmpty
+
+        $set = Complete-WinGetConfiguration -ConfigurationJob $job
+        $set | Should -Not -BeNullOrEmpty
+
+        $expectedModule = Join-Path $(GetExpectedModulePath $location) $e2eTestModule
+        Test-Path $expectedModule | Should -Be $true
+    }
+
+    It 'Piped' {
         DeleteConfigTxtFiles
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
         $set = Get-WinGetConfiguration -File $testFile | Start-WinGetConfiguration -AcceptConfigurationAgreements | Complete-WinGetConfiguration
         $set | Should -Not -BeNullOrEmpty
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
+        Test-Path $expectedFile | Should -Be $true
+        Get-Content $expectedFile -Raw | Should -Be "Contents!"
+    }
+
+    It 'Positional' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $job = Start-WinGetConfiguration -AcceptConfigurationAgreements $set
+        $job | Should -Not -BeNullOrEmpty
+
+        $set = Complete-WinGetConfiguration $job
+        $set | Should -Not -BeNullOrEmpty
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
+        Test-Path $expectedFile | Should -Be $true
+        Get-Content $expectedFile -Raw | Should -Be "Contents!"
+    }
+
+    It 'Independent Resource - One Failure' {
+        $testFile = GetConfigTestDataFile "IndependentResources_OneFailure.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $job | Should -Not -BeNullOrEmpty
+
+        { Complete-WinGetConfiguration -ConfigurationJob $job } | Should -Throw "One or more errors occurred. (Some of the configuration was not applied successfully.)"
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "IndependentResources_OneFailure.txt"
         Test-Path $expectedFile | Should -Be $true
         Get-Content $expectedFile -Raw | Should -Be "Contents!"
     }
