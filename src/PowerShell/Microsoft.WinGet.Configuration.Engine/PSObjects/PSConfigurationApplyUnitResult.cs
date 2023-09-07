@@ -27,7 +27,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
             if (unitResult.ResultInformation != null)
             {
                 string description = unitResult.ResultInformation.Description.Trim();
-                var message = this.GetUnitFailedMessage(unitResult);
+                var message = this.GetUnitMessage(unitResult);
                 this.ErrorMessage = $"Configuration unit {this.Type}[{unitResult.Unit.Identifier}] failed with code 0x{this.ResultCode:X}" +
                     $" and error message:\n{description}\n{unitResult.ResultInformation.Details}\n{message}";
             }
@@ -48,10 +48,15 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         /// </summary>
         public string? ErrorMessage { get; private init; }
 
-        private string GetUnitFailedMessage(ApplyConfigurationUnitResult unitResult)
+        private string GetUnitMessage(ApplyConfigurationUnitResult unitResult)
         {
             if (unitResult.ResultInformation.ResultCode == null)
             {
+                if (unitResult.Unit.State == ConfigurationUnitState.Skipped)
+                {
+                    return string.Format(Resources.ConfigurationUnitSkipped, "null");
+                }
+
                 return string.Format(Resources.ConfigurationUnitFailed, "null");
             }
 
@@ -82,6 +87,10 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
                     return Resources.ConfigurationUnitModuleImportFailed;
                 case ErrorCodes.WinGetConfigUnitInvokeInvalidResult:
                     return Resources.ConfigurationUnitReturnedInvalidResult;
+                case ErrorCodes.WingetConfigErrorManuallySkipped:
+                    return Resources.ConfigurationUnitManuallySkipped;
+                case ErrorCodes.WingetConfigErrorDependencyUnsatisfied:
+                    return Resources.ConfigurationUnitNotRunDueToDependency;
             }
 
             switch (unitResult.ResultInformation.ResultSource)
@@ -96,6 +105,11 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
                     return string.Format(Resources.ConfigurationUnitFailedSystemState, resultCode);
                 case ConfigurationUnitResultSource.UnitProcessing:
                     return string.Format(Resources.ConfigurationUnitFailedUnitProcessing, resultCode);
+            }
+
+            if (unitResult.Unit.State == ConfigurationUnitState.Skipped)
+            {
+                return string.Format(Resources.ConfigurationUnitSkipped, resultCode);
             }
 
             return string.Format(Resources.ConfigurationUnitFailed, resultCode);

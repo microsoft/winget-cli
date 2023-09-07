@@ -10,10 +10,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
     using System.Collections.Generic;
     using Microsoft.Management.Configuration;
     using Microsoft.WinGet.Configuration.Engine.Commands;
-    using Microsoft.WinGet.Configuration.Engine.Exceptions;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
     using Windows.Foundation;
-    using static Microsoft.WinGet.Configuration.Engine.Commands.AsyncCommand;
 
     /// <summary>
     /// Helper to handle progress callbacks from ApplyConfigurationSetAsync.
@@ -69,7 +66,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             switch (data.Change)
             {
                 case ConfigurationSetChangeEventType.UnitStateChanged:
-                    this.HandleUnitProgress(data.Unit, data.UnitState, data.ResultInformation);
+                    this.HandleUnitProgress(data.Unit, data.UnitState);
                     break;
             }
         }
@@ -85,7 +82,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                 this.isFirstProgress = false;
                 foreach (var unitResult in result.UnitResults)
                 {
-                    this.HandleUnitProgress(unitResult.Unit, unitResult.State, unitResult.ResultInformation);
+                    this.HandleUnitProgress(unitResult.Unit, unitResult.State);
                 }
             }
         }
@@ -98,7 +95,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             this.cmd.CompleteProgress(this.activityId, this.activity, this.completeMessage);
         }
 
-        private void HandleUnitProgress(ConfigurationUnit unit, ConfigurationUnitState state, IConfigurationUnitResultInformation resultInformation)
+        private void HandleUnitProgress(ConfigurationUnit unit, ConfigurationUnitState state)
         {
             if (this.unitsCompleted.Contains(unit.InstanceIdentifier))
             {
@@ -113,10 +110,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                 case ConfigurationUnitState.InProgress:
                     break;
                 case ConfigurationUnitState.Completed:
-                    this.CompleteUnit(unit);
-                    break;
                 case ConfigurationUnitState.Skipped:
-                    this.cmd.Write(StreamType.Warning, this.GetUnitSkippedMessage(resultInformation));
                     this.CompleteUnit(unit);
                     break;
             }
@@ -128,27 +122,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             {
                 this.cmd.WriteProgressWithPercentage(this.activityId, this.activity, $"{this.inProgressMessage} {this.unitsCompleted.Count}/{this.totalUnitsExpected}", this.unitsCompleted.Count, this.totalUnitsExpected);
             }
-        }
-
-        private string GetUnitSkippedMessage(IConfigurationUnitResultInformation resultInformation)
-        {
-            if (resultInformation.ResultCode == null)
-            {
-                return string.Format(Resources.ConfigurationUnitSkipped, "null");
-            }
-
-            int resultCode = resultInformation.ResultCode.HResult;
-            switch (resultCode)
-            {
-                case ErrorCodes.WingetConfigErrorManuallySkipped:
-                    return Resources.ConfigurationUnitManuallySkipped;
-                case ErrorCodes.WingetConfigErrorDependencyUnsatisfied:
-                    return Resources.ConfigurationUnitNotRunDueToDependency;
-                case ErrorCodes.WingetConfigErrorAssertionFailed:
-                    return Resources.ConfigurationUnitNotRunDueToFailedAssert;
-            }
-
-            return string.Format(Resources.ConfigurationUnitSkipped, resultCode);
         }
     }
 }
