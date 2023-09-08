@@ -6,14 +6,15 @@
 #include "ResumeCommand.h"
 #include "RootCommand.h"
 #include "CheckpointManager.h"
-#include "Microsoft/CheckpointRecord.h"
 #include "Workflows/ResumeFlow.h"
+#include "Checkpoint.h"
+
+using namespace AppInstaller::Checkpoints;
 
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
     using namespace Execution;
-    using namespace Checkpoint;
 
     std::vector<Argument> ResumeCommand::GetArguments() const
     {
@@ -42,31 +43,30 @@ namespace AppInstaller::CLI
         std::string resumeGuidString{ context.Args.GetArg(Execution::Args::Type::ResumeId) };
         GUID checkpointId = Utility::ConvertToGuid(resumeGuidString);
 
-        // Change this to a CheckpointRecord helepr function like Exists
-        if (!std::filesystem::exists(AppInstaller::Repository::Microsoft::CheckpointRecord::GetCheckpointRecordPath(checkpointId)))
+        if (!std::filesystem::exists(Checkpoints::CheckpointManager::GetCheckpointRecordPath(checkpointId)))
         {
             context.Reporter.Error() << Resource::String::ResumeIdNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND);
         }
 
         Execution::Context resumeContext = context.CreateEmptyContext();
-        resumeContext.CheckpointManager.LoadRecord(checkpointId);
 
-        const auto& checkpointClientVersion = resumeContext.CheckpointManager.GetClientVersion();
+        Checkpoint<AutomaticCheckpointData> automaticCheckpoint = resumeContext.LoadCheckpoint(checkpointId);
+
+        const auto& checkpointClientVersion = automaticCheckpoint.GetOne(AutomaticCheckpointData::ClientVersion);
         if (checkpointClientVersion != AppInstaller::Runtime::GetClientVersion().get())
         {
             context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ checkpointClientVersion }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
         }
 
-        std::string commandName = resumeContext.CheckpointManager.GetCommandName();
+        const auto& checkpointCommandName = automaticCheckpoint.GetOne(AutomaticCheckpointData::CommandName);
         std::unique_ptr<Command> commandToResume;
 
-        // Find the command using the root command.
-        AICLI_LOG(CLI, Info, << "Resuming command: " << commandName);
+        AICLI_LOG(CLI, Info, << "Resuming command: " << checkpointCommandName);
         for (auto& command : std::make_unique<RootCommand>()->GetCommands())
         {
-            if (Utility::CaseInsensitiveEquals(commandName, command->Name()))
+            if (Utility::CaseInsensitiveEquals(checkpointCommandName, command->Name()))
             {
                 commandToResume = std::move(command);
                 break;
@@ -75,18 +75,29 @@ namespace AppInstaller::CLI
 
         THROW_HR_IF_MSG(E_UNEXPECTED, !commandToResume, "Command to resume not found.");
 
+        for (const auto& fieldNames : automaticCheckpoint.GetFieldNames(AutomaticCheckpointData::Arguments))
+        {
+            const auto& values = automaticCheckpoint.Get(AutomaticCheckpointData::Arguments, fieldNames);
+            Execution::Args::Type type = static_cast<Execution::Args::Type>(std::stoi(fieldNames));
+            if (values.empty())
+            {
+                resumeContext.Args.AddArg(type);
+            }
+            else
+            {
+                for (const auto& value : values)
+                {
+                    resumeContext.Args.AddArg(type, value);
+                }
+            }
+        }
+
         resumeContext.SetExecutingCommand(commandToResume.get());
         resumeContext.SetFlags(Execution::ContextFlag::Resume); // this should be captured by telemetry
 
-        resumeContext.Checkpoint("Start"sv);
-
-
         auto previousThreadGlobals = resumeContext.SetForCurrentThread();
 
-        // Must be after or call initialize
-        // move local objects to resume context 
         resumeContext.EnableSignalTerminationHandler();
-        // double check this context, 
 
         commandToResume->Resume(resumeContext);
         context.SetTerminationHR(resumeContext.GetTerminationHR());

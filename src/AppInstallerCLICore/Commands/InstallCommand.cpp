@@ -14,7 +14,6 @@
 
 namespace AppInstaller::CLI
 {
-    using namespace AppInstaller::CLI::Checkpoint;
     using namespace AppInstaller::CLI::Execution;
     using namespace AppInstaller::CLI::Workflow;
     using namespace AppInstaller::Manifest;
@@ -106,29 +105,24 @@ namespace AppInstaller::CLI
 
     void InstallCommand::Resume(Context& context) const
     {
-        const auto& lastCheckpoint = context.CheckpointManager.GetLastCheckpoint();
-        context.SetTargetCheckpoint(lastCheckpoint);
-
         // TODO: Load context data from checkpoint for install command.
-
         context.SetFlags(Execution::ContextFlag::Resume);
         ExecuteInternal(context);
     }
 
     void InstallCommand::ExecuteInternal(Context& context) const
     {
-        context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
+        context.Checkpoint("exampleCheckpoint", {});
+
+           context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
-            context.CreateCheckpoint("start", {});
-
             context <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
-                // Example: Checkpoint an installer 
                 Workflow::InstallSinglePackage;
         }
         else

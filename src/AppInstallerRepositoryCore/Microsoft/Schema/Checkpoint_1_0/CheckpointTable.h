@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
-#include "SQLiteStatementBuilder.h"
-#include "Microsoft/Schema/ICheckpointRecord.h"
-#include <string_view>
+#include <vector>
+#include <optional>
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {

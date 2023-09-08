@@ -9,6 +9,8 @@ namespace AppInstaller::CLI::Execution
 {
     static constexpr std::string_view s_comLogFileNamePrefix = "WinGetCOM"sv;
 
+    COMContext::~COMContext() = default;
+
     NullStream::NullStream()
     {
         m_nullOut.reset(new std::ostream(&m_nullStreamBuf));

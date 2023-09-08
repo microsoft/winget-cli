@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "CheckpointManager.h"
-#include "Microsoft/Schema/Checkpoint_1_0/CheckpointRecordInterface.h"
 #include <AppInstallerRuntime.h>
+#include "ExecutionContextData.h"
 
 namespace AppInstaller::Checkpoints
 {
@@ -13,9 +13,9 @@ namespace AppInstaller::Checkpoints
     namespace
     {
         constexpr std::string_view s_checkpoints_filename = "checkpoints.db"sv;
+
+        // This checkpoint name is reserved for the starting checkpoint which captures the automatic metadata.
         constexpr std::string_view s_StartCheckpoint = "start"sv;
-
-
         constexpr std::string_view s_Checkpoints = "Checkpoints"sv;
         constexpr std::string_view s_ClientVersion = "ClientVersion"sv;
         constexpr std::string_view s_CommandName = "CommandName"sv;
@@ -34,26 +34,7 @@ namespace AppInstaller::Checkpoints
         }
     }
 
-    CheckpointRecord CheckpointRecord::CreateNew(const std::string& filePath, Schema::Version version)
-    {
-        AICLI_LOG(Repo, Info, << "Creating new Checkpoint Index with version [" << version << "] at '" << filePath << "'");
-        CheckpointRecord result{ filePath, version };
-
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "CheckpointRecord_createnew");
-
-        // Use calculated version, as incoming version could be 'latest'
-        result.m_version.SetSchemaVersion(result.m_dbconn);
-
-        result.m_interface->CreateTables(result.m_dbconn);
-
-        result.SetLastWriteTime();
-
-        savepoint.Commit();
-
-        return result;
-    }
-
-    std::filesystem::path CheckpointRecord::GetCheckpointRecordPath(GUID guid)
+    std::filesystem::path CheckpointManager::GetCheckpointRecordPath(GUID guid)
     {
         wchar_t checkpointGuid[256];
         THROW_HR_IF(E_UNEXPECTED, !StringFromGUID2(guid, checkpointGuid, ARRAYSIZE(checkpointGuid)));
@@ -74,51 +55,61 @@ namespace AppInstaller::Checkpoints
         return indexPath;
     }
 
-    bool CheckpointRecord::IsEmpty()
+    CheckpointManager::CheckpointManager()
     {
-        return m_interface->IsEmpty(m_dbconn);
+        std::ignore = CoCreateGuid(&m_resumeId);
+        const auto& checkpointRecordPath = GetCheckpointRecordPath(m_resumeId);
+        m_checkpointRecord = std::make_shared<CheckpointRecord>(CheckpointRecord::CreateNew(checkpointRecordPath.u8string()));
     }
 
-    Checkpoint<AutomaticCheckpointData> CheckpointRecord::GetStartingCheckpoint()
+    CheckpointManager::CheckpointManager(GUID resumeId)
     {
-        int rowId = GetCheckpointIdByName(s_StartCheckpoint);
-        Checkpoint<AutomaticCheckpointData> checkpoint{ rowId };
-        checkpoint.GetData(AutomaticCheckpointData::Arguments);
-
-
-        // Get just the initial first checkpoint.
-        return m_interface->GetCheckpointByName("start"sv);
+        m_resumeId = resumeId;
+        const auto& checkpointRecordPath = GetCheckpointRecordPath(m_resumeId);
+        m_checkpointRecord = std::make_shared<CheckpointRecord>(CheckpointRecord::Open(checkpointRecordPath.u8string()));
     }
 
-    std::map<std::string, Checkpoint<CLI::Execution::Data>> CheckpointRecord::GetCheckpoints()
+    Checkpoint<AutomaticCheckpointData> CheckpointManager::CreateAutomaticCheckpoint()
     {
-        // Get all of the available data items for a checkpoint....
-        return m_interface->GetCheckpoints();
+        CheckpointRecord::IdType startCheckpointId = m_checkpointRecord->AddCheckpoint(s_StartCheckpoint);
+        Checkpoint<AutomaticCheckpointData> checkpoint{ m_checkpointRecord, startCheckpointId };
+        return checkpoint;
     }
 
-    std::unique_ptr<Schema::ICheckpointRecord> CheckpointRecord::CreateICheckpointRecord() const
+    Checkpoint<CLI::Execution::Data> CheckpointManager::CreateCheckpoint(std::string_view checkpointName)
     {
-        if (m_version == Schema::Version{ 1, 0 } ||
-            m_version.MajorVersion == 1 ||
-            m_version.IsLatest())
+        CheckpointRecord::IdType startCheckpointId = m_checkpointRecord->AddCheckpoint(checkpointName);
+        Checkpoint<CLI::Execution::Data> checkpoint{ m_checkpointRecord, startCheckpointId };
+        return checkpoint;
+    }
+
+    Checkpoint<AutomaticCheckpointData> CheckpointManager::GetAutomaticCheckpoint()
+    {
+        std::optional<CheckpointRecord::IdType> startCheckpointId = m_checkpointRecord->GetCheckpointIdByName(s_StartCheckpoint);
+
+        if (!startCheckpointId.has_value())
         {
-            return std::make_unique<Schema::Checkpoint_V1_0::CheckpointRecordInterface>();
+            THROW_HR(E_UNEXPECTED);
         }
 
-        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        return Checkpoint<AutomaticCheckpointData>{ std::move(m_checkpointRecord), startCheckpointId.value() };
     }
 
-    CheckpointRecord::CheckpointRecord(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
-        SQLiteStorageBase(target, disposition, std::move(indexFile))
+    std::vector<Checkpoint<CLI::Execution::Data>> CheckpointManager::GetCheckpoints()
     {
-        AICLI_LOG(Repo, Info, << "Opened Checkpoint Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
-        m_interface = CreateICheckpointRecord();
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
-    }
+        std::vector<Checkpoint<CLI::Execution::Data>> checkpoints;
+        for (const auto& checkpoint : m_checkpointRecord->GetCheckpoints())
+        {
+            // Exclude starting checkpoint from these context data related checkpoints.
+            if (checkpoint == s_StartCheckpoint)
+            {
+                continue;
+            }
 
-    CheckpointRecord::CheckpointRecord(const std::string& target, Schema::Version version) : SQLiteStorageBase(target, version)
-    {
-        m_interface = CreateICheckpointRecord();
-        m_version = m_interface->GetVersion();
+            CheckpointRecord::IdType checkpointId = m_checkpointRecord->GetCheckpointIdByName(checkpoint).value();
+            checkpoints.emplace_back(Checkpoint<CLI::Execution::Data>{ std::move(m_checkpointRecord), checkpointId });
+        }
+
+        return checkpoints;
     }
 }

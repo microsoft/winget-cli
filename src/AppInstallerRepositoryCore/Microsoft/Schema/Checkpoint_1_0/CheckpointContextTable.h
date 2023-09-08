@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
-#include "SQLiteStatementBuilder.h"
-#include "Microsoft/Schema/ICheckpointRecord.h"
 #include <string_view>
+#include <vector>
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {
@@ -25,13 +24,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         // Adds a context data for a checkpoint. Index is used to represent the item number if the context data has more than one value.
         static SQLite::rowid_t AddContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name, std::string_view value, int index = 1);
 
-        // Gets the context data values from a checkpoint id.
-        static std::vector<std::string> GetContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData);
+        static std::vector<std::string> GetDataFields(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type);
 
         // Gets the context data values by property name from a checkpoint id.
-        static std::vector<std::string> GetContextDataByName(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name);
+        static std::vector<std::string> GetDataValuesByName(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name);
+
+        static bool HasDataField(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type, std::string_view name);
 
         // Removes the context data by checkpoint id.
         static void RemoveContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData);
+
+        static std::string GetSingleDataField(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type);
     };
 }

@@ -18,8 +18,6 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            // If this is not a resume, simply capture the context data.
-            context.Checkpoint(m_checkpointName, m_contextData);
         }
     }
 }

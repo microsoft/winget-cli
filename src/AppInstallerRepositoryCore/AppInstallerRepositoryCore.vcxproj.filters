@@ -402,9 +402,6 @@
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointRecordInterface.h">
       <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
     </ClInclude>
-    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointMetadataTable.h">
-      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.h">
       <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
     </ClInclude>
@@ -644,9 +641,6 @@
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointRecordInterface_1_0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointMetadataTable.cpp">
-      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.cpp">
       <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
     </ClInclude>

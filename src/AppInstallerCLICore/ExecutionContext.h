@@ -5,8 +5,8 @@
 #include "ExecutionReporter.h"
 #include "ExecutionArgs.h"
 #include "ExecutionContextData.h"
-#include "CheckpointManager.h"
 #include "CompletionData.h"
+#include "CheckpointManager.h"
 
 #include <string_view>
 
@@ -90,7 +90,7 @@ namespace AppInstaller::CLI::Execution
             Reporter(reporter, Execution::Reporter::clone_t{}),
             m_threadGlobals(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{}) {}
 
-        virtual ~Context();
+        virtual ~Context(); 
 
         // The path for console input/output for all functionality.
         Reporter Reporter;
@@ -166,18 +166,11 @@ namespace AppInstaller::CLI::Execution
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
 
-        // Returns a value indicating whether the current checkpoint matches the target checkpoint.
-        bool IsCurrentCheckpointAtTarget();
+        // This should only be called by the resume , Sets the resume id for the checkpoint manager.
+        AppInstaller::Checkpoints::Checkpoint<AppInstaller::Checkpoints::AutomaticCheckpointData> LoadCheckpoint(GUID resumeId);
 
-        // Sets the target checkpoint.
-        void SetTargetCheckpoint(std::string_view checkpointName) { m_targetCheckpoint = checkpointName; };
-
-        Checkpoints::Checkpoint CreateCheckpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);
-
-        // Writes the context data to the checkpoint record if the checkpoint does not yet exist.
-        // If no context data is provided, writes the automatic checkpoint metadata.
-        // If the checkpoint already exists, loads the context data from the saved checkpoint.
-        void Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData = {});
+        // Creates a checkpoint for the provided context data.
+        void Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);
 
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent
@@ -198,8 +191,7 @@ namespace AppInstaller::CLI::Execution
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
 
-        std::unique_ptr<Checkpoints::CheckpointRecord> m_checkpointRecord;
-        std::string_view m_targetCheckpoint = {};
-        std::string_view m_currentCheckpoint = {};
+        // Change this to unique pointer after you're done with implmementation.
+        std::unique_ptr<AppInstaller::Checkpoints::CheckpointManager> m_checkpointManager;
     };
 }

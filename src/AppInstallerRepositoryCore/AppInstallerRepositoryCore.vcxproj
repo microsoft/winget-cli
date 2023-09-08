@@ -388,7 +388,7 @@
     <ClInclude Include="Microsoft\Schema\1_6\UpgradeCodeTable.h" />
     <ClInclude Include="Microsoft\Schema\IPinningIndex.h" />
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h" />
-    <ClInclude Include="Microsoft\Schema\ICheckpointRecordh" />
+    <ClInclude Include="Microsoft\Schema\ICheckpointRecord.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\Pinning_1_0\PinningIndexInterface.h" />
     <ClInclude Include="Microsoft\Schema\Pinning_1_0\PinTable.h" />
@@ -397,7 +397,6 @@
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointContextTable.h" />
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointRecordInterface.h" />
-    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointMetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
@@ -502,7 +501,6 @@
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointContextTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointRecordInterface_1_0.cpp" />
-    <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointMetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />

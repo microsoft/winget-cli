@@ -7,11 +7,14 @@
 #include "winget/UserSettings.h"
 #include "AppInstallerRuntime.h"
 #include "Command.h"
+#include "CheckpointManager.h"
+#include "Checkpoint.h"
+
+using namespace AppInstaller::Checkpoints;
 
 namespace AppInstaller::CLI::Execution
 {
     using namespace Settings;
-    using namespace Checkpoint;
 
     namespace
     {
@@ -255,7 +258,6 @@ namespace AppInstaller::CLI::Execution
     {
         if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume) && !IsTerminated())
         {
-            CheckpointManager.DeleteRecord();
         }
 
         if (m_disableSignalTerminationHandlerOnExit)
@@ -422,183 +424,42 @@ namespace AppInstaller::CLI::Execution
     }
 #endif
 
-    bool Context::IsCurrentCheckpointAtTarget()
+    Checkpoint<AutomaticCheckpointData> Context::LoadCheckpoint(GUID resumeId)
     {
-        return m_currentCheckpoint == m_targetCheckpoint;
+        m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>(resumeId);
+        return m_checkpointManager->GetAutomaticCheckpoint();
     }
-
-
-    // Representation of a single checkpoint 
-    enum class CheckpointData
-    {
-        Args,
-    };
-
-    template<typename T>
-    struct CheckpointContextData
-    {
-        CheckpointContextData(T data) {};
-
-        std::map<std::string, std::vector<std::string>> GetContextDataMap() { return m_contextDataMap; };
-
-    private:
-        std::map<std::string, std::vector<std::string>> m_contextDataMap;
-    };
-
-    template<>
-    CheckpointContextData<Execution::Args>::CheckpointContextData(Execution::Args args)
-    {
-        const auto& argTypes = args.GetTypes();
-
-        for (auto type : argTypes)
-        {
-            const auto& argName = Argument::ForType(type).Name();
-            const auto& values = *args.GetArgs(type);
-            int index = 0;
-            int castedType = static_cast<int>(type);
-            m_contextDataMap.emplace(castedType, values);
-        }
-    }
-
-    struct Checkpoint
-    {
-        template<typename CheckpointContextData>
-        void AddContextData(CheckpointData type, const CheckpointContextData& data)
-        {
-            m_checkpointData[type] = std::move(data);
-        };
-
-        std::map<std::string, std::vector<std::string>> GetDataItem(CheckpointData checkpointData) { };
-
-    private:
-        std::string_view m_checkpointName;
-        std::map<CheckpointData, std::map<std::string, std::vector<std::string>>> m_checkpointData;
-    };
 
     void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
     {
-        // Create automatic checkpoints
-        // If the checkpoint index doesn't already create it, and also add the automatic checkpoints.
-        if (!m_checkpointRecord)
+        UNREFERENCED_PARAMETER(checkpointName);
+
+        if (!m_checkpointManager)
         {
-            GUID checkpointId;
-            std::ignore = CoCreateGuid(&checkpointId);
-            const auto& checkpointRecordPath = Checkpoints::CheckpointRecord::GetCheckpointRecordPath(checkpointId);
-            m_checkpointRecord = std::make_unique<Checkpoints::CheckpointRecord>(Checkpoints::CheckpointRecord::CreateNew(checkpointRecordPath.u8string()));
-        
-            std::vector<Checkpoints::CheckpointData> checkpointData;
+            m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>();
 
-            // Create automatic checkpoint data:
-            Checkpoints::CheckpointData clientVersionData{ 0 };
-            clientVersionData.Set("clientVersion", { AppInstaller::Runtime::GetClientVersion() });
-            checkpointData.emplace_back(clientVersionData);
+            Checkpoints::Checkpoint<AutomaticCheckpointData> startingCheckpoint = m_checkpointManager->CreateAutomaticCheckpoint();
 
-            Checkpoints::CheckpointData commandName{ 1 };
+            // Set client version.
+            startingCheckpoint.Set(AutomaticCheckpointData::ClientVersion, "clientVersion"sv, { AppInstaller::Runtime::GetClientVersion() });
+
+            // Set command
             const auto& executingCommand = m_executingCommand;
             if (executingCommand != nullptr)
             {
-                commandName.Set("commandName", { std::string{ m_executingCommand->Name() } });
+                startingCheckpoint.Set(AutomaticCheckpointData::CommandName, "commandName"sv, { std::string{m_executingCommand->Name()} });
             }
-            checkpointData.emplace_back(commandName);
 
-
-            Checkpoints::CheckpointData commandArguments{ 2 };
+            // Set arguments
             const auto& argTypes = Args.GetTypes();
-
             for (auto type : argTypes)
             {
-                const auto& argName = Argument::ForType(type).Name();
+                //const auto& argName = Argument::ForType(type).Type.Name();
+
+                // what the argument name is here:.
                 const auto& values = *Args.GetArgs(type);
-                commandArguments.Set(std::string{ argName }, values);
-            }
-            checkpointData.emplace_back(commandArguments);
-
-            Checkpoints::Checkpoint<Checkpoints::CheckpointNames::Automatic> automaticCheckpoint;
-
-
-
-            Checkpoints::Checkpoint checkpoint{ checkpointData };
-            
-
-        }
-
-        // Create record if it does not exist.
-        if (!CheckpointManager.IsLoaded())
-        {
-            CheckpointManager.CreateRecord();
-        }
-
-        if (CheckpointManager.Exists(checkpointName))
-        {
-            if (contextData.empty())
-            {
-                // Load arguments if there is no context data 
-                const auto& availableData = CheckpointManager.GetAvailableContextData(checkpointName);
-                for (auto data : availableData)
-                {
-                    const auto& values = CheckpointManager.GetContextData(checkpointName, data);
-                    Execution::Args::Type type = static_cast<Execution::Args::Type>(data);
-                    if (values.empty())
-                    {
-                        Args.AddArg(type);
-                    }
-                    else
-                    {
-                        for (const auto& value : values)
-                        {
-                            Args.AddArg(type, value);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // Load context data from checkpoint.
+                startingCheckpoint.Set(AutomaticCheckpointData::Arguments, std::to_string(static_cast<int>(type)), values);
             }
         }
-        else
-        {
-            if (contextData.empty())
-            {
-                CheckpointManager.SetClientVersion(AppInstaller::Runtime::GetClientVersion());
-
-                const auto& executingCommand = m_executingCommand;
-                if (executingCommand != nullptr)
-                {
-                    CheckpointManager.SetCommandName(executingCommand->Name());
-                }
-
-                const auto& argTypes = Args.GetTypes();
-
-                for (auto type : argTypes)
-                {
-                    const auto& argName = Argument::ForType(type).Name();
-                    const auto& values = *Args.GetArgs(type);
-                    int index = 0;
-                    if (values.empty())
-                    {
-                        // 
-                        CheckpointManager.AddContextData(checkpointName, static_cast<int>(type), argName, {}, index);
-                    }
-                    else
-                    {
-                        for (const auto& value : values)
-                        {
-                            CheckpointManager.AddContextData(checkpointName, static_cast<int>(type), argName, value, index);
-                            index++;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // TODO: Capture context data.
-            }
-        }
-
-        m_currentCheckpoint = checkpointName;
     }
-
-
-
 }

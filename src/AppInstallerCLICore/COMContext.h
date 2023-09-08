@@ -49,7 +49,7 @@ namespace AppInstaller::CLI::Execution
             SetFlags(CLI::Execution::ContextFlag::DisableInteractivity);
         }
 
-        ~COMContext() = default;
+        ~COMContext();
 
         // IProgressSink
         void BeginProgress() override;

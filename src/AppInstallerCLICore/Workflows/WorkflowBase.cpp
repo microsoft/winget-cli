@@ -1277,10 +1277,10 @@ AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::
 {
     if (AppInstaller::Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
     {
-        if (WI_IsFlagSet(context.GetFlags(), AppInstaller::CLI::Execution::ContextFlag::Resume) && !context.IsCurrentCheckpointAtTarget())
-        {
-            return context;
-        }
+        //if (WI_IsFlagSet(context.GetFlags(), AppInstaller::CLI::Execution::ContextFlag::Resume) && !context.IsCurrentCheckpointAtTarget())
+        //{
+        //    return context;
+        //}
     }
 
     if (!context.IsTerminated())

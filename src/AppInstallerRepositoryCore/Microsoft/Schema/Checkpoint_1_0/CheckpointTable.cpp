@@ -40,14 +40,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         SQLite::Statement select = builder.Prepare(connection);
 
         std::vector<std::string> checkpoints;
-        if (select.Step())
+
+        while (select.Step())
         {
             checkpoints.emplace_back(select.GetColumn<std::string>(0));
         }
-        else
-        {
-            return {};
-        }
+
+        return checkpoints;
     }
 
     std::string CheckpointTable::GetLastCheckpoint(SQLite::Connection& connection)

@@ -8,12 +8,6 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
-    enum AutomaticCheckpointData
-    {
-        ClientVersion,
-        CommandName
-    };
-
     struct CheckpointRecord : SQLiteStorageBase
     {
         // An id that refers to a specific Checkpoint.
@@ -25,55 +19,51 @@ namespace AppInstaller::Repository::Microsoft
         CheckpointRecord(CheckpointRecord&&) = default;
         CheckpointRecord& operator=(CheckpointRecord&&) = default;
 
+        // Create a new CheckpointRecord database.
+        static CheckpointRecord CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
+
         // Opens an existing CheckpointRecord database.
         static CheckpointRecord Open(const std::string& filePath, OpenDisposition disposition = OpenDisposition::ReadWrite, Utility::ManagedFile&& indexFile = {})
         {
             return { filePath, disposition, std::move(indexFile) };
         }
 
-        // Create a new CheckpointRecord database.
-        static CheckpointRecord CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
-
-        // Gets the file path of the CheckpointRecord database.
-        static std::filesystem::path GetCheckpointRecordPath(GUID guid);
-
         // Returns a value indicating whether the record is empty.
         bool IsEmpty();
 
-        Checkpoint<AutomaticCheckpointData> GetAutomaticCheckpoint();
+        // Returns the corresponding id of the checkpoint.
+        std::optional<IdType> GetCheckpointIdByName(std::string_view checkpointName);
 
-        std::map<std::string, Checkpoint<Execution::ContextData>> GetCheckpoints();
-
-
-        // Gets all available context data for a checkpoint.
-        std::vector<int> GetAvailableData(std::string_view checkpointName);
-
-        // Gets the specified metadata value.
-        std::string GetMetadata(CheckpointMetadata checkpointMetadata);
-
-        // Sets the specified metadata value.
-        IdType SetMetadata(CheckpointMetadata checkpointMetadata, std::string_view value);
-
-        // Adds a new checkpoint.
+        // Adds a new checkpoint name to the checkpoint table.
         IdType AddCheckpoint(std::string_view checkpointName);
 
-        // Gets the latest checkpoint.
-        std::string GetLastCheckpoint();
+        std::vector<std::string> GetCheckpoints();
 
-        // Returns a value indicating whether the checkpoint exists.
-        bool CheckpointExists(std::string_view checkpointName);
+        bool HasDataField(IdType checkpointId, int type, std::string name);
 
-        // Adds a context data value.
-        IdType AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index);
+        // Returns the available data types for a given checkpoint id.
+        std::vector<int> GetDataTypes(IdType checkpointId);
 
-        // Gets the context data values.
-        std::vector<std::string> GetContextData(std::string_view checkpointName, int contextData);
+        // Returns the available field names for a given checkpoint context data.
+        std::vector<std::string> GetDataFieldNames(IdType checkpointId, int dataType);
 
-        // Gets the context data values by property name.
-        std::vector<std::string> GetContextDataByName(std::string_view checkpointName, int contextData, std::string_view name);
+        // Returns a single value for the given data type.
+        std::string GetDataSingleValue(IdType checkpointId, int dataType);
 
-        // Removes the context data.
-        void RemoveContextData(std::string_view checkpointName, int contextData);
+        // Sets a single value for the given data type.
+        void SetDataSingleValue(IdType checkpointId, int dataType, std::string value);
+
+        // Gets a single value for a given data type field.
+        std::string GetDataFieldSingleValue(IdType checkpointId, int dataType, std::string_view field);
+
+        // Sets a single value for a given data type field.
+        void SetDataFieldSingleValue(IdType checkpointId, int dataType, std::string field, std::string value);
+
+        // Gets multiple values for a given data type field.
+        std::vector<std::string> GetDataFieldMultiValue(IdType checkpointId, int dataType, std::string field);
+
+        // Sets multiple values for a given data type field.
+        void SetDataFieldMultiValue(IdType checkpointId, int dataType, std::string field, std::vector<std::string> values);
 
     private:
         // Constructor used to open an existing index.

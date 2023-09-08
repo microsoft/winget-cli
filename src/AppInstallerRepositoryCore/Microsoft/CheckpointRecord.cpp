@@ -2,33 +2,10 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "CheckpointRecord.h"
-#include "SQLiteStorageBase.h"
 #include "Schema/Checkpoint_1_0/CheckpointRecordInterface.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
-    namespace
-    {
-        constexpr std::string_view s_checkpoints_filename = "checkpoints.db"sv;
-
-        constexpr std::string_view s_Checkpoints = "Checkpoints"sv;
-        constexpr std::string_view s_ClientVersion = "ClientVersion"sv;
-        constexpr std::string_view s_CommandName = "CommandName"sv;
-
-        std::string_view GetCheckpointMetadataString(CheckpointMetadata checkpointMetadata)
-        {
-            switch (checkpointMetadata)
-            {
-            case CheckpointMetadata::ClientVersion:
-                return s_ClientVersion;
-            case CheckpointMetadata::CommandName:
-                return s_CommandName;
-            default:
-                return "unknown"sv;
-            }
-        }
-    }
-
     CheckpointRecord CheckpointRecord::CreateNew(const std::string& filePath, Schema::Version version)
     {
         AICLI_LOG(Repo, Info, << "Creating new Checkpoint Index with version [" << version << "] at '" << filePath << "'");
@@ -48,58 +25,14 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    std::filesystem::path CheckpointRecord::GetCheckpointRecordPath(GUID guid)
-    {
-        wchar_t checkpointGuid[256];
-        THROW_HR_IF(E_UNEXPECTED, !StringFromGUID2(guid, checkpointGuid, ARRAYSIZE(checkpointGuid)));
-
-        const auto checkpointsDirectory = Runtime::GetPathTo(Runtime::PathName::CheckpointsLocation) / checkpointGuid;
-
-        if (!std::filesystem::exists(checkpointsDirectory))
-        {
-            std::filesystem::create_directories(checkpointsDirectory);
-            AICLI_LOG(Repo, Info, << "Creating checkpoint index directory: " << checkpointsDirectory);
-        }
-        else
-        {
-            THROW_HR_IF(ERROR_CANNOT_MAKE, !std::filesystem::is_directory(checkpointsDirectory));
-        }
-
-        auto indexPath = checkpointsDirectory / s_checkpoints_filename;
-        return indexPath;
-    }
-
     bool CheckpointRecord::IsEmpty()
     {
         return m_interface->IsEmpty(m_dbconn);
     }
 
-
-
-    std::vector<int> CheckpointRecord::GetAvailableData(std::string_view name)
+    std::optional<CheckpointRecord::IdType> CheckpointRecord::GetCheckpointIdByName(std::string_view checkpointName)
     {
-        return m_interface->GetAvailableContextData(m_dbconn, name);
-    }
-
-    std::string CheckpointRecord::GetMetadata(CheckpointMetadata checkpointMetadata)
-    {
-        const auto& metadataName = GetCheckpointMetadataString(checkpointMetadata);
-        return m_interface->GetMetadata(m_dbconn, metadataName);
-    }
-
-    CheckpointRecord::IdType CheckpointRecord::SetMetadata(CheckpointMetadata checkpointMetadata, std::string_view value)
-    {
-        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Setting client version [" << value << "]");
-
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_setmetadata");
-
-        const auto& metadataName = GetCheckpointMetadataString(checkpointMetadata);
-        IdType result = m_interface->SetMetadata(m_dbconn, metadataName, value);
-
-        SetLastWriteTime();
-        savepoint.Commit();
-        return result;
+        return m_interface->GetCheckpointIdByName(m_dbconn, checkpointName);
     }
 
     CheckpointRecord::IdType CheckpointRecord::AddCheckpoint(std::string_view checkpointName)
@@ -116,44 +49,79 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    bool CheckpointRecord::CheckpointExists(std::string_view checkpointName)
+    std::vector<std::string> CheckpointRecord::GetCheckpoints()
     {
-        return m_interface->CheckpointExists(m_dbconn, checkpointName);
+        return m_interface->GetAvailableCheckpoints(m_dbconn);
     }
 
-    CheckpointRecord::IdType CheckpointRecord::AddContextData(std::string_view checkpointName, int contextData, std::string_view name, std::string_view value, int index)
+    bool CheckpointRecord::HasDataField(IdType checkpointId, int type, std::string name)
+    {
+        return m_interface->HasCheckpointDataField(m_dbconn, checkpointId, type, name);
+    }
+
+    std::vector<int> CheckpointRecord::GetDataTypes(IdType checkpointId)
+    {
+        return m_interface->GetCheckpointDataTypes(m_dbconn, checkpointId);
+    }
+
+    std::vector<std::string> CheckpointRecord::GetDataFieldNames(IdType checkpointId, int dataType)
+    {
+        return m_interface->GetCheckpointDataFields(m_dbconn, checkpointId, dataType);
+    }
+
+    // Set data single value can be reused for all of these methods.
+
+    void CheckpointRecord::SetDataSingleValue(IdType checkpointId, int dataType, std::string value)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Setting context data [" << contextData << "] for [" << name << "] with value [" << value << "] value");
+        AICLI_LOG(Repo, Verbose, << "Setting checkpoint data [" << dataType << "] with value [" << value << "]");
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_addcontextdata");
-        SQLite::rowid_t rowId = m_interface->AddContextData(m_dbconn, checkpointName, contextData, name, value, index);
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointrecord_setdatasinglevalue");
+
+        m_interface->SetCheckpointDataValue(m_dbconn, checkpointId, dataType, {}, { value });
+
+        SetLastWriteTime();
         savepoint.Commit();
-        return rowId;
     }
 
-    std::string CheckpointRecord::GetLastCheckpoint()
+    std::string CheckpointRecord::GetDataSingleValue(IdType checkpointId, int dataType)
     {
-        return m_interface->GetLastCheckpoint(m_dbconn);
+        return m_interface->GetDataSingleValue(m_dbconn, checkpointId, dataType);
     }
 
-    std::vector<std::string> CheckpointRecord::GetContextData(std::string_view checkpointName, int contextData)
-    {
-        return m_interface->GetContextData(m_dbconn, checkpointName, contextData);
-    }
-
-    std::vector<std::string> CheckpointRecord::GetContextDataByName(std::string_view checkpointName, int contextData, std::string_view name)
-    {
-        return m_interface->GetContextDataByName(m_dbconn, checkpointName, contextData, name);
-    }
-
-    void CheckpointRecord::RemoveContextData(std::string_view checkpointName, int contextData)
+    void CheckpointRecord::SetDataFieldSingleValue(IdType checkpointId, int dataType, std::string field, std::string value)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Removing context data [" << contextData << "]");
+        AICLI_LOG(Repo, Verbose, << "Setting checkpoint data [" << dataType << "] with value [" << value << "]");
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_addcontextdata");
-        m_interface->RemoveContextData(m_dbconn, checkpointName, contextData);
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointrecord_setdatafieldsinglevalue");
+
+        m_interface->SetCheckpointDataValue(m_dbconn, checkpointId, dataType, field, { value });
+
+        SetLastWriteTime();
+        savepoint.Commit();
+    }
+
+    std::string CheckpointRecord::GetDataFieldSingleValue(IdType checkpointId, int dataType, std::string_view field)
+    {
+        return m_interface->GetCheckpointDataValues(m_dbconn, checkpointId, dataType, field);
+    }
+
+    std::vector<std::string> CheckpointRecord::GetDataFieldMultiValue(IdType checkpointId, int dataType, std::string field)
+    {
+        return std::vector<std::string>();
+    }
+
+    void CheckpointRecord::SetDataFieldMultiValue(IdType checkpointId, int dataType, std::string field, std::vector<std::string> values)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Setting checkpoint data [" << dataType << "]");
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointrecord_setdatafieldmultivalue");
+
+        m_interface->SetCheckpointDataValue(m_dbconn, checkpointId, dataType, field, values);
+
+        SetLastWriteTime();
         savepoint.Commit();
     }
 
