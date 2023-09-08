@@ -459,6 +459,7 @@ timespan
 timezone
 Tlg
 tombstoned
+TOperation
 TOptions
 TProgress
 transitioning
