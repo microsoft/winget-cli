@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
 {
     using System;
     using Microsoft.Management.Configuration;
+    using Microsoft.WinGet.Configuration.Engine.Exceptions;
 
     /// <summary>
     /// Result for getting the details of a unit.
@@ -21,7 +22,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         internal PSGetConfigurationDetailsResult(GetConfigurationUnitDetailsResult result)
         {
             this.Type = result.Unit.Type;
-            this.ResultCode = result.ResultInformation?.ResultCode?.HResult ?? 0;
+            this.ResultCode = result.ResultInformation?.ResultCode?.HResult ?? ErrorCodes.S_OK;
 
             if (result.ResultInformation?.ResultCode != null)
             {

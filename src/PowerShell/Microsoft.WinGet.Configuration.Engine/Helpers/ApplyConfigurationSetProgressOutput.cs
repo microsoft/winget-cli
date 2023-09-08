@@ -6,26 +6,15 @@
 
 namespace Microsoft.WinGet.Configuration.Engine.Helpers
 {
-    using System;
-    using System.Collections.Generic;
     using Microsoft.Management.Configuration;
     using Microsoft.WinGet.Configuration.Engine.Commands;
     using Windows.Foundation;
 
     /// <summary>
-    /// Helper to handle progress callbacks from ApplyConfigurationSetAsync.
+    /// Helper to handle progress callbacks from ApplySetAsync.
     /// </summary>
-    internal class ApplyConfigurationSetProgressOutput
+    internal class ApplyConfigurationSetProgressOutput : ConfigurationSetProgressOutputBase<ApplyConfigurationSetResult, ConfigurationSetChangeData>
     {
-        private readonly AsyncCommand cmd;
-        private readonly int activityId;
-        private readonly string activity;
-        private readonly string inProgressMessage;
-        private readonly string completeMessage;
-        private readonly int totalUnitsExpected;
-
-        private readonly HashSet<Guid> unitsCompleted = new ();
-
         private bool isFirstProgress = true;
 
         /// <summary>
@@ -38,29 +27,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// <param name="completeMessage">The activity complete message.</param>
         /// <param name="totalUnitsExpected">Total of units expected.</param>
         public ApplyConfigurationSetProgressOutput(AsyncCommand cmd, int activityId, string activity, string inProgressMessage, string completeMessage, int totalUnitsExpected)
+            : base(cmd, activityId, activity, inProgressMessage, completeMessage, totalUnitsExpected)
         {
-            this.cmd = cmd;
-            this.activityId = activityId;
-            this.activity = activity;
-            this.inProgressMessage = inProgressMessage;
-            this.completeMessage = completeMessage;
-            this.totalUnitsExpected = totalUnitsExpected;
-
-            // Write initial progress record.
-            // For some reason, if this is 0 the progress bar is shown full. Start with 1%
-            this.cmd.WriteProgressWithPercentage(activityId, activity, $"{this.inProgressMessage} 0/{this.totalUnitsExpected}", 1, 100);
         }
 
-        /// <summary>
-        /// Progress callback.
-        /// </summary>
-        /// <param name="operation">Async operation in progress.</param>
-        /// <param name="data">Change data.</param>
-        public void Progress(IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> operation, ConfigurationSetChangeData data)
+        /// <inheritdoc/>
+        public override void Progress(IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> operation, ConfigurationSetChangeData data)
         {
             if (this.isFirstProgress)
             {
-                this.HandleUnreportedProgress(operation.GetResults());
+                this.HandleProgress(operation.GetResults());
             }
 
             switch (data.Change)
@@ -71,11 +47,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             }
         }
 
-        /// <summary>
-        /// Handle unreported progress.
-        /// </summary>
-        /// <param name="result">Set result.</param>
-        public void HandleUnreportedProgress(ApplyConfigurationSetResult result)
+        /// <inheritdoc/>
+        public override void HandleProgress(ApplyConfigurationSetResult result)
         {
             if (!this.isFirstProgress)
             {
@@ -87,17 +60,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             }
         }
 
-        /// <summary>
-        /// Completes the progress bar.
-        /// </summary>
-        public void CompleteProgress()
-        {
-            this.cmd.CompleteProgress(this.activityId, this.activity, this.completeMessage);
-        }
-
         private void HandleUnitProgress(ConfigurationUnit unit, ConfigurationUnitState state)
         {
-            if (this.unitsCompleted.Contains(unit.InstanceIdentifier))
+            if (this.UnitsCompleted.Contains(unit.InstanceIdentifier))
             {
                 return;
             }
@@ -113,14 +78,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                 case ConfigurationUnitState.Skipped:
                     this.CompleteUnit(unit);
                     break;
-            }
-        }
-
-        private void CompleteUnit(ConfigurationUnit unit)
-        {
-            if (this.unitsCompleted.Add(unit.InstanceIdentifier))
-            {
-                this.cmd.WriteProgressWithPercentage(this.activityId, this.activity, $"{this.inProgressMessage} {this.unitsCompleted.Count}/{this.totalUnitsExpected}", this.unitsCompleted.Count, this.totalUnitsExpected);
             }
         }
     }

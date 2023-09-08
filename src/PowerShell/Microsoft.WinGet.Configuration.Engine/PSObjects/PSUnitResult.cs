@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="PSConfigurationApplyUnitResult.cs" company="Microsoft Corporation">
+// <copyright file="PSUnitResult.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -11,25 +11,25 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
     using Microsoft.WinGet.Configuration.Engine.Resources;
 
     /// <summary>
-    /// The apply result of a configuration unit.
+    /// Unit result.
     /// </summary>
-    public class PSConfigurationApplyUnitResult
+    public abstract class PSUnitResult
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PSConfigurationApplyUnitResult"/> class.
+        /// Initializes a new instance of the <see cref="PSUnitResult"/> class.
         /// </summary>
-        /// <param name="unitResult">Apply unit result.</param>
-        internal PSConfigurationApplyUnitResult(ApplyConfigurationUnitResult unitResult)
+        /// <param name="unit">Unit.</param>
+        /// <param name="resultInfo">Result info.</param>
+        internal PSUnitResult(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInfo)
         {
-            this.Type = unitResult.Unit.Type;
-            this.ResultCode = unitResult.ResultInformation?.ResultCode?.HResult ?? 0;
+            this.Type = unit.Type;
+            this.ResultCode = resultInfo.ResultCode?.HResult ?? ErrorCodes.S_OK;
 
-            if (unitResult.ResultInformation != null)
+            if (this.ResultCode != ErrorCodes.S_OK)
             {
-                string description = unitResult.ResultInformation.Description.Trim();
-                var message = this.GetUnitMessage(unitResult);
-                this.ErrorMessage = $"Configuration unit {this.Type}[{unitResult.Unit.Identifier}] failed with code 0x{this.ResultCode:X}" +
-                    $" and error message:\n{description}\n{unitResult.ResultInformation.Details}\n{message}";
+                this.Message = this.GetUnitMessage(unit, resultInfo);
+                this.Description = resultInfo.Description.Trim();
+                this.Details = resultInfo.Details;
             }
         }
 
@@ -44,15 +44,25 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         public int ResultCode { get; private init; }
 
         /// <summary>
-        /// Gets the failure message.
+        /// Gets the message.
         /// </summary>
-        public string? ErrorMessage { get; private init; }
+        public string? Message { get; private init; }
 
-        private string GetUnitMessage(ApplyConfigurationUnitResult unitResult)
+        /// <summary>
+        /// Gets the short description.
+        /// </summary>
+        public string? Description { get; private init; }
+
+        /// <summary>
+        /// Gets detailed information.
+        /// </summary>
+        public string? Details { get; private init; }
+
+        private string GetUnitMessage(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInfo)
         {
-            if (unitResult.ResultInformation.ResultCode == null)
+            if (resultInfo.ResultCode == null)
             {
-                if (unitResult.Unit.State == ConfigurationUnitState.Skipped)
+                if (unit.State == ConfigurationUnitState.Skipped)
                 {
                     return string.Format(Resources.ConfigurationUnitSkipped, "null");
                 }
@@ -60,13 +70,13 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
                 return string.Format(Resources.ConfigurationUnitFailed, "null");
             }
 
-            int resultCode = unitResult.ResultInformation.ResultCode.HResult;
+            int resultCode = resultInfo.ResultCode.HResult;
             switch (resultCode)
             {
                 case ErrorCodes.WingetConfigErrorDuplicateIdentifier:
-                    return string.Format(Resources.ConfigurationUnitHasDuplicateIdentifier, unitResult.Unit.Identifier);
+                    return string.Format(Resources.ConfigurationUnitHasDuplicateIdentifier, unit.Identifier);
                 case ErrorCodes.WingetConfigErrorMissingDependency:
-                    return string.Format(Resources.ConfigurationUnitHasMissingDependency, unitResult.ResultInformation.Details);
+                    return string.Format(Resources.ConfigurationUnitHasMissingDependency, resultInfo.Details);
                 case ErrorCodes.WingetConfigErrorAssertionFailed:
                     return Resources.ConfigurationUnitAssertHadNegativeResult;
                 case ErrorCodes.WinGetConfigUnitNotFound:
@@ -93,7 +103,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
                     return Resources.ConfigurationUnitNotRunDueToDependency;
             }
 
-            switch (unitResult.ResultInformation.ResultSource)
+            switch (resultInfo.ResultSource)
             {
                 case ConfigurationUnitResultSource.ConfigurationSet:
                     return string.Format(Resources.ConfigurationUnitFailedConfigSet, resultCode);
@@ -107,7 +117,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
                     return string.Format(Resources.ConfigurationUnitFailedUnitProcessing, resultCode);
             }
 
-            if (unitResult.Unit.State == ConfigurationUnitState.Skipped)
+            if (unit.State == ConfigurationUnitState.Skipped)
             {
                 return string.Format(Resources.ConfigurationUnitSkipped, resultCode);
             }

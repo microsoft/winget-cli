@@ -181,24 +181,24 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="psConfigurationJob">The configuration job.</param>
         public void Continue(PSConfigurationJob psConfigurationJob)
         {
-            if (psConfigurationJob.ConfigurationTask.IsCompleted)
+            if (psConfigurationJob.ApplyConfigurationTask.IsCompleted)
             {
                 // It is safe to print all output.
                 psConfigurationJob.StartCommand.ConsumeAndWriteStreams(this);
 
                 this.Write(StreamType.Verbose, "The task was completed before waiting");
-                if (psConfigurationJob.ConfigurationTask.IsCompletedSuccessfully)
+                if (psConfigurationJob.ApplyConfigurationTask.IsCompletedSuccessfully)
                 {
                     this.Write(StreamType.Verbose, "Completed successfully");
-                    this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
+                    this.Write(StreamType.Object, psConfigurationJob.ApplyConfigurationTask.Result);
                     return;
                 }
-                else if (psConfigurationJob.ConfigurationTask.IsFaulted)
+                else if (psConfigurationJob.ApplyConfigurationTask.IsFaulted)
                 {
                     this.Write(StreamType.Verbose, "Completed faulted before waiting");
 
                     // Maybe just write error?
-                    throw psConfigurationJob.ConfigurationTask.Exception!;
+                    throw psConfigurationJob.ApplyConfigurationTask.Exception!;
                 }
             }
 
@@ -209,8 +209,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             // Signal the command that it can write to streams and wait for task.
             this.Write(StreamType.Verbose, "Waiting for task to complete");
-            psConfigurationJob.StartCommand.Wait(psConfigurationJob.ConfigurationTask, this);
-            this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
+            psConfigurationJob.StartCommand.Wait(psConfigurationJob.ApplyConfigurationTask, this);
+            this.Write(StreamType.Object, psConfigurationJob.ApplyConfigurationTask.Result);
         }
 
         private IConfigurationSetProcessorFactory CreateFactory(OpenConfigurationParameters openParams)
@@ -259,26 +259,24 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             psConfigurationSet.PsProcessor.UpdateDiagnosticCmdlet(this);
 
-            var runningTask = this.RunOnMTA<PSConfigurationSet>(
+            var runningTask = this.RunOnMTA<PSApplyConfigurationSetResult>(
                 async () =>
                 {
                     try
                     {
-                        psConfigurationSet = await this.ApplyConfigurationAsync(psConfigurationSet);
+                        return await this.ApplyConfigurationAsync(psConfigurationSet);
                     }
                     finally
                     {
                         this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
-
-                    return psConfigurationSet;
                 });
 
             return new PSConfigurationJob(runningTask, this);
         }
 
-        private async Task<PSConfigurationSet> ApplyConfigurationAsync(PSConfigurationSet psConfigurationSet)
+        private async Task<PSApplyConfigurationSetResult> ApplyConfigurationAsync(PSConfigurationSet psConfigurationSet)
         {
             if (!psConfigurationSet.HasDetails)
             {
@@ -303,20 +301,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             try
             {
                 var result = await applyTask;
-                applyProgressOutput.HandleUnreportedProgress(result);
+                applyProgressOutput.HandleProgress(result);
 
-                if (result.ResultCode != null)
-                {
-                    throw new ApplyConfigurationException(result);
-                }
+                return new PSApplyConfigurationSetResult(result);
             }
             finally
             {
                 applyProgressOutput.CompleteProgress();
                 psConfigurationSet.ApplyCompleted = true;
             }
-
-            return psConfigurationSet;
         }
 
         private async Task<PSConfigurationSet> GetSetDetailsAsync(PSConfigurationSet psConfigurationSet, bool warnOnError)
@@ -347,7 +340,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 try
                 {
                     var result = await detailsTask;
-                    detailsProgressOutput.HandleUnits(result.UnitResults);
+                    detailsProgressOutput.HandleProgress(result);
 
                     if (result.UnitResults.Where(u => u.ResultInformation.ResultCode != null).Any())
                     {

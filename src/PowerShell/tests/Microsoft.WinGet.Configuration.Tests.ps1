@@ -302,7 +302,12 @@ Describe 'Invoke-WinGetConfiguration' {
         $set = Get-WinGetConfiguration -File $testFile
         $set | Should -Not -BeNullOrEmpty
 
-        { Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set } | Should -Throw "One or more errors occurred. (Some of the configuration was not applied successfully.)"
+        $result = Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be -1978286075
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be -1978285819
     }
 
     It 'From TestRepo' {
@@ -312,8 +317,12 @@ Describe 'Invoke-WinGetConfiguration' {
         $set = Get-WinGetConfiguration -File $testFile
         $set | Should -Not -BeNullOrEmpty
 
-        $set = Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
-        $set | Should -Not -BeNullOrEmpty
+        $result = Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
         Test-Path $expectedFile | Should -Be $true
@@ -362,8 +371,12 @@ Describe 'Invoke-WinGetConfiguration' {
         $set = Get-WinGetConfiguration -File $testFile -ModulePath $modulePath
         $set | Should -Not -BeNullOrEmpty
 
-        $set = Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
-        $set | Should -Not -BeNullOrEmpty
+        $result = Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
 
         $expectedModule = Join-Path $(GetExpectedModulePath $location) $e2eTestModule
         Test-Path $expectedModule | Should -Be $true
@@ -372,8 +385,12 @@ Describe 'Invoke-WinGetConfiguration' {
     It 'Piped' {
         DeleteConfigTxtFiles
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
-        $set = Get-WinGetConfiguration -File $testFile | Invoke-WinGetConfiguration -AcceptConfigurationAgreements
-        $set | Should -Not -BeNullOrEmpty
+        $result = Get-WinGetConfiguration -File $testFile | Invoke-WinGetConfiguration -AcceptConfigurationAgreements
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
         Test-Path $expectedFile | Should -Be $true
@@ -386,8 +403,12 @@ Describe 'Invoke-WinGetConfiguration' {
         $set = Get-WinGetConfiguration $testFile
         $set | Should -Not -BeNullOrEmpty
 
-        $set = Invoke-WinGetConfiguration -AcceptConfigurationAgreements $set
-        $set | Should -Not -BeNullOrEmpty
+        $result = Invoke-WinGetConfiguration -AcceptConfigurationAgreements $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
         Test-Path $expectedFile | Should -Be $true
@@ -399,7 +420,14 @@ Describe 'Invoke-WinGetConfiguration' {
         $set = Get-WinGetConfiguration -File $testFile
         $set | Should -Not -BeNullOrEmpty
 
-        { Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set } | Should -Throw "One or more errors occurred. (Some of the configuration was not applied successfully.)"
+        $result = Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be -1978286075
+        $result.UnitResults.Count | Should -Be 2
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be -1978285819
+        $result.UnitResults[1].State | Should -Be "Completed"
+        $result.UnitResults[1].ResultCode | Should -Be 0
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "IndependentResources_OneFailure.txt"
         Test-Path $expectedFile | Should -Be $true
@@ -411,7 +439,14 @@ Describe 'Invoke-WinGetConfiguration' {
         $set = Get-WinGetConfiguration -File $testFile
         $set | Should -Not -BeNullOrEmpty
 
-        { Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set } | Should -Throw "One or more errors occurred. (Some of the configuration was not applied successfully.)"
+        $result = Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be -1978286075
+        $result.UnitResults.Count | Should -Be 2
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be -1978285819
+        $result.UnitResults[1].State | Should -Be "Skipped"
+        $result.UnitResults[1].ResultCode | Should -Be -1978286072
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "DependentResources_Failure.txt"
         Test-Path $expectedFile | Should -Be $false
@@ -434,8 +469,12 @@ Describe 'Start|Complete-WinGetConfiguration' {
         $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
         $job | Should -Not -BeNullOrEmpty
 
-        { Complete-WinGetConfiguration -ConfigurationJob $job } | Should -Throw "One or more errors occurred. (Some of the configuration was not applied successfully.)"
-
+        $result = Complete-WinGetConfiguration -ConfigurationJob $job
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be -1978286075
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be -1978285819
     }
 
     It 'From TestRepo' {
@@ -447,8 +486,12 @@ Describe 'Start|Complete-WinGetConfiguration' {
         $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
         $job | Should -Not -BeNullOrEmpty
 
-        $set = Complete-WinGetConfiguration -ConfigurationJob $job
-        $set | Should -Not -BeNullOrEmpty
+        $result = Complete-WinGetConfiguration -ConfigurationJob $job
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
         Test-Path $expectedFile | Should -Be $true
@@ -500,8 +543,12 @@ Describe 'Start|Complete-WinGetConfiguration' {
         $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
         $job | Should -Not -BeNullOrEmpty
 
-        $set = Complete-WinGetConfiguration -ConfigurationJob $job
-        $set | Should -Not -BeNullOrEmpty
+        $result = Complete-WinGetConfiguration -ConfigurationJob $job
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
 
         $expectedModule = Join-Path $(GetExpectedModulePath $location) $e2eTestModule
         Test-Path $expectedModule | Should -Be $true
@@ -510,8 +557,12 @@ Describe 'Start|Complete-WinGetConfiguration' {
     It 'Piped' {
         DeleteConfigTxtFiles
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
-        $set = Get-WinGetConfiguration -File $testFile | Start-WinGetConfiguration -AcceptConfigurationAgreements | Complete-WinGetConfiguration
-        $set | Should -Not -BeNullOrEmpty
+        $result = Get-WinGetConfiguration -File $testFile | Start-WinGetConfiguration -AcceptConfigurationAgreements | Complete-WinGetConfiguration
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
         Test-Path $expectedFile | Should -Be $true
@@ -527,8 +578,12 @@ Describe 'Start|Complete-WinGetConfiguration' {
         $job = Start-WinGetConfiguration -AcceptConfigurationAgreements $set
         $job | Should -Not -BeNullOrEmpty
 
-        $set = Complete-WinGetConfiguration $job
-        $set | Should -Not -BeNullOrEmpty
+        $result = Complete-WinGetConfiguration $job
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
         Test-Path $expectedFile | Should -Be $true
@@ -543,7 +598,15 @@ Describe 'Start|Complete-WinGetConfiguration' {
         $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
         $job | Should -Not -BeNullOrEmpty
 
-        { Complete-WinGetConfiguration -ConfigurationJob $job } | Should -Throw "One or more errors occurred. (Some of the configuration was not applied successfully.)"
+        $result = Complete-WinGetConfiguration -ConfigurationJob $job
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be -1978286075
+        $result.UnitResults.Count | Should -Be 2
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be -1978285819
+
+        $result.UnitResults[1].State | Should -Be "Completed"
+        $result.UnitResults[1].ResultCode | Should -Be 0
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "IndependentResources_OneFailure.txt"
         Test-Path $expectedFile | Should -Be $true
@@ -555,11 +618,17 @@ Describe 'Start|Complete-WinGetConfiguration' {
         $set = Get-WinGetConfiguration -File $testFile
         $set | Should -Not -BeNullOrEmpty
 
-        # This should not throw
         $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
         $job | Should -Not -BeNullOrEmpty
 
-        { Complete-WinGetConfiguration -ConfigurationJob $job } | Should -Throw "One or more errors occurred. (Some of the configuration was not applied successfully.)"
+        $result = Complete-WinGetConfiguration -ConfigurationJob $job
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be -1978286075
+        $result.UnitResults.Count | Should -Be 2
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be -1978285819
+        $result.UnitResults[1].State | Should -Be "Skipped"
+        $result.UnitResults[1].ResultCode | Should -Be -1978286072
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "DependentResources_Failure.txt"
         Test-Path $expectedFile | Should -Be $false

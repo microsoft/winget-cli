@@ -26,10 +26,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
         {
             this.HResult = applyResult.ResultCode?.HResult ?? ErrorCodes.WingetConfigErrorSetApplyFailed;
 
-            var results = new List<PSConfigurationApplyUnitResult>();
+            var results = new List<PSApplyConfigurationUnitResult>();
             foreach (var unitResult in applyResult.UnitResults)
             {
-                results.Add(new PSConfigurationApplyUnitResult(unitResult));
+                results.Add(new PSApplyConfigurationUnitResult(unitResult));
             }
 
             this.UnitResults = results;
@@ -38,6 +38,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
         /// <summary>
         /// Gets the result of the units.
         /// </summary>
-        public IReadOnlyList<PSConfigurationApplyUnitResult> UnitResults { get; private init; }
+        public IReadOnlyList<PSApplyConfigurationUnitResult> UnitResults { get; private init; }
     }
 }
