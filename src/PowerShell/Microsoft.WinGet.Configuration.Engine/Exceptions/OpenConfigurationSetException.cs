@@ -29,32 +29,32 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
         private static string GetMessage(OpenConfigurationSetResult openResult, string configurationFile)
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"Failed to open configuration set at {configurationFile} with error 0x{openResult.ResultCode.HResult:X}");
+            sb.Append($"Failed to open configuration set at {configurationFile} with error 0x{openResult.ResultCode.HResult:X} ");
 
             switch (openResult.ResultCode.HResult)
             {
                 case ErrorCodes.WingetConfigErrorInvalidFieldType:
-                    sb.AppendLine(string.Format(Resources.ConfigurationFieldInvalidType, openResult.Field));
+                    sb.Append(string.Format(Resources.ConfigurationFieldInvalidType, openResult.Field));
                     break;
                 case ErrorCodes.WingetConfigErrorInvalidFieldValue:
-                    sb.AppendLine(string.Format(Resources.ConfigurationFieldInvalidValue, openResult.Field, openResult.Value));
+                    sb.Append(string.Format(Resources.ConfigurationFieldInvalidValue, openResult.Field, openResult.Value));
                     break;
                 case ErrorCodes.WingetConfigErrorMissingField:
-                    sb.AppendLine(string.Format(Resources.ConfigurationFieldMissing, openResult.Field));
+                    sb.Append(string.Format(Resources.ConfigurationFieldMissing, openResult.Field));
                     break;
                 case ErrorCodes.WingetConfigErrorUnknownConfigurationFileVersion:
-                    sb.AppendLine(string.Format(Resources.ConfigurationFileVersionUnknown, openResult.Value));
+                    sb.Append(string.Format(Resources.ConfigurationFileVersionUnknown, openResult.Value));
                     break;
                 case ErrorCodes.WingetConfigErrorInvalidConfigurationFile:
                 case ErrorCodes.WingetConfigErrorInvalidYaml:
                 default:
-                    sb.AppendLine(Resources.ConfigurationFileInvalid);
+                    sb.Append(Resources.ConfigurationFileInvalid);
                     break;
             }
 
             if (openResult.Line != 0)
             {
-                sb.AppendLine(string.Format(Resources.SeeLineAndColumn, openResult.Line, openResult.Column));
+                sb.Append($" {string.Format(Resources.SeeLineAndColumn, openResult.Line, openResult.Column)}");
             }
 
             return sb.ToString();

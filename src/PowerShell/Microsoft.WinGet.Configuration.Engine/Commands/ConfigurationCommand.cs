@@ -238,6 +238,38 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.Write(StreamType.Object, runningTask.Result);
         }
 
+        /// <summary>
+        /// Validates configuration.
+        /// </summary>
+        /// <param name="psConfigurationSet">PSConfigurationSet.</param>
+        public void Validate(PSConfigurationSet psConfigurationSet)
+        {
+            psConfigurationSet.PsProcessor.UpdateDiagnosticCmdlet(this);
+
+            if (!psConfigurationSet.CanProcess())
+            {
+                throw new InvalidOperationException();
+            }
+
+            var runningTask = this.RunOnMTA<PSValidateConfigurationSetResult>(
+                async () =>
+                {
+                    try
+                    {
+                        var setResult = await this.ApplyConfigurationAsync(psConfigurationSet, ApplyConfigurationSetFlags.PerformConsistencyCheckOnly);
+                        return new PSValidateConfigurationSetResult(setResult);
+                    }
+                    finally
+                    {
+                        this.Complete();
+                        psConfigurationSet.DoneProcessing();
+                    }
+                });
+
+            this.Wait(runningTask);
+            this.Write(StreamType.Object, runningTask.Result);
+        }
+
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
         {
             // Signal the command that it can write to streams and wait for task.
@@ -297,7 +329,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 {
                     try
                     {
-                        return await this.ApplyConfigurationAsync(psConfigurationSet);
+                        var setResult = await this.ApplyConfigurationAsync(psConfigurationSet, ApplyConfigurationSetFlags.None);
+                        psConfigurationSet.ApplyCompleted = true;
+                        return new PSApplyConfigurationSetResult(setResult);
                     }
                     finally
                     {
@@ -309,7 +343,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             return new PSConfigurationJob(runningTask, this);
         }
 
-        private async Task<PSApplyConfigurationSetResult> ApplyConfigurationAsync(PSConfigurationSet psConfigurationSet)
+        private async Task<ApplyConfigurationSetResult> ApplyConfigurationAsync(PSConfigurationSet psConfigurationSet, ApplyConfigurationSetFlags flags)
         {
             if (!psConfigurationSet.HasDetails)
             {
@@ -328,20 +362,18 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 Resources.OperationCompleted,
                 set.Units.Count);
 
-            var applyTask = processor.ApplySetAsync(set, ApplyConfigurationSetFlags.None);
+            var applyTask = processor.ApplySetAsync(set, flags);
             applyTask.Progress = applyProgressOutput.Progress;
 
             try
             {
                 var result = await applyTask;
                 applyProgressOutput.HandleProgress(result);
-
-                return new PSApplyConfigurationSetResult(result);
+                return result;
             }
             finally
             {
                 applyProgressOutput.CompleteProgress();
-                psConfigurationSet.ApplyCompleted = true;
             }
         }
 
