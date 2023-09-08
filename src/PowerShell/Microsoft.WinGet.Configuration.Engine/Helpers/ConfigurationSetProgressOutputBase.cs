@@ -50,7 +50,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         }
 
         /// <summary>
-        /// Gets or sets a hashset with the completed units.
+        /// Gets or sets a hash set with the completed units.
         /// </summary>
         protected HashSet<Guid> UnitsCompleted { get; set; } = new ();
 
