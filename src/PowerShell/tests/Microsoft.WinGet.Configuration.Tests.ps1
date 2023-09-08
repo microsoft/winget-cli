@@ -130,27 +130,34 @@ BeforeAll {
         {
             foreach ($module in $availableModules)
             {
-                $item = Get-Item $module.Path
-                while ($item.Name -ne $moduleName)
+                try
                 {
-                    $item = Get-Item $item.PSParentPath
-                }
-
-                if (-not $present)
-                {
-                    Get-ChildItem $item.FullName -Recurse | Remove-Item -Force -Recurse
-                    Remove-Item $item
-                }
-                else
-                {
-                    # Must be in the right location
-                    $expected = GetExpectedModulePath $testModuleLocation
-                    if ($expected -ne $item.Parent.FullName)
+                    $item = Get-Item $module.Path -ErrorAction Stop
+                    while ($item.Name -ne $moduleName)
                     {
-                        Get-ChildItem $item.FullName -Recurse | Remove-Item -Force -Recurse
-                        Remove-Item $item
-                        $isPresent = $false
+                        $item = Get-Item $item.PSParentPath -ErrorAction Stop
                     }
+
+                    if (-not $present)
+                    {
+                        Get-ChildItem $item.FullName -Recurse | Remove-Item -Force -Recurse -ErrorAction Stop
+                        Remove-Item $item -ErrorAction Stop
+                    }
+                    else
+                    {
+                        # Must be in the right location
+                        $expected = GetExpectedModulePath $testModuleLocation
+                        if ($expected -ne $item.Parent.FullName)
+                        {
+                            Get-ChildItem $item.FullName -Recurse | Remove-Item -Force -Recurse -ErrorAction Stop
+                            Remove-Item $item -ErrorAction Stop
+                            $isPresent = $false
+                        }
+                    }
+                }
+                catch [System.Management.Automation.ItemNotFoundException]
+                {
+                    Write-Host "Item not found, ignoring..." $_.Exception.Message
                 }
             }
         }
