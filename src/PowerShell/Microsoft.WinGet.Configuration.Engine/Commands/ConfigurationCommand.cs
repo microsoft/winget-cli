@@ -205,6 +205,36 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.ContinueHelper(psConfigurationJob);
         }
 
+        /// <summary>
+        /// Test configuration.
+        /// </summary>
+        /// <param name="psConfigurationSet">PSConfigurationSet.</param>
+        public void Test(PSConfigurationSet psConfigurationSet)
+        {
+            psConfigurationSet.PsProcessor.UpdateDiagnosticCmdlet(this);
+
+            if (!psConfigurationSet.CanProcess())
+            {
+                throw new InvalidOperationException();
+            }
+
+            var runningTask = this.RunOnMTA<PSTestConfigurationSetResult>(
+                async () =>
+                {
+                    try
+                    {
+                        return await this.TestConfigurationAsync(psConfigurationSet);
+                    }
+                    finally
+                    {
+                        this.Complete();
+                        psConfigurationSet.DoneProcessing();
+                    }
+                });
+
+            this.Write(StreamType.Object, runningTask.Result);
+        }
+
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
         {
             // Signal the command that it can write to streams and wait for task.
@@ -309,6 +339,41 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             {
                 applyProgressOutput.CompleteProgress();
                 psConfigurationSet.ApplyCompleted = true;
+            }
+        }
+
+        private async Task<PSTestConfigurationSetResult> TestConfigurationAsync(PSConfigurationSet psConfigurationSet)
+        {
+            if (!psConfigurationSet.HasDetails)
+            {
+                this.Write(StreamType.Verbose, "Getting details for configuration set");
+                await this.GetSetDetailsAsync(psConfigurationSet, true);
+            }
+
+            var processor = psConfigurationSet.PsProcessor.Processor;
+            var set = psConfigurationSet.Set;
+
+            var testProgressOutput = new TestConfigurationSetProgressOutput(
+                this,
+                this.GetNewProgressActivityId(),
+                Resources.ConfigurationAssert,
+                Resources.OperationInProgress,
+                Resources.OperationCompleted,
+                set.Units.Count);
+
+            var testTask = processor.TestSetAsync(set);
+            testTask.Progress = testProgressOutput.Progress;
+
+            try
+            {
+                var result = await testTask;
+                testProgressOutput.HandleProgress(result);
+
+                return new PSTestConfigurationSetResult(result);
+            }
+            finally
+            {
+                testProgressOutput.CompleteProgress();
             }
         }
 

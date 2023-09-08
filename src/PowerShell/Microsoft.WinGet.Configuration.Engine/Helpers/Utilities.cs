@@ -85,6 +85,24 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         }
 
         /// <summary>
+        /// Converts ConfigurationTestResult string value to PSConfigurationTestResult.
+        /// </summary>
+        /// <param name="value">ConfigurationTestResult value.</param>
+        /// <returns>PSConfigurationTestResult.</returns>
+        public static PSConfigurationTestResult ToPSConfigurationTestResult(ConfigurationTestResult value)
+        {
+            return value switch
+            {
+                ConfigurationTestResult.Unknown => PSConfigurationTestResult.Unknown,
+                ConfigurationTestResult.Positive => PSConfigurationTestResult.Positive,
+                ConfigurationTestResult.Negative => PSConfigurationTestResult.Negative,
+                ConfigurationTestResult.Failed => PSConfigurationTestResult.Failed,
+                ConfigurationTestResult.NotRun => PSConfigurationTestResult.NotRun,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        /// <summary>
         /// Converts ConfigurationUnitState string value to PSConfigurationUnitState.
         /// </summary>
         /// <param name="value">ConfigurationUnitState value.</param>
