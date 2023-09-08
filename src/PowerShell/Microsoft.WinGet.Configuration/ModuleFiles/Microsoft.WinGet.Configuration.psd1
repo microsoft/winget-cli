@@ -20,6 +20,7 @@ CmdletsToExport = @(
     "Get-WinGetConfigurationDetails"
     "Invoke-WinGetConfiguration"
     "Start-WinGetConfiguration"
+    "Test-WinGetConfiguration"
 )
 
 PrivateData = @{

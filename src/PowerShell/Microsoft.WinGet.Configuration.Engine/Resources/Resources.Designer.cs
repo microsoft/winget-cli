@@ -504,9 +504,18 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Have you reviewed the configuration and would you like to proceed applying it to the system?.
         /// </summary>
-        internal static string ConfigurationWarningPrompt {
+        internal static string ConfigurationWarningPromptApply {
             get {
-                return ResourceManager.GetString("ConfigurationWarningPrompt", resourceCulture);
+                return ResourceManager.GetString("ConfigurationWarningPromptApply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Have you reviewed the configuration and would you like to proceed verifying it against the system?.
+        /// </summary>
+        internal static string ConfigurationWarningPromptTest {
+            get {
+                return ResourceManager.GetString("ConfigurationWarningPromptTest", resourceCulture);
             }
         }
         

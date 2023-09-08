@@ -41,15 +41,17 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
         /// <param name="hasAccepted">Has already accepted.</param>
+        /// <param name="isApply">If prompt is for apply.</param>
         /// <returns>If accepted.</returns>
-        public static bool ConfirmConfigurationProcessing(PSCmdlet psCmdlet, bool hasAccepted)
+        public static bool ConfirmConfigurationProcessing(PSCmdlet psCmdlet, bool hasAccepted, bool isApply)
         {
             bool result = false;
             if (!hasAccepted)
             {
+                var prompt = isApply ? Resources.ConfigurationWarningPromptApply : Resources.ConfigurationWarningPromptTest;
                 bool yesToAll = false;
                 bool noToAll = false;
-                result = psCmdlet.ShouldContinue(Resources.ConfigurationWarningPrompt, Resources.ConfigurationWarning, true, ref yesToAll, ref noToAll);
+                result = psCmdlet.ShouldContinue(prompt, Resources.ConfigurationWarning, true, ref yesToAll, ref noToAll);
 
                 if (yesToAll)
                 {
@@ -232,6 +234,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                 });
 
+            this.Wait(runningTask);
             this.Write(StreamType.Object, runningTask.Result);
         }
 

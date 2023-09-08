@@ -642,6 +642,83 @@ Describe 'Start|Complete-WinGetConfiguration' {
     }
 }
 
+Describe 'Test-WinGetConfiguration' {
+
+    BeforeAll {
+        DeleteConfigTxtFiles
+    }
+
+    It 'Negative' {
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Test-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Negative"
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].TestResult | Should -Be "Negative"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+    }
+
+    It 'Positive' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
+        Set-Content -Path $expectedFile -Value "Contents!" -NoNewline
+
+        $result = Test-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Positive"
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].TestResult | Should -Be "Positive"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+    }
+
+    It 'Piped' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $result = Get-WinGetConfiguration -File $testFile | Test-WinGetConfiguration -AcceptConfigurationAgreements
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Negative"
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].TestResult | Should -Be "Negative"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+    }
+
+    It 'Positional' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Test-WinGetConfiguration -AcceptConfigurationAgreements $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Negative"
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].TestResult | Should -Be "Negative"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+    }
+
+    It "Failed" {
+        $testFile = GetConfigTestDataFile "IndependentResources_OneFailure.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Test-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Failed"
+        $result.UnitResults.Count | Should -Be 2
+        $result.UnitResults[0].TestResult | Should -Be "Failed"
+        $result.UnitResults[0].ResultCode | Should -Be -1978285819
+        $result.UnitResults[1].TestResult | Should -Be "Negative"
+        $result.UnitResults[1].ResultCode | Should -Be 0
+    }
+}
+
 AfterAll {
     CleanupGroupPolicies
     CleanupGroupPolicyKeyIfExists
