@@ -261,6 +261,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filter results by id</value>
   </data>
+  <data name="IgnoreWarningsArgumentDescription" xml:space="preserve">
+    <value>Suppresses warning outputs.</value>
+  </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
     <value>This application is licensed to you by its owner.</value>
   </data>
@@ -2076,6 +2079,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
     <value>`--module-path` value must be `currentuser`, `allusers`, `default` or an absolute path.</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
+  </data>
+  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+    <value>Enable Windows Package Manager Configuration</value>
   </data>
   <data name="ErrorCommandLongDescription" xml:space="preserve">
     <value>Retrieve information about errors. Given a number, the output will contain details about the error, including the symbol name if it is a winget specific error. Given a string, the winget specific errors are searched for this value.</value>

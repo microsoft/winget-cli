@@ -41,11 +41,6 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         public ConfigurationUnit Unit => this.unitResource.Unit;
 
         /// <summary>
-        /// Gets the directives overlay that the processor was created with.
-        /// </summary>
-        public IReadOnlyDictionary<string, object>? DirectivesOverlay => this.unitResource.DirectivesOverlay;
-
-        /// <summary>
         /// Gets or initializes the set processor factory.
         /// </summary>
         internal PowerShellConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
@@ -59,7 +54,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         {
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Get` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
 
-            var result = new GetSettingsResult();
+            var result = new GetSettingsResult(this.Unit);
 
             try
             {
@@ -92,7 +87,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 throw new NotSupportedException();
             }
 
-            var result = new TestSettingsResult();
+            var result = new TestSettingsResult(this.Unit);
             result.TestResult = ConfigurationTestResult.Failed;
             try
             {
@@ -128,7 +123,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 throw new NotSupportedException();
             }
 
-            var result = new ApplySettingsResult();
+            var result = new ApplySettingsResult(this.Unit);
             try
             {
                 result.RebootRequired = this.processorEnvironment.InvokeSetResource(

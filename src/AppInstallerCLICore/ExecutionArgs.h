@@ -66,6 +66,7 @@ namespace AppInstaller::CLI::Execution
 
             //Validate Command
             ValidateManifest,
+            IgnoreWarnings,
 
             // Complete Command
             Word,

@@ -7,11 +7,12 @@
 namespace Microsoft.WinGet.Configuration.Engine.Helpers
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Host;
     using System.Security.Principal;
+    using Microsoft.Management.Configuration;
+    using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
     /// <summary>
     /// Helper methods.
@@ -81,6 +82,24 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             }
 
             return lines;
+        }
+
+        /// <summary>
+        /// Converts ConfigurationUnitState string value to PSConfigurationUnitState.
+        /// </summary>
+        /// <param name="value">ConfigurationUnitState value.</param>
+        /// <returns>PSConfigurationUnitState.</returns>
+        public static PSConfigurationUnitState ToPSConfigurationUnitState(ConfigurationUnitState value)
+        {
+            return value switch
+            {
+                ConfigurationUnitState.Unknown => PSConfigurationUnitState.Unknown,
+                ConfigurationUnitState.Pending => PSConfigurationUnitState.Pending,
+                ConfigurationUnitState.InProgress => PSConfigurationUnitState.InProgress,
+                ConfigurationUnitState.Completed => PSConfigurationUnitState.Completed,
+                ConfigurationUnitState.Skipped => PSConfigurationUnitState.Skipped,
+                _ => throw new InvalidOperationException(),
+            };
         }
     }
 }

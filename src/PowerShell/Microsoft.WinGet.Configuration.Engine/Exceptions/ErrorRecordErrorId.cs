@@ -15,15 +15,5 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
         /// Error message from diagnostics.
         /// </summary>
         ConfigurationDiagnosticError,
-
-        /// <summary>
-        /// Error processing details.
-        /// </summary>
-        ConfigurationDetailsError,
-
-        /// <summary>
-        /// Error applying configuration.
-        /// </summary>
-        ConfigurationApplyError,
     }
 }

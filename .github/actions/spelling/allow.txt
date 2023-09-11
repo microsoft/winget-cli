@@ -107,6 +107,7 @@ ctl
 ctls
 CURSORPOSITON
 CUSTOMHEADER
+cvd
 cwctype
 datatelemetry
 dbconn
@@ -355,6 +356,7 @@ normalizedpackagenameandpublisher
 NOTHROW
 NOTIMPL
 NOTNULL
+nowarn
 npos
 NTFS
 NTSTATUS
@@ -396,6 +398,7 @@ pdbonly
 PEVENT
 pfp
 PGP
+pgp
 php
 PII
 pinnable

@@ -169,6 +169,15 @@ namespace Microsoft.WinGet.SharedLib.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enable Windows Package Manager Configuration.
+        /// </summary>
+        internal static string PolicyEnableWinGetConfiguration {
+            get {
+                return ResourceManager.GetString("PolicyEnableWinGetConfiguration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable Windows Package Manager Settings.
         /// </summary>
         internal static string PolicyEnableWinGetSettings {

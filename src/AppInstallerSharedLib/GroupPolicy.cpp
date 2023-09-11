@@ -287,6 +287,8 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableBypassCertificatePinningForMicrosoftStore"sv, String::PolicyEnableBypassCertificatePinningForMicrosoftStore);
         case TogglePolicy::Policy::WinGetCommandLineInterfaces:
             return TogglePolicy(policy, "EnableWindowsPackageManagerCommandLineInterfaces"sv, String::PolicyEnableWindowsPackageManagerCommandLineInterfaces);
+        case TogglePolicy::Policy::Configuration:
+            return TogglePolicy(policy, "EnableWindowsPackageManagerConfiguration"sv, String::PolicyEnableWinGetConfiguration);
         default:
             THROW_HR(E_UNEXPECTED);
         }

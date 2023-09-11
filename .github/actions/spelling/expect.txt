@@ -98,6 +98,7 @@ cswinrt
 ctc
 currentuser
 DACL
+datetimeoffset
 Dbg
 debian
 deigh
@@ -123,6 +124,7 @@ EFGH
 EFile
 endregion
 ENDSESSION
+EPester
 epth
 EQU
 errmsg
@@ -453,9 +455,11 @@ testdata
 testexampleinstaller
 thiscouldbeapc
 threehundred
+timespan
 timezone
 Tlg
 tombstoned
+TOperation
 TOptions
 TProgress
 transitioning

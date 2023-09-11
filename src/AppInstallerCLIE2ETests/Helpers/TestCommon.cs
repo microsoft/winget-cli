@@ -916,7 +916,8 @@ namespace AppInstallerCLIE2ETests.Helpers
                 else
                 {
                     string path = customPath;
-                    if (location == TestModuleLocation.WinGetModulePath)
+                    if (location == TestModuleLocation.WinGetModulePath ||
+                        location == TestModuleLocation.Default)
                     {
                         path = wingetModulePath;
                     }

@@ -123,6 +123,8 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
                     return new TogglePolicy(policy, "EnableBypassCertificatePinningForMicrosoftStore", GroupPolicyResource.PolicyEnableBypassCertificatePinningForMicrosoftStore);
                 case Policy.WinGetCommandLineInterfaces:
                     return new TogglePolicy(policy, "EnableWindowsPackageManagerCommandLineInterfaces", GroupPolicyResource.PolicyEnableWindowsPackageManagerCommandLineInterfaces);
+                case Policy.Configuration:
+                    return new TogglePolicy(policy, "EnableWindowsPackageManagerConfiguration", GroupPolicyResource.PolicyEnableWinGetConfiguration);
                 default:
                     throw new ArgumentException(null, nameof(policy));
             }
