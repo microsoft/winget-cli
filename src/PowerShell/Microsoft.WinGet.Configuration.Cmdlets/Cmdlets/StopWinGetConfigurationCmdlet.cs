@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="ConfirmWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="StopWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -11,42 +11,29 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
     /// <summary>
-    /// Confirm-WinGetConfiguration
-    /// Validates winget configuration.
+    /// Stop-WinGetConfiguration.
+    /// Cancels a configuration previously started by Start-WinGetConfiguration.
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Confirm, "WinGetConfiguration")]
-    public class ConfirmWinGetConfigurationCmdlet : PSCmdlet
+    [Cmdlet(VerbsLifecycle.Stop, "WinGetConfiguration")]
+    public sealed class StopWinGetConfigurationCmdlet : PSCmdlet
     {
-        private ConfigurationCommand runningCommand = null;
-
         /// <summary>
-        /// Gets or sets the configuration set.
+        /// Gets or sets the configuration task.
         /// </summary>
         [Parameter(
             Position = 0,
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
-        public PSConfigurationSet Set { get; set; }
+        public PSConfigurationJob ConfigurationJob { get; set; }
 
         /// <summary>
-        /// Validate configuration.
+        /// Starts to apply the configuration and wait for it to complete.
         /// </summary>
         protected override void ProcessRecord()
         {
             var configCommand = new ConfigurationCommand(this);
-            configCommand.Validate(this.Set);
-        }
-
-        /// <summary>
-        /// Interrupts currently running code within the command.
-        /// </summary>
-        protected override void StopProcessing()
-        {
-            if (this.runningCommand != null)
-            {
-                this.runningCommand.Cancel();
-            }
+            configCommand.Cancel(this.ConfigurationJob);
         }
     }
 }

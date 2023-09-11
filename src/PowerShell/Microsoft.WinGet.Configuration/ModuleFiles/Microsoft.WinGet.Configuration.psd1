@@ -22,6 +22,7 @@ CmdletsToExport = @(
     "Start-WinGetConfiguration"
     "Test-WinGetConfiguration"
     "Confirm-WinGetConfiguration"
+    "Stop-WinGetConfiguration"
 )
 
 PrivateData = @{

@@ -11,12 +11,14 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
     /// <summary>
-    /// Test winget configuration.
+    /// Test-WinGetConfiguration
+    /// Tests configuration.
     /// </summary>
     [Cmdlet(VerbsDiagnostic.Test, "WinGetConfiguration")]
     public class TestWinGetConfigurationCmdlet : PSCmdlet
     {
         private bool acceptedAgreements = false;
+        private ConfigurationCommand runningCommand = null;
 
         /// <summary>
         /// Gets or sets the configuration set.
@@ -51,6 +53,17 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
             {
                 var configCommand = new ConfigurationCommand(this);
                 configCommand.Test(this.Set);
+            }
+        }
+
+        /// <summary>
+        /// Interrupts currently running code within the command.
+        /// </summary>
+        protected override void StopProcessing()
+        {
+            if (this.runningCommand != null)
+            {
+                this.runningCommand.Cancel();
             }
         }
     }

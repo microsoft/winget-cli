@@ -18,6 +18,8 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     [Cmdlet(VerbsCommon.Get, "WinGetConfigurationDetails")]
     public sealed class GetWinGetConfigurationDetailsCmdlet : PSCmdlet
     {
+        private ConfigurationCommand runningCommand = null;
+
         /// <summary>
         /// Gets or sets the configuration set.
         /// </summary>
@@ -35,6 +37,17 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         {
             var configCommand = new ConfigurationCommand(this);
             configCommand.GetDetails(this.Set);
+        }
+
+        /// <summary>
+        /// Interrupts currently running code within the command.
+        /// </summary>
+        protected override void StopProcessing()
+        {
+            if (this.runningCommand != null)
+            {
+                this.runningCommand.Cancel();
+            }
         }
     }
 }

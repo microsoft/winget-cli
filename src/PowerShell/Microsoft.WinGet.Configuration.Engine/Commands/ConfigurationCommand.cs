@@ -270,6 +270,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.Write(StreamType.Object, runningTask.Result);
         }
 
+        /// <summary>
+        /// Cancels a configuration job.
+        /// </summary>
+        /// <param name="psConfigurationJob">PSConfiguration job.</param>
+        public void Cancel(PSConfigurationJob psConfigurationJob)
+        {
+            psConfigurationJob.StartCommand.Cancel();
+        }
+
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
         {
             // Signal the command that it can write to streams and wait for task.
@@ -367,7 +376,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             try
             {
-                var result = await applyTask;
+                var result = await applyTask.AsTask(this.GetCancellationToken());
                 applyProgressOutput.HandleProgress(result);
                 return result;
             }
@@ -401,7 +410,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             try
             {
-                var result = await testTask;
+                var result = await testTask.AsTask(this.GetCancellationToken());
                 testProgressOutput.HandleProgress(result);
 
                 return new PSTestConfigurationSetResult(result);
@@ -439,7 +448,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
                 try
                 {
-                    var result = await detailsTask;
+                    var result = await detailsTask.AsTask(this.GetCancellationToken());
                     detailsProgressOutput.HandleProgress(result);
 
                     if (result.UnitResults.Where(u => u.ResultInformation.ResultCode != null).Any())
