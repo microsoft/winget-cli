@@ -73,6 +73,18 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Tests 0xA150202.
+        /// </summary>
+        [Test]
+        public void NonError()
+        {
+            var result = TestCommon.RunAICLICommand("error", $"0xA150202");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("0x0a150202"));
+            Assert.True(result.StdOut.Contains("WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE"));
+        }
+
+        /// <summary>
         /// Tests WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE.
         /// </summary>
         [Test]
