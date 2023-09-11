@@ -3,7 +3,8 @@ ACCESSDENIED
 ACTIONDATA
 ACTIONSTART
 activatable
-addcontextdata
+addcheckpoint
+addcheckpointdata
 addfile
 addmanifest
 addpin
@@ -61,7 +62,7 @@ cdn
 cer
 certutil
 cguid
-checkpointindex
+checkpointrecord
 chrono
 cin
 cla
@@ -109,6 +110,7 @@ ctl
 ctls
 CURSORPOSITON
 CUSTOMHEADER
+cvd
 cwctype
 datatelemetry
 dbconn
@@ -358,6 +360,7 @@ normalizedpackagenameandpublisher
 NOTHROW
 NOTIMPL
 NOTNULL
+nowarn
 npos
 NTFS
 NTSTATUS
@@ -399,6 +402,7 @@ pdbonly
 PEVENT
 pfp
 PGP
+pgp
 php
 PII
 pinnable
@@ -494,10 +498,8 @@ seinfo
 selectany
 SERVICEPACKMAJOR
 SERVICEPACKMINOR
-setclientversion
-setcommandarguments
-setcommandname
 setfill
+setdatavalue
 setschemaversion
 setupexitcodes
 setvariable

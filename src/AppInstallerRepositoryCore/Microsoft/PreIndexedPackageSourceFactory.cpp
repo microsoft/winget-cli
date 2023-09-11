@@ -106,10 +106,10 @@ namespace AppInstaller::Repository::Microsoft
         }
 
         // Creates a name for the cross process reader-writer lock given the details.
-        std::string CreateNameForCPRWL(const SourceDetails& details)
+        std::string CreateNameForCPL(const SourceDetails& details)
         {
             // The only relevant data is the package family name
-            return "PreIndexedSourceCPRWL_"s + GetPackageFamilyNameFromDetails(details);
+            return "PreIndexedSourceCPL_"s + GetPackageFamilyNameFromDetails(details);
         }
 
         // The base class for a package that comes from a preindexed packaged source.
@@ -194,17 +194,21 @@ namespace AppInstaller::Repository::Microsoft
             virtual bool RemoveInternal(const SourceDetails& details, IProgressCallback&) = 0;
 
         private:
-            Synchronization::CrossProcessReaderWriteLock LockExclusive(const SourceDetails& details, IProgressCallback& progress, bool isBackground = false)
+            Synchronization::CrossProcessLock LockExclusive(const SourceDetails& details, IProgressCallback& progress, bool isBackground = false)
             {
+                Synchronization::CrossProcessLock result(CreateNameForCPL(details));
+
                 if (isBackground)
                 {
                     // If this is a background update, don't wait on the lock.
-                    return Synchronization::CrossProcessReaderWriteLock::LockExclusive(CreateNameForCPRWL(details), 0ms);
+                    result.TryAcquireNoWait();
                 }
                 else
                 {
-                    return Synchronization::CrossProcessReaderWriteLock::LockExclusive(CreateNameForCPRWL(details), progress);
+                    result.Acquire(progress);
                 }
+
+                return result;
             }
 
             bool UpdateBase(const SourceDetails& details, bool isBackground, IProgressCallback& progress)
@@ -259,8 +263,8 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(m_details), progress);
-                if (!lock)
+                Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
+                if (!lock.Acquire(progress))
                 {
                     return {};
                 }
@@ -286,7 +290,7 @@ namespace AppInstaller::Repository::Microsoft
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
                 m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
-                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock), false, true);
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), false, true);
             }
 
         private:
@@ -421,8 +425,8 @@ namespace AppInstaller::Repository::Microsoft
 
             std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(CreateNameForCPRWL(m_details), progress);
-                if (!lock)
+                Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
+                if (!lock.Acquire(progress))
                 {
                     return {};
                 }
@@ -461,7 +465,7 @@ namespace AppInstaller::Repository::Microsoft
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
                 m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
-                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock), false, true);
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), false, true);
             }
 
         private:

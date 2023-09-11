@@ -119,6 +119,8 @@ namespace AppInstaller::CLI
         //Validate Command
         case Execution::Args::Type::ValidateManifest:
             return { type, "manifest"_liv };
+        case Execution::Args::Type::IgnoreWarnings:
+            return { type, "ignore-warnings"_liv, "nowarn"_liv};
 
         // Complete Command
         case Execution::Args::Type::Word:
@@ -187,6 +189,8 @@ namespace AppInstaller::CLI
             return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
         case Execution::Args::Type::ConfigurationDisable:
             return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
+        case Execution::Args::Type::ConfigurationModulePath:
+            return { type, "module-path"_liv };
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:
@@ -315,6 +319,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::SourceTypeArgumentDescription, ArgumentType::Positional };
         case Args::Type::ValidateManifest:
             return Argument{ type, Resource::String::ValidateManifestArgumentDescription, ArgumentType::Positional, true };
+        case Args::Type::IgnoreWarnings:
+            return Argument{ type, Resource::String::IgnoreWarningsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::NoVT:
             return Argument{ type, Resource::String::NoVTArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::RainbowStyle:

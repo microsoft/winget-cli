@@ -14,6 +14,20 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// </summary>
     internal sealed class GetSettingsResult : IGetSettingsResult
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GetSettingsResult"/> class.
+        /// </summary>
+        /// <param name="unit">The configuration unit that the result is for.</param>
+        public GetSettingsResult(ConfigurationUnit unit)
+        {
+            this.Unit = unit;
+        }
+
+        /// <summary>
+        /// Gets the configuration unit that the result is for.
+        /// </summary>
+        public ConfigurationUnit Unit { get; private set; }
+
         /// <inheritdoc/>
         public IConfigurationUnitResultInformation ResultInformation
         {

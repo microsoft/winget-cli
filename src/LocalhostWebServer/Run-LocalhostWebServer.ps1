@@ -13,6 +13,8 @@
     Export cert location.
 .PARAMETER LocalSourceJson
     Local source json definition
+.PARAMETER SourceCert
+    The certificate of the source package.
 #>
 
 param(
@@ -32,8 +34,17 @@ param(
     [string]$OutCertFile,
 
     [Parameter()]
-    [string]$LocalSourceJson
+    [string]$LocalSourceJson,
+
+    [Parameter()]
+    [string]$SourceCert
 )
+
+if (-not [System.String]::IsNullOrEmpty($sourceCert))
+{
+    # Requires admin
+    & certutil.exe -addstore -f "TRUSTEDPEOPLE" $sourceCert
+}
 
 cd $BuildRoot
 

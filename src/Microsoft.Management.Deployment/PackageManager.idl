@@ -889,6 +889,9 @@ namespace Microsoft.Management.Deployment
         {
             // Skip installing the dependencies for the package.
             Boolean SkipDependencies;
+
+            /// The package installer type.
+            PackageInstallerType InstallerType;
         }
     }
 

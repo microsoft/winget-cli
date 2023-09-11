@@ -95,6 +95,14 @@ Si desactiva esta directiva, no se pueden configurar fuentes adicionales para el
 Si habilita esta configuración, los usuarios podrán instalar paquetes de sitios web que usen este protocolo.
 
 Si deshabilita o no establece esta configuración, los usuarios no podrán instalar paquetes de sitios web que usen este protocolo.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Habilitar Administrador de paquetes de Windows interfaces de línea de comandos</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Esta directiva determina si un usuario puede realizar una acción mediante el Administrador de paquetes de Windows a través de una interfaz de línea de comandos (CLI de WinGet o WinGet PowerShell).
+
+Si deshabilita esta directiva, los usuarios no podrán ejecutar la CLI de Administrador de paquetes de Windows ni los cmdlets de PowerShell.
+
+Si habilita o no configura esta directiva, los usuarios podrán ejecutar los comandos de la CLI de Administrador de paquetes de Windows y los cmdlets de PowerShell. (La directiva "Habilitar Instalador de aplicación" proporcionada no está deshabilitada).
+
+Esta directiva no invalida la directiva "Habilitar Instalador de aplicación".</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

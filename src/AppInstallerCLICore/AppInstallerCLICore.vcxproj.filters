@@ -227,6 +227,9 @@
     <ClInclude Include="Commands\DownloadCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="ConfigurationCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Commands\ResumeCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
@@ -429,6 +432,9 @@
     </ClCompile>
     <ClCompile Include="Commands\TestCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationCommon.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClInclude Include="Commands\DownloadCommand.cpp">
       <Filter>Commands</Filter>

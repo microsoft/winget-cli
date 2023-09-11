@@ -20,6 +20,7 @@
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
+#include <winget/GroupPolicy.h>
 
 using namespace std::chrono_literals;
 
@@ -115,6 +116,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     ConfigurationProcessor::ConfigurationProcessor()
     {
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet));
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::Configuration));
+
         AppInstaller::Logging::DiagnosticLogger& logger = m_threadGlobals.GetDiagnosticLogger();
         logger.EnableChannel(AppInstaller::Logging::Channel::All);
         logger.SetLevel(AppInstaller::Logging::Level::Verbose);
@@ -343,7 +347,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         auto result = make_self<wil::details::module_count_wrapper<implementation::GetConfigurationSetDetailsResult>>();
         progress.Result(*result);
 
-        for (const auto& unit : configurationSet.ConfigurationUnits())
+        for (const auto& unit : configurationSet.Units())
         {
             progress.ThrowIfCancelled();
 
@@ -483,9 +487,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            for (const auto& unit : configurationSet.ConfigurationUnits())
+            for (const auto& unit : configurationSet.Units())
             {
-                AICLI_LOG(Config, Info, << "Testing configuration unit: " << AppInstaller::Utility::ConvertToUTF8(unit.UnitName()));
+                AICLI_LOG(Config, Info, << "Testing configuration unit: " << AppInstaller::Utility::ConvertToUTF8(unit.Type()));
 
                 auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
                 auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
@@ -500,7 +504,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     try
                     {
                         // TODO: Directives overlay to prevent running elevated for test
-                        unitProcessor = setProcessor.CreateUnitProcessor(unit, {});
+                        unitProcessor = setProcessor.CreateUnitProcessor(unit);
                     }
                     catch (...)
                     {
@@ -594,7 +598,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
             // TODO: Directives overlay to prevent running elevated for get
-            unitProcessor = setProcessor.CreateUnitProcessor(unit, {});
+            unitProcessor = setProcessor.CreateUnitProcessor(unit);
         }
         catch (...)
         {

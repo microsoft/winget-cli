@@ -40,4 +40,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         result->ConfigurationSetProcessorFactory(factory);
         return *result;
     }
+
+    Windows::Foundation::IAsyncActionWithProgress<uint32_t> ConfigurationStaticFunctions::EnsureConfigurationAvailableAsync()
+    {
+        THROW_HR(E_NOTIMPL);
+    }
 }

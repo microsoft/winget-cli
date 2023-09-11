@@ -31,6 +31,10 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     internal class HostedEnvironment : IProcessorEnvironment
     {
         private readonly PowerShellConfigurationProcessorType type;
+        private readonly IPowerShellGet powerShellGet;
+
+        private PowerShellConfigurationProcessorLocation location = PowerShellConfigurationProcessorLocation.CurrentUser;
+        private string? customLocation;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HostedEnvironment"/> class.
@@ -38,11 +42,17 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <param name="runspace">PowerShell Runspace.</param>
         /// <param name="type">Configuration processor type.</param>
         /// <param name="dscModule">IDscModule.</param>
-        public HostedEnvironment(Runspace runspace, PowerShellConfigurationProcessorType type, IDscModule dscModule)
+        public HostedEnvironment(
+            Runspace runspace,
+            PowerShellConfigurationProcessorType type,
+            IDscModule dscModule)
         {
             this.Runspace = runspace;
             this.type = type;
             this.DscModule = dscModule;
+
+            // TODO: once v3 is release implement v3 version.
+            this.powerShellGet = new PowerShellGetV2();
         }
 
         /// <inheritdoc/>
@@ -121,7 +131,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         public DscResourceInfoInternal? GetDscResource(ConfigurationUnitInternal unitInternal)
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
-            var result = this.DscModule.GetDscResource(pwsh, unitInternal.Unit.UnitName, unitInternal.Module);
+            var result = this.DscModule.GetDscResource(pwsh, unitInternal.Unit.Type, unitInternal.Module);
             this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return result;
         }
@@ -229,35 +239,29 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <inheritdoc/>
         public PSObject? GetInstalledModule(ModuleSpecification moduleSpecification)
         {
-            var parameters = new Dictionary<string, object>()
+            // Instead of Get-InstalledModule, we look for PSGetModuleInfo.xml and serialize it
+            // if found. This allow us to get the information from Install-Module and Save-Module.
+            var module = this.GetAvailableModule(moduleSpecification);
+            if (module is null)
             {
-                { Parameters.Name, moduleSpecification.Name },
-            };
-
-            if (moduleSpecification.Version is not null)
-            {
-                parameters.Add(Parameters.MinimumVersion, moduleSpecification.Version);
+                return null;
             }
 
-            if (moduleSpecification.MaximumVersion is not null)
+            var getModuleInfoFile = Path.Combine(module.ModuleBase, "PSGetModuleInfo.xml");
+            if (!File.Exists(getModuleInfoFile))
             {
-                parameters.Add(Parameters.MaximumVersion, moduleSpecification.MaximumVersion);
-            }
-
-            if (moduleSpecification.RequiredVersion is not null)
-            {
-                parameters.Add(Parameters.RequiredVersion, moduleSpecification.RequiredVersion);
+                // Keep Get-InstalledModule behaviour.
+                return null;
             }
 
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
-
-            var result = pwsh.AddCommand(Commands.GetInstalledModule)
-                             .AddParameters(parameters)
-                             .Invoke()
-                             .FirstOrDefault();
+            var installedModule = pwsh.AddCommand(Commands.ImportCliXml)
+                                      .AddParameter(Parameters.Path, getModuleInfoFile)
+                                      .Invoke()
+                                      .FirstOrDefault();
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
-            return result;
+            return installedModule;
         }
 
         /// <inheritdoc/>
@@ -272,56 +276,16 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                 return null;
             }
 
-            var semanticVersion = unitInternal.GetSemanticVersion();
-            var semanticMinVersion = unitInternal.GetSemanticMinVersion();
-            var semanticMaxVersion = unitInternal.GetSemanticMaxVersion();
-            string? repository = unitInternal.GetDirective<string>(DirectiveConstants.Repository);
-
-            bool? allowPrerelease = unitInternal.GetDirective(DirectiveConstants.AllowPrerelease);
-            bool implicitAllowPrerelease = false;
-
-            var parameters = new Dictionary<string, object>()
-            {
-                { Parameters.Name, moduleName },
-            };
-
-            if (semanticVersion != null)
-            {
-                implicitAllowPrerelease |= semanticVersion.IsPrerelease;
-                parameters.Add(Parameters.RequiredVersion, semanticVersion.ToString());
-            }
-
-            if (semanticMinVersion != null)
-            {
-                implicitAllowPrerelease |= semanticMinVersion.IsPrerelease;
-                parameters.Add(Parameters.MinimumVersion, semanticMinVersion.ToString());
-            }
-
-            if (semanticMaxVersion != null)
-            {
-                implicitAllowPrerelease |= semanticMaxVersion.IsPrerelease;
-                parameters.Add(Parameters.MaximumVersion, semanticMaxVersion.ToString());
-            }
-
-            if (!string.IsNullOrEmpty(repository))
-            {
-                parameters.Add(Parameters.Repository, repository);
-            }
-
-            if (allowPrerelease.HasValue || implicitAllowPrerelease)
-            {
-                // If explicit allowPrerelease = false don't use implicit.
-                bool allow = allowPrerelease.HasValue ? allowPrerelease.Value : implicitAllowPrerelease;
-                parameters.Add(Parameters.AllowPrerelease, allow);
-            }
-
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
 
-            pwsh.AddCommand(Commands.FindModule)
-                .AddParameters(parameters);
-
-            var result = pwsh.Invoke()
-                             .FirstOrDefault();
+            var result = this.powerShellGet.FindModule(
+                pwsh,
+                moduleName,
+                unitInternal.GetSemanticVersion(),
+                unitInternal.GetSemanticMinVersion(),
+                unitInternal.GetSemanticMaxVersion(),
+                unitInternal.GetDirective<string>(DirectiveConstants.Repository),
+                unitInternal.GetDirective(DirectiveConstants.AllowPrerelease));
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return result;
@@ -330,67 +294,17 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <inheritdoc/>
         public PSObject? FindDscResource(ConfigurationUnitInternal unitInternal)
         {
-            var parameters = new Dictionary<string, object>()
-            {
-                { Parameters.Name, unitInternal.Unit.UnitName },
-            };
-
-            // Don't use ModuleSpecification here. Each parameter is independent and
-            // we need version even if a module was not specified.
-            string? moduleName = unitInternal.GetDirective<string>(DirectiveConstants.Module);
-            var semanticVersion = unitInternal.GetSemanticVersion();
-            var semanticMinVersion = unitInternal.GetSemanticMinVersion();
-            var semanticMaxVersion = unitInternal.GetSemanticMaxVersion();
-            string? repository = unitInternal.GetDirective<string>(DirectiveConstants.Repository);
-
-            bool? allowPrerelease = unitInternal.GetDirective(DirectiveConstants.AllowPrerelease);
-            bool implicitAllowPrerelease = false;
-
-            if (!string.IsNullOrEmpty(moduleName))
-            {
-                parameters.Add(Parameters.ModuleName, moduleName);
-            }
-
-            if (semanticVersion != null)
-            {
-                implicitAllowPrerelease |= semanticVersion.IsPrerelease;
-                parameters.Add(Parameters.RequiredVersion, semanticVersion.ToString());
-            }
-
-            if (semanticMinVersion != null)
-            {
-                implicitAllowPrerelease |= semanticMinVersion.IsPrerelease;
-                parameters.Add(Parameters.MinimumVersion, semanticMinVersion.ToString());
-            }
-
-            if (semanticMaxVersion != null)
-            {
-                implicitAllowPrerelease |= semanticMaxVersion.IsPrerelease;
-                parameters.Add(Parameters.MaximumVersion, semanticMaxVersion.ToString());
-            }
-
-            if (!string.IsNullOrEmpty(repository))
-            {
-                parameters.Add(Parameters.Repository, repository);
-            }
-
-            if (allowPrerelease.HasValue || implicitAllowPrerelease)
-            {
-                // If explicit allowPrerelease = false don't use implicit.
-                bool allow = allowPrerelease.HasValue ? allowPrerelease.Value : implicitAllowPrerelease;
-                parameters.Add(Parameters.AllowPrerelease, allow);
-            }
-
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
 
-            pwsh.AddCommand(Commands.FindDscResource)
-                .AddParameters(parameters);
-
-            // The result is just a PSCustomObject with a type name of Microsoft.PowerShell.Commands.PSGetDscResourceInfo.
-            // When no module is passed and a resource is not found, this will return an empty list. If a module
-            // is specified and no resource is found then it will fail earlier because of a Write-Error.
-            var result = pwsh.Invoke()
-                             .FirstOrDefault();
+            var result = this.powerShellGet.FindDscResource(
+                pwsh,
+                unitInternal.Unit.Type,
+                unitInternal.GetDirective<string>(DirectiveConstants.Module),
+                unitInternal.GetSemanticVersion(),
+                unitInternal.GetSemanticMinVersion(),
+                unitInternal.GetSemanticMaxVersion(),
+                unitInternal.GetDirective<string>(DirectiveConstants.Repository),
+                unitInternal.GetDirective(DirectiveConstants.AllowPrerelease));
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return result;
@@ -400,33 +314,36 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         public void SaveModule(PSObject inputObject, string location)
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
+            this.powerShellGet.SaveModule(pwsh, inputObject, location);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
+        }
 
-            _ = pwsh.AddCommand(Commands.SaveModule)
-                    .AddParameter(Parameters.Path, location)
-                    .AddParameter(Parameters.InputObject, inputObject)
-                    .Invoke();
-
+        /// <inheritdoc/>
+        public void SaveModule(ModuleSpecification moduleSpecification, string location)
+        {
+            using PowerShell pwsh = PowerShell.Create(this.Runspace);
+            this.powerShellGet.SaveModule(pwsh, moduleSpecification, location);
             this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
         }
 
         /// <inheritdoc/>
         public void InstallModule(PSObject inputObject)
         {
-            using PowerShell pwsh = PowerShell.Create(this.Runspace);
+            if (this.location == PowerShellConfigurationProcessorLocation.Custom)
+            {
+                if (string.IsNullOrEmpty(this.customLocation))
+                {
+                    throw new ArgumentNullException(nameof(this.customLocation));
+                }
 
-            // If the repository is untrusted, it will fail with:
-            //   Microsoft.PowerShell.Commands.WriteErrorException : Exception calling "ShouldContinue" with "5"
-            //   argument(s): "A command that prompts the user failed because the host program or the command type
-            //   does not support user interaction.
-            // If its trusted, PowerShellGets adds the Force parameter to the call to PackageManager\Install-Package.
-            // TODO: Once we have policies, we should remove Force. For hosted environments and depending
-            // on the policy we will trust PSGallery when we create the Runspace or add Force here.
-            _ = pwsh.AddCommand(Commands.InstallModule)
-                    .AddParameter(Parameters.InputObject, inputObject)
-                    .AddParameter(Parameters.Force)
-                    .Invoke();
-
-            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
+                this.SaveModule(inputObject, this.customLocation);
+            }
+            else
+            {
+                using PowerShell pwsh = PowerShell.Create(this.Runspace);
+                this.powerShellGet.InstallModule(pwsh, inputObject, this.location == PowerShellConfigurationProcessorLocation.AllUsers);
+                this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
+            }
         }
 
         /// <inheritdoc/>
@@ -436,32 +353,21 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             if (!this.ValidateModule(moduleSpecification))
             {
                 // Ok, we have to get it.
-                var parameters = new Dictionary<string, object>()
+                if (this.location == PowerShellConfigurationProcessorLocation.Custom)
                 {
-                    { Parameters.Name, moduleSpecification.Name },
-                };
-                if (moduleSpecification.Version is not null)
-                {
-                    parameters.Add(Parameters.MinimumVersion, moduleSpecification.Version);
+                    if (string.IsNullOrEmpty(this.customLocation))
+                    {
+                        throw new ArgumentNullException(nameof(this.customLocation));
+                    }
+
+                    this.SaveModule(moduleSpecification, this.customLocation);
                 }
-
-                if (moduleSpecification.MaximumVersion is not null)
+                else
                 {
-                    parameters.Add(Parameters.MaximumVersion, moduleSpecification.MaximumVersion);
+                    using PowerShell pwsh = PowerShell.Create(this.Runspace);
+                    this.powerShellGet.InstallModule(pwsh, moduleSpecification, this.location == PowerShellConfigurationProcessorLocation.AllUsers);
+                    this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
                 }
-
-                if (moduleSpecification.RequiredVersion is not null)
-                {
-                    parameters.Add(Parameters.RequiredVersion, moduleSpecification.RequiredVersion);
-                }
-
-                using PowerShell pwsh = PowerShell.Create(this.Runspace);
-                _ = pwsh.AddCommand(Commands.InstallModule)
-                        .AddParameters(parameters)
-                        .AddParameter(Parameters.Force)
-                        .Invoke();
-
-                this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             }
         }
 
@@ -520,29 +426,59 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <inheritdoc/>
         public void PrependPSModulePath(string path)
         {
-            string oldModulePath = this.GetVariable<string>(Variables.PSModulePath);
-            this.SetPSModulePath($"{path};{oldModulePath}");
+            var oldModulePath = this.GetModulePaths();
+            if (!oldModulePath.Contains(path))
+            {
+                this.SetPSModulePath($"{path};{string.Join(";", oldModulePath)}");
+            }
         }
 
         /// <inheritdoc/>
         public void PrependPSModulePaths(IReadOnlyList<string> paths)
         {
-            string oldModulePath = this.GetVariable<string>(Variables.PSModulePath);
-            this.SetPSModulePath($"{string.Join(";", paths)};{oldModulePath}");
+            var newPaths = paths.ToList();
+            var oldModulePath = this.GetModulePaths();
+            foreach (var newPath in paths)
+            {
+                if (oldModulePath.Contains(newPath))
+                {
+                    newPaths.Remove(newPath);
+                }
+            }
+
+            if (newPaths.Any())
+            {
+                this.SetPSModulePath($"{string.Join(";", newPaths)};{string.Join(";", oldModulePath)}");
+            }
         }
 
         /// <inheritdoc/>
         public void AppendPSModulePath(string path)
         {
-            string oldModulePath = this.GetVariable<string>(Variables.PSModulePath);
-            this.SetPSModulePath($"{oldModulePath};{path}");
+            var oldModulePath = this.GetModulePaths();
+            if (!oldModulePath.Contains(path))
+            {
+                this.SetPSModulePath($"{string.Join(";", oldModulePath)};{path}");
+            }
         }
 
         /// <inheritdoc/>
         public void AppendPSModulePaths(IReadOnlyList<string> paths)
         {
-            string oldModulePath = this.GetVariable<string>(Variables.PSModulePath);
-            this.SetPSModulePath($"{oldModulePath};{string.Join(";", paths)}");
+            var newPaths = paths.ToList();
+            var oldModulePath = this.GetModulePaths();
+            foreach (var newPath in paths)
+            {
+                if (oldModulePath.Contains(newPath))
+                {
+                    newPaths.Remove(newPath);
+                }
+            }
+
+            if (newPaths.Any())
+            {
+                this.SetPSModulePath($"{string.Join(";", oldModulePath)};{string.Join(";", newPaths)}");
+            }
         }
 
         /// <inheritdoc/>
@@ -553,6 +489,21 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                                        .Replace($";{path}", null);
 
             this.SetPSModulePath(newModulePath);
+        }
+
+        /// <inheritdoc/>
+        public void SetLocation(PowerShellConfigurationProcessorLocation location, string? customLocation)
+        {
+            this.location = location;
+            if (this.location == PowerShellConfigurationProcessorLocation.Custom)
+            {
+                if (string.IsNullOrEmpty(customLocation))
+                {
+                    throw new ArgumentNullException(nameof(customLocation));
+                }
+
+                this.customLocation = customLocation;
+            }
         }
 
         private bool ValidateModule(ModuleSpecification moduleSpecification)
@@ -581,6 +532,11 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         private void OnDiagnostics(DiagnosticLevel level, string message)
         {
             this.SetProcessorFactory?.OnDiagnostics(level, message);
+        }
+
+        private HashSet<string> GetModulePaths()
+        {
+            return this.GetVariable<string>(Variables.PSModulePath).Split(";").ToHashSet<string>();
         }
     }
 }

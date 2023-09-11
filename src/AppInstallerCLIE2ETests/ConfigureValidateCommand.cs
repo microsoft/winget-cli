@@ -17,15 +17,6 @@ namespace AppInstallerCLIE2ETests
         private const string Command = "configure validate";
 
         /// <summary>
-        /// Setup done once before all the tests here.
-        /// </summary>
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            WinGetSettingsHelper.ConfigureFeature("configuration", true);
-        }
-
-        /// <summary>
         /// The configuration file is empty.
         /// </summary>
         [Test]

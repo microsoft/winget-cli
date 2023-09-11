@@ -20,6 +20,8 @@ namespace TestCommon
     const std::wstring AdditionalSourcesPolicyValueName = L"EnableAdditionalSources";
     const std::wstring AllowedSourcesPolicyValueName = L"EnableAllowedSources";
     const std::wstring BypassCertificatePinningForMicrosoftStoreValueName = L"EnableBypassCertificatePinningForMicrosoftStore";
+    const std::wstring EnableWindowsPackageManagerCommandLineInterfaces = L"EnableWindowsPackageManagerCommandLineInterfaces";
+    const std::wstring ConfigurationPolicyValueName = L"EnableWindowsPackageManagerConfiguration";
 
     const std::wstring SourceUpdateIntervalPolicyValueName = L"SourceAutoUpdateInterval";
     const std::wstring SourceUpdateIntervalPolicyOldValueName = L"SourceAutoUpdateIntervalInMinutes";

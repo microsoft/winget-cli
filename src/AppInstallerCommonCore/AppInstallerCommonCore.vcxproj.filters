@@ -99,9 +99,6 @@
     <ClInclude Include="Public\winget\ManifestYamlWriter.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\Registry.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\NameNormalization.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -118,9 +115,6 @@
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ManifestCommon.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\GroupPolicy.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\Locale.h">
@@ -156,17 +150,11 @@
     <ClInclude Include="Public\winget\PortableFileEntry.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\JsonUtil.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\ManagedFile.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\MsixManifest.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\Certificates.h">
-      <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\FolderFileWatcher.h">
       <Filter>Public\winget</Filter>
@@ -239,9 +227,6 @@
     <ClCompile Include="ExtensionCatalog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JsonUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -260,9 +245,6 @@
     <ClCompile Include="Manifest\YamlWriter.cpp">
       <Filter>Manifest</Filter>
     </ClCompile>
-    <ClCompile Include="Registry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NameNormalization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -280,9 +262,6 @@
     </ClCompile>
     <ClCompile Include="Manifest\Manifest.cpp">
       <Filter>Manifest</Filter>
-    </ClCompile>
-    <ClCompile Include="GroupPolicy.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Locale.cpp">
       <Filter>Source Files</Filter>
@@ -318,9 +297,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MsixManifest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Certificates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">

@@ -95,6 +95,14 @@ Se você desabilitar esta política, nenhuma fonte adicional poderá ser configu
 Se você habilitar essa configuração, os usuários poderão instalar pacotes de sites que usam esse protocolo.
 
 Se você desabilitar ou não definir essa configuração, os usuários não poderão instalar pacotes de sites que usam esse protocolo.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Habilitar interfaces de linha de comando do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Esta política determina se um usuário pode executar uma ação usando o Gerenciador de Pacotes do Windows por uma interface de linha de comando (WINGet CLI ou WinGet PowerShell).
+
+Se você desabilitar essa política, os usuários não poderão executar o Gerenciador de Pacotes do Windows CLI e os cmdlets do PowerShell.
+
+Se você habilitar ou não configurar essa política, os usuários poderão executar os comandos Gerenciador de Pacotes do Windows CLI e os cmdlets do PowerShell. (A política "Habilitar Instalador de Aplicativo" fornecida não está desabilitada).
+
+Esta política não substitui a política "Habilitar Instalador de Aplicativo".</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

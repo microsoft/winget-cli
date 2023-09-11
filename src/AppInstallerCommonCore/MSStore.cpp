@@ -4,13 +4,11 @@
 #include <winget/MSStore.h>
 #include <winget/ManifestCommon.h>
 #include <winget/Runtime.h>
-#include <winget/SelfManagement.h>
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerErrors.h>
 
 namespace AppInstaller::MSStore
 {
-    using namespace AppInstaller::SelfManagement;
     using namespace std::string_view_literals;
     using namespace winrt::Windows::Foundation;
     using namespace winrt::Windows::Foundation::Collections;

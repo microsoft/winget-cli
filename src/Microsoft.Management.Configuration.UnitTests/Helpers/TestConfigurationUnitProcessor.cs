@@ -24,17 +24,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TestConfigurationUnitProcessor"/> class.
-        /// </summary>
-        /// <param name="unit">The unit.</param>
-        /// <param name="directivesOverlay">The directives overlay.</param>
-        internal TestConfigurationUnitProcessor(ConfigurationUnit unit, IReadOnlyDictionary<string, object> directivesOverlay)
-        {
-            this.Unit = unit;
-            this.DirectivesOverlay = directivesOverlay;
-        }
-
-        /// <summary>
         /// The delegate for ApplySettings.
         /// </summary>
         /// <returns>The result.</returns>
@@ -105,7 +94,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             }
             else
             {
-                return new ApplySettingsResultInstance();
+                return new ApplySettingsResultInstance(this.Unit);
             }
         }
 
@@ -122,7 +111,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             }
             else
             {
-                return new GetSettingsResultInstance();
+                return new GetSettingsResultInstance(this.Unit);
             }
         }
 
@@ -139,7 +128,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             }
             else
             {
-                return new TestSettingsResultInstance { TestResult = ConfigurationTestResult.Positive };
+                return new TestSettingsResultInstance(this.Unit) { TestResult = ConfigurationTestResult.Positive };
             }
         }
     }

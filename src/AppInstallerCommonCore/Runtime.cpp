@@ -255,6 +255,7 @@ namespace AppInstaller::Runtime
         // Configuring permissions for both CurrentUser and SYSTEM while not having owner set as one of them is not valid because
         // below we use only the owner permissions in the case of running as SYSTEM.
         if ((hasCurrentUser && hasSystem) &&
+            IsRunningAsSystem() &&
             (!Owner || (Owner.value() != ACEPrincipal::CurrentUser && Owner.value() != ACEPrincipal::System)))
         {
             THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
@@ -446,7 +447,12 @@ namespace AppInstaller::Runtime
             if (path == PathName::SecureSettingsForWrite)
             {
                 result.SetOwner(ACEPrincipal::Admins);
-                result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+                // When running as system, we do not set current user permissions to avoid permission conflicts.
+                if (!IsRunningAsSystem())
+                {
+                    result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+                }
+                result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             }
             else
             {
@@ -505,12 +511,16 @@ namespace AppInstaller::Runtime
             result.Path = GetPathToAppDataDir(s_AppDataDir_State, forDisplay);
             result.Path /= GetRuntimePathStateName();
             result.SetOwner(ACEPrincipal::CurrentUser);
+            result.ACL[ACEPrincipal::System] = ACEPermissions::All;
+            result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             break;
         case PathName::StandardSettings:
         case PathName::UserFileSettings:
             result.Path = GetPathToAppDataDir(s_AppDataDir_Settings, forDisplay);
             result.Path /= GetRuntimePathStateName();
             result.SetOwner(ACEPrincipal::CurrentUser);
+            result.ACL[ACEPrincipal::System] = ACEPermissions::All;
+            result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             break;
         case PathName::SecureSettingsForRead:
         case PathName::SecureSettingsForWrite:
@@ -523,7 +533,12 @@ namespace AppInstaller::Runtime
             if (path == PathName::SecureSettingsForWrite)
             {
                 result.SetOwner(ACEPrincipal::Admins);
-                result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+                // When running as system, we do not set current user permissions to avoid permission conflicts.
+                if (!IsRunningAsSystem())
+                {
+                    result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+                }
+                result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             }
             else
             {

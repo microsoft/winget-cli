@@ -60,6 +60,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_packageInstallMode = value;
     }
+    winrt::Microsoft::Management::Deployment::PackageInstallerType InstallOptions::InstallerType()
+    {
+        return m_installerType;
+    }
+    void InstallOptions::InstallerType(winrt::Microsoft::Management::Deployment::PackageInstallerType const& value)
+    {
+        m_installerType = value;
+    }
     hstring InstallOptions::LogOutputPath()
     {
         return hstring(m_logOutputPath);

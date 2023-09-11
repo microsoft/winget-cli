@@ -22,6 +22,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// Gets or sets the configuration set.
         /// </summary>
         [Parameter(
+            Position = 0,
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]

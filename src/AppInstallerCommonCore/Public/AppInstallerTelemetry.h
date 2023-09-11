@@ -154,6 +154,10 @@ namespace AppInstaller::Logging
         void Initialize();
 
         // Try to capture if UserSettings is enabled and set user profile path, returns whether the action is successfully completed.
+        // There is a possible circular dependency with the user settings. When initializing the telemetry, we need to read the settings
+        // to make sure it's not disabled, but a failure when reading the settings would trigger a telemetry event. We work around that
+        // by avoiding initialization (and thus disabling telemetry) until we have successfully read the settings. Subsequent calls to
+        // TryInitialize() would finish the initialization.
         bool TryInitialize();
 
         // Store the passed in name of the Caller for COM calls
@@ -255,6 +259,7 @@ namespace AppInstaller::Logging
     protected:
         bool IsTelemetryEnabled() const noexcept;
 
+        // Initializes flags that determine whether telemetry is enabled.
         void InitializeInternal(const AppInstaller::Settings::UserSettings& userSettings);
 
         // Used to anonymize a string to the best of our ability.
@@ -262,8 +267,16 @@ namespace AppInstaller::Logging
         std::wstring AnonymizeString(const wchar_t* input) const noexcept;
         std::wstring AnonymizeString(std::wstring_view input) const noexcept;
 
-        bool m_isSettingEnabled = true;
+        // Flags used to determine whether to send telemetry. All of them are set during initialization and
+        // are CopyConstructibleAtomic to minimize the impact of multiple simultaneous initialization attempts.
+        // m_isSettingEnabled starts as false so we can don't send telemetry until we have read the
+        // settings and confirmed that it is enabled.
+        CopyConstructibleAtomic<bool> m_isSettingEnabled{ false };
+
+        // We may decide to disable telemetry at runtime, for example, for command line completion.
         CopyConstructibleAtomic<bool> m_isRuntimeEnabled{ true };
+
+        // We wait for initialization of the other flags before sending any events.
         CopyConstructibleAtomic<bool> m_isInitialized{ false };
 
         CopyConstructibleAtomic<uint32_t> m_executionStage{ 0 };
@@ -272,9 +285,6 @@ namespace AppInstaller::Logging
         GUID m_parentActivityId = GUID_NULL;
         std::wstring m_telemetryCorrelationJsonW = L"{}";
         std::string m_caller;
-
-        // Data that is needed by AnonymizeString
-        std::wstring m_userProfile;
 
         bool m_useSummary = true;
         mutable TelemetrySummary m_summary;

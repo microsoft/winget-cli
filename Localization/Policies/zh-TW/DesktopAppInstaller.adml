@@ -95,6 +95,14 @@
 如果您啟用這個設定，使用者將可以從使用此通訊協定的網站安裝套件。
 
 如果您停用或未設定這個設定，使用者將無法從使用此通訊協定的網站安裝套件。</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">啟用 Windows 封裝管理員命令列介面</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">此原則決定使用者是否可以透過命令列介面 (WinGet CLI 或 WinGet PowerSh) 使用 Windows 封裝管理員執行動作。
+
+       如果您停用此原則，使用者將無法執行 Windows 封裝管理員 CLI 和 PowerShell Cmdlet。
+
+        如果您啟用或未設定此原則，使用者將可以執行 Windows 封裝管理員 CLI 命令和 PowerShell Cmdlet。(提供的 [啟用應用程式安裝程式] 原則將不會停用)。
+
+        此原則不會覆寫 [啟用應用程式安裝程式] 原則。</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

@@ -57,15 +57,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationSetParser_0_1::ParseConfigurationUnit(unit, unitNode, intent);
 
         // Move module qualification into directives if present
-        QualifiedResourceName qualifiedName{ unit->UnitName() };
+        QualifiedResourceName qualifiedName{ unit->Type() };
 
-        FIELD_VALUE_ERROR_IF(qualifiedName.Resource.empty(), GetFieldName(FieldName::Resource), ConvertToUTF8(unit->UnitName()), unitNode.Mark());
+        FIELD_VALUE_ERROR_IF(qualifiedName.Resource.empty(), GetFieldName(FieldName::Resource), ConvertToUTF8(unit->Type()), unitNode.Mark());
 
         if (!qualifiedName.Module.empty())
         {
             // If the module is provided in both the resource name and the directives, ensure that it matches
             hstring moduleDirectiveFieldName = GetFieldNameHString(FieldName::ModuleDirective);
-            auto moduleDirective = unit->Directives().TryLookup(moduleDirectiveFieldName);
+            auto moduleDirective = unit->Metadata().TryLookup(moduleDirectiveFieldName);
             if (moduleDirective)
             {
                 auto moduleProperty = moduleDirective.try_as<Windows::Foundation::IPropertyValue>();
@@ -76,11 +76,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
             else
             {
-                unit->Directives().Insert(moduleDirectiveFieldName, Windows::Foundation::PropertyValue::CreateString(qualifiedName.Module));
+                unit->Metadata().Insert(moduleDirectiveFieldName, Windows::Foundation::PropertyValue::CreateString(qualifiedName.Module));
             }
 
             // Set the unit name to be just the resource portion
-            unit->UnitName(qualifiedName.Resource);
+            unit->Type(qualifiedName.Resource);
         }
     }
 }

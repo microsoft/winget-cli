@@ -52,10 +52,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             string descriptionDirective = "description";
             string unitDescription = "beep beep boop i am a text";
-            string overlayDescription = "beep beep boop i am an overlay text";
-
-            string anotherDirective = "another";
-            string overlayAnother = "insert another text";
 
             string boolDirective = "boolDirective";
             bool boolDirectiveValue = true;
@@ -64,31 +60,22 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             bool boolDirective2Value = false;
 
             var unit = new ConfigurationUnit();
-            unit.Directives.Add(moduleDirective, unitModule);
-            unit.Directives.Add(versionDirective, unitVersion);
-            unit.Directives.Add(descriptionDirective, unitDescription);
-            unit.Directives.Add(boolDirective, boolDirectiveValue);
-            unit.Directives.Add(boolDirective2, boolDirective2Value);
+            unit.Metadata.Add(moduleDirective, unitModule);
+            unit.Metadata.Add(versionDirective, unitVersion);
+            unit.Metadata.Add(descriptionDirective, unitDescription);
+            unit.Metadata.Add(boolDirective, boolDirectiveValue);
+            unit.Metadata.Add(boolDirective2, boolDirective2Value);
 
-            var overlays = new Dictionary<string, object>()
-            {
-                { descriptionDirective, overlayDescription },
-                { anotherDirective, overlayAnother },
-            };
-
-            var unitInternal = new ConfigurationUnitInternal(unit, string.Empty, overlays);
+            var unitInternal = new ConfigurationUnitInternal(unit, string.Empty);
 
             var description = unitInternal.GetDirective<string>(descriptionDirective);
-            Assert.Equal(description, overlayDescription);
-
-            var another = unitInternal.GetDirective<string>(anotherDirective);
-            Assert.Equal(another, overlayAnother);
+            Assert.Equal(description, unitDescription);
 
             var fake = unitInternal.GetDirective<string>("fake");
             Assert.Null(fake);
 
             var description2 = unitInternal.GetDirective<string>("DESCRIPTION");
-            Assert.Equal(description2, overlayDescription);
+            Assert.Equal(description2, unitDescription);
 
             Assert.Equal(unitModule, unitInternal.Module!.Name);
 
@@ -106,11 +93,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         public void GetVersion_BadVersion()
         {
             var unit = new ConfigurationUnit();
-            unit.Directives.Add("module", "module");
-            unit.Directives.Add("version", "not a version");
+            unit.Metadata.Add("module", "module");
+            unit.Metadata.Add("version", "not a version");
 
             Assert.Throws<ArgumentException>(
-                () => new ConfigurationUnitInternal(unit, string.Empty, null));
+                () => new ConfigurationUnitInternal(unit, string.Empty));
         }
 
         /// <summary>

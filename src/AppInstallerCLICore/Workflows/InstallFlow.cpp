@@ -590,8 +590,20 @@ namespace AppInstaller::CLI::Workflow
         // Implementation of de-elevation is complex; simply block for now.
         if (installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin())
         {
+            AICLI_LOG(CLI, Error, << "The installer cannot be run from an administrator context.");
             context.Reporter.Error() << Resource::String::InstallerProhibitsElevation << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION);
+        }
+
+        // This installer cannot be used to upgrade the currently installed application
+        // Because the upgrade mechanism may be package-specific, simply block.
+        bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+        UpdateBehaviorEnum updateBehavior = installer->UpdateBehavior;
+        if (isUpdate && (updateBehavior == UpdateBehaviorEnum::Deny))
+        {
+            AICLI_LOG(CLI, Error, << "Manifest specifies update behavior is denied. The attempt will be cancelled.");
+            context.Reporter.Error() << Resource::String::UpgradeBlockedByManifest << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED);
         }
 
         context <<
@@ -618,31 +630,28 @@ namespace AppInstaller::CLI::Workflow
         bool downloadInstallerOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
 
         // Report dependencies
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
+        if (!packageSubContexts.empty())
         {
-            auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
-            if (!packageSubContexts.empty())
+            if (downloadInstallerOnly)
             {
-                if (downloadInstallerOnly)
-                {
-                    context.Reporter.Info() << Resource::String::DependenciesFlowDownload << std::endl;
-                }
-                else
-                {
-                    context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
-                }
+                context.Reporter.Info() << Resource::String::DependenciesFlowDownload << std::endl;
             }
-
-            DependencyList allDependencies;
-
-            for (auto& packageContext : packageSubContexts)
+            else
             {
-                allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
+                context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
             }
-
-            context.Add<Execution::Data::Dependencies>(allDependencies);
-            context << Workflow::ReportDependencies(m_dependenciesReportMessage);
         }
+
+        DependencyList allDependencies;
+
+        for (auto& packageContext : packageSubContexts)
+        {
+            allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
+        }
+
+        context.Add<Execution::Data::Dependencies>(allDependencies);
+        context << Workflow::ReportDependencies(m_dependenciesReportMessage);
 
         bool allSucceeded = true;
         size_t packagesCount = context.Get<Execution::Data::PackageSubContexts>().size();

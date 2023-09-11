@@ -8,6 +8,7 @@ AFAIK
 agg
 aicli
 AICLIC
+allusers
 alreadyinstalled
 AMap
 amrutha
@@ -95,7 +96,9 @@ cplusplus
 createmanifestmetadata
 cswinrt
 ctc
+currentuser
 DACL
+datetimeoffset
 Dbg
 debian
 deigh
@@ -116,15 +119,19 @@ dustojnikhummer
 dvinns
 ecfr
 ecfrbrowse
+ECustom
 EFGH
 EFile
 endregion
 ENDSESSION
+EPester
+epth
 EQU
 errmsg
 ERRORONEXIT
 ESource
 ESRB
+ests
 etest
 etl
 execustom
@@ -173,6 +180,7 @@ hmodule
 Howto
 hre
 hresults
+hrow
 hwnd
 IARP
 IAttachment
@@ -447,9 +455,11 @@ testdata
 testexampleinstaller
 thiscouldbeapc
 threehundred
+timespan
 timezone
 Tlg
 tombstoned
+TOperation
 TOptions
 TProgress
 transitioning

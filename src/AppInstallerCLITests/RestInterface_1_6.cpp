@@ -157,7 +157,7 @@ namespace
                     "InstallerSuccessCodes": [
                       0
                     ],
-                    "UpgradeBehavior": "install",
+                    "UpgradeBehavior": "deny",
                     "Commands": [
                       "command1"
                     ],
@@ -337,7 +337,7 @@ namespace
             REQUIRE(actualInstaller.Switches.at(InstallerSwitchType::Custom) == "/custom");
             REQUIRE(actualInstaller.InstallerSuccessCodes.size() == 1);
             REQUIRE(actualInstaller.InstallerSuccessCodes.at(0) == 0);
-            REQUIRE(actualInstaller.UpdateBehavior == UpdateBehaviorEnum::Install);
+            REQUIRE(actualInstaller.UpdateBehavior == UpdateBehaviorEnum::Deny);
             REQUIRE(actualInstaller.Commands.at(0) == "command1");
             REQUIRE(actualInstaller.Protocols.at(0) == "protocol1");
             REQUIRE(actualInstaller.FileExtensions.at(0) == ".file-extension");

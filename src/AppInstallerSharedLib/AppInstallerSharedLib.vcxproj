@@ -399,10 +399,14 @@
     <ClInclude Include="Public\Telemetry\MicrosoftTelemetry.h" />
     <ClInclude Include="Public\Telemetry\WinEventLogLevels.h" />
     <ClInclude Include="Public\winget\AsyncTokens.h" />
+    <ClInclude Include="Public\winget\Certificates.h" />
     <ClInclude Include="Public\winget\ConfigurationSetProcessorHandlers.h" />
+    <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="Public\winget\ILifetimeWatcher.h" />
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
+    <ClInclude Include="Public\winget\JsonUtil.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
+    <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\Resources.h" />
     <ClInclude Include="Public\winget\Runtime.h" />
     <ClInclude Include="Public\winget\Security.h" />
@@ -413,9 +417,13 @@
   <ItemGroup>
     <ClCompile Include="AppInstallerLogging.cpp" />
     <ClCompile Include="AppInstallerStrings.cpp" />
+    <ClCompile Include="Certificates.cpp" />
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Errors.cpp" />
+    <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="JsonSchemaValidation.cpp" />
+    <ClCompile Include="JsonUtil.cpp" />
+    <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -433,6 +441,9 @@
     <None Include="PropertySheet.props" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\cpprestsdk\cpprestsdk.vcxproj">
+      <Project>{866c3f06-636f-4be8-bc24-5f86ecc606a1}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\JsonCppLib\JsonCppLib.vcxproj">
       <Project>{82b39fda-e86b-4713-a873-9d56de00247a}</Project>
     </ProjectReference>

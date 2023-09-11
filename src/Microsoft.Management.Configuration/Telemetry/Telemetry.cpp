@@ -282,7 +282,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             allSettingsNames.pop_back();
         }
 
-        LogConfigUnitRun(setIdentifier, unit.InstanceIdentifier(), unit.UnitName(), details.ModuleName(), unit.Intent(), runIntent, action, resultInformation.ResultCode(), resultInformation.ResultSource(), allSettingsNames);
+        LogConfigUnitRun(setIdentifier, unit.InstanceIdentifier(), unit.Type(), details.ModuleName(), unit.Intent(), runIntent, action, resultInformation.ResultCode(), resultInformation.ResultSource(), allSettingsNames);
     }
     CATCH_LOG();
 

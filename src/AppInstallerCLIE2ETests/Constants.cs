@@ -119,6 +119,7 @@ namespace AppInstallerCLIE2ETests
         public const string PortablePackageUserRoot = "portablePackageUserRoot";
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
         public const string InstallBehaviorScope = "scope";
+        public const string InstallerTypes = "installerTypes";
 
         // Configuration
         public const string PSGalleryName = "PSGallery";
@@ -126,6 +127,9 @@ namespace AppInstallerCLIE2ETests
         public const string GalleryTestModuleName = "XmlContentDsc";
         public const string SimpleTestModuleName = "xE2ETestResource";
         public const string LocalModuleDescriptor = "[Local]";
+
+        // Group Policy Error Message
+        public const string BlockByWinGetPolicyErrorMessage = "This operation is disabled by Group Policy : Enable Windows Package Manager";
 
         /// <summary>
         /// Error codes.
@@ -274,6 +278,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_PACKAGE_IN_USE_BY_APPLICATION = unchecked((int)0x8A150111);
             public const int ERROR_INSTALL_INVALID_PARAMETER = unchecked((int)0x8A150112);
             public const int ERROR_INSTALL_SYSTEM_NOT_SUPPORTED = unchecked((int)0x8A150113);
+            public const int APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED = unchecked((int)0x8A150114);
 
             public const int INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND = unchecked((int)0x8A150201);
             public const int INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE = unchecked((int)0x0A150202);

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigureValidateCommand.h"
 #include "Workflows/ConfigurationFlow.h"
+#include "ConfigurationCommon.h"
 
 using namespace AppInstaller::CLI::Workflow;
 
@@ -12,6 +13,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::ConfigurationModulePath, Resource::String::ConfigurationModulePath, ArgumentType::Positional },
         };
     }
 
@@ -41,5 +43,10 @@ namespace AppInstaller::CLI
             ValidateConfigurationSetSemantics <<
             ValidateConfigurationSetUnitProcessors <<
             ValidateAllGoodMessage;
+    }
+
+    void ConfigureValidateCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        Configuration::ValidateCommonArguments(execArgs);
     }
 }

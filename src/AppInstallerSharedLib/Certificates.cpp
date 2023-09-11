@@ -7,8 +7,6 @@
 #include "winget/JsonUtil.h"
 #include "winget/Resources.h"
 
-#include <CertificateResources.h>
-
 
 namespace AppInstaller::Certificates
 {
@@ -80,9 +78,9 @@ namespace AppInstaller::Certificates
         }
     }
 
-    PinningDetails& PinningDetails::LoadCertificate(int resource)
+    PinningDetails& PinningDetails::LoadCertificate(int resource, int resourceType)
     {
-        return LoadCertificate(Resource::GetResourceAsBytes(resource, CERTIFICATE_RESOURCE_TYPE));
+        return LoadCertificate(Resource::GetResourceAsBytes(resource, resourceType));
     }
 
     PinningDetails& PinningDetails::LoadCertificate(const std::vector<BYTE>& certificateBytes)

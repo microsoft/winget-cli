@@ -355,7 +355,8 @@
       "type": [ "string", "null" ],
       "enum": [
         "install",
-        "uninstallPrevious"
+        "uninstallPrevious",
+        "deny"
       ],
       "description": "The upgrade method"
     },

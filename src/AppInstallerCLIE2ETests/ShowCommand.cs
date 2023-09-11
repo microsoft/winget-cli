@@ -124,5 +124,29 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
+
+        /// <summary>
+        /// Test show with installer type.
+        /// </summary>
+        [Test]
+        public void ShowWithInstallerTypeArg()
+        {
+            var result = TestCommon.RunAICLICommand("show", $"--id AppInstallerTest.TestMultipleInstallers --installer-type msi");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Found TestMultipleInstallers [AppInstallerTest.TestMultipleInstallers]"));
+            Assert.True(result.StdOut.Contains("Installer Type: msi"));
+        }
+
+        /// <summary>
+        /// Test show with an archive installer type.
+        /// </summary>
+        [Test]
+        public void ShowWithZipInstallerTypeArg()
+        {
+            var result = TestCommon.RunAICLICommand("show", $"--id AppInstallerTest.TestMultipleInstallers --installer-type zip");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Found TestMultipleInstallers [AppInstallerTest.TestMultipleInstallers]"));
+            Assert.True(result.StdOut.Contains("Installer Type: exe (zip)"));
+        }
     }
 }

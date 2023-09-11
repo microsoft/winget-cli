@@ -93,6 +93,28 @@
             "minItems": 1,
             "maxItems": 4
           }
+        },
+        "installerTypes": {
+          "description": "The installerType(s) to use for a package install",
+          "type": "array",
+          "items": {
+            "uniqueItems": "true",
+            "type": "string",
+            "enum": [
+              "inno",
+              "wix",
+              "msi",
+              "nullsoft",
+              "zip",
+              "msix",
+              "exe",
+              "burn",
+              "msstore",
+              "portable"
+            ],
+            "minItems": 1,
+            "maxItems": 9
+          }
         }
       }
     },
@@ -210,11 +232,6 @@
           "type": "boolean",
           "default": false
         },
-        "dependencies": {
-          "description": "Support for package dependencies",
-          "type": "boolean",
-          "default": false
-        },
         "directMSI": {
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
           "type": "boolean",
@@ -222,11 +239,6 @@
         },
         "configuration": {
           "description": "Enable support for configuration",
-          "type": "boolean",
-          "default": false
-        },
-        "download": {
-          "description": "Enable support for the download command",
           "type": "boolean",
           "default": false
         }

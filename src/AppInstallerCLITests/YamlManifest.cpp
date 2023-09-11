@@ -706,6 +706,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
             {
                 REQUIRE(installer2.DownloadCommandProhibited);
+                REQUIRE(installer2.UpdateBehavior == UpdateBehaviorEnum::Deny);
             }
         }
 

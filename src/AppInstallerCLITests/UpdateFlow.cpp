@@ -623,10 +623,9 @@ TEST_CASE("UpdateFlow_Dependencies", "[UpdateFlow][workflow][dependencies]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_Dependencies }));
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_Dependencies.Query);;
+    OverrideEnableWindowsFeaturesDependencies(context);
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_Dependencies.Query);;
 
     UpgradeCommand update({});
     update.Execute(context);

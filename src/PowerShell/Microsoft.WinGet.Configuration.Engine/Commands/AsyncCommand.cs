@@ -14,6 +14,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using Microsoft.PowerShell.Commands;
     using Microsoft.WinGet.Configuration.Engine.Exceptions;
     using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.SharedLib.Exceptions;
+    using Microsoft.WinGet.SharedLib.PolicySettings;
 
     /// <summary>
     /// This is the base class for any command that performs async operations.
@@ -50,6 +52,23 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             if (psCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug"))
             {
                 throw new NotSupportedException(Resources.DebugNotSupported);
+            }
+
+            GroupPolicy groupPolicy = GroupPolicy.GetInstance();
+
+            if (!groupPolicy.IsEnabled(Policy.WinGet))
+            {
+                throw new GroupPolicyException(Policy.WinGet, GroupPolicyFailureType.BlockedByPolicy);
+            }
+
+            if (!groupPolicy.IsEnabled(Policy.Configuration))
+            {
+                throw new GroupPolicyException(Policy.Configuration, GroupPolicyFailureType.BlockedByPolicy);
+            }
+
+            if (!groupPolicy.IsEnabled(Policy.WinGetCommandLineInterfaces))
+            {
+                throw new GroupPolicyException(Policy.WinGetCommandLineInterfaces, GroupPolicyFailureType.BlockedByPolicy);
             }
 
             this.PsCmdlet = psCmdlet;

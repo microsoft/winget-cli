@@ -11,6 +11,8 @@ Installers:
     InstallerType: nullsoft
     InstallerSha256: <EXEHASH>
     Scope: user
+    InstallerSwitches:
+        InstallLocation: /InstallDir <INSTALLPATH>
   - Architecture: x86
     InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi
     InstallerSha256: <MSIHASH>

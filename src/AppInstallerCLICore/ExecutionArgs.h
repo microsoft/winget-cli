@@ -66,6 +66,7 @@ namespace AppInstaller::CLI::Execution
 
             //Validate Command
             ValidateManifest,
+            IgnoreWarnings,
 
             // Complete Command
             Word,
@@ -113,6 +114,7 @@ namespace AppInstaller::CLI::Execution
             ConfigurationAcceptWarning,
             ConfigurationEnable,
             ConfigurationDisable,
+            ConfigurationModulePath,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs

@@ -28,6 +28,18 @@ namespace AppInstaller::Repository::Rest::Schema::V1_6::Json
         return result;
     }
 
+    Manifest::UpdateBehaviorEnum ManifestDeserializer::ConvertToUpdateBehavior(std::string_view in) const
+    {
+        std::string inStrLower = Utility::ToLower(in);
+
+        if (inStrLower == "deny")
+        {
+            return UpdateBehaviorEnum::Deny;
+        }
+
+        return V1_5::Json::ManifestDeserializer::ConvertToUpdateBehavior(inStrLower);
+    }
+
     Manifest::ManifestVer ManifestDeserializer::GetManifestVersion() const
     {
         return Manifest::s_ManifestVersionV1_6;

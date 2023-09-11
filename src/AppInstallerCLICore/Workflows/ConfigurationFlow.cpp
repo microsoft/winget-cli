@@ -7,6 +7,7 @@
 #include <AppInstallerErrors.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winget/SelfManagement.h>
+#include "ConfigurationCommon.h"
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -72,7 +73,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        IConfigurationSetProcessorFactory CreateConfigurationSetProcessorFactory()
+        IConfigurationSetProcessorFactory CreateConfigurationSetProcessorFactory(Execution::Context& context)
         {
 #ifndef AICLI_DISABLE_TEST_HOOKS
             // Test could override the entire workflow task, but that may require keeping more in sync than simply setting the factory.
@@ -82,7 +83,9 @@ namespace AppInstaller::CLI::Workflow
             }
 #endif
 
-            return ConfigurationRemoting::CreateOutOfProcessFactory();
+            auto factory = ConfigurationRemoting::CreateOutOfProcessFactory();
+            Configuration::SetModulePath(context, factory);
+            return factory;
         }
 
         std::optional<Utility::LocIndString> GetValueSetString(const ValueSet& valueSet, std::wstring_view value)
@@ -257,19 +260,19 @@ namespace AppInstaller::CLI::Workflow
         void OutputConfigurationUnitInformation(OutputStream& out, const ConfigurationUnit& unit)
         {
             IConfigurationUnitProcessorDetails details = unit.Details();
-            ValueSet directives = unit.Directives();
+            ValueSet metadata = unit.Metadata();
 
             if (details)
             {
                 // -- Sample output when IConfigurationUnitProcessorDetails present --
-                // Intent :: UnitName <from details> [Identifier]
+                // Intent :: UnitType <from details> [Identifier]
                 //   UnitDocumentationUri <if present>
                 //   Description <from details first, directives second>
                 //   "Module": ModuleName "by" Author / Publisher (IsLocal / ModuleSource)
                 //     "Signed by": SigningCertificateChain (leaf subject CN)
                 //     PublishedModuleUri / ModuleDocumentationUri <if present>
                 //     ModuleDescription
-                OutputConfigurationUnitHeader(out, unit, details.UnitName());
+                OutputConfigurationUnitHeader(out, unit, details.UnitType());
 
                 auto unitDocumentationUri = details.UnitDocumentationUri();
                 if (unitDocumentationUri)
@@ -284,7 +287,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    auto unitDescriptionFromDirectives = GetValueSetString(directives, s_Directive_Description);
+                    auto unitDescriptionFromDirectives = GetValueSetString(metadata, s_Directive_Description);
                     if (unitDescriptionFromDirectives && !unitDescriptionFromDirectives.value().empty())
                     {
                         out << "  "_liv << unitDescriptionFromDirectives.value() << '\n';
@@ -329,18 +332,18 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 // -- Sample output when no IConfigurationUnitProcessorDetails present --
-                // Intent :: UnitName <from unit> [identifier]
+                // Intent :: Type <from unit> [identifier]
                 //   Description (from directives)
                 //   "Module": module <directive>
-                OutputConfigurationUnitHeader(out, unit, unit.UnitName());
+                OutputConfigurationUnitHeader(out, unit, unit.Type());
 
-                auto description = GetValueSetString(directives, s_Directive_Description);
+                auto description = GetValueSetString(metadata, s_Directive_Description);
                 if (description && !description.value().empty())
                 {
                     out << "  "_liv << description.value() << '\n';
                 }
 
-                auto module = GetValueSetString(directives, s_Directive_Module);
+                auto module = GetValueSetString(metadata, s_Directive_Module);
                 if (module && !module.value().empty())
                 {
                     out << "  "_liv << Resource::String::ConfigurationModuleNameOnly(module.value()) << '\n';
@@ -374,7 +377,7 @@ namespace AppInstaller::CLI::Workflow
         {
             if (FAILED(resultInformation.ResultCode()))
             {
-                AICLI_LOG(Config, Error, << "Failed to get unit details for " << Utility::ConvertToUTF8(unit.UnitName()) << " : 0x" <<
+                AICLI_LOG(Config, Error, << "Failed to get unit details for " << Utility::ConvertToUTF8(unit.Type()) << " : 0x" <<
                     Logging::SetHRFormat << resultInformation.ResultCode() << '\n' << Utility::ConvertToUTF8(resultInformation.Description()) << '\n' <<
                     Utility::ConvertToUTF8(resultInformation.Details()));
             }
@@ -440,7 +443,7 @@ namespace AppInstaller::CLI::Workflow
         {
             std::string description = Utility::Trim(Utility::ConvertToUTF8(resultInformation.Description()));
 
-            AICLI_LOG_LARGE_STRING(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] failed with code 0x"
+            AICLI_LOG_LARGE_STRING(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.Type()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] failed with code 0x"
                 << Logging::SetHRFormat << resultInformation.ResultCode() << " and error message:\n" << description, Utility::ConvertToUTF8(resultInformation.Details()));
 
             UnitFailedMessageData messageData = GetUnitFailedData(unit, resultInformation);
@@ -662,7 +665,7 @@ namespace AppInstaller::CLI::Workflow
                     break;
                 case ConfigurationUnitState::Skipped:
                     OutputUnitInProgressIfNeeded(unit);
-                    AICLI_LOG(Config, Warning, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] was skipped with code 0x"
+                    AICLI_LOG(Config, Warning, << "Configuration unit " << Utility::ConvertToUTF8(unit.Type()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] was skipped with code 0x"
                         << Logging::SetHRFormat << resultInformation.ResultCode());
                     m_context.Reporter.Warn() << "  "_liv << GetUnitSkippedMessage(resultInformation) << std::endl;
                     MarkCompleted(unit);
@@ -679,7 +682,7 @@ namespace AppInstaller::CLI::Workflow
                     m_unitsSeen.insert(unitInstance);
 
                     OutputStream out = m_context.Reporter.Info();
-                    OutputConfigurationUnitHeader(out, unit, unit.Details() ? unit.Details().UnitName() : unit.UnitName());
+                    OutputConfigurationUnitHeader(out, unit, unit.Details() ? unit.Details().UnitType() : unit.Type());
                 }
             }
 
@@ -737,7 +740,7 @@ namespace AppInstaller::CLI::Workflow
 
                 {
                     OutputStream info = m_context.Reporter.Info();
-                    OutputConfigurationUnitHeader(info, unit, unit.Details() ? unit.Details().UnitName() : unit.UnitName());
+                    OutputConfigurationUnitHeader(info, unit, unit.Details() ? unit.Details().UnitType() : unit.Type());
                 }
 
                 switch (testResult)
@@ -779,7 +782,7 @@ namespace AppInstaller::CLI::Workflow
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
 
-        ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory() };
+        ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory(context)};
 
         // Set the processor to the current level of the logging.
         processor.MinimumLevel(ConvertLevel(Logging::Log().GetLevel()));
@@ -872,7 +875,7 @@ namespace AppInstaller::CLI::Workflow
     {
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
 
-        if (configContext.Set().ConfigurationUnits().Size() == 0)
+        if (configContext.Set().Units().Size() == 0)
         {
             context.Reporter.Warn() << Resource::String::ConfigurationFileEmpty << std::endl;
             // This isn't an error termination, but there is no reason to proceed.
@@ -951,7 +954,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Handle any units that are NOT in the results (due to an exception part of the way through)
-        auto allUnits = configContext.Set().ConfigurationUnits();
+        auto allUnits = configContext.Set().Units();
         for (unitsShown; unitsShown < allUnits.Size(); ++unitsShown)
         {
             ConfigurationUnit unit = allUnits.GetAt(unitsShown);
@@ -1061,7 +1064,7 @@ namespace AppInstaller::CLI::Workflow
     {
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
 
-        if (configContext.Set().ConfigurationUnits().Size() == 0)
+        if (configContext.Set().Units().Size() == 0)
         {
             context.Reporter.Warn() << Resource::String::ConfigurationFileEmpty << std::endl;
             // This isn't an error termination, but there is no reason to proceed.
@@ -1082,7 +1085,7 @@ namespace AppInstaller::CLI::Workflow
                     ConfigurationUnit unit = unitResult.Unit();
 
                     auto out = context.Reporter.Info();
-                    OutputConfigurationUnitHeader(out, unit, unit.UnitName());
+                    OutputConfigurationUnitHeader(out, unit, unit.Type());
 
                     switch (resultCode)
                     {
@@ -1182,7 +1185,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(getCatalogHR);
         }
 
-        auto units = configContext.Set().ConfigurationUnits();
+        auto units = configContext.Set().Units();
         auto localUnitResults = getLocalResult ? getLocalResult.UnitResults() : nullptr;
         if (localUnitResults && units.Size() != localUnitResults.Size())
         {
@@ -1213,13 +1216,13 @@ namespace AppInstaller::CLI::Workflow
                 if (needsHeader)
                 {
                     auto out = context.Reporter.Info();
-                    OutputConfigurationUnitHeader(out, unit, unit.UnitName());
+                    OutputConfigurationUnitHeader(out, unit, unit.Type());
                     needsHeader = false;
                     foundIssue = true;
                 }
             };
 
-            if (GetValueSetString(unit.Directives(), s_Directive_Module).value_or(Utility::LocIndString{}).empty())
+            if (GetValueSetString(unit.Metadata(), s_Directive_Module).value_or(Utility::LocIndString{}).empty())
             {
                 outputHeaderIfNeeded();
                 context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitModuleNotProvidedWarning << std::endl;
@@ -1247,12 +1250,12 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // If not already prerelease, try with prerelease and warn if found
-            std::optional<bool> allowPrereleaseDirective = GetValueSetBool(unit.Directives(), s_Directive_AllowPrerelease);
+            std::optional<bool> allowPrereleaseDirective = GetValueSetBool(unit.Metadata(), s_Directive_AllowPrerelease);
             if (!allowPrereleaseDirective || !allowPrereleaseDirective.value())
             {
                 // Check if the configuration unit is prerelease but the author forgot it
                 ConfigurationUnit clone = unit.Copy();
-                clone.Directives().Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+                clone.Metadata().Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
 
                 progressScope = context.Reporter.BeginAsyncProgress(true);
                 progressScope->Callback().SetProgressMessage(gettingDetailString);
