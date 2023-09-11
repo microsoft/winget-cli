@@ -12,26 +12,9 @@ namespace AppInstaller::Checkpoints
 
     namespace
     {
-        constexpr std::string_view s_checkpoints_filename = "checkpoints.db"sv;
-
         // This checkpoint name is reserved for the starting checkpoint which captures the automatic metadata.
         constexpr std::string_view s_AutomaticCheckpoint = "automatic"sv;
-        constexpr std::string_view s_Checkpoints = "Checkpoints"sv;
-        constexpr std::string_view s_ClientVersion = "ClientVersion"sv;
-        constexpr std::string_view s_CommandName = "CommandName"sv;
-
-        std::string_view GetCheckpointMetadataString(AutomaticCheckpointData checkpointMetadata)
-        {
-            switch (checkpointMetadata)
-            {
-            case AutomaticCheckpointData::ClientVersion:
-                return s_ClientVersion;
-            case AutomaticCheckpointData::CommandName:
-                return s_CommandName;
-            default:
-                return "unknown"sv;
-            }
-        }
+        constexpr std::string_view s_CheckpointsFileName = "checkpoints.db"sv;
     }
 
     std::filesystem::path CheckpointManager::GetCheckpointRecordPath(GUID guid)
@@ -51,7 +34,7 @@ namespace AppInstaller::Checkpoints
             THROW_HR_IF(ERROR_CANNOT_MAKE, !std::filesystem::is_directory(checkpointsDirectory));
         }
 
-        auto indexPath = checkpointsDirectory / s_checkpoints_filename;
+        auto indexPath = checkpointsDirectory / s_CheckpointsFileName;
         return indexPath;
     }
 
@@ -76,13 +59,6 @@ namespace AppInstaller::Checkpoints
         return checkpoint;
     }
 
-    Checkpoint<CLI::Execution::Data> CheckpointManager::CreateCheckpoint(std::string_view checkpointName)
-    {
-        CheckpointRecord::IdType startCheckpointId = m_checkpointRecord->AddCheckpoint(checkpointName);
-        Checkpoint<CLI::Execution::Data> checkpoint{ m_checkpointRecord, startCheckpointId };
-        return checkpoint;
-    }
-
     Checkpoint<AutomaticCheckpointData> CheckpointManager::GetAutomaticCheckpoint()
     {
         std::optional<CheckpointRecord::IdType> startCheckpointId = m_checkpointRecord->GetCheckpointIdByName(s_AutomaticCheckpoint);
@@ -93,6 +69,13 @@ namespace AppInstaller::Checkpoints
         }
 
         return Checkpoint<AutomaticCheckpointData>{ std::move(m_checkpointRecord), startCheckpointId.value() };
+    }
+
+    Checkpoint<CLI::Execution::Data> CheckpointManager::CreateCheckpoint(std::string_view checkpointName)
+    {
+        CheckpointRecord::IdType startCheckpointId = m_checkpointRecord->AddCheckpoint(checkpointName);
+        Checkpoint<CLI::Execution::Data> checkpoint{ m_checkpointRecord, startCheckpointId };
+        return checkpoint;
     }
 
     std::vector<Checkpoint<CLI::Execution::Data>> CheckpointManager::GetCheckpoints()

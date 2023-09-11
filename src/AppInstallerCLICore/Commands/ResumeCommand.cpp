@@ -94,6 +94,8 @@ namespace AppInstaller::CLI
         }
 
         resumeContext.SetExecutingCommand(commandToResume.get());
+
+        // TODO: Ensure telemetry is properly handled for resume context.
         resumeContext.SetFlags(Execution::ContextFlag::Resume);
 
         auto previousThreadGlobals = resumeContext.SetForCurrentThread();

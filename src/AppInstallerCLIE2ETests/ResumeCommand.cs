@@ -54,7 +54,7 @@ namespace AppInstallerCLIE2ETests
         /// Verifies that an error message is shown when an invalid resume id is provided.
         /// </summary>
         [Test]
-        public void ResumeInvalidId()
+        public void InvalidResumeId()
         {
             var invalidResumeId = "invalidResumeId";
             var resumeResult = TestCommon.RunAICLICommand("resume", $"-g {invalidResumeId}");

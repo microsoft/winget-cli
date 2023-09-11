@@ -7,7 +7,7 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {
-    struct CheckpointContextTable
+    struct CheckpointDataTable
     {
         // Get the table name.
         static std::string_view TableName();
@@ -22,7 +22,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         static std::vector<int> GetAvailableData(SQLite::Connection& connection, SQLite::rowid_t checkpointId);
 
         // Adds a context data for a checkpoint. Index is used to represent the item number if the context data has more than one value.
-        static SQLite::rowid_t AddContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name, std::string_view value, int index = 1);
+        static SQLite::rowid_t AddCheckpointData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name, std::string_view value, int index = 1);
 
         static std::vector<std::string> GetDataFields(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type);
 
@@ -32,7 +32,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         static bool HasDataField(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type, std::string_view name);
 
         // Removes the context data by checkpoint id.
-        static void RemoveContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData);
+        static void RemoveData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData);
 
         static std::string GetDataValue(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type);
     };

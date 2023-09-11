@@ -436,6 +436,7 @@ namespace AppInstaller::CLI::Execution
     void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
     {
         UNREFERENCED_PARAMETER(checkpointName);
+        UNREFERENCED_PARAMETER(contextData);
 
         if (!m_checkpointManager)
         {

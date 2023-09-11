@@ -37,26 +37,28 @@ namespace AppInstaller::Repository::Microsoft
         // Adds a new checkpoint name to the checkpoint table.
         IdType AddCheckpoint(std::string_view checkpointName);
 
+        // Gets the name of all checkpoints.
         std::vector<std::string> GetCheckpoints();
 
+        // Returns a boolean value indicating a field exists for a checkpoint data type.
         bool HasDataField(IdType checkpointId, int type, std::string name);
 
-        // Returns the available data types for a given checkpoint id.
+        // Returns the available data types for a checkpoint id.
         std::vector<int> GetDataTypes(IdType checkpointId);
 
-        // Returns the available field names for a given checkpoint context data.
+        // Returns the available field names for a checkpoint data.
         std::vector<std::string> GetDataFieldNames(IdType checkpointId, int dataType);
 
-        // Sets the value(s) for a given data type and field.
+        // Sets the value(s) for a data type and field.
         void SetDataValue(IdType checkpointId, int dataType, std::string field, std::vector<std::string> values);
 
-        // Gets a single value for the given data type.
+        // Gets a single value for the data type.
         std::string GetDataSingleValue(IdType checkpointId, int dataType);
 
-        // Gets a single value for a given data type field.
+        // Gets a single value for a data type field.
         std::string GetDataFieldSingleValue(IdType checkpointId, int dataType, std::string_view field);
 
-        // Gets multiple values for a given data type field.
+        // Gets multiple values for a data type field.
         std::vector<std::string> GetDataFieldMultiValue(IdType checkpointId, int dataType, std::string field);
 
     private:

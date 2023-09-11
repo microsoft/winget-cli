@@ -15,9 +15,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         // Creates the table with named indices.
         static void Create(SQLite::Connection& connection);
 
+        // Gets the names of all checkpoints.
         static std::vector<std::string> GetCheckpoints(SQLite::Connection& connection);
-
-        static std::string GetLastCheckpoint(SQLite::Connection& connection);
 
         // Adds a checkpoint.
         static SQLite::rowid_t AddCheckpoint(SQLite::Connection& connection, std::string_view checkpointName);

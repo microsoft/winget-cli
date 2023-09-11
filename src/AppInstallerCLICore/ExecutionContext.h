@@ -90,7 +90,7 @@ namespace AppInstaller::CLI::Execution
             Reporter(reporter, Execution::Reporter::clone_t{}),
             m_threadGlobals(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{}) {}
 
-        virtual ~Context(); 
+        virtual ~Context();
 
         // The path for console input/output for all functionality.
         Reporter Reporter;
@@ -166,7 +166,7 @@ namespace AppInstaller::CLI::Execution
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
 
-        // This should only be called by the resume , Sets the resume id for the checkpoint manager.
+        // Called by the resume command. Loads the checkpoint manager with the resume id and returns the automatic checkpoint.
         AppInstaller::Checkpoints::Checkpoint<AppInstaller::Checkpoints::AutomaticCheckpointData> LoadCheckpoint(GUID resumeId);
 
         // Creates a checkpoint for the provided context data.

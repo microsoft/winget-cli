@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/Schema/Checkpoint_1_0/CheckpointRecordInterface.h"
-#include "Microsoft/Schema/Checkpoint_1_0/CheckpointContextTable.h"
+#include "Microsoft/Schema/Checkpoint_1_0/CheckpointDataTable.h"
 #include "Microsoft/Schema/Checkpoint_1_0/CheckpointTable.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
@@ -16,13 +16,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createCheckpointTables_v1_0");
         Checkpoint_V1_0::CheckpointTable::Create(connection);
-        Checkpoint_V1_0::CheckpointContextTable::Create(connection);
+        Checkpoint_V1_0::CheckpointDataTable::Create(connection);
         savepoint.Commit();
     }
 
     bool CheckpointRecordInterface::IsEmpty(SQLite::Connection& connection)
     {
-        return CheckpointContextTable::IsEmpty(connection);
+        return CheckpointDataTable::IsEmpty(connection);
     }
 
     std::vector<std::string> CheckpointRecordInterface::GetAvailableCheckpoints(SQLite::Connection& connection)
@@ -52,26 +52,26 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
     std::vector<int> CheckpointRecordInterface::GetCheckpointDataTypes(SQLite::Connection& connection, SQLite::rowid_t checkpointId)
     {
-        return CheckpointContextTable::GetAvailableData(connection, checkpointId);
+        return CheckpointDataTable::GetAvailableData(connection, checkpointId);
     }
 
     std::vector<std::string> CheckpointRecordInterface::GetCheckpointDataFields(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType)
     {
-        return CheckpointContextTable::GetDataFields(connection, checkpointId, dataType);
+        return CheckpointDataTable::GetDataFields(connection, checkpointId, dataType);
     }
 
     bool CheckpointRecordInterface::HasCheckpointDataField(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType, std::string_view name)
     {
-        return CheckpointContextTable::HasDataField(connection, checkpointId, dataType, name);
+        return CheckpointDataTable::HasDataField(connection, checkpointId, dataType, name);
     }
     
     void CheckpointRecordInterface::SetCheckpointDataValues(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType, std::string_view name, std::vector<std::string> values)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addcontextdata_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "setcheckpointdata_v1_0");
 
         if (values.empty())
         {
-            CheckpointContextTable::AddContextData(connection, checkpointId, dataType, name, {}, 0);
+            CheckpointDataTable::AddCheckpointData(connection, checkpointId, dataType, name, {}, 0);
         }
         else
         {
@@ -79,7 +79,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
             for (const auto& value : values)
             {
-                CheckpointContextTable::AddContextData(connection, checkpointId, dataType, name, value, index);
+                CheckpointDataTable::AddCheckpointData(connection, checkpointId, dataType, name, value, index);
                 index++;
             }
         }
@@ -89,11 +89,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
     std::string CheckpointRecordInterface::GetCheckpointDataValue(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType)
     {
-        return CheckpointContextTable::GetDataValue(connection, checkpointId, dataType);
+        return CheckpointDataTable::GetDataValue(connection, checkpointId, dataType);
     }
 
     std::vector<std::string> CheckpointRecordInterface::GetCheckpointDataFieldValues(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType, std::string_view name)
     {
-        return CheckpointContextTable::GetDataValuesByFieldName(connection, checkpointId, dataType, name);
+        return CheckpointDataTable::GetDataValuesByFieldName(connection, checkpointId, dataType, name);
     }
 }

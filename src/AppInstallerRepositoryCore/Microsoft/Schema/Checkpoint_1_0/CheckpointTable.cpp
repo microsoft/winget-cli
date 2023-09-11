@@ -49,24 +49,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return checkpoints;
     }
 
-    std::string CheckpointTable::GetLastCheckpoint(SQLite::Connection& connection)
-    {
-        // Sort by descending and get last checkpoint.
-        SQLite::Builder::StatementBuilder builder;
-        builder.Select(s_CheckpointTable_Name_Column).From(s_CheckpointTable_Table_Name).OrderBy(SQLite::RowIDName).Descending();
-
-        SQLite::Statement select = builder.Prepare(connection);
-
-        if (select.Step())
-        {
-            return select.GetColumn<std::string>(0);
-        }
-        else
-        {
-            return {};
-        }
-    }
-
     SQLite::rowid_t CheckpointTable::AddCheckpoint(SQLite::Connection& connection, std::string_view checkpointName)
     {
         SQLite::Builder::StatementBuilder builder;

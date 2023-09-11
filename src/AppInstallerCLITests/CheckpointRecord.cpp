@@ -46,16 +46,16 @@ TEST_CASE("CheckpointRecord_WriteMetadata", "[checkpointRecord]")
     {
         CheckpointRecord record = CheckpointRecord::CreateNew(tempFile, { 1, 0 });
         CheckpointRecord::IdType checkpointId = record.AddCheckpoint(testCheckpointName);
-        record.SetDataValue(checkpointId, static_cast<int>(AutomaticCheckpointData::CommandName), {}, { testCommand });
-        record.SetDataValue(checkpointId, static_cast<int>(AutomaticCheckpointData::ClientVersion), {}, { testClientVersion });
+        record.SetDataValue(checkpointId, AutomaticCheckpointData::CommandName, {}, { testCommand });
+        record.SetDataValue(checkpointId, AutomaticCheckpointData::ClientVersion, {}, { testClientVersion });
     }
 
     {
         CheckpointRecord record = CheckpointRecord::Open(tempFile);
         std::optional<CheckpointRecord::IdType> checkpointId = record.GetCheckpointIdByName(testCheckpointName);
         REQUIRE(checkpointId.has_value());
-        REQUIRE(testCommand == record.GetDataSingleValue(checkpointId.value(), static_cast<int>(AutomaticCheckpointData::CommandName)));
-        REQUIRE(testClientVersion == record.GetDataSingleValue(checkpointId.value(), static_cast<int>(AutomaticCheckpointData::ClientVersion)));
+        REQUIRE(testCommand == record.GetDataSingleValue(checkpointId.value(), AutomaticCheckpointData::CommandName));
+        REQUIRE(testClientVersion == record.GetDataSingleValue(checkpointId.value(), AutomaticCheckpointData::ClientVersion));
     }
 }
 
@@ -78,8 +78,8 @@ TEST_CASE("CheckpointRecord_WriteContextData", "[checkpointRecord]")
         CheckpointRecord::IdType checkpointId = record.AddCheckpoint(testCheckpoint);
 
         // Add multiple fields.
-        record.SetDataValue(checkpointId, static_cast<int>(AutomaticCheckpointData::Arguments), fieldName1, { testValue1 });
-        record.SetDataValue(checkpointId, static_cast<int>(AutomaticCheckpointData::Arguments), fieldName2, { testValue2, testValue3 });
+        record.SetDataValue(checkpointId, AutomaticCheckpointData::Arguments, fieldName1, { testValue1 });
+        record.SetDataValue(checkpointId, AutomaticCheckpointData::Arguments, fieldName2, { testValue2, testValue3 });
     }
 
     {
@@ -98,7 +98,5 @@ TEST_CASE("CheckpointRecord_WriteContextData", "[checkpointRecord]")
 
         REQUIRE(testValue2 == multiValues[0]);
         REQUIRE(testValue3 == multiValues[1]);
-
-        // REMOVE TEST CONTEXT FUNCTION.
     }
 }
