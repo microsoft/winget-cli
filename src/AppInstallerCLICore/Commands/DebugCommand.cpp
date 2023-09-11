@@ -54,6 +54,7 @@ namespace AppInstaller::CLI
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
             std::make_unique<DumpProxyStubRegistrationsCommand>(FullName()),
             std::make_unique<DumpInterestingIIDsCommand>(FullName()),
+            std::make_unique<DumpErrorResourceCommand>(FullName()),
         });
     }
 
@@ -117,6 +118,32 @@ namespace AppInstaller::CLI
     void DumpInterestingIIDsCommand::ExecuteInternal(Execution::Context& context) const
     {
         OutputIIDMapping<winrt::Microsoft::Management::Configuration::IConfigurationStatics>(context);
+    }
+
+    Resource::LocString DumpErrorResourceCommand::ShortDescription() const
+    {
+        return Utility::LocIndString("Dump error resources"sv);
+    }
+
+    Resource::LocString DumpErrorResourceCommand::LongDescription() const
+    {
+        return Utility::LocIndString("Dump the error information as resources."sv);
+    }
+
+    void DumpErrorResourceCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        auto info = context.Reporter.Info();
+
+        //  <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
+        //    <value>Another installation is already in progress. Try again later.</value>
+        //  </data>
+        for (const auto& error : Errors::GetWinGetErrors())
+        {
+            info <<
+                "  <data name=\"" << error->Symbol() << "\" xml:space=\"preserve\">\n"
+                "    <value>" << error->GetDescription() << "</value>\n"
+                "  </data>" << std::endl;
+        }
     }
 }
 

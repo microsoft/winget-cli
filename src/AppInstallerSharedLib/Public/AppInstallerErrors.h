@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <winget/LocIndependent.h>
 #include <wil/result_macros.h>
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
@@ -8,7 +9,9 @@
 #endif
 
 #include <exception>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 
@@ -207,24 +210,31 @@ namespace AppInstaller
             constexpr HResultInformation(HRESULT value);
             constexpr HResultInformation(HRESULT value, std::string_view symbol);
 
-            HRESULT Value();
+            virtual ~HResultInformation() = default;
+
+            HRESULT Value() const;
+
+            bool operator<(const HResultInformation& other) const;
 
             // The symbol will be an empty view if not known.
-            std::string_view Symbol();
+            Utility::LocIndView Symbol() const;
 
             // Looks up the description of the HRESULT
-            virtual std::string GetDescription();
+            virtual Utility::LocIndString GetDescription() const;
 
             // Find information by HRESULT; this lookup is optimized.
-            static HResultInformation Find(HRESULT value);
+            static std::unique_ptr<HResultInformation> Find(HRESULT value);
 
             // Find information by substring match with the given value.
             // This lookup is not optimized, as it should only be needed for the error command.
-            static std::vector<const HResultInformation*> Find(std::string_view value);
+            static std::vector<std::unique_ptr<HResultInformation>> Find(std::string_view value);
 
         private:
             HRESULT m_value;
             std::string_view m_symbol;
         };
+
+        // Gets all of the custom error information for our errors.
+        std::vector<std::unique_ptr<HResultInformation>> GetWinGetErrors();
     }
 }

@@ -45,6 +45,18 @@ namespace AppInstaller::CLI
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
+
+    // Outputs the errors as resources.
+    struct DumpErrorResourceCommand final : public Command
+    {
+        DumpErrorResourceCommand(std::string_view parent) : Command("dump-error-resource", {}, parent) {}
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+    protected:
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
 }
 
 #endif
