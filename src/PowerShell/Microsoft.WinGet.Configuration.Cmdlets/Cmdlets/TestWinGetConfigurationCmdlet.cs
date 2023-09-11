@@ -51,8 +51,8 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         {
             if (this.acceptedAgreements)
             {
-                var configCommand = new ConfigurationCommand(this);
-                configCommand.Test(this.Set);
+                this.runningCommand = new ConfigurationCommand(this);
+                this.runningCommand.Test(this.Set);
             }
         }
 

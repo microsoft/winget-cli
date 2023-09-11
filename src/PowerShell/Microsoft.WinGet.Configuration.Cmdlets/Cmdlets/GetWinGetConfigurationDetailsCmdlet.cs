@@ -35,8 +35,8 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void ProcessRecord()
         {
-            var configCommand = new ConfigurationCommand(this);
-            configCommand.GetDetails(this.Set);
+            this.runningCommand = new ConfigurationCommand(this);
+            this.runningCommand.GetDetails(this.Set);
         }
 
         /// <summary>
