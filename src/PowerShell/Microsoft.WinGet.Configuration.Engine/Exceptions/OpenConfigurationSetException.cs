@@ -21,7 +21,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
         /// </summary>
         /// <param name="openResult">Open Result.</param>
         /// <param name="configurationFile">Configuration file.</param>
-        public OpenConfigurationSetException(OpenConfigurationSetResult openResult, string configurationFile)
+        internal OpenConfigurationSetException(OpenConfigurationSetResult openResult, string configurationFile)
             : base(GetMessage(openResult, configurationFile))
         {
         }

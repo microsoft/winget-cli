@@ -19,6 +19,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets.Common
         /// Gets or sets the configuration file.
         /// </summary>
         [Parameter(
+            Position = 0,
             Mandatory = true,
             ValueFromPipelineByPropertyName = true,
             ParameterSetName = Constants.ParameterSet.OpenConfigurationSet)]
@@ -28,6 +29,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets.Common
         /// Gets or sets custom location to install modules.
         /// </summary>
         [Parameter(
+            Position = 1,
             ValueFromPipelineByPropertyName = true,
             ParameterSetName = Constants.ParameterSet.OpenConfigurationSet)]
         public string ModulePath { get; set; }
