@@ -190,8 +190,6 @@ namespace AppInstaller::CLI::Execution
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
-
-        // Change this to unique pointer after you're done with implmementation.
         std::unique_ptr<AppInstaller::Checkpoints::CheckpointManager> m_checkpointManager;
     };
 }

@@ -12,12 +12,6 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::Resume))
-        {
-            // TODO: If the resume flag is set, resume workflow behavior.
-        }
-        else
-        {
-        }
+        context.Checkpoint(m_checkpointName, m_contextData);
     }
 }

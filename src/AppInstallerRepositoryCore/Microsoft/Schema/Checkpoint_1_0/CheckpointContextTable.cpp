@@ -112,6 +112,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return connection.GetLastInsertRowID();
     }
 
+    bool CheckpointContextTable::HasDataField(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type, std::string_view name)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select(SQLite::Builder::RowCount).From(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column);
+        builder.Equals(checkpointId).And(s_CheckpointContextTable_ContextData_Column).Equals(type).And(s_CheckpointContextTable_Name_Column).Equals(name);
+
+        SQLite::Statement countStatement = builder.Prepare(connection);
+
+        THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
+
+        return (countStatement.GetColumn<int>(0) == 0);
+    }
+
     std::vector<std::string> CheckpointContextTable::GetDataFields(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type)
     {
         SQLite::Builder::StatementBuilder builder;
@@ -130,7 +143,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return fields;
     }
 
-    std::vector<std::string> CheckpointContextTable::GetDataValuesByName(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name)
+    std::vector<std::string> CheckpointContextTable::GetDataValuesByFieldName(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select(s_CheckpointContextTable_Value_Column).From(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column);
@@ -148,28 +161,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return values;
     }
 
-    bool CheckpointContextTable::HasDataField(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type, std::string_view name)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.Select(SQLite::Builder::RowCount).From(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column);
-        builder.Equals(checkpointId).And(s_CheckpointContextTable_ContextData_Column).Equals(type).And(s_CheckpointContextTable_Name_Column).Equals(name);
 
-        SQLite::Statement countStatement = builder.Prepare(connection);
-
-        THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
-
-        return (countStatement.GetColumn<int>(0) == 0);
-    }
-
-    void CheckpointContextTable::RemoveContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.DeleteFrom(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column).Equals(checkpointId)
-            .And(s_CheckpointContextTable_ContextData_Column).Equals(contextData);
-        builder.Execute(connection);
-    }
-
-    std::string CheckpointContextTable::GetSingleDataField(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type)
+    std::string CheckpointContextTable::GetDataValue(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select(s_CheckpointContextTable_Value_Column).From(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column);
@@ -185,5 +178,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         {
             return {};
         }
+    }
+
+    void CheckpointContextTable::RemoveContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.DeleteFrom(s_CheckpointContextTable_Table_Name).Where(s_CheckpointContextTable_CheckpointId_Column).Equals(checkpointId)
+            .And(s_CheckpointContextTable_ContextData_Column).Equals(contextData);
+        builder.Execute(connection);
     }
 }

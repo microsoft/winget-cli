@@ -258,6 +258,10 @@ namespace AppInstaller::CLI::Execution
     {
         if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume) && !IsTerminated())
         {
+            if (m_checkpointManager)
+            {
+                m_checkpointManager->CleanUpRecord();
+            }
         }
 
         if (m_disableSignalTerminationHandlerOnExit)
@@ -268,7 +272,6 @@ namespace AppInstaller::CLI::Execution
 
     Context Context::CreateEmptyContext()
     {
-        // make own thread globals
         return Context(Reporter, m_threadGlobals);
     }
 
@@ -437,29 +440,34 @@ namespace AppInstaller::CLI::Execution
         if (!m_checkpointManager)
         {
             m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>();
+            Checkpoints::Checkpoint<AutomaticCheckpointData> automaticCheckpoint = m_checkpointManager->CreateAutomaticCheckpoint();
 
-            Checkpoints::Checkpoint<AutomaticCheckpointData> startingCheckpoint = m_checkpointManager->CreateAutomaticCheckpoint();
+            automaticCheckpoint.Set(AutomaticCheckpointData::ClientVersion, AppInstaller::Runtime::GetClientVersion());
 
-            // Set client version.
-            startingCheckpoint.Set(AutomaticCheckpointData::ClientVersion, "clientVersion"sv, { AppInstaller::Runtime::GetClientVersion() });
-
-            // Set command
             const auto& executingCommand = m_executingCommand;
             if (executingCommand != nullptr)
             {
-                startingCheckpoint.Set(AutomaticCheckpointData::CommandName, "commandName"sv, { std::string{m_executingCommand->Name()} });
+                automaticCheckpoint.Set(AutomaticCheckpointData::CommandName, std::string{m_executingCommand->Name()});
             }
 
-            // Set arguments
             const auto& argTypes = Args.GetTypes();
             for (auto type : argTypes)
             {
-                //const auto& argName = Argument::ForType(type).Type.Name();
+                const auto& argument = std::to_string(static_cast<int>(type));
+                auto argumentType = Argument::ForType(type).Type();
 
-                // what the argument name is here:.
-                const auto& values = *Args.GetArgs(type);
-                startingCheckpoint.Set(AutomaticCheckpointData::Arguments, std::to_string(static_cast<int>(type)), values);
+                if (argumentType == ArgumentType::Flag)
+                {
+                    automaticCheckpoint.Set(AutomaticCheckpointData::Arguments, argument, {});
+                }
+                else
+                {
+                    const auto& values = *Args.GetArgs(type);
+                    automaticCheckpoint.SetMany(AutomaticCheckpointData::Arguments, argument, values);
+                }
             }
         }
+
+        // TODO: Capture context data for checkpoint.
     }
 }

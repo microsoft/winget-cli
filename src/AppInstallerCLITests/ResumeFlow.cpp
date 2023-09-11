@@ -17,23 +17,7 @@ using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Runtime;
 using namespace TestCommon;
-
-TEST_CASE("ResumeFlow_InvalidGuid", "[Resume]")
-{
-    std::ostringstream resumeOutput;
-    TestContext context{ resumeOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-
-    context.Args.AddArg(Execution::Args::Type::ResumeId, "badGuid"sv);
-
-    ResumeCommand resume({});
-    context.SetExecutingCommand(&resume);
-    resume.Execute(context);
-    INFO(resumeOutput.str());
-
-    auto expectedMessage = Resource::String::InvalidResumeIdError(AppInstaller::Utility::LocIndString{ "badGuid"s });
-    REQUIRE(resumeOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
-}
+using namespace AppInstaller::Checkpoints;
 
 TEST_CASE("ResumeFlow_IndexNotFound", "[Resume]")
 {
@@ -62,16 +46,18 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointIndexDirectoryPath);
 
     // Create temp guid and populate with invalid client version.
-    std::string tempGuidString = "{b157d11f-4487-4e03-9447-9f9d50d66d8e}";
-    std::string tempFileName = tempGuidString + ".db";
-    auto tempIndexPath = tempCheckpointIndexDirectoryPath / tempFileName;
+    std::string tempGuidString = "{615339e9-3ac5-4e86-a5ab-c246657aca25}";
+    auto tempIndexPath = tempCheckpointIndexDirectoryPath / tempGuidString / "checkpoints.db";
     std::string_view invalidClientVersion = "1.2.3.4"sv;
 
     INFO("Using temporary file named: " << tempIndexPath);
 
     {
-        CheckpointRecord index = CheckpointRecord::CreateNew(tempIndexPath.u8string());
-        index.SetMetadata(CheckpointMetadata::ClientVersion, invalidClientVersion);
+        // Manually set invalid client version
+        std::filesystem::create_directories(tempIndexPath.parent_path());
+        CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempIndexPath.u8string());
+        CheckpointRecord::IdType checkpointId = checkpointRecord.AddCheckpoint("automatic"sv);
+        checkpointRecord.SetDataValue(checkpointId, AutomaticCheckpointData::ClientVersion, {}, { "1.2.3.4" });
     }
 
     std::ostringstream resumeOutput;
@@ -104,8 +90,7 @@ TEST_CASE("ResumeFlow_EmptyIndex", "Resume")
     INFO("Using temporary file named: " << tempIndexPath);
 
     {
-        CheckpointRecord index = CheckpointRecord::CreateNew(tempGuidString);
-        index.SetMetadata(CheckpointMetadata::ClientVersion, AppInstaller::Runtime::GetClientVersion());
+        CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempGuidString);
     }
 
     std::ostringstream resumeOutput;

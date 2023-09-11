@@ -27,13 +27,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         static std::vector<std::string> GetDataFields(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type);
 
         // Gets the context data values by property name from a checkpoint id.
-        static std::vector<std::string> GetDataValuesByName(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name);
+        static std::vector<std::string> GetDataValuesByFieldName(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name);
 
         static bool HasDataField(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type, std::string_view name);
 
         // Removes the context data by checkpoint id.
         static void RemoveContextData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData);
 
-        static std::string GetSingleDataField(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type);
+        static std::string GetDataValue(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type);
     };
 }

@@ -31,6 +31,8 @@ namespace AppInstaller::Checkpoints
 
         std::vector<Checkpoint<CLI::Execution::Data>> GetCheckpoints();
 
+        void CleanUpRecord();
+
     private:
         GUID m_resumeId = {};
         std::shared_ptr<AppInstaller::Repository::Microsoft::CheckpointRecord> m_checkpointRecord;

@@ -22,9 +22,7 @@ namespace AppInstaller::Checkpoints
     template <typename T>
     struct Checkpoint
     {
-        // call this here static_assert(dataType)
-        // static_assert()
-
+        static_assert(std::is_enum<T>::value);
         friend CheckpointManager;
 
         std::vector<T> GetCheckpointDataTypes()
@@ -35,9 +33,6 @@ namespace AppInstaller::Checkpoints
         // Returns a boolean value indicating whether the field name exists.
         bool Has(T dataType, std::string fieldName)
         {
-            // to integral wrapper around the data type
-
-            // return a boolean to determine if the context has the field name that exists.
             return m_checkpointRecord->HasDataField(m_checkpointId, dataType, fieldName);
         }
 
@@ -46,33 +41,41 @@ namespace AppInstaller::Checkpoints
         {
             return m_checkpointRecord->GetDataFieldNames(m_checkpointId, dataType);
         }
+        
+        // Sets a single value for the a data type.
+        void Set(T dataType, std::string value)
+        {
+            m_checkpointRecord->SetDataValue(m_checkpointId, dataType, {}, { value });
+        }
 
-        std::string GetOne(T dataType)
+        // Sets a single field value for a data type.
+        void Set(T dataType, std::string fieldName, std::string value)
+        {
+            m_checkpointRecord->SetDataValue(m_checkpointId, dataType, fieldName, { value });
+        }
+
+        // Sets multiple field values for a data type.
+        void SetMany(T dataType, std::string fieldName, std::vector<std::string> values)
+        {
+            m_checkpointRecord->SetDataValue(m_checkpointId, dataType, fieldName, values);
+        }
+
+        // Gets a single value for a data type.
+        std::string Get(T dataType)
         {
             return m_checkpointRecord->GetDataSingleValue(m_checkpointId, dataType);
-            // For usage with a data types that only have a single file.
         }
 
-        std::vector<std::string> GetMany(T dataType)
+        // Gets a single field value for a data type.
+        std::string Get(T dataType, std::string fieldName)
         {
-
+            return m_checkpointRecord->GetDataFieldSingleValue(m_checkpointId, dataType, fieldName);
         }
 
-        std::vector<std::string> Get(T dataType, std::string fieldName)
+        // Gets multiple field values for a data type.
+        std::vector<std::string> GetMany(T dataType, std::string fieldName)
         {
-            // Dispatch function?
-            // Passing in the object you want it to fill and utilize overloads
-            return m_checkpointRecord->GetDataFieldValue(m_checkpointId, dataType, fieldName);
-        }
-
-        void SetOne(T dataType, std::string value)
-        {
-
-        }
-
-        void Set(T dataType, std::string_view fieldName, std::vector<std::string> values)
-        {
-            m_checkpointRecord->SetDataFieldValue(m_checkpointId, dataType, fieldName, values);
+            return m_checkpointRecord->GetDataFieldMultiValue(m_checkpointId, dataType, fieldName);
         }
 
     private: 

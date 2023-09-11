@@ -106,15 +106,13 @@ namespace AppInstaller::CLI
     void InstallCommand::Resume(Context& context) const
     {
         // TODO: Load context data from checkpoint for install command.
-        context.SetFlags(Execution::ContextFlag::Resume);
+
         ExecuteInternal(context);
     }
 
     void InstallCommand::ExecuteInternal(Context& context) const
     {
-        context.Checkpoint("exampleCheckpoint", {});
-
-           context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
+        context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
@@ -123,6 +121,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
+                Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
                 Workflow::InstallSinglePackage;
         }
         else
@@ -149,7 +148,9 @@ namespace AppInstaller::CLI
             }
             else
             {
-                context << Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
+                context <<
+                    Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
+                    Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
             }
         }
     }

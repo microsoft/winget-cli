@@ -53,14 +53,14 @@ namespace AppInstaller::CLI
 
         Checkpoint<AutomaticCheckpointData> automaticCheckpoint = resumeContext.LoadCheckpoint(checkpointId);
 
-        const auto& checkpointClientVersion = automaticCheckpoint.GetOne(AutomaticCheckpointData::ClientVersion);
+        const auto& checkpointClientVersion = automaticCheckpoint.Get(AutomaticCheckpointData::ClientVersion);
         if (checkpointClientVersion != AppInstaller::Runtime::GetClientVersion().get())
         {
             context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ checkpointClientVersion }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
         }
 
-        const auto& checkpointCommandName = automaticCheckpoint.GetOne(AutomaticCheckpointData::CommandName);
+        const auto& checkpointCommandName = automaticCheckpoint.Get(AutomaticCheckpointData::CommandName);
         std::unique_ptr<Command> commandToResume;
 
         AICLI_LOG(CLI, Info, << "Resuming command: " << checkpointCommandName);
@@ -75,16 +75,17 @@ namespace AppInstaller::CLI
 
         THROW_HR_IF_MSG(E_UNEXPECTED, !commandToResume, "Command to resume not found.");
 
-        for (const auto& fieldNames : automaticCheckpoint.GetFieldNames(AutomaticCheckpointData::Arguments))
+        for (const auto& fieldName : automaticCheckpoint.GetFieldNames(AutomaticCheckpointData::Arguments))
         {
-            const auto& values = automaticCheckpoint.Get(AutomaticCheckpointData::Arguments, fieldNames);
-            Execution::Args::Type type = static_cast<Execution::Args::Type>(std::stoi(fieldNames));
-            if (values.empty())
+            Execution::Args::Type type = static_cast<Execution::Args::Type>(std::stoi(fieldName));
+            auto argumentType = Argument::ForType(type).Type();
+            if (argumentType == ArgumentType::Flag)
             {
                 resumeContext.Args.AddArg(type);
             }
             else
             {
+                const auto& values = automaticCheckpoint.GetMany(AutomaticCheckpointData::Arguments, fieldName);
                 for (const auto& value : values)
                 {
                     resumeContext.Args.AddArg(type, value);
@@ -93,12 +94,10 @@ namespace AppInstaller::CLI
         }
 
         resumeContext.SetExecutingCommand(commandToResume.get());
-        resumeContext.SetFlags(Execution::ContextFlag::Resume); // this should be captured by telemetry
+        resumeContext.SetFlags(Execution::ContextFlag::Resume);
 
         auto previousThreadGlobals = resumeContext.SetForCurrentThread();
-
         resumeContext.EnableSignalTerminationHandler();
-
         commandToResume->Resume(resumeContext);
         context.SetTerminationHR(resumeContext.GetTerminationHR());
     }

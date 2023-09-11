@@ -51,6 +51,17 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Verifies that an error message is shown when an invalid resume id is provided.
+        /// </summary>
+        [Test]
+        public void ResumeInvalidId()
+        {
+            var invalidResumeId = "invalidResumeId";
+            var resumeResult = TestCommon.RunAICLICommand("resume", $"-g {invalidResumeId}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, resumeResult.ExitCode);
+        }
+
+        /// <summary>
         /// Installs a test exe installer and verifies that the checkpoint index is cleaned up.
         /// </summary>
         [Test]

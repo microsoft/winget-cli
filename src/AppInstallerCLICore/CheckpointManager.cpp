@@ -15,7 +15,7 @@ namespace AppInstaller::Checkpoints
         constexpr std::string_view s_checkpoints_filename = "checkpoints.db"sv;
 
         // This checkpoint name is reserved for the starting checkpoint which captures the automatic metadata.
-        constexpr std::string_view s_StartCheckpoint = "start"sv;
+        constexpr std::string_view s_AutomaticCheckpoint = "automatic"sv;
         constexpr std::string_view s_Checkpoints = "Checkpoints"sv;
         constexpr std::string_view s_ClientVersion = "ClientVersion"sv;
         constexpr std::string_view s_CommandName = "CommandName"sv;
@@ -71,7 +71,7 @@ namespace AppInstaller::Checkpoints
 
     Checkpoint<AutomaticCheckpointData> CheckpointManager::CreateAutomaticCheckpoint()
     {
-        CheckpointRecord::IdType startCheckpointId = m_checkpointRecord->AddCheckpoint(s_StartCheckpoint);
+        CheckpointRecord::IdType startCheckpointId = m_checkpointRecord->AddCheckpoint(s_AutomaticCheckpoint);
         Checkpoint<AutomaticCheckpointData> checkpoint{ m_checkpointRecord, startCheckpointId };
         return checkpoint;
     }
@@ -85,7 +85,7 @@ namespace AppInstaller::Checkpoints
 
     Checkpoint<AutomaticCheckpointData> CheckpointManager::GetAutomaticCheckpoint()
     {
-        std::optional<CheckpointRecord::IdType> startCheckpointId = m_checkpointRecord->GetCheckpointIdByName(s_StartCheckpoint);
+        std::optional<CheckpointRecord::IdType> startCheckpointId = m_checkpointRecord->GetCheckpointIdByName(s_AutomaticCheckpoint);
 
         if (!startCheckpointId.has_value())
         {
@@ -98,18 +98,45 @@ namespace AppInstaller::Checkpoints
     std::vector<Checkpoint<CLI::Execution::Data>> CheckpointManager::GetCheckpoints()
     {
         std::vector<Checkpoint<CLI::Execution::Data>> checkpoints;
-        for (const auto& checkpoint : m_checkpointRecord->GetCheckpoints())
+        for (const auto& checkpointName : m_checkpointRecord->GetCheckpoints())
         {
-            // Exclude starting checkpoint from these context data related checkpoints.
-            if (checkpoint == s_StartCheckpoint)
+            if (checkpointName == s_AutomaticCheckpoint)
             {
                 continue;
             }
 
-            CheckpointRecord::IdType checkpointId = m_checkpointRecord->GetCheckpointIdByName(checkpoint).value();
+            CheckpointRecord::IdType checkpointId = m_checkpointRecord->GetCheckpointIdByName(checkpointName).value();
             checkpoints.emplace_back(Checkpoint<CLI::Execution::Data>{ std::move(m_checkpointRecord), checkpointId });
         }
 
         return checkpoints;
+    }
+
+    void CheckpointManager::CleanUpRecord()
+    {
+        if (m_checkpointRecord)
+        {
+            m_checkpointRecord.reset();
+        }
+
+        if (m_resumeId != GUID_NULL)
+        {
+            const auto& checkpointRecordPath = GetCheckpointRecordPath(m_resumeId);
+
+            if (std::filesystem::exists(checkpointRecordPath))
+            {
+                std::error_code error;
+                if (std::filesystem::remove(checkpointRecordPath, error))
+                {
+                    AICLI_LOG(CLI, Info, << "Checkpoint record deleted: " << checkpointRecordPath);
+                }
+
+                const auto& checkpointRecordParentDirectory = checkpointRecordPath.parent_path();
+                if (std::filesystem::is_empty(checkpointRecordParentDirectory) && std::filesystem::remove(checkpointRecordParentDirectory, error))
+                {
+                    AICLI_LOG(CLI, Info, << "Checkpoint record directory deleted: " << checkpointRecordParentDirectory);
+                }
+            }
+        }
     }
 }
