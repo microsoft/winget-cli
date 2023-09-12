@@ -24,15 +24,15 @@ namespace AppInstaller::Checkpoints
         if (!std::filesystem::exists(checkpointsDirectory))
         {
             std::filesystem::create_directories(checkpointsDirectory);
-            AICLI_LOG(Repo, Info, << "Creating checkpoint index directory: " << checkpointsDirectory);
+            AICLI_LOG(Repo, Info, << "Creating checkpoint record directory: " << checkpointsDirectory);
         }
         else
         {
             THROW_HR_IF(ERROR_CANNOT_MAKE, !std::filesystem::is_directory(checkpointsDirectory));
         }
 
-        auto indexPath = checkpointsDirectory / s_CheckpointsFileName;
-        return indexPath;
+        auto recordPath = checkpointsDirectory / s_CheckpointsFileName;
+        return recordPath;
     }
 
     CheckpointManager::CheckpointManager()

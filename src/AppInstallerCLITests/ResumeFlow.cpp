@@ -43,22 +43,22 @@ TEST_CASE("ResumeFlow_IndexNotFound", "[Resume]")
 
 TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
 {
-    TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", true);
+    TestCommon::TempDirectory tempCheckpointRecordDirectory("TempCheckpointRecordDirectory", true);
 
-    const auto& tempCheckpointIndexDirectoryPath = tempCheckpointIndexDirectory.GetPath();
-    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointIndexDirectoryPath);
+    const auto& tempCheckpointRecordDirectoryPath = tempCheckpointRecordDirectory.GetPath();
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointRecordDirectoryPath);
 
     // Create temp guid and populate with invalid client version.
     std::string tempGuidString = "{615339e9-3ac5-4e86-a5ab-c246657aca25}";
-    auto tempIndexPath = tempCheckpointIndexDirectoryPath / tempGuidString / s_CheckpointsFileName;
+    auto tempRecordPath = tempCheckpointRecordDirectoryPath / tempGuidString / s_CheckpointsFileName;
     std::string_view invalidClientVersion = "1.2.3.4"sv;
 
-    INFO("Using temporary file named: " << tempIndexPath);
+    INFO("Using temporary file named: " << tempRecordPath);
 
     {
         // Manually set invalid client version
-        std::filesystem::create_directories(tempIndexPath.parent_path());
-        CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempIndexPath.u8string());
+        std::filesystem::create_directories(tempRecordPath.parent_path());
+        CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempRecordPath.u8string());
         CheckpointRecord::IdType checkpointId = checkpointRecord.AddCheckpoint(s_AutomaticCheckpoint);
         checkpointRecord.SetDataValue(checkpointId, AutomaticCheckpointData::ClientVersion, {}, { "1.2.3.4" });
     }
@@ -80,19 +80,19 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
 
 TEST_CASE("ResumeFlow_EmptyIndex", "[Resume]")
 {
-    TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", true);
+    TestCommon::TempDirectory tempCheckpointRecordDirectory("TempCheckpointRecordDirectory", true);
 
-    const auto& tempCheckpointIndexDirectoryPath = tempCheckpointIndexDirectory.GetPath();
-    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointIndexDirectoryPath);
+    const auto& tempCheckpointRecordDirectoryPath = tempCheckpointRecordDirectory.GetPath();
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointRecordDirectoryPath);
 
     std::string tempGuidString = "{43ca664c-3eae-4f73-99ee-18cf83912c02}";
-    auto tempIndexPath = tempCheckpointIndexDirectoryPath / tempGuidString / s_CheckpointsFileName;
+    auto tempRecordPath = tempCheckpointRecordDirectoryPath / tempGuidString / s_CheckpointsFileName;
 
-    INFO("Using temporary file named: " << tempIndexPath);
+    INFO("Using temporary file named: " << tempRecordPath);
 
     {
-        std::filesystem::create_directories(tempIndexPath.parent_path());
-        CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempIndexPath.u8string());
+        std::filesystem::create_directories(tempRecordPath.parent_path());
+        CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempRecordPath.u8string());
     }
 
     std::ostringstream resumeOutput;
@@ -111,10 +111,10 @@ TEST_CASE("ResumeFlow_EmptyIndex", "[Resume]")
 
 TEST_CASE("ResumeFlow_InstallSuccess", "[Resume]")
 {
-    TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
+    TestCommon::TempDirectory tempCheckpointRecordDirectory("TempCheckpointRecordDirectory", false);
 
-    const auto& tempCheckpointIndexDirectoryPath = tempCheckpointIndexDirectory.GetPath();
-    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointIndexDirectoryPath);
+    const auto& tempCheckpointRecordDirectoryPath = tempCheckpointRecordDirectory.GetPath();
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointRecordDirectoryPath);
 
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFResume>(true);
@@ -147,7 +147,7 @@ TEST_CASE("ResumeFlow_InstallSuccess", "[Resume]")
 
     // The checkpoint index should not exist if the context succeeded.
     std::vector<std::filesystem::path> checkpointFiles;
-    for (const auto& entry : std::filesystem::directory_iterator(tempCheckpointIndexDirectoryPath))
+    for (const auto& entry : std::filesystem::directory_iterator(tempCheckpointRecordDirectoryPath))
     {
         checkpointFiles.emplace_back(entry.path());
     }
@@ -158,10 +158,10 @@ TEST_CASE("ResumeFlow_InstallSuccess", "[Resume]")
 // TODO: This test will need to be updated once saving the resume state is restricted to certain HRs.
 TEST_CASE("ResumeFlow_InstallFailure", "[Resume]")
 {
-    TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
+    TestCommon::TempDirectory tempCheckpointRecordDirectory("TempCheckpointRecordDirectory", false);
 
-    const auto& tempCheckpointIndexDirectoryPath = tempCheckpointIndexDirectory.GetPath();
-    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointIndexDirectoryPath);
+    const auto& tempCheckpointRecordDirectoryPath = tempCheckpointRecordDirectory.GetPath();
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointRecordDirectoryPath);
 
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFResume>(true);
@@ -186,13 +186,13 @@ TEST_CASE("ResumeFlow_InstallFailure", "[Resume]")
 
     // Only one checkpoint file should be created.
     std::vector<std::filesystem::path> checkpointFiles;
-    for (const auto& entry : std::filesystem::directory_iterator(tempCheckpointIndexDirectoryPath))
+    for (const auto& entry : std::filesystem::directory_iterator(tempCheckpointRecordDirectoryPath))
     {
         checkpointFiles.emplace_back(entry.path());
     }
 
     REQUIRE(checkpointFiles.size() == 1);
 
-    std::filesystem::path checkpointIndexPath = checkpointFiles[0];
-    REQUIRE(std::filesystem::exists(checkpointIndexPath));
+    std::filesystem::path checkpointRecordPath = checkpointFiles[0];
+    REQUIRE(std::filesystem::exists(checkpointRecordPath));
 }
