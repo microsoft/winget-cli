@@ -388,11 +388,6 @@ namespace AppInstaller::Runtime
             result.Path = GetKnownFolderPath(FOLDERID_Downloads);
             mayBeInProfilePath = true;
             break;
-        case PathName::CheckpointsLocation:
-            result.Path = GetPathDetailsFor(PathName::LocalState).Path;
-            result.Path /= s_CheckpointsDirectory;
-            mayBeInProfilePath = true;
-            break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -423,10 +418,15 @@ namespace AppInstaller::Runtime
             result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             break;
+        case PathName::CheckpointsLocation:
         case PathName::LocalState:
         case PathName::UserFileSettings:
             result.Path.assign(appStorage.LocalFolder().Path().c_str());
             mayBeInProfilePath = true;
+            if (path == PathName::CheckpointsLocation)
+            {
+                result.Path /= s_CheckpointsDirectory;
+            }
             break;
         case PathName::DefaultLogLocation:
             // To enable UIF collection through Feedback hub, we must put our logs here.
@@ -467,7 +467,6 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
         case PathName::UserProfileDownloads:
-        case PathName::CheckpointsLocation:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
@@ -509,12 +508,17 @@ namespace AppInstaller::Runtime
             }
         }
         break;
+        case PathName::CheckpointsLocation:
         case PathName::LocalState:
             result.Path = GetPathToAppDataDir(s_AppDataDir_State, forDisplay);
             result.Path /= GetRuntimePathStateName();
             result.SetOwner(ACEPrincipal::CurrentUser);
             result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
+            if (path == PathName::CheckpointsLocation)
+            {
+                result.Path /= s_CheckpointsDirectory;
+            }
             break;
         case PathName::StandardSettings:
         case PathName::UserFileSettings:
@@ -554,7 +558,6 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
         case PathName::UserProfileDownloads:
-        case PathName::CheckpointsLocation:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:

@@ -83,6 +83,7 @@ namespace AppInstaller::CLI
 
         for (const auto& fieldName : automaticCheckpoint.GetFieldNames(AutomaticCheckpointData::Arguments))
         {
+            // Command arguments are represented as integer strings in the checkpoint record.
             Execution::Args::Type type = static_cast<Execution::Args::Type>(std::stoi(fieldName));
             auto argumentType = Argument::ForType(type).Type();
             if (argumentType == ArgumentType::Flag)

@@ -23,8 +23,6 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeSetup()
         {
             WinGetSettingsHelper.ConfigureFeature("resume", true);
-            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
-            WinGetSettingsHelper.ConfigureFeature("windowsFeature", true);
         }
 
         /// <summary>
@@ -62,10 +60,10 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Installs a test exe installer and verifies that the checkpoint index is cleaned up.
+        /// Verifies that a checkpoint record persists after a failed install.
         /// </summary>
         [Test]
-        public void ResumeIndex()
+        public void ResumeRecordPreserved()
         {
             var checkpointsDir = TestCommon.GetCheckpointsDirectory();
 
@@ -78,7 +76,7 @@ namespace AppInstallerCLIE2ETests
 
             int actualCheckpointsCount = Directory.GetFiles(checkpointsDir).Length;
 
-            // One new index file should be created after running the install command.
+            // One new checkpoint record should be created after running the install command.
             Assert.AreEqual(initialCheckpointsCount + 1, actualCheckpointsCount);
 
             var checkpointsDirectoryInfo = new DirectoryInfo(checkpointsDir);
