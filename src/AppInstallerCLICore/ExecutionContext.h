@@ -167,7 +167,10 @@ namespace AppInstaller::CLI::Execution
 #endif
 
         // Called by the resume command. Loads the checkpoint manager with the resume id and returns the automatic checkpoint.
-        AppInstaller::Checkpoints::Checkpoint<AppInstaller::Checkpoints::AutomaticCheckpointData> LoadCheckpoint(GUID resumeId);
+        std::optional<AppInstaller::Checkpoints::Checkpoint<AppInstaller::Checkpoints::AutomaticCheckpointData>> LoadCheckpoint(GUID resumeId);
+
+        // Returns data checkpoints in the order of latest checkpoint to earliest.
+        std::vector<AppInstaller::Checkpoints::Checkpoint<Execution::Data>> GetCheckpoints();
 
         // Creates a checkpoint for the provided context data.
         void Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);

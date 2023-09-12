@@ -10,12 +10,9 @@ namespace AppInstaller::Checkpoints
     using namespace AppInstaller::Repository::Microsoft;
     using namespace AppInstaller::Repository::SQLite;
 
-    namespace
-    {
-        // This checkpoint name is reserved for the starting checkpoint which captures the automatic metadata.
-        constexpr std::string_view s_AutomaticCheckpoint = "automatic"sv;
-        constexpr std::string_view s_CheckpointsFileName = "checkpoints.db"sv;
-    }
+    // This checkpoint name is reserved for the starting checkpoint which captures the automatic metadata.
+    constexpr std::string_view s_AutomaticCheckpoint = "automatic"sv;
+    constexpr std::string_view s_CheckpointsFileName = "checkpoints.db"sv;
 
     std::filesystem::path CheckpointManager::GetCheckpointRecordPath(GUID guid)
     {
@@ -59,16 +56,17 @@ namespace AppInstaller::Checkpoints
         return checkpoint;
     }
 
-    Checkpoint<AutomaticCheckpointData> CheckpointManager::GetAutomaticCheckpoint()
+    std::optional<Checkpoint<AutomaticCheckpointData>> CheckpointManager::GetAutomaticCheckpoint()
     {
         std::optional<CheckpointRecord::IdType> startCheckpointId = m_checkpointRecord->GetCheckpointIdByName(s_AutomaticCheckpoint);
-
-        if (!startCheckpointId.has_value())
+        if (startCheckpointId.has_value())
         {
-            THROW_HR(E_UNEXPECTED);
+            return Checkpoint<AutomaticCheckpointData>{ std::move(m_checkpointRecord), startCheckpointId.value() };
         }
-
-        return Checkpoint<AutomaticCheckpointData>{ std::move(m_checkpointRecord), startCheckpointId.value() };
+        else
+        {
+            return {};
+        }
     }
 
     Checkpoint<CLI::Execution::Data> CheckpointManager::CreateCheckpoint(std::string_view checkpointName)

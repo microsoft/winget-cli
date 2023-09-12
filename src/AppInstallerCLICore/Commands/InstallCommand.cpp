@@ -107,7 +107,6 @@ namespace AppInstaller::CLI
     void InstallCommand::Resume(Context& context) const
     {
         // TODO: Load context data from checkpoint for install command.
-
         ExecuteInternal(context);
     }
 

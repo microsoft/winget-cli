@@ -26,17 +26,17 @@ namespace AppInstaller::Checkpoints
         // Gets the file path of the checkpoint record.
         static std::filesystem::path GetCheckpointRecordPath(GUID guid);
 
+        // Gets the automatic checkpoint.
+        std::optional<Checkpoint<AutomaticCheckpointData>> GetAutomaticCheckpoint();
+
         // Creates a new automatic checkpoint.
         Checkpoint<AutomaticCheckpointData> CreateAutomaticCheckpoint();
 
-        // Gets the automatic checkpoint.
-        Checkpoint<AutomaticCheckpointData> GetAutomaticCheckpoint();
+        // Gets all data checkpoints.
+        std::vector<Checkpoint<CLI::Execution::Data>> GetCheckpoints();
 
         // Creates a new data checkpoint.
         Checkpoint<CLI::Execution::Data> CreateCheckpoint(std::string_view checkpointName);
-
-        // Gets all data checkpoints.
-        std::vector<Checkpoint<CLI::Execution::Data>> GetCheckpoints();
 
         // Cleans up the checkpoint record.
         void CleanUpRecord();

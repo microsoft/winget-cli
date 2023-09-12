@@ -19,6 +19,9 @@ using namespace AppInstaller::Runtime;
 using namespace TestCommon;
 using namespace AppInstaller::Checkpoints;
 
+constexpr std::string_view s_AutomaticCheckpoint = "automatic"sv;
+constexpr std::string_view s_CheckpointsFileName = "checkpoints.db"sv;
+
 TEST_CASE("ResumeFlow_IndexNotFound", "[Resume]")
 {
     std::string tempGuidString = "{ec3a098c-a815-4d52-8866-946c03093a37}";
@@ -47,7 +50,7 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
 
     // Create temp guid and populate with invalid client version.
     std::string tempGuidString = "{615339e9-3ac5-4e86-a5ab-c246657aca25}";
-    auto tempIndexPath = tempCheckpointIndexDirectoryPath / tempGuidString / "checkpoints.db";
+    auto tempIndexPath = tempCheckpointIndexDirectoryPath / tempGuidString / s_CheckpointsFileName;
     std::string_view invalidClientVersion = "1.2.3.4"sv;
 
     INFO("Using temporary file named: " << tempIndexPath);
@@ -56,7 +59,7 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
         // Manually set invalid client version
         std::filesystem::create_directories(tempIndexPath.parent_path());
         CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempIndexPath.u8string());
-        CheckpointRecord::IdType checkpointId = checkpointRecord.AddCheckpoint("automatic"sv);
+        CheckpointRecord::IdType checkpointId = checkpointRecord.AddCheckpoint(s_AutomaticCheckpoint);
         checkpointRecord.SetDataValue(checkpointId, AutomaticCheckpointData::ClientVersion, {}, { "1.2.3.4" });
     }
 
@@ -75,22 +78,21 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     REQUIRE(resumeOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
 }
 
-TEST_CASE("ResumeFlow_EmptyIndex", "Resume")
+TEST_CASE("ResumeFlow_EmptyIndex", "[Resume]")
 {
-    TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", false);
+    TestCommon::TempDirectory tempCheckpointIndexDirectory("TempCheckpointIndexDirectory", true);
 
     const auto& tempCheckpointIndexDirectoryPath = tempCheckpointIndexDirectory.GetPath();
     TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointIndexDirectoryPath);
 
-    // Create temp guid and populate with invalid client version.
     std::string tempGuidString = "{43ca664c-3eae-4f73-99ee-18cf83912c02}";
-    std::string tempFileName = tempGuidString + ".db";
-    auto tempIndexPath = tempCheckpointIndexDirectoryPath / tempFileName;
+    auto tempIndexPath = tempCheckpointIndexDirectoryPath / tempGuidString / s_CheckpointsFileName;
 
     INFO("Using temporary file named: " << tempIndexPath);
 
     {
-        CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempGuidString);
+        std::filesystem::create_directories(tempIndexPath.parent_path());
+        CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempIndexPath.u8string());
     }
 
     std::ostringstream resumeOutput;

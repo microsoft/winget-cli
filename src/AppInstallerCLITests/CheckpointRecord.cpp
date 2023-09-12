@@ -100,3 +100,30 @@ TEST_CASE("CheckpointRecord_WriteContextData", "[checkpointRecord]")
         REQUIRE(testValue3 == multiValues[1]);
     }
 }
+
+TEST_CASE("CheckpointRecord_CheckpointOrder", "[checkpointRecord]")
+{
+    // Verifies that the checkpoints are shown in reverse order (latest first).
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string_view firstCheckpoint = "firstCheckpoint"sv;
+    std::string_view secondCheckpoint = "secondCheckpoint"sv;
+    std::string_view thirdCheckpoint = "thirdCheckpoint"sv;
+
+    {
+        CheckpointRecord record = CheckpointRecord::CreateNew(tempFile, { 1, 0 });
+        record.AddCheckpoint(firstCheckpoint);
+        record.AddCheckpoint(secondCheckpoint);
+        record.AddCheckpoint(thirdCheckpoint);
+    }
+
+    {
+        CheckpointRecord record = CheckpointRecord::Open(tempFile);
+        const auto& checkpoints = record.GetCheckpoints();
+
+        REQUIRE(checkpoints[0] == thirdCheckpoint);
+        REQUIRE(checkpoints[1] == secondCheckpoint);
+        REQUIRE(checkpoints[2] == firstCheckpoint);
+    }
+}

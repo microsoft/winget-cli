@@ -499,6 +499,7 @@ selectany
 SERVICEPACKMAJOR
 SERVICEPACKMINOR
 setfill
+setcheckpointdata
 setdatavalue
 setschemaversion
 setupexitcodes

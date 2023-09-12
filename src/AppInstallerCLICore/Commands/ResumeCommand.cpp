@@ -50,8 +50,14 @@ namespace AppInstaller::CLI
         }
 
         Execution::Context resumeContext = context.CreateEmptyContext();
+        std::optional<Checkpoint<AutomaticCheckpointData>> foundAutomaticCheckpoint = resumeContext.LoadCheckpoint(checkpointId);
+        if (!foundAutomaticCheckpoint.has_value())
+        {
+            context.Reporter.Error() << Resource::String::ResumeStateDataNotFoundError << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE);
+        }
 
-        Checkpoint<AutomaticCheckpointData> automaticCheckpoint = resumeContext.LoadCheckpoint(checkpointId);
+        Checkpoint<AutomaticCheckpointData> automaticCheckpoint = foundAutomaticCheckpoint.value();
 
         const auto& checkpointClientVersion = automaticCheckpoint.Get(AutomaticCheckpointData::ClientVersion);
         if (checkpointClientVersion != AppInstaller::Runtime::GetClientVersion().get())
