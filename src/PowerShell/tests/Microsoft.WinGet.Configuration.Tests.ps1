@@ -54,7 +54,7 @@ BeforeAll {
 
     function DeleteConfigTxtFiles()
     {
-        Get-ChildItem $(GetConfigTestDataPath) -Filter Configure*.txt -Recurse | ForEach-Object { Remove-Item $_ }
+        Get-ChildItem $(GetConfigTestDataPath) -Filter *.txt -Recurse | ForEach-Object { Remove-Item $_ }
     }
 
     function GetConfigTestDataFile([string] $fileName)
