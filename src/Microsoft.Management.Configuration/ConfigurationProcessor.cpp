@@ -599,7 +599,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         IConfigurationGroupProcessor result = setProcessor.try_as<IConfigurationGroupProcessor>();
         if (!result)
         {
-            result = *make_self<wil::details::module_count_wrapper<implementation::DefaultSetGroupProcessor>>(configurationSet);
+            result = *make_self<wil::details::module_count_wrapper<implementation::DefaultSetGroupProcessor>>(configurationSet, setProcessor);
         }
 
         return result;

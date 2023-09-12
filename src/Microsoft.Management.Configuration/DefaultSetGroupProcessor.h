@@ -8,7 +8,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // Implements the default group processing for configuration sets when the set processor doesn't handle it.
     struct DefaultSetGroupProcessor : winrt::implements<DefaultSetGroupProcessor, IConfigurationGroupProcessor>
     {
-        DefaultSetGroupProcessor(const IConfigurationSetProcessor& setProcessor);
+        DefaultSetGroupProcessor(const ConfigurationSet& set, const IConfigurationSetProcessor& setProcessor);
 
         IInspectable Group();
 
@@ -19,6 +19,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplySettingsResult> ApplyGroupSettingsAsync();
 
     private:
+        ConfigurationSet m_set;
         IConfigurationSetProcessor m_setProcessor;
     };
 }

@@ -6,13 +6,13 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    DefaultSetGroupProcessor::DefaultSetGroupProcessor(const IConfigurationSetProcessor& setProcessor) :
-        m_setProcessor(setProcessor)
+    DefaultSetGroupProcessor::DefaultSetGroupProcessor(const ConfigurationSet& set, const IConfigurationSetProcessor& setProcessor) :
+        m_set(set), m_setProcessor(setProcessor)
     {}
 
     Windows::Foundation::IInspectable DefaultSetGroupProcessor::Group()
     {
-        return m_setProcessor;
+        return m_set;
     }
 
     Windows::Foundation::IAsyncOperationWithProgress<ITestGroupSettingsResult, ITestSettingsResult> DefaultSetGroupProcessor::TestGroupSettingsAsync()
