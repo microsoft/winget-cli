@@ -176,7 +176,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::PinInstalled:
             return { type, "installed"_liv, ArgTypeCategory::None };
 
-        // Pin command
+        // Error command
         case Execution::Args::Type::ErrorInput:
             return { type, "input"_liv, ArgTypeCategory::None };
 
