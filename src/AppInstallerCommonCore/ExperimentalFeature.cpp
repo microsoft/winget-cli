@@ -40,6 +40,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFExperimentalArg>();
             case ExperimentalFeature::Feature::DirectMSI:
                 return userSettings.Get<Setting::EFDirectMSI>();
+            case ExperimentalFeature::Feature::WindowsFeature:
+                return userSettings.Get<Setting::EFWindowsFeature>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -69,6 +71,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
         case Feature::DirectMSI:
             return ExperimentalFeature{ "Direct MSI Installation", "directMSI", "https://aka.ms/winget-settings", Feature::DirectMSI };
+        case Feature::WindowsFeature:
+            return ExperimentalFeature{ "Windows Feature Dependencies", "windowsFeature", "https://aka.ms/winget-settings", Feature::WindowsFeature };
         default:
             THROW_HR(E_UNEXPECTED);
         }

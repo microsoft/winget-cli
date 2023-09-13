@@ -273,3 +273,14 @@ You can enable the feature as shown below.
        "configuration": true
    },
 ```
+
+### windowsFeature
+
+This feature enables the ability to enable Windows Feature dependencies during installation.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "windowsFeature": true
+   },
+```
