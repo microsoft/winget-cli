@@ -26,6 +26,15 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// One time teardown.
+        /// </summary>
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            WinGetSettingsHelper.ConfigureFeature("resume", false);
+        }
+
+        /// <summary>
         /// Installs a test exe installer and verifies that the checkpoint index is cleaned up.
         /// </summary>
         [Test]
@@ -67,28 +76,25 @@ namespace AppInstallerCLIE2ETests
         {
             var checkpointsDir = TestCommon.GetCheckpointsDirectory();
 
-            // If the checkpoints directory does not yet exist, set to 0. The directory should be created when the command is invoked.
-            int initialCheckpointsCount = Directory.Exists(checkpointsDir) ? Directory.GetFiles(checkpointsDir).Length : 0;
+            int initialCheckpointsCount = Directory.Exists(checkpointsDir) ? Directory.GetDirectories(checkpointsDir).Length : 0;
 
             var installResult = TestCommon.RunAICLICommand("install", "--id AppInstallerTest.WindowsFeature");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_MISSING_DEPENDENCY, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("The feature [invalidFeature] was not found."));
 
-            int actualCheckpointsCount = Directory.GetFiles(checkpointsDir).Length;
+            int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
 
             // One new checkpoint record should be created after running the install command.
             Assert.AreEqual(initialCheckpointsCount + 1, actualCheckpointsCount);
 
             var checkpointsDirectoryInfo = new DirectoryInfo(checkpointsDir);
 
-            var indexFile = checkpointsDirectoryInfo.GetFiles()
+            var checkpoint = checkpointsDirectoryInfo.GetDirectories()
              .OrderByDescending(f => f.LastWriteTime)
              .First();
 
-            var indexFileName = Path.GetFileNameWithoutExtension(indexFile.Name);
-
             // Resume output should be the same as the install result.
-            var resumeResult = TestCommon.RunAICLICommand("resume", $"-g {indexFileName}");
+            var resumeResult = TestCommon.RunAICLICommand("resume", $"-g {checkpoint.Name}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_MISSING_DEPENDENCY, resumeResult.ExitCode);
             Assert.True(resumeResult.StdOut.Contains("The feature [invalidFeature] was not found."));
         }
