@@ -17,6 +17,15 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand : BaseCommand
     {
         /// <summary>
+        /// One time setup.
+        /// </summary>
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            WinGetSettingsHelper.ConfigureFeature("windowsFeature", true);
+        }
+
+        /// <summary>
         /// Set up.
         /// </summary>
         [SetUp]

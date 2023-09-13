@@ -129,6 +129,11 @@ namespace AppInstaller::CLI::Workflow
 
     void EnableWindowsFeaturesDependencies(Execution::Context& context)
     {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::WindowsFeature))
+        {
+            return;
+        }
+
         const auto& rootDependencies = context.Get<Execution::Data::Installer>()->Dependencies;
 
         if (rootDependencies.Empty())
