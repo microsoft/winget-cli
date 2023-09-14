@@ -553,6 +553,67 @@ Describe 'Test-GroupPolicies' {
     }
 }
 
+Describe 'WindowsPackageManagerServer' {
+
+    BeforeEach {
+        $processes = Get-Process | Where-Object { $_.Name -eq "WindowsPackageManagerServer" }
+        foreach ($p in $processes)
+        {
+            Stop-Process $p
+        }
+    }
+
+    # When WindowsPackageManagerServer dies, we should not fail.
+    It 'Forced termination' {
+        $source = Get-WinGetSource -Name 'winget'
+        $source | Should -Not -BeNullOrEmpty
+        $source.Name | Should -Be 'winget'
+
+        $process = Get-Process -Name "WindowsPackageManagerServer"
+        $process | Should -Not -BeNullOrEmpty
+        $process.HasExited | Should -Be $false
+
+        Stop-Process $process
+
+        $process.HasExited | Should -Be $true
+
+        $source2 = Get-WinGetSource -Name 'winget'
+        $source2 | Should -Not -BeNullOrEmpty
+        $source2.Name | Should -Be 'winget'
+
+        $process2 = Get-Process -Name "WindowsPackageManagerServer"
+        $process2 | Should -Not -BeNullOrEmpty
+        $process2.Id | Should -Not -Be $process.Id
+    }
+
+    # The Microsoft.WinGet.Client has static proxy objects of WindowsPackageManagerServer
+    # This tests does all the Microsoft.WinGet.Client calls in a different pwsh instance.
+    It 'Graceful termination' {
+        $typeTable = [System.Management.Automation.Runspaces.TypeTable]::LoadDefaultTypeFiles()
+        $oopRunspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateOutOfProcessRunspace($typetable)
+        $oopRunspace.Open()
+        $oopPwsh = [PowerShell]::Create()
+        $oopPwsh.Runspace = $oopRunspace
+        $oopPwshPid = $oopPwsh.AddScript("`$PID").Invoke()
+        $oopPwshProcess = Get-Process -Id $oopPwshPid
+        $oopPwshProcess.HasExited | Should -Be $false
+
+        $source = $oopPwsh.AddScript("Get-WinGetSource -Name winget").Invoke()
+        $source | Should -Not -BeNullOrEmpty
+        $source.Name | Should -Be 'winget'
+
+        $wingetProcess = Get-Process -Name "WindowsPackageManagerServer"
+        $wingetProcess | Should -Not -BeNullOrEmpty
+        $wingetProcess.HasExited | Should -Be $false
+
+        $oopRunspace.Close()
+
+        Start-Sleep -Seconds 30
+        $oopPwshProcess.HasExited | Should -Be $true
+        $wingetProcess.HasExited | Should -Be $true
+    }
+}
+
 AfterAll {
     RemoveTestSource
 }

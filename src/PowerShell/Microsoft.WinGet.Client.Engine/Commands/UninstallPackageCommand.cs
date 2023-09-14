@@ -110,7 +110,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 Resources.ProgressRecordActivityUninstalling,
                 package.Name);
 
-            var operation = ManagementDeploymentFactory.Instance.GetPackageManager().UninstallPackageAsync(package, options);
+            var operation = PackageManagerWrapper.Instance.UninstallPackageAsync(package, options);
             WriteProgressAdapter adapter = new (this.PsCmdlet);
             operation.Progress = (context, progress) =>
             {

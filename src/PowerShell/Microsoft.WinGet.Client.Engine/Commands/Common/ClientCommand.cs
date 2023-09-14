@@ -47,13 +47,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         {
             if (string.IsNullOrEmpty(source))
             {
-                return ManagementDeploymentFactory.Instance.GetPackageManager().GetPackageCatalogs();
+                return PackageManagerWrapper.Instance.GetPackageCatalogs();
             }
             else
             {
                 return new List<PackageCatalogReference>()
                 {
-                    ManagementDeploymentFactory.Instance.GetPackageManager().GetPackageCatalogByName(source)
+                    PackageManagerWrapper.Instance.GetPackageCatalogByName(source)
                         ?? throw new InvalidSourceException(source),
                 };
             }

@@ -131,7 +131,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             CatalogPackage package,
             InstallOptions options)
         {
-            var operation = ManagementDeploymentFactory.Instance.GetPackageManager().InstallPackageAsync(package, options);
+            var operation = PackageManagerWrapper.Instance.InstallPackageAsync(package, options);
             return this.RegisterCallbacksAndWait(operation, string.Format(
                 Resources.ProgressRecordActivityInstalling,
                 package.Name));
@@ -141,7 +141,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             CatalogPackage package,
             InstallOptions options)
         {
-            var operation = ManagementDeploymentFactory.Instance.GetPackageManager().UpgradePackageAsync(package, options);
+            var operation = PackageManagerWrapper.Instance.UpgradePackageAsync(package, options);
             return this.RegisterCallbacksAndWait(
                 operation,
                 string.Format(

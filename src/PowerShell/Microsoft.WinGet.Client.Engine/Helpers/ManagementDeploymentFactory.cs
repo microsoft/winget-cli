@@ -64,8 +64,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Guid PackageMatchFilterIid = Guid.Parse("D981ECA3-4DE5-5AD7-967A-698C7D60FC3B");
         private static readonly Guid DownloadOptionsIid = Guid.Parse("B4D72A63-40FF-597D-A7DA-43580268DC96");
 
-        private static readonly Lazy<ManagementDeploymentFactory> Lazy = new ();
-        private PackageManager packageManager = null;
+        private static readonly Lazy<ManagementDeploymentFactory> Lazy = new (() => new ManagementDeploymentFactory());
 
         /// <summary>
         /// Initializes static members of the <see cref="ManagementDeploymentFactory"/> class.
@@ -77,6 +76,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 PackageManagerSettings settings = new PackageManagerSettings();
                 settings.SetCallerIdentifier("PowerShellInProc");
             }
+        }
+
+        private ManagementDeploymentFactory()
+        {
         }
 
         /// <summary>
@@ -91,14 +94,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Creates an instance of the <see cref="PackageManager" /> class.
         /// </summary>
         /// <returns>A <see cref="PackageManager" /> instance.</returns>
-        public PackageManager GetPackageManager()
+        public PackageManager CreatePackageManager()
         {
-            // TODO: add try catch.
-            if (this.packageManager != null)
-            {
-                return this.packageManager;
-            }
-
             return Create<PackageManager>(PackageManagerType, PackageManagerIid);
         }
 

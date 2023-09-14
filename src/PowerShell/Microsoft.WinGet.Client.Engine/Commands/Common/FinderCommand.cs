@@ -162,7 +162,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
 
             options.CompositeSearchBehavior = behavior;
-            return ManagementDeploymentFactory.Instance.GetPackageManager().CreateCompositePackageCatalog(options);
+            return PackageManagerWrapper.Instance.CreateCompositePackageCatalog(options);
         }
 
         private FindPackagesOptions GetFindPackagesOptions(uint limit)
