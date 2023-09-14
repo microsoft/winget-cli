@@ -46,9 +46,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             uint count)
             : base(psCmdlet)
         {
-#if POWERSHELL_WINDOWS
-            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
-#else
             // FinderCommand
             this.Id = id;
             this.Name = name;
@@ -61,7 +58,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Tag = tag;
             this.Command = command;
             this.Count = count;
-#endif
         }
 
         /// <summary>

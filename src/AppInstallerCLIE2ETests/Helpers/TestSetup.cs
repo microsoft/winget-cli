@@ -44,7 +44,6 @@ namespace AppInstallerCLIE2ETests.Helpers
 
             this.StaticFileRootPath = this.InitializeDirectoryParam(Constants.StaticFileRootPathParameter, Path.GetTempPath());
 
-            this.PowerShellModuleManifestPath = this.InitializeFileParam(Constants.PowerShellModulePathParameter);
             this.LocalServerCertPath = this.InitializeFileParam(Constants.LocalServerCertPathParameter);
             this.PackageCertificatePath = this.InitializeFileParam(Constants.PackageCertificatePathParameter);
             this.ExeInstallerPath = this.InitializeFileParam(Constants.ExeInstallerPathParameter);
@@ -127,11 +126,6 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the package cert path.
         /// </summary>
         public string PackageCertificatePath { get; }
-
-        /// <summary>
-        /// Gets the PowerShell module path.
-        /// </summary>
-        public string PowerShellModuleManifestPath { get; }
 
         /// <summary>
         /// Gets a value indicating whether to skip creating test source.

@@ -36,11 +36,33 @@ namespace Microsoft.WinGet.Client.Acl
             Path.GetDirectoryName(typeof(WinGetAssemblyLoadContext).Assembly.Location),
             "DirectDependencies");
 
+        private static readonly IEnumerable<string> ValidArchs = new string[] { "x86", "x64" };
+
         private static readonly WinGetAssemblyLoadContext WinGetAcl = new ();
+
+        private readonly string sharedArchDependencyPath;
 
         private WinGetAssemblyLoadContext()
             : base("WinGetAssemblyLoadContext", isCollectible: false)
         {
+            var arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE", EnvironmentVariableTarget.Process);
+            if (string.IsNullOrEmpty(arch))
+            {
+                throw new ArgumentNullException("PROCESSOR_ARCHITECTURE");
+            }
+
+            arch = arch.ToLower();
+            if (arch == "amd64")
+            {
+                arch = "x64";
+            }
+
+            if (!ValidArchs.Contains(arch))
+            {
+                throw new NotSupportedException(arch);
+            }
+
+            this.sharedArchDependencyPath = Path.Combine(SharedDependencyPath, arch);
         }
 
         /// <summary>
@@ -85,6 +107,12 @@ namespace Microsoft.WinGet.Client.Acl
                 return this.LoadFromAssemblyPath(path);
             }
 
+            path = $"{Path.Combine(this.sharedArchDependencyPath, assemblyName.Name)}.dll";
+            if (File.Exists(path))
+            {
+                return this.LoadFromAssemblyPath(path);
+            }
+
             path = Path.Combine(DirectDependencyPath, name);
             if (File.Exists(path))
             {
@@ -97,7 +125,7 @@ namespace Microsoft.WinGet.Client.Acl
         /// <inheritdoc/>
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
-            string path = Path.Combine(SharedDependencyPath, unmanagedDllName);
+            string path = Path.Combine(this.sharedArchDependencyPath, unmanagedDllName);
             if (File.Exists(path))
             {
                 return this.LoadUnmanagedDllFromPath(path);

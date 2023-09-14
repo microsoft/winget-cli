@@ -59,9 +59,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string matchOption)
             : base(psCmdlet)
         {
-#if POWERSHELL_WINDOWS
-            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
-#else
             // InstallCommand.
             this.Mode = PSEnumHelpers.ToPackageInstallMode(psInstallMode);
             this.Override = @override;
@@ -87,7 +84,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Source = source;
             this.Query = query;
             this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
-#endif
         }
 
         /// <summary>
@@ -135,7 +131,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             CatalogPackage package,
             InstallOptions options)
         {
-            var operation = PackageManager.Value.InstallPackageAsync(package, options);
+            var operation = ManagementDeploymentFactory.Instance.GetPackageManager().InstallPackageAsync(package, options);
             return this.RegisterCallbacksAndWait(operation, string.Format(
                 Resources.ProgressRecordActivityInstalling,
                 package.Name));
@@ -145,7 +141,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             CatalogPackage package,
             InstallOptions options)
         {
-            var operation = PackageManager.Value.UpgradePackageAsync(package, options);
+            var operation = ManagementDeploymentFactory.Instance.GetPackageManager().UpgradePackageAsync(package, options);
             return this.RegisterCallbacksAndWait(
                 operation,
                 string.Format(

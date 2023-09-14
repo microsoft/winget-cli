@@ -9,7 +9,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using System;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
-    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
@@ -25,9 +24,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public SourceCommand(PSCmdlet psCmdlet)
             : base(psCmdlet)
         {
-#if POWERSHELL_WINDOWS
-            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
-#endif
         }
 
         /// <summary>

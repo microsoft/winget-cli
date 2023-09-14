@@ -68,7 +68,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <returns>An <see cref="InstallOptions" /> instance.</returns>
         protected virtual InstallOptions GetInstallOptions(PackageVersionId version)
         {
-            InstallOptions options = ComObjectFactory.Value.CreateInstallOptions();
+            InstallOptions options = ManagementDeploymentFactory.Instance.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch;
             options.Force = this.Force;
             options.PackageInstallMode = this.Mode;

@@ -45,9 +45,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string matchOption)
             : base(psCmdlet)
         {
-#if POWERSHELL_WINDOWS
-            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
-#else
             // PackageCommand.
             if (psCatalogPackage != null)
             {
@@ -64,7 +61,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Source = source;
             this.Query = query;
             this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
-#endif
         }
 
         /// <summary>
@@ -89,7 +85,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             PackageUninstallMode packageUninstallMode,
             bool force)
         {
-            var options = ComObjectFactory.Value.CreateUninstallOptions();
+            var options = ManagementDeploymentFactory.Instance.CreateUninstallOptions();
             options.Force = force;
             if (this.Log != null)
             {
@@ -114,7 +110,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 Resources.ProgressRecordActivityUninstalling,
                 package.Name);
 
-            var operation = PackageManager.Value.UninstallPackageAsync(package, options);
+            var operation = ManagementDeploymentFactory.Instance.GetPackageManager().UninstallPackageAsync(package, options);
             WriteProgressAdapter adapter = new (this.PsCmdlet);
             operation.Progress = (context, progress) =>
             {

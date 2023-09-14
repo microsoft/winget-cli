@@ -13,6 +13,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Client.Engine.Properties;
 
     /// <summary>
     /// This is the base class for all of the commands in this module that use the COM APIs.
@@ -31,17 +32,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         internal ClientCommand(PSCmdlet psCmdlet)
             : base(psCmdlet)
         {
+#if POWERSHELL_WINDOWS
+            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
+#endif
         }
-
-        /// <summary>
-        /// Gets the instance of the <see cref="ComObjectFactory" /> class.
-        /// </summary>
-        protected static Lazy<ComObjectFactory> ComObjectFactory { get; } = new ();
-
-        /// <summary>
-        /// Gets the instance of the <see cref="PackageManager" /> class.
-        /// </summary>
-        protected static Lazy<PackageManager> PackageManager { get; } = new (() => ComObjectFactory.Value.CreatePackageManager());
 
         /// <summary>
         /// Retrieves the specified source or all sources if <paramref name="source" /> is null.
@@ -53,13 +47,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         {
             if (string.IsNullOrEmpty(source))
             {
-                return PackageManager.Value.GetPackageCatalogs();
+                return ManagementDeploymentFactory.Instance.GetPackageManager().GetPackageCatalogs();
             }
             else
             {
                 return new List<PackageCatalogReference>()
                 {
-                    PackageManager.Value.GetPackageCatalogByName(source)
+                    ManagementDeploymentFactory.Instance.GetPackageManager().GetPackageCatalogByName(source)
                         ?? throw new InvalidSourceException(source),
                 };
             }

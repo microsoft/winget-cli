@@ -344,11 +344,14 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
-    displayName: 'Copy PowerShell Module Files'
+    displayName: 'Copy native binaries for Microsoft.WinGet.Client'
     inputs:
-      SourceFolder: '$(buildOutDir)\PowerShell'
-      TargetFolder: '$(artifactsDir)\PowerShell'
-    condition: succeededOrFailed()
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll
+          Microsoft.Management.Configuration.Projection\Microsoft.Management.Configuration.Projection.dll
+      TargetFolder: $(Build.ArtifactStagingDirectory)\WinGetPowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
 
   - task: CopyFiles@2
     displayName: 'Copy PowerShell AnyCPU Module Files'

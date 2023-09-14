@@ -12,6 +12,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Extensions;
+    using Microsoft.WinGet.Client.Engine.Helpers;
 
     /// <summary>
     /// This is the base class for commands which operate on a specific package and version i.e.,
@@ -76,7 +77,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         {
             foreach (PackageMatchField field in new PackageMatchField[] { PackageMatchField.Id, PackageMatchField.Name, PackageMatchField.Moniker })
             {
-                var selector = ComObjectFactory.Value.CreatePackageMatchFilter();
+                var selector = ManagementDeploymentFactory.Instance.CreatePackageMatchFilter();
                 selector.Field = field;
                 selector.Value = value ?? string.Empty;
                 selector.Option = match;

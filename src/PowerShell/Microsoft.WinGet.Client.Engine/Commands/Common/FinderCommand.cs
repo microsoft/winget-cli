@@ -14,6 +14,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Attributes;
     using Microsoft.WinGet.Client.Engine.Exceptions;
+    using Microsoft.WinGet.Client.Engine.Helpers;
 
     /// <summary>
     /// This is the base class for all commands that might need to search for a package. It contains an initial
@@ -99,7 +100,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             PackageFieldMatchOption match,
             string value)
         {
-            var selector = ComObjectFactory.Value.CreatePackageMatchFilter();
+            var selector = ManagementDeploymentFactory.Instance.CreatePackageMatchFilter();
             selector.Field = PackageMatchField.CatalogDefault;
             selector.Value = value ?? string.Empty;
             selector.Option = match;
@@ -114,7 +115,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         {
             if (value != null)
             {
-                var filter = ComObjectFactory.Value.CreatePackageMatchFilter();
+                var filter = ManagementDeploymentFactory.Instance.CreatePackageMatchFilter();
                 filter.Field = field;
                 filter.Value = value;
                 filter.Option = match;
@@ -153,7 +154,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
         private PackageCatalogReference GetPackageCatalogReference(CompositeSearchBehavior behavior)
         {
-            CreateCompositePackageCatalogOptions options = ComObjectFactory.Value.CreateCreateCompositePackageCatalogOptions();
+            CreateCompositePackageCatalogOptions options = ManagementDeploymentFactory.Instance.CreateCreateCompositePackageCatalogOptions();
             IReadOnlyList<PackageCatalogReference> references = GetPackageCatalogReferences(this.Source);
             for (var i = 0; i < references.Count; i++)
             {
@@ -161,12 +162,12 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
 
             options.CompositeSearchBehavior = behavior;
-            return PackageManager.Value.CreateCompositePackageCatalog(options);
+            return ManagementDeploymentFactory.Instance.GetPackageManager().CreateCompositePackageCatalog(options);
         }
 
         private FindPackagesOptions GetFindPackagesOptions(uint limit)
         {
-            var options = ComObjectFactory.Value.CreateFindPackagesOptions();
+            var options = ManagementDeploymentFactory.Instance.CreateFindPackagesOptions();
             this.SetQueryInFindPackagesOptions(ref options, this.MatchOption, this.QueryAsJoinedString);
             this.AddAttributedFiltersToFindPackagesOptions(ref options, this.MatchOption);
             options.ResultLimit = limit;
