@@ -28,6 +28,10 @@
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Octokit" Version="4.0.3" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
