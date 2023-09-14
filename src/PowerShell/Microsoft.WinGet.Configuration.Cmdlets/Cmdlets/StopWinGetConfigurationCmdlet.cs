@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="CompleteWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="StopWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -11,15 +11,12 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
     /// <summary>
-    /// Complete-WinGetConfiguration.
-    /// Completes a configuration previously started by Start-WinGetConfiguration.
-    /// Waits for completion.
+    /// Stop-WinGetConfiguration.
+    /// Cancels a configuration previously started by Start-WinGetConfiguration.
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Complete, "WinGetConfiguration")]
-    public sealed class CompleteWinGetConfigurationCmdlet : PSCmdlet
+    [Cmdlet(VerbsLifecycle.Stop, "WinGetConfiguration")]
+    public sealed class StopWinGetConfigurationCmdlet : PSCmdlet
     {
-        private ConfigurationCommand runningCommand = null;
-
         /// <summary>
         /// Gets or sets the configuration task.
         /// </summary>
@@ -35,20 +32,8 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void ProcessRecord()
         {
-            this.runningCommand = new ConfigurationCommand(this);
-            this.runningCommand.Continue(this.ConfigurationJob);
-        }
-
-        /// <summary>
-        /// Interrupts currently running code within the command.
-        /// </summary>
-        protected override void StopProcessing()
-        {
-            if (this.runningCommand != null)
-            {
-                this.runningCommand.Cancel(this.ConfigurationJob);
-                this.runningCommand.Cancel();
-            }
+            var configCommand = new ConfigurationCommand(this);
+            configCommand.Cancel(this.ConfigurationJob);
         }
     }
 }
