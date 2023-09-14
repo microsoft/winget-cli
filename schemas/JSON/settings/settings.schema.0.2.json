@@ -241,6 +241,11 @@
           "description": "Enable support for configuration",
           "type": "boolean",
           "default": false
+        },
+        "reboot": {
+          "description": "Enable support for initiating a reboot",
+          "type": "boolean",
+          "default": false
         }
       }
     }

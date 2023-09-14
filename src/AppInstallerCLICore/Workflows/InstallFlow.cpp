@@ -15,6 +15,7 @@
 #include "WorkflowBase.h"
 #include "DependenciesFlow.h"
 #include "PromptFlow.h"
+#include "winget/Reboot.h"
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDeployment.h>
 #include <AppInstallerSynchronization.h>
@@ -73,6 +74,18 @@ namespace AppInstaller::CLI::Workflow
             switch (arg)
             {
             case UnsupportedArgumentEnum::Location:
+                return true;
+            default:
+                return false;
+            }
+        }
+
+        bool ShouldInitiateReboot(HRESULT hr)
+        {
+            switch (hr)
+            {
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH:
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
                 return true;
             default:
                 return false;
@@ -654,6 +667,7 @@ namespace AppInstaller::CLI::Workflow
         context << Workflow::ReportDependencies(m_dependenciesReportMessage);
 
         bool allSucceeded = true;
+        bool shouldReboot = false;
         size_t packagesCount = context.Get<Execution::Data::PackageSubContexts>().size();
         size_t packagesProgress = 0;
 
@@ -719,7 +733,14 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
 
-                if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), currentContext.GetTerminationHR()))
+                HRESULT currentContextTerminationHR = currentContext.GetTerminationHR();
+
+                if (ShouldInitiateReboot(currentContextTerminationHR))
+                {
+                    shouldReboot = true;
+                }
+
+                if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), currentContextTerminationHR))
                 {
                     allSucceeded = false;
                     if (m_stopOnFailure)
@@ -728,6 +749,11 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
             }
+        }
+
+        if (shouldReboot)
+        {
+            Workflow::InitiateRebootIfApplicable(context, true);
         }
 
         if (!allSucceeded)
@@ -897,6 +923,34 @@ namespace AppInstaller::CLI::Workflow
             {
                 version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, itr->second);
             }
+        }
+    }
+
+    void InitiateRebootIfApplicable(Execution::Context& context, bool shouldRebootOverride)
+    {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot))
+        {
+            return;
+        }
+
+        if (!context.Args.Contains(Execution::Args::Type::AllowReboot))
+        {
+            AICLI_LOG(CLI, Info, << "No reboot flag found; skipping reboot flow...");
+            return;
+        }
+
+        if (shouldRebootOverride || ShouldInitiateReboot(context.GetTerminationHR()))
+        {
+            if (!Reboot::HasRebootPrivilege())
+            {
+                AICLI_LOG(CLI, Info, << "Current process does not have reboot privilege.");
+                context.Reporter.Error() << Resource::String::NoRebootPrivilegeError << std::endl;
+                return;
+            }
+
+            AICLI_LOG(CLI, Info, << "Install requires reboot. Initiating reboot.");
+            context.Reporter.Info() << Resource::String::InitiatingReboot << std::endl;
+            THROW_LAST_ERROR_IF(Reboot::InitiateReboot());
         }
     }
 }

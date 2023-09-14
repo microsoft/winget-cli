@@ -2083,4 +2083,13 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
     <value>Enable Windows Package Manager Configuration</value>
   </data>
+  <data name="NoRebootPrivilegeError" xml:space="preserve">
+    <value>The current user does not have the privilege to initiate a reboot.</value>
+  </data>
+  <data name="AllowRebootArgumentDescription" xml:space="preserve">
+    <value>Allows a reboot if applicable</value>
+  </data>
+  <data name="InitiatingReboot" xml:space="preserve">
+    <value>Initating reboot to complete installation...</value>
+  </data>
 </root>

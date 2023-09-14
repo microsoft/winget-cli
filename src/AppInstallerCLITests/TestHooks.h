@@ -71,6 +71,11 @@ namespace AppInstaller
         void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(Utility::LocIndString* displayName);
         void TestHook_SetWindowsFeatureGetRestartStatusResult_Override(AppInstaller::WindowsFeature::DismRestartType* restartType);
     }
+
+    namespace Reboot
+    {
+        void TestHook_SetHasRebootPrivilegeResult_Override(bool* status);
+    }
 }
 
 namespace TestHook
@@ -227,5 +232,21 @@ namespace TestHook
 
     private:
         std::vector<AppInstaller::Repository::ExtractedIconInfo> m_extractedIcons;
+    };
+
+    struct SetHasRebootPrivilegeResult_Override
+    {
+        SetHasRebootPrivilegeResult_Override(bool status) : m_status(status)
+        {
+            AppInstaller::Reboot::TestHook_SetHasRebootPrivilegeResult_Override(&m_status);
+        }
+
+        ~SetHasRebootPrivilegeResult_Override()
+        {
+            AppInstaller::Reboot::TestHook_SetHasRebootPrivilegeResult_Override(nullptr);
+        }
+
+    private:
+        bool m_status;
     };
 }

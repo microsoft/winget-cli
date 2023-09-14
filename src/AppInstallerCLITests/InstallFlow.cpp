@@ -1204,3 +1204,68 @@ TEST_CASE("InstallFlow_InstallAcquiresLock", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/custom") != std::string::npos);
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
+
+TEST_CASE("InstallFlow_InstallMultipleWithReboot", "[InstallFlow][workflow][MultiQuery][reboot]")
+{
+    TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFReboot>(true);
+
+    TestHook::SetHasRebootPrivilegeResult_Override hasRebootPrivilegeResultOverride(false);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    OverrideForMSIX(context);
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestInstaller_Exe_ExpectedReturnCodes, TSR::TestInstaller_Msix }), true);
+
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe_ExpectedReturnCodes.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+    context.Args.AddArg(Execution::Args::Type::AllowReboot);
+
+    context.Override({ ShellExecuteInstallImpl, [&](TestContext& context)
+    {
+        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH
+        context.Add<Data::OperationReturnCode>(9);
+    } });
+
+    InstallCommand installCommand({});
+    installCommand.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NoRebootPrivilegeError).get()) != std::string::npos);
+    REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlow_InstallWithReboot_NoPrivilege", "[InstallFlow][workflow][reboot]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFReboot>(true);
+
+    TestHook::SetHasRebootPrivilegeResult_Override hasRebootPrivilegeResultOverride(false);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ExpectedReturnCodes.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::AllowReboot);
+
+    context.Override({ ShellExecuteInstallImpl, [&](TestContext& context)
+    {
+        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL
+        context.Add<Data::OperationReturnCode>(10);
+    } });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NoRebootPrivilegeError).get()) != std::string::npos);
+}

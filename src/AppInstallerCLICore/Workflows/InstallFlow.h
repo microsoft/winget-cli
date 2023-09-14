@@ -214,4 +214,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: PackageVersion?, Manifest, Installer, CorrelatedAppsAndFeaturesEntries?
     // Outputs: None
     void RecordInstall(Execution::Context& context);
+
+    // Initiates a reboot based on the return code of the installer.
+    // Required Args: None
+    // Inputs: TerminationHR
+    // Outputs: None
+    void InitiateRebootIfApplicable(Execution::Context& context, bool shouldRebootOverride = false);
 }

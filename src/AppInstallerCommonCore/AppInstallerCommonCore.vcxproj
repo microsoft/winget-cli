@@ -428,6 +428,7 @@
     <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h" />
     <ClInclude Include="Public\winget\Pin.h" />
+    <ClInclude Include="Public\winget\Reboot.h" />
     <ClInclude Include="Public\winget\Regex.h" />
     <ClInclude Include="Public\winget\PathVariable.h" />
     <ClInclude Include="Public\winget\PortableARPEntry.h" />
@@ -486,6 +487,7 @@
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="Pin.cpp" />
     <ClCompile Include="Progress.cpp" />
+    <ClCompile Include="Reboot.cpp" />
     <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">

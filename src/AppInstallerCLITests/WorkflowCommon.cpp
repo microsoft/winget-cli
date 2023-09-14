@@ -204,6 +204,16 @@ namespace TestCommon
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
             });
 
+        const TestSourceResult TestInstaller_Exe_ExpectedReturnCodes(
+            "TestExeInstallerWithExpectedReturnCodes"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_ExpectedReturnCodes.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(std::vector<Manifest>{ manifest }, source),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.ExpectedReturnCodes")));
+            });
+
         const TestSourceResult TestInstaller_Exe_UnknownVersion(
             "TestExeInstallerWithUnknownVersion"sv,
             [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
@@ -635,6 +645,7 @@ namespace TestCommon
             std::filesystem::path temp = std::filesystem::temp_directory_path();
             temp /= "TestMsixInstalled.txt";
             std::ofstream file(temp, std::ofstream::out);
+            context.Add<Data::OperationReturnCode>(9);
 
             if (context.Contains(Execution::Data::InstallerPath))
             {

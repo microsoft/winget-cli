@@ -50,6 +50,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Rename),
             Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
+            Argument::ForType(Args::Type::AllowReboot),
         };
     }
 
@@ -114,6 +115,8 @@ namespace AppInstaller::CLI
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
                 Workflow::InstallSinglePackage;
+
+            Workflow::InitiateRebootIfApplicable(context);
         }
         else
         {
