@@ -138,6 +138,7 @@ namespace AppInstallerCLIE2ETests
             public const int S_FALSE = 1;
             public const int ERROR_FILE_NOT_FOUND = unchecked((int)0x80070002);
             public const int ERROR_PATH_NOT_FOUND = unchecked((int)0x80070003);
+            public const int E_INVALIDARG = unchecked((int)0x80070057);
             public const int ERROR_NO_RANGES_PROCESSED = unchecked((int)0x80070138);
             public const int OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY = unchecked((int)0x8051100F);
             public const int ERROR_OLD_WIN_VERSION = unchecked((int)0x8007047E);
