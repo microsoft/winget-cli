@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="StartWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="TestWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -11,14 +11,14 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
     /// <summary>
-    /// Start-WinGetConfiguration.
-    /// Start to apply the configuration.
-    /// Does not wait for completion.
+    /// Test-WinGetConfiguration
+    /// Tests configuration.
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Start, "WinGetConfiguration")]
-    public sealed class StartWinGetConfigurationCmdlet : PSCmdlet
+    [Cmdlet(VerbsDiagnostic.Test, "WinGetConfiguration")]
+    public class TestWinGetConfigurationCmdlet : PSCmdlet
     {
         private bool acceptedAgreements = false;
+        private ConfigurationCommand runningCommand = null;
 
         /// <summary>
         /// Gets or sets the configuration set.
@@ -41,18 +41,29 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void BeginProcessing()
         {
-            this.acceptedAgreements = ConfigurationCommand.ConfirmConfigurationProcessing(this, this.AcceptConfigurationAgreements.ToBool(), true);
+            this.acceptedAgreements = ConfigurationCommand.ConfirmConfigurationProcessing(this, this.AcceptConfigurationAgreements.ToBool(), false);
         }
 
         /// <summary>
-        /// Starts to apply the configuration and wait for it to complete.
+        /// Test configuration.
         /// </summary>
         protected override void ProcessRecord()
         {
             if (this.acceptedAgreements)
             {
-                var configCommand = new ConfigurationCommand(this);
-                configCommand.StartApply(this.Set);
+                this.runningCommand = new ConfigurationCommand(this);
+                this.runningCommand.Test(this.Set);
+            }
+        }
+
+        /// <summary>
+        /// Interrupts currently running code within the command.
+        /// </summary>
+        protected override void StopProcessing()
+        {
+            if (this.runningCommand != null)
+            {
+                this.runningCommand.Cancel();
             }
         }
     }
