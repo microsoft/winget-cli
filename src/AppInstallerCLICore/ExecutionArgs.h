@@ -107,6 +107,9 @@ namespace AppInstaller::CLI::Execution
             BlockingPin,
             PinInstalled,
 
+            // Error command
+            ErrorInput,
+
             // Configuration
             ConfigurationFile,
             ConfigurationAcceptWarning,

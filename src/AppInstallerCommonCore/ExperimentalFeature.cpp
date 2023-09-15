@@ -40,6 +40,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFExperimentalArg>();
             case ExperimentalFeature::Feature::DirectMSI:
                 return userSettings.Get<Setting::EFDirectMSI>();
+            case ExperimentalFeature::Feature::WindowsFeature:
+                return userSettings.Get<Setting::EFWindowsFeature>();
             case ExperimentalFeature::Feature::Reboot:
                 return userSettings.Get<Setting::EFReboot>();
             default:
@@ -71,6 +73,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
         case Feature::DirectMSI:
             return ExperimentalFeature{ "Direct MSI Installation", "directMSI", "https://aka.ms/winget-settings", Feature::DirectMSI };
+        case Feature::WindowsFeature:
+            return ExperimentalFeature{ "Windows Feature Dependencies", "windowsFeature", "https://aka.ms/winget-settings", Feature::WindowsFeature };
         case Feature::Reboot:
             return ExperimentalFeature{ "Reboot", "reboot", "https://aka.ms/winget-settings", Feature::Reboot };
         default:

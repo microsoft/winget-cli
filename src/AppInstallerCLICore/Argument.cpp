@@ -178,6 +178,10 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::PinInstalled:
             return { type, "installed"_liv, ArgTypeCategory::None };
 
+        // Error command
+        case Execution::Args::Type::ErrorInput:
+            return { type, "input"_liv, ArgTypeCategory::None };
+
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:
             return { type, "file"_liv, 'f' };

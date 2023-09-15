@@ -54,7 +54,7 @@ BeforeAll {
 
     function DeleteConfigTxtFiles()
     {
-        Get-ChildItem $(GetConfigTestDataPath) -Filter Configure*.txt -Recurse | ForEach-Object { Remove-Item $_ }
+        Get-ChildItem $(GetConfigTestDataPath) -Filter *.txt -Recurse | ForEach-Object { Remove-Item $_ }
     }
 
     function GetConfigTestDataFile([string] $fileName)
@@ -293,6 +293,46 @@ Describe 'Get configuration' {
     It 'File doesnt exit' {
         $testFile = "c:\dir\fakeFile.txt"
         { Get-WinGetConfiguration -File $testFile } | Should -Throw $testFile
+    }
+
+    It 'Invalid file' {
+        $testFile = GetConfigTestDataFile "Empty.yml"
+        { Get-WinGetConfiguration -File $testFile } | Should -Throw "*0x8A15C002*"
+    }
+
+    It 'Missing property' {
+        $testFile = GetConfigTestDataFile "NotConfig.yml"
+        { Get-WinGetConfiguration -File $testFile } | Should -Throw "*0x8A15C00E*properties*missing*"
+    }
+
+    It 'Missing configurationVersion' {
+        $testFile = GetConfigTestDataFile "NoVersion.yml"
+        { Get-WinGetConfiguration -File $testFile } | Should -Throw "*0x8A15C00E*configurationVersion*missing*"
+    }
+
+    It 'Unknown version' {
+        $testFile = GetConfigTestDataFile "UnknownVersion.yml"
+        { Get-WinGetConfiguration -File $testFile } | Should -Throw "*0x8A15C004*Configuration file version*is not known.*"
+    }
+
+    It 'Resource wrong type' {
+        $testFile = GetConfigTestDataFile "ResourcesNotASequence.yml"
+        { Get-WinGetConfiguration -File $testFile } | Should -Throw "*0x8A15C003*resources*wrong type*"
+    }
+
+    It 'Unit wrong type' {
+        $testFile = GetConfigTestDataFile "UnitNotAMap.yml"
+        { Get-WinGetConfiguration -File $testFile } | Should -Throw "*0x8A15C003*resources*0*wrong type*"
+    }
+
+    It 'No resource name' {
+        $testFile = GetConfigTestDataFile "NoResourceName.yml"
+        { Get-WinGetConfiguration -File $testFile } | Should -Throw "*0x8A15C00D*resource*invalid value*Module/*"
+    }
+
+    It 'Module mismatch' {
+        $testFile = GetConfigTestDataFile "ModuleMismatch.yml"
+        { Get-WinGetConfiguration -File $testFile } | Should -Throw "*0x8A15C00D*invalid value*DifferentModule*"
     }
 }
 
@@ -639,6 +679,161 @@ Describe 'Start|Complete-WinGetConfiguration' {
 
         $expectedFile = Join-Path $(GetConfigTestDataPath) "DependentResources_Failure.txt"
         Test-Path $expectedFile | Should -Be $false
+    }
+}
+
+Describe 'Test-WinGetConfiguration' {
+
+    BeforeAll {
+        DeleteConfigTxtFiles
+    }
+
+    It 'Negative' {
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Test-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Negative"
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].TestResult | Should -Be "Negative"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+    }
+
+    It 'Positive' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "Configure_TestRepo.txt"
+        Set-Content -Path $expectedFile -Value "Contents!" -NoNewline
+
+        $result = Test-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Positive"
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].TestResult | Should -Be "Positive"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+    }
+
+    It 'Piped' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $result = Get-WinGetConfiguration -File $testFile | Test-WinGetConfiguration -AcceptConfigurationAgreements
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Negative"
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].TestResult | Should -Be "Negative"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+    }
+
+    It 'Positional' {
+        DeleteConfigTxtFiles
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Test-WinGetConfiguration -AcceptConfigurationAgreements $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Negative"
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].TestResult | Should -Be "Negative"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+    }
+
+    It "Failed" {
+        $testFile = GetConfigTestDataFile "IndependentResources_OneFailure.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Test-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.TestResult | Should -Be "Failed"
+        $result.UnitResults.Count | Should -Be 2
+        $result.UnitResults[0].TestResult | Should -Be "Failed"
+        $result.UnitResults[0].ResultCode | Should -Be -1978285819
+        $result.UnitResults[1].TestResult | Should -Be "Negative"
+        $result.UnitResults[1].ResultCode | Should -Be 0
+    }
+}
+
+Describe 'Confirm-WinGetConfiguration' {
+
+    It 'Duplicate Identifiers' {
+        $testFile = GetConfigTestDataFile "DuplicateIdentifiers.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Confirm-WinGetConfiguration -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be -1978286074
+        $result.UnitResults.Count | Should -Be 3
+        $result.UnitResults[0].ResultCode | Should -Be -1978286074
+        $result.UnitResults[1].ResultCode | Should -Be -1978286074
+        $result.UnitResults[2].ResultCode | Should -Be 0
+    }
+
+    It 'Missing dependency' {
+        $testFile = GetConfigTestDataFile "MissingDependency.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Confirm-WinGetConfiguration -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be -1978286073
+        $result.UnitResults.Count | Should -Be 3
+        $result.UnitResults[0].ResultCode | Should -Be 0
+        $result.UnitResults[1].ResultCode | Should -Be 0
+        $result.UnitResults[2].ResultCode | Should -Be -1978286073
+    }
+
+    It 'Dependency cycle' {
+        $testFile = GetConfigTestDataFile "DependencyCycle.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Confirm-WinGetConfiguration -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be -1978286068
+        $result.UnitResults.Count | Should -Be 3
+        $result.UnitResults[0].ResultCode | Should -Be -1978286072
+        $result.UnitResults[1].ResultCode | Should -Be -1978286072
+        $result.UnitResults[2].ResultCode | Should -Be 0
+    }
+
+    It 'No issue' {
+        $testFile = GetConfigTestDataFile "PSGallery_NoSettings.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Confirm-WinGetConfiguration -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+    }
+
+    It 'Piped' {
+        $testFile = GetConfigTestDataFile "DuplicateIdentifiers.yml"
+        $result = Get-WinGetConfiguration -File $testFile | Confirm-WinGetConfiguration
+        $result.UnitResults.Count | Should -Be 3
+        $result.UnitResults[0].ResultCode | Should -Be -1978286074
+        $result.UnitResults[1].ResultCode | Should -Be -1978286074
+        $result.UnitResults[2].ResultCode | Should -Be 0
+    }
+
+    It 'Positional' {
+        $testFile = GetConfigTestDataFile "DuplicateIdentifiers.yml"
+        $set = Get-WinGetConfiguration $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Confirm-WinGetConfiguration $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be -1978286074
+        $result.UnitResults.Count | Should -Be 3
+        $result.UnitResults[0].ResultCode | Should -Be -1978286074
+        $result.UnitResults[1].ResultCode | Should -Be -1978286074
+        $result.UnitResults[2].ResultCode | Should -Be 0
     }
 }
 

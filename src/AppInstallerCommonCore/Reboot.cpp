@@ -33,12 +33,11 @@ namespace AppInstaller::Reboot
             return false;
         }
 
-        // Get the LUID for the shutdown privilege. 
+        // Get the shutdown privilege for this process. 
         THROW_IF_WIN32_BOOL_FALSE(LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &pTokenPrivileges.Privileges[0].Luid));
         pTokenPrivileges.PrivilegeCount = 1;
         pTokenPrivileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
-        // Get the shutdown privilege for this process. 
         THROW_IF_WIN32_BOOL_FALSE(AdjustTokenPrivileges(hToken.get(), FALSE, &pTokenPrivileges, 0, (PTOKEN_PRIVILEGES)NULL, 0));
 
         // If the token does not have the privilege, GetLastError will return ERROR_NOT_ALL_ASSIGNED
