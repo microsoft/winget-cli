@@ -90,6 +90,12 @@
     <ClCompile Include="DefaultSetGroupProcessor.cpp">
       <Filter>Internals</Filter>
     </ClCompile>
+    <ClCompile Include="TestGroupSettingsResult.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="TestSettingsResult.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -187,6 +193,12 @@
       <Filter>Parser</Filter>
     </ClInclude>
     <ClInclude Include="DefaultSetGroupProcessor.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="TestGroupSettingsResult.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="TestSettingsResult.h">
       <Filter>Internals</Filter>
     </ClInclude>
   </ItemGroup>

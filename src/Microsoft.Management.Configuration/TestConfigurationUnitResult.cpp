@@ -6,6 +6,15 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    void TestConfigurationUnitResult::Initialize(const ITestSettingsResult& result)
+    {
+        m_unit = result.Unit();
+        THROW_HR_IF(E_POINTER, !m_unit);
+        m_testResult = result.TestResult();
+        m_resultInformation = result.ResultInformation();
+        THROW_HR_IF(E_POINTER, !m_resultInformation);
+    }
+
     void TestConfigurationUnitResult::Unit(const ConfigurationUnit& unit)
     {
         m_unit = unit;

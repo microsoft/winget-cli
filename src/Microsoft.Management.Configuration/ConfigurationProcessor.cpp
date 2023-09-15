@@ -107,12 +107,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 static AttachWilFailureCallback s_callbackAttach;
             }
         };
-
-        // Specifies the set of intents that should execute during a Test request
-        bool ShouldTestDuringTest(ConfigurationUnitIntent intent)
-        {
-            return intent != ConfigurationUnitIntent::Inform;
-        }
     }
 
     ConfigurationProcessor::ConfigurationProcessor()
@@ -493,9 +487,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             progress.Callback([testOperation]() { testOperation.Cancel(); });
 
             // Forward unit result progress to caller
-            testOperation.Progress([&](const ITestGroupSettingsResult&, const ITestSettingsResult& unitResult)
+            testOperation.Progress([&](const auto&, const ITestSettingsResult& unitResult)
                 {
-                    auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>(unitResult);
+                    auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
+                    testResult->Initialize(unitResult);
                     progress.Progress(*testResult);
                 });
 
@@ -504,16 +499,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             // Place all results from the processor into our result
             for (const ITestSettingsResult& unitResult : testResult.UnitResults())
             {
-                auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>(unitResult);
+                auto testUnitResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
+                testUnitResult->Initialize(unitResult);
 
                 m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(
                     configurationSet.InstanceIdentifier(),
-                    testResult->Unit(),
+                    testUnitResult->Unit(),
                     ConfigurationUnitIntent::Assert,
                     TelemetryTraceLogger::TestAction,
-                    testResult->ResultInformation());
+                    testUnitResult->ResultInformation());
 
-                result->AppendUnitResult(*testResult);
+                result->AppendUnitResult(*testUnitResult);
             }
 
             m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForTest(*winrt::get_self<implementation::ConfigurationSet>(configurationSet), *result);
@@ -599,7 +595,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         IConfigurationGroupProcessor result = setProcessor.try_as<IConfigurationGroupProcessor>();
         if (!result)
         {
-            result = *make_self<wil::details::module_count_wrapper<implementation::DefaultSetGroupProcessor>>(configurationSet, setProcessor);
+            auto groupProcessor = make_self<wil::details::module_count_wrapper<implementation::DefaultSetGroupProcessor>>();
+            groupProcessor->Initialize(configurationSet, setProcessor, m_threadGlobals);
+            result = *groupProcessor;
         }
 
         return result;
