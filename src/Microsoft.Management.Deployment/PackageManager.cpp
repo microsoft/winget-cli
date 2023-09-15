@@ -438,6 +438,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::SkipDependencies);
             }
+
+            if (options.AllowReboot())
+            {
+                context->Args.AddArg(Execution::Args::Type::AllowReboot);
+            }
         }
         else
         {

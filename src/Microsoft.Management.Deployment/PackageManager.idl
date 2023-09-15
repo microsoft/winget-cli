@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(7)]
+    [contractversion(8)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -892,6 +892,12 @@ namespace Microsoft.Management.Deployment
 
             /// The package installer type.
             PackageInstallerType InstallerType;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 8)]
+        {
+            // Allow a reboot to complete an installation if applicable.
+            Boolean AllowReboot;
         }
     }
 

@@ -44,6 +44,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void AcceptPackageAgreements(bool value);
         bool SkipDependencies();
         void SkipDependencies(bool value);
+        bool AllowReboot();
+        void AllowReboot(bool value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -65,6 +67,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool m_force = false;
         bool m_acceptPackageAgreements = true;
         bool m_skipDependencies = false;
+        bool m_allowReboot = false;
 #endif
     };
 }
