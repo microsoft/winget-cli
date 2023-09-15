@@ -12,9 +12,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         TestConfigurationUnitResult() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void Initialize(const ITestSettingsResult& result);
-
-        void Unit(const ConfigurationUnit& unit);
+        void Initialize(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation);
         void ResultInformation(const IConfigurationUnitResultInformation& value);
         void TestResult(ConfigurationTestResult value);
 #endif
