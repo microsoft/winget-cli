@@ -115,8 +115,6 @@ namespace AppInstaller::CLI
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
                 Workflow::InstallSinglePackage;
-
-            Workflow::InitiateRebootIfApplicable(context);
         }
         else
         {

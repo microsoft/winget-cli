@@ -80,18 +80,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        bool ShouldInitiateReboot(HRESULT hr)
-        {
-            switch (hr)
-            {
-            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH:
-            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
-                return true;
-            default:
-                return false;
-            }
-        }
-
         Execution::Args::Type GetUnsupportedArgumentType(UnsupportedArgumentEnum unsupportedArgument)
         {
             Execution::Args::Type execArg;
@@ -165,6 +153,46 @@ namespace AppInstaller::CLI::Workflow
             HRESULT HResult;
             Resource::StringId Message;
         };
+
+        bool ShouldInitiateReboot(HRESULT hr)
+        {
+            switch (hr)
+            {
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH:
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
+                return true;
+            default:
+                return false;
+            }
+        }
+
+        void InitiateRebootIfApplicable(Execution::Context& context, bool shouldRebootOverride = false)
+        {
+            if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot))
+            {
+                return;
+            }
+
+            if (!context.Args.Contains(Execution::Args::Type::AllowReboot))
+            {
+                AICLI_LOG(CLI, Info, << "No reboot flag found; skipping reboot flow...");
+                return;
+            }
+
+            if (shouldRebootOverride || ShouldInitiateReboot(context.GetTerminationHR()))
+            {
+                if (!Reboot::HasRebootPrivilege())
+                {
+                    AICLI_LOG(CLI, Info, << "Current process does not have reboot privilege.");
+                    context.Reporter.Error() << Resource::String::NoRebootPrivilegeError << std::endl;
+                    return;
+                }
+
+                AICLI_LOG(CLI, Info, << "Install requires reboot. Initiating reboot.");
+                context.Reporter.Info() << Resource::String::InitiatingReboot << std::endl;
+                THROW_LAST_ERROR_IF(Reboot::InitiateReboot());
+            }
+        }
     }
 
     namespace details
@@ -588,6 +616,8 @@ namespace AppInstaller::CLI::Workflow
             Workflow::InstallDependencies <<
             Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller;
+
+        InitiateRebootIfApplicable(context);
     }
 
     void EnsureSupportForInstall(Execution::Context& context)
@@ -753,7 +783,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (shouldReboot)
         {
-            Workflow::InitiateRebootIfApplicable(context, true);
+           InitiateRebootIfApplicable(context, true);
         }
 
         if (!allSucceeded)
@@ -923,34 +953,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, itr->second);
             }
-        }
-    }
-
-    void InitiateRebootIfApplicable(Execution::Context& context, bool shouldRebootOverride)
-    {
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot))
-        {
-            return;
-        }
-
-        if (!context.Args.Contains(Execution::Args::Type::AllowReboot))
-        {
-            AICLI_LOG(CLI, Info, << "No reboot flag found; skipping reboot flow...");
-            return;
-        }
-
-        if (shouldRebootOverride || ShouldInitiateReboot(context.GetTerminationHR()))
-        {
-            if (!Reboot::HasRebootPrivilege())
-            {
-                AICLI_LOG(CLI, Info, << "Current process does not have reboot privilege.");
-                context.Reporter.Error() << Resource::String::NoRebootPrivilegeError << std::endl;
-                return;
-            }
-
-            AICLI_LOG(CLI, Info, << "Install requires reboot. Initiating reboot.");
-            context.Reporter.Info() << Resource::String::InitiatingReboot << std::endl;
-            THROW_LAST_ERROR_IF(Reboot::InitiateReboot());
         }
     }
 }

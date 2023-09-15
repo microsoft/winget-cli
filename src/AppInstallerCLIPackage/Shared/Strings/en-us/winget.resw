@@ -2090,6 +2090,6 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Allows a reboot if applicable</value>
   </data>
   <data name="InitiatingReboot" xml:space="preserve">
-    <value>Initating reboot to complete installation...</value>
+    <value>Initiating reboot to complete installation...</value>
   </data>
 </root>

@@ -341,7 +341,5 @@ namespace AppInstaller::CLI::Workflow
             SearchSourceForSingle <<
             SelectSinglePackageVersionForInstallOrUpgrade(m_operationType) <<
             InstallSinglePackage;
-
-        InitiateRebootIfApplicable(context);
     }
 }
