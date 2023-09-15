@@ -560,6 +560,7 @@ Describe 'WindowsPackageManagerServer' {
         foreach ($p in $processes)
         {
             Stop-Process $p
+            Wait-Process $p
         }
     }
 
@@ -574,6 +575,7 @@ Describe 'WindowsPackageManagerServer' {
         $process.HasExited | Should -Be $false
 
         Stop-Process $process
+        Wait-Process $process
 
         $process.HasExited | Should -Be $true
 

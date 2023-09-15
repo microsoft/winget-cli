@@ -356,6 +356,24 @@ jobs:
       flattenFolders: true
 
   - task: CopyFiles@2
+    displayName: 'Copy native binaries for Microsoft.WinGet.Configuration'
+    inputs:
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy managed binaries for Microsoft.WinGet.Configuration in arch specific'
+    inputs:
+      SourceFolder: $(buildOutDirAnyCpu)
+      Contents: |
+          Microsoft.Management.Configuration.Projection\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Projection.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
     displayName: 'Copy PowerShell AnyCPU Module Files'
     inputs:
       SourceFolder: '$(buildOutDirAnyCpu)\PowerShell'
