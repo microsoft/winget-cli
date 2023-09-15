@@ -38,7 +38,9 @@ namespace ConfigurationShim
 
     struct
     DECLSPEC_UUID(WINGET_OUTOFPROC_COM_CLSID_ConfigurationStaticFunctions)
-    ConfigurationStaticFunctionsShim : winrt::implements<ConfigurationStaticFunctionsShim, winrt::Microsoft::Management::Configuration::IConfigurationStatics>
+    ConfigurationStaticFunctionsShim : winrt::implements<ConfigurationStaticFunctionsShim,
+        winrt::Microsoft::Management::Configuration::IConfigurationStatics,
+        winrt::Microsoft::Management::Configuration::IConfigurationStatics2>
     {
         ConfigurationStaticFunctionsShim()
         {
@@ -50,7 +52,7 @@ namespace ConfigurationShim
 
             if (IsConfigurationAvailable())
             {
-                m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions();
+                m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions().as<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>();
             }
         }
 
@@ -193,6 +195,20 @@ namespace ConfigurationShim
             s_canBeCreated = false;
         }
 
+        winrt::Microsoft::Management::Configuration::ConfigurationParameter CreateConfigurationParameter()
+        {
+            THROW_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+
+            if (!m_statics)
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
+            }
+
+            auto result = m_statics.CreateConfigurationParameter();
+            result.as<AppInstaller::WinRT::ILifetimeWatcher>()->SetLifetimeWatcher(CreateLifetimeWatcher());
+            return result;
+        }
+
     private:
         // Returns a lifetime watcher object that is currently *unowned*.
         IUnknown* CreateLifetimeWatcher()
@@ -204,7 +220,7 @@ namespace ConfigurationShim
             return out.detach();
         }
 
-        winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions m_statics = nullptr;
+        winrt::Microsoft::Management::Configuration::IConfigurationStatics2 m_statics = nullptr;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
     };
 

@@ -33,7 +33,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// <param name="configurationFilePath">The configuration file path.</param>
         public ConfigurationUnitInternal(
             ConfigurationUnit unit,
-            string configurationFilePath)
+            string? configurationFilePath)
         {
             this.Unit = unit;
             this.InitializeDirectives();

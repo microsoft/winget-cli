@@ -7,11 +7,13 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
+    using Windows.Foundation.Collections;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -462,6 +464,80 @@ properties:
             Assert.Equal("Module/", result.Value);
             Assert.Equal(5U, result.Line);
             Assert.NotEqual(0U, result.Column);
+        }
+
+        /// <summary>
+        /// Test for using version 0.3 schema
+        /// </summary>
+        [Fact]
+        public void BasicVersion_0_3()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
+
+            OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+metadata:
+  a: 1
+  b: '2'
+resources:
+  - name: Name
+    type: Module/Resource
+    metadata:
+      e: '5'
+      f: 6
+    properties:
+      c: 3
+      d: '4'
+    dependsOn:
+      - g
+      - h
+  - name: Name2
+    type: Module/Resource2
+    dependsOn:
+      - m
+    properties:
+      l: '10'
+    metadata:
+      i: '7'
+      j: 8
+      q: 42
+"));
+
+            Assert.NotNull(result.Set);
+            Assert.Null(result.ResultCode);
+            Assert.Equal(string.Empty, result.Field);
+            Assert.Equal(string.Empty, result.Value);
+            Assert.Equal(0U, result.Line);
+            Assert.Equal(0U, result.Column);
+
+            ConfigurationSet set = result.Set;
+
+            Assert.Equal("0.3", set.SchemaVersion);
+            Assert.Equal("https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json", set.SchemaUri.ToString());
+
+            this.VerifyValueSet(set.Metadata, new ("a", 1), new ("b", "2"));
+
+            Assert.Empty(set.Parameters);
+            Assert.Empty(set.Variables);
+
+            Assert.Equal(2, set.Units.Count);
+            this.VerifyUnitProperties(set.Units[0], "Name", "Module/Resource");
+            this.VerifyValueSet(set.Units[0].Metadata, new ("e", 5), new ("f", 6));
+
+            MORE!
+        }
+
+        // PARAMETERS
+        // VARIABLES
+
+        private void VerifyUnitProperties(ConfigurationUnit unit, string name, string type)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void VerifyValueSet(ValueSet metadata, params KeyValuePair<string, object>[] keyValuePairs)
+        {
+            throw new NotImplementedException();
         }
     }
 }

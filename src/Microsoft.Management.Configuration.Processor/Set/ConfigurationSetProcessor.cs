@@ -23,14 +23,14 @@ namespace Microsoft.Management.Configuration.Processor.Set
     /// </summary>
     internal sealed class ConfigurationSetProcessor : IConfigurationSetProcessor
     {
-        private readonly ConfigurationSet configurationSet;
+        private readonly ConfigurationSet? configurationSet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationSetProcessor"/> class.
         /// </summary>
         /// <param name="processorEnvironment">The processor environment.</param>
         /// <param name="configurationSet">Configuration set.</param>
-        public ConfigurationSetProcessor(IProcessorEnvironment processorEnvironment, ConfigurationSet configurationSet)
+        public ConfigurationSetProcessor(IProcessorEnvironment processorEnvironment, ConfigurationSet? configurationSet)
         {
             this.ProcessorEnvironment = processorEnvironment;
             this.configurationSet = configurationSet;
@@ -56,7 +56,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         {
             try
             {
-                var configurationUnitInternal = new ConfigurationUnitInternal(unit, this.configurationSet.Path) { UnitTypeIsResourceName = IsUnitTypeResourceName(this.configurationSet.SchemaVersion) };
+                var configurationUnitInternal = new ConfigurationUnitInternal(unit, this.configurationSet?.Path) { UnitTypeIsResourceName = IsUnitTypeResourceName(this.configurationSet?.SchemaVersion) };
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating unit processor for: {configurationUnitInternal.QualifiedName}...");
 
                 var dscResourceInfo = this.PrepareUnitForProcessing(configurationUnitInternal);
@@ -87,7 +87,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         {
             try
             {
-                var unitInternal = new ConfigurationUnitInternal(unit, this.configurationSet.Path);
+                var unitInternal = new ConfigurationUnitInternal(unit, this.configurationSet?.Path);
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Getting unit details [{detailFlags}] for: {unitInternal.QualifiedName}");
 
                 // (Local | Download | Load) will all work off of local files, so if any one is an option just use the local module info if found.
@@ -176,9 +176,9 @@ namespace Microsoft.Management.Configuration.Processor.Set
             }
         }
 
-        private static bool IsUnitTypeResourceName(string schemaVersion)
+        private static bool IsUnitTypeResourceName(string? schemaVersion)
         {
-            return schemaVersion == "0.1";
+            return schemaVersion != null && schemaVersion == "0.1";
         }
 
         /// <summary>
