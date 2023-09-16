@@ -590,11 +590,14 @@ Describe 'WindowsPackageManagerServer' {
 
         $process = Get-Process -Name "WindowsPackageManagerServer"
         $process | Should -Not -BeNullOrEmpty
-        $process | Where-Object { $_.HasExited -eq $false } | Should -BeGreaterOrEqual 1
+
+        # At least one is running.
+        $process | Where-Object { $_.HasExited -eq $false } | Should -Not -BeNullOrEmpty
 
         KillWindowsPackageManagerServer
 
-        $process | Where-Object { $_.HasExited -eq $true } | Should -BeGreaterOrEqual 1
+        # From the ones we got, at least one exited
+        $process | Where-Object { $_.HasExited -eq $true } | Should -Not -BeNullOrEmpty
 
         $source2 = Get-WinGetSource -Name 'TestSource'
         $source2 | Should -Not -BeNullOrEmpty
@@ -623,13 +626,17 @@ Describe 'WindowsPackageManagerServer' {
 
         $wingetProcess = Get-Process -Name "WindowsPackageManagerServer"
         $wingetProcess | Should -Not -BeNullOrEmpty
-        $wingetProcess | Where-Object { $_.HasExited -eq $false } | Should -BeGreaterOrEqual 1
+
+        # At least one is running.
+        $wingetProcess | Where-Object { $_.HasExited -eq $false } | Should -Not -BeNullOrEmpty
 
         $oopRunspace.Close()
 
         Start-Sleep -Seconds 30
         $oopPwshProcess.HasExited | Should -Be $true
-        $process | Where-Object { $_.HasExited -eq $true } | Should -BeGreaterOrEqual 1
+
+        # From the ones we got, at least one exited
+        $process | Where-Object { $_.HasExited -eq $true } | Should -Not -BeNullOrEmpty
     }
 }
 
