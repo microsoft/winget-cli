@@ -521,23 +521,57 @@ resources:
             Assert.Empty(set.Variables);
 
             Assert.Equal(2, set.Units.Count);
-            this.VerifyUnitProperties(set.Units[0], "Name", "Module/Resource");
-            this.VerifyValueSet(set.Units[0].Metadata, new ("e", 5), new ("f", 6));
 
-            MORE!
+            this.VerifyUnitProperties(set.Units[0], "Name", "Module/Resource");
+            this.VerifyValueSet(set.Units[0].Metadata, new ("e", "5"), new ("f", 6));
+            this.VerifyValueSet(set.Units[0].Settings, new ("c", 3), new ("d", "4"));
+            this.VerifyStringArray(set.Units[0].Dependencies, "g", "h");
+
+            this.VerifyUnitProperties(set.Units[0], "Name2", "Module/Resource2");
+            this.VerifyValueSet(set.Units[0].Metadata, new ("i", "7"), new ("j", 8), new ("q", 42));
+            this.VerifyValueSet(set.Units[0].Settings, new KeyValuePair<string, object>("l", "10"));
+            this.VerifyStringArray(set.Units[0].Dependencies, "m");
         }
 
         // PARAMETERS
         // VARIABLES
 
-        private void VerifyUnitProperties(ConfigurationUnit unit, string name, string type)
+        private void VerifyUnitProperties(ConfigurationUnit unit, string identifier, string type)
         {
-            throw new NotImplementedException();
+            Assert.NotNull(unit);
+            Assert.Equal(identifier, unit.Identifier);
+            Assert.Equal(type, unit.Type);
         }
 
-        private void VerifyValueSet(ValueSet metadata, params KeyValuePair<string, object>[] keyValuePairs)
+        private void VerifyValueSet(ValueSet values, params KeyValuePair<string, object>[] expected)
         {
-            throw new NotImplementedException();
+            Assert.NotNull(values);
+            Assert.Equal(expected.Length, values.Count);
+
+            foreach (var expectation in expected)
+            {
+                Assert.True(values.ContainsKey(expectation.Key));
+                object value = values[expectation.Key];
+
+                switch (expectation.Value)
+                {
+                    case int i:
+                        Assert.Equal(i, (int)value);
+                        break;
+                    case string s:
+                        Assert.Equal(s, (string)value);
+                        break;
+                    default:
+                        Assert.Fail($"Add expected type `{expectation.Value.GetType().Name}` to switch statement.");
+                        break;
+                }
+            }
+        }
+
+        private void VerifyStringArray(IList<string> strings, params string[] expected)
+        {
+            Assert.NotNull(strings);
+            Assert.Equal(expected.Length, values.Count);
         }
     }
 }
