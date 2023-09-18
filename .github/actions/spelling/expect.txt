@@ -122,6 +122,7 @@ ecfrbrowse
 ECustom
 EFGH
 EFile
+efileresource
 endregion
 ENDSESSION
 EPester
