@@ -74,12 +74,15 @@ BeforeAll {
         }
     }
 
-    function KillWindowsPackageManagerServer()
+    function WaitForWindowsPackageManagerServer([bool]$force = $false)
     {
         $processes = Get-Process | Where-Object { $_.Name -eq "WindowsPackageManagerServer" }
         foreach ($p in $processes)
         {
-            Stop-Process $p
+            if ($force)
+            {
+                Stop-Process $p
+            }
 
             $timeout = 300
             $secondsToWait = 5
@@ -579,7 +582,7 @@ Describe 'WindowsPackageManagerServer' {
 
     BeforeEach {
         AddTestSource
-        KillWindowsPackageManagerServer
+        WaitForWindowsPackageManagerServer $true
     }
 
     # When WindowsPackageManagerServer dies, we should not fail.
@@ -594,7 +597,7 @@ Describe 'WindowsPackageManagerServer' {
         # At least one is running.
         $process | Where-Object { $_.HasExited -eq $false } | Should -Not -BeNullOrEmpty
 
-        KillWindowsPackageManagerServer
+        WaitForWindowsPackageManagerServer $true
 
         # From the ones we got, at least one exited
         $process | Where-Object { $_.HasExited -eq $true } | Should -Not -BeNullOrEmpty
@@ -636,7 +639,8 @@ Describe 'WindowsPackageManagerServer' {
         $oopPwshProcess.HasExited | Should -Be $true
 
         # From the ones we got, at least one exited
-        $process | Where-Object { $_.HasExited -eq $true } | Should -Not -BeNullOrEmpty
+        WaitForWindowsPackageManagerServer
+        $wingetProcess | Where-Object { $_.HasExited -eq $true } | Should -Not -BeNullOrEmpty
     }
 }
 
