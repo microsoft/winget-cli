@@ -79,6 +79,72 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
+        /// Test CreateUnitProcessor case insensitive.
+        /// </summary>
+        [Fact]
+        public void CreateUnitProcessor_CaseInsensitive()
+        {
+            string resourceName = "name";
+            string moduleName = "xModuleName";
+            Version version = new Version("1.0");
+
+            var processorEnvMock = new Mock<IProcessorEnvironment>();
+            processorEnvMock.Setup(
+                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type.Equals("Name", StringComparison.OrdinalIgnoreCase))))
+                .Returns(new DscResourceInfoInternal("Name", moduleName, version))
+                .Verifiable();
+
+            var configurationSetProcessor = new ConfigurationSetProcessor(
+                processorEnvMock.Object,
+                new ConfigurationSet());
+
+            var unit = new ConfigurationUnit
+            {
+                Type = resourceName,
+            };
+            unit.Metadata.Add("module", moduleName);
+            unit.Metadata.Add("version", version.ToString());
+
+            var unitProcessor = configurationSetProcessor.CreateUnitProcessor(unit);
+            Assert.NotNull(unitProcessor);
+            Assert.Equal(unit.Type, unitProcessor.Unit.Type);
+
+            processorEnvMock.Verify();
+        }
+
+        /// <summary>
+        /// Test CreateUnitProcessor case insensitive.
+        /// </summary>
+        [Fact]
+        public void CreateUnitProcessor_ResourceNameMismatch()
+        {
+            string resourceName = "name";
+            string moduleName = "xModuleName";
+            Version version = new Version("1.0");
+
+            var processorEnvMock = new Mock<IProcessorEnvironment>();
+            processorEnvMock.Setup(
+                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                .Returns(new DscResourceInfoInternal("OtherName", moduleName, version))
+                .Verifiable();
+
+            var configurationSetProcessor = new ConfigurationSetProcessor(
+                processorEnvMock.Object,
+                new ConfigurationSet());
+
+            var unit = new ConfigurationUnit
+            {
+                Type = resourceName,
+            };
+            unit.Metadata.Add("module", moduleName);
+            unit.Metadata.Add("version", version.ToString());
+
+            Assert.Throws<ArgumentException>(() => configurationSetProcessor.CreateUnitProcessor(unit));
+
+            processorEnvMock.Verify();
+        }
+
+        /// <summary>
         /// Test CreateUnitProcessor with no version directive.
         /// </summary>
         [Fact]
