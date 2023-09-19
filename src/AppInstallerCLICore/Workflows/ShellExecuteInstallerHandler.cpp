@@ -189,17 +189,14 @@ namespace AppInstaller::CLI::Workflow
         {
             std::string args = "/x" + productCode.get();
 
-            // Set UI level for MsiExec with the /q flag.
-            // If interactive is requested, use the default instead of Reduced or Full as the installer may not use them.
+            // https://learn.microsoft.com/en-us/windows/win32/msi/standard-installer-command-line-options
             if (context.Args.Contains(Execution::Args::Type::Silent))
             {
-                // n = None = silent
-                args += " /qn";
+                args += " /quiet /norestart";
             }
             else if (!context.Args.Contains(Execution::Args::Type::Interactive))
             {
-                // b = Basic = only progress bar
-                args += " /qb";
+                args += " /passive /norestart";
             }
 
             return args;
