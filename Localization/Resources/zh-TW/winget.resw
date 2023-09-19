@@ -1697,6 +1697,9 @@
     <value>{0} 個包裹具有更新前需要先移除的釘選</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
+  <data name="UpgradeBlockedByManifest" xml:space="preserve">
+    <value>無法使用 winget 升級封裝。請使用發行者提供的方法來升級此套件。</value>
+  </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>即使有非封鎖釘選仍要更新套件</value>
   </data>
@@ -2073,5 +2076,8 @@
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
     <value>'--module-path' 值必須是 'currentuser'、'allusers'、'default' 或絕對路徑。</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
+  </data>
+  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+    <value>啟用 Windows 封裝管理員設定</value>
   </data>
 </root>

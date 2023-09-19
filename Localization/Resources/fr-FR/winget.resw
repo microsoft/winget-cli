@@ -1697,6 +1697,9 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
     <value>{0} package(s) ont une épingle qui doit être supprimée avant la mise à niveau</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
+  <data name="UpgradeBlockedByManifest" xml:space="preserve">
+    <value>Impossible de mettre à niveau le package à l’aide de Winget. Utilisez la méthode fournie par l’éditeur pour mettre à niveau ce package.</value>
+  </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Mettre à niveau les packages même s’ils ont une épingle non bloquante</value>
   </data>
@@ -2073,5 +2076,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
     <value>La valeur '--module-path' doit être 'currentuser', 'allusers', 'default' ou un chemin absolu.</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
+  </data>
+  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+    <value>Activer la configuration Gestionnaire de package Windows</value>
   </data>
 </root>

@@ -103,6 +103,12 @@
         如果您啟用或未設定此原則，使用者將可以執行 Windows 封裝管理員 CLI 命令和 PowerShell Cmdlet。(提供的 [啟用應用程式安裝程式] 原則將不會停用)。
 
         此原則不會覆寫 [啟用應用程式安裝程式] 原則。</string>
+      <string id="EnableWindowsPackageManagerConfiguration">啟用 Windows 封裝管理員設定</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">此原則控制使用者是否可以使用Windows 封裝管理員設定功能。
+
+如果您啟用或未設定這個設定，使用者將可以使用Windows 封裝管理員設定功能。
+
+如果您停用這個設定，使用者將無法使用Windows 封裝管理員設定功能。</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

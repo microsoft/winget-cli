@@ -103,6 +103,12 @@ Se disabiliti questo criterio, gli utenti non potranno eseguire l'interfaccia de
 Se abiliti o non configuri questo criterio, gli utenti potranno eseguire i comandi dell'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell. (Il criterio "Abilita Programma di installazione app" specificato non è disabilitato).
 
 Questo criterio non esegue l'override del criterio "Abilita Programma di installazione app".</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Abilita la configurazione di Gestione pacchetti</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Questo criterio controlla se la funzionalità di configurazione Gestione pacchetti Windows può essere usata dagli utenti.
+
+Se si abilita o non si configura questa impostazione, gli utenti potranno usare la funzionalità di configurazione Gestione pacchetti Windows.
+
+Se si disabilita questa impostazione, gli utenti non potranno usare la funzionalità di configurazione Gestione pacchetti Windows.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
