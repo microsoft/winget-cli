@@ -188,11 +188,23 @@ namespace AppInstaller::Registry
         return m_type == type;
     }
 
-    ValueList::ValueRef::ValueRef(std::wstring&& valueName, DWORD type, std::vector<BYTE>&& data) : Value(type, std::move(data)), m_valueName(std::move(valueName)) {}
+    ValueList::ValueRef::ValueRef(wil::shared_hkey key, std::wstring&& valueName) : m_key(std::move(key)), m_valueName(std::move(valueName)) {}
 
     std::string ValueList::ValueRef::Name() const
     {
         return Utility::ConvertToUTF8(m_valueName);
+    }
+
+    std::optional<Value> ValueList::ValueRef::Value() const
+    {
+        DWORD type;
+        std::vector<BYTE> data;
+        if (!TryGetRegistryValueData(m_key, m_valueName, type, data))
+        {
+            return std::nullopt;
+        }
+
+        return Registry::Value{ type, std::move(data) };
     }
 
     ValueList::const_iterator& ValueList::const_iterator::operator++()
@@ -232,14 +244,7 @@ namespace AppInstaller::Registry
             return;
         }
 
-        DWORD type;
-        std::vector<BYTE> data;
-        if (!TryGetRegistryValueData(m_key, valueName, type, data))
-        {
-            THROW_HR(E_UNEXPECTED);
-        }
-
-        m_value = ValueRef{ std::move(valueName), type, std::move(data) };
+        m_value = ValueRef{ m_key, std::move(valueName) };
     }
 
     const ValueList::ValueRef& ValueList::const_iterator::operator*() const
