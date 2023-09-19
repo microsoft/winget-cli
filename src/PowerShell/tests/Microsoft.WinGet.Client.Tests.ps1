@@ -33,14 +33,17 @@ BeforeAll {
     }
 
     function RemoveTestSource {
-        try {
-            Get-WinGetSource -Name 'TestSource'
-        }
-        catch {
-            # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
-            # This is a workaround to an issue where the server takes longer than expected to terminate when
-            # running from PowerShell. This can cause other E2E tests to fail when attempting to reset the test source.
-            Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
+        if ($PSEdition -eq "Core")
+        {
+            try {
+                Get-WinGetSource -Name 'TestSource'
+            }
+            catch {
+                # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
+                # This is a workaround to an issue where the server takes longer than expected to terminate when
+                # running from PowerShell. This can cause other E2E tests to fail when attempting to reset the test source.
+                Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
+            }
         }
     }
 
@@ -108,7 +111,7 @@ Describe 'Get-WinGetVersion' {
     }
 }
 
-Describe 'Get|Add|Reset-WinGetSource' {
+Describe 'Get|Add|Reset-WinGetSource' -Skip:($PSEdition -eq "Desktop") {
 
     BeforeAll {
         AddTestSource
@@ -133,7 +136,7 @@ Describe 'Get|Add|Reset-WinGetSource' {
     }
 }
 
-Describe 'Find-WinGetPackage' {
+Describe 'Find-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
 
     BeforeAll {
         AddTestSource
@@ -186,7 +189,7 @@ Describe 'Find-WinGetPackage' {
     }
 }
 
-Describe 'Install|Update|Uninstall-WinGetPackage' {
+Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
 
     BeforeAll {
         AddTestSource
@@ -262,7 +265,7 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
    }
 }
 
-Describe 'Get-WinGetPackage' {
+Describe 'Get-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
 
     BeforeAll {
         AddTestSource
@@ -546,7 +549,7 @@ Describe 'Test-GroupPolicies' {
         CreatePolicyKeyIfNotExists
     }
 
-    It "Disable WinGetPolicy and run Get-WinGetSources" {
+    It "Disable WinGetPolicy and run Get-WinGetVersion" {
         $policyKeyValueName =  "EnableAppInstaller"
 
         Set-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name $policyKeyValueName -Value 0
@@ -554,12 +557,12 @@ Describe 'Test-GroupPolicies' {
         $registryKey | Should -Not -BeNullOrEmpty
         $registryKey.EnableAppInstaller | Should -Be 0
 
-        { Get-WinGetSource } | Should -Throw "This operation is disabled by Group Policy : Enable Windows Package Manager"
+        { Get-WinGetVersion } | Should -Throw "This operation is disabled by Group Policy : Enable Windows Package Manager"
 
         CleanupGroupPolicies
     }
 
-    It "Disable EnableWindowsPackageManagerCommandLineInterfaces Policy and run Get-WinGetSources" {
+    It "Disable EnableWindowsPackageManagerCommandLineInterfaces Policy and run Get-WinGetVersion" {
        $policyKeyValueName =  "EnableWindowsPackageManagerCommandLineInterfaces"
 
         Set-ItemProperty -Path $wingetGroupPolicyRegistryRoot -Name $policyKeyValueName -Value 0
@@ -567,7 +570,7 @@ Describe 'Test-GroupPolicies' {
         $registryKey | Should -Not -BeNullOrEmpty
         $registryKey.EnableWindowsPackageManagerCommandLineInterfaces | Should -Be 0
 
-        { Get-WinGetSource } | Should -Throw "This operation is disabled by Group Policy : Enable Windows Package Manager command line interfaces"
+        { Get-WinGetVersion } | Should -Throw "This operation is disabled by Group Policy : Enable Windows Package Manager command line interfaces"
 
         CleanupGroupPolicies
     }
@@ -578,7 +581,7 @@ Describe 'Test-GroupPolicies' {
     }
 }
 
-Describe 'WindowsPackageManagerServer' {
+Describe 'WindowsPackageManagerServer' -Skip:($PSEdition -eq "Desktop") {
 
     BeforeEach {
         AddTestSource
@@ -641,6 +644,18 @@ Describe 'WindowsPackageManagerServer' {
         # From the ones we got, at least one exited
         WaitForWindowsPackageManagerServer
         $wingetProcess | Where-Object { $_.HasExited -eq $true } | Should -Not -BeNullOrEmpty
+    }
+}
+
+Describe 'WindowsPowerShell not supported' -Skip:($PSEdition -eq "Core") {
+
+    It 'Throw not supported' {
+        { Find-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
+        { Get-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
+        { Install-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
+        { Uninstall-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
+        { Update-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
+        { Get-WinGetSource } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
     }
 }
 

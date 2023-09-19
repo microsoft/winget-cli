@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 {
     using System;
     using System.Management.Automation;
+    using System.Text.RegularExpressions;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
@@ -38,7 +39,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="moniker">Moniker of package.</param>
         /// <param name="source">Source to search. If null, all are searched.</param>
         /// <param name="query">Match against any field of a package.</param>
-        /// <param name="matchOption">Match option.</param>
         public InstallerPackageCommand(
             PSCmdlet psCmdlet,
             string psInstallMode,
@@ -55,12 +55,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string name,
             string moniker,
             string source,
-            string[] query,
-            string matchOption)
+            string[] query)
             : base(psCmdlet)
         {
             // InstallCommand.
-            this.Mode = PSEnumHelpers.ToPackageInstallMode(psInstallMode);
             this.Override = @override;
             this.Custom = custom;
             this.Location = location;
@@ -71,7 +69,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             // PackageCommand.
             if (psCatalogPackage != null)
             {
-                this.CatalogPackage = psCatalogPackage.CatalogPackageCOM;
+                this.CatalogPackage = psCatalogPackage;
             }
 
             this.Version = version;
@@ -83,7 +81,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
-            this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
         }
 
         /// <summary>
@@ -91,40 +88,55 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         /// <param name="psPackageInstallScope">PSPackageInstallScope.</param>
         /// <param name="psProcessorArchitecture">PSProcessorArchitecture.</param>
+        /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
+        /// <param name="psPackageInstallMode">PSPackageInstallMode.</param>
         public void Install(
             string psPackageInstallScope,
-            string psProcessorArchitecture)
+            string psProcessorArchitecture,
+            string psPackageFieldMatchOption,
+            string psPackageInstallMode)
         {
-            this.GetPackageAndExecute(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs, (package, version) =>
-            {
-                InstallOptions options = this.GetInstallOptions(version);
-                if (psProcessorArchitecture != "Default")
+            this.GetPackageAndExecute(
+                CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs,
+                PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                (package, version) =>
                 {
-                    options.AllowedArchitectures.Clear();
-                    options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
-                }
+                    InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
+                    if (psProcessorArchitecture != "Default")
+                    {
+                        options.AllowedArchitectures.Clear();
+                        options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
+                    }
 
-                options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
+                    options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
 
-                InstallResult result = this.InstallPackage(package, options);
-                this.PsCmdlet.WriteObject(new PSInstallResult(result));
-            });
+                    InstallResult result = this.InstallPackage(package, options);
+                    this.PsCmdlet.WriteObject(new PSInstallResult(result));
+                });
         }
 
         /// <summary>
         /// Process update package command.
         /// </summary>
         /// <param name="includeUnknown">If updating to an unknown version is allowed.</param>
-        public void Update(bool includeUnknown)
+        /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
+        /// <param name="psPackageInstallMode">PSPackageInstallMode.</param>
+        public void Update(
+            bool includeUnknown,
+            string psPackageFieldMatchOption,
+            string psPackageInstallMode)
         {
-            this.GetPackageAndExecute(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
-            {
-                InstallOptions options = this.GetInstallOptions(version);
-                options.AllowUpgradeToUnknownVersion = includeUnknown;
+            this.GetPackageAndExecute(
+                CompositeSearchBehavior.LocalCatalogs,
+                PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                (package, version) =>
+                {
+                    InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
+                    options.AllowUpgradeToUnknownVersion = includeUnknown;
 
-                InstallResult result = this.UpgradePackage(package, options);
-                this.PsCmdlet.WriteObject(new PSInstallResult(result));
-            });
+                    InstallResult result = this.UpgradePackage(package, options);
+                    this.PsCmdlet.WriteObject(new PSInstallResult(result));
+                });
         }
 
         private InstallResult InstallPackage(

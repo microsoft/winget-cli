@@ -6,7 +6,6 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
-    using System;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.PSObjects;
@@ -14,7 +13,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     /// <summary>
     /// Wrapper for source cmdlets.
     /// </summary>
-    public sealed class SourceCommand : ClientCommand
+    public sealed class SourceCommand : ManagementDeploymentCommand
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SourceCommand"/> class.
@@ -32,7 +31,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="name">Optional name.</param>
         public void Get(string name)
         {
-            var results = GetPackageCatalogReferences(name);
+            var results = this.GetPackageCatalogReferences(name);
             for (var i = 0; i < results.Count; i++)
             {
                 this.PsCmdlet.WriteObject(new PSSourceResult(results[i]));

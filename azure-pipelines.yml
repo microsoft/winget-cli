@@ -467,13 +467,24 @@ jobs:
 
   - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
-    displayName: Run Tests
+    displayName: Run PowerShell 7 Tests
+  
+  - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest
+    workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
+    displayName: Run Windows PowerShell Tests
 
   - task: PublishTestResults@2
-    displayName: Publish Pester Test Results
+    displayName: Publish Pester Test Results PowerShell 7
     inputs:
       testResultsFormat: 'NUnit'
       testResultsFiles: '$(Pipeline.Workspace)\PesterTest\Test*.xml'
+      failTaskOnFailedTests: true
+
+  - task: PublishTestResults@2
+    displayName: Publish Pester Test Results Windows PowerShell
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\WPPesterTest\Test*.xml'
       failTaskOnFailedTests: true
 
   - task: PublishPipelineArtifact@1
