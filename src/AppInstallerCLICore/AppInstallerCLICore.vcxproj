@@ -350,7 +350,6 @@
   <ItemGroup>
     <ClInclude Include="Argument.h" />
     <ClInclude Include="ChannelStreams.h" />
-    <ClInclude Include="Checkpoint.h" />
     <ClInclude Include="CheckpointManager.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commands\COMCommand.h" />

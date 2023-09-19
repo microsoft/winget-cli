@@ -9,7 +9,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     using namespace std::string_view_literals;
     static constexpr std::string_view s_CheckpointTable_Table_Name = "Checkpoints"sv;
     static constexpr std::string_view s_CheckpointTable_Name_Column = "Name";
-    static constexpr std::string_view s_CheckpointTable_WriteTime_Column = "WriteTime";
+    static constexpr std::string_view s_CheckpointTable_CreationTime_Column = "CreationTime";
 
     std::string_view CheckpointTable::TableName()
     {
@@ -24,26 +24,26 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_CheckpointTable_Table_Name).BeginColumns();
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointTable_Name_Column, Type::Text).Unique());
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointTable_WriteTime_Column, Type::Int64));
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointTable_Name_Column, Type::Text));
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointTable_CreationTime_Column, Type::Int64));
         createTableBuilder.EndColumns();
         createTableBuilder.Execute(connection);
 
         savepoint.Commit();
     }
 
-    std::vector<std::string> CheckpointTable::GetCheckpoints(SQLite::Connection& connection)
+    std::vector<SQLite::rowid_t> CheckpointTable::GetCheckpointIds(SQLite::Connection& connection)
     {
         SQLite::Builder::StatementBuilder builder;
-        builder.Select(s_CheckpointTable_Name_Column).From(s_CheckpointTable_Table_Name).OrderBy(SQLite::RowIDName).Descending();
+        builder.Select(SQLite::RowIDName).From(s_CheckpointTable_Table_Name).OrderBy(SQLite::RowIDName).Descending();
 
         SQLite::Statement select = builder.Prepare(connection);
 
-        std::vector<std::string> checkpoints;
+        std::vector<SQLite::rowid_t> checkpoints;
 
         while (select.Step())
         {
-            checkpoints.emplace_back(select.GetColumn<std::string>(0));
+            checkpoints.emplace_back(select.GetColumn<SQLite::rowid_t>(0));
         }
 
         return checkpoints;
@@ -54,27 +54,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         SQLite::Builder::StatementBuilder builder;
         builder.InsertInto(s_CheckpointTable_Table_Name)
             .Columns({ s_CheckpointTable_Name_Column,
-                s_CheckpointTable_WriteTime_Column })
+                s_CheckpointTable_CreationTime_Column })
             .Values(checkpointName, Utility::GetCurrentUnixEpoch());
 
         builder.Execute(connection);
         return connection.GetLastInsertRowID();
-    }
-
-    std::optional<SQLite::rowid_t> CheckpointTable::GetCheckpointId(SQLite::Connection& connection, std::string_view checkpointName)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.Select(SQLite::RowIDName).From(s_CheckpointTable_Table_Name).Where(s_CheckpointTable_Name_Column).Equals(checkpointName);
-
-        SQLite::Statement select = builder.Prepare(connection);
-
-        if (select.Step())
-        {
-            return select.GetColumn<SQLite::rowid_t>(0);
-        }
-        else
-        {
-            return {};
-        }
     }
 }

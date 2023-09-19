@@ -7,7 +7,6 @@
 #include "RootCommand.h"
 #include "CheckpointManager.h"
 #include "Workflows/ResumeFlow.h"
-#include "Checkpoint.h"
 
 using namespace AppInstaller::Checkpoints;
 
@@ -43,7 +42,7 @@ namespace AppInstaller::CLI
         std::string resumeGuidString{ context.Args.GetArg(Execution::Args::Type::ResumeId) };
         GUID checkpointId = Utility::ConvertToGuid(resumeGuidString);
 
-        if (!std::filesystem::exists(Checkpoints::CheckpointManager::GetCheckpointRecordPath(checkpointId)))
+        if (!std::filesystem::exists(Checkpoints::CheckpointManager::GetCheckpointDatabasePath(checkpointId)))
         {
             context.Reporter.Error() << Resource::String::ResumeIdNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND);
@@ -59,14 +58,14 @@ namespace AppInstaller::CLI
 
         Checkpoint<AutomaticCheckpointData> automaticCheckpoint = foundAutomaticCheckpoint.value();
 
-        const auto& checkpointClientVersion = automaticCheckpoint.Get(AutomaticCheckpointData::ClientVersion);
+        const auto& checkpointClientVersion = automaticCheckpoint.Get(AutomaticCheckpointData::ClientVersion, {});
         if (checkpointClientVersion != AppInstaller::Runtime::GetClientVersion().get())
         {
             context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ checkpointClientVersion }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
         }
 
-        const auto& checkpointCommandName = automaticCheckpoint.Get(AutomaticCheckpointData::CommandName);
+        const auto& checkpointCommandName = automaticCheckpoint.Get(AutomaticCheckpointData::CommandName, {});
         std::unique_ptr<Command> commandToResume;
 
         AICLI_LOG(CLI, Info, << "Resuming command: " << checkpointCommandName);

@@ -3,8 +3,6 @@ ACCESSDENIED
 ACTIONDATA
 ACTIONSTART
 activatable
-addcheckpoint
-addcheckpointdata
 addfile
 addmanifest
 addpin
@@ -61,8 +59,6 @@ cdecl
 cdn
 cer
 certutil
-cguid
-checkpointrecord
 chrono
 cin
 cla

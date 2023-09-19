@@ -58,8 +58,8 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     {
         // Manually set invalid client version
         std::filesystem::create_directories(tempRecordPath.parent_path());
-        CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempRecordPath.u8string());
-        CheckpointRecord::IdType checkpointId = checkpointRecord.AddCheckpoint(s_AutomaticCheckpoint);
+        CheckpointDatabase checkpointRecord = CheckpointDatabase::CreateNew(tempRecordPath.u8string());
+        CheckpointDatabase::IdType checkpointId = checkpointRecord.AddCheckpoint(s_AutomaticCheckpoint);
         checkpointRecord.SetDataValue(checkpointId, AutomaticCheckpointData::ClientVersion, {}, { "1.2.3.4" });
     }
 
@@ -92,7 +92,7 @@ TEST_CASE("ResumeFlow_EmptyIndex", "[Resume]")
 
     {
         std::filesystem::create_directories(tempRecordPath.parent_path());
-        CheckpointRecord checkpointRecord = CheckpointRecord::CreateNew(tempRecordPath.u8string());
+        CheckpointDatabase checkpointRecord = CheckpointDatabase::CreateNew(tempRecordPath.u8string());
     }
 
     std::ostringstream resumeOutput;

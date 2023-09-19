@@ -353,7 +353,7 @@
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
     <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
-    <ClInclude Include="Microsoft\CheckpointRecord.h" />
+    <ClInclude Include="Microsoft\CheckpointDatabase.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\IdTable.h" />
@@ -388,7 +388,7 @@
     <ClInclude Include="Microsoft\Schema\1_6\UpgradeCodeTable.h" />
     <ClInclude Include="Microsoft\Schema\IPinningIndex.h" />
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h" />
-    <ClInclude Include="Microsoft\Schema\ICheckpointRecord.h" />
+    <ClInclude Include="Microsoft\Schema\ICheckpointDatabase.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\Pinning_1_0\PinningIndexInterface.h" />
     <ClInclude Include="Microsoft\Schema\Pinning_1_0\PinTable.h" />
@@ -396,7 +396,7 @@
     <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableTable.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDataTable.h" />
-    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointRecordInterface.h" />
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDatabaseInterface.h" />
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
@@ -407,6 +407,7 @@
     <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\winget\ARPCorrelation.h" />
+    <ClInclude Include="Public\winget\Checkpoint.h" />
     <ClInclude Include="Public\winget\IconExtraction.h" />
     <ClInclude Include="Public\winget\InstalledFilesCorrelation.h" />
     <ClInclude Include="Public\winget\InstallerMetadataCollectionContext.h" />
@@ -476,7 +477,7 @@
     <ClCompile Include="Microsoft\PredefinedInstalledSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PredefinedWriteableSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
-    <ClCompile Include="Microsoft\CheckpointRecord.cpp" />
+    <ClCompile Include="Microsoft\CheckpointDatabase.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\Interface_1_0.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\ManifestTable.cpp" />
     <ClCompile Include="Microsoft\Schema\1_0\OneToManyTable.cpp" />
@@ -500,7 +501,7 @@
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface_1_0.cpp" />
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDataTable.cpp" />
-    <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointRecordInterface_1_0.cpp" />
+    <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDatabaseInterface_1_0.cpp" />
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />

@@ -7,6 +7,7 @@
 #include "ExecutionContextData.h"
 #include "CompletionData.h"
 #include "CheckpointManager.h"
+#include "Public/winget/Checkpoint.h"
 
 #include <string_view>
 

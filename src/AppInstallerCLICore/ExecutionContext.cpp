@@ -8,7 +8,7 @@
 #include "AppInstallerRuntime.h"
 #include "Command.h"
 #include "CheckpointManager.h"
-#include "Checkpoint.h"
+#include "Public/winget/Checkpoint.h"
 
 using namespace AppInstaller::Checkpoints;
 
@@ -260,7 +260,7 @@ namespace AppInstaller::CLI::Execution
         {
             if (m_checkpointManager)
             {
-                m_checkpointManager->CleanUpRecord();
+                m_checkpointManager->CleanUpDatabase();
             }
         }
 
@@ -446,32 +446,7 @@ namespace AppInstaller::CLI::Execution
         if (!m_checkpointManager)
         {
             m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>();
-            Checkpoints::Checkpoint<AutomaticCheckpointData> automaticCheckpoint = m_checkpointManager->CreateAutomaticCheckpoint();
-
-            automaticCheckpoint.Set(AutomaticCheckpointData::ClientVersion, AppInstaller::Runtime::GetClientVersion());
-
-            const auto& executingCommand = m_executingCommand;
-            if (executingCommand != nullptr)
-            {
-                automaticCheckpoint.Set(AutomaticCheckpointData::CommandName, std::string{m_executingCommand->Name()});
-            }
-
-            const auto& argTypes = Args.GetTypes();
-            for (auto type : argTypes)
-            {
-                const auto& argument = std::to_string(static_cast<int>(type));
-                auto argumentType = Argument::ForType(type).Type();
-
-                if (argumentType == ArgumentType::Flag)
-                {
-                    automaticCheckpoint.Set(AutomaticCheckpointData::Arguments, argument, {});
-                }
-                else
-                {
-                    const auto& values = *Args.GetArgs(type);
-                    automaticCheckpoint.SetMany(AutomaticCheckpointData::Arguments, argument, values);
-                }
-            }
+            m_checkpointManager->CreateAutomaticCheckpoint(*this);
         }
 
         // TODO: Capture context data for checkpoint.
