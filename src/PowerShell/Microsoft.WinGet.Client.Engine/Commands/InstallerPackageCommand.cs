@@ -6,9 +6,7 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
-    using System;
     using System.Management.Automation;
-    using System.Text.RegularExpressions;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;

@@ -618,7 +618,7 @@ Describe 'WindowsPackageManagerServer' -Skip:($PSEdition -eq "Desktop") {
     # This tests does all the Microsoft.WinGet.Client calls in a different pwsh instance.
     It 'Graceful termination' {
         $typeTable = [System.Management.Automation.Runspaces.TypeTable]::LoadDefaultTypeFiles()
-        $oopRunspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateOutOfProcessRunspace($typetable)
+        $oopRunspace = [System.Management.Automation.Runspaces.RunspaceFactory]::CreateOutOfProcessRunspace($typeTable)
         $oopRunspace.Open()
         $oopPwsh = [PowerShell]::Create()
         $oopPwsh.Runspace = $oopRunspace

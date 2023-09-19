@@ -60,7 +60,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// Gets the install options from the configured parameters.
         /// </summary>
         /// <param name="version">The <see cref="PackageVersionId" /> to install.</param>
-        /// <param name="mode">Pacakge install mode as string.</param>
+        /// <param name="mode">Package install mode as string.</param>
         /// <returns>An <see cref="InstallOptions" /> instance.</returns>
         protected virtual InstallOptions GetInstallOptions(PackageVersionId version, string mode)
         {

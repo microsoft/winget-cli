@@ -36,7 +36,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Wrapper for InstalllPackageAsync.
+        /// Wrapper for InstallPackageAsync.
         /// </summary>
         /// <param name="package">The package to install.</param>
         /// <param name="options">The install options.</param>
