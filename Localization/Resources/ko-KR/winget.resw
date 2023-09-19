@@ -1697,6 +1697,9 @@
     <value>{0} 패키지에 업그레이드 전에 제거해야 하는 PIN이 있습니다.</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
+  <data name="UpgradeBlockedByManifest" xml:space="preserve">
+    <value>winget을 사용하여 패키지를 업그레이드할 수 없습니다. 게시자가 제공한 메서드를 사용하여 이 패키지를 업그레이드하세요.</value>
+  </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>차단되지 않는 PIN이 있는 경우에도 패키지 업그레이드</value>
   </data>
@@ -2073,5 +2076,8 @@
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
     <value>'--module-path' 값은 'currentuser', 'allusers', 'default' 또는 절대 경로여야 합니다.</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
+  </data>
+  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+    <value>Windows 패키지 관리자 구성 사용</value>
   </data>
 </root>

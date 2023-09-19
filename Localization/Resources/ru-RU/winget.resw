@@ -1697,6 +1697,9 @@
     <value>Несколько ({0}) пакетов используют закрепление, которое необходимо удалить перед обновлением</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
+  <data name="UpgradeBlockedByManifest" xml:space="preserve">
+    <value>Невозможно обновить пакет с помощью winget. Для обновления этого пакета используйте метод, предоставленный издателем.</value>
+  </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Обновление пакетов, даже если они используют неблокирующее закрепление</value>
   </data>
@@ -2073,5 +2076,8 @@
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
     <value>Для --module-path должно быть задано значение currentuser, allusers, default или абсолютный путь.</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
+  </data>
+  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+    <value>Включить конфигурацию Диспетчера пакетов Windows</value>
   </data>
 </root>

@@ -1697,6 +1697,9 @@
     <value>{0} 個のパッケージには、アップグレードする前に削除する必要があるピンがあります</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
+  <data name="UpgradeBlockedByManifest" xml:space="preserve">
+    <value>winget を使用してパッケージをアップグレードすることはできません。このパッケージをアップグレードするには、発行元から提供された方法を使用してください。</value>
+  </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>ブロックでないピンを持っている場合でもパッケージをアップグレードする</value>
   </data>
@@ -2073,5 +2076,8 @@
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
     <value>`--module-path` 値は、`currentuser`、`allusers`、`default`、または絶対パスである必要があります。</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
+  </data>
+  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+    <value>Windows パッケージ マネージャーの構成を有効にする</value>
   </data>
 </root>

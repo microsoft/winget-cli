@@ -1697,6 +1697,9 @@ Especifique um deles usando a opção --source para continuar.</value>
     <value>{0} pacote(s) têm um pin que precisa ser removido antes da atualização</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
+  <data name="UpgradeBlockedByManifest" xml:space="preserve">
+    <value>O pacote não pode ser atualizado usando winget. Use o método fornecido pelo editor para atualizar este pacote.</value>
+  </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Atualizar pacotes mesmo que eles tenham um marcador sem bloqueio</value>
   </data>
@@ -2073,5 +2076,8 @@ Especifique um deles usando a opção --source para continuar.</value>
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
     <value>O valor '--module-path' deve ser 'currentuser', 'allusers', 'default' ou um caminho absoluto.</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
+  </data>
+  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+    <value>Habilitar as Configurações do Gerenciador de Pacotes do Windows</value>
   </data>
 </root>

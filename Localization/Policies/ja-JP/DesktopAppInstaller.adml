@@ -103,6 +103,12 @@
 このポリシーを有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージ マネージャー CLI コマンドと PowerShell コマンドレットを実行できます ([アプリ インストーラーを有効にする] ポリシーが無効になっている場合に限る)。
 
 このポリシーは、[アプリ インストーラーを有効にする] ポリシーをオーバーライドしません。</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Windows パッケージ マネージャーの構成を有効にする</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">このポリシーでは、Windows パッケージ マネージャー構成機能をユーザーが使用できるかどうかを制御します。
+
+この設定を有効にした場合、または構成しなかった場合、ユーザーはWindows パッケージ マネージャー構成機能を使用できます。
+
+この設定を無効にすると、ユーザーはWindows パッケージ マネージャー構成機能を使用できなくなります。</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

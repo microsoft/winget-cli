@@ -103,6 +103,12 @@
          이 정책을 활성화하거나 구성하지 않으면 사용자는 Windows 패키지 관리자 CLI 명령 및 PowerShell cmdlet을 실행할 수 있습니다. ('앱 설치 프로그램 활성화' 정책이 비활성화되지 않은 경우).
 
          이 정책은 '앱 설치 프로그램 활성화' 정책보다 우선 적용되지 않습니다.</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Windows 패키지 관리자 구성 사용</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">이 정책은 사용자가 Windows 패키지 관리자 구성 기능을 사용할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하거나 구성하지 않으면 사용자가 Windows 패키지 관리자 구성 기능을 사용할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자가 Windows 패키지 관리자 구성 기능을 사용할 수 없습니다.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

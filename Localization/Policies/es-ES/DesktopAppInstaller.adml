@@ -103,6 +103,12 @@ Si deshabilita esta directiva, los usuarios no podrán ejecutar la CLI de Admini
 Si habilita o no configura esta directiva, los usuarios podrán ejecutar los comandos de la CLI de Administrador de paquetes de Windows y los cmdlets de PowerShell. (La directiva "Habilitar Instalador de aplicación" proporcionada no está deshabilitada).
 
 Esta directiva no invalida la directiva "Habilitar Instalador de aplicación".</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Habilitar configuración de Administrador de paquetes de Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Esta directiva controla si los usuarios pueden usar la característica de configuración Administrador de paquetes de Windows.
+
+Si habilita o no establece esta configuración, los usuarios podrán usar la característica de configuración Administrador de paquetes de Windows.
+
+Si deshabilita esta configuración, los usuarios no podrán usar la característica de configuración Administrador de paquetes de Windows.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
