@@ -5,7 +5,6 @@
 #include "TestHooks.h"
 #include <Commands/InstallCommand.h>
 #include <Commands/ResumeCommand.h>
-#include <Microsoft/CheckpointRecord.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
@@ -58,9 +57,9 @@ TEST_CASE("ResumeFlow_InvalidClientVersion", "[Resume]")
     {
         // Manually set invalid client version
         std::filesystem::create_directories(tempRecordPath.parent_path());
-        CheckpointDatabase checkpointRecord = CheckpointDatabase::CreateNew(tempRecordPath.u8string());
-        CheckpointDatabase::IdType checkpointId = checkpointRecord.AddCheckpoint(s_AutomaticCheckpoint);
-        checkpointRecord.SetDataValue(checkpointId, AutomaticCheckpointData::ClientVersion, {}, { "1.2.3.4" });
+        std::shared_ptr<CheckpointDatabase> checkpointRecord = CheckpointDatabase::CreateNew(tempRecordPath.u8string());
+        CheckpointDatabase::IdType checkpointId = checkpointRecord->AddCheckpoint(s_AutomaticCheckpoint);
+        checkpointRecord->SetDataValue(checkpointId, AutomaticCheckpointData::ClientVersion, {}, { "1.2.3.4" });
     }
 
     std::ostringstream resumeOutput;
@@ -92,7 +91,7 @@ TEST_CASE("ResumeFlow_EmptyIndex", "[Resume]")
 
     {
         std::filesystem::create_directories(tempRecordPath.parent_path());
-        CheckpointDatabase checkpointRecord = CheckpointDatabase::CreateNew(tempRecordPath.u8string());
+        CheckpointDatabase::CreateNew(tempRecordPath.u8string());
     }
 
     std::ostringstream resumeOutput;

@@ -12,6 +12,41 @@ using namespace AppInstaller::Checkpoints;
 
 namespace AppInstaller::CLI
 {
+    namespace
+    {
+        std::unique_ptr<Command> FindCommandToResume(const std::string& commandFullName)
+        {
+            std::unique_ptr<Command> commandToResume = std::make_unique<RootCommand>();
+
+            for (const auto& commandPart : Utility::Split(commandFullName, ':'))
+            {
+                bool commandFound = false;
+                if (Utility::CaseInsensitiveEquals(commandPart, commandToResume->Name()))
+                {
+                    // Since we always expect to start at the 'root' command, skip and check the next command part. 
+                    continue;
+                }
+
+                for (auto& command : commandToResume->GetCommands())
+                {
+                    if (Utility::CaseInsensitiveEquals(commandPart, command->Name()))
+                    {
+                        commandFound = true;
+                        commandToResume = std::move(command);
+                        break;
+                    }
+                }
+
+                if (!commandFound)
+                {
+                    THROW_HR_MSG(E_UNEXPECTED, "Command to resume not found.");
+                }
+            }
+
+            return std::move(commandToResume);
+        }
+    }
+
     using namespace std::string_view_literals;
     using namespace Execution;
 
@@ -65,27 +100,8 @@ namespace AppInstaller::CLI
         }
 
         const auto& checkpointCommand = automaticCheckpoint.Get(AutomaticCheckpointData::Command, {});
-
         AICLI_LOG(CLI, Info, << "Resuming command: " << checkpointCommand);
-        std::unique_ptr<Command> commandToResume;
-        std::unique_ptr<AppInstaller::CLI::Command> currentCommand = std::make_unique<RootCommand>();
-
-        // TODO: Handle command parsing for multiple commands
-        for (const auto& checkpointCommandPart : Utility::Split(checkpointCommand, ' '))
-        {
-            for (auto& command : currentCommand->GetCommands())
-            {
-                if (Utility::CaseInsensitiveEquals(checkpointCommandPart, command->FullName()))
-                {
-                    currentCommand = std::move(command);
-                    break;
-                }
-            }
-        }
-
-        commandToResume = std::move(currentCommand);
-
-        THROW_HR_IF_MSG(E_UNEXPECTED, !commandToResume, "Command to resume not found.");
+        std::unique_ptr<Command> commandToResume = FindCommandToResume(checkpointCommand);
 
         for (const auto& fieldName : automaticCheckpoint.GetFieldNames(AutomaticCheckpointData::Arguments))
         {

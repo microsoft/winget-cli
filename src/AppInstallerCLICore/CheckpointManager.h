@@ -30,13 +30,13 @@ namespace AppInstaller::Checkpoints
         // Gets the automatic checkpoint.
         Checkpoint<AutomaticCheckpointData> GetAutomaticCheckpoint();
 
-        // Creates a new automatic checkpoint.
+        // Creates an automatic checkpoint using the provided context.
         void CreateAutomaticCheckpoint(CLI::Execution::Context& context);
 
-        // Gets all data checkpoints.
+        // Gets all context data checkpoints.
         std::vector<Checkpoint<CLI::Execution::Data>> GetCheckpoints();
 
-        // Creates a new data checkpoint.
+        // Creates a new context data checkpoint.
         Checkpoint<CLI::Execution::Data> CreateCheckpoint(std::string_view checkpointName);
 
         // Cleans up the checkpoint database.

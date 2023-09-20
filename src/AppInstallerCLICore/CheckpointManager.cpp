@@ -8,9 +8,9 @@
 
 namespace AppInstaller::Checkpoints
 {
+    using namespace AppInstaller::CLI;
     using namespace AppInstaller::Repository::Microsoft;
     using namespace AppInstaller::Repository::SQLite;
-    using namespace AppInstaller::CLI;
 
     // This checkpoint name is reserved for the starting checkpoint which captures the automatic metadata.
     constexpr std::string_view s_AutomaticCheckpoint = "automatic"sv;
@@ -93,14 +93,14 @@ namespace AppInstaller::Checkpoints
             THROW_HR(E_UNEXPECTED);
         }
 
-        const auto& automaticCheckpointId = checkpointIds.back();
-        return Checkpoint<AutomaticCheckpointData>{ std::move(m_checkpointDatabase), automaticCheckpointId };
+        CheckpointDatabase::IdType automaticCheckpointId = checkpointIds.back();
+        return Checkpoint<AutomaticCheckpointData>{ m_checkpointDatabase, automaticCheckpointId };
     }
 
     Checkpoint<CLI::Execution::Data> CheckpointManager::CreateCheckpoint(std::string_view checkpointName)
     {
-        CheckpointDatabase::IdType startCheckpointId = m_checkpointDatabase->AddCheckpoint(checkpointName);
-        Checkpoint<CLI::Execution::Data> checkpoint{ m_checkpointDatabase, startCheckpointId };
+        CheckpointDatabase::IdType checkpointId = m_checkpointDatabase->AddCheckpoint(checkpointName);
+        Checkpoint<CLI::Execution::Data> checkpoint{ m_checkpointDatabase, checkpointId };
         return checkpoint;
     }
 
@@ -114,7 +114,7 @@ namespace AppInstaller::Checkpoints
         std::vector<Checkpoint<CLI::Execution::Data>> checkpoints;
         for (const auto& checkpointId : checkpointIds)
         {
-            checkpoints.emplace_back(Checkpoint<CLI::Execution::Data>{ std::move(m_checkpointDatabase), checkpointId });
+            checkpoints.emplace_back(Checkpoint<CLI::Execution::Data>{ m_checkpointDatabase, checkpointId });
         }
 
         return checkpoints;

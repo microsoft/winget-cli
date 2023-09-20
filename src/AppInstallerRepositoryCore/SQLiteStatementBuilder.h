@@ -111,6 +111,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         RowId = Int64,
         Text,
         Blob,
+        Integer, // Type for specifying a primary key column as a row id alias.
     };
 
     // Aggregate functions.

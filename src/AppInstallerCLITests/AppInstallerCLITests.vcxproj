@@ -198,7 +198,7 @@
     <ClCompile Include="Argument.cpp" />
     <ClCompile Include="ARPChanges.cpp" />
     <ClCompile Include="Certificates.cpp" />
-    <ClCompile Include="CheckpointRecord.cpp" />
+    <ClCompile Include="CheckpointDatabase.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Completion.cpp" />
     <ClCompile Include="CompositeSource.cpp" />

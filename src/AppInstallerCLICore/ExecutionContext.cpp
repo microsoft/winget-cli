@@ -271,7 +271,7 @@ namespace AppInstaller::CLI::Execution
 
     Context Context::CreateEmptyContext()
     {
-        AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals{ m_threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{} };
+        AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
         return Context(Reporter, threadGlobals);
     }
 

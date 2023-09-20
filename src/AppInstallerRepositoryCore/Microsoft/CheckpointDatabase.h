@@ -39,7 +39,7 @@ namespace AppInstaller::Repository::Microsoft
         std::vector<IdType> GetCheckpointIds();
 
         // Returns a boolean value indicating a field exists for a checkpoint data type.
-        bool HasDataField(IdType checkpointId, int type, std::string name);
+        bool HasDataField(IdType checkpointId, int type, const std::string& name);
 
         // Returns the available data types for a checkpoint id.
         std::vector<int> GetDataTypes(IdType checkpointId);
@@ -48,13 +48,13 @@ namespace AppInstaller::Repository::Microsoft
         std::vector<std::string> GetDataFieldNames(IdType checkpointId, int dataType);
 
         // Sets the value(s) for a data type and field.
-        void SetDataValue(IdType checkpointId, int dataType, std::string field, std::vector<std::string> values);
+        void SetDataValue(IdType checkpointId, int dataType, const std::string& field, const std::vector<std::string>& values);
 
         // Gets a single value for a data type field.
-        std::string GetDataFieldSingleValue(IdType checkpointId, int dataType, std::string_view field);
+        std::string GetDataFieldSingleValue(IdType checkpointId, int dataType, const std::string& field);
 
         // Gets multiple values for a data type field.
-        std::vector<std::string> GetDataFieldMultiValue(IdType checkpointId, int dataType, std::string field);
+        std::vector<std::string> GetDataFieldMultiValue(IdType checkpointId, int dataType, const std::string& field);
 
     private:
         // Constructor used to open an existing index.

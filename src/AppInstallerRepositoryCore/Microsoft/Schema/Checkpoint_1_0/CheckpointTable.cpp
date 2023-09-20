@@ -24,11 +24,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createCheckpointTable_v1_0");
 
         StatementBuilder createTableBuilder;
-        createTableBuilder.CreateTable(s_CheckpointTable_Table_Name).BeginColumns();
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointTable_Index_Name, Type::RowId).PrimaryKey());
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointTable_Name_Column, Type::Text));
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointTable_CreationTime_Column, Type::Int64));
-        createTableBuilder.EndColumns();
+        createTableBuilder.CreateTable(s_CheckpointTable_Table_Name).Columns({
+            ColumnBuilder(s_CheckpointTable_Index_Name, Type::Integer).PrimaryKey(),
+            ColumnBuilder(s_CheckpointTable_Name_Column, Type::Text).NotNull(),
+            ColumnBuilder(s_CheckpointTable_CreationTime_Column, Type::Int64).NotNull()
+            });
+
         createTableBuilder.Execute(connection);
 
         savepoint.Commit();

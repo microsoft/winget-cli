@@ -58,14 +58,13 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Verifies that an error message is shown when an invalid resume id is provided.
+        /// Verifies that an error message is shown when a resume id does not exist.
         /// </summary>
         [Test]
-        public void InvalidResumeId()
+        public void ResumeIdNotFound()
         {
-            var invalidResumeId = "invalidResumeId";
-            var resumeResult = TestCommon.RunAICLICommand("resume", $"-g {invalidResumeId}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, resumeResult.ExitCode);
+            var resumeResult = TestCommon.RunAICLICommand("resume", "-g invalidResumeId");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_RESUME_ID_NOT_FOUND, resumeResult.ExitCode);
         }
 
         /// <summary>

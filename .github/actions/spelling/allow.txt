@@ -61,6 +61,7 @@ cer
 certutil
 chrono
 cin
+cguid
 cla
 CLASSNOTAVAILABLE
 CLSCTX
@@ -495,8 +496,6 @@ selectany
 SERVICEPACKMAJOR
 SERVICEPACKMINOR
 setfill
-setcheckpointdata
-setdatavalue
 setschemaversion
 setupexitcodes
 setvariable

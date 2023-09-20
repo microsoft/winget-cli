@@ -35,7 +35,7 @@ namespace AppInstaller::Repository::Microsoft
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Adding checkpoint [" << checkpointName << "]");
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "CheckpointDatabase_addcheckpoint");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "CheckpointDatabase_addCheckpoint");
 
         IdType result = m_interface->AddCheckpoint(m_dbconn, checkpointName);
 
@@ -49,7 +49,7 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetCheckpointIds(m_dbconn);
     }
 
-    bool CheckpointDatabase::HasDataField(IdType checkpointId, int type, std::string name)
+    bool CheckpointDatabase::HasDataField(IdType checkpointId, int type, const std::string& name)
     {
         return m_interface->GetCheckpointDataFieldValues(m_dbconn, checkpointId, type, name).has_value();
     }
@@ -64,7 +64,7 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetCheckpointDataFields(m_dbconn, checkpointId, dataType);
     }
 
-    void CheckpointDatabase::SetDataValue(IdType checkpointId, int dataType, std::string field, std::vector<std::string> values)
+    void CheckpointDatabase::SetDataValue(IdType checkpointId, int dataType, const std::string& field, const std::vector<std::string>& values)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Setting checkpoint data [" << dataType << "]");
@@ -77,7 +77,7 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
     }
 
-    std::string CheckpointDatabase::GetDataFieldSingleValue(IdType checkpointId, int dataType, std::string_view field)
+    std::string CheckpointDatabase::GetDataFieldSingleValue(IdType checkpointId, int dataType, const std::string& field)
     {
         const auto& values = m_interface->GetCheckpointDataFieldValues(m_dbconn, checkpointId, dataType, field);
 
@@ -89,7 +89,7 @@ namespace AppInstaller::Repository::Microsoft
         return values.value()[0];
     }
 
-    std::vector<std::string> CheckpointDatabase::GetDataFieldMultiValue(IdType checkpointId, int dataType, std::string field)
+    std::vector<std::string> CheckpointDatabase::GetDataFieldMultiValue(IdType checkpointId, int dataType, const std::string& field)
     {
         const auto& values = m_interface->GetCheckpointDataFieldValues(m_dbconn, checkpointId, dataType, field);
 

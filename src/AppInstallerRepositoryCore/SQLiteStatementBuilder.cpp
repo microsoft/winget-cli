@@ -139,6 +139,9 @@ namespace AppInstaller::Repository::SQLite::Builder
             case Type::Blob:
                 out << "BLOB";
                 break;
+            case Type::Integer:
+                out << "INTEGER";
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }

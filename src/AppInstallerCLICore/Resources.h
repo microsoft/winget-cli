@@ -288,7 +288,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidPathToNestedInstaller);
-        WINGET_DEFINE_RESOURCE_STRINGID(InvalidResumeIdError);
         WINGET_DEFINE_RESOURCE_STRINGID(KeyDirectoriesHeader);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);

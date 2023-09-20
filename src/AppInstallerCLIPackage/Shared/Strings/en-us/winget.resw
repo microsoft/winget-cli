@@ -2092,9 +2092,6 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ResumeIdArgumentDescription" xml:space="preserve">
     <value>The unique identifier of the saved state to resume</value>
   </data>
-  <data name="InvalidResumeIdError" xml:space="preserve">
-    <value>The resume id string provided is invalid: {0}</value>
-  </data>
   <data name="ClientVersionMismatchError" xml:space="preserve">
     <value>Resuming the state from a different client version is not supported: {0}</value>
     <comment>{Locked= "{0}"} Message displayed to inform the user that the client version of the resume state does not match the current client version. {0} is a placeholder for the client version that created the resume state.</comment>
