@@ -30,7 +30,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ParseParameters(ConfigurationSetParser::ConfigurationSetPtr& set);
         void ParseParameter(ConfigurationParameter* parameter, const AppInstaller::YAML::Node& node);
         void ParseParameterType(ConfigurationParameter* parameter, const AppInstaller::YAML::Node& node);
-        void GetStringValueForParameter(const AppInstaller::YAML::Node& node, FieldName field, ConfigurationParameter* parameter, void(ConfigurationParameter::* propertyFunction)(const hstring& value));
+        void GetStringValueForParameter(
+            const AppInstaller::YAML::Node& node,
+            FieldName field,
+            ConfigurationParameter* parameter,
+            void(ConfigurationParameter::* propertyFunction)(const hstring& value));
+        void GetUInt32ValueForParameter(
+            const AppInstaller::YAML::Node& node,
+            FieldName field,
+            ConfigurationParameter* parameter,
+            void(ConfigurationParameter::* propertyFunction)(uint32_t value));
+        void ParseObjectValueForParameter(
+            const AppInstaller::YAML::Node& node,
+            FieldName field,
+            Windows::Foundation::PropertyType type,
+            ConfigurationParameter* parameter,
+            void(ConfigurationParameter::* propertyFunction)(const Windows::Foundation::IInspectable& value));
 
         void ParseConfigurationUnitsFromField(const AppInstaller::YAML::Node& document, FieldName field, std::vector<Configuration::ConfigurationUnit>& result);
         virtual void ParseConfigurationUnit(ConfigurationUnit* unit, const AppInstaller::YAML::Node& unitNode);

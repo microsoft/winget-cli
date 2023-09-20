@@ -52,6 +52,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+        void AllowedValues(std::vector<Windows::Foundation::IInspectable>&& value);
+
     private:
         hstring m_name;
         hstring m_description;

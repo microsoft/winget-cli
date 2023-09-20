@@ -467,7 +467,7 @@ properties:
         }
 
         /// <summary>
-        /// Test for using version 0.3 schema
+        /// Test for using version 0.3 schema.
         /// </summary>
         [Fact]
         public void BasicVersion_0_3()
@@ -503,8 +503,8 @@ resources:
       q: 42
 "));
 
-            Assert.NotNull(result.Set);
             Assert.Null(result.ResultCode);
+            Assert.NotNull(result.Set);
             Assert.Equal(string.Empty, result.Field);
             Assert.Equal(string.Empty, result.Value);
             Assert.Equal(0U, result.Line);
@@ -513,6 +513,7 @@ resources:
             ConfigurationSet set = result.Set;
 
             Assert.Equal("0.3", set.SchemaVersion);
+            Assert.NotNull(set.SchemaUri);
             Assert.Equal("https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json", set.SchemaUri.ToString());
 
             this.VerifyValueSet(set.Metadata, new ("a", 1), new ("b", "2"));
@@ -527,16 +528,56 @@ resources:
             this.VerifyValueSet(set.Units[0].Settings, new ("c", 3), new ("d", "4"));
             this.VerifyStringArray(set.Units[0].Dependencies, "g", "h");
 
-            this.VerifyUnitProperties(set.Units[0], "Name2", "Module/Resource2");
-            this.VerifyValueSet(set.Units[0].Metadata, new ("i", "7"), new ("j", 8), new ("q", 42));
-            this.VerifyValueSet(set.Units[0].Settings, new KeyValuePair<string, object>("l", "10"));
-            this.VerifyStringArray(set.Units[0].Dependencies, "m");
+            this.VerifyUnitProperties(set.Units[1], "Name2", "Module/Resource2");
+            this.VerifyValueSet(set.Units[1].Metadata, new ("i", "7"), new ("j", 8), new ("q", 42));
+            this.VerifyValueSet(set.Units[1].Settings, new KeyValuePair<string, object>("l", "10"));
+            this.VerifyStringArray(set.Units[1].Dependencies, "m");
         }
 
-        // PARAMETERS
-        // VARIABLES
+        /// <summary>
+        /// Test for using version 0.3 schema parameters.
+        /// </summary>
+        [Fact]
+        public void Parameters_0_3()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
 
-        private void VerifyUnitProperties(ConfigurationUnit unit, string identifier, string type)
+            OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+metadata:
+  a: 1
+  b: '2'
+parameters:
+
+resources:
+  - name: Name
+    type: Module/Resource
+    metadata:
+      e: '5'
+      f: 6
+    properties:
+      c: 3
+      d: '4'
+    dependsOn:
+      - g
+      - h
+  - name: Name2
+    type: Module/Resource2
+    dependsOn:
+      - m
+    properties:
+      l: '10'
+    metadata:
+      i: '7'
+      j: 8
+      q: 42
+"));
+        }
+
+            // PARAMETERS
+            // VARIABLES
+
+            private void VerifyUnitProperties(ConfigurationUnit unit, string identifier, string type)
         {
             Assert.NotNull(unit);
             Assert.Equal(identifier, unit.Identifier);
@@ -556,7 +597,7 @@ resources:
                 switch (expectation.Value)
                 {
                     case int i:
-                        Assert.Equal(i, (int)value);
+                        Assert.Equal(i, (int)(long)value);
                         break;
                     case string s:
                         Assert.Equal(s, (string)value);
@@ -571,7 +612,7 @@ resources:
         private void VerifyStringArray(IList<string> strings, params string[] expected)
         {
             Assert.NotNull(strings);
-            Assert.Equal(expected.Length, values.Count);
+            Assert.Equal(expected.Length, strings.Count);
         }
     }
 }

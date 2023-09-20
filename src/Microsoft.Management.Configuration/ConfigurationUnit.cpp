@@ -84,7 +84,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationUnit::Intent(ConfigurationUnitIntent value)
     {
-        THROW_HR_IF(E_INVALIDARG, value != ConfigurationUnitIntent::Assert && value != ConfigurationUnitIntent::Inform && value != ConfigurationUnitIntent::Apply);
         m_intent = value;
     }
 

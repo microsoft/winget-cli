@@ -109,6 +109,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSet::SchemaVersion(const hstring& value)
     {
         THROW_HR_IF(E_INVALIDARG, !ConfigurationSetParser::IsRecognizedSchemaVersion(value));
+        m_schemaUri = ConfigurationSetParser::GetSchemaUriForVersion(value);
         m_schemaVersion = value;
     }
 
@@ -174,8 +175,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSet::SchemaUri(const Windows::Foundation::Uri& value)
     {
         THROW_HR_IF(E_INVALIDARG, !ConfigurationSetParser::IsRecognizedSchemaUri(value));
-        m_schemaUri = value;
         m_schemaVersion = ConfigurationSetParser::GetSchemaVersionForUri(value);
+        m_schemaUri = value;
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationSet::SetLifetimeWatcher(IUnknown* watcher)

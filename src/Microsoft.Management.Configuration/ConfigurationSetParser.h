@@ -105,6 +105,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             Description,
             Name,
             IsGroupMetadata,
+            DefaultValue,
+            AllowedValues,
+            MinimumLength,
+            MaximumLength,
+            MinimumValue,
+            MaximumValue,
         };
 
         // Gets the value of the field name.
@@ -119,7 +125,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         uint32_t m_column = 0;
 
         // Gets the given `field` from the `parent` node, checking against the requirement and type.
-        const AppInstaller::YAML::Node& GetAndEnsureField(const AppInstaller::YAML::Node& parent, FieldName field, bool required, AppInstaller::YAML::Node::Type type);
+        const AppInstaller::YAML::Node& GetAndEnsureField(const AppInstaller::YAML::Node& parent, FieldName field, bool required, std::optional<AppInstaller::YAML::Node::Type> type);
+
+        // Errors if the given `field` is present.
+        void EnsureFieldAbsent(const AppInstaller::YAML::Node& parent, FieldName field);
 
         // Parse the ValueSet named `field` from the given `node`.
         void ParseValueSet(const AppInstaller::YAML::Node& node, FieldName field, bool required, const Windows::Foundation::Collections::ValueSet& valueSet);
@@ -128,7 +137,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ParseMapping(const AppInstaller::YAML::Node& node, FieldName field, bool required, AppInstaller::YAML::Node::Type elementType, std::function<void(std::string, const AppInstaller::YAML::Node&)> operation);
 
         // Parse the sequence named `field` from the given `node`.
-        void ParseSequence(const AppInstaller::YAML::Node& node, FieldName field, bool required, AppInstaller::YAML::Node::Type elementType, std::function<void(const AppInstaller::YAML::Node&)> operation);
+        void ParseSequence(const AppInstaller::YAML::Node& node, FieldName field, bool required, std::optional<AppInstaller::YAML::Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation);
 
         // Gets the string value in `field` from the given `node`, setting this value on `unit` using the `propertyFunction`.
         void GetStringValueForUnit(const AppInstaller::YAML::Node& node, FieldName field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value));
@@ -138,6 +147,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Validates the unit's Type property for correctness and consistency with the metadata. Should be called after parsing the Metadata value.
         void ValidateType(ConfigurationUnit* unit, const AppInstaller::YAML::Node& unitNode, FieldName typeField, bool moveModuleNameToMetadata, bool moduleNameRequiredInType);
+
+        // Parses an object from the given node, attempting to treat it as the requested type if possible.
+        void ParseObject(const AppInstaller::YAML::Node& node, FieldName fieldForErrors, Windows::Foundation::PropertyType type, Windows::Foundation::IInspectable& result);
 
     private:
         // Support older schema parsing.

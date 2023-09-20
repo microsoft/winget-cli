@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigurationSetParser_0_3.h"
 #include "ParsingMacros.h"
+#include "ArgumentValidation.h"
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
@@ -56,14 +57,44 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         CHECK_ERROR(ParseValueSet(node, FieldName::Metadata, false, parameter->Metadata()));
         CHECK_ERROR(GetStringValueForParameter(node, FieldName::Description, parameter, &ConfigurationParameter::Description));
 
-        // TODO: Parse the remaining parameter fields when we implement parameter/variable support.
-        //       We currently parse enough to detect an attempt to use parameters which will be rejected on processing.
-        //  defaultValue
-        //  allowedValues
-        //  minLength
-        //  maxLength
-        //  minValue
-        //  maxValue
+        Windows::Foundation::PropertyType parameterType = parameter->Type();
+        CHECK_ERROR(ParseObjectValueForParameter(node, FieldName::DefaultValue, parameterType, parameter, &ConfigurationParameter::DefaultValue));
+
+        std::vector<Windows::Foundation::IInspectable> allowedValues;
+
+        CHECK_ERROR(ParseSequence(node, FieldName::AllowedValues, false, std::nullopt, [&](const Node& item)
+            {
+                Windows::Foundation::IInspectable object;
+                CHECK_ERROR(ParseObject(item, FieldName::AllowedValues, parameterType, object));
+                allowedValues.emplace_back(std::move(object));
+            }));
+
+        if (!allowedValues.empty())
+        {
+            parameter->AllowedValues(std::move(allowedValues));
+        }
+
+        if (IsLengthType(parameterType))
+        {
+            CHECK_ERROR(GetUInt32ValueForParameter(node, FieldName::MinimumLength, parameter, &ConfigurationParameter::MinimumLength));
+            CHECK_ERROR(GetUInt32ValueForParameter(node, FieldName::MaximumLength, parameter, &ConfigurationParameter::MaximumLength));
+        }
+        else
+        {
+            CHECK_ERROR(EnsureFieldAbsent(node, FieldName::MinimumLength));
+            CHECK_ERROR(EnsureFieldAbsent(node, FieldName::MaximumLength));
+        }
+
+        if (IsComparableType(parameterType))
+        {
+            CHECK_ERROR(ParseObjectValueForParameter(node, FieldName::MinimumValue, parameterType, parameter, &ConfigurationParameter::MinimumValue));
+            CHECK_ERROR(ParseObjectValueForParameter(node, FieldName::MaximumValue, parameterType, parameter, &ConfigurationParameter::MaximumValue));
+        }
+        else
+        {
+            CHECK_ERROR(EnsureFieldAbsent(node, FieldName::MinimumValue));
+            CHECK_ERROR(EnsureFieldAbsent(node, FieldName::MaximumValue));
+        }
     }
 
     void ConfigurationSetParser_0_3::ParseParameterType(ConfigurationParameter* parameter, const AppInstaller::YAML::Node& node)
@@ -109,13 +140,54 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // TODO: Consider supporting an expanded set of type strings
     }
 
-    void ConfigurationSetParser_0_3::GetStringValueForParameter(const Node& node, FieldName field, ConfigurationParameter* parameter, void(ConfigurationParameter::* propertyFunction)(const hstring& value))
+    void ConfigurationSetParser_0_3::GetStringValueForParameter(
+        const Node& node,
+        FieldName field,
+        ConfigurationParameter* parameter,
+        void(ConfigurationParameter::* propertyFunction)(const hstring& value))
     {
         const Node& valueNode = CHECK_ERROR(GetAndEnsureField(node, field, false, Node::Type::Scalar));
 
         if (valueNode)
         {
             (parameter->*propertyFunction)(hstring{ valueNode.as<std::wstring>() });
+        }
+    }
+
+    void ConfigurationSetParser_0_3::GetUInt32ValueForParameter(
+        const AppInstaller::YAML::Node& node,
+        FieldName field,
+        ConfigurationParameter* parameter,
+        void(ConfigurationParameter::* propertyFunction)(uint32_t value))
+    {
+        const Node& valueNode = CHECK_ERROR(GetAndEnsureField(node, field, false, Node::Type::Scalar));
+
+        if (valueNode)
+        {
+            int64_t value = valueNode.as<int64_t>();
+            if (value < 0 || value > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
+            {
+                FIELD_VALUE_ERROR(GetFieldName(field), valueNode.as<std::string>(), valueNode.Mark());
+            }
+            (parameter->*propertyFunction)(static_cast<uint32_t>(value));
+        }
+    }
+
+    void ConfigurationSetParser_0_3::ParseObjectValueForParameter(
+        const AppInstaller::YAML::Node& node,
+        FieldName field,
+        Windows::Foundation::PropertyType type,
+        ConfigurationParameter* parameter,
+        void(ConfigurationParameter::* propertyFunction)(const Windows::Foundation::IInspectable& value))
+    {
+        const Node& valueNode = CHECK_ERROR(GetAndEnsureField(node, field, false, std::nullopt));
+
+        if (valueNode)
+        {
+            Windows::Foundation::IInspectable valueObject;
+            CHECK_ERROR(ParseObject(valueNode, field, type, valueObject));
+
+            (parameter->*propertyFunction)(valueObject);
         }
     }
 

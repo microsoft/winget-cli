@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigurationSetParser.h"
 #include "ParsingMacros.h"
+#include "ArgumentValidation.h"
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
@@ -348,6 +349,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         case FieldName::Description: return "description"sv;
         case FieldName::Name: return "name"sv;
         case FieldName::IsGroupMetadata: return "isGroup"sv;
+        case FieldName::DefaultValue: return "defaultValue"sv;
+        case FieldName::AllowedValues: return "allowedValues"sv;
+        case FieldName::MinimumLength: return "minLength"sv;
+        case FieldName::MaximumLength: return "maxLength"sv;
+        case FieldName::MinimumValue: return "minValue"sv;
+        case FieldName::MaximumValue: return "maxValue"sv;
         }
 
         THROW_HR(E_UNEXPECTED);
@@ -358,13 +365,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return hstring{ ConvertToUTF16(GetFieldName(fieldName)) };
     }
 
-    const Node& ConfigurationSetParser::GetAndEnsureField(const Node& parent, FieldName field, bool required, Node::Type type)
+    const Node& ConfigurationSetParser::GetAndEnsureField(const Node& parent, FieldName field, bool required, std::optional<Node::Type> type)
     {
         const Node& fieldNode = parent[GetFieldName(field)];
 
         if (fieldNode)
         {
-            if (fieldNode.GetType() != type)
+            if (type && fieldNode.GetType() != type.value())
             {
                 SetError(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetFieldName(field), fieldNode.Mark());
             }
@@ -375,6 +382,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         return fieldNode;
+    }
+
+    void ConfigurationSetParser::EnsureFieldAbsent(const Node& parent, FieldName field)
+    {
+        const Node& fieldNode = parent[GetFieldName(field)];
+
+        if (fieldNode)
+        {
+            SetError(WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, GetFieldName(field), fieldNode.Mark(), fieldNode.as<std::string>());
+        }
     }
 
     void ConfigurationSetParser::ParseValueSet(const Node& node, FieldName field, bool required, const Windows::Foundation::Collections::ValueSet& valueSet)
@@ -419,7 +436,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationSetParser::ParseSequence(const AppInstaller::YAML::Node& node, FieldName field, bool required, Node::Type elementType, std::function<void(const AppInstaller::YAML::Node&)> operation)
+    void ConfigurationSetParser::ParseSequence(const AppInstaller::YAML::Node& node, FieldName field, bool required, std::optional<Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation)
     {
         const Node& sequenceNode = CHECK_ERROR(GetAndEnsureField(node, field, required, Node::Type::Sequence));
         if (!sequenceNode)
@@ -433,7 +450,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         for (const Node& item : sequenceNode.Sequence())
         {
-            if (item.GetType() != elementType)
+            if (elementType && item.GetType() != elementType.value())
             {
                 strstr << '[' << index << ']';
                 FIELD_TYPE_ERROR(strstr.str(), item.Mark());
@@ -536,6 +553,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         else if (moduleNameRequiredInType)
         {
             FIELD_VALUE_ERROR(GetFieldName(typeField), ConvertToUTF8(unit->Type()), typeNode.Mark());
+        }
+    }
+
+    void ConfigurationSetParser::ParseObject(const Node& node, FieldName fieldForErrors, Windows::Foundation::PropertyType type, Windows::Foundation::IInspectable& result)
+    {
+        try
+        {
+            Windows::Foundation::IInspectable object = GetIInspectableFromNode(node);
+            FIELD_VALUE_ERROR_IF(!IsValidObjectType(object, type), GetFieldName(fieldForErrors), node.as<std::string>(), node.Mark());
+            result = std::move(object);
+        }
+        catch (...)
+        {
+            LOG_CAUGHT_EXCEPTION();
+            FIELD_VALUE_ERROR(GetFieldName(fieldForErrors), node.as<std::string>(), node.Mark());
         }
     }
 }
