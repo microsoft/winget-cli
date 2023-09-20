@@ -69,6 +69,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
         /// <summary>
         /// Sets the find package options for a query input that is looking for a specific package.
+        /// DO NOT pass PackageFieldMatchOption WinRT enum type in this method.
+        /// That will cause the type to attempt to be loaded in the construction
+        /// of this method and throw a different exception for Windows PowerShell.
         /// </summary>
         /// <param name="options">The options object.</param>
         /// <param name="match">The match type.</param>

@@ -58,6 +58,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
         /// <summary>
         /// Gets the install options from the configured parameters.
+        /// DO NOT pass PackageInstallMode WinRT enum type in this method.
+        /// That will cause the type to attempt to be loaded in the construction
+        /// of this method and throw a different exception for Windows PowerShell.
         /// </summary>
         /// <param name="version">The <see cref="PackageVersionId" /> to install.</param>
         /// <param name="mode">Package install mode as string.</param>
