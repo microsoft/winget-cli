@@ -58,11 +58,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_CheckpointDataTable_Table_Name).BeginColumns();
         createTableBuilder.Column(ColumnBuilder(s_CheckpointDataTable_CheckpointId_Column, Type::Int).NotNull());
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointDataTable_ContextData_Column, Type::Int));
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointDataTable_Name_Column, Type::Text));
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointDataTable_ContextData_Column, Type::Int).NotNull());
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointDataTable_Name_Column, Type::Text).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_CheckpointDataTable_Value_Column, Type::Text));
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointDataTable_Index_Column, Type::Int));
-        createTableBuilder.EndColumns();
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointDataTable_Index_Column, Type::Int).NotNull());
+
+        PrimaryKeyBuilder pkBuilder;
+        pkBuilder.Column(s_CheckpointDataTable_CheckpointId_Column);
+        pkBuilder.Column(s_CheckpointDataTable_ContextData_Column);
+        pkBuilder.Column(s_CheckpointDataTable_Name_Column);
+        pkBuilder.Column(s_CheckpointDataTable_Index_Column);
+
+        createTableBuilder.Column(pkBuilder).EndColumns();
         createTableBuilder.Execute(connection);
         savepoint.Commit();
     }
@@ -100,13 +107,26 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     SQLite::rowid_t CheckpointDataTable::AddCheckpointData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData, std::string_view name, std::string_view value, int index)
     {
         SQLite::Builder::StatementBuilder builder;
-        builder.InsertInto(s_CheckpointDataTable_Table_Name)
-            .Columns({ s_CheckpointDataTable_CheckpointId_Column,
-                s_CheckpointDataTable_ContextData_Column,
-                s_CheckpointDataTable_Name_Column, 
-                s_CheckpointDataTable_Value_Column,
-                s_CheckpointDataTable_Index_Column})
-            .Values(checkpointId, contextData, name, value, index);
+
+        if (value.empty())
+        {
+            builder.InsertInto(s_CheckpointDataTable_Table_Name)
+                .Columns({ s_CheckpointDataTable_CheckpointId_Column,
+                    s_CheckpointDataTable_ContextData_Column,
+                    s_CheckpointDataTable_Name_Column,
+                    s_CheckpointDataTable_Index_Column })
+                .Values(checkpointId, contextData, name, index);
+        }
+        else
+        {
+            builder.InsertInto(s_CheckpointDataTable_Table_Name)
+                .Columns({ s_CheckpointDataTable_CheckpointId_Column,
+                    s_CheckpointDataTable_ContextData_Column,
+                    s_CheckpointDataTable_Name_Column,
+                    s_CheckpointDataTable_Value_Column,
+                    s_CheckpointDataTable_Index_Column })
+                .Values(checkpointId, contextData, name, value, index);
+        }
 
         builder.Execute(connection);
         return connection.GetLastInsertRowID();
@@ -160,7 +180,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         return values;
     }
-
 
     std::string CheckpointDataTable::GetDataValue(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type)
     {

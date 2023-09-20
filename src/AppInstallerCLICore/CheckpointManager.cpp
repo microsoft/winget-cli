@@ -16,12 +16,10 @@ namespace AppInstaller::Checkpoints
     constexpr std::string_view s_AutomaticCheckpoint = "automatic"sv;
     constexpr std::string_view s_CheckpointsFileName = "checkpoints.db"sv;
 
-    std::filesystem::path CheckpointManager::GetCheckpointDatabasePath(GUID guid, bool createCheckpointDirectory)
+    std::filesystem::path CheckpointManager::GetCheckpointDatabasePath(const std::string_view& resumeId, bool createCheckpointDirectory)
     {
-        wchar_t checkpointGuid[256];
-        THROW_HR_IF(E_UNEXPECTED, !StringFromGUID2(guid, checkpointGuid, ARRAYSIZE(checkpointGuid)));
 
-        const auto checkpointsDirectory = Runtime::GetPathTo(Runtime::PathName::CheckpointsLocation) / checkpointGuid;
+        const auto checkpointsDirectory = Runtime::GetPathTo(Runtime::PathName::CheckpointsLocation) / resumeId;
 
         if (createCheckpointDirectory)
         {
@@ -42,12 +40,14 @@ namespace AppInstaller::Checkpoints
 
     CheckpointManager::CheckpointManager()
     {
-        std::ignore = CoCreateGuid(&m_resumeId);
-        const auto& checkpointDatabasePath = GetCheckpointDatabasePath(m_resumeId);
+        GUID resumeId;
+        std::ignore = CoCreateGuid(&resumeId);
+        m_resumeId = Utility::ConvertGuidToString(resumeId);
+        const auto& checkpointDatabasePath = GetCheckpointDatabasePath(m_resumeId, true);
         m_checkpointDatabase = CheckpointDatabase::CreateNew(checkpointDatabasePath.u8string());
     }
 
-    CheckpointManager::CheckpointManager(GUID resumeId)
+    CheckpointManager::CheckpointManager(const std::string& resumeId)
     {
         m_resumeId = resumeId;
         const auto& checkpointDatabasePath = GetCheckpointDatabasePath(m_resumeId);
@@ -64,7 +64,7 @@ namespace AppInstaller::Checkpoints
         const auto& executingCommand = context.GetExecutingCommand();
         if (executingCommand != nullptr)
         {
-            automaticCheckpoint.Set(AutomaticCheckpointData::CommandName, {}, std::string{ executingCommand->FullName() });
+            automaticCheckpoint.Set(AutomaticCheckpointData::Command, {}, std::string{ executingCommand->FullName() });
         }
 
         const auto& argTypes = context.Args.GetTypes();
@@ -127,7 +127,7 @@ namespace AppInstaller::Checkpoints
             m_checkpointDatabase.reset();
         }
 
-        if (m_resumeId != GUID_NULL)
+        if (!m_resumeId.empty())
         {
             const auto& checkpointDatabasePath = GetCheckpointDatabasePath(m_resumeId);
 

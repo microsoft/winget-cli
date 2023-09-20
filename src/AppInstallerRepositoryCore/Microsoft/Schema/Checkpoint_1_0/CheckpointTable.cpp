@@ -8,6 +8,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {
     using namespace std::string_view_literals;
     static constexpr std::string_view s_CheckpointTable_Table_Name = "Checkpoints"sv;
+    static constexpr std::string_view s_CheckpointTable_Index_Name = "Checkpoints_pkindex"sv;
     static constexpr std::string_view s_CheckpointTable_Name_Column = "Name";
     static constexpr std::string_view s_CheckpointTable_CreationTime_Column = "CreationTime";
 
@@ -24,6 +25,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_CheckpointTable_Table_Name).BeginColumns();
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointTable_Index_Name, Type::RowId).PrimaryKey());
         createTableBuilder.Column(ColumnBuilder(s_CheckpointTable_Name_Column, Type::Text));
         createTableBuilder.Column(ColumnBuilder(s_CheckpointTable_CreationTime_Column, Type::Int64));
         createTableBuilder.EndColumns();

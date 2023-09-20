@@ -11,7 +11,7 @@ namespace AppInstaller::Checkpoints
     enum AutomaticCheckpointData
     {
         ClientVersion,
-        CommandName,
+        Command,
         Arguments
     };
 
@@ -30,7 +30,7 @@ namespace AppInstaller::Checkpoints
         }
 
         // Returns a boolean value indicating whether the field name exists.
-        bool Has(T dataType, std::string fieldName)
+        bool Has(T dataType, const std::string& fieldName)
         {
             return m_checkpointDatabase->HasDataField(m_checkpointId, dataType, fieldName);
         }
@@ -42,25 +42,25 @@ namespace AppInstaller::Checkpoints
         }
 
         // Sets a single field value for a data type.
-        void Set(T dataType, std::string fieldName, std::string value)
+        void Set(T dataType, const std::string& fieldName, const std::string& value)
         {
             m_checkpointDatabase->SetDataValue(m_checkpointId, dataType, fieldName, { value });
         }
 
         // Sets multiple field values for a data type.
-        void SetMany(T dataType, std::string fieldName, std::vector<std::string> values)
+        void SetMany(T dataType, const std::string& fieldName, const std::vector<std::string>& values)
         {
             m_checkpointDatabase->SetDataValue(m_checkpointId, dataType, fieldName, values);
         }
 
         // Gets a single field value for a data type.
-        std::string Get(T dataType, std::string fieldName)
+        std::string Get(T dataType, const std::string& fieldName)
         {
             return m_checkpointDatabase->GetDataFieldSingleValue(m_checkpointId, dataType, fieldName);
         }
 
         // Gets multiple field values for a data type.
-        std::vector<std::string> GetMany(T dataType, std::string fieldName)
+        std::vector<std::string> GetMany(T dataType, const std::string& fieldName)
         {
             return m_checkpointDatabase->GetDataFieldMultiValue(m_checkpointId, dataType, fieldName);
         }

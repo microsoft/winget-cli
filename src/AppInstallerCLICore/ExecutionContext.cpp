@@ -7,7 +7,6 @@
 #include "winget/UserSettings.h"
 #include "AppInstallerRuntime.h"
 #include "Command.h"
-#include "CheckpointManager.h"
 #include "Public/winget/Checkpoint.h"
 
 using namespace AppInstaller::Checkpoints;
@@ -272,7 +271,8 @@ namespace AppInstaller::CLI::Execution
 
     Context Context::CreateEmptyContext()
     {
-        return Context(Reporter, m_threadGlobals);
+        AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals{ m_threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{} };
+        return Context(Reporter, threadGlobals);
     }
 
     std::unique_ptr<Context> Context::CreateSubContext()
@@ -427,7 +427,7 @@ namespace AppInstaller::CLI::Execution
     }
 #endif
 
-    std::optional<Checkpoint<AutomaticCheckpointData>> Context::LoadCheckpoint(GUID resumeId)
+    std::optional<Checkpoint<AutomaticCheckpointData>> Context::LoadCheckpoint(const std::string& resumeId)
     {
         m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>(resumeId);
         return m_checkpointManager->GetAutomaticCheckpoint();

@@ -861,46 +861,10 @@ namespace AppInstaller::Utility
         return value ? "true"sv : "false"sv;
     }
 
-    bool IsValidGuidString(const std::string& value)
+    std::string ConvertGuidToString(GUID value)
     {
-        if (value.empty())
-        {
-            return false;
-        }
-
-        const std::regex guidPattern("^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$");
-
-        std::string guidString = value;
-
-        if (value.front() != '{')
-        {
-            guidString.insert(0, 1, '{');
-        }
-
-        if (value.back() != '}')
-        {
-            guidString.push_back('}');
-        }
-
-        return regex_match(value, guidPattern);
-    }
-
-    GUID ConvertToGuid(const std::string& value)
-    {
-        std::string guidString = value;
-
-        if (value.front() != '{')
-        {
-            guidString.insert(0, 1, '{');
-        }
-
-        if (value.back() != '}')
-        {
-            guidString.push_back('}');
-        }
-
-        GUID result;
-        THROW_IF_FAILED_MSG(CLSIDFromString(ConvertToUTF16(guidString).c_str(), &result), "ConvertToGuid: Invalid guid string");
-        return result;
+        wchar_t buffer[256];
+        THROW_HR_IF(E_UNEXPECTED, !StringFromGUID2(value, buffer, ARRAYSIZE(buffer)));
+        return ConvertToUTF8(buffer);
     }
 }

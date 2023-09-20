@@ -39,17 +39,16 @@ namespace AppInstaller::CLI
 
     void ResumeCommand::ExecuteInternal(Execution::Context& context) const
     {
-        std::string resumeGuidString{ context.Args.GetArg(Execution::Args::Type::ResumeId) };
-        GUID checkpointId = Utility::ConvertToGuid(resumeGuidString);
+        const auto& resumeId = context.Args.GetArg(Execution::Args::Type::ResumeId);
 
-        if (!std::filesystem::exists(Checkpoints::CheckpointManager::GetCheckpointDatabasePath(checkpointId)))
+        if (!std::filesystem::exists(Checkpoints::CheckpointManager::GetCheckpointDatabasePath(resumeId)))
         {
-            context.Reporter.Error() << Resource::String::ResumeIdNotFoundError(Utility::LocIndView{ resumeGuidString }) << std::endl;
+            context.Reporter.Error() << Resource::String::ResumeIdNotFoundError(Utility::LocIndView{ resumeId }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND);
         }
 
         Execution::Context resumeContext = context.CreateEmptyContext();
-        std::optional<Checkpoint<AutomaticCheckpointData>> foundAutomaticCheckpoint = resumeContext.LoadCheckpoint(checkpointId);
+        std::optional<Checkpoint<AutomaticCheckpointData>> foundAutomaticCheckpoint = resumeContext.LoadCheckpoint(std::string{ resumeId });
         if (!foundAutomaticCheckpoint.has_value())
         {
             context.Reporter.Error() << Resource::String::ResumeStateDataNotFoundError << std::endl;
@@ -65,18 +64,26 @@ namespace AppInstaller::CLI
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
         }
 
-        const auto& checkpointCommandName = automaticCheckpoint.Get(AutomaticCheckpointData::CommandName, {});
-        std::unique_ptr<Command> commandToResume;
+        const auto& checkpointCommand = automaticCheckpoint.Get(AutomaticCheckpointData::Command, {});
 
-        AICLI_LOG(CLI, Info, << "Resuming command: " << checkpointCommandName);
-        for (auto& command : std::make_unique<RootCommand>()->GetCommands())
+        AICLI_LOG(CLI, Info, << "Resuming command: " << checkpointCommand);
+        std::unique_ptr<Command> commandToResume;
+        std::unique_ptr<AppInstaller::CLI::Command> currentCommand = std::make_unique<RootCommand>();
+
+        // TODO: Handle command parsing for multiple commands
+        for (const auto& checkpointCommandPart : Utility::Split(checkpointCommand, ' '))
         {
-            if (Utility::CaseInsensitiveEquals(checkpointCommandName, command->Name()))
+            for (auto& command : currentCommand->GetCommands())
             {
-                commandToResume = std::move(command);
-                break;
+                if (Utility::CaseInsensitiveEquals(checkpointCommandPart, command->FullName()))
+                {
+                    currentCommand = std::move(command);
+                    break;
+                }
             }
         }
+
+        commandToResume = std::move(currentCommand);
 
         THROW_HR_IF_MSG(E_UNEXPECTED, !commandToResume, "Command to resume not found.");
 
@@ -108,14 +115,5 @@ namespace AppInstaller::CLI
         resumeContext.EnableSignalTerminationHandler();
         commandToResume->Resume(resumeContext);
         context.SetTerminationHR(resumeContext.GetTerminationHR());
-    }
-
-    void ResumeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
-    {
-        std::string resumeGuidString{ execArgs.GetArg(Execution::Args::Type::ResumeId) };
-        if (!Utility::IsValidGuidString(resumeGuidString))
-        {
-            throw CommandException(Resource::String::InvalidResumeIdError(Utility::LocIndView{ resumeGuidString }));
-        }
     }
 }

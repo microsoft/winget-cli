@@ -20,12 +20,12 @@ namespace AppInstaller::Checkpoints
         CheckpointManager();
 
         // Constructor that loads the resume id and opens an existing checkpoint database.
-        CheckpointManager(GUID resumeId);
+        CheckpointManager(const std::string& resumeId);
 
         ~CheckpointManager() = default;
 
         // Gets the file path of the checkpoint database.
-        static std::filesystem::path GetCheckpointDatabasePath(GUID guid, bool createCheckpointDirectory = false);
+        static std::filesystem::path GetCheckpointDatabasePath(const std::string_view& resumeId, bool createCheckpointDirectory = false);
 
         // Gets the automatic checkpoint.
         Checkpoint<AutomaticCheckpointData> GetAutomaticCheckpoint();
@@ -43,7 +43,7 @@ namespace AppInstaller::Checkpoints
         void CleanUpDatabase();
 
     private:
-        GUID m_resumeId = {};
+        std::string m_resumeId;
         std::shared_ptr<AppInstaller::Repository::Microsoft::CheckpointDatabase> m_checkpointDatabase;
     };
 }

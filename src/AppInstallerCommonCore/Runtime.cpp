@@ -418,15 +418,10 @@ namespace AppInstaller::Runtime
             result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             break;
-        case PathName::CheckpointsLocation:
         case PathName::LocalState:
         case PathName::UserFileSettings:
             result.Path.assign(appStorage.LocalFolder().Path().c_str());
             mayBeInProfilePath = true;
-            if (path == PathName::CheckpointsLocation)
-            {
-                result.Path /= s_CheckpointsDirectory;
-            }
             break;
         case PathName::DefaultLogLocation:
             // To enable UIF collection through Feedback hub, we must put our logs here.
@@ -472,6 +467,9 @@ namespace AppInstaller::Runtime
         case PathName::SelfPackageRoot:
             result.Path = GetPackagePath();
             result.Create = false;
+            break;
+        case PathName::CheckpointsLocation:
+            result.Path = GetPathTo(PathName::LocalState) / s_CheckpointsDirectory;
             break;
         default:
             THROW_HR(E_UNEXPECTED);
