@@ -85,12 +85,12 @@ namespace AppInstaller::Checkpoints
         }
     }
 
-    Checkpoint<AutomaticCheckpointData> CheckpointManager::GetAutomaticCheckpoint()
+    std::optional<Checkpoint<AutomaticCheckpointData>> CheckpointManager::GetAutomaticCheckpoint()
     {
         const auto& checkpointIds = m_checkpointDatabase->GetCheckpointIds();
         if (checkpointIds.empty())
         {
-            THROW_HR(E_UNEXPECTED);
+            return {};
         }
 
         CheckpointDatabase::IdType automaticCheckpointId = checkpointIds.back();

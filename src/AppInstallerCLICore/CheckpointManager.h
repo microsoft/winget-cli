@@ -28,7 +28,7 @@ namespace AppInstaller::Checkpoints
         static std::filesystem::path GetCheckpointDatabasePath(const std::string_view& resumeId, bool createCheckpointDirectory = false);
 
         // Gets the automatic checkpoint.
-        Checkpoint<AutomaticCheckpointData> GetAutomaticCheckpoint();
+        std::optional<Checkpoint<AutomaticCheckpointData>> GetAutomaticCheckpoint();
 
         // Creates an automatic checkpoint using the provided context.
         void CreateAutomaticCheckpoint(CLI::Execution::Context& context);

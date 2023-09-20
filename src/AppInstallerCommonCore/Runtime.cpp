@@ -469,7 +469,7 @@ namespace AppInstaller::Runtime
             result.Create = false;
             break;
         case PathName::CheckpointsLocation:
-            result.Path = GetPathTo(PathName::LocalState) / s_CheckpointsDirectory;
+            result.Path = GetPathTo(PathName::LocalState, forDisplay) / s_CheckpointsDirectory;
             break;
         default:
             THROW_HR(E_UNEXPECTED);
@@ -506,17 +506,12 @@ namespace AppInstaller::Runtime
             }
         }
         break;
-        case PathName::CheckpointsLocation:
         case PathName::LocalState:
             result.Path = GetPathToAppDataDir(s_AppDataDir_State, forDisplay);
             result.Path /= GetRuntimePathStateName();
             result.SetOwner(ACEPrincipal::CurrentUser);
             result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
-            if (path == PathName::CheckpointsLocation)
-            {
-                result.Path /= s_CheckpointsDirectory;
-            }
             break;
         case PathName::StandardSettings:
         case PathName::UserFileSettings:
@@ -561,6 +556,9 @@ namespace AppInstaller::Runtime
         case PathName::SelfPackageRoot:
             result.Path = GetBinaryDirectoryPath();
             result.Create = false;
+            break;
+        case PathName::CheckpointsLocation:
+            result.Path = GetPathTo(PathName::LocalState, forDisplay) / s_CheckpointsDirectory;
             break;
         default:
             THROW_HR(E_UNEXPECTED);
