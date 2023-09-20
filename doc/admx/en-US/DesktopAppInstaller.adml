@@ -68,9 +68,9 @@ If you enable this setting, the Microsoft Store source for the Windows Package M
 
 If you disable this setting the Microsoft Store source for the Windows Package Manager will not be available.</string>
       <string id="SourceAutoUpdateInterval">Set App Installer Source Auto Update Interval In Minutes</string>
-      <string id="SourceAutoUpdateIntervalExplanation">This policy controls the auto update interval for package-based sources.
+      <string id="SourceAutoUpdateIntervalExplanation">This policy controls the auto-update interval for package-based sources. The default source for Windows Package Manager is configured such that an index of the packages is cached on the local machine. The index is downloaded when a user invokes a command, and the interval has passed.
 
-If you disable or do not configure this setting, the default interval or the value specified in settings will be used by the Windows Package Manager.
+If you disable or do not configure this setting, the default interval or the value specified in the Windows Package Manager settings will be used.
 
 If you enable this setting, the number of minutes specified will be used by the Windows Package Manager.</string>
       <string id="EnableAdditionalSources">Enable App Installer Additional Sources</string>

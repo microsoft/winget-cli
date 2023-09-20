@@ -360,6 +360,7 @@
     <ClInclude Include="Commands\ConfigureValidateCommand.h" />
     <ClInclude Include="Commands\DebugCommand.h" />
     <ClInclude Include="Commands\DownloadCommand.h" />
+    <ClInclude Include="Commands\ErrorCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\ExportCommand.h" />
     <ClInclude Include="Commands\ImportCommand.h" />
@@ -432,6 +433,7 @@
     <ClCompile Include="Commands\ConfigureValidateCommand.cpp" />
     <ClCompile Include="Commands\DebugCommand.cpp" />
     <ClCompile Include="Commands\DownloadCommand.cpp" />
+    <ClCompile Include="Commands\ErrorCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
     <ClCompile Include="Commands\TestCommand.cpp" />

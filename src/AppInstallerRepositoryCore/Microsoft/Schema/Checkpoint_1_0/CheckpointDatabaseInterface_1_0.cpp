@@ -27,7 +27,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
     SQLite::rowid_t CheckpointDatabaseInterface::AddCheckpoint(SQLite::Connection& connection, std::string_view checkpointName)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addcheckpoint_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addCheckpoint_v1_0");
         SQLite::rowid_t checkpointId = CheckpointTable::AddCheckpoint(connection, checkpointName);
         savepoint.Commit();
         return checkpointId;
@@ -48,7 +48,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return CheckpointDataTable::GetDataFields(connection, checkpointId, dataType);
     }
 
-    void CheckpointDatabaseInterface::SetCheckpointDataValues(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType, std::string_view name, std::vector<std::string> values)
+    void CheckpointDatabaseInterface::SetCheckpointDataValues(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType, std::string_view name, const std::vector<std::string>& values)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "setCheckpointData_v1_0");
 

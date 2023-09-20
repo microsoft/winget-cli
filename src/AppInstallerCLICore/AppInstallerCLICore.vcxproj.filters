@@ -230,6 +230,9 @@
     <ClInclude Include="ConfigurationCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\ErrorCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
     <ClInclude Include="Commands\ResumeCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
@@ -444,6 +447,9 @@
     </ClCompile>
     <ClCompile Include="CheckpointManager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ErrorCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

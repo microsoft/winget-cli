@@ -69,7 +69,7 @@ namespace AppInstaller::Repository::Microsoft
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Setting checkpoint data [" << dataType << "]");
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "CheckpointDatabase_setdatavalue");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "CheckpointDatabase_setDataValue");
 
         m_interface->SetCheckpointDataValues(m_dbconn, checkpointId, dataType, field, values);
 

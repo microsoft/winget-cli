@@ -30,7 +30,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual std::vector<int> GetCheckpointDataTypes(SQLite::Connection& connection, SQLite::rowid_t checkpointId) = 0;
 
         // Sets the field values for a checkpoint data type.
-        virtual void SetCheckpointDataValues(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType, std::string_view name, std::vector<std::string> values) = 0;
+        virtual void SetCheckpointDataValues(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType, std::string_view name, const std::vector<std::string>& values) = 0;
 
         // Gets all field names for a checkpoint data type.
         virtual std::vector<std::string> GetCheckpointDataFields(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType) = 0;

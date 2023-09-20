@@ -176,6 +176,10 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::PinInstalled:
             return { type, "installed"_liv, ArgTypeCategory::None };
 
+        // Error command
+        case Execution::Args::Type::ErrorInput:
+            return { type, "input"_liv, ArgTypeCategory::None };
+
         // Resume command
         case Execution::Args::Type::ResumeId:
             return { type, "resume-id"_liv, 'g', ArgTypeCategory::None };

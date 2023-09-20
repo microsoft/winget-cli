@@ -24,6 +24,9 @@ TEST_CASE("InstallFlow_WindowsFeatureDoesNotExist", "[windowsFeature]")
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFWindowsFeature>(true);
+
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -56,6 +59,9 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
     }
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFWindowsFeature>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -91,6 +97,9 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
     }
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFWindowsFeature>(true);
 
     // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
     HRESULT dismErrorResult = 0xc0040001;
@@ -139,6 +148,9 @@ TEST_CASE("InstallFlow_RebootRequired", "[windowsFeature]")
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFWindowsFeature>(true);
+
     // Override with reboot required HRESULT.
     auto mockDismHelperOverride = TestHook::MockDismHelper_Override();
     auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
@@ -172,6 +184,9 @@ TEST_CASE("InstallFlow_RebootRequired_Force", "[windowsFeature]")
     }
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFWindowsFeature>(true);
 
     // Override with reboot required HRESULT.
     auto mockDismHelperOverride = TestHook::MockDismHelper_Override();

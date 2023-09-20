@@ -59,9 +59,9 @@ cdecl
 cdn
 cer
 certutil
+cguid
 chrono
 cin
-cguid
 cla
 CLASSNOTAVAILABLE
 CLSCTX

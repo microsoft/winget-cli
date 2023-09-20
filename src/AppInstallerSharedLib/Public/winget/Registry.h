@@ -148,16 +148,21 @@ namespace AppInstaller::Registry
 
         struct const_iterator;
 
-        struct ValueRef : Value
+        struct ValueRef
         {
             friend const_iterator;
 
             // Gets the name of the value.
             std::string Name() const;
 
-        private:
-            ValueRef(std::wstring&& valueName, DWORD type, std::vector<BYTE>&& data);
+            // Gets the actual value of the value.
+            // The optional allows for the potential race with the value being removed.
+            std::optional<Value> Value() const;
 
+        private:
+            ValueRef(wil::shared_hkey key, std::wstring&& valueName);
+
+            wil::shared_hkey m_key;
             std::wstring m_valueName;
         };
 

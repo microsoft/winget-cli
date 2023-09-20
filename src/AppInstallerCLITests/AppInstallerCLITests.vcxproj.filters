@@ -317,6 +317,9 @@
     <ClCompile Include="DownloadFlow.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="Errors.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
     <ClCompile Include="CheckpointDatabase.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>

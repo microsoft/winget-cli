@@ -253,6 +253,6 @@ namespace AppInstaller::Filesystem
         {
             return false;
         }
-        return Utility::CaseInsensitiveEquals(Utility::ConvertToUTF8(volumeName1), Utility::ConvertToUTF8(volumeName2));
+        return Utility::ICUCaseInsensitiveEquals(Utility::ConvertToUTF8(volumeName1), Utility::ConvertToUTF8(volumeName2));
     }
 }
