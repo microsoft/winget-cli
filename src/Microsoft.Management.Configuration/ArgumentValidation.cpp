@@ -49,14 +49,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     bool IsValidObjectType(Windows::Foundation::IInspectable const& value, Windows::Foundation::PropertyType type)
     {
+        auto propertyValue = value.try_as<Windows::Foundation::IPropertyValue>();
+
         // If the type is an object, it is acceptable for the value to be a ValueSet directly
-        if (type == Windows::Foundation::PropertyType::Inspectable && value.try_as<Windows::Foundation::Collections::ValueSet>())
+        if (type == Windows::Foundation::PropertyType::Inspectable &&
+            (propertyValue || value.try_as<Windows::Foundation::Collections::ValueSet>()))
         {
             return true;
         }
 
         // If it wasn't an object type and a ValueSet, it must be an IPropertyValue
-        auto propertyValue = value.try_as<Windows::Foundation::IPropertyValue>();
         if (!propertyValue)
         {
             return false;
@@ -132,36 +134,5 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void EnsureLengthType(Windows::Foundation::PropertyType type)
     {
         THROW_HR_IF(E_INVALIDARG, !IsLengthType(type));
-    }
-
-    bool IsAssignableFromSequence(Windows::Foundation::PropertyType type)
-    {
-        switch (type)
-        {
-        case Windows::Foundation::PropertyType::Inspectable:
-        case Windows::Foundation::PropertyType::UInt8Array:
-        case Windows::Foundation::PropertyType::Int16Array:
-        case Windows::Foundation::PropertyType::UInt16Array:
-        case Windows::Foundation::PropertyType::Int32Array:
-        case Windows::Foundation::PropertyType::UInt32Array:
-        case Windows::Foundation::PropertyType::Int64Array:
-        case Windows::Foundation::PropertyType::UInt64Array:
-        case Windows::Foundation::PropertyType::SingleArray:
-        case Windows::Foundation::PropertyType::DoubleArray:
-        case Windows::Foundation::PropertyType::Char16Array:
-        case Windows::Foundation::PropertyType::BooleanArray:
-        case Windows::Foundation::PropertyType::StringArray:
-        case Windows::Foundation::PropertyType::InspectableArray:
-        case Windows::Foundation::PropertyType::DateTimeArray:
-        case Windows::Foundation::PropertyType::TimeSpanArray:
-        case Windows::Foundation::PropertyType::GuidArray:
-        case Windows::Foundation::PropertyType::PointArray:
-        case Windows::Foundation::PropertyType::SizeArray:
-        case Windows::Foundation::PropertyType::RectArray:
-        case Windows::Foundation::PropertyType::OtherTypeArray:
-            return;
-        }
-
-        THROW_HR(E_INVALIDARG);
     }
 }

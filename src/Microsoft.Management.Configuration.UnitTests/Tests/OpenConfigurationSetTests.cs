@@ -13,6 +13,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
+    using Newtonsoft.Json.Linq;
     using Windows.Foundation.Collections;
     using Xunit;
     using Xunit.Abstractions;
@@ -479,6 +480,9 @@ $schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/c
 metadata:
   a: 1
   b: '2'
+variables:
+  v1: var1
+  v2: 42
 resources:
   - name: Name
     type: Module/Resource
@@ -517,9 +521,9 @@ resources:
             Assert.Equal("https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json", set.SchemaUri.ToString());
 
             this.VerifyValueSet(set.Metadata, new ("a", 1), new ("b", "2"));
+            this.VerifyValueSet(set.Variables, new ("v1", "var1"), new ("v2", 42));
 
             Assert.Empty(set.Parameters);
-            Assert.Empty(set.Variables);
 
             Assert.Equal(2, set.Units.Count);
 
@@ -535,49 +539,105 @@ resources:
         }
 
         /// <summary>
-        /// Test for using version 0.3 schema parameters.
+        /// Test for the successful parsing of default value of a parameter.
         /// </summary>
-        [Fact]
-        public void Parameters_0_3()
+        /// <param name="type">The type.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <param name="expectedValue">The expected value.</param>
+        /// <param name="expectedType">The expected type.</param>
+        /// <param name="secure">The secure state.</param>
+        [Theory]
+        [InlineData("string", "abc", "abc", Windows.Foundation.PropertyType.String)]
+        [InlineData("string", "'42'", "42", Windows.Foundation.PropertyType.String)]
+        [InlineData("securestring", "abcdef", "abcdef", Windows.Foundation.PropertyType.String, true)]
+        [InlineData("int", "42", 42, Windows.Foundation.PropertyType.Int64)]
+        [InlineData("bool", "true", true, Windows.Foundation.PropertyType.Boolean)]
+        [InlineData("object", "string", "string", Windows.Foundation.PropertyType.Inspectable)]
+        [InlineData("object", "42", 42, Windows.Foundation.PropertyType.Inspectable)]
+        [InlineData("secureobject", "string", "string", Windows.Foundation.PropertyType.Inspectable, true)]
+        [InlineData("secureobject", "42", 42, Windows.Foundation.PropertyType.Inspectable, true)]
+        public void Parameters_DefaultValue_Success(string type, string defaultValue, object expectedValue, Windows.Foundation.PropertyType expectedType, bool secure = false)
+        {
+            this.TestParameterDefaultValue(type, defaultValue, expectedValue, expectedType, secure);
+        }
+
+        /// <summary>
+        /// Test for the failed parsing of default value of a parameter.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="defaultValue">The default value.</param>
+        /// <param name="expectedValue">The expected value.</param>
+        [Theory]
+        [InlineData("string", "42")]
+        [InlineData("int", "abc")]
+        [InlineData("int", "'42'", "42")]
+        [InlineData("bool", "'true'", "true")]
+        public void Parameters_DefaultValue_Failure(string type, string defaultValue, object? expectedValue = null)
+        {
+            this.TestParameterDefaultValue(type, defaultValue, expectedValue);
+        }
+
+        private void TestParameterDefaultValue(string type, string defaultValue, object? expectedValue = null, Windows.Foundation.PropertyType? expectedType = null, bool secure = false)
         {
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
 
-            OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
+            OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(string.Format(
+                @"
 $schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
-metadata:
-  a: 1
-  b: '2'
 parameters:
+  {0}:
+    type: {0}
+    defaultValue: {1}
+",
+                type,
+                defaultValue)));
 
-resources:
-  - name: Name
-    type: Module/Resource
-    metadata:
-      e: '5'
-      f: 6
-    properties:
-      c: 3
-      d: '4'
-    dependsOn:
-      - g
-      - h
-  - name: Name2
-    type: Module/Resource2
-    dependsOn:
-      - m
-    properties:
-      l: '10'
-    metadata:
-      i: '7'
-      j: 8
-      q: 42
-"));
+            if (expectedType != null)
+            {
+                Assert.Null(result.ResultCode);
+                Assert.NotNull(result.Set);
+                Assert.Equal(string.Empty, result.Field);
+                Assert.Equal(string.Empty, result.Value);
+                Assert.Equal(0U, result.Line);
+                Assert.Equal(0U, result.Column);
+
+                var parameters = result.Set.Parameters;
+                Assert.NotNull(parameters);
+                Assert.Single(parameters);
+
+                Assert.Equal(type, parameters[0].Name);
+                Assert.Equal(expectedType, parameters[0].Type);
+                Assert.Equal(secure, parameters[0].IsSecure);
+
+                switch (expectedValue ?? throw new ArgumentException("expectedValue"))
+                {
+                    case int i:
+                        Assert.Equal(i, (int)(long)parameters[0].DefaultValue);
+                        break;
+                    case string s:
+                        Assert.Equal(s, (string)parameters[0].DefaultValue);
+                        break;
+                    case bool b:
+                        Assert.Equal(b, (bool)parameters[0].DefaultValue);
+                        break;
+                    default:
+                        Assert.Fail($"Add expected type `{expectedValue.GetType().Name}` to switch statement.");
+                        break;
+                }
+            }
+            else
+            {
+                Assert.NotNull(result.ResultCode);
+                Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, result.ResultCode.HResult);
+                Assert.Null(result.Set);
+                Assert.Equal("defaultValue", result.Field);
+                Assert.Equal(expectedValue?.ToString() ?? defaultValue, result.Value);
+                Assert.NotEqual(0U, result.Line);
+                Assert.NotEqual(0U, result.Column);
+            }
         }
 
-            // PARAMETERS
-            // VARIABLES
-
-            private void VerifyUnitProperties(ConfigurationUnit unit, string identifier, string type)
+        private void VerifyUnitProperties(ConfigurationUnit unit, string identifier, string type)
         {
             Assert.NotNull(unit);
             Assert.Equal(identifier, unit.Identifier);

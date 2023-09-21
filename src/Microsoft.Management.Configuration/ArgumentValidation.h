@@ -14,7 +14,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // Ensures that the value object matches the expected property type.
     void EnsureObjectType(Windows::Foundation::IInspectable const& value, Windows::Foundation::PropertyType type);
 
-    // Deterimines if the given type supports comparison.
+    // Determines if the given type supports comparison.
     bool IsComparableType(Windows::Foundation::PropertyType type);
 
     // Ensures that the given type supports comparison.
@@ -25,7 +25,4 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     // Ensures that the given type supports length restrictions.
     void EnsureLengthType(Windows::Foundation::PropertyType type);
-
-    // Determines if the type can be assigned to from a sequence.
-    bool IsAssignableFromSequence(Windows::Foundation::PropertyType type);
 }
