@@ -5,7 +5,6 @@
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/PinFlow.h"
 #include "Workflows/WorkflowBase.h"
-#include "Workflows/ResumeFlow.h"
 #include "Resources.h"
 
 namespace AppInstaller::CLI
@@ -131,7 +130,6 @@ namespace AppInstaller::CLI
         }
 
         context <<
-            Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
