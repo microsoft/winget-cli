@@ -469,7 +469,8 @@ namespace AppInstaller::Runtime
             result.Create = false;
             break;
         case PathName::CheckpointsLocation:
-            result.Path = GetPathTo(PathName::LocalState, forDisplay) / s_CheckpointsDirectory;
+            result = GetPathDetailsForPackagedContext(PathName::LocalState, forDisplay);
+            result.Path /= s_CheckpointsDirectory;
             break;
         default:
             THROW_HR(E_UNEXPECTED);
@@ -558,7 +559,8 @@ namespace AppInstaller::Runtime
             result.Create = false;
             break;
         case PathName::CheckpointsLocation:
-            result.Path = GetPathTo(PathName::LocalState, forDisplay) / s_CheckpointsDirectory;
+            result = GetPathDetailsForUnpackagedContext(PathName::LocalState, forDisplay);
+            result.Path /= s_CheckpointsDirectory;
             break;
         default:
             THROW_HR(E_UNEXPECTED);
