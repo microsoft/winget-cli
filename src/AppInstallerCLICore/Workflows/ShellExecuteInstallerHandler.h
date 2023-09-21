@@ -34,4 +34,7 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest?, Installer, InstallerPath
     // Outputs: InstallerArgs
     void GetInstallerArgs(Execution::Context& context);
+
+
+    void ShellExecuteEnsureWindowsFeaturesExist(Execution::Context& context);
 }

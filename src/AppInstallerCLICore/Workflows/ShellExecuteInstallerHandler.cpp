@@ -12,10 +12,12 @@ using namespace AppInstaller::Repository;
 
 namespace AppInstaller::CLI::Workflow
 {
+    #define DISMAPI_E_UNKNOWN_FEATURE 0x800f080c
+
     namespace
     {
         // ShellExecutes the given path.
-        std::optional<DWORD> InvokeShellExecuteEx(const std::filesystem::path& filePath, const std::string& args, bool useRunAs, IProgressCallback& progress)
+        std::optional<DWORD> InvokeShellExecuteEx(const std::filesystem::path& filePath, const std::string& args, bool useRunAs, int show, IProgressCallback& progress)
         {
             AICLI_LOG(CLI, Info, << "Starting: '" << filePath.u8string() << "' with arguments '" << args << '\'');
 
@@ -27,7 +29,7 @@ namespace AppInstaller::CLI::Workflow
             execInfo.lpParameters = argsUtf16.c_str();
             // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will never complete.
             // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
-            execInfo.nShow = SW_SHOW;
+            execInfo.nShow = show;
 
             // This installer must be run elevated, but we are not currently.
             // Have ShellExecute elevate the installer since it won't do so itself.
@@ -68,7 +70,7 @@ namespace AppInstaller::CLI::Workflow
 
         std::optional<DWORD> InvokeShellExecute(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
         {
-            return InvokeShellExecuteEx(filePath, args, false, progress);
+            return InvokeShellExecuteEx(filePath, args, false, SW_SHOW, progress);
         }
 
         // Gets the escaped installer args.
@@ -201,6 +203,53 @@ namespace AppInstaller::CLI::Workflow
 
             return args;
         }
+
+        std::filesystem::path GetDismExecutablePath()
+        {
+            return { ExpandEnvironmentVariables(L"%windir%\\system32\\dism.exe") };
+        }
+
+        std::string GetDismEnableFeatureArgs(const std::string& featureName)
+        {
+            return "/Online /Enable-Feature /NoRestart /FeatureName:" + featureName;
+        }
+
+        std::string GetDismGetFeatureInfoArgs(const std::string& featureName)
+        {
+            return "/Online /Get-FeatureInfo /FeatureName:" + featureName;
+        }
+
+        std::optional<DWORD> DoesWindowsFeatureExist(Execution::Context& context, const std::string& featureName)
+        {
+            std::string args = "/Online /Get-FeatureInfo /FeatureName:" + featureName;
+            const auto& dismExecPath = GetDismExecutablePath();
+
+            auto getFeatureInfoResult = context.Reporter.ExecuteWithProgress(
+                std::bind(InvokeShellExecuteEx,
+                    dismExecPath,
+                    args,
+                    false,
+                    SW_HIDE,
+                    std::placeholders::_1));
+
+            return getFeatureInfoResult;
+        }
+
+        std::optional<DWORD> EnableWindowsFeature(Execution::Context& context, const std::string& featureName)
+        {
+            std::string args = "/Online /Enable-Feature /NoRestart /FeatureName:" + featureName;
+            const auto& dismExecPath = GetDismExecutablePath();
+
+            AICLI_LOG(Core, Info, << "Enabling Windows Feature [" << featureName << "]");
+
+            auto enableFeatureResult = context.Reporter.ExecuteWithProgress(
+                std::bind(InvokeShellExecute,
+                    dismExecPath,
+                    args,
+                    std::placeholders::_1));
+
+            return enableFeatureResult;
+        }
     }
 
     void ShellExecuteInstallImpl(Execution::Context& context)
@@ -226,6 +275,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Get<Execution::Data::InstallerPath>(),
                 installerArgs,
                 installer->ElevationRequirement == ElevationRequirementEnum::ElevationRequired && !isElevated,
+                SW_SHOW,
                 std::placeholders::_1));
 
         if (!installResult)
@@ -307,8 +357,114 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 context.Add<Execution::Data::OperationReturnCode>(uninstallResult.value());
-
             }
+        }
+    }
+
+
+    void ShellExecuteEnsureWindowsFeaturesExist(Execution::Context& context)
+    {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::WindowsFeature))
+        {
+            return;
+        }
+
+        const auto& rootDependencies = context.Get<Execution::Data::Installer>()->Dependencies;
+        bool featureNotFound = false;
+
+        rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&context, &featureNotFound](Dependency dependency)
+            {
+                auto featureName = dependency.Id();
+
+                auto featureExistResult = DoesWindowsFeatureExist(context, featureName);
+
+                if (!featureExistResult)
+                {
+                    context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
+                    AICLI_TERMINATE_CONTEXT(E_ABORT);
+                }
+
+                if (featureExistResult.value() == ERROR_SUCCESS)
+                {
+                    AICLI_LOG(Core, Info, << "Windows Feature [" << featureName << "] found.");
+                }
+                else if (featureExistResult.value() == DISMAPI_E_UNKNOWN_FEATURE)
+                {
+                    featureNotFound = true;
+                    AICLI_LOG(Core, Info, << "Windows Feature [" << featureName << "] does not exist");
+                    context.Reporter.Warn() << Resource::String::WindowsFeatureNotFound(Utility::LocIndView{ featureName }) << std::endl;
+                }
+                else
+                {
+                    // THROW errors as we don't know what happened.
+                }
+            });
+
+
+        if (context.Args.Contains(Execution::Args::Type::Force))
+        {
+            // Specify that we are continuing even if the windows features don't exist.
+            context.Reporter.Warn() << "Proceeding due to force" << std::endl;
+        }
+        else
+        {
+            //Notify the user that some of the features don't exist so we will not continue.
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY);
+        }
+    }
+
+    void ShellExecuteEnsureWindowsFeaturesExist(Execution::Context& context)
+    {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::WindowsFeature))
+        {
+            return;
+        }
+
+        const auto& rootDependencies = context.Get<Execution::Data::Installer>()->Dependencies;
+        bool rebootRequired = false;
+
+        rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&context, &rebootRequired](Dependency dependency)
+            {
+                auto featureName = dependency.Id();
+
+                auto enableFeatureResult = EnableWindowsFeature(context, featureName);
+
+                if (!enableFeatureResult)
+                {
+                    context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
+                    AICLI_TERMINATE_CONTEXT(E_ABORT);
+                }
+
+                DWORD result = enableFeatureResult.value();
+
+                if (result == DISMAPI_E_UNKNOWN_FEATURE)
+                {
+                    return;
+                }
+                else if (result == ERROR_SUCCESS_REBOOT_REQUIRED)
+                {
+                    rebootRequired = true;
+                }
+                else if (result == ERROR_SUCCESS)
+                {
+                    return;
+                }
+                else
+                {
+                    // THROW EXCEPTION.
+                }
+            });
+
+
+        if (context.Args.Contains(Execution::Args::Type::Force))
+        {
+            // Specify that we are continuing even if the windows features don't exist.
+            context.Reporter.Warn() << "Proceeding due to force" << std::endl;
+        }
+        else
+        {
+            //Notify the user that some of the features don't exist so we will not continue.
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY);
         }
     }
 }
