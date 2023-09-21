@@ -38,6 +38,7 @@ attr
 AType
 AUrl
 Authenticode
+azurefd
 azurewebsites
 bcp
 BEFACEF
@@ -97,6 +98,7 @@ createmanifestmetadata
 cswinrt
 ctc
 currentuser
+cxfsgwfxarb
 DACL
 datetimeoffset
 Dbg
@@ -182,6 +184,7 @@ Howto
 hre
 hresults
 hrow
+hwg
 hwnd
 IARP
 IAttachment
@@ -352,6 +355,7 @@ pidlist
 pkgmgr
 pkindex
 pkix
+pme
 PMS
 positionals
 powershellgallery
