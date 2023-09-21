@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "Public/AppInstallerStrings.h"
 #include "HttpClientWrapper.h"
+#include "Public/AppInstallerRuntime.h"
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Security::Cryptography;
@@ -32,6 +33,7 @@ namespace AppInstaller::Utility::HttpStream
 
         instance->m_httpClient.DefaultRequestHeaders().Connection().Clear();
         instance->m_httpClient.DefaultRequestHeaders().Append(L"Connection", L"Keep-Alive");
+        instance->m_httpClient.DefaultRequestHeaders().UserAgent().ParseAdd(Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent().get()));
 
         co_await instance->PopulateInfoAsync();
 
