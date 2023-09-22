@@ -299,16 +299,19 @@ namespace AppInstaller::Repository::Microsoft
                 std::optional<Msix::PackageVersion> currentVersion = GetCurrentVersion(details);
                 PreIndexedPackageUpdateCheck updateCheck(details);
 
-                if (currentVersion && currentVersion.value() >= updateCheck.AvailableVersion())
+                if (currentVersion)
                 {
-                    AICLI_LOG(Repo, Verbose, << "Remote source data (" << updateCheck.AvailableVersion().ToString() <<
-                        ") was not newer than existing (" << currentVersion.value().ToString() << "), no update needed");
-                    return true;
-                }
-                else
-                {
-                    AICLI_LOG(Repo, Verbose, << "Remote source data (" << updateCheck.AvailableVersion().ToString() <<
-                        ") was newer than existing (" << currentVersion.value().ToString() << "), updating");
+                    if (currentVersion.value() >= updateCheck.AvailableVersion())
+                    {
+                        AICLI_LOG(Repo, Verbose, << "Remote source data (" << updateCheck.AvailableVersion().ToString() <<
+                            ") was not newer than existing (" << currentVersion.value().ToString() << "), no update needed");
+                        return true;
+                    }
+                    else
+                    {
+                        AICLI_LOG(Repo, Verbose, << "Remote source data (" << updateCheck.AvailableVersion().ToString() <<
+                            ") was newer than existing (" << currentVersion.value().ToString() << "), updating");
+                    }
                 }
 
                 if (progress.IsCancelledBy(CancelReason::Any))
