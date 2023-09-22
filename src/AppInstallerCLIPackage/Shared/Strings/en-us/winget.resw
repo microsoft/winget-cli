@@ -1838,8 +1838,8 @@ Please specify one of them using the --source option to proceed.</value>
 {Locked="--force"}</comment>
   </data>
   <data name="EnablingWindowsFeature" xml:space="preserve">
-    <value>Enabling {0} [{1}]...</value>
-    <comment>{Locked="{0}","{1}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
+    <value>Enabling [{0}]...</value>
+    <comment>{Locked="{0}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
   </data>
   <data name="FailedToEnableWindowsFeature" xml:space="preserve">
     <value>Failed to enable [{0}] feature.</value>
@@ -2579,5 +2579,8 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT" xml:space="preserve">
     <value>A unit contains a setting that requires the config root.</value>
+  </data>
+  <data name="EnableWindowsFeaturesSuccess" xml:space="preserve">
+    <value>Successfully enabled Windows Features dependencies</value>
   </data>
 </root>

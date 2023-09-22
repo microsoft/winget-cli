@@ -157,6 +157,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DownloadDirectoryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Downloading);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(EnableWindowsFeaturesSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(EnablingWindowsFeature);
         WINGET_DEFINE_RESOURCE_STRINGID(ErrorCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ErrorCommandShortDescription);

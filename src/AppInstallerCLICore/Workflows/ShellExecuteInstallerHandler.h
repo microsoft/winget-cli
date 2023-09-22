@@ -35,6 +35,9 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: InstallerArgs
     void GetInstallerArgs(Execution::Context& context);
 
-
-    void ShellExecuteEnsureWindowsFeaturesExist(Execution::Context& context);
+    // Enables the Windows Features dependencies by invoking ShellExecute on the dism executable.
+    // Required Args: None
+    // Inputs: Dependencies
+    // Output: None
+    void ShellExecuteEnableWindowsFeatures(Execution::Context& context);
 }

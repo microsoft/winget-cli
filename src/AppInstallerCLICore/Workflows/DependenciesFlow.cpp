@@ -142,7 +142,7 @@ namespace AppInstaller::CLI::Workflow
 
         context <<
             Workflow::EnsureRunningAsAdmin <<
-            Workflow::ShellExecuteEnsureWindowsFeaturesExist;
+            Workflow::ShellExecuteEnableWindowsFeatures;
     }
 
     void CreateDependencySubContexts::operator()(Execution::Context& context) const
