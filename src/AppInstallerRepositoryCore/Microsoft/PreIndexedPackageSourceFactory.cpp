@@ -6,6 +6,7 @@
 #include "Microsoft/SQLiteIndexSource.h"
 
 #include <AppInstallerDeployment.h>
+#include <AppInstallerDownloader.h>
 #include <AppInstallerMsixInfo.h>
 #include <winget/ManagedFile.h>
 
@@ -17,7 +18,7 @@ namespace AppInstaller::Repository::Microsoft
     namespace
     {
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "source.msix"sv;
-        static constexpr std::string_view s_PreIndexedPackageSourceFactory_VersionFileName = "source.version.txt"sv;
+        static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageVersionHeader = "x-ms-meta-sourceversion"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFileName = "index.db"sv;
         // TODO: This being hard coded to force using the Public directory name is not ideal.
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFilePath = "Public\\index.db"sv;
@@ -116,7 +117,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 try
                 {
-                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation, GetPrimaryPackageLocation(details, s_PreIndexedPackageSourceFactory_VersionFileName));
+                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation);
                     return;
                 }
                 catch (...)
@@ -133,7 +134,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 try
                 {
-                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation, GetAlternatePackageLocation(details, s_PreIndexedPackageSourceFactory_VersionFileName));
+                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation);
                     return;
                 }
                 CATCH_LOG_MSG("PreIndexedPackageUpdateCheck failed on alternate location");
@@ -148,10 +149,31 @@ namespace AppInstaller::Repository::Microsoft
             std::string m_packageLocation;
             Msix::PackageVersion m_availableVersion;
 
-            Msix::PackageVersion GetAvailableVersionFrom(const std::string& packageLocation, const std::string& versionLocation)
+            Msix::PackageVersion GetAvailableVersionFrom(const std::string& packageLocation)
             {
-                std::ostringstream versionStream;
-                Utility::DownloadToStream(versionLocation, versionStream, Utility::DownloadType::Index)
+                if (Utility::IsUrlRemote(packageLocation))
+                {
+                    try
+                    {
+                        std::map<std::string, std::string> headers = Utility::GetHeaders(packageLocation);
+                        auto itr = headers.find(std::string{ s_PreIndexedPackageSourceFactory_PackageVersionHeader });
+                        if (itr != headers.end())
+                        {
+                            AICLI_LOG(Repo, Verbose, << "Header indicates version is: " << itr->second);
+                            return { itr->second };
+                        }
+                    }
+                    CATCH_LOG();
+                }
+
+                // We were not able to retrieve 
+                Msix::MsixInfo info{ packageLocation };
+                auto manifest = info.GetAppPackageManifests();
+
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, manifest.size() > 1);
+                THROW_HR_IF(E_UNEXPECTED, manifest.size() == 0);
+
+                return manifest[0].GetIdentity().GetVersion();
             }
         };
 
