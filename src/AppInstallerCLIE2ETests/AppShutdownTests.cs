@@ -68,7 +68,7 @@ namespace AppInstallerCLIE2ETests
             // This just waits for the app termination event.
             var testCmdTask = new Task<TestCommon.RunCommandResult>(() =>
             {
-                return TestCommon.RunAICLICommandViaInvokeCommandInDesktopPackage("test", "appshutdown", timeOut: 300000, throwOnTimeout: false);
+                return TestCommon.RunAICLICommand("test", "appshutdown", timeOut: 300000, throwOnTimeout: false);
             });
 
             // Register the app with the updated version.
@@ -108,7 +108,7 @@ namespace AppInstallerCLIE2ETests
                 throw new NullReferenceException("AICLIPackagePath");
             }
 
-            var result = TestCommon.RunAICLICommandViaInvokeCommandInDesktopPackage("test", "appshutdown --force", timeOut: 300000, throwOnTimeout: false);
+            var result = TestCommon.RunAICLICommand("test", "appshutdown --force", timeOut: 300000, throwOnTimeout: false);
             TestContext.Out.Write(result.StdOut);
             Assert.True(result.StdOut.Contains("Succeeded waiting for app shutdown event"));
         }
