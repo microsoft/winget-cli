@@ -108,7 +108,6 @@ namespace AppInstaller::Repository::Microsoft
         {
             PreIndexedPackageUpdateCheck(const SourceDetails& details)
             {
-                // Get both locations to force the alternate location check
                 m_packageLocation = GetPrimaryPackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
                 std::string alternateLocation = GetAlternatePackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
 
@@ -166,7 +165,7 @@ namespace AppInstaller::Repository::Microsoft
                     CATCH_LOG();
                 }
 
-                // We were not able to retrieve 
+                AICLI_LOG(Repo, Verbose, << "No version header, falling back to reading the package data");
                 Msix::MsixInfo info{ packageLocation };
                 auto manifest = info.GetAppPackageManifests();
 
@@ -302,8 +301,14 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (currentVersion && currentVersion.value() >= updateCheck.AvailableVersion())
                 {
-                    AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
+                    AICLI_LOG(Repo, Verbose, << "Remote source data (" << updateCheck.AvailableVersion().ToString() <<
+                        ") was not newer than existing (" << currentVersion.value().ToString() << "), no update needed");
                     return true;
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Verbose, << "Remote source data (" << updateCheck.AvailableVersion().ToString() <<
+                        ") was newer than existing (" << currentVersion.value().ToString() << "), updating");
                 }
 
                 if (progress.IsCancelledBy(CancelReason::Any))

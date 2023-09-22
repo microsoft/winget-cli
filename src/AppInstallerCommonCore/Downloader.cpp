@@ -145,6 +145,8 @@ namespace AppInstaller::Utility
 
     std::map<std::string, std::string> GetHeaders(std::string_view url)
     {
+        AICLI_LOG(Core, Verbose, << "Retrieving headers from url: " << url);
+
         HttpBaseProtocolFilter filter;
         filter.CacheControl().ReadBehavior(HttpCacheReadBehavior::MostRecent);
 
