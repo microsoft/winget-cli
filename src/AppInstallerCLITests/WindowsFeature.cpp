@@ -36,7 +36,7 @@ TEST_CASE("InstallFlow_WindowsFeatureDoesNotExist", "[windowsFeature]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE(context.GetTerminationHR() == 0x800f080c); // DISMAPI_E_UNKNOWN_FEATURE
+    REQUIRE(context.GetTerminationHR() == HRESULT_FROM_WIN32(0x800f080c)); // DISMAPI_E_UNKNOWN_FEATURE
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::WindowsFeatureNotFound(LocIndView{ "testFeature1" })).get()) != std::string::npos);
 

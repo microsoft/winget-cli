@@ -225,8 +225,6 @@ namespace AppInstaller::CLI::Workflow
 
         std::optional<DWORD> EnableWindowsFeature(Execution::Context& context, const std::string& featureName)
         {
-
-
             std::string args = "/Online /Enable-Feature /NoRestart /FeatureName:" + featureName;
             const auto& dismExecPath = GetDismExecutablePath();
 
@@ -402,6 +400,7 @@ namespace AppInstaller::CLI::Workflow
 
                 if (!doesFeatureExistResult)
                 {
+                    // User aborted the operation.
                     AICLI_TERMINATE_CONTEXT(E_ABORT);
                 }
 
@@ -426,6 +425,7 @@ namespace AppInstaller::CLI::Workflow
 #endif
                 if (!enableFeatureResult)
                 {
+                    // User aborted the operation.
                     AICLI_TERMINATE_CONTEXT(E_ABORT);
                 }
 
