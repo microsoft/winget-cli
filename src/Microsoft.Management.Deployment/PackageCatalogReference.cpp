@@ -89,11 +89,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 return GetConnectCatalogErrorResult();
             }
 
-            if (!m_acceptSourceAgreements && SourceAgreements().Size() != 0)
-            {
-                return GetConnectSourceAgreementsNotAcceptedErrorResult();
-            }
-
             ::AppInstaller::ProgressCallback progress;
             ::AppInstaller::Repository::Source source;
             if (m_compositePackageCatalogOptions)
@@ -103,6 +98,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 for (uint32_t i = 0; i < m_compositePackageCatalogOptions.Catalogs().Size(); ++i)
                 {
                     auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
+                    if (!catalog.AcceptSourceAgreements() && catalog.SourceAgreements().Size() != 0)
+                    {
+                        return GetConnectSourceAgreementsNotAcceptedErrorResult();
+                    }
+
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference* catalogImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>(catalog);
                     auto copy = catalogImpl->m_sourceReference;
                     copy.SetCaller(GetCallerName());
@@ -140,6 +140,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             else
             {
+                if (!m_acceptSourceAgreements && SourceAgreements().Size() != 0)
+                {
+                    return GetConnectSourceAgreementsNotAcceptedErrorResult();
+                }
+
                 source = m_sourceReference;
                 source.SetCaller(GetCallerName());
                 source.Open(progress);
@@ -171,11 +176,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::call_once(m_sourceAgreementsOnceFlag,
             [&]()
             {
-                for (auto const& agreement : m_sourceReference.GetInformation().SourceAgreements)
+                if (!IsComposite())
                 {
-                    auto sourceAgreement = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::SourceAgreement>>();
-                    sourceAgreement->Initialize(agreement);
-                    m_sourceAgreements.Append(*sourceAgreement);
+                    for (auto const& agreement : m_sourceReference.GetInformation().SourceAgreements)
+                    {
+                        auto sourceAgreement = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::SourceAgreement>>();
+                        sourceAgreement->Initialize(agreement);
+                        m_sourceAgreements.Append(*sourceAgreement);
+                    }
                 }
             });
         return m_sourceAgreements.GetView();
@@ -207,6 +215,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     void PackageCatalogReference::AcceptSourceAgreements(bool value)
     {
+        if (IsComposite())
+        {
+            // Can't set AcceptSourceAgreements on a composite. Callers should set it on each non-composite PackageCatalogReference in the composite.
+            throw winrt::hresult_illegal_state_change();
+        }
         m_acceptSourceAgreements = value;
     }
     bool PackageCatalogReference::AcceptSourceAgreements()
