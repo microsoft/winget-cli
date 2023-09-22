@@ -89,7 +89,7 @@ namespace AppInstallerCLIE2ETests
         public void SearchReturnsMultiple()
         {
             // Search Microsoft should return multiple
-            var result = TestCommon.RunAICLICommand("search", "AppInstallerTest");
+            var result = TestCommon.RunAICLICommand("search", "AppInstallerTest --verbose");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"));

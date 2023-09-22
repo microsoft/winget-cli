@@ -632,7 +632,7 @@ namespace AppInstallerCLIE2ETests
         public void InstallWithWindowsFeatureDependency_FeatureNotFound()
         {
             var testDir = TestCommon.GetRandomTestDir();
-            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature -l {testDir}");
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature -l {testDir} --verbose");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_MISSING_DEPENDENCY, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("The feature [invalidFeature] was not found."));
         }
@@ -644,7 +644,7 @@ namespace AppInstallerCLIE2ETests
         public void InstallWithWindowsFeatureDependency_Force()
         {
             var testDir = TestCommon.GetRandomTestDir();
-            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --silent --force -l {testDir}");
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --silent --force -l {testDir} --verbose");
             Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
