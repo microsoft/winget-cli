@@ -895,11 +895,23 @@ namespace AppInstallerCLIE2ETests.Helpers
 
             p.StartInfo.RedirectStandardOutput = true;
             StringBuilder outputData = new ();
-            p.OutputDataReceived += (sender, args) => { if (args.Data != null) { outputData.AppendLine(args.Data); } };
+            p.OutputDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    outputData.AppendLine(args.Data);
+                }
+            };
 
             p.StartInfo.RedirectStandardError = true;
             StringBuilder errorData = new ();
-            p.ErrorDataReceived += (sender, args) => { if (args.Data != null) { errorData.AppendLine(args.Data); } };
+            p.ErrorDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    errorData.AppendLine(args.Data);
+                }
+            };
 
             if (!string.IsNullOrEmpty(stdIn))
             {
