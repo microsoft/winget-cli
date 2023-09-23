@@ -65,6 +65,8 @@ namespace AppInstaller::CLI::Workflow
         virtual void operator()(Execution::Context& context) const;
 
         const std::string& GetName() const { return m_name; }
+        bool IsFunction() const { return m_isFunc; }
+        Func Function() const { return m_func; }
 
     private:
         bool m_isFunc = false;
