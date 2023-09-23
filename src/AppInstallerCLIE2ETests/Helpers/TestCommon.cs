@@ -13,6 +13,7 @@ namespace AppInstallerCLIE2ETests.Helpers
     using System.Linq;
     using System.Management.Automation;
     using System.Reflection;
+    using System.Text;
     using System.Threading;
     using AppInstallerCLIE2ETests;
     using AppInstallerCLIE2ETests.PowerShell;
@@ -891,8 +892,14 @@ namespace AppInstallerCLIE2ETests.Helpers
             Process p = new Process();
             p.StartInfo = new ProcessStartInfo(TestSetup.Parameters.AICLIPath, command + ' ' + parameters);
             p.StartInfo.UseShellExecute = false;
+
             p.StartInfo.RedirectStandardOutput = true;
+            StringBuilder outputData = new ();
+            p.OutputDataReceived += (sender, args) => { if (args.Data != null) { outputData.AppendLine(args.Data); } };
+
             p.StartInfo.RedirectStandardError = true;
+            StringBuilder errorData = new ();
+            p.ErrorDataReceived += (sender, args) => { if (args.Data != null) { errorData.AppendLine(args.Data); } };
 
             if (!string.IsNullOrEmpty(stdIn))
             {
@@ -900,6 +907,8 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             p.Start();
+            p.BeginOutputReadLine();
+            p.BeginErrorReadLine();
 
             if (!string.IsNullOrEmpty(stdIn))
             {
@@ -908,9 +917,13 @@ namespace AppInstallerCLIE2ETests.Helpers
 
             if (p.WaitForExit(timeOut))
             {
+                // According to documentation, this extra call will ensure that the redirected streams
+                // have finished reading all of the data.
+                p.WaitForExit();
+
                 result.ExitCode = p.ExitCode;
-                result.StdOut = p.StandardOutput.ReadToEnd();
-                result.StdErr = p.StandardError.ReadToEnd();
+                result.StdOut = outputData.ToString();
+                result.StdErr = errorData.ToString();
 
                 TestContext.Out.WriteLine("Command run completed with exit code: " + result.ExitCode);
 
