@@ -1283,11 +1283,11 @@ AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::
         {
             if (task.IsFunction())
             {
-                AICLI_LOG(CLI, Verbose, << "Executing workflow task: " << task.Function());
+                AICLI_LOG(CLI, Info, << "Executing workflow task: " << task.Function());
             }
             else
             {
-                AICLI_LOG(CLI, Verbose, << "Executing workflow task: " << task.GetName());
+                AICLI_LOG(CLI, Info, << "Executing workflow task: " << task.GetName());
             }
             task(context);
         }
