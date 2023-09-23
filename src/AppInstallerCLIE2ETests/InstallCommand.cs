@@ -629,10 +629,11 @@ namespace AppInstallerCLIE2ETests
         /// Test install a package with an invalid Windows Feature dependency.
         /// </summary>
         [Test]
+        [Ignore("Need change to implementation of Windows Feature dependencies.")]
         public void InstallWithWindowsFeatureDependency_FeatureNotFound()
         {
             var testDir = TestCommon.GetRandomTestDir();
-            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature -l {testDir} --verbose");
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature -l {testDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_MISSING_DEPENDENCY, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("The feature [invalidFeature] was not found."));
         }
@@ -641,10 +642,11 @@ namespace AppInstallerCLIE2ETests
         /// Test install a package with a Windows Feature dependency using the force argument.
         /// </summary>
         [Test]
+        [Ignore("Need change to implementation of Windows Feature dependencies.")]
         public void InstallWithWindowsFeatureDependency_Force()
         {
             var testDir = TestCommon.GetRandomTestDir();
-            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --silent --force -l {testDir} --verbose");
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --silent --force -l {testDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));

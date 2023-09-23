@@ -1281,14 +1281,6 @@ AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::
         if (context.ShouldExecuteWorkflowTask(task))
 #endif
         {
-            if (task.IsFunction())
-            {
-                AICLI_LOG(CLI, Info, << "Executing workflow task: " << task.Function());
-            }
-            else
-            {
-                AICLI_LOG(CLI, Info, << "Executing workflow task: " << task.GetName());
-            }
             task(context);
         }
     }
