@@ -39,6 +39,15 @@ using namespace ::AppInstaller::CLI::Execution;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    PackageManager::PackageManager()
+    {
+        auto previousThreadGlobals = m_threadGlobals.SetForCurrentThread();
+        // Immediately reset as we only want the thread globals for logging within this object.
+        previousThreadGlobals.reset();
+        m_threadGlobals.GetTelemetryLogger().SetCaller(GetCallerName());
+        m_threadGlobals.GetTelemetryLogger().LogStartup(true);
+    }
+
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageManager::GetPackageCatalogs()
     {
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageCatalogReference> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalogReference>() };

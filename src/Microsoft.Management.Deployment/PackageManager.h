@@ -17,7 +17,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     [uuid(WINGET_OUTOFPROC_COM_CLSID_PackageManager)]
     struct PackageManager : PackageManagerT<PackageManager>
     {
-        PackageManager() = default;
+        PackageManager();
 
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> GetPackageCatalogs();
         winrt::Microsoft::Management::Deployment::PackageCatalogReference GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog);
@@ -41,6 +41,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             DownloadPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::DownloadOptions options);
         winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::DownloadResult, winrt::Microsoft::Management::Deployment::PackageDownloadProgress>
             GetDownloadProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo);
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+    private:
+        AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
+#endif
     };
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
