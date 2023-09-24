@@ -118,4 +118,29 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return {};
     }
+
+    std::string GetCallerName()
+    {
+        // See if caller name is set by caller
+        std::string callerName = GetComCallerName("");
+
+        // Get process string
+        if (callerName.empty())
+        {
+            try
+            {
+                auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+                THROW_IF_FAILED(hrGetCallerId);
+                callerName = AppInstaller::Utility::ConvertToUTF8(TryGetCallerProcessInfo(callerProcessId));
+            }
+            CATCH_LOG();
+        }
+
+        if (callerName.empty())
+        {
+            callerName = "UnknownComCaller";
+        }
+
+        return callerName;
+    }
 }

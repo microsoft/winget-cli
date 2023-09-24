@@ -15,41 +15,41 @@
 #include <winget/GroupPolicy.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
+#include <winget/UserSettings.h>
 #include <Helpers.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    namespace
-    {
-        std::string GetCallerName()
-        {
-            // See if caller name is set by caller
-            static auto callerName = GetComCallerName("");
-
-            // Get process string
-            if (callerName.empty())
-            {
-                try
-                {
-                    auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
-                    THROW_IF_FAILED(hrGetCallerId);
-                    callerName = AppInstaller::Utility::ConvertToUTF8(TryGetCallerProcessInfo(callerProcessId));
-                }
-                CATCH_LOG();
-            }
-
-            if (callerName.empty())
-            {
-                callerName = "UnknownComCaller";
-            }
-
-            return callerName;
-        }
-    }
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::PackageCatalogInfo packageCatalogInfo, ::AppInstaller::Repository::Source sourceReference)
     {
+        static constexpr winrt::Windows::Foundation::TimeSpan s_PackageCatalogUpdateIntervalDelay = 168h; //1 week
+
         m_info = packageCatalogInfo;
         m_sourceReference = std::move(sourceReference);
+        m_packageCatalogBackgroundUpdateInterval = ::AppInstaller::Settings::User().Get<::AppInstaller::Settings::Setting::AutoUpdateTimeInMinutes>();
+
+        bool shouldDelayBackgroundUpdateInterval = false;
+        try
+        {
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            THROW_IF_FAILED(hrGetCallerId);
+            if (callerProcessId != GetCurrentProcessId())
+            {
+                // OutOfProc case, we check for explorer.exe
+                auto callerNameWide = AppInstaller::Utility::ConvertToUTF16(GetCallerName());
+                auto processName = AppInstaller::Utility::ConvertToUTF8(std::filesystem::path{ callerNameWide }.filename().wstring());
+                if (::AppInstaller::Utility::CaseInsensitiveEquals("explorer.exe", processName))
+                {
+                    shouldDelayBackgroundUpdateInterval = true;
+                }
+            }
+        }
+        CATCH_LOG();
+
+        if (shouldDelayBackgroundUpdateInterval)
+        {
+            m_packageCatalogBackgroundUpdateInterval = s_PackageCatalogUpdateIntervalDelay;
+        }
     }
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions options)
     {
@@ -89,6 +89,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 return GetConnectCatalogErrorResult();
             }
 
+            std::string callerName = GetCallerName();
+
             ::AppInstaller::ProgressCallback progress;
             ::AppInstaller::Repository::Source source;
             if (m_compositePackageCatalogOptions)
@@ -105,7 +107,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference* catalogImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>(catalog);
                     auto copy = catalogImpl->m_sourceReference;
-                    copy.SetCaller(GetCallerName());
+                    copy.SetCaller(callerName);
                     copy.Open(progress);
                     remoteSources.emplace_back(std::move(copy));
                 }
@@ -146,7 +148,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 }
 
                 source = m_sourceReference;
-                source.SetCaller(GetCallerName());
+                source.SetCaller(callerName);
                 source.Open(progress);
             }
 
@@ -225,5 +227,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     bool PackageCatalogReference::AcceptSourceAgreements()
     {
         return m_acceptSourceAgreements;
+    }
+    void PackageCatalogReference::PackageCatalogBackgroundUpdateInterval(winrt::Windows::Foundation::TimeSpan const& value)
+    {
+        if (IsComposite())
+        {
+            // Can't set PackageCatalogBackgroundUpdateInterval on a composite. Callers should set it on each non-composite PackageCatalogReference in the composite.
+            throw winrt::hresult_illegal_state_change();
+        }
+        m_packageCatalogBackgroundUpdateInterval = value;
+    }
+    winrt::Windows::Foundation::TimeSpan PackageCatalogReference::PackageCatalogBackgroundUpdateInterval()
+    {
+        return m_packageCatalogBackgroundUpdateInterval;
     }
 }
