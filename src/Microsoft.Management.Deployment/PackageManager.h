@@ -3,6 +3,7 @@
 #pragma once
 #include "PackageManager.g.h"
 #include "Public/ComClsids.h"
+#include <winget/ThreadGlobals.h>
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
 // Forward declaration
