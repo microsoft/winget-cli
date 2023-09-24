@@ -6,6 +6,7 @@
 #include "Microsoft/SQLiteIndexSource.h"
 
 #include <AppInstallerDeployment.h>
+#include <AppInstallerDownloader.h>
 #include <AppInstallerMsixInfo.h>
 #include <winget/ManagedFile.h>
 
@@ -17,20 +18,48 @@ namespace AppInstaller::Repository::Microsoft
     namespace
     {
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "source.msix"sv;
+        static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageVersionHeader = "x-ms-meta-sourceversion"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFileName = "index.db"sv;
         // TODO: This being hard coded to force using the Public directory name is not ideal.
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFilePath = "Public\\index.db"sv;
 
+        // Construct the package location from the given details.
+        // Currently expects that the arg is an https uri pointing to the root of the data.
+        std::string GetPackageLocation(const std::string& basePath, std::string_view fileName)
+        {
+            std::string result = basePath;
+            if (result.back() != '/')
+            {
+                result += '/';
+            }
+            result += fileName;
+            return result;
+        }
+
+        std::string GetPrimaryPackageLocation(const SourceDetails& details, std::string_view fileName)
+        {
+            THROW_HR_IF(E_INVALIDARG, details.Arg.empty());
+            return GetPackageLocation(details.Arg, fileName);
+        }
+
+        std::string GetAlternatePackageLocation(const SourceDetails& details, std::string_view fileName)
+        {
+            return (details.AlternateArg.empty() ?
+                std::string{} :
+                GetPackageLocation(details.AlternateArg, fileName));
+        }
+
+        // Abstracts the fallback for package location when the MsixInfo is needed.
         struct PreIndexedPackageInfo
         {
             template <typename LocationCheck>
             PreIndexedPackageInfo(const SourceDetails& details, LocationCheck&& locationCheck)
             {
                 // Get both locations to force the alternate location check
-                m_packageLocation = GetPrimaryPackageLocation(details);
+                m_packageLocation = GetPrimaryPackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
                 locationCheck(m_packageLocation);
 
-                std::string alternateLocation = GetAlternatePackageLocation(details);
+                std::string alternateLocation = GetAlternatePackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
                 if (!alternateLocation.empty())
                 {
                     locationCheck(alternateLocation);
@@ -72,29 +101,78 @@ namespace AppInstaller::Repository::Microsoft
         private:
             std::string m_packageLocation;
             std::unique_ptr<Msix::MsixInfo> m_msixInfo;
+        };
 
-            std::string GetPrimaryPackageLocation(const SourceDetails& details)
+        // Abstracts the fallback for package location when an update is being done.
+        struct PreIndexedPackageUpdateCheck
+        {
+            PreIndexedPackageUpdateCheck(const SourceDetails& details)
             {
-                THROW_HR_IF(E_INVALIDARG, details.Arg.empty());
-                return GetPackageLocation(details.Arg);
-            }
+                m_packageLocation = GetPrimaryPackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
+                std::string alternateLocation = GetAlternatePackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
 
-            std::string GetAlternatePackageLocation(const SourceDetails& details)
-            {
-                return (details.AlternateArg.empty() ? std::string{} : GetPackageLocation(details.AlternateArg));
-            }
+                // Try getting the primary location's info
+                HRESULT primaryHR = S_OK;
 
-            // Construct the package location from the given details.
-            // Currently expects that the arg is an https uri pointing to the root of the data.
-            std::string GetPackageLocation(const std::string& basePath)
-            {
-                std::string result = basePath;
-                if (result.back() != '/')
+                try
                 {
-                    result += '/';
+                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation);
+                    return;
                 }
-                result += s_PreIndexedPackageSourceFactory_PackageFileName;
-                return result;
+                catch (...)
+                {
+                    if (alternateLocation.empty())
+                    {
+                        throw;
+                    }
+                    primaryHR = LOG_CAUGHT_EXCEPTION_MSG("PreIndexedPackageUpdateCheck failed on primary location");
+                }
+
+                // Try alternate location
+                m_packageLocation = std::move(alternateLocation);
+
+                try
+                {
+                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation);
+                    return;
+                }
+                CATCH_LOG_MSG("PreIndexedPackageUpdateCheck failed on alternate location");
+
+                THROW_HR(primaryHR);
+            }
+
+            const std::string& PackageLocation() const { return m_packageLocation; }
+            const Msix::PackageVersion& AvailableVersion() const { return m_availableVersion; }
+
+        private:
+            std::string m_packageLocation;
+            Msix::PackageVersion m_availableVersion;
+
+            Msix::PackageVersion GetAvailableVersionFrom(const std::string& packageLocation)
+            {
+                if (Utility::IsUrlRemote(packageLocation))
+                {
+                    try
+                    {
+                        std::map<std::string, std::string> headers = Utility::GetHeaders(packageLocation);
+                        auto itr = headers.find(std::string{ s_PreIndexedPackageSourceFactory_PackageVersionHeader });
+                        if (itr != headers.end())
+                        {
+                            AICLI_LOG(Repo, Verbose, << "Header indicates version is: " << itr->second);
+                            return { itr->second };
+                        }
+                    }
+                    CATCH_LOG();
+                }
+
+                AICLI_LOG(Repo, Verbose, << "No version header, falling back to reading the package data");
+                Msix::MsixInfo info{ packageLocation };
+                auto manifest = info.GetAppPackageManifests();
+
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, manifest.size() > 1);
+                THROW_HR_IF(E_UNEXPECTED, manifest.size() == 0);
+
+                return manifest[0].GetIdentity().GetVersion();
             }
         };
 
@@ -164,7 +242,7 @@ namespace AppInstaller::Repository::Microsoft
                     return false;
                 }
 
-                return UpdateInternal(packageInfo.PackageLocation(), packageInfo.MsixInfo(), details, progress);
+                return UpdateInternal(packageInfo.PackageLocation(), details, progress);
             }
 
             bool Update(const SourceDetails& details, IProgressCallback& progress) override final
@@ -177,7 +255,10 @@ namespace AppInstaller::Repository::Microsoft
                 return UpdateBase(details, true, progress);
             }
 
-            virtual bool UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) = 0;
+            // Retrieves the currently cached version of the package.
+            virtual std::optional<Msix::PackageVersion> GetCurrentVersion(const SourceDetails& details) = 0;
+
+            virtual bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) = 0;
 
             bool Remove(const SourceDetails& details, IProgressCallback& progress) override final
             {
@@ -215,14 +296,23 @@ namespace AppInstaller::Repository::Microsoft
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
-                PreIndexedPackageInfo packageInfo(details, [](const std::string&){});
+                std::optional<Msix::PackageVersion> currentVersion = GetCurrentVersion(details);
+                PreIndexedPackageUpdateCheck updateCheck(details);
 
-                // The package should not be a bundle
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.MsixInfo().GetIsBundle());
-
-                // Ensure that family name has not changed
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
-                    GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(packageInfo.MsixInfo().GetPackageFullName()));
+                if (currentVersion)
+                {
+                    if (currentVersion.value() >= updateCheck.AvailableVersion())
+                    {
+                        AICLI_LOG(Repo, Verbose, << "Remote source data (" << updateCheck.AvailableVersion().ToString() <<
+                            ") was not newer than existing (" << currentVersion.value().ToString() << "), no update needed");
+                        return true;
+                    }
+                    else
+                    {
+                        AICLI_LOG(Repo, Verbose, << "Remote source data (" << updateCheck.AvailableVersion().ToString() <<
+                            ") was newer than existing (" << currentVersion.value().ToString() << "), updating");
+                    }
+                }
 
                 if (progress.IsCancelledBy(CancelReason::Any))
                 {
@@ -236,7 +326,7 @@ namespace AppInstaller::Repository::Microsoft
                     return false;
                 }
 
-                return UpdateInternal(packageInfo.PackageLocation(), packageInfo.MsixInfo(), details, progress);
+                return UpdateInternal(updateCheck.PackageLocation(), details, progress);
             }
         };
 
@@ -305,46 +395,58 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<PackagedContextSourceReference>(details);
             }
 
-            bool UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
+            std::optional<Msix::PackageVersion> GetCurrentVersion(const SourceDetails& details) override
             {
-                // Check if the package is newer before calling into deployment.
-                // This can save us a lot of time over letting deployment detect same version.
                 auto extension = GetExtensionFromDetails(details);
+
                 if (extension)
                 {
-                    if (!packageInfo.IsNewerThan(extension->GetPackageVersion()))
-                    {
-                        AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
-                        return true;
-                    }
-                }
-
-                if (progress.IsCancelledBy(CancelReason::Any))
-                {
-                    AICLI_LOG(Repo, Info, << "Cancelling update upon request");
-                    return false;
-                }
-
-                // Due to complications with deployment, download the file and deploy from
-                // a local source while we investigate further.
-                bool download = Utility::IsUrlRemote(packageLocation);
-                std::filesystem::path tempFile;
-                winrt::Windows::Foundation::Uri uri = nullptr;
-
-                if (download)
-                {
-                    tempFile = Runtime::GetPathTo(Runtime::PathName::Temp);
-                    tempFile /= GetPackageFamilyNameFromDetails(details) + ".msix";
-
-                    Utility::Download(packageLocation, tempFile, Utility::DownloadType::Index, progress);
-
-                    uri = winrt::Windows::Foundation::Uri(tempFile.c_str());
+                    auto version = extension->GetPackageVersion();
+                    return Msix::PackageVersion{ version.Major, version.Minor, version.Build, version.Revision };
                 }
                 else
                 {
-                    uri = winrt::Windows::Foundation::Uri(Utility::ConvertToUTF16(packageLocation));
+                    return std::nullopt;
+                }
+            }
+
+            bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) override
+            {
+                // Due to complications with deployment, download the file and deploy from
+                // a local source while we investigate further.
+                bool download = Utility::IsUrlRemote(packageLocation);
+                std::filesystem::path localFile;
+
+                if (download)
+                {
+                    localFile = Runtime::GetPathTo(Runtime::PathName::Temp);
+                    localFile /= GetPackageFamilyNameFromDetails(details) + ".msix";
+
+                    Utility::Download(packageLocation, localFile, Utility::DownloadType::Index, progress);
+                }
+                else
+                {
+                    localFile = Utility::ConvertToUTF16(packageLocation);
                 }
 
+                // Verify the local file
+                Msix::WriteLockedMsixFile fileLock{ localFile };
+                Msix::MsixInfo localMsixInfo{ localFile };
+
+                // The package should not be a bundle
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, localMsixInfo.GetIsBundle());
+
+                // Ensure that family name has not changed
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
+                    GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(localMsixInfo.GetPackageFullName()));
+
+                if (!fileLock.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
+                {
+                    AICLI_LOG(Repo, Error, << "Source update failed. Source package failed trust validation.");
+                    THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
+                }
+
+                winrt::Windows::Foundation::Uri uri = winrt::Windows::Foundation::Uri(localFile.c_str());
                 Deployment::AddPackage(
                     uri,
                     winrt::Windows::Management::Deployment::DeploymentOptions::None,
@@ -356,27 +458,9 @@ namespace AppInstaller::Repository::Microsoft
                     try
                     {
                         // If successful, delete the file
-                        std::filesystem::remove(tempFile);
+                        std::filesystem::remove(localFile);
                     }
                     CATCH_LOG();
-                }
-
-                // Ensure origin if necessary
-                // TODO: Move to checking this before deploying it. That requires significant code to be written though
-                //       as there is no public API to check the origin directly.
-                if (WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin))
-                {
-                    std::wstring pfn = packageInfo.GetPackageFullNameWide();
-
-                    PackageOrigin origin = PackageOrigin::PackageOrigin_Unknown;
-                    if (SUCCEEDED_WIN32_LOG(GetStagedPackageOrigin(pfn.c_str(), &origin)))
-                    {
-                        if (origin != PackageOrigin::PackageOrigin_Store)
-                        {
-                            Deployment::RemovePackage(Utility::ConvertToUTF8(pfn), winrt::Windows::Management::Deployment::RemovalOptions::None, progress);
-                            THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
-                        }
-                    }
                 }
 
                 return true;
@@ -480,7 +564,31 @@ namespace AppInstaller::Repository::Microsoft
                 return std::make_shared<DesktopContextSourceReference>(details);
             }
 
-            bool UpdateInternal(const std::string& packageLocation, Msix::MsixInfo& packageInfo, const SourceDetails& details, IProgressCallback& progress) override
+            std::optional<Msix::PackageVersion> GetCurrentVersion(const SourceDetails& details) override
+            {
+                std::filesystem::path packageState = GetStatePathFromDetails(details);
+                std::filesystem::path packagePath = packageState / s_PreIndexedPackageSourceFactory_PackageFileName;
+
+                if (std::filesystem::exists(packagePath))
+                {
+                    // If we already have a trusted index package, use it to determine if we need to update or not.
+                    Msix::WriteLockedMsixFile indexPackage{ packagePath };
+                    if (indexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
+                    {
+                        Msix::MsixInfo msixInfo{ packagePath };
+                        auto manifest = msixInfo.GetAppPackageManifests();
+
+                        if (manifest.size() == 1)
+                        {
+                            return manifest[0].GetIdentity().GetVersion();
+                        }
+                    }
+                }
+
+                return std::nullopt;
+            }
+
+            bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) override
             {
                 // We will extract the manifest and index files directly to this location
                 std::filesystem::path packageState = GetStatePathFromDetails(details);
@@ -488,19 +596,19 @@ namespace AppInstaller::Repository::Microsoft
 
                 std::filesystem::path packagePath = packageState / s_PreIndexedPackageSourceFactory_PackageFileName;
 
-                if (std::filesystem::exists(packagePath))
-                {
-                    // If we already have a trusted index package, use it to determine if we need to update or not.
-                    Msix::WriteLockedMsixFile indexPackage{ packagePath };
-                    if (indexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)) &&
-                        !packageInfo.IsNewerThan(packagePath))
-                    {
-                        AICLI_LOG(Repo, Info, << "Remote source data was not newer than existing, no update needed");
-                        return true;
-                    }
-                }
-
                 std::filesystem::path tempPackagePath = packagePath.u8string() + ".dnld.msix";
+                auto removeTempFileOnExit = wil::scope_exit([&]()
+                    {
+                        try
+                        {
+                            std::filesystem::remove(tempPackagePath);
+                        }
+                        catch (...)
+                        {
+                            AICLI_LOG(Repo, Info, << "Failed to remove temp index file at: " << tempPackagePath);
+                        }
+                    });
+
                 if (Utility::IsUrlRemote(packageLocation))
                 {
                     AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
@@ -511,46 +619,37 @@ namespace AppInstaller::Repository::Microsoft
                     progress.OnProgress(100, 100, ProgressType::Percent);
                 }
 
-                bool updateSuccess = false;
                 if (progress.IsCancelledBy(CancelReason::Any))
                 {
                     AICLI_LOG(Repo, Info, << "Cancelling update upon request");
+                    return false;
                 }
-                else
+
                 {
-                    bool tempIndexPackageTrusted = false;
+                    // Extra scope to release the file lock right after trust validation.
+                    Msix::WriteLockedMsixFile tempIndexPackage{ tempPackagePath };
+                    Msix::MsixInfo tempMsixInfo{ tempPackagePath };
 
-                    {
-                        // Extra scope to release the file lock right after trust validation.
-                        Msix::WriteLockedMsixFile tempIndexPackage{ tempPackagePath };
-                        tempIndexPackageTrusted = tempIndexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin));
-                    }
+                    // The package should not be a bundle
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, tempMsixInfo.GetIsBundle());
 
-                    if (tempIndexPackageTrusted)
-                    {
-                        std::filesystem::rename(tempPackagePath, packagePath);
-                        AICLI_LOG(Repo, Info, << "Source update success.");
-                        updateSuccess = true;
-                    }
-                    else
+                    // Ensure that family name has not changed
+                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
+                        GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(tempMsixInfo.GetPackageFullName()));
+
+                    if (!tempIndexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
                     {
                         AICLI_LOG(Repo, Error, << "Source update failed. Source package failed trust validation.");
+                        THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
                     }
                 }
 
-                if (!updateSuccess)
-                {
-                    try
-                    {
-                        std::filesystem::remove(tempPackagePath);
-                    }
-                    catch (...)
-                    {
-                        AICLI_LOG(Repo, Info, << "Failed to remove temp index file at: " << tempPackagePath);
-                    }
-                }
+                std::filesystem::rename(tempPackagePath, packagePath);
+                AICLI_LOG(Repo, Info, << "Source update success.");
 
-                return updateSuccess;
+                removeTempFileOnExit.release();
+
+                return true;
             }
 
             bool RemoveInternal(const SourceDetails& details, IProgressCallback&) override
