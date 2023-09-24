@@ -36,41 +36,41 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    std::unique_ptr<Schema::ISQLiteIndex> SQLiteIndex::CreateISQLiteIndex() const
+    std::unique_ptr<Schema::ISQLiteIndex> SQLiteIndex::CreateISQLiteIndex(const Schema::Version& version)
     {
         using namespace Schema;
 
-        if (m_version == Version{ 1, 0 })
+        if (version == Version{ 1, 0 })
         {
             return std::make_unique<V1_0::Interface>();
         }
-        else if (m_version == Version{ 1, 1 })
+        else if (version == Version{ 1, 1 })
         {
             return std::make_unique<V1_1::Interface>();
         }
-        else if (m_version == Version{ 1, 2 })
+        else if (version == Version{ 1, 2 })
         {
             return std::make_unique<V1_2::Interface>();
         }
-        else if (m_version == Version{ 1, 3 })
+        else if (version == Version{ 1, 3 })
         {
             return std::make_unique<V1_3::Interface>();
         }
-        else if (m_version == Version{ 1, 4 })
+        else if (version == Version{ 1, 4 })
         {
             return std::make_unique<V1_4::Interface>();
         }
-        else if (m_version == Version{ 1, 5 })
+        else if (version == Version{ 1, 5 })
         {
             return std::make_unique<V1_5::Interface>();
         }
-        else if (m_version == Version{ 1, 6 })
+        else if (version == Version{ 1, 6 })
         {
             return std::make_unique<V1_6::Interface>();
         }
-        else if (m_version == Version{ 1, 7 } ||
-            m_version.MajorVersion == 1 ||
-            m_version.IsLatest())
+        else if (version == Version{ 1, 7 } ||
+            version.MajorVersion == 1 ||
+            version.IsLatest())
         {
             return std::make_unique<V1_7::Interface>();
         }
@@ -79,10 +79,10 @@ namespace AppInstaller::Repository::Microsoft
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
 
-    SQLiteIndex::SQLiteIndex(const std::string& target, Schema::Version version) : SQLiteStorageBase(target, version)
+    SQLiteIndex::SQLiteIndex(const std::string& target, const Schema::Version& version) : SQLiteStorageBase(target, version)
     {
         m_dbconn.EnableICU();
-        m_interface = CreateISQLiteIndex();
+        m_interface = CreateISQLiteIndex(version);
         m_version = m_interface->GetVersion();
     }
 
@@ -91,15 +91,14 @@ namespace AppInstaller::Repository::Microsoft
     {
         m_dbconn.EnableICU();
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
-        m_interface = CreateISQLiteIndex();
+        m_interface = CreateISQLiteIndex(m_version);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void SQLiteIndex::ForceVersion(const Schema::Version& version)
     {
-        m_version = version;
-        m_interface = CreateISQLiteIndex();
+        m_interface = CreateISQLiteIndex(version);
     }
 #endif
 

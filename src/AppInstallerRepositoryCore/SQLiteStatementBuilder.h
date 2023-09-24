@@ -116,7 +116,8 @@ namespace AppInstaller::Repository::SQLite::Builder
     // Aggregate functions.
     enum class Aggregate
     {
-        Min
+        Min,
+        Max,
     };
 
     // Helper to mark create an integer primary key for rowid, making it stable across vacuum.
@@ -246,8 +247,10 @@ namespace AppInstaller::Repository::SQLite::Builder
                 return IsNull();
             }
         }
-        StatementBuilder& Equals(details::unbound_t);
+        // The optional index value can be used to specify the parameter index.
+        StatementBuilder& Equals(details::unbound_t, std::optional<size_t> index = {});
         StatementBuilder& Equals(std::nullptr_t);
+        StatementBuilder& Equals();
 
         StatementBuilder& LikeWithEscape(std::string_view value);
         StatementBuilder& Like(details::unbound_t);
@@ -258,8 +261,8 @@ namespace AppInstaller::Repository::SQLite::Builder
 
         StatementBuilder& Not();
         StatementBuilder& In();
-        
-        //Appends a set of value binders for the In clause.
+
+        // Appends a set of value binders for the In clause.
         StatementBuilder& In(size_t count);
 
         // IsNull(true) means the value is null; IsNull(false) means the value is not null.
@@ -394,6 +397,12 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& Update(QualifiedTable table);
         StatementBuilder& Update(std::initializer_list<std::string_view> table);
 
+        // Begin an `update or replace` statement.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& UpdateOrReplace(std::string_view table);
+        StatementBuilder& UpdateOrReplace(QualifiedTable table);
+        StatementBuilder& UpdateOrReplace(std::initializer_list<std::string_view> table);
+
         // Output the set portion of an update statement.
         StatementBuilder& Set();
 
@@ -430,7 +439,8 @@ namespace AppInstaller::Repository::SQLite::Builder
         };
 
         // Appends given the operation.
-        int AppendOpAndBinder(Op op);
+        // The optional index value can be used to specify the parameter index.
+        int AppendOpAndBinder(Op op, std::optional<size_t> index = {});
 
         // Appends a set of binders for the values clause of an insert.
         int AppendValuesAndBinders(size_t count);

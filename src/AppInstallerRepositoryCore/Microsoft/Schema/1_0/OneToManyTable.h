@@ -63,7 +63,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Determines if the table is empty.
         bool OneToManyTableIsEmpty(SQLite::Connection& connection, std::string_view tableName);
+
+        // Prepares a statement for replacing all of the map data to point to a single manifest for a given id.
+        SQLite::Statement OneToManyTablePrepareMapDataFoldingStatement(const SQLite::Connection& connection, std::string_view tableName);
     }
+
+    // Gets the manifest id that the PrepareMapDataFoldingStatement will fold to for the given manifest id.
+    std::optional<SQLite::rowid_t> OneToManyTableGetMapDataFoldingManifestTargetId(const SQLite::Connection& connection, SQLite::rowid_t manifestId);
 
     // A table that represents a value that is 1:N with a primary entry.
     template <typename TableInfo>
@@ -136,6 +142,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static bool IsEmpty(SQLite::Connection& connection)
         {
             return details::OneToManyTableIsEmpty(connection, TableInfo::TableName());
+        }
+
+        // Prepares a statement for replacing all of the map data to point to a single manifest for a given id.
+        static SQLite::Statement PrepareMapDataFoldingStatement(const SQLite::Connection& connection)
+        {
+            return details::OneToManyTablePrepareMapDataFoldingStatement(connection, TableInfo::TableName());
         }
     };
 }

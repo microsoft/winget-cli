@@ -138,7 +138,7 @@ namespace AppInstaller::Repository::Microsoft
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(AppInstaller::Manifest::string_t packageId) const;
     private:
         // Constructor used to create a new index.
-        SQLiteIndex(const std::string& target, Schema::Version version);
+        SQLiteIndex(const std::string& target, const Schema::Version& version);
 
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
@@ -148,7 +148,7 @@ namespace AppInstaller::Repository::Microsoft
         bool UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
 
         // Creates the ISQLiteIndex interface object for this version.
-        std::unique_ptr<Schema::ISQLiteIndex> CreateISQLiteIndex() const;
+        static std::unique_ptr<Schema::ISQLiteIndex> CreateISQLiteIndex(const Schema::Version& version);
 
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
     };

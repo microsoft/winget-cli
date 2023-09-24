@@ -105,7 +105,7 @@ namespace AppInstaller::Repository::Microsoft
         m_version = Schema::Version::GetSchemaVersion(m_dbconn);
     }
 
-    SQLiteStorageBase::SQLiteStorageBase(const std::string& target, Schema::Version version) :
+    SQLiteStorageBase::SQLiteStorageBase(const std::string& target, const Schema::Version& version) :
         m_dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create))
     {
         m_version = version;

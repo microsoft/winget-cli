@@ -4,6 +4,7 @@
 #include "Microsoft/Schema/1_0/OneToManyTable.h"
 #include "Microsoft/Schema/1_0/OneToOneTable.h"
 #include "Microsoft/Schema/1_0/ManifestTable.h"
+#include "Microsoft/Schema/1_0/IdTable.h"
 #include "SQLiteStatementBuilder.h"
 
 
@@ -408,5 +409,46 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             return ((countStatement.GetColumn<int>(0) == 0) && (countMapStatement.GetColumn<int>(0) == 0));
         }
+
+        SQLite::Statement OneToManyTablePrepareMapDataFoldingStatement(const SQLite::Connection& connection, std::string_view tableName)
+        {
+            using namespace SQLite::Builder;
+            StatementBuilder builder;
+
+            // Create a statement that will collapse (and dedupe) all rows in the map to the latest (max) manifest for a given id, like:
+            // UPDATE OR REPLACE map SET manifest = (SELECT MAX(rowid) FROM manifest_table WHERE id = ?1) WHERE manifest IN (SELECT rowid FROM manifest_table WHERE id = ?1)
+            builder.UpdateOrReplace({ tableName, s_OneToManyTable_MapTable_Suffix }).Set().Column(s_OneToManyTable_MapTable_ManifestName).Equals()
+                .BeginParenthetical()
+                    .Select().Column(Aggregate::Max, SQLite::RowIDName).From(ManifestTable::TableName()).Where(IdTable::ValueName()).Equals(Unbound, 1)
+                .EndParenthetical()
+                .Where(s_OneToManyTable_MapTable_ManifestName).In()
+                .BeginParenthetical()
+                    .Select(SQLite::RowIDName).From(ManifestTable::TableName()).Where(IdTable::ValueName()).Equals(Unbound, 1)
+                .EndParenthetical();
+
+            return builder.Prepare(connection);
+        }
+    }
+
+    std::optional<SQLite::rowid_t> OneToManyTableGetMapDataFoldingManifestTargetId(const SQLite::Connection& connection, SQLite::rowid_t manifestId)
+    {
+        using namespace SQLite::Builder;
+        StatementBuilder builder;
+
+        // Select the maximum manifest rowid from the manifests whose id is the same as the row with the given manifest rowid, like:
+        // SELECT MAX(rowid) FROM manifest_table WHERE id = (SELECT id FROM manifest_table WHERE rowid = ?)
+        builder.Select().Column(Aggregate::Max, SQLite::RowIDName).From(ManifestTable::TableName()).Where(IdTable::ValueName()).Equals()
+            .BeginParenthetical()
+                .Select(IdTable::ValueName()).From(ManifestTable::TableName()).Where(SQLite::RowIDName).Equals(manifestId)
+            .EndParenthetical();
+
+        SQLite::Statement statement = builder.Prepare(connection);
+
+        if (statement.Step() && !statement.GetColumnIsNull(0))
+        {
+            return statement.GetColumn<SQLite::rowid_t>(0);
+        }
+
+        return std::nullopt;
     }
 }
