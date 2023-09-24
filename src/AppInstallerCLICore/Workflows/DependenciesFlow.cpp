@@ -160,6 +160,7 @@ namespace AppInstaller::CLI::Workflow
                     if (SUCCEEDED(hr) || force)
                     {
                         auto featureName = dependency.Id();
+                        AICLI_LOG(Core, Verbose, << "Processing Windows Feature dependency [" << featureName << "]");
                         WindowsFeature::WindowsFeature windowsFeature = dismHelper->GetWindowsFeature(featureName);
 
                         if (windowsFeature.DoesExist())
