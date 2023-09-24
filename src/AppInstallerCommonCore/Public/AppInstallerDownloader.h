@@ -7,6 +7,7 @@
 #include <wrl/client.h>
 
 #include <filesystem>
+#include <map>
 #include <optional>
 #include <ostream>
 #include <string>
@@ -58,6 +59,9 @@ namespace AppInstaller::Utility
         IProgressCallback& progress,
         bool computeHash = false,
         std::optional<DownloadInfo> info = {});
+
+    // Gets the headers for the given URL.
+    std::map<std::string, std::string> GetHeaders(std::string_view url);
 
     // Determines if the given url is a remote location.
     bool IsUrlRemote(std::string_view url);
