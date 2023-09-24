@@ -404,6 +404,9 @@ namespace AppInstaller::Repository::SQLite::Builder
         StatementBuilder& BeginParenthetical();
         StatementBuilder& EndParenthetical();
 
+        // Adds the `without rowid` clause.
+        StatementBuilder& WithoutRowID();
+
         // Assign an alias to the previous item.
         StatementBuilder& As(std::string_view alias);
 

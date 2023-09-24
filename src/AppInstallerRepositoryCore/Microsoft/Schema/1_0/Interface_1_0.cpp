@@ -176,8 +176,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             { PathPartTable::ValueName(), false, WI_IsFlagClear(options, CreateOptions::SupportPathless) }
             });
 
-        TagsTable::Create_deprecated(connection);
-        CommandsTable::Create_deprecated(connection);
+        TagsTable::Create(connection, GetOneToManyTableSchema());
+        CommandsTable::Create(connection, GetOneToManyTableSchema());
 
         savepoint.Commit();
     }
@@ -377,8 +377,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             PathPartTable::ValueName(),
             });
 
-        TagsTable::PrepareForPackaging_deprecated(connection);
-        CommandsTable::PrepareForPackaging_deprecated(connection);
+        TagsTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), false, false);
+        CommandsTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), false, false);
 
         savepoint.Commit();
 
@@ -639,6 +639,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         default:
             return {};
         }
+    }
+
+    OneToManyTableSchema Interface::GetOneToManyTableSchema() const
+    {
+        return OneToManyTableSchema::Version_1_0;
     }
 
     void Interface::Vacuum(const SQLite::Connection& connection)

@@ -84,6 +84,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 // Bind valid rowid to 1.
                 SQLite::Statement DeleteValueById;
             };
+
+            bool SchemaVersionUsesNamedIndices(OneToManyTableSchema schemaVersion)
+            {
+                return schemaVersion != OneToManyTableSchema::Version_1_0;
+            }
         }
 
         std::string OneToManyTableGetMapTableName(std::string_view tableName)
@@ -98,16 +103,31 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return s_OneToManyTable_MapTable_ManifestName;
         }
 
-        void CreateOneToManyTable(SQLite::Connection& connection, bool useNamedIndices, std::string_view tableName, std::string_view valueName)
+        void CreateOneToManyTable(SQLite::Connection& connection, OneToManyTableSchema schemaVersion, std::string_view tableName, std::string_view valueName)
         {
             using namespace SQLite::Builder;
 
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_create_v1_0");
 
             // Create the data table as a 1:1
-            CreateOneToOneTable(connection, tableName, valueName, useNamedIndices);
+            CreateOneToOneTable(connection, tableName, valueName, SchemaVersionUsesNamedIndices(schemaVersion));
 
-            if (useNamedIndices)
+            switch (schemaVersion)
+            {
+            case OneToManyTableSchema::Version_1_0:
+            {
+                // Create the mapping table
+                StatementBuilder createMapTableBuilder;
+                createMapTableBuilder.CreateTable({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns({
+                    ColumnBuilder(s_OneToManyTable_MapTable_ManifestName, Type::Int64).NotNull(),
+                    ColumnBuilder(valueName, Type::Int64).NotNull(),
+                    PrimaryKeyBuilder({ valueName, s_OneToManyTable_MapTable_ManifestName })
+                    });
+
+                createMapTableBuilder.Execute(connection);
+            }
+                break;
+            case OneToManyTableSchema::Version_1_1:
             {
                 // Create the mapping table
                 StatementBuilder createMapTableBuilder;
@@ -123,7 +143,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                     On({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns({ valueName, s_OneToManyTable_MapTable_ManifestName });
                 pkIndexBuilder.Execute(connection);
             }
-            else
+                break;
+            case OneToManyTableSchema::Version_1_7:
             {
                 // Create the mapping table
                 StatementBuilder createMapTableBuilder;
@@ -131,14 +152,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                     ColumnBuilder(s_OneToManyTable_MapTable_ManifestName, Type::Int64).NotNull(),
                     ColumnBuilder(valueName, Type::Int64).NotNull(),
                     PrimaryKeyBuilder({ valueName, s_OneToManyTable_MapTable_ManifestName })
-                    });
+                    }).WithoutRowID();
 
                 createMapTableBuilder.Execute(connection);
+            }
+                break;
+            default:
+                THROW_HR(E_UNEXPECTED);
             }
 
             StatementBuilder createMapTableIndexBuilder;
             createMapTableIndexBuilder.CreateIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_IndexSuffix }).
-                On({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns(s_OneToManyTable_MapTable_ManifestName);
+                On({ tableName, s_OneToManyTable_MapTable_Suffix }).Columns({ s_OneToManyTable_MapTable_ManifestName, valueName });
 
             createMapTableIndexBuilder.Execute(connection);
 
@@ -272,7 +297,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             savepoint.Commit();
         }
 
-        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndices, bool preserveManifestIndex, bool preserveValuesIndex)
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, OneToManyTableSchema schemaVersion, bool preserveManifestIndex, bool preserveValuesIndex)
         {
             if (!preserveManifestIndex)
             {
@@ -282,7 +307,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 dropMapTableIndexBuilder.Execute(connection);
             }
 
-            OneToOneTablePrepareForPackaging(connection, tableName, useNamedIndices, preserveValuesIndex);
+            OneToOneTablePrepareForPackaging(connection, tableName, SchemaVersionUsesNamedIndices(schemaVersion), preserveValuesIndex);
         }
 
         bool OneToManyTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log)
@@ -299,7 +324,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
                 SQLite::Builder::StatementBuilder builder;
                 builder.
-                    Select({ QCol(s_map, SQLite::RowIDName), QCol(s_map, s_OneToManyTable_MapTable_ManifestName) }).
+                    Select({ QCol(s_map, s_OneToManyTable_MapTable_ManifestName), QCol(s_map, valueName) }).
                     From({ tableName, s_OneToManyTable_MapTable_Suffix }).As(s_map).
                     LeftOuterJoin(ManifestTable::TableName()).On(QCol(s_map, s_OneToManyTable_MapTable_ManifestName), QCol(ManifestTable::TableName(), SQLite::RowIDName)).
                     Where(QCol(ManifestTable::TableName(), SQLite::RowIDName)).IsNull();
@@ -316,7 +341,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                     }
 
                     AICLI_LOG(Repo, Info, << "  [INVALID] " << tableName << s_OneToManyTable_MapTable_Suffix << " [" << select.GetColumn<SQLite::rowid_t>(0) <<
-                        "] refers to " << ManifestTable::TableName() << " [" << select.GetColumn<SQLite::rowid_t>(1) << "]");
+                        ", " << select.GetColumn<SQLite::rowid_t>(1) << "] refers to invalid " << ManifestTable::TableName());
                 }
             }
 
@@ -331,7 +356,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 // Select map.rowid, map.tag from tags_map as map left outer join tags on map.tag = tags.rowid where tags.tag is null
                 SQLite::Builder::StatementBuilder builder;
                 builder.
-                    Select({ QCol(s_map, SQLite::RowIDName), QCol(s_map, valueName) }).
+                    Select({ QCol(s_map, s_OneToManyTable_MapTable_ManifestName), QCol(s_map, valueName) }).
                     From({ tableName, s_OneToManyTable_MapTable_Suffix }).As(s_map).
                     LeftOuterJoin(tableName).On(QCol(s_map, valueName), QCol(tableName, SQLite::RowIDName)).
                     Where(QCol(tableName, valueName)).IsNull();
@@ -349,7 +374,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                     }
 
                     AICLI_LOG(Repo, Info, << "  [INVALID] " << tableName << s_OneToManyTable_MapTable_Suffix << " [" << select.GetColumn<SQLite::rowid_t>(0) <<
-                        "] refers to " << tableName << " [" << select.GetColumn<SQLite::rowid_t>(1) << "]");
+                        ", " << select.GetColumn<SQLite::rowid_t>(1) << "] refers to invalid " << tableName);
                 }
 
                 result = result && secondaryResult;

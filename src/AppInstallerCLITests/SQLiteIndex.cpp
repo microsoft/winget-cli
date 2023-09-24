@@ -35,7 +35,7 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::V
     // If no specific version requested, then use generator to run against the last 3 versions.
     if (!version)
     {
-        version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version{ 1, 4 }, Schema::Version::Latest());
+        version = GENERATE(Schema::Version{ 1, 5 }, Schema::Version{ 1, 6 }, Schema::Version::Latest());
     }
 
     return SQLiteIndex::CreateNew(filePath, version.value());
@@ -43,41 +43,31 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::V
 
 Schema::Version TestPrepareForRead(SQLiteIndex& index)
 {
-    if (index.GetVersion() == Schema::Version{ 1, 2 })
+    if (index.GetVersion() == Schema::Version{ 1, 5 })
     {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 2 });
-
-        if (version != Schema::Version{ 1, 2 })
-        {
-            index.ForceVersion(version);
-            return version;
-        }
-    }
-    else if (index.GetVersion() == Schema::Version{ 1, 3 })
-    {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 });
-
-        if (version != Schema::Version{ 1, 3 })
-        {
-            index.ForceVersion(version);
-            return version;
-        }
-    }
-    else if (index.GetVersion() == Schema::Version{ 1, 4 })
-    {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version{ 1, 4 });
-
-        if (version != Schema::Version{ 1, 4 })
-        {
-            index.ForceVersion(version);
-            return version;
-        }
-    }
-    else if (index.GetVersion() == Schema::Version{ 1, 5 })
-    {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version{ 1, 4 }, Schema::Version{ 1, 5 });
+        Schema::Version version = GENERATE(Schema::Version{ 1, 5 });
 
         if (version != Schema::Version{ 1, 5 })
+        {
+            index.ForceVersion(version);
+            return version;
+        }
+    }
+    else if (index.GetVersion() == Schema::Version{ 1, 6 })
+    {
+        Schema::Version version = GENERATE(Schema::Version{ 1, 5 }, Schema::Version{ 1, 6 });
+
+        if (version != Schema::Version{ 1, 6 })
+        {
+            index.ForceVersion(version);
+            return version;
+        }
+    }
+    else if (index.GetVersion() == Schema::Version{ 1, 7 })
+    {
+        Schema::Version version = GENERATE(Schema::Version{ 1, 5 }, Schema::Version{ 1, 6 }, Schema::Version{ 1, 7 });
+
+        if (version != Schema::Version{ 1, 7 })
         {
             index.ForceVersion(version);
             return version;

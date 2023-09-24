@@ -819,6 +819,13 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::WithoutRowID()
+    {
+        m_stream << " WITHOUT ROWID";
+        return *this;
+    }
+
+
     StatementBuilder& StatementBuilder::As(std::string_view alias)
     {
         OutputOperationAndTable(m_stream, " AS", alias);

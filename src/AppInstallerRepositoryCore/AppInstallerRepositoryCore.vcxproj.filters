@@ -91,6 +91,9 @@
     <Filter Include="Rest\Schema\1_6\Json">
       <UniqueIdentifier>{b2e78f3d-931e-432c-8485-255b1dbc9db7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\1_7">
+      <UniqueIdentifier>{f610927a-6f1d-42c5-9ad9-b59790091944}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -387,6 +390,9 @@
     <ClInclude Include="Rest\Schema\1_6\Interface.h">
       <Filter>Rest\Schema\1_6</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_7\Interface.h">
+      <Filter>Microsoft\Schema\1_7</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -613,6 +619,9 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_6\RestInterface_1_6.cpp">
       <Filter>Rest\Schema\1_6</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_7\Interface_1_7.cpp">
+      <Filter>Microsoft\Schema\1_7</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
