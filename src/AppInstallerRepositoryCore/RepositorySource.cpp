@@ -280,7 +280,16 @@ namespace AppInstaller::Repository
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !IsWellKnownSourceEnabled(source));
 
-        SourceDetails details = GetWellKnownSourceDetailsInternal(source);
+        auto details = GetWellKnownSourceDetailsInternal(source);
+
+        // Populate metadata
+        SourceList sourceList;
+        auto sourceDetailsWithMetadata = sourceList.GetSource(details.Name);
+        if (sourceDetailsWithMetadata)
+        {
+            sourceDetailsWithMetadata->CopyMetadataFieldsTo(details);
+        }
+
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
