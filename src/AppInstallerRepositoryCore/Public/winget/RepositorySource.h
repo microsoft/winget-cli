@@ -219,6 +219,10 @@ namespace AppInstaller::Repository
         // Set caller.
         void SetCaller(std::string caller);
 
+        // Indicates that we are only interested in the PackageTrackingCatalog for the source.
+        // Must be set before Open to have effect, and will prevent the underlying source from being updated or opened.
+        void InstalledPackageInformationOnly(bool value);
+
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;
 
@@ -280,6 +284,7 @@ namespace AppInstaller::Repository
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
         bool m_isComposite = false;
+        bool m_installedPackageInformationOnly = false;
         mutable PackageTrackingCatalog m_trackingCatalog;
     };
 }

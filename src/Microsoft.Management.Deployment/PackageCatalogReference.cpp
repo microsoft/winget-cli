@@ -106,6 +106,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference* catalogImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>(catalog);
                     auto copy = catalogImpl->m_sourceReference;
                     copy.SetCaller(GetCallerName());
+                    source.InstalledPackageInformationOnly(catalog.InstalledPackageInformationOnly());
                     copy.Open(progress);
                     remoteSources.emplace_back(std::move(copy));
                 }
@@ -142,6 +143,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 source = m_sourceReference;
                 source.SetCaller(GetCallerName());
+                source.InstalledPackageInformationOnly(m_installedPackageInformationOnly);
                 source.Open(progress);
             }
 
@@ -212,5 +214,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     bool PackageCatalogReference::AcceptSourceAgreements()
     {
         return m_acceptSourceAgreements;
+    }
+
+    bool PackageCatalogReference::InstalledPackageInformationOnly()
+    {
+        return m_installedPackageInformationOnly;
+    }
+
+    void PackageCatalogReference::InstalledPackageInformationOnly(bool value)
+    {
+        if (IsComposite())
+        {
+            throw winrt::hresult_illegal_state_change();
+        }
+
+        m_installedPackageInformationOnly = value;
     }
 }

@@ -749,6 +749,13 @@ namespace Microsoft.Management.Deployment
 
             Boolean AcceptSourceAgreements;
         }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+        {
+            // When set to true, the opened catalog will only provide the information regarding packages installed from this catalog.
+            // In this mode, no external resources should be required.
+            Boolean InstalledPackageInformationOnly;
+        }
     }
 
     /// Catalogs with PackageCatalogOrigin Predefined
