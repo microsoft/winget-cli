@@ -56,6 +56,9 @@ namespace AppInstaller::Repository::Microsoft
         // Changes the version of the interface being used to operate on the database.
         // Should only be used for testing.
         void ForceVersion(const Schema::Version& version);
+
+        // Gets the latest version of the index schema (the actual numbers, not just the latest sentinel values).
+        static Schema::Version GetLatestVersion();
 #endif
 
         // Adds the manifest at the repository relative path to the index.

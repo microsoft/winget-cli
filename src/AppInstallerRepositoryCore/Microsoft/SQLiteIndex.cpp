@@ -40,39 +40,22 @@ namespace AppInstaller::Repository::Microsoft
     {
         using namespace Schema;
 
-        if (version == Version{ 1, 0 })
-        {
-            return std::make_unique<V1_0::Interface>();
-        }
-        else if (version == Version{ 1, 1 })
-        {
-            return std::make_unique<V1_1::Interface>();
-        }
-        else if (version == Version{ 1, 2 })
-        {
-            return std::make_unique<V1_2::Interface>();
-        }
-        else if (version == Version{ 1, 3 })
-        {
-            return std::make_unique<V1_3::Interface>();
-        }
-        else if (version == Version{ 1, 4 })
-        {
-            return std::make_unique<V1_4::Interface>();
-        }
-        else if (version == Version{ 1, 5 })
-        {
-            return std::make_unique<V1_5::Interface>();
-        }
-        else if (version == Version{ 1, 6 })
-        {
-            return std::make_unique<V1_6::Interface>();
-        }
-        else if (version == Version{ 1, 7 } ||
-            version.MajorVersion == 1 ||
+        if (version.MajorVersion == 1 ||
             version.IsLatest())
         {
-            return std::make_unique<V1_7::Interface>();
+            constexpr std::array<std::unique_ptr<Schema::ISQLiteIndex>(*)(), 8> versionCreatorMap =
+            {
+                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_0::Interface>()); },
+                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_1::Interface>()); },
+                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_2::Interface>()); },
+                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_3::Interface>()); },
+                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_4::Interface>()); },
+                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_5::Interface>()); },
+                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_6::Interface>()); },
+                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_7::Interface>()); },
+            };
+
+            return versionCreatorMap[std::min(static_cast<size_t>(version.MinorVersion), versionCreatorMap.size() - 1)]();
         }
 
         // We do not have the capacity to operate on this schema version
@@ -99,6 +82,11 @@ namespace AppInstaller::Repository::Microsoft
     void SQLiteIndex::ForceVersion(const Schema::Version& version)
     {
         m_interface = CreateISQLiteIndex(version);
+    }
+
+    Schema::Version SQLiteIndex::GetLatestVersion()
+    {
+        return CreateISQLiteIndex(Schema::Version::Latest())->GetVersion();
     }
 #endif
 
