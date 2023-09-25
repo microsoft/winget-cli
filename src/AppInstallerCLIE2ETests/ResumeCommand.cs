@@ -77,9 +77,10 @@ namespace AppInstallerCLIE2ETests
 
             int initialCheckpointsCount = Directory.Exists(checkpointsDir) ? Directory.GetDirectories(checkpointsDir).Length : 0;
 
-            var installResult = TestCommon.RunAICLICommand("install", "--id AppInstallerTest.WindowsFeature");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_MISSING_DEPENDENCY, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("The feature [invalidFeature] was not found."));
+            // TODO: Refine test case to more accurately reflect usage once resume is fully implemented.
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInvalidRelativePath");
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
 
             int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
 
@@ -94,8 +95,8 @@ namespace AppInstallerCLIE2ETests
 
             // Resume output should be the same as the install result.
             var resumeResult = TestCommon.RunAICLICommand("resume", $"-g {checkpoint.Name}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_MISSING_DEPENDENCY, resumeResult.ExitCode);
-            Assert.True(resumeResult.StdOut.Contains("The feature [invalidFeature] was not found."));
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, resumeResult.ExitCode);
+            Assert.True(resumeResult.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
         }
     }
 }
