@@ -22,33 +22,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::PackageCatalogInfo packageCatalogInfo, ::AppInstaller::Repository::Source sourceReference)
     {
-        static constexpr winrt::Windows::Foundation::TimeSpan s_PackageCatalogUpdateIntervalDelay = 168h; //1 week
-
         m_info = packageCatalogInfo;
         m_sourceReference = std::move(sourceReference);
         m_packageCatalogBackgroundUpdateInterval = ::AppInstaller::Settings::User().Get<::AppInstaller::Settings::Setting::AutoUpdateTimeInMinutes>();
 
-        bool shouldDelayBackgroundUpdateInterval = false;
-        try
+        if (ShouldDelayBackgroundUpdateByCaller())
         {
-            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
-            THROW_IF_FAILED(hrGetCallerId);
-            if (callerProcessId != GetCurrentProcessId())
-            {
-                // OutOfProc case, we check for explorer.exe
-                auto callerNameWide = AppInstaller::Utility::ConvertToUTF16(GetCallerName());
-                auto processName = AppInstaller::Utility::ConvertToUTF8(std::filesystem::path{ callerNameWide }.filename().wstring());
-                if (::AppInstaller::Utility::CaseInsensitiveEquals("explorer.exe", processName))
-                {
-                    shouldDelayBackgroundUpdateInterval = true;
-                }
-            }
-        }
-        CATCH_LOG();
+            static constexpr winrt::Windows::Foundation::TimeSpan s_PackageCatalogUpdateIntervalDelay_Base = 168h; //1 week
 
-        if (shouldDelayBackgroundUpdateInterval)
-        {
-            m_packageCatalogBackgroundUpdateInterval = s_PackageCatalogUpdateIntervalDelay;
+            // Add a bit of randomness to the default interval time
+            std::default_random_engine randomEngine(std::random_device{}());
+            std::uniform_int_distribution<long long> distribution(0, 168);
+
+            m_packageCatalogBackgroundUpdateInterval = s_PackageCatalogUpdateIntervalDelay_Base + std::chrono::hours(distribution(randomEngine));
         }
     }
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions options)
@@ -108,6 +94,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference* catalogImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>(catalog);
                     auto copy = catalogImpl->m_sourceReference;
                     copy.SetCaller(callerName);
+                    copy.SetBackgroundUpdateInterval(catalog.PackageCatalogBackgroundUpdateInterval());
                     copy.Open(progress);
                     remoteSources.emplace_back(std::move(copy));
                 }
@@ -149,6 +136,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
                 source = m_sourceReference;
                 source.SetCaller(callerName);
+                source.SetBackgroundUpdateInterval(PackageCatalogBackgroundUpdateInterval());
                 source.Open(progress);
             }
 
