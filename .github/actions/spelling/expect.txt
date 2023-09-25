@@ -103,6 +103,7 @@ DACL
 datetimeoffset
 Dbg
 debian
+dedupe
 deigh
 deleteifnotneeded
 DENYWR
@@ -264,6 +265,7 @@ luffy
 Luffytaro
 maclachlan
 malware
+mapdatafolding
 mapview
 Maxed
 maxvalue
