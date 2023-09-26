@@ -84,6 +84,9 @@ namespace AppInstaller::Repository::SQLite::Builder
             case Aggregate::Min:
                 out << "MIN";
                 break;
+            case Aggregate::Max:
+                out << "MAX";
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -330,9 +333,23 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::Equals(details::unbound_t)
+    StatementBuilder& StatementBuilder::Equals(details::unbound_t, std::optional<size_t> index)
     {
-        AppendOpAndBinder(Op::Equals);
+        AppendOpAndBinder(Op::Equals, index);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Equals(std::nullptr_t)
+    {
+        // This is almost certainly not what you want.
+        // In SQL, value = NULL is always false.
+        // Use StatementBuilder::IsNull instead.
+        THROW_HR(E_NOTIMPL);
+    }
+
+    StatementBuilder& StatementBuilder::Equals()
+    {
+        m_stream << " =";
         return *this;
     }
 
@@ -364,14 +381,6 @@ namespace AppInstaller::Repository::SQLite::Builder
         THROW_HR_IF(E_INVALIDARG, escapeChar.length() != 1);
         AddBindFunctor(AppendOpAndBinder(Op::Escape), escapeChar);
         return *this;
-    }
-
-    StatementBuilder& StatementBuilder::Equals(std::nullptr_t)
-    {
-        // This is almost certainly not what you want.
-        // In SQL, value = NULL is always false.
-        // Use StatementBuilder::IsNull instead.
-        THROW_HR(E_NOTIMPL);
     }
 
     StatementBuilder& StatementBuilder::Not()
@@ -794,6 +803,24 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::UpdateOrReplace(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "UPDATE OR REPLACE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::UpdateOrReplace(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "UPDATE OR REPLACE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::UpdateOrReplace(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "UPDATE OR REPLACE", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Set()
     {
         m_stream << " SET ";
@@ -819,6 +846,13 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::WithoutRowID()
+    {
+        m_stream << " WITHOUT ROWID";
+        return *this;
+    }
+
+
     StatementBuilder& StatementBuilder::As(std::string_view alias)
     {
         OutputOperationAndTable(m_stream, " AS", alias);
@@ -840,7 +874,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         Prepare(connection).Execute();
     }
 
-    int StatementBuilder::AppendOpAndBinder(Op op)
+    int StatementBuilder::AppendOpAndBinder(Op op, std::optional<size_t> index)
     {
         switch (op)
         {
@@ -858,6 +892,11 @@ namespace AppInstaller::Repository::SQLite::Builder
             break;
         default:
             THROW_HR(E_UNEXPECTED);
+        }
+
+        if (index)
+        {
+            m_stream << index.value();
         }
 
         return m_bindIndex++;

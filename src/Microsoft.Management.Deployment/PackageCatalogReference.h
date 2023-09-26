@@ -25,7 +25,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Contract 6
         bool AcceptSourceAgreements();
         void AcceptSourceAgreements(bool value);
-        // Contract 7
+        // Contract 8.0
+        winrt::Windows::Foundation::TimeSpan PackageCatalogBackgroundUpdateInterval();
+        void PackageCatalogBackgroundUpdateInterval(winrt::Windows::Foundation::TimeSpan const& value);
         bool InstalledPackageInformationOnly();
         void InstalledPackageInformationOnly(bool value);
 
@@ -39,6 +41,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool m_acceptSourceAgreements = true;
         bool m_installedPackageInformationOnly = false;
         std::once_flag m_sourceAgreementsOnceFlag;
+        winrt::Windows::Foundation::TimeSpan m_packageCatalogBackgroundUpdateInterval = winrt::Windows::Foundation::TimeSpan::zero();
 #endif
     };
 }
