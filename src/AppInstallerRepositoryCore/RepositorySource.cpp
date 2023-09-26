@@ -199,10 +199,24 @@ namespace AppInstaller::Repository
         // A wrapper that doesn't actually forward the search requests.
         struct TrackingOnlySourceWrapper : public ISource
         {
-            TrackingOnlySourceWrapper(std::shared_ptr<ISourceReference> wrapped) : m_wrapped(std::move(wrapped)) {}
+            TrackingOnlySourceWrapper(std::shared_ptr<ISourceReference> wrapped) : m_wrapped(std::move(wrapped))
+            {
+                m_identifier = m_wrapped->GetIdentifier();
+            }
+
+            const std::string& GetIdentifier() const override { return m_identifier; }
+
+            SourceDetails& GetDetails() const override { return m_wrapped->GetDetails(); }
+
+            SourceInformation GetInformation() const override { return m_wrapped->GetInformation(); }
+
+            SearchResult Search(const SearchRequest&) const override { return {}; }
+
+            void* CastTo(ISourceType) override { return nullptr; }
 
         private:
             std::shared_ptr<ISourceReference> m_wrapped;
+            std::string m_identifier;
         };
 
         // A wrapper to create another wrapper.
@@ -220,7 +234,7 @@ namespace AppInstaller::Repository
 
             void SetCaller(std::string caller) override { m_wrapped->SetCaller(std::move(caller)); }
 
-            std::shared_ptr<ISource> Open(IProgressCallback& progress) override
+            std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 return std::make_shared<TrackingOnlySourceWrapper>(m_wrapped);
             }
@@ -485,6 +499,11 @@ namespace AppInstaller::Repository
         {
             sourceReference->SetCaller(caller);
         }
+    }
+
+    void Source::InstalledPackageInformationOnly(bool value)
+    {
+        m_installedPackageInformationOnly = value;
     }
 
     SearchResult Source::Search(const SearchRequest& request) const
