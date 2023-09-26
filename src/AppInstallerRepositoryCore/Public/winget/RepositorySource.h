@@ -17,6 +17,9 @@
 
 namespace AppInstaller::Repository
 {
+    // The interval is of 100 nano seconds precision.This is used by file date period and the Windows::Foundation::TimeSpan exposed in COM api.
+    using TimeSpan = std::chrono::duration<int64_t, std::ratio_multiply<std::ratio<100>, std::nano>>;
+
     struct ISourceReference;
     struct ISource;
 
@@ -219,6 +222,9 @@ namespace AppInstaller::Repository
         // Set caller.
         void SetCaller(std::string caller);
 
+        // Set background update check interval.
+        void SetBackgroundUpdateInterval(TimeSpan interval);
+
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;
 
@@ -280,6 +286,7 @@ namespace AppInstaller::Repository
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
         bool m_isComposite = false;
+        std::optional<TimeSpan> m_backgroundUpdateInterval;
         mutable PackageTrackingCatalog m_trackingCatalog;
     };
 }
