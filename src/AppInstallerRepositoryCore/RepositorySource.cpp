@@ -202,6 +202,53 @@ namespace AppInstaller::Repository
             SourceDetails m_details;
             std::exception_ptr m_exception;
         };
+
+        // A wrapper that doesn't actually forward the search requests.
+        struct TrackingOnlySourceWrapper : public ISource
+        {
+            TrackingOnlySourceWrapper(std::shared_ptr<ISourceReference> wrapped) : m_wrapped(std::move(wrapped))
+            {
+                m_identifier = m_wrapped->GetIdentifier();
+            }
+
+            const std::string& GetIdentifier() const override { return m_identifier; }
+
+            SourceDetails& GetDetails() const override { return m_wrapped->GetDetails(); }
+
+            SourceInformation GetInformation() const override { return m_wrapped->GetInformation(); }
+
+            SearchResult Search(const SearchRequest&) const override { return {}; }
+
+            void* CastTo(ISourceType) override { return nullptr; }
+
+        private:
+            std::shared_ptr<ISourceReference> m_wrapped;
+            std::string m_identifier;
+        };
+
+        // A wrapper to create another wrapper.
+        struct TrackingOnlyReferenceWrapper : public ISourceReference
+        {
+            TrackingOnlyReferenceWrapper(std::shared_ptr<ISourceReference> wrapped) : m_wrapped(std::move(wrapped)) {}
+
+            std::string GetIdentifier() override { return m_wrapped->GetIdentifier(); }
+
+            SourceDetails& GetDetails() override { return m_wrapped->GetDetails(); }
+
+            SourceInformation GetInformation() override { return m_wrapped->GetInformation(); }
+
+            bool SetCustomHeader(std::optional<std::string>) override { return false; }
+
+            void SetCaller(std::string caller) override { m_wrapped->SetCaller(std::move(caller)); }
+
+            std::shared_ptr<ISource> Open(IProgressCallback&) override
+            {
+                return std::make_shared<TrackingOnlySourceWrapper>(m_wrapped);
+            }
+
+        private:
+            std::shared_ptr<ISourceReference> m_wrapped;
+        };
     }
 
     std::unique_ptr<ISourceFactory> ISourceFactory::GetForType(std::string_view type)
@@ -475,6 +522,11 @@ namespace AppInstaller::Repository
         m_backgroundUpdateInterval = interval;
     }
 
+    void Source::InstalledPackageInformationOnly(bool value)
+    {
+        m_installedPackageInformationOnly = value;
+    }
+
     SearchResult Source::Search(const SearchRequest& request) const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
@@ -554,51 +606,68 @@ namespace AppInstaller::Repository
 
         if (!m_source)
         {
+            std::vector<std::shared_ptr<ISourceReference>>* sourceReferencesToOpen = nullptr;
+            std::vector<std::shared_ptr<ISourceReference>> sourceReferencesForTrackingOnly;
             std::unique_ptr<SourceList> sourceList;
 
-            // Check for updates before opening.
-            for (auto& sourceReference : m_sourceReferences)
+            if (m_installedPackageInformationOnly)
             {
-                auto& details = sourceReference->GetDetails();
-                if (ShouldUpdateBeforeOpen(details, m_backgroundUpdateInterval))
-                {
-                    try
-                    {
-                        // TODO: Consider adding a context callback to indicate we are doing the same action
-                        // to avoid the progress bar fill up multiple times.
-                        if (BackgroundUpdateSourceFromDetails(details, progress))
-                        {
-                            if (sourceList == nullptr)
-                            {
-                                sourceList = std::make_unique<SourceList>();
-                            }
+                sourceReferencesToOpen = &sourceReferencesForTrackingOnly;
 
-                            auto detailsInternal = sourceList->GetSource(details.Name);
-                            detailsInternal->LastUpdateTime = details.LastUpdateTime;
-                            sourceList->SaveMetadata(*detailsInternal);
-                        }
-                        else
+                // Create a wrapper for each reference
+                for (auto& sourceReference : m_sourceReferences)
+                {
+                    sourceReferencesForTrackingOnly.emplace_back(std::make_shared<TrackingOnlyReferenceWrapper>(sourceReference));
+                }
+            }
+            else
+            {
+                // Check for updates before opening.
+                for (auto& sourceReference : m_sourceReferences)
+                {
+                    auto& details = sourceReference->GetDetails();
+                    if (ShouldUpdateBeforeOpen(details, m_backgroundUpdateInterval))
+                    {
+                        try
                         {
-                            AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
+                            // TODO: Consider adding a context callback to indicate we are doing the same action
+                            // to avoid the progress bar fill up multiple times.
+                            if (BackgroundUpdateSourceFromDetails(details, progress))
+                            {
+                                if (sourceList == nullptr)
+                                {
+                                    sourceList = std::make_unique<SourceList>();
+                                }
+
+                                auto detailsInternal = sourceList->GetSource(details.Name);
+                                detailsInternal->LastUpdateTime = details.LastUpdateTime;
+                                sourceList->SaveMetadata(*detailsInternal);
+                            }
+                            else
+                            {
+                                AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
+                                result.emplace_back(details);
+                            }
+                        }
+                        catch (...)
+                        {
+                            LOG_CAUGHT_EXCEPTION();
+                            AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
                             result.emplace_back(details);
                         }
                     }
-                    catch (...)
-                    {
-                        LOG_CAUGHT_EXCEPTION();
-                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
-                        result.emplace_back(details);
-                    }
                 }
+
+                sourceReferencesToOpen = &m_sourceReferences;
             }
 
-            if (m_sourceReferences.size() > 1)
+            if (sourceReferencesToOpen->size() > 1)
             {
                 AICLI_LOG(Repo, Info, << "Multiple sources available, creating aggregated source.");
                 auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
                 std::vector<std::shared_ptr<OpenExceptionProxy>> openExceptionProxies;
 
-                for (auto& sourceReference : m_sourceReferences)
+                for (auto& sourceReference : *sourceReferencesToOpen)
                 {
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << sourceReference->GetDetails().Name);
 
@@ -628,7 +697,7 @@ namespace AppInstaller::Repository
             }
             else
             {
-                m_source = m_sourceReferences[0]->Open(progress);
+                m_source = (*sourceReferencesToOpen)[0]->Open(progress);
             }
         }
 
