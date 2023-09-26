@@ -28,6 +28,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         if (IsBackgroundProcessForPolicy())
         {
+            // Delay the default update interval for these background processes
             static constexpr winrt::Windows::Foundation::TimeSpan s_PackageCatalogUpdateIntervalDelay_Base = 168h; //1 week
 
             // Add a bit of randomness to the default interval time
@@ -35,6 +36,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             std::uniform_int_distribution<long long> distribution(0, 604800);
 
             m_packageCatalogBackgroundUpdateInterval = s_PackageCatalogUpdateIntervalDelay_Base + std::chrono::seconds(distribution(randomEngine));
+
+            // Prevent any update / data processing by default for these background processes
+            m_installedPackageInformationOnly = true;
         }
     }
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions options)
