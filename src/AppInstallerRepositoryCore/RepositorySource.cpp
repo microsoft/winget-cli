@@ -97,25 +97,32 @@ namespace AppInstaller::Repository
         }
 
         // Determines whether (and logs why) a source should be updated before it is opened.
-        bool ShouldUpdateBeforeOpen(const SourceDetails& details)
+        bool ShouldUpdateBeforeOpen(const SourceDetails& details, std::optional<TimeSpan> backgroundUpdateInterval)
         {
             if (!ContainsAvailablePackagesInternal(details.Origin))
             {
                 return false;
             }
 
-            constexpr static auto s_ZeroMins = 0min;
-            auto autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
+            constexpr static TimeSpan s_ZeroMins = 0min;
+            TimeSpan autoUpdateTime;
+            if (backgroundUpdateInterval.has_value())
+            {
+                autoUpdateTime = backgroundUpdateInterval.value();
+            }
+            else
+            {
+                autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
+            }
 
             // A value of zero means no auto update, to get update the source run `winget update`
             if (autoUpdateTime != s_ZeroMins)
             {
-                auto autoUpdateTimeMins = std::chrono::minutes(autoUpdateTime);
                 auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
-                if (timeSinceLastUpdate > autoUpdateTimeMins)
+                if (timeSinceLastUpdate > autoUpdateTime)
                 {
                     AICLI_LOG(Repo, Info, << "Source past auto update time [" <<
-                        std::chrono::duration_cast<std::chrono::minutes>(autoUpdateTimeMins).count() << " mins]; it has been at least " <<
+                        std::chrono::duration_cast<std::chrono::minutes>(autoUpdateTime).count() << " mins]; it has been at least " <<
                         std::chrono::duration_cast<std::chrono::minutes>(timeSinceLastUpdate).count() << " mins");
                     return true;
                 }
@@ -278,7 +285,16 @@ namespace AppInstaller::Repository
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !IsWellKnownSourceEnabled(source));
 
-        SourceDetails details = GetWellKnownSourceDetailsInternal(source);
+        auto details = GetWellKnownSourceDetailsInternal(source);
+
+        // Populate metadata
+        SourceList sourceList;
+        auto sourceDetailsWithMetadata = sourceList.GetSource(details.Name);
+        if (sourceDetailsWithMetadata)
+        {
+            sourceDetailsWithMetadata->CopyMetadataFieldsTo(details);
+        }
+
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
@@ -454,6 +470,11 @@ namespace AppInstaller::Repository
         }
     }
 
+    void Source::SetBackgroundUpdateInterval(TimeSpan interval)
+    {
+        m_backgroundUpdateInterval = interval;
+    }
+
     SearchResult Source::Search(const SearchRequest& request) const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
@@ -539,7 +560,7 @@ namespace AppInstaller::Repository
             for (auto& sourceReference : m_sourceReferences)
             {
                 auto& details = sourceReference->GetDetails();
-                if (ShouldUpdateBeforeOpen(details))
+                if (ShouldUpdateBeforeOpen(details, m_backgroundUpdateInterval))
                 {
                     try
                     {

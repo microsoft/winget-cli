@@ -25,6 +25,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Contract 6.0
         bool AcceptSourceAgreements();
         void AcceptSourceAgreements(bool value);
+        // Contract 8.0
+        winrt::Windows::Foundation::TimeSpan PackageCatalogBackgroundUpdateInterval();
+        void PackageCatalogBackgroundUpdateInterval(winrt::Windows::Foundation::TimeSpan const& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -35,6 +38,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::optional<std::string> m_additionalPackageCatalogArguments;
         bool m_acceptSourceAgreements = true;
         std::once_flag m_sourceAgreementsOnceFlag;
+        winrt::Windows::Foundation::TimeSpan m_packageCatalogBackgroundUpdateInterval = winrt::Windows::Foundation::TimeSpan::zero();
 #endif
     };
 }
