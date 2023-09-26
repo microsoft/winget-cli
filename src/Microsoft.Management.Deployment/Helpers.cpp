@@ -146,9 +146,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return callerName;
     }
 
-    bool ShouldDelayBackgroundUpdateByCaller()
+    bool IsBackgroundProcessForPolicy()
     {
-        bool shouldDelayBackgroundUpdateInterval = false;
+        bool isBackgroundProcessForPolicy = false;
         try
         {
             auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
@@ -157,14 +157,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 // OutOfProc case, we check for explorer.exe
                 auto callerNameWide = AppInstaller::Utility::ConvertToUTF16(GetCallerName());
                 auto processName = AppInstaller::Utility::ConvertToUTF8(std::filesystem::path{ callerNameWide }.filename().wstring());
-                if (::AppInstaller::Utility::CaseInsensitiveEquals("explorer.exe", processName))
+                if (::AppInstaller::Utility::CaseInsensitiveEquals("explorer.exe", processName) ||
+                    ::AppInstaller::Utility::CaseInsensitiveEquals("taskhostw.exe", processName))
                 {
-                    shouldDelayBackgroundUpdateInterval = true;
+                    isBackgroundProcessForPolicy = true;
                 }
             }
         }
         CATCH_LOG();
 
-        return shouldDelayBackgroundUpdateInterval;
+        return isBackgroundProcessForPolicy;
     }
 }

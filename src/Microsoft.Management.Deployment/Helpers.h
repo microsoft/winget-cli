@@ -19,5 +19,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     std::pair<HRESULT, DWORD> GetCallerProcessId();
     std::wstring TryGetCallerProcessInfo(DWORD callerProcessId);
     std::string GetCallerName();
-    bool ShouldDelayBackgroundUpdateByCaller();
+    bool IsBackgroundProcessForPolicy();
 }

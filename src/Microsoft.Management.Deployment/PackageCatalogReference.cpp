@@ -26,15 +26,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         m_sourceReference = std::move(sourceReference);
         m_packageCatalogBackgroundUpdateInterval = ::AppInstaller::Settings::User().Get<::AppInstaller::Settings::Setting::AutoUpdateTimeInMinutes>();
 
-        if (ShouldDelayBackgroundUpdateByCaller())
+        if (IsBackgroundProcessForPolicy())
         {
             static constexpr winrt::Windows::Foundation::TimeSpan s_PackageCatalogUpdateIntervalDelay_Base = 168h; //1 week
 
             // Add a bit of randomness to the default interval time
             std::default_random_engine randomEngine(std::random_device{}());
-            std::uniform_int_distribution<long long> distribution(0, 168);
+            std::uniform_int_distribution<long long> distribution(0, 604800);
 
-            m_packageCatalogBackgroundUpdateInterval = s_PackageCatalogUpdateIntervalDelay_Base + std::chrono::hours(distribution(randomEngine));
+            m_packageCatalogBackgroundUpdateInterval = s_PackageCatalogUpdateIntervalDelay_Base + std::chrono::seconds(distribution(randomEngine));
         }
     }
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions options)

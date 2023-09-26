@@ -44,6 +44,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         auto previousThreadGlobals = m_threadGlobals.SetForCurrentThread();
         // Immediately reset as we only want the thread globals for logging within this object.
         previousThreadGlobals.reset();
+        // TODO: Disable summary until we log more and have meaningful summary to be sent in the future.
+        m_threadGlobals.GetTelemetryLogger().SetUseSummary(false);
         m_threadGlobals.GetTelemetryLogger().SetCaller(GetCallerName());
         m_threadGlobals.GetTelemetryLogger().LogStartup(true);
     }
