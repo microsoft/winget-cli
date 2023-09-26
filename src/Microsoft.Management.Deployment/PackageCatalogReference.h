@@ -25,7 +25,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // Contract 6.0
         bool AcceptSourceAgreements();
         void AcceptSourceAgreements(bool value);
-        // Contract 7.0
+        // Contract 8.0
         winrt::Windows::Foundation::TimeSpan PackageCatalogBackgroundUpdateInterval();
         void PackageCatalogBackgroundUpdateInterval(winrt::Windows::Foundation::TimeSpan const& value);
 
