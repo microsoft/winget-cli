@@ -161,11 +161,22 @@ namespace AppInstaller::Repository::Microsoft
                             AICLI_LOG(Repo, Verbose, << "Header indicates version is: " << itr->second);
                             return { itr->second };
                         }
+
+                        // We did not find the header we were looking for, log the ones we did find
+                        AICLI_LOG(Repo, Verbose, << "Did not find " << s_PreIndexedPackageSourceFactory_PackageVersionHeader << " in:\n" << [&]()
+                            {
+                                std::ostringstream headerLog;
+                                for (const auto& header : headers)
+                                {
+                                    headerLog << "  " << header.first << " : " << header.second << '\n';
+                                }
+                                return std::move(headerLog).str();
+                            }());
                     }
                     CATCH_LOG();
                 }
 
-                AICLI_LOG(Repo, Verbose, << "No version header, falling back to reading the package data");
+                AICLI_LOG(Repo, Verbose, << "Falling back to reading the package data");
                 Msix::MsixInfo info{ packageLocation };
                 auto manifest = info.GetAppPackageManifests();
 
