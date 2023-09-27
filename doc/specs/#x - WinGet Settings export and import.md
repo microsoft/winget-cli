@@ -2,12 +2,12 @@
 author: Roy MacLachlan rdmaclachlan/roy.maclachlan@microsoft.com
 created on: 2023-09-26
 last updated: 2023-09-26
-issue id: <github issue id>
+issue id: 3693
 ---
 
 # Export and Import WinGet Settings
 
-[comment]: # Link to issue: "For [#1](https://github.com/microsoft/winget-cli/issues/1)"
+Link to issue: "For [#3693](https://github.com/microsoft/winget-cli/issues/3693)"
 
 ## Abstract
 
