@@ -53,7 +53,12 @@ namespace AppInstaller::Repository
             CATCH_LOG();
 
             AICLI_LOG(Repo, Info, << "Source add/update failed, waiting a bit and retrying: " << details.Name);
-            std::this_thread::sleep_for(2s);
+
+            // Add a bit of randomness to the retry wait time
+            std::default_random_engine randomEngine(std::random_device{}());
+            std::uniform_int_distribution<long long> distribution(2000, 10000);
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(distribution(randomEngine)));
 
             // If this one fails, maybe the problem is persistent.
             result = (factory.get()->*member)(details, progress);
