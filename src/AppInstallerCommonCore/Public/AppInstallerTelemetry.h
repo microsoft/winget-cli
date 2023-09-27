@@ -168,6 +168,8 @@ namespace AppInstaller::Logging
 
         void SetExecutionStage(uint32_t stage) noexcept;
 
+        void SetUseSummary(bool useSummary) noexcept;
+
         std::unique_ptr<TelemetryTraceLogger> CreateSubTraceLogger() const;
 
         // Logs the failure info.
