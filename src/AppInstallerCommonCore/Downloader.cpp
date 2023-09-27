@@ -168,7 +168,7 @@ namespace AppInstaller::Utility
 
         for (const auto& header : response.Headers())
         {
-            result.emplace(Utility::ConvertToUTF8(header.Key()), Utility::ConvertToUTF8(header.Value()));
+            result.emplace(Utility::FoldCase(static_cast<std::string_view>(Utility::ConvertToUTF8(header.Key()))), Utility::ConvertToUTF8(header.Value()));
         }
 
         return result;
