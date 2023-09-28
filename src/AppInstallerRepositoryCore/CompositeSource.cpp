@@ -1412,12 +1412,15 @@ namespace AppInstaller::Repository
                         }
                     }
 
+                    bool addedAvailablePackage = false;
+
                     // Directly search for the available package from tracking information.
                     if (trackingPackage)
                     {
                         auto availablePackage = GetTrackedPackageFromAvailableSource(result, trackedSource, trackingPackage->GetProperty(PackageProperty::Id));
                         if (availablePackage)
                         {
+                            addedAvailablePackage = true;
                             compositePackage->AddAvailablePackage(std::move(availablePackage));
                         }
                         compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), std::move(trackingPackageVersion));
@@ -1450,6 +1453,7 @@ namespace AppInstaller::Repository
                             });
 
                         // For non pinning cases. We found some matching packages here, don't keep going.
+                        addedAvailablePackage = true;
                         compositePackage->AddAvailablePackage(std::move(availablePackage));
                     }
                 }
