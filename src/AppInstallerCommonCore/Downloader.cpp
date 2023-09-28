@@ -22,6 +22,38 @@ using namespace winrt::Windows::Web::Http::Filters;
 
 namespace AppInstaller::Utility
 {
+    namespace
+    {
+        // Gets the retry after value in terms of a delay in seconds
+        std::chrono::seconds GetRetryAfter(const HttpResponseMessage& response)
+        {
+            HttpDateOrDeltaHeaderValue retryAfter = response.Headers().RetryAfter();
+
+            if (retryAfter)
+            {
+                auto delta = retryAfter.Delta();
+                if (delta)
+                {
+                    return  std::chrono::duration_cast<std::chrono::seconds>(delta.GetTimeSpan());
+                }
+
+                auto dateTimeRef = retryAfter.Date();
+                if (dateTimeRef)
+                {
+                    auto dateTime = dateTimeRef.GetDateTime();
+                    auto now = winrt::clock::now();
+
+                    if (dateTime > now)
+                    {
+                        return std::chrono::duration_cast<std::chrono::seconds>(dateTime - now);
+                    }
+                }
+            }
+
+            return 0s;
+        }
+    }
+
     std::optional<std::vector<BYTE>> WinINetDownloadToStream(
         const std::string& url,
         std::ostream& dest,
@@ -160,9 +192,19 @@ namespace AppInstaller::Utility
 
         HttpResponseMessage response = client.SendRequestAsync(request, HttpCompletionOption::ResponseHeadersRead).get();
 
-        THROW_HR_IF(
-            MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.StatusCode()),
-            response.StatusCode() != HttpStatusCode::Ok);
+        switch (response.StatusCode())
+        {
+        case HttpStatusCode::Ok:
+            // All good
+            break;
+        case HttpStatusCode::TooManyRequests:
+        case HttpStatusCode::ServiceUnavailable:
+        {
+            THROW_EXCEPTION(ServiceUavailableException(GetRetryAfter(response)));
+        }
+        default:
+            THROW_HR(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.StatusCode()));
+        }
 
         std::map<std::string, std::string> result;
 

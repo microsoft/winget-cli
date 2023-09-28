@@ -6,6 +6,7 @@
 #include <urlmon.h>
 #include <wrl/client.h>
 
+#include <chrono>
 #include <filesystem>
 #include <map>
 #include <optional>
@@ -13,6 +14,8 @@
 #include <string>
 #include <string_view>
 #include <vector>
+
+using namespace std::chrono_literals;
 
 namespace AppInstaller::Utility
 {
@@ -32,6 +35,17 @@ namespace AppInstaller::Utility
     {
         std::string DisplayName;
         std::string ContentId;
+    };
+
+    // An exception that indicates that a remote service is too busy/unavailable and may contain data on when to try again.
+    struct ServiceUavailableException : public wil::ResultException
+    {
+        ServiceUavailableException(std::chrono::seconds retryAfter = 0s) : wil::ResultException(APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE), m_retryAfter(retryAfter) {}
+
+        std::chrono::seconds RetryAfter() const { return m_retryAfter; }
+
+    private:
+        std::chrono::seconds m_retryAfter;
     };
 
     // Downloads a file from the given URL and places it in the given location.
