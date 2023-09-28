@@ -28,7 +28,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         if (IsBackgroundProcessForPolicy())
         {
-            // Delay the default update interval for these background processes
             static constexpr winrt::Windows::Foundation::TimeSpan s_PackageCatalogUpdateIntervalDelay_Base = 168h; //1 week
 
             // Add a bit of randomness to the default interval time
@@ -36,9 +35,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             std::uniform_int_distribution<long long> distribution(0, 604800);
 
             m_packageCatalogBackgroundUpdateInterval = s_PackageCatalogUpdateIntervalDelay_Base + std::chrono::seconds(distribution(randomEngine));
-
-            // Prevent any update / data processing by default for these background processes
-            m_installedPackageInformationOnly = true;
         }
     }
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions options)
@@ -99,7 +95,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     auto copy = catalogImpl->m_sourceReference;
                     copy.SetCaller(callerName);
                     copy.SetBackgroundUpdateInterval(catalog.PackageCatalogBackgroundUpdateInterval());
-                    copy.InstalledPackageInformationOnly(catalog.InstalledPackageInformationOnly());
                     copy.Open(progress);
                     remoteSources.emplace_back(std::move(copy));
                 }
@@ -142,7 +137,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 source = m_sourceReference;
                 source.SetCaller(callerName);
                 source.SetBackgroundUpdateInterval(PackageCatalogBackgroundUpdateInterval());
-                source.InstalledPackageInformationOnly(m_installedPackageInformationOnly);
                 source.Open(progress);
             }
 
@@ -222,7 +216,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_acceptSourceAgreements;
     }
-    
     void PackageCatalogReference::PackageCatalogBackgroundUpdateInterval(winrt::Windows::Foundation::TimeSpan const& value)
     {
         if (IsComposite())
@@ -235,20 +228,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     winrt::Windows::Foundation::TimeSpan PackageCatalogReference::PackageCatalogBackgroundUpdateInterval()
     {
         return m_packageCatalogBackgroundUpdateInterval;
-    }
-
-    bool PackageCatalogReference::InstalledPackageInformationOnly()
-    {
-        return m_installedPackageInformationOnly;
-    }
-
-    void PackageCatalogReference::InstalledPackageInformationOnly(bool value)
-    {
-        if (IsComposite())
-        {
-            throw winrt::hresult_illegal_state_change();
-        }
-
-        m_installedPackageInformationOnly = value;
     }
 }

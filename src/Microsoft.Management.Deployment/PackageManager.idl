@@ -754,10 +754,6 @@ namespace Microsoft.Management.Deployment
         {
             /// Time interval for package catalog to check for an update. Setting to zero will disable the check for update.
             Windows.Foundation.TimeSpan PackageCatalogBackgroundUpdateInterval;
-
-            // When set to true, the opened catalog will only provide the information regarding packages installed from this catalog.
-            // In this mode, no external resources should be required.
-            Boolean InstalledPackageInformationOnly;
         }
     }
 
