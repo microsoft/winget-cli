@@ -59,11 +59,13 @@ You can also [build the client yourself](#building-the-client). While the client
 
 The plan for delivering next Windows Package Manager releases is described included in our [discussions](https://github.com/microsoft/winget-cli/discussions/2063), and will be updated as the project proceeds.
 
-## Overview of the  Windows Package Manager
+## Overview of the Windows Package Manager
 
 The **Windows Package Manager** is a tool designed to help you quickly and easily discover and install those packages that make your PC environment special.  By using the **Windows Package Manager**, from one command, you can install your favorite packages:
 
 `winget install <package>`
+
+Note: the default install location for packages is `%LOCALAPPDATA%\Microsoft\WinGet\Packages`
 
 ## Overview
 
