@@ -229,6 +229,9 @@ namespace AppInstaller::Repository
         // Must be set before Open to have effect, and will prevent the underlying source from being updated or opened.
         void InstalledPackageInformationOnly(bool value);
 
+        // Determines if this source refers to the given well known source.
+        bool IsWellKnownSource(WellKnownSource wellKnownSource);
+
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;
 

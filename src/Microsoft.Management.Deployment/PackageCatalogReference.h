@@ -11,8 +11,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         PackageCatalogReference() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void Initialize(winrt::Microsoft::Management::Deployment::PackageCatalogInfo packageCatalogInfo, ::AppInstaller::Repository::Source sourceReference);
-        void Initialize(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions options);
+        void Initialize(Deployment::PackageCatalogInfo packageCatalogInfo, ::AppInstaller::Repository::Source sourceReference);
+        void Initialize(Deployment::CreateCompositePackageCatalogOptions options);
 #endif
 
         bool IsComposite();

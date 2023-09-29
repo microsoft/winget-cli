@@ -527,6 +527,13 @@ namespace AppInstaller::Repository
         m_installedPackageInformationOnly = value;
     }
 
+    bool Source::IsWellKnownSource(WellKnownSource wellKnownSource)
+    {
+        SourceDetails details = GetDetails();
+        auto wellKnown = CheckForWellKnownSourceMatch(details.Name, details.Arg, details.Type);
+        return wellKnown && wellKnown.value() == wellKnownSource;
+    }
+
     SearchResult Source::Search(const SearchRequest& request) const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
