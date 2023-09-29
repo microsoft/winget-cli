@@ -28,6 +28,7 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
         constexpr std::string_view s_MetadataYaml_Source_Name = "Name"sv;
         constexpr std::string_view s_MetadataYaml_Source_LastUpdate = "LastUpdate"sv;
+        constexpr std::string_view s_MetadataYaml_Source_DoNotUpdateBefore = "DoNotUpdateBefore"sv;
         constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementsIdentifier = "AcceptedAgreementsIdentifier"sv;
         constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementFields = "AcceptedAgreementFields"sv;
 
@@ -203,9 +204,24 @@ namespace AppInstaller::Repository
 
     void SourceDetailsInternal::CopyMetadataFieldsTo(SourceDetailsInternal& target)
     {
-        target.LastUpdateTime = LastUpdateTime;
+        if (LastUpdateTime > target.LastUpdateTime)
+        {
+            target.LastUpdateTime = LastUpdateTime;
+        }
+
+        if (DoNotUpdateBefore > target.DoNotUpdateBefore)
+        {
+            target.DoNotUpdateBefore = DoNotUpdateBefore;
+        }
+
         target.AcceptedAgreementFields = AcceptedAgreementFields;
         target.AcceptedAgreementsIdentifier = AcceptedAgreementsIdentifier;
+    }
+
+    void SourceDetailsInternal::CopyMetadataFieldsFrom(const SourceDetails& source)
+    {
+        LastUpdateTime = source.LastUpdateTime;
+        DoNotUpdateBefore = source.DoNotUpdateBefore;
     }
 
     std::string_view GetWellKnownSourceName(WellKnownSource source)
@@ -703,9 +719,17 @@ namespace AppInstaller::Repository
                 details.Origin = SourceOrigin::Metadata;
                 std::string_view name = m_metadataStream.GetName();
                 if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_Name, details.Name)) { return false; }
+
                 int64_t lastUpdateInEpoch{};
                 if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_LastUpdate, lastUpdateInEpoch)) { return false; }
                 details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(lastUpdateInEpoch);
+
+                int64_t doNotUpdateBeforeInEpoch{};
+                if (TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_DoNotUpdateBefore, doNotUpdateBeforeInEpoch, false))
+                {
+                    details.DoNotUpdateBefore = Utility::ConvertUnixEpochToSystemClock(doNotUpdateBeforeInEpoch);
+                }
+
                 TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementsIdentifier, details.AcceptedAgreementsIdentifier, false);
                 TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementFields, details.AcceptedAgreementFields, false);
                 return true;
@@ -724,6 +748,7 @@ namespace AppInstaller::Repository
             out << YAML::BeginMap;
             out << YAML::Key << s_MetadataYaml_Source_Name << YAML::Value << details.Name;
             out << YAML::Key << s_MetadataYaml_Source_LastUpdate << YAML::Value << Utility::ConvertSystemClockToUnixEpoch(details.LastUpdateTime);
+            out << YAML::Key << s_MetadataYaml_Source_DoNotUpdateBefore << YAML::Value << Utility::ConvertSystemClockToUnixEpoch(details.DoNotUpdateBefore);
             out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementsIdentifier << YAML::Value << details.AcceptedAgreementsIdentifier;
             out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementFields << YAML::Value << details.AcceptedAgreementFields;
             out << YAML::EndMap;

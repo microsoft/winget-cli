@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerErrors.h>
 #include <AppInstallerProgress.h>
 
 #include <urlmon.h>
@@ -38,9 +39,9 @@ namespace AppInstaller::Utility
     };
 
     // An exception that indicates that a remote service is too busy/unavailable and may contain data on when to try again.
-    struct ServiceUavailableException : public wil::ResultException
+    struct ServiceUnavailableException : public wil::ResultException
     {
-        ServiceUavailableException(std::chrono::seconds retryAfter = 0s) : wil::ResultException(APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE), m_retryAfter(retryAfter) {}
+        ServiceUnavailableException(std::chrono::seconds retryAfter = 0s) : wil::ResultException(APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE), m_retryAfter(retryAfter) {}
 
         std::chrono::seconds RetryAfter() const { return m_retryAfter; }
 

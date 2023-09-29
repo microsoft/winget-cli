@@ -200,7 +200,7 @@ namespace AppInstaller::Utility
         case HttpStatusCode::TooManyRequests:
         case HttpStatusCode::ServiceUnavailable:
         {
-            THROW_EXCEPTION(ServiceUavailableException(GetRetryAfter(response)));
+            THROW_EXCEPTION(ServiceUnavailableException(GetRetryAfter(response)));
         }
         default:
             THROW_HR(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.StatusCode()));
