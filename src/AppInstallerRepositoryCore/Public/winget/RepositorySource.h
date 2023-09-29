@@ -225,6 +225,10 @@ namespace AppInstaller::Repository
         // Set background update check interval.
         void SetBackgroundUpdateInterval(TimeSpan interval);
 
+        // Indicates that we are only interested in the PackageTrackingCatalog for the source.
+        // Must be set before Open to have effect, and will prevent the underlying source from being updated or opened.
+        void InstalledPackageInformationOnly(bool value);
+
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;
 
@@ -287,6 +291,7 @@ namespace AppInstaller::Repository
         bool m_isSourceToBeAdded = false;
         bool m_isComposite = false;
         std::optional<TimeSpan> m_backgroundUpdateInterval;
+        bool m_installedPackageInformationOnly = false;
         mutable PackageTrackingCatalog m_trackingCatalog;
     };
 }
