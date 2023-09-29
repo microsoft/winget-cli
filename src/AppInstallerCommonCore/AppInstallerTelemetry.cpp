@@ -173,11 +173,6 @@ namespace AppInstaller::Logging
         m_executionStage = stage;
     }
 
-    void TelemetryTraceLogger::SetUseSummary(bool useSummary) noexcept
-    {
-        m_useSummary = useSummary;
-    }
-
     std::unique_ptr<TelemetryTraceLogger> TelemetryTraceLogger::CreateSubTraceLogger() const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !this->m_isInitialized);
