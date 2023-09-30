@@ -56,6 +56,8 @@ The options allow you to customize the upgrade experience to meet your needs.
 | **--logs,--open-logs**           | Open the default logs location.                                                                                             |
 | **--verbose,--verbose-logs**     | Enable verbose logging for winget.                                                                                          |
 | **--disable-interactivity**      | Disable interactive prompts.                                                                                                |
+| **--installer-type**             |        Select the installer type
+| **--skip-dependencies**          |        Skips processing package dependencies and Windows features                                                           |
 
 ### Example queries
 
