@@ -51,11 +51,52 @@ namespace AppInstaller::Utility
             return 0s;
         }
 
-        std::chrono::seconds GetRetryAfter(const winrt::hstring& value)
+        std::chrono::seconds GetRetryAfter(const wil::unique_hinternet& urlFile)
         {
-            HttpDateOrDeltaHeaderValue retryAfter = nullptr;
-            HttpDateOrDeltaHeaderValue::TryParse(value, retryAfter);
-            return GetRetryAfter(retryAfter);
+            std::wstring retryAfter = {};
+            DWORD length = 0;
+            if (!HttpQueryInfo(urlFile.get(),
+                HTTP_QUERY_RETRY_AFTER,
+                &retryAfter,
+                &length,
+                nullptr))
+            {
+                auto lastError = GetLastError();
+                if (lastError == ERROR_INSUFFICIENT_BUFFER)
+                {
+                    // lpdwBufferLength contains the size, in bytes, of a buffer large enough to receive the requested information
+                    // without the nul char. not the exact buffer size.
+                    auto size = static_cast<size_t>(length) / sizeof(wchar_t);
+                    retryAfter.resize(size);
+                    if (HttpQueryInfo(urlFile.get(),
+                        HTTP_QUERY_RETRY_AFTER,
+                        &retryAfter[0],
+                        &length,
+                        nullptr))
+                    {
+                        // because the buffer can be bigger remove possible null chars
+                        retryAfter.erase(retryAfter.find(L'\0'));
+
+                        try
+                        {
+                            winrt::hstring hstringValue{ retryAfter };
+                            HttpDateOrDeltaHeaderValue headerValue = nullptr;
+                            HttpDateOrDeltaHeaderValue::TryParse(hstringValue, headerValue);
+                            return GetRetryAfter(headerValue);
+                        }
+                        catch (...)
+                        {
+                            AICLI_LOG(Core, Error, << "Retry-After value not supported.");
+                        }
+                    }
+                }
+                else
+                {
+                    AICLI_LOG(Core, Error, << "Error retrieving Retry-After header. " << GetLastError());
+                }
+            }
+
+            return 0s;
         }
 
         std::chrono::seconds GetRetryAfter(const HttpResponseMessage& response)
@@ -115,38 +156,7 @@ namespace AppInstaller::Utility
         case TooManyRequest:
         case HTTP_STATUS_SERVICE_UNAVAIL:
         {
-            std::wstring retryAfter = {};
-            DWORD length = 0;
-            if (!HttpQueryInfo(urlFile.get(),
-                    HTTP_QUERY_RETRY_AFTER,
-                    &retryAfter,
-                    &length,
-                    nullptr))
-            {
-                auto lastError = GetLastError();
-                if (lastError == ERROR_INSUFFICIENT_BUFFER)
-                {
-                    // lpdwBufferLength contains the size, in bytes, of a buffer large enough to receive the requested information
-                    // not the exact buffer size.
-                    auto size = static_cast<size_t>(length) / sizeof(wchar_t);
-                    retryAfter.resize(size);
-                    if (HttpQueryInfo(urlFile.get(),
-                        HTTP_QUERY_RETRY_AFTER,
-                        &retryAfter[0],
-                        &length,
-                        nullptr))
-                    {
-                        // because the buffer can be bigger remove possible null chars
-                        retryAfter.erase(retryAfter.find(L'\0'));
-                        winrt::hstring hstringValue{ retryAfter };
-                        THROW_EXCEPTION(ServiceUnavailableException(GetRetryAfter(hstringValue)));
-                    }
-                }
-
-                AICLI_LOG(Core, Error, << "Error retrieving Retry-After header. " << GetLastError());
-            }
-
-            THROW_HR_MSG(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, requestStatus), "Download request status is not success.");
+            THROW_EXCEPTION(ServiceUnavailableException(GetRetryAfter(urlFile)));
         }
         default:
             AICLI_LOG(Core, Error, << "Download request failed. Returned status: " << requestStatus);
