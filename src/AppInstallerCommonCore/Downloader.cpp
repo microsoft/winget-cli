@@ -25,10 +25,8 @@ namespace AppInstaller::Utility
     namespace
     {
         // Gets the retry after value in terms of a delay in seconds
-        std::chrono::seconds GetRetryAfter(const HttpResponseMessage& response)
+        std::chrono::seconds GetRetryAfter(const HttpDateOrDeltaHeaderValue& retryAfter)
         {
-            HttpDateOrDeltaHeaderValue retryAfter = response.Headers().RetryAfter();
-
             if (retryAfter)
             {
                 auto delta = retryAfter.Delta();
@@ -51,6 +49,18 @@ namespace AppInstaller::Utility
             }
 
             return 0s;
+        }
+
+        std::chrono::seconds GetRetryAfter(const winrt::hstring& value)
+        {
+            HttpDateOrDeltaHeaderValue retryAfter = nullptr;
+            HttpDateOrDeltaHeaderValue::TryParse(value, retryAfter);
+            return GetRetryAfter(retryAfter);
+        }
+
+        std::chrono::seconds GetRetryAfter(const HttpResponseMessage& response)
+        {
+            return GetRetryAfter(response.Headers().RetryAfter());
         }
     }
 
@@ -95,8 +105,50 @@ namespace AppInstaller::Utility
             &cbRequestStatus,
             nullptr), "Query download request status failed.");
 
-        if (requestStatus != HTTP_STATUS_OK)
+        constexpr DWORD TooManyRequest = 429;
+
+        switch (requestStatus)
         {
+        case HTTP_STATUS_OK:
+            // All good
+            break;
+        case TooManyRequest:
+        case HTTP_STATUS_SERVICE_UNAVAIL:
+        {
+            std::wstring retryAfter = {};
+            DWORD length = 0;
+            if (!HttpQueryInfo(urlFile.get(),
+                    HTTP_QUERY_RETRY_AFTER,
+                    &retryAfter,
+                    &length,
+                    nullptr))
+            {
+                auto lastError = GetLastError();
+                if (lastError == ERROR_INSUFFICIENT_BUFFER)
+                {
+                    // lpdwBufferLength contains the size, in bytes, of a buffer large enough to receive the requested information
+                    // not the exact buffer size.
+                    auto size = static_cast<size_t>(length) / sizeof(wchar_t);
+                    retryAfter.resize(size);
+                    if (HttpQueryInfo(urlFile.get(),
+                        HTTP_QUERY_RETRY_AFTER,
+                        &retryAfter[0],
+                        &length,
+                        nullptr))
+                    {
+                        // because the buffer can be bigger remove possible null chars
+                        retryAfter.erase(retryAfter.find(L'\0'));
+                        winrt::hstring hstringValue{ retryAfter };
+                        THROW_EXCEPTION(ServiceUnavailableException(GetRetryAfter(hstringValue)));
+                    }
+                }
+
+                AICLI_LOG(Core, Error, << "Error retrieving Retry-After header. " << GetLastError());
+            }
+
+            THROW_HR_MSG(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, requestStatus), "Download request status is not success.");
+        }
+        default:
             AICLI_LOG(Core, Error, << "Download request failed. Returned status: " << requestStatus);
             THROW_HR_MSG(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, requestStatus), "Download request status is not success.");
         }

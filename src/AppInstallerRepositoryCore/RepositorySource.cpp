@@ -50,6 +50,11 @@ namespace AppInstaller::Repository
             }
         }
 
+        bool IsUpdateSuppressed(const SourceDetails& details)
+        {
+            return std::chrono::system_clock::now() < details.DoNotUpdateBefore;
+        }
+
         struct AddOrUpdateResult
         {
             bool UpdateChecked = false;
@@ -60,6 +65,14 @@ namespace AppInstaller::Repository
         AddOrUpdateResult AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
         {
             AddOrUpdateResult result;
+
+            // Do not update if we are still before the update block time.
+            if (IsUpdateSuppressed(details))
+            {
+                AICLI_LOG(Repo, Info, << "Update is suppressed until: " << details.DoNotUpdateBefore);
+                return {};
+            }
+
             auto factory = ISourceFactory::GetForType(details.Type);
 
             // If we are instructed to wait longer than this, just fail rather than retrying.
@@ -77,14 +90,17 @@ namespace AppInstaller::Repository
                 }
                 return result;
             }
-            catch (const Utility::ServiceUavailableException& sue)
+            catch (const Utility::ServiceUnavailableException& sue)
             {
                 waitSecondsForRetry = sue.RetryAfter();
 
                 // Rethrow this exception rather than waiting if it exceeds the limit.
                 if (waitSecondsForRetry > maximumWaitTimeAllowed)
                 {
-                    throw;
+                    details.DoNotUpdateBefore = std::chrono::system_clock::now() + GetMillisecondsToWait(sue.RetryAfter(), 3);
+                    AICLI_LOG(Repo, Info, << "Source `" << details.Name << "` unavailable first try, setting DoNotUpdateBefore to " << details.DoNotUpdateBefore);
+                    result.MetadataWritten = true;
+                    return result;
                 }
             }
             CATCH_LOG();
@@ -93,7 +109,20 @@ namespace AppInstaller::Repository
 
             AICLI_LOG(Repo, Info, << "Source add/update failed, waiting " << millisecondsToWait.count() << " milliseconds and retrying: " << details.Name);
 
-            std::this_thread::sleep_for(millisecondsToWait);
+            constexpr std::chrono::milliseconds delta = 1000ms;
+            std::chrono::milliseconds passed = 0ms;
+
+            while (passed < millisecondsToWait)
+            {
+                if (progress.IsCancelledBy(CancelReason::Any))
+                {
+                    AICLI_LOG(Repo, Info, << "Source second try cancelled.");
+                    return {};
+                }
+
+                std::this_thread::sleep_for(delta);
+                passed += delta;
+            }
 
             try
             {
@@ -105,10 +134,10 @@ namespace AppInstaller::Repository
                     result.MetadataWritten = true;
                 }
             }
-            catch (const Utility::ServiceUavailableException& sue)
+            catch (const Utility::ServiceUnavailableException& sue)
             {
                 details.DoNotUpdateBefore = std::chrono::system_clock::now() + GetMillisecondsToWait(sue.RetryAfter(), 3);
-                AICLI_LOG(Repo, Info, << "Source `" << details.Name << "` unavailable, setting DoNotUpdateBefore to " << details.DoNotUpdateBefore);
+                AICLI_LOG(Repo, Info, << "Source `" << details.Name << "` unavailable second try, setting DoNotUpdateBefore to " << details.DoNotUpdateBefore);
                 result.MetadataWritten = true;
             }
 
@@ -150,15 +179,6 @@ namespace AppInstaller::Repository
                 return false;
             }
 
-            auto now = std::chrono::system_clock::now();
-
-            // Do not update if we are still before the update block time.
-            if (now < details.DoNotUpdateBefore)
-            {
-                AICLI_LOG(Repo, Info, << "Background update is suppressed until: " << details.DoNotUpdateBefore);
-                return false;
-            }
-
             constexpr static TimeSpan s_ZeroMins = 0min;
             TimeSpan autoUpdateTime;
             if (backgroundUpdateInterval.has_value())
@@ -173,7 +193,7 @@ namespace AppInstaller::Repository
             // A value of zero means no auto update, to get update the source run `winget update`
             if (autoUpdateTime != s_ZeroMins)
             {
-                auto timeSinceLastUpdate = now - details.LastUpdateTime;
+                auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
                 if (timeSinceLastUpdate > autoUpdateTime)
                 {
                     AICLI_LOG(Repo, Info, << "Source past auto update time [" <<
