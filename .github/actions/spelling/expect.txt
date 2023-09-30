@@ -103,6 +103,7 @@ DACL
 datetimeoffset
 Dbg
 debian
+dedupe
 deigh
 deleteifnotneeded
 DENYWR
@@ -264,6 +265,7 @@ luffy
 Luffytaro
 maclachlan
 malware
+mapdatafolding
 mapview
 Maxed
 maxvalue
@@ -429,6 +431,7 @@ SMTO
 sortof
 sourceforge
 SOURCESDIRECTORY
+sourceversion
 spamming
 SPAPI
 Srinivasan
@@ -451,6 +454,7 @@ Syncy
 sysrefcomp
 systemnotsupported
 Tagit
+taskhostw
 TCpp
 tcs
 TEMPDIRECTORY

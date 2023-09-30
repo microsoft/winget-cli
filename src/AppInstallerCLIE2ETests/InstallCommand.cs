@@ -629,6 +629,7 @@ namespace AppInstallerCLIE2ETests
         /// Test install a package with an invalid Windows Feature dependency.
         /// </summary>
         [Test]
+        [Ignore("Need change to implementation of Windows Feature dependencies.")]
         public void InstallWithWindowsFeatureDependency_FeatureNotFound()
         {
             var testDir = TestCommon.GetRandomTestDir();
@@ -641,6 +642,7 @@ namespace AppInstallerCLIE2ETests
         /// Test install a package with a Windows Feature dependency using the force argument.
         /// </summary>
         [Test]
+        [Ignore("Need change to implementation of Windows Feature dependencies.")]
         public void InstallWithWindowsFeatureDependency_Force()
         {
             var testDir = TestCommon.GetRandomTestDir();

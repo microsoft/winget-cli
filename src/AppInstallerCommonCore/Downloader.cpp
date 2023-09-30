@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerRuntime.h"
@@ -17,6 +16,9 @@
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Filesystem;
+using namespace winrt::Windows::Web::Http;
+using namespace winrt::Windows::Web::Http::Headers;
+using namespace winrt::Windows::Web::Http::Filters;
 
 namespace AppInstaller::Utility
 {
@@ -137,6 +139,37 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "Download completed.");
 
         #pragma warning(pop)
+
+        return result;
+    }
+
+    std::map<std::string, std::string> GetHeaders(std::string_view url)
+    {
+        AICLI_LOG(Core, Verbose, << "Retrieving headers from url: " << url);
+
+        HttpBaseProtocolFilter filter;
+        filter.CacheControl().ReadBehavior(HttpCacheReadBehavior::MostRecent);
+
+        HttpClient client(filter);
+        client.DefaultRequestHeaders().Connection().Clear();
+        client.DefaultRequestHeaders().Append(L"Connection", L"close");
+        client.DefaultRequestHeaders().UserAgent().ParseAdd(Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent().get()));
+
+        winrt::Windows::Foundation::Uri uri{ Utility::ConvertToUTF16(url) };
+        HttpRequestMessage request(HttpMethod::Head(), uri);
+
+        HttpResponseMessage response = client.SendRequestAsync(request, HttpCompletionOption::ResponseHeadersRead).get();
+
+        THROW_HR_IF(
+            MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.StatusCode()),
+            response.StatusCode() != HttpStatusCode::Ok);
+
+        std::map<std::string, std::string> result;
+
+        for (const auto& header : response.Headers())
+        {
+            result.emplace(Utility::FoldCase(static_cast<std::string_view>(Utility::ConvertToUTF8(header.Key()))), Utility::ConvertToUTF8(header.Value()));
+        }
 
         return result;
     }
