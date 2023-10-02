@@ -86,7 +86,8 @@ namespace AppInstaller::Utility
                         }
                         catch (...)
                         {
-                            AICLI_LOG(Core, Error, << "Retry-After value not supported.");
+                            AICLI_LOG(Core, Error, << "Retry-After value not supported: " << Utility::ConvertToUTF8(retryAfter));
+
                         }
                     }
                 }
