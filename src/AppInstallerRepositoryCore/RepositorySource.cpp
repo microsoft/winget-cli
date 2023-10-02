@@ -97,7 +97,7 @@ namespace AppInstaller::Repository
                 // Rethrow this exception rather than waiting if it exceeds the limit.
                 if (waitSecondsForRetry > maximumWaitTimeAllowed)
                 {
-                    details.DoNotUpdateBefore = std::chrono::system_clock::now() + GetMillisecondsToWait(sue.RetryAfter(), 3);
+                    details.DoNotUpdateBefore = std::chrono::system_clock::now() + waitSecondsForRetry;
                     AICLI_LOG(Repo, Info, << "Source `" << details.Name << "` unavailable first try, setting DoNotUpdateBefore to " << details.DoNotUpdateBefore);
                     result.MetadataWritten = true;
                     return result;
