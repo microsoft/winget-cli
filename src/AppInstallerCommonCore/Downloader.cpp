@@ -93,7 +93,7 @@ namespace AppInstaller::Utility
                 }
                 else
                 {
-                    AICLI_LOG(Core, Error, << "Error retrieving Retry-After header. " << GetLastError());
+                    AICLI_LOG(Core, Error, << "Error retrieving Retry-After header: " << GetLastError());
                 }
             }
 
