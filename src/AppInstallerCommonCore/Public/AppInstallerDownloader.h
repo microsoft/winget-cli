@@ -4,6 +4,8 @@
 #include <AppInstallerErrors.h>
 #include <AppInstallerProgress.h>
 
+#include <winrt/Windows.Web.Http.h>
+
 #include <urlmon.h>
 #include <wrl/client.h>
 
@@ -98,4 +100,10 @@ namespace AppInstaller::Utility
 
     // Function to read-only create a stream from a uri string (url address or file system path)
     Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr);
+
+    // Gets the retry after value in terms of a delay in seconds.
+    std::chrono::seconds GetRetryAfter(const std::wstring& retryAfter);
+
+    // Gets the retry after value in terms of a delay in seconds.
+    std::chrono::seconds GetRetryAfter(const winrt::Windows::Web::Http::HttpResponseMessage& response);
 }

@@ -16,6 +16,7 @@
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Filesystem;
+using namespace AppInstaller::Utility::HttpStream;
 using namespace winrt::Windows::Web::Http;
 using namespace winrt::Windows::Web::Http::Headers;
 using namespace winrt::Windows::Web::Http::Filters;
@@ -67,7 +68,7 @@ namespace AppInstaller::Utility
                     // lpdwBufferLength contains the size, in bytes, of a buffer large enough to receive the requested information
                     // without the nul char. not the exact buffer size.
                     auto size = static_cast<size_t>(length) / sizeof(wchar_t);
-                    retryAfter.resize(size);
+                    retryAfter.resize(size + 1);
                     if (HttpQueryInfo(urlFile.get(),
                         HTTP_QUERY_RETRY_AFTER,
                         &retryAfter[0],
@@ -76,19 +77,7 @@ namespace AppInstaller::Utility
                     {
                         // because the buffer can be bigger remove possible null chars
                         retryAfter.erase(retryAfter.find(L'\0'));
-
-                        try
-                        {
-                            winrt::hstring hstringValue{ retryAfter };
-                            HttpDateOrDeltaHeaderValue headerValue = nullptr;
-                            HttpDateOrDeltaHeaderValue::TryParse(hstringValue, headerValue);
-                            return GetRetryAfter(headerValue);
-                        }
-                        catch (...)
-                        {
-                            AICLI_LOG(Core, Error, << "Retry-After value not supported: " << Utility::ConvertToUTF8(retryAfter));
-
-                        }
+                        return AppInstaller::Utility::GetRetryAfter(retryAfter);
                     }
                 }
                 else
@@ -98,11 +87,6 @@ namespace AppInstaller::Utility
             }
 
             return 0s;
-        }
-
-        std::chrono::seconds GetRetryAfter(const HttpResponseMessage& response)
-        {
-            return GetRetryAfter(response.Headers().RetryAfter());
         }
     }
 
@@ -263,7 +247,7 @@ namespace AppInstaller::Utility
         case HttpStatusCode::TooManyRequests:
         case HttpStatusCode::ServiceUnavailable:
         {
-            THROW_EXCEPTION(ServiceUnavailableException(GetRetryAfter(response)));
+            THROW_EXCEPTION(ServiceUnavailableException(GetRetryAfter(response.Headers().RetryAfter())));
         }
         default:
             THROW_HR(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.StatusCode()));
@@ -514,12 +498,28 @@ namespace AppInstaller::Utility
         {
             // Get an IStream from the input uri and try to create package or bundler reader.
             winrt::Windows::Foundation::Uri uri(Utility::ConvertToUTF16(uriStr));
-            auto randomAccessStream = HttpStream::HttpRandomAccessStream::CreateAsync(uri).get();
 
-            ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
-            THROW_IF_FAILED(CreateStreamOverRandomAccessStream(
-                rasAsIUnknown,
-                IID_PPV_ARGS(inputStream.ReleaseAndGetAddressOf())));
+            winrt::com_ptr<HttpRandomAccessStream> httpRandomAccessStream = winrt::make_self<HttpRandomAccessStream>();
+
+            try
+            {
+                auto randomAccessStream = httpRandomAccessStream->InitializeAsync(uri).get();
+
+                ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
+                THROW_IF_FAILED(CreateStreamOverRandomAccessStream(
+                    rasAsIUnknown,
+                    IID_PPV_ARGS(inputStream.ReleaseAndGetAddressOf())));
+            }
+            catch (const winrt::hresult_error& hre)
+            {
+                if (hre.code() == APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE)
+                {
+                    auto retryAfter = httpRandomAccessStream->RetryAfter();
+                    THROW_EXCEPTION(AppInstaller::Utility::ServiceUnavailableException(retryAfter));
+                }
+
+                throw;
+            }
         }
         else
         {
@@ -529,5 +529,27 @@ namespace AppInstaller::Utility
         }
 
         return inputStream;
+    }
+
+    std::chrono::seconds GetRetryAfter(const std::wstring& retryAfter)
+    {
+        try
+        {
+            winrt::hstring hstringValue{ retryAfter };
+            HttpDateOrDeltaHeaderValue headerValue = nullptr;
+            HttpDateOrDeltaHeaderValue::TryParse(hstringValue, headerValue);
+            return GetRetryAfter(headerValue);
+        }
+        catch (...)
+        {
+            AICLI_LOG(Core, Error, << "Retry-After value not supported: " << Utility::ConvertToUTF8(retryAfter));
+        }
+
+        return 0s;
+    }
+
+    std::chrono::seconds GetRetryAfter(const HttpResponseMessage& response)
+    {
+        return GetRetryAfter(response.Headers().RetryAfter());
     }
 }

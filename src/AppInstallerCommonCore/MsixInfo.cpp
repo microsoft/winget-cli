@@ -531,6 +531,8 @@ namespace AppInstaller::Msix
     MsixInfo::MsixInfo(std::string_view uriStr)
     {
         m_stream = Utility::GetReadOnlyStreamFromURI(uriStr);
+
+        // Here if thrown APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE somehow get RetryAfter
         if (GetBundleReader(m_stream.Get(), &m_bundleReader))
         {
             m_isBundle = true;

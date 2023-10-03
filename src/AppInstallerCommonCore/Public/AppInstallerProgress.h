@@ -70,6 +70,9 @@ namespace AppInstaller
 
         // Sets a cancellation function that will be called when the operation is to be cancelled.
         [[nodiscard]] virtual CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) = 0;
+
+        // Waits with cancellation. Returns false if cancelled before timeout.
+        virtual bool Wait(std::chrono::milliseconds millisecondsToWait) = 0;
     };
 
     // Implementation of IProgressCallback.
@@ -89,6 +92,8 @@ namespace AppInstaller
         bool IsCancelledBy(CancelReason cancelReasons) override;
 
         [[nodiscard]] IProgressCallback::CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
+
+        bool Wait(std::chrono::milliseconds ms) override;
 
         void Cancel(CancelReason reason = CancelReason::Abort);
 

@@ -94,7 +94,7 @@ namespace AppInstaller::Repository
             {
                 waitSecondsForRetry = sue.RetryAfter();
 
-                // Rethrow this exception rather than waiting if it exceeds the limit.
+                // Do not retry if the server tell us to wait more than the max time allowed.
                 if (waitSecondsForRetry > maximumWaitTimeAllowed)
                 {
                     details.DoNotUpdateBefore = std::chrono::system_clock::now() + waitSecondsForRetry;
@@ -109,19 +109,10 @@ namespace AppInstaller::Repository
 
             AICLI_LOG(Repo, Info, << "Source add/update failed, waiting " << millisecondsToWait.count() << " milliseconds and retrying: " << details.Name);
 
-            constexpr std::chrono::milliseconds delta = 1000ms;
-            std::chrono::milliseconds passed = 0ms;
-
-            while (passed < millisecondsToWait)
+            if (!progress.Wait(millisecondsToWait))
             {
-                if (progress.IsCancelledBy(CancelReason::Any))
-                {
-                    AICLI_LOG(Repo, Info, << "Source second try cancelled.");
-                    return {};
-                }
-
-                std::this_thread::sleep_for(delta);
-                passed += delta;
+                AICLI_LOG(Repo, Info, << "Source second try cancelled.");
+                return {};
             }
 
             try

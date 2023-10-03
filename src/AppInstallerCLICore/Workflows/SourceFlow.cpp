@@ -201,8 +201,7 @@ namespace AppInstaller::CLI::Workflow
             auto sourceDetails = context.Reporter.ExecuteWithProgress(updateFunction);
             if (!sourceDetails.empty())
             {
-                if (sourceDetails[0].DoNotUpdateBefore != std::chrono::system_clock::time_point() &&
-                    std::chrono::system_clock::now() < sourceDetails[0].DoNotUpdateBefore)
+                if (std::chrono::system_clock::now() < sourceDetails[0].DoNotUpdateBefore)
                 {
                     context.Reporter.Warn() << Resource::String::Unavailable << std::endl;
                 }
