@@ -170,6 +170,13 @@ namespace AppInstaller::Repository
                 return false;
             }
 
+            // Do not update if we are still before the update block time.
+            if (IsUpdateSuppressed(details))
+            {
+                AICLI_LOG(Repo, Info, << "Background update is suppressed until: " << details.DoNotUpdateBefore);
+                return false;
+            }
+
             constexpr static TimeSpan s_ZeroMins = 0min;
             TimeSpan autoUpdateTime;
             if (backgroundUpdateInterval.has_value())
