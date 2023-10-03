@@ -35,7 +35,7 @@ namespace AppInstaller::Repository::Rest::Schema
             auto retryAfterHeader = headers.find(web::http::header_names::retry_after);
             if (retryAfterHeader != headers.end())
             {
-                return AppInstaller::Utility::GetRetryAfter(retryAfterHeader->first.c_str());
+                return AppInstaller::Utility::GetRetryAfter(retryAfterHeader->second.c_str());
             }
 
             return 0s;
