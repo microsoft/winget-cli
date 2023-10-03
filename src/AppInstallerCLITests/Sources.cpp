@@ -1294,3 +1294,9 @@ TEST_CASE("RepoSources_GroupPolicy_BypassCertificatePinningForMicrosoftStore", "
         REQUIRE_FALSE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
     }
 }
+
+TEST_CASE("RepoSources_BuiltInDesktopFrameworkSourceAlwaysCreatable", "[sources]")
+{
+    Source source(WellKnownSource::DesktopFrameworks);
+    REQUIRE(source);
+}
