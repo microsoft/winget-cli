@@ -173,6 +173,9 @@ namespace AppInstaller::Repository
             return IsDefaultSourceEnabled(source, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::DefaultSource);
         case AppInstaller::Repository::WellKnownSource::MicrosoftStore:
             return IsDefaultSourceEnabled(source, ExperimentalFeature::Feature::None, onlyExplicit, TogglePolicy::Policy::MSStoreSource);
+        case AppInstaller::Repository::WellKnownSource::DesktopFrameworks:
+            // No corresponding policy available for this source.
+            return true;
         }
 
         return false;
