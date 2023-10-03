@@ -307,7 +307,8 @@ namespace AppInstaller::CLI::Workflow
 
         std::optional<std::vector<BYTE>> hash;
 
-        const int MaxRetryCount = 2;
+        constexpr int MaxRetryCount = 2;
+        constexpr std::chrono::seconds maximumWaitTimeAllowed = 60s;
         for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
         {
             bool success = false;
@@ -322,6 +323,27 @@ namespace AppInstaller::CLI::Workflow
                     downloadInfo));
 
                 success = true;
+            }
+            catch (const ServiceUnavailableException& sue)
+            {
+                if (retryCount < MaxRetryCount - 1)
+                {
+                    auto waitSecondsForRetry = sue.RetryAfter();
+                    if (waitSecondsForRetry > maximumWaitTimeAllowed)
+                    {
+                        throw;
+                    }
+
+                    bool waitCompleted = context.Reporter.ExecuteWithProgress([&waitSecondsForRetry](IProgressCallback& progress)
+                        {
+                            return ProgressCallback::Wait(progress, waitSecondsForRetry);
+                        });
+
+                    if (!waitCompleted)
+                    {
+                        break;
+                    }
+                }
             }
             catch (...)
             {

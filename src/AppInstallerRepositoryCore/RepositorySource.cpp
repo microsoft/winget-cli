@@ -66,13 +66,6 @@ namespace AppInstaller::Repository
         {
             AddOrUpdateResult result;
 
-            // Do not update if we are still before the update block time.
-            if (IsUpdateSuppressed(details))
-            {
-                AICLI_LOG(Repo, Info, << "Update is suppressed until: " << details.DoNotUpdateBefore);
-                return {};
-            }
-
             auto factory = ISourceFactory::GetForType(details.Type);
 
             // If we are instructed to wait longer than this, just fail rather than retrying.
@@ -109,7 +102,7 @@ namespace AppInstaller::Repository
 
             AICLI_LOG(Repo, Info, << "Source add/update failed, waiting " << millisecondsToWait.count() << " milliseconds and retrying: " << details.Name);
 
-            if (!progress.Wait(millisecondsToWait))
+            if (!ProgressCallback::Wait(progress, millisecondsToWait))
             {
                 AICLI_LOG(Repo, Info, << "Source second try cancelled.");
                 return {};

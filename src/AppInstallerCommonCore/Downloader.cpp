@@ -514,8 +514,7 @@ namespace AppInstaller::Utility
             {
                 if (hre.code() == APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE)
                 {
-                    auto retryAfter = httpRandomAccessStream->RetryAfter();
-                    THROW_EXCEPTION(AppInstaller::Utility::ServiceUnavailableException(retryAfter));
+                    THROW_EXCEPTION(AppInstaller::Utility::ServiceUnavailableException(httpRandomAccessStream->RetryAfter()));
                 }
 
                 throw;

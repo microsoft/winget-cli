@@ -64,12 +64,12 @@ namespace AppInstaller
         }
     }
 
-    bool ProgressCallback::Wait(std::chrono::milliseconds millisecondsToWait)
+    bool ProgressCallback::Wait(IProgressCallback& progress, std::chrono::milliseconds millisecondsToWait)
     {
         wil::unique_event calledEvent;
         calledEvent.create();
 
-        auto cancellationFunc = this->SetCancellationFunction([&calledEvent]()
+        auto cancellationFunc = progress.SetCancellationFunction([&calledEvent]()
             {
                 calledEvent.SetEvent();
             });

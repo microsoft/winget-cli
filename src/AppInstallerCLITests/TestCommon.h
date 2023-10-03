@@ -109,8 +109,6 @@ namespace TestCommon
 
         CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
 
-        bool Wait(std::chrono::milliseconds millisecondsToWait) override; 
-
         std::function<void(uint64_t, uint64_t, AppInstaller::ProgressType)> m_OnProgress;
     };
 

@@ -186,11 +186,6 @@ namespace TestCommon
         return {};
     }
 
-    bool TestProgress::Wait(std::chrono::milliseconds)
-    {
-        return false;
-    }
-
     wil::unique_hkey RegCreateVolatileTestRoot()
     {
         // First create/open the real test root
