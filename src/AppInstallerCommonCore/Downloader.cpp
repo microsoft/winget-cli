@@ -56,7 +56,7 @@ namespace AppInstaller::Utility
         {
             std::wstring retryAfter = {};
             DWORD length = 0;
-            if (!HttpQueryInfo(urlFile.get(),
+            if (!HttpQueryInfoW(urlFile.get(),
                 HTTP_QUERY_RETRY_AFTER,
                 &retryAfter,
                 &length,
@@ -69,7 +69,7 @@ namespace AppInstaller::Utility
                     // without the nul char. not the exact buffer size.
                     auto size = static_cast<size_t>(length) / sizeof(wchar_t);
                     retryAfter.resize(size + 1);
-                    if (HttpQueryInfo(urlFile.get(),
+                    if (HttpQueryInfoW(urlFile.get(),
                         HTTP_QUERY_RETRY_AFTER,
                         &retryAfter[0],
                         &length,
@@ -125,7 +125,7 @@ namespace AppInstaller::Utility
         DWORD requestStatus = 0;
         DWORD cbRequestStatus = sizeof(requestStatus);
 
-        THROW_LAST_ERROR_IF_MSG(!HttpQueryInfo(urlFile.get(),
+        THROW_LAST_ERROR_IF_MSG(!HttpQueryInfoW(urlFile.get(),
             HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER,
             &requestStatus,
             &cbRequestStatus,
@@ -154,7 +154,7 @@ namespace AppInstaller::Utility
         LONGLONG contentLength = 0;
         DWORD cbContentLength = sizeof(contentLength);
 
-        HttpQueryInfo(
+        HttpQueryInfoW(
             urlFile.get(),
             HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER64,
             &contentLength,
