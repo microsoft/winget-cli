@@ -29,6 +29,17 @@ namespace AppInstaller::Repository::Rest::Schema
 
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH, !pinningConfiguration.Validate(certContext.get()));
         }
+
+        std::chrono::seconds GetRetryAfter(const web::http::http_headers& headers)
+        {
+            auto retryAfterHeader = headers.find(web::http::header_names::retry_after);
+            if (retryAfterHeader != headers.end())
+            {
+                return AppInstaller::Utility::GetRetryAfter(retryAfterHeader->second.c_str());
+            }
+
+            return 0s;
+        }
     }
 
     HttpClientHelper::HttpClientHelper(std::shared_ptr<web::http::http_pipeline_stage> stage) : m_defaultRequestHandlerStage(std::move(stage)) {}
@@ -135,7 +146,6 @@ namespace AppInstaller::Repository::Rest::Schema
 
         case web::http::status_codes::NotFound:
             THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
-            break;
 
         case web::http::status_codes::NoContent:
             result = {};
@@ -143,11 +153,13 @@ namespace AppInstaller::Repository::Rest::Schema
 
         case web::http::status_codes::BadRequest:
             THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR);
-            break;
+
+        case web::http::status_codes::TooManyRequests:
+        case web::http::status_codes::ServiceUnavailable:
+            THROW_EXCEPTION(AppInstaller::Utility::ServiceUnavailableException(GetRetryAfter(response.headers())));
 
         default:
             THROW_HR(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.status_code()));
-            break;
         }
 
         return result;

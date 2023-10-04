@@ -17,3 +17,5 @@
 #include <memory>
 #include <mutex>
 #include <string>
+
+#include <winrt/Windows.Foundation.h>

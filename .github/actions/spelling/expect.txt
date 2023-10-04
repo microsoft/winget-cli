@@ -244,6 +244,7 @@ LOWORD
 LPARAM
 LPBYTE
 LPCWSTR
+lpdw
 LPDWORD
 lpfn
 LPGRPICONDIR
@@ -481,6 +482,7 @@ ucasemap
 UChars
 ucnv
 uec
+UNAVAIL
 uninitialize
 unins
 uninstallation

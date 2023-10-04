@@ -2080,4 +2080,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
     <value>Enable Windows Package Manager Configuration</value>
   </data>
+  <data name="Unavailable" xml:space="preserve">
+    <value>Unavailable</value>
+  </data>
 </root>

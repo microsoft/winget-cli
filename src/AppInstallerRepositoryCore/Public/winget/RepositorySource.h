@@ -119,6 +119,9 @@ namespace AppInstaller::Repository
         // The last time that this source was updated.
         std::chrono::system_clock::time_point LastUpdateTime = {};
 
+        // Stores the earliest time that a background update should be attempted.
+        std::chrono::system_clock::time_point DoNotUpdateBefore = {};
+
         // Whether the source supports InstalledSource correlation.
         bool SupportInstalledSearchCorrelation = true;
 
