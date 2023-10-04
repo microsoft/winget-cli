@@ -34,52 +34,111 @@ namespace AppInstaller::Repository
             return ISourceFactory::GetForType(details.Type)->Create(details);
         }
 
-        template <typename MemberFunc>
-        bool AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
+        std::chrono::milliseconds GetMillisecondsToWait(std::chrono::seconds retryAfter, size_t randomMultiplier = 1)
         {
-            bool result = false;
+            if (retryAfter != 0s)
+            {
+                return std::chrono::duration_cast<std::chrono::milliseconds>(retryAfter);
+            }
+            else
+            {
+                // Add a bit of randomness to the retry wait time
+                std::default_random_engine randomEngine(std::random_device{}());
+                std::uniform_int_distribution<long long> distribution(2000, 10000);
+
+                return std::chrono::milliseconds(distribution(randomEngine) * randomMultiplier);
+            }
+        }
+
+        bool IsUpdateSuppressed(const SourceDetails& details)
+        {
+            return std::chrono::system_clock::now() < details.DoNotUpdateBefore;
+        }
+
+        struct AddOrUpdateResult
+        {
+            bool UpdateChecked = false;
+            bool MetadataWritten = false;
+        };
+
+        template <typename MemberFunc>
+        AddOrUpdateResult AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
+        {
+            AddOrUpdateResult result;
+
             auto factory = ISourceFactory::GetForType(details.Type);
+
+            // If we are instructed to wait longer than this, just fail rather than retrying.
+            constexpr std::chrono::seconds maximumWaitTimeAllowed = 60s;
+            std::chrono::seconds waitSecondsForRetry = 0s;
 
             // Attempt; if it fails, wait a short time and retry.
             try
             {
-                result = (factory.get()->*member)(details, progress);
-                if (result)
+                result.UpdateChecked = (factory.get()->*member)(details, progress);
+                if (result.UpdateChecked)
                 {
                     details.LastUpdateTime = std::chrono::system_clock::now();
+                    result.MetadataWritten = true;
                 }
                 return result;
             }
+            catch (const Utility::ServiceUnavailableException& sue)
+            {
+                waitSecondsForRetry = sue.RetryAfter();
+
+                // Do not retry if the server tell us to wait more than the max time allowed.
+                if (waitSecondsForRetry > maximumWaitTimeAllowed)
+                {
+                    details.DoNotUpdateBefore = std::chrono::system_clock::now() + waitSecondsForRetry;
+                    AICLI_LOG(Repo, Info, << "Source `" << details.Name << "` unavailable first try, setting DoNotUpdateBefore to " << details.DoNotUpdateBefore);
+                    result.MetadataWritten = true;
+                    return result;
+                }
+            }
             CATCH_LOG();
 
-            AICLI_LOG(Repo, Info, << "Source add/update failed, waiting a bit and retrying: " << details.Name);
+            std::chrono::milliseconds millisecondsToWait = GetMillisecondsToWait(waitSecondsForRetry);
 
-            // Add a bit of randomness to the retry wait time
-            std::default_random_engine randomEngine(std::random_device{}());
-            std::uniform_int_distribution<long long> distribution(2000, 10000);
+            AICLI_LOG(Repo, Info, << "Source add/update failed, waiting " << millisecondsToWait.count() << " milliseconds and retrying: " << details.Name);
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(distribution(randomEngine)));
-
-            // If this one fails, maybe the problem is persistent.
-            result = (factory.get()->*member)(details, progress);
-            if (result)
+            if (!ProgressCallback::Wait(progress, millisecondsToWait))
             {
-                details.LastUpdateTime = std::chrono::system_clock::now();
+                AICLI_LOG(Repo, Info, << "Source second try cancelled.");
+                return {};
             }
+
+            try
+            {
+                // If this one fails, maybe the problem is persistent.
+                result.UpdateChecked = (factory.get()->*member)(details, progress);
+                if (result.UpdateChecked)
+                {
+                    details.LastUpdateTime = std::chrono::system_clock::now();
+                    result.MetadataWritten = true;
+                }
+            }
+            catch (const Utility::ServiceUnavailableException& sue)
+            {
+                details.DoNotUpdateBefore = std::chrono::system_clock::now() + GetMillisecondsToWait(sue.RetryAfter(), 3);
+                AICLI_LOG(Repo, Info, << "Source `" << details.Name << "` unavailable second try, setting DoNotUpdateBefore to " << details.DoNotUpdateBefore);
+                result.MetadataWritten = true;
+            }
+
             return result;
         }
 
-        bool AddSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        AddOrUpdateResult AddSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
             return AddOrUpdateFromDetails(details, &ISourceFactory::Add, progress);
         }
 
-        bool UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        AddOrUpdateResult UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
             return AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
         }
 
-        bool BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        AddOrUpdateResult BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
             return AddOrUpdateFromDetails(details, &ISourceFactory::BackgroundUpdate, progress);
         }
@@ -101,6 +160,13 @@ namespace AppInstaller::Repository
         {
             if (!ContainsAvailablePackagesInternal(details.Origin))
             {
+                return false;
+            }
+
+            // Do not update if we are still before the update block time.
+            if (IsUpdateSuppressed(details))
+            {
+                AICLI_LOG(Repo, Info, << "Background update is suppressed until: " << details.DoNotUpdateBefore);
                 return false;
             }
 
@@ -639,7 +705,9 @@ namespace AppInstaller::Repository
                         {
                             // TODO: Consider adding a context callback to indicate we are doing the same action
                             // to avoid the progress bar fill up multiple times.
-                            if (BackgroundUpdateSourceFromDetails(details, progress))
+                            AddOrUpdateResult updateResult = BackgroundUpdateSourceFromDetails(details, progress);
+
+                            if (updateResult.MetadataWritten)
                             {
                                 if (sourceList == nullptr)
                                 {
@@ -647,10 +715,11 @@ namespace AppInstaller::Repository
                                 }
 
                                 auto detailsInternal = sourceList->GetSource(details.Name);
-                                detailsInternal->LastUpdateTime = details.LastUpdateTime;
+                                detailsInternal->CopyMetadataFieldsFrom(details);
                                 sourceList->SaveMetadata(*detailsInternal);
                             }
-                            else
+
+                            if (!updateResult.UpdateChecked)
                             {
                                 AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
                                 result.emplace_back(details);
@@ -747,7 +816,7 @@ namespace AppInstaller::Repository
             sourceDetails.Origin = SourceOrigin::User;
         }
 
-        bool result = AddSourceFromDetails(sourceDetails, progress);
+        bool result = AddSourceFromDetails(sourceDetails, progress).UpdateChecked;
         if (result)
         {
             sourceList.AddSource(sourceDetails);
@@ -777,13 +846,16 @@ namespace AppInstaller::Repository
             {
                 // TODO: Consider adding a context callback to indicate we are doing the same action
                 // to avoid the progress bar fill up multiple times.
-                if (UpdateSourceFromDetails(details, progress))
+                AddOrUpdateResult updateResult = UpdateSourceFromDetails(details, progress);
+
+                if (updateResult.MetadataWritten)
                 {
                     auto detailsInternal = sourceList.GetSource(details.Name);
-                    detailsInternal->LastUpdateTime = details.LastUpdateTime;
+                    detailsInternal->CopyMetadataFieldsFrom(details);
                     sourceList.SaveMetadata(*detailsInternal);
                 }
-                else
+
+                if (!updateResult.UpdateChecked)
                 {
                     AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
                     result.emplace_back(details);

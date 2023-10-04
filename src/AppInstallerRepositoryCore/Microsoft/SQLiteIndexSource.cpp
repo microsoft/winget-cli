@@ -142,7 +142,8 @@ namespace AppInstaller::Repository::Microsoft
                     AICLI_LOG(Repo, Info, << "Downloading manifest");
                     ProgressCallback emptyCallback;
 
-                    const int MaxRetryCount = 2;
+                    constexpr int MaxRetryCount = 2;
+                    constexpr std::chrono::seconds maximumWaitTimeAllowed = 10s;
                     for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
                     {
                         try
@@ -156,6 +157,25 @@ namespace AppInstaller::Repository::Microsoft
                             }
 
                             break;
+                        }
+                        catch (const ServiceUnavailableException& sue)
+                        {
+                            if (retryCount < MaxRetryCount - 1)
+                            {
+                                auto waitSecondsForRetry = sue.RetryAfter();
+                                if (waitSecondsForRetry > maximumWaitTimeAllowed)
+                                {
+                                    throw;
+                                }
+
+                                // TODO: Get real progress callback to allow cancelation.
+                                auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(waitSecondsForRetry);
+                                Sleep(static_cast<DWORD>(ms.count()));
+                            }
+                            else
+                            {
+                                throw;
+                            }
                         }
                         catch (...)
                         {
