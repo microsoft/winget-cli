@@ -230,6 +230,8 @@ namespace AppInstaller
                 return "Failed to download package dependencies.";
             case APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED:
                 return "Failed to download package. Download for offline installation is prohibited.";
+            case APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE:
+                return "A required service is busy or unavailable. Try again later.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
