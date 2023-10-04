@@ -220,18 +220,8 @@ namespace AppInstaller::Repository
 
     void SourceDetailsInternal::CopyMetadataFieldsFrom(const SourceDetails& source)
     {
-        Name = source.Name;
-        Type = source.Type;
-        Arg = source.Arg;
-        Data = source.Data;
-        Identifier = source.Identifier;
-        Origin = source.Origin;
-        TrustLevel = source.TrustLevel;
         LastUpdateTime = source.LastUpdateTime;
         DoNotUpdateBefore = source.DoNotUpdateBefore;
-        SupportInstalledSearchCorrelation = source.SupportInstalledSearchCorrelation;
-        CertificatePinningConfiguration = source.CertificatePinningConfiguration;
-        AlternateArg = source.AlternateArg;
     }
 
     std::string_view GetWellKnownSourceName(WellKnownSource source)

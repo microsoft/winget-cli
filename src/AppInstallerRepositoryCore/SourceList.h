@@ -22,7 +22,7 @@ namespace AppInstaller::Repository
         // Copies the metadata fields to this target.
         void CopyMetadataFieldsTo(SourceDetailsInternal& target);
 
-        // Copies the metadata fields from this source.
+        // Copies the metadata fields from this source. This only include partial metadata.
         void CopyMetadataFieldsFrom(const SourceDetails& source);
 
         // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
