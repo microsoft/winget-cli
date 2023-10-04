@@ -344,6 +344,10 @@ namespace AppInstaller::CLI::Workflow
                         break;
                     }
                 }
+                else
+                {
+                    throw;
+                }
             }
             catch (...)
             {
