@@ -103,6 +103,7 @@ DACL
 datetimeoffset
 Dbg
 debian
+dedupe
 deigh
 deleteifnotneeded
 DENYWR
@@ -244,6 +245,7 @@ LOWORD
 LPARAM
 LPBYTE
 LPCWSTR
+lpdw
 LPDWORD
 lpfn
 LPGRPICONDIR
@@ -264,6 +266,7 @@ luffy
 Luffytaro
 maclachlan
 malware
+mapdatafolding
 mapview
 Maxed
 maxvalue
@@ -452,6 +455,7 @@ Syncy
 sysrefcomp
 systemnotsupported
 Tagit
+taskhostw
 TCpp
 tcs
 TEMPDIRECTORY
@@ -480,6 +484,7 @@ ucasemap
 UChars
 ucnv
 uec
+UNAVAIL
 uninitialize
 unins
 uninstallation

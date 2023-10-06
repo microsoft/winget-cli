@@ -35,7 +35,17 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::V
     // If no specific version requested, then use generator to run against the last 3 versions.
     if (!version)
     {
-        version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version{ 1, 4 }, Schema::Version::Latest());
+        Schema::Version latestVersion = SQLiteIndex::GetLatestVersion();
+        if (latestVersion.MajorVersion != 1)
+        {
+            throw std::exception("You added major version 2, figure out how to deal with these tests that do back compat coverage!");
+        }
+
+        // Relies on the fact that min version is already >= 2
+        Schema::Version versionMinus1 = Schema::Version{ 1, latestVersion.MinorVersion - 1 };
+        Schema::Version versionMinus2 = Schema::Version{ 1, latestVersion.MinorVersion - 2 };
+
+        version = GENERATE_COPY(Schema::Version{ versionMinus2 }, Schema::Version{ versionMinus1 }, Schema::Version{ latestVersion });
     }
 
     return SQLiteIndex::CreateNew(filePath, version.value());
@@ -43,41 +53,35 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<Schema::V
 
 Schema::Version TestPrepareForRead(SQLiteIndex& index)
 {
-    if (index.GetVersion() == Schema::Version{ 1, 2 })
+    Schema::Version latestVersion = SQLiteIndex::GetLatestVersion();
+    if (latestVersion.MajorVersion != 1)
     {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 2 });
+        throw std::exception("You added major version 2, figure out how to deal with these tests that do back compat coverage!");
+    }
 
-        if (version != Schema::Version{ 1, 2 })
+    // Relies on the fact that min version is already >= 2
+    Schema::Version versionMinus1 = Schema::Version{ 1, latestVersion.MinorVersion - 1 };
+    Schema::Version versionMinus2 = Schema::Version{ 1, latestVersion.MinorVersion - 2 };
+
+    if (index.GetVersion() == versionMinus2)
+    {
+        // Degenerate case where we don't need to do anything
+    }
+    else if (index.GetVersion() == versionMinus1)
+    {
+        Schema::Version version = GENERATE_COPY(Schema::Version{ versionMinus2 }, Schema::Version{ versionMinus1 });
+
+        if (version != versionMinus1)
         {
             index.ForceVersion(version);
             return version;
         }
     }
-    else if (index.GetVersion() == Schema::Version{ 1, 3 })
+    else if (index.GetVersion() == latestVersion)
     {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 });
+        Schema::Version version = GENERATE_COPY(Schema::Version{ versionMinus2 }, Schema::Version{ versionMinus1 }, Schema::Version{ latestVersion });
 
-        if (version != Schema::Version{ 1, 3 })
-        {
-            index.ForceVersion(version);
-            return version;
-        }
-    }
-    else if (index.GetVersion() == Schema::Version{ 1, 4 })
-    {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version{ 1, 4 });
-
-        if (version != Schema::Version{ 1, 4 })
-        {
-            index.ForceVersion(version);
-            return version;
-        }
-    }
-    else if (index.GetVersion() == Schema::Version{ 1, 5 })
-    {
-        Schema::Version version = GENERATE(Schema::Version{ 1, 2 }, Schema::Version{ 1, 3 }, Schema::Version{ 1, 4 }, Schema::Version{ 1, 5 });
-
-        if (version != Schema::Version{ 1, 5 })
+        if (version != latestVersion)
         {
             index.ForceVersion(version);
             return version;
@@ -319,6 +323,17 @@ bool AreArpVersionsSupported(const SQLiteIndex& index, const Schema::Version& te
 {
     UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
     return (index.GetVersion() >= Schema::Version{ 1, 5 } && testVersion >= Schema::Version{ 1, 5 });
+}
+
+bool IsMapDataFoldingSupported(const SQLiteIndex& index, const Schema::Version& testVersion)
+{
+    UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
+    return (index.GetVersion() >= Schema::Version{ 1, 7 } && testVersion >= Schema::Version{ 1, 7 });
+}
+
+bool IsMapDataFolded(const SQLiteIndex& index)
+{
+    return (index.GetVersion() >= Schema::Version{ 1, 7 });
 }
 
 std::string GetPropertyStringByKey(const SQLiteIndex& index, SQLite::rowid_t id, PackageVersionProperty property, std::string_view version, std::string_view channel)
@@ -3186,4 +3201,153 @@ TEST_CASE("SQLiteIndex_CheckConsistency_FindEmbeddedNull", "[sqliteindex]")
     update.Execute();
 
     REQUIRE(!index.CheckConsistency(true));
+}
+
+TEST_CASE("SQLiteIndex_MapDataFolding_Tags", "[sqliteindex][mapdatafolding]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string tag1 = "Tag1";
+    std::string tag2 = "Tag2";
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id", "Name", "Publisher", "Moniker", "Version1", "", { tag1 }, { "Command" }, "Path1", {}, { "PC1" } },
+        { "Id", "Name", "Publisher", "Moniker", "Version2", "", { tag2 }, { "Command" }, "Path2", {}, { "PC2" } },
+        });
+
+    // Apply the map data folding if it is present in the created test index.
+    index.PrepareForPackaging();
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request1;
+    request1.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Tag, MatchType::Exact, tag1));
+    auto results1 = index.Search(request1);
+
+    SearchRequest request2;
+    request2.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Tag, MatchType::Exact, tag2));
+    auto results2 = index.Search(request1);
+
+    REQUIRE(results1.Matches.size() == 1);
+    REQUIRE(results2.Matches.size() == 1);
+    REQUIRE(results1.Matches[0].first == results2.Matches[0].first);
+}
+
+TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string pfn1 = "PFN1";
+    std::string pfn2 = "PFN2";
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id", "Name", "Publisher", "Moniker", "Version1", "", { }, { "Command" }, "Path1", { pfn1 }, { } },
+        { "Id", "Name", "Publisher", "Moniker", "Version2", "", { }, { "Command" }, "Path2", { pfn2 }, { } },
+        });
+
+    // Apply the map data folding if it is present in the created test index.
+    index.PrepareForPackaging();
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request1;
+    request1.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, pfn1));
+    auto results1 = index.Search(request1);
+
+    SearchRequest request2;
+    request2.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, pfn2));
+    auto results2 = index.Search(request1);
+
+    REQUIRE(results1.Matches.size() == 1);
+    REQUIRE(results2.Matches.size() == 1);
+    REQUIRE(results1.Matches[0].first == results2.Matches[0].first);
+
+    auto versionKeys = index.GetVersionKeysById(results1.Matches[0].first);
+    REQUIRE(versionKeys.size() == 2);
+
+    auto manifestId1 = index.GetManifestIdByKey(results1.Matches[0].first, versionKeys[0].GetVersion().ToString(), versionKeys[0].GetChannel().ToString());
+    auto manifestId2 = index.GetManifestIdByKey(results1.Matches[0].first, versionKeys[1].GetVersion().ToString(), versionKeys[1].GetChannel().ToString());
+
+    REQUIRE(manifestId1.has_value());
+    REQUIRE(manifestId2.has_value());
+
+    auto pfnValues1 = index.GetMultiPropertyByManifestId(manifestId1.value(), PackageVersionMultiProperty::PackageFamilyName);
+    auto pfnValues2 = index.GetMultiPropertyByManifestId(manifestId2.value(), PackageVersionMultiProperty::PackageFamilyName);
+
+    if (IsMapDataFoldingSupported(index, testVersion))
+    {
+        REQUIRE(pfnValues1.size() == 2);
+        REQUIRE(pfnValues2.size() == 2);
+        REQUIRE(pfnValues1[0] != pfnValues1[1]);
+    }
+    else if (IsMapDataFolded(index))
+    {
+        if (manifestId1 > manifestId2)
+        {
+            REQUIRE(pfnValues1.size() == 2);
+            REQUIRE(pfnValues2.size() == 0);
+            REQUIRE(pfnValues1[0] != pfnValues1[1]);
+        }
+        else
+        {
+            REQUIRE(pfnValues1.size() == 0);
+            REQUIRE(pfnValues2.size() == 2);
+            REQUIRE(pfnValues2[0] != pfnValues2[1]);
+        }
+    }
+    else
+    {
+        REQUIRE(pfnValues1.size() == 1);
+        REQUIRE(pfnValues2.size() == 1);
+        REQUIRE(pfnValues1[0] != pfnValues2[0]);
+    }
+}
+
+TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafolding]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string pc1 = "PC1";
+    std::string pc2 = "PC2";
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id", "Name", "Publisher", "Moniker", "Version1", "", { }, { "Command" }, "Path1", { }, { pc1 } },
+        { "Id", "Name", "Publisher", "Moniker", "Version2", "", { }, { "Command" }, "Path2", { }, { pc2 } },
+        });
+
+    // Apply the map data folding if it is present in the created test index.
+    index.PrepareForPackaging();
+
+    Schema::Version testVersion = TestPrepareForRead(index);
+
+    SearchRequest request1;
+    request1.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, pc1));
+    auto results1 = index.Search(request1);
+
+    SearchRequest request2;
+    request2.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, pc2));
+    auto results2 = index.Search(request1);
+
+    REQUIRE(results1.Matches.size() == 1);
+    REQUIRE(results2.Matches.size() == 1);
+    REQUIRE(results1.Matches[0].first == results2.Matches[0].first);
+
+    auto versionKeys = index.GetVersionKeysById(results1.Matches[0].first);
+    REQUIRE(versionKeys.size() == 2);
+
+    auto manifestId1 = index.GetManifestIdByKey(results1.Matches[0].first, versionKeys[0].GetVersion().ToString(), versionKeys[0].GetChannel().ToString());
+    auto manifestId2 = index.GetManifestIdByKey(results1.Matches[0].first, versionKeys[1].GetVersion().ToString(), versionKeys[1].GetChannel().ToString());
+
+    REQUIRE(manifestId1.has_value());
+    REQUIRE(manifestId2.has_value());
+
+    auto pcValues1 = index.GetMultiPropertyByManifestId(manifestId1.value(), PackageVersionMultiProperty::ProductCode);
+    auto pcValues2 = index.GetMultiPropertyByManifestId(manifestId2.value(), PackageVersionMultiProperty::ProductCode);
+
+    REQUIRE(pcValues1.size() == 1);
+    REQUIRE(pcValues2.size() == 1);
+    REQUIRE(pcValues1[0] != pcValues2[0]);
 }

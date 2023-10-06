@@ -195,6 +195,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED, "Application shutdown signal received"),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, "Failed to download package dependencies."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED, "Failed to download package. Download for offline installation is prohibited."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE, "A required service is busy or unavailable. Try again later."),
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),

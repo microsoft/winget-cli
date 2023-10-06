@@ -112,7 +112,7 @@ namespace AppInstaller::Repository::Microsoft
                 std::string alternateLocation = GetAlternatePackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
 
                 // Try getting the primary location's info
-                HRESULT primaryHR = S_OK;
+                std::exception_ptr primaryException;
 
                 try
                 {
@@ -125,7 +125,8 @@ namespace AppInstaller::Repository::Microsoft
                     {
                         throw;
                     }
-                    primaryHR = LOG_CAUGHT_EXCEPTION_MSG("PreIndexedPackageUpdateCheck failed on primary location");
+                    LOG_CAUGHT_EXCEPTION_MSG("PreIndexedPackageUpdateCheck failed on primary location");
+                    primaryException = std::current_exception();
                 }
 
                 // Try alternate location
@@ -138,7 +139,7 @@ namespace AppInstaller::Repository::Microsoft
                 }
                 CATCH_LOG_MSG("PreIndexedPackageUpdateCheck failed on alternate location");
 
-                THROW_HR(primaryHR);
+                std::rethrow_exception(primaryException);
             }
 
             const std::string& PackageLocation() const { return m_packageLocation; }
@@ -152,20 +153,27 @@ namespace AppInstaller::Repository::Microsoft
             {
                 if (Utility::IsUrlRemote(packageLocation))
                 {
-                    try
+                    std::map<std::string, std::string> headers = Utility::GetHeaders(packageLocation);
+                    auto itr = headers.find(std::string{ s_PreIndexedPackageSourceFactory_PackageVersionHeader });
+                    if (itr != headers.end())
                     {
-                        std::map<std::string, std::string> headers = Utility::GetHeaders(packageLocation);
-                        auto itr = headers.find(std::string{ s_PreIndexedPackageSourceFactory_PackageVersionHeader });
-                        if (itr != headers.end())
-                        {
-                            AICLI_LOG(Repo, Verbose, << "Header indicates version is: " << itr->second);
-                            return { itr->second };
-                        }
+                        AICLI_LOG(Repo, Verbose, << "Header indicates version is: " << itr->second);
+                        return { itr->second };
                     }
-                    CATCH_LOG();
+
+                    // We did not find the header we were looking for, log the ones we did find
+                    AICLI_LOG(Repo, Verbose, << "Did not find " << s_PreIndexedPackageSourceFactory_PackageVersionHeader << " in:\n" << [&]()
+                        {
+                            std::ostringstream headerLog;
+                            for (const auto& header : headers)
+                            {
+                                headerLog << "  " << header.first << " : " << header.second << '\n';
+                            }
+                            return std::move(headerLog).str();
+                        }());
                 }
 
-                AICLI_LOG(Repo, Verbose, << "No version header, falling back to reading the package data");
+                AICLI_LOG(Repo, Verbose, << "Reading package data to determine version");
                 Msix::MsixInfo info{ packageLocation };
                 auto manifest = info.GetAppPackageManifests();
 

@@ -120,6 +120,7 @@ ms.localizationpriority: medium
 | 0x8A15006A | -1978335126 | APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED | Application shutdown signal received |
 | 0x8A15006B | -1978335125 | APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES | Failed to download package dependencies. |
 | 0x8A15006C | -1978335124 | APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED | Failed to download package. Download for offline installation is prohibited. |
+| 0x8A15006D | -1978335123 | APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE | A required service is busy or unavailable. Try again later. |
 
 
 ## Install errors.

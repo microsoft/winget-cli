@@ -17,6 +17,9 @@
 
 namespace AppInstaller::Repository
 {
+    // The interval is of 100 nano seconds precision.This is used by file date period and the Windows::Foundation::TimeSpan exposed in COM api.
+    using TimeSpan = std::chrono::duration<int64_t, std::ratio_multiply<std::ratio<100>, std::nano>>;
+
     struct ISourceReference;
     struct ISource;
 
@@ -115,6 +118,9 @@ namespace AppInstaller::Repository
 
         // The last time that this source was updated.
         std::chrono::system_clock::time_point LastUpdateTime = {};
+
+        // Stores the earliest time that a background update should be attempted.
+        std::chrono::system_clock::time_point DoNotUpdateBefore = {};
 
         // Whether the source supports InstalledSource correlation.
         bool SupportInstalledSearchCorrelation = true;
@@ -219,6 +225,16 @@ namespace AppInstaller::Repository
         // Set caller.
         void SetCaller(std::string caller);
 
+        // Set background update check interval.
+        void SetBackgroundUpdateInterval(TimeSpan interval);
+
+        // Indicates that we are only interested in the PackageTrackingCatalog for the source.
+        // Must be set before Open to have effect, and will prevent the underlying source from being updated or opened.
+        void InstalledPackageInformationOnly(bool value);
+
+        // Determines if this source refers to the given well known source.
+        bool IsWellKnownSource(WellKnownSource wellKnownSource);
+
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;
 
@@ -280,6 +296,8 @@ namespace AppInstaller::Repository
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
         bool m_isComposite = false;
+        std::optional<TimeSpan> m_backgroundUpdateInterval;
+        bool m_installedPackageInformationOnly = false;
         mutable PackageTrackingCatalog m_trackingCatalog;
     };
 }

@@ -24,7 +24,7 @@ TEST_CASE("ExtractJsonResponse_UnsupportedMimeType", "[RestSource][RestSearch]")
 TEST_CASE("ValidateAndExtractResponse_ServiceUnavailable", "[RestSource]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::ServiceUnavailable) };
-    REQUIRE_THROWS_HR(helper.HandleGet(L"https://testUri"), MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, web::http::status_codes::ServiceUnavailable));
+    REQUIRE_THROWS_HR(helper.HandleGet(L"https://testUri"), APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE);
 }
 
 TEST_CASE("ValidateAndExtractResponse_NotFound", "[RestSource]")
