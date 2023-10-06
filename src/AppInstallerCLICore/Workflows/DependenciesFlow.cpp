@@ -140,9 +140,96 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        context <<
-            Workflow::EnsureRunningAsAdmin <<
-            Workflow::ShellExecuteEnableWindowsFeatures;
+        context << Workflow::EnsureRunningAsAdmin;
+
+        if (context.IsTerminated())
+        {
+            return;
+        }
+
+        bool enableFeaturesFailed = false;
+        bool force = context.Args.Contains(Execution::Args::Type::Force);
+        bool rebootRequired = false;
+
+        rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&context, &enableFeaturesFailed, &force, &rebootRequired](Dependency dependency)
+            {
+                if (enableFeaturesFailed && !force || context.IsTerminated())
+                {
+                    return;
+                }
+
+                auto featureName = dependency.Id();
+
+                context << Workflow::ShellExecuteEnableWindowsFeature(featureName);
+
+                if (context.IsTerminated())
+                {
+                    return;
+                }
+
+                Utility::LocIndView locIndFeatureName{ featureName };
+                DWORD result = context.Get<Execution::Data::OperationReturnCode>();
+
+                if (result == ERROR_SUCCESS)
+                {
+                    AICLI_LOG(Core, Info, << "Successfully enabled [" << featureName << "]");
+                }
+                else if (result == 0x800f080c) // DISMAPI_E_UNKNOWN_FEATURE
+                {
+                    AICLI_LOG(Core, Warning, << "Windows Feature [" << featureName << "] does not exist");
+                    enableFeaturesFailed = true;
+                    context.Reporter.Warn() << Resource::String::WindowsFeatureNotFound(locIndFeatureName) << std::endl;
+                }
+                else if (result == ERROR_SUCCESS_REBOOT_REQUIRED)
+                {
+                    AICLI_LOG(Core, Info, << "Reboot required for [" << featureName << "]");
+                    rebootRequired = true;
+                }
+                else
+                {
+                    AICLI_LOG(Core, Error, << "Failed to enable Windows Feature [" << featureName << "] with exit code: " << result);
+                    enableFeaturesFailed = true;
+                    context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeature(locIndFeatureName, result) << std::endl;
+                }
+            });
+
+        if (context.IsTerminated())
+        {
+            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
+            return;
+        }
+
+        if (enableFeaturesFailed)
+        {
+            if (force)
+            {
+                context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeatureOverridden << std::endl;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::FailedToEnableWindowsFeatureOverrideRequired << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES);
+            }
+        }
+        else
+        {
+            if (rebootRequired)
+            {
+                if (force)
+                {
+                    context.Reporter.Warn() << Resource::String::RebootRequiredToEnableWindowsFeatureOverridden << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Error() << Resource::String::RebootRequiredToEnableWindowsFeatureOverrideRequired << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+                }
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::EnableWindowsFeaturesSuccess << std::endl;
+            }
+        }
     }
 
     void CreateDependencySubContexts::operator()(Execution::Context& context) const

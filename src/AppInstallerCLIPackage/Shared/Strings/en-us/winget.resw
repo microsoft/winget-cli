@@ -1842,8 +1842,9 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
   </data>
   <data name="FailedToEnableWindowsFeature" xml:space="preserve">
-    <value>Failed to enable [{0}] feature.</value>
-    <comment>{Locked="{0}"} Windows Feature name</comment>
+    <value>Failed to enable [{0}] feature: {1}</value>
+    <comment>{Locked="{0}","{1}"}  An error when enabling a Windows Feature. {0} is a placeholder for the name of the Windows Feature.
+{1} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
     <value>Reboot required to fully enable the Windows Feature(s); proceeding due to --force</value>

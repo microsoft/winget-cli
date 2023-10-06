@@ -35,9 +35,17 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: InstallerArgs
     void GetInstallerArgs(Execution::Context& context);
 
-    // Enables the Windows Features dependencies by invoking ShellExecute on the dism executable.
+    // Enables the Windows Feature dependency by invoking ShellExecute on the DISM executable.
     // Required Args: None
-    // Inputs: Dependencies
-    // Output: None
-    void ShellExecuteEnableWindowsFeatures(Execution::Context& context);
+    // Inputs: Windows Feature dependency
+    // Outputs: None
+    struct ShellExecuteEnableWindowsFeature : public WorkflowTask
+    {
+        ShellExecuteEnableWindowsFeature(const std::string& featureName) : WorkflowTask("ShellExecuteEnableWindowsFeature"), m_featureName(featureName) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        std::string m_featureName;
+    };
 }

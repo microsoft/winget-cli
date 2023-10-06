@@ -36,7 +36,7 @@ TEST_CASE("InstallFlow_WindowsFeatureDoesNotExist", "[windowsFeature]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE(context.GetTerminationHR() == HRESULT_FROM_WIN32(0x800f080c)); // DISMAPI_E_UNKNOWN_FEATURE
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::WindowsFeatureNotFound(LocIndView{ "testFeature1" })).get()) != std::string::npos);
 
@@ -65,16 +65,14 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
 
-    // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
-    DWORD enableFeatureResult = 0xc0040001;
-    auto setDoesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(0);
-    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(enableFeatureResult);
+    auto setDoesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(ERROR_SUCCESS);
+    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(0xc0040001); // DISMAPI_E_DISMAPI_NOT_INITIALIZED
 
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE(context.GetTerminationHR() == HRESULT_FROM_WIN32(enableFeatureResult));
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverrideRequired).get()) != std::string::npos);
 }
@@ -92,9 +90,9 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFWindowsFeature>(true);
 
-    // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(ERROR_SUCCESS);
-    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(0xc0040001);
+    auto expectedErrorCode = 0xc0040001; // DISMAPI_E_DISMAPI_NOT_INITIALIZED
+    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(expectedErrorCode);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -111,8 +109,8 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
 
     // Verify Installer is called and parameters are passed in.
     REQUIRE(context.GetTerminationHR() == ERROR_SUCCESS);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndView{ "testFeature1" })).get()) != std::string::npos);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndView{ "testFeature2" })).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndView{ "testFeature1" }, expectedErrorCode)).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndView{ "testFeature2" }, expectedErrorCode)).get()) != std::string::npos);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverridden).get()) != std::string::npos);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());

@@ -4,6 +4,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerRuntime.h>
+#include <winget/Filesystem.h>
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
@@ -25,8 +26,6 @@ namespace AppInstaller::CLI::Workflow
             execInfo.lpFile = filePath.c_str();
             std::wstring argsUtf16 = Utility::ConvertToUTF16(args);
             execInfo.lpParameters = argsUtf16.c_str();
-            // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will never complete.
-            // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
             execInfo.nShow = show;
 
             // This installer must be run elevated, but we are not currently.
@@ -68,6 +67,8 @@ namespace AppInstaller::CLI::Workflow
 
         std::optional<DWORD> InvokeShellExecute(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
         {
+            // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will never complete.
+            // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
             return InvokeShellExecuteEx(filePath, args, false, SW_SHOW, progress);
         }
 
@@ -204,13 +205,13 @@ namespace AppInstaller::CLI::Workflow
 
         std::filesystem::path GetDismExecutablePath()
         {
-            return { ExpandEnvironmentVariables(L"%windir%\\system32\\dism.exe") };
+            return AppInstaller::Filesystem::GetExpandedPath("%windir%\\system32\\dism.exe");
         }
 
         std::optional<DWORD> DoesWindowsFeatureExist(Execution::Context& context, const std::string& featureName)
         {
             std::string args = "/Online /Get-FeatureInfo /FeatureName:" + featureName;
-            const auto& dismExecPath = GetDismExecutablePath();
+            auto dismExecPath = GetDismExecutablePath();
 
             auto getFeatureInfoResult = context.Reporter.ExecuteWithProgress(
                 std::bind(InvokeShellExecuteEx,
@@ -226,7 +227,7 @@ namespace AppInstaller::CLI::Workflow
         std::optional<DWORD> EnableWindowsFeature(Execution::Context& context, const std::string& featureName)
         {
             std::string args = "/Online /Enable-Feature /NoRestart /FeatureName:" + featureName;
-            const auto& dismExecPath = GetDismExecutablePath();
+            auto dismExecPath = GetDismExecutablePath();
 
             AICLI_LOG(Core, Info, << "Enabling Windows Feature [" << featureName << "]");
 
@@ -260,6 +261,8 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Warn() << Resource::String::InstallerElevationExpected << std::endl;
         }
 
+        // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will never complete.
+        // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
         auto installResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeShellExecuteEx,
                 context.Get<Execution::Data::InstallerPath>(),
@@ -367,123 +370,47 @@ namespace AppInstaller::CLI::Workflow
     }
 #endif
 
-    void ShellExecuteEnableWindowsFeatures(Execution::Context& context)
+    void ShellExecuteEnableWindowsFeature::operator()(Execution::Context& context) const
     {
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::WindowsFeature))
+        Utility::LocIndView locIndFeatureName{ m_featureName };
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        auto doesFeatureExistResult = s_DoesWindowsFeatureExistResult_Override.has_value() ?
+            s_DoesWindowsFeatureExistResult_Override.value() :
+            DoesWindowsFeatureExist(context, m_featureName);
+#else
+        auto doesFeatureExistResult = DoesWindowsFeatureExist(context, featureName);
+#endif
+
+        if (!doesFeatureExistResult)
         {
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
+        }
+
+        auto doesFeatureExistExitCode = doesFeatureExistResult.value();
+        if (doesFeatureExistExitCode != ERROR_SUCCESS)
+        {
+            context.Add<Execution::Data::OperationReturnCode>(doesFeatureExistExitCode);
             return;
         }
 
-        const auto& rootDependencies = context.Get<Execution::Data::Installer>()->Dependencies;
-        DWORD result = 0;
-        bool force = context.Args.Contains(Execution::Args::Type::Force);
-        bool rebootRequired = false;
-
-        rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&context, &result, &force, &rebootRequired](Dependency dependency)
-            {
-                if (FAILED(result) && !force || context.IsTerminated())
-                {
-                    return;
-                }
-
-                auto featureName = dependency.Id();
-                Utility::LocIndView locIndFeatureName{ featureName };
-
-                // Check if Windows Feature exists.
-#ifndef AICLI_DISABLE_TEST_HOOKS
-                auto doesFeatureExistResult = s_DoesWindowsFeatureExistResult_Override.has_value() ?
-                    s_DoesWindowsFeatureExistResult_Override.value() :
-                    DoesWindowsFeatureExist(context, featureName);
-#else
-                auto doesFeatureExistResult = DoesWindowsFeatureExist(context, featureName);
-#endif
-
-                if (!doesFeatureExistResult)
-                {
-                    // User aborted the operation.
-                    AICLI_TERMINATE_CONTEXT(E_ABORT);
-                }
-
-                auto doesFeatureExistExitCode = doesFeatureExistResult.value();
-                if (doesFeatureExistExitCode != ERROR_SUCCESS)
-                {
-                    AICLI_LOG(Core, Info, << "Windows Feature [" << featureName << "] does not exist");
-                    context.Reporter.Warn() << Resource::String::WindowsFeatureNotFound(locIndFeatureName) << std::endl;
-                    result = doesFeatureExistExitCode;
-                    return;
-                }
-
-                // Enable Windows Feature.
-                context.Reporter.Info() << Resource::String::EnablingWindowsFeature(locIndFeatureName) << std::endl;
+        context.Reporter.Info() << Resource::String::EnablingWindowsFeature(locIndFeatureName) << std::endl;
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-                auto enableFeatureResult = s_EnableWindowsFeatureResult_Override.has_value() ?
-                    s_EnableWindowsFeatureResult_Override.value() :
-                    EnableWindowsFeature(context, featureName);
+        auto enableFeatureResult = s_EnableWindowsFeatureResult_Override.has_value() ?
+            s_EnableWindowsFeatureResult_Override.value() :
+            EnableWindowsFeature(context, m_featureName);
 #else
-                auto enableFeatureResult = EnableWindowsFeature(context, featureName);
+        auto enableFeatureResult = EnableWindowsFeature(context, featureName);
 #endif
-                if (!enableFeatureResult)
-                {
-                    // User aborted the operation.
-                    AICLI_TERMINATE_CONTEXT(E_ABORT);
-                }
 
-                auto enableFeatureExitCode = enableFeatureResult.value();
-                if (enableFeatureExitCode == ERROR_SUCCESS_REBOOT_REQUIRED)
-                {
-                    AICLI_LOG(Core, Info, << "Reboot required for [" << featureName << "] with exit code: " << result);
-                    rebootRequired = true;
-                }
-                else if (FAILED(enableFeatureExitCode))
-                {
-                    AICLI_LOG(Core, Error, << "Failed to enable Windows Feature [" << featureName << "] with exit code: " << enableFeatureExitCode);
-                    context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeature(locIndFeatureName) << std::endl
-                        << GetUserPresentableMessage(enableFeatureExitCode) << std::endl;
-                    result = enableFeatureExitCode;
-                }
-                else
-                {
-                    AICLI_LOG(Core, Info, << "Successfully enabled [" << featureName << "] with exit code: " << result);
-                }
-            });
-
-        if (context.IsTerminated())
+        if (!enableFeatureResult)
         {
-            // This will only occur if the user aborts when finding or enabling a feature.
-            return;
-        }
-
-        if (FAILED(result))
-        {
-            if (force)
-            {
-                context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeatureOverridden << std::endl;
-            }
-            else
-            {
-                context.Reporter.Error() << Resource::String::FailedToEnableWindowsFeatureOverrideRequired << std::endl;
-                AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(result));
-            }
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else
         {
-            if (rebootRequired)
-            {
-                if (force)
-                {
-                    context.Reporter.Warn() << Resource::String::RebootRequiredToEnableWindowsFeatureOverridden << std::endl;
-                }
-                else
-                {
-                    context.Reporter.Error() << Resource::String::RebootRequiredToEnableWindowsFeatureOverrideRequired << std::endl;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
-                }
-            }
-            else
-            {
-                context.Reporter.Info() << Resource::String::EnableWindowsFeaturesSuccess << std::endl;
-            }
+            context.Add<Execution::Data::OperationReturnCode>(enableFeatureResult.value());
         }
     }
 }
