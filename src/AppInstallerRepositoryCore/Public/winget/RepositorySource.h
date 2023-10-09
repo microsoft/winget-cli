@@ -168,6 +168,15 @@ namespace AppInstaller::Repository
         std::vector<std::string> RequiredQueryParameters;
     };
 
+    // Allows calling code to inquire about specific features of an ISource implementation.
+    // The default state of any new flag is false.
+    enum class SourceFeatureFlag
+    {
+        // If true, the manifests for this source may contain more data than is available from just the
+        // version information found from a search.
+        ManifestMayContainAdditionalSystemReferenceStrings,
+    };
+
     // Represents a source which would be interacted from outside of repository lib.
     struct Source
     {
@@ -215,6 +224,10 @@ namespace AppInstaller::Repository
 
         // Get the source's information.
         SourceInformation GetInformation() const;
+
+        // Query the value of the given feature flag.
+        // The default state of any new flag is false.
+        bool QueryFeatureFlag(SourceFeatureFlag flag) const;
 
         // Returns true if the origin type can contain available packages.
         bool ContainsAvailablePackages() const;
