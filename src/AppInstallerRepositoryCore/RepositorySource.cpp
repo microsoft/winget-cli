@@ -563,6 +563,12 @@ namespace AppInstaller::Repository
         }
     }
 
+    bool Source::QueryFeatureFlag(SourceFeatureFlag flag) const
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
+        return m_source->QueryFeatureFlag(flag);
+    }
+
     bool Source::ContainsAvailablePackages() const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), IsComposite());
