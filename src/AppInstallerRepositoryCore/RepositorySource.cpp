@@ -704,11 +704,12 @@ namespace AppInstaller::Repository
                 // Check for updates before opening.
                 for (auto& sourceReference : m_sourceReferences)
                 {
-                    auto& details = sourceReference->GetDetails();
-                    if (ShouldUpdateBeforeOpen(details, m_backgroundUpdateInterval))
+                    if (sourceReference->ShouldUpdateBeforeOpen(m_backgroundUpdateInterval))
                     {
                         try
                         {
+                            auto& details = sourceReference->GetDetails();
+
                             // TODO: Consider adding a context callback to indicate we are doing the same action
                             // to avoid the progress bar fill up multiple times.
                             AddOrUpdateResult updateResult = BackgroundUpdateSourceFromDetails(details, progress);

@@ -86,6 +86,9 @@ namespace AppInstaller::Repository
         // Set caller.
         virtual void SetCaller(std::string) {}
 
+        // Determine if the source needs to be updated before being opened.
+        virtual bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>& requestedUpdateInterval) { return false; }
+
         // Opens the source. This function should throw upon open failure rather than returning an empty pointer.
         virtual std::shared_ptr<ISource> Open(IProgressCallback& progress) = 0;
     };
