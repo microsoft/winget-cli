@@ -12,8 +12,8 @@ namespace TestCommon
     TestPackageVersion::TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata, std::weak_ptr<const ISource> source) :
         VersionManifest(manifest), Metadata(std::move(installationMetadata)), Source(source) {}
 
-    TestPackageVersion::TestPackageVersion(const Manifest& manifest, std::weak_ptr<const ISource> source) :
-        VersionManifest(manifest), Source(source) {}
+    TestPackageVersion::TestPackageVersion(const Manifest& manifest, std::weak_ptr<const ISource> source, bool hideSystemReferenceStrings) :
+        VersionManifest(manifest), Source(source), HideSystemReferenceStrings(hideSystemReferenceStrings) {}
 
     TestPackageVersion::LocIndString TestPackageVersion::GetProperty(PackageVersionProperty property) const
     {
@@ -47,16 +47,22 @@ namespace TestCommon
         switch (property)
         {
         case PackageVersionMultiProperty::PackageFamilyName:
-            for (const auto& installer : VersionManifest.Installers)
+            if (!HideSystemReferenceStrings)
             {
-                AddIfHasValueAndNotPresent(installer.PackageFamilyName, result, true);
+                for (const auto& installer : VersionManifest.Installers)
+                {
+                    AddIfHasValueAndNotPresent(installer.PackageFamilyName, result, true);
+                }
             }
             break;
         case PackageVersionMultiProperty::ProductCode:
-            for (const auto& installer : VersionManifest.Installers)
+            if (!HideSystemReferenceStrings)
             {
-                bool shouldFoldCaseForNonPortable = installer.EffectiveInstallerType() != AppInstaller::Manifest::InstallerTypeEnum::Portable;
-                AddIfHasValueAndNotPresent(installer.ProductCode, result, shouldFoldCaseForNonPortable);
+                for (const auto& installer : VersionManifest.Installers)
+                {
+                    bool shouldFoldCaseForNonPortable = installer.EffectiveInstallerType() != AppInstaller::Manifest::InstallerTypeEnum::Portable;
+                    AddIfHasValueAndNotPresent(installer.ProductCode, result, shouldFoldCaseForNonPortable);
+                }
             }
             break;
         case PackageVersionMultiProperty::Name:
@@ -111,11 +117,11 @@ namespace TestCommon
         }
     }
 
-    TestPackage::TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source)
+    TestPackage::TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source, bool hideSystemReferenceStringsOnVersion)
     {
         for (const auto& manifest : available)
         {
-            AvailableVersions.emplace_back(TestPackageVersion::Make(manifest, source));
+            AvailableVersions.emplace_back(TestPackageVersion::Make(manifest, source, hideSystemReferenceStringsOnVersion));
         }
     }
 
@@ -259,6 +265,11 @@ namespace TestCommon
     SourceInformation TestSource::GetInformation() const
     {
         return Information;
+    }
+
+    bool TestSource::QueryFeatureFlag(SourceFeatureFlag flag) const
+    {
+        return (QueryFeatureFlagFunction ? QueryFeatureFlagFunction(flag) : false);
     }
 
     SearchResult TestSource::Search(const SearchRequest& request) const

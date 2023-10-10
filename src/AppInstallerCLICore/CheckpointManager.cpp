@@ -18,7 +18,6 @@ namespace AppInstaller::Checkpoints
 
     std::filesystem::path CheckpointManager::GetCheckpointDatabasePath(const std::string_view& resumeId, bool createCheckpointDirectory)
     {
-
         const auto checkpointsDirectory = Runtime::GetPathTo(Runtime::PathName::CheckpointsLocation) / resumeId;
 
         if (createCheckpointDirectory)
@@ -30,7 +29,7 @@ namespace AppInstaller::Checkpoints
             }
             else
             {
-                THROW_HR_IF(ERROR_CANNOT_MAKE, !std::filesystem::is_directory(checkpointsDirectory));
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_CANNOT_MAKE), !std::filesystem::is_directory(checkpointsDirectory));
             }
         }
 
@@ -85,6 +84,28 @@ namespace AppInstaller::Checkpoints
         }
     }
 
+    void LoadCommandArgsFromAutomaticCheckpoint(CLI::Execution::Context& context, Checkpoint<AutomaticCheckpointData>& automaticCheckpoint)
+    {
+        for (const auto& fieldName : automaticCheckpoint.GetFieldNames(AutomaticCheckpointData::Arguments))
+        {
+            // Command arguments are represented as integer strings in the checkpoint record.
+            Execution::Args::Type type = static_cast<Execution::Args::Type>(std::stoi(fieldName));
+            auto argumentType = Argument::ForType(type).Type();
+            if (argumentType == ArgumentType::Flag)
+            {
+                context.Args.AddArg(type);
+            }
+            else
+            {
+                const auto& values = automaticCheckpoint.GetMany(AutomaticCheckpointData::Arguments, fieldName);
+                for (const auto& value : values)
+                {
+                    context.Args.AddArg(type, value);
+                }
+            }
+        }
+    }
+
     std::optional<Checkpoint<AutomaticCheckpointData>> CheckpointManager::GetAutomaticCheckpoint()
     {
         const auto& checkpointIds = m_checkpointDatabase->GetCheckpointIds();
@@ -107,6 +128,10 @@ namespace AppInstaller::Checkpoints
     std::vector<Checkpoint<CLI::Execution::Data>> CheckpointManager::GetCheckpoints()
     {
         auto checkpointIds = m_checkpointDatabase->GetCheckpointIds();
+        if (checkpointIds.empty())
+        {
+            return {};
+        }
 
         // Remove the last checkpoint (automatic)
         checkpointIds.pop_back();
@@ -130,20 +155,11 @@ namespace AppInstaller::Checkpoints
         if (!m_resumeId.empty())
         {
             const auto& checkpointDatabasePath = GetCheckpointDatabasePath(m_resumeId);
-
             if (std::filesystem::exists(checkpointDatabasePath))
             {
-                std::error_code error;
-                if (std::filesystem::remove(checkpointDatabasePath, error))
-                {
-                    AICLI_LOG(CLI, Info, << "Checkpoint database deleted: " << checkpointDatabasePath);
-                }
-
                 const auto& checkpointDatabaseParentDirectory = checkpointDatabasePath.parent_path();
-                if (std::filesystem::remove(checkpointDatabaseParentDirectory, error))
-                {
-                    AICLI_LOG(CLI, Info, << "Checkpoint database directory deleted: " << checkpointDatabaseParentDirectory);
-                }
+                AICLI_LOG(CLI, Info, << "Deleting Checkpoint database directory: " << checkpointDatabaseParentDirectory);
+                std::filesystem::remove_all(checkpointDatabaseParentDirectory);
             }
         }
     }

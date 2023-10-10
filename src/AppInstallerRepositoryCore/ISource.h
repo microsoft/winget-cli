@@ -35,6 +35,10 @@ namespace AppInstaller::Repository
         // Get the source's information after the source is opened.
         virtual SourceInformation GetInformation() const { return {}; };
 
+        // Query the value of the given feature flag.
+        // The default state of any new flag is false.
+        virtual bool QueryFeatureFlag(SourceFeatureFlag) const { return false; }
+
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
 

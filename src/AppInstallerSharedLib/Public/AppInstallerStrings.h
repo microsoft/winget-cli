@@ -267,5 +267,5 @@ namespace AppInstaller::Utility
     std::string_view ConvertBoolToString(bool value);
 
     // Converts the given GUID value to a string.
-    std::string ConvertGuidToString(GUID value);
+    std::string ConvertGuidToString(const GUID& value);
 }

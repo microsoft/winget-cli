@@ -386,6 +386,7 @@
     <ClInclude Include="Microsoft\Schema\1_6\Interface.h" />
     <ClInclude Include="Microsoft\Schema\1_6\SearchResultsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_6\UpgradeCodeTable.h" />
+    <ClInclude Include="Microsoft\Schema\1_7\Interface.h" />
     <ClInclude Include="Microsoft\Schema\IPinningIndex.h" />
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h" />
     <ClInclude Include="Microsoft\Schema\ICheckpointDatabase.h" />
@@ -495,6 +496,7 @@
     <ClCompile Include="Microsoft\Schema\1_5\Interface_1_5.cpp" />
     <ClCompile Include="Microsoft\Schema\1_6\Interface_1_6.cpp" />
     <ClCompile Include="Microsoft\Schema\1_6\SearchResultsTable_1_6.cpp" />
+    <ClCompile Include="Microsoft\Schema\1_7\Interface_1_7.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinningIndexInterface_1_0.cpp" />
     <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinTable.cpp" />

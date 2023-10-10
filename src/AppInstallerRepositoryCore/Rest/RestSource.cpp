@@ -436,6 +436,17 @@ namespace AppInstaller::Repository::Rest
         return m_information;
     }
 
+    bool RestSource::QueryFeatureFlag(SourceFeatureFlag flag) const
+    {
+        switch (flag)
+        {
+        case SourceFeatureFlag::ManifestMayContainAdditionalSystemReferenceStrings:
+            return true;
+        }
+
+        return false;
+    }
+
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
         IRestClient::SearchResult results = m_restClient.Search(request);

@@ -886,7 +886,7 @@ namespace AppInstaller::CLI
     void Command::Resume(Execution::Context& context) const
     {
         context.Reporter.Error() << Resource::String::CommandDoesNotSupportResumeMessage << std::endl;
-        THROW_HR(E_NOTIMPL);
+        AICLI_TERMINATE_CONTEXT(E_NOTIMPL);
     }
     
     void Command::SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value)

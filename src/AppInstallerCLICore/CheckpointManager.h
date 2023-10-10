@@ -13,6 +13,9 @@ namespace AppInstaller::Repository::Microsoft
 
 namespace AppInstaller::Checkpoints
 {
+    // Reads the command arguments from the automatic checkpoint and populates the context.
+    void LoadCommandArgsFromAutomaticCheckpoint(CLI::Execution::Context& context, Checkpoint<AutomaticCheckpointData>& automaticCheckpoint);
+
     // Owns the lifetime of a checkpoint data base and creates the checkpoints.
     struct CheckpointManager
     {

@@ -861,7 +861,7 @@ namespace AppInstaller::Utility
         return value ? "true"sv : "false"sv;
     }
 
-    std::string ConvertGuidToString(GUID value)
+    std::string ConvertGuidToString(const GUID& value)
     {
         wchar_t buffer[256];
         THROW_HR_IF(E_UNEXPECTED, !StringFromGUID2(value, buffer, ARRAYSIZE(buffer)));

@@ -103,24 +103,7 @@ namespace AppInstaller::CLI
         AICLI_LOG(CLI, Info, << "Resuming command: " << checkpointCommand);
         std::unique_ptr<Command> commandToResume = FindCommandToResume(checkpointCommand);
 
-        for (const auto& fieldName : automaticCheckpoint.GetFieldNames(AutomaticCheckpointData::Arguments))
-        {
-            // Command arguments are represented as integer strings in the checkpoint record.
-            Execution::Args::Type type = static_cast<Execution::Args::Type>(std::stoi(fieldName));
-            auto argumentType = Argument::ForType(type).Type();
-            if (argumentType == ArgumentType::Flag)
-            {
-                resumeContext.Args.AddArg(type);
-            }
-            else
-            {
-                const auto& values = automaticCheckpoint.GetMany(AutomaticCheckpointData::Arguments, fieldName);
-                for (const auto& value : values)
-                {
-                    resumeContext.Args.AddArg(type, value);
-                }
-            }
-        }
+        LoadCommandArgsFromAutomaticCheckpoint(resumeContext, automaticCheckpoint);
 
         resumeContext.SetExecutingCommand(commandToResume.get());
 
