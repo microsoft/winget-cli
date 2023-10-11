@@ -211,6 +211,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string ProductCode { get; set; }
 
         /// <summary>
+        /// <summary>
         /// Gets or sets the default list of capabilities. For msix only.
         /// </summary>
         public List<string> Capabilities { get; set; }
@@ -237,6 +238,31 @@ namespace Microsoft.WinGetUtil.Models.V1
         public InstallerMarkets Markets { get; set; }
 
         /// <summary>
+        /// Gets or sets the installation metadata.
+        /// </summary>
+        public InstallerInstallationMetadata InstallationMetadata { get; set; }
+
+        /// <summary>
+        /// Gets or sets the nested installer type.
+        /// </summary>
+        public string NestedInstallerType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the nested installer files.
+        /// </summary>
+        public List<InstallerNestedInstallerFile> NestedInstallerFiles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the excluded markets.
+        /// </summary>
+        public string ExcludedMarkets { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unsupported arguments.
+        /// </summary>
+        public List<string> UnsupportedArguments { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the default installer behavior aborts terminal.
         /// </summary>
         public bool InstallerAbortsTerminal { get; set; }
@@ -260,6 +286,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets the default list of unsupported OS architectures.
         /// </summary>
         public List<string> UnsupportedOSArchitectures { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to display install warnings.
+        /// </summary>
+        public bool DisplayInstallWarnings { get; set; }
 
         /// <summary>
         /// Gets or sets the default list of apps and features entries.
