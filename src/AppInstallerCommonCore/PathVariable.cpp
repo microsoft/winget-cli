@@ -121,6 +121,7 @@ namespace AppInstaller::Registry::Environment
 
         std::wstring pathName = std::wstring{ s_PathName };
         m_key.SetValue(pathName, ConvertToUTF16(value), REG_EXPAND_SZ);
+        SendNotifyMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)TEXT("Environment"));
     }
 
     bool RefreshPathVariableForCurrentProcess()
