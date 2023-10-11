@@ -208,9 +208,9 @@ namespace AppInstaller::CLI::Workflow
             return AppInstaller::Filesystem::GetExpandedPath("%windir%\\system32\\dism.exe");
         }
 
-        std::optional<DWORD> DoesWindowsFeatureExist(Execution::Context& context, const std::string& featureName)
+        std::optional<DWORD> DoesWindowsFeatureExist(Execution::Context& context, std::string_view featureName)
         {
-            std::string args = "/Online /Get-FeatureInfo /FeatureName:" + featureName;
+            std::string args = "/Online /Get-FeatureInfo /FeatureName:" + std::string{ featureName };
             auto dismExecPath = GetDismExecutablePath();
 
             auto getFeatureInfoResult = context.Reporter.ExecuteWithProgress(
@@ -224,9 +224,9 @@ namespace AppInstaller::CLI::Workflow
             return getFeatureInfoResult;
         }
 
-        std::optional<DWORD> EnableWindowsFeature(Execution::Context& context, const std::string& featureName)
+        std::optional<DWORD> EnableWindowsFeature(Execution::Context& context, std::string_view featureName)
         {
-            std::string args = "/Online /Enable-Feature /NoRestart /FeatureName:" + featureName;
+            std::string args = "/Online /Enable-Feature /NoRestart /FeatureName:" + std::string{ featureName };
             auto dismExecPath = GetDismExecutablePath();
 
             AICLI_LOG(Core, Info, << "Enabling Windows Feature [" << featureName << "]");
@@ -273,7 +273,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installResult)
         {
-            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
+            context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else
@@ -386,11 +386,9 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
-
-        auto doesFeatureExistExitCode = doesFeatureExistResult.value();
-        if (doesFeatureExistExitCode != ERROR_SUCCESS)
+        else if (doesFeatureExistResult.value() != ERROR_SUCCESS)
         {
-            context.Add<Execution::Data::OperationReturnCode>(doesFeatureExistExitCode);
+            context.Add<Execution::Data::OperationReturnCode>(doesFeatureExistResult.value());
             return;
         }
 

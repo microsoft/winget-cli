@@ -147,28 +147,34 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
+        bool isCancelled = false;
         bool enableFeaturesFailed = false;
-        bool force = context.Args.Contains(Execution::Args::Type::Force);
         bool rebootRequired = false;
+        bool force = context.Args.Contains(Execution::Args::Type::Force);
 
-        rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&context, &enableFeaturesFailed, &force, &rebootRequired](Dependency dependency)
+        rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&context, &isCancelled, &enableFeaturesFailed, &force, &rebootRequired](Dependency dependency)
             {
-                if (enableFeaturesFailed && !force || context.IsTerminated())
+                if (enableFeaturesFailed && !force || isCancelled)
                 {
                     return;
                 }
 
                 auto featureName = dependency.Id();
 
-                context << Workflow::ShellExecuteEnableWindowsFeature(featureName);
+                auto featureContextPtr = context.CreateSubContext();
+                Execution::Context& featureContext = *featureContextPtr;
+                auto previousThreadGlobals = featureContext.SetForCurrentThread();
 
-                if (context.IsTerminated())
+                featureContext << Workflow::ShellExecuteEnableWindowsFeature(featureName);
+
+                if (featureContext.IsTerminated())
                 {
+                    isCancelled = true;
                     return;
                 }
 
                 Utility::LocIndView locIndFeatureName{ featureName };
-                DWORD result = context.Get<Execution::Data::OperationReturnCode>();
+                DWORD result = featureContext.Get<Execution::Data::OperationReturnCode>();
 
                 if (result == ERROR_SUCCESS)
                 {
@@ -178,7 +184,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     AICLI_LOG(Core, Warning, << "Windows Feature [" << featureName << "] does not exist");
                     enableFeaturesFailed = true;
-                    context.Reporter.Warn() << Resource::String::WindowsFeatureNotFound(locIndFeatureName) << std::endl;
+                    featureContext.Reporter.Warn() << Resource::String::WindowsFeatureNotFound(locIndFeatureName) << std::endl;
                 }
                 else if (result == ERROR_SUCCESS_REBOOT_REQUIRED)
                 {
@@ -189,14 +195,14 @@ namespace AppInstaller::CLI::Workflow
                 {
                     AICLI_LOG(Core, Error, << "Failed to enable Windows Feature [" << featureName << "] with exit code: " << result);
                     enableFeaturesFailed = true;
-                    context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeature(locIndFeatureName, result) << std::endl;
+                    featureContext.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeature(locIndFeatureName, result) << std::endl;
                 }
             });
 
-        if (context.IsTerminated())
+        if (isCancelled)
         {
-            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
-            return;
+            context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
 
         if (enableFeaturesFailed)

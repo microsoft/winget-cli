@@ -41,11 +41,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct ShellExecuteEnableWindowsFeature : public WorkflowTask
     {
-        ShellExecuteEnableWindowsFeature(const std::string& featureName) : WorkflowTask("ShellExecuteEnableWindowsFeature"), m_featureName(featureName) {}
+        ShellExecuteEnableWindowsFeature(std::string_view featureName) : WorkflowTask("ShellExecuteEnableWindowsFeature"), m_featureName(featureName) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        std::string m_featureName;
+        std::string_view m_featureName;
     };
 }
