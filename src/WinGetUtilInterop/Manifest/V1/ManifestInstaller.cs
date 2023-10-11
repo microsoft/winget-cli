@@ -185,6 +185,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<InstallerNestedInstallerFile> NestedInstallerFiles { get; set; }
 
         /// <summary>
+        /// Gets or sets the excluded markets.
+        /// </summary>
+        public string ExcludedMarkets { get; set; }
+
+        /// <summary>
         /// Gets or sets the unsupported arguments.
         /// </summary>
         public List<string> UnsupportedArguments { get; set; }
@@ -193,11 +198,6 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets a value indicating whether to display install warnings.
         /// </summary>
         public bool DisplayInstallWarnings { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the installer is prohibited from being downloaded for offline installation.
-        /// </summary>
-        public bool DownloadCommandProhibited { get; set; }
 
         /// <summary>
         /// Returns a List of strings containing the URIs contained within this installer.
@@ -256,11 +256,7 @@ namespace Microsoft.WinGetUtil.Models.V1
                    (this.InstallerLocale == other.InstallerLocale) &&
                    (this.Scope == other.Scope) &&
                    (this.InstallerType == other.InstallerType) &&
-                   (this.Switches == other.Switches) && 
-                   (this.InstallationMetadata == other.InstallationMetadata) &&
-                   (this.NestedInstallerType == other.NestedInstallerType) && 
-                   (this.NestedInstallerFiles == other.NestedInstallerFiles) &&
-                   (this.DisplayInstallWarnings == other.DisplayInstallWarnings);
+                   (this.Switches == other.Switches);
     }
 
         /// <summary>

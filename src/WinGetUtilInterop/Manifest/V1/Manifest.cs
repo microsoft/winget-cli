@@ -114,7 +114,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string CopyrightUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets the the package short description in default locale.
+        /// Gets or sets the package short description in default locale.
         /// </summary>
         public string ShortDescription { get; set; }
 
@@ -137,31 +137,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets the release notes in default locale.
         /// </summary>
         public string ReleaseNotes { get; set; }
-        
-        /// <summary>
-        /// Gets or sets the manifest documentation.
-        /// </summary>
-        public List<ManifestDocumentation> Documentations { get; set; }
-
-        /// <summary>
-        /// Gets or sets the manifest icons information.
-        /// </summary>
-        public List<ManifestIcon> Icons { get; set; }
 
         /// <summary>
         /// Gets or sets the release notes url in default locale.
         /// </summary>
         public string ReleaseNotesUrl { get; set; }
-
-        /// <summary>
-        /// Gets or sets the purchase url of the package.
-        /// </summary>
-        public string PurchaseUrl { get; set; }
-
-        /// <summary>
-        /// Gets or sets the installation notes.
-        /// </summary>
-        public string InstallationNotes { get; set; }
 
         // Installer fields
 
@@ -273,6 +253,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<InstallerNestedInstallerFile> NestedInstallerFiles { get; set; }
 
         /// <summary>
+        /// Gets or sets the excluded markets.
+        /// </summary>
+        public string ExcludedMarkets { get; set; }
+
+        /// <summary>
         /// Gets or sets the unsupported arguments.
         /// </summary>
         public List<string> UnsupportedArguments { get; set; }
@@ -331,11 +316,6 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets collection of additional ManifestLocalization.
         /// </summary>
         public List<ManifestLocalization> Localization { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the installer is prohibited from being downloaded for offline installation.
-        /// </summary>
-        public bool DownloadCommandProhibited { get; set; }
 
         /// <summary>
         /// Deserialize a stream reader into a Manifest object.
