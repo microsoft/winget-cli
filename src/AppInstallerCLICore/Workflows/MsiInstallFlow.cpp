@@ -52,7 +52,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installResult)
         {
-            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
+            context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else
