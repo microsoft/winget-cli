@@ -46,7 +46,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Command:
             return { type, "command"_liv, "cmd"_liv, ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Source:
-            return { type, "source"_liv, 's', ArgTypeCategory::Source };
+            return { type, "source"_liv, 's', ArgTypeCategory::QuerySource };
         case Execution::Args::Type::Count:
             return { type, "count"_liv, 'n', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Exact:
@@ -223,11 +223,11 @@ namespace AppInstaller::CLI
             return { type, "force"_liv, ArgTypeCategory::CopyFlagToSubContext };
 
         case Execution::Args::Type::DependencySource:
-            return { type, "dependency-source"_liv, ArgTypeCategory::Source };
+            return { type, "dependency-source"_liv, ArgTypeCategory::ExtendedSource };
         case Execution::Args::Type::CustomHeader:
-            return { type, "header"_liv, ArgTypeCategory::Source };
+            return { type, "header"_liv, ArgTypeCategory::QuerySource };
         case Execution::Args::Type::AcceptSourceAgreements:
-            return { type, "accept-source-agreements"_liv, ArgTypeCategory::Source };
+            return { type, "accept-source-agreements"_liv, ArgTypeCategory::ExtendedSource };
 
         case Execution::Args::Type::ToolVersion:
             return { type, "version"_liv, 'v' };
@@ -465,7 +465,7 @@ namespace AppInstaller::CLI
 
         // If a manifest is specified, we cannot also have arguments for searching
         if (WI_IsFlagSet(categories, ArgTypeCategory::Manifest) &&
-            WI_IsAnyFlagSet(categories, ArgTypeCategory::PackageQuery | ArgTypeCategory::Source))
+            WI_IsAnyFlagSet(categories, ArgTypeCategory::PackageQuery | ArgTypeCategory::QuerySource))
         {
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }

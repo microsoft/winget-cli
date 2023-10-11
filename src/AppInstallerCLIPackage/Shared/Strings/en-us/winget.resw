@@ -1838,13 +1838,13 @@ Please specify one of them using the --source option to proceed.</value>
 {Locked="--force"}</comment>
   </data>
   <data name="EnablingWindowsFeature" xml:space="preserve">
-    <value>Enabling {0} [{1}]...</value>
-    <comment>{Locked="{0}","{1}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
+    <value>Enabling [{0}]...</value>
+    <comment>{Locked="{0}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
   </data>
   <data name="FailedToEnableWindowsFeature" xml:space="preserve">
-    <value>Failed to enable {0} [{1}] feature.</value>
-    <comment>{Locked="{0}"} Windows Feature display name
-{Locked="{1}"} Windows Feature name</comment>
+    <value>Failed to enable [{0}] feature: {1}</value>
+    <comment>{Locked="{0}","{1}"}  An error when enabling a Windows Feature. {0} is a placeholder for the name of the Windows Feature.
+{1} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
     <value>Reboot required to fully enable the Windows Feature(s); proceeding due to --force</value>
@@ -2583,6 +2583,9 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="Unavailable" xml:space="preserve">
     <value>Unavailable</value>
+  </data>
+  <data name="EnableWindowsFeaturesSuccess" xml:space="preserve">
+    <value>Successfully enabled Windows Features dependencies</value>
   </data>
   <data name="ResumeCommandLongDescription" xml:space="preserve">
     <value>Resumes execution of a previously saved command by passing in the unique identifier of the saved command. This is used to resume an executed command that may have been terminated due to a reboot.</value>
