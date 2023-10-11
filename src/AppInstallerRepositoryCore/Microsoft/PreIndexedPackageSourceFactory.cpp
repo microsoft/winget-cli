@@ -4,6 +4,7 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
+#include "SourceUpdateChecks.h"
 
 #include <AppInstallerDeployment.h>
 #include <AppInstallerDownloader.h>
@@ -359,6 +360,11 @@ namespace AppInstaller::Repository::Microsoft
 
             SourceDetails& GetDetails() override { return m_details; };
 
+            bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>&) override
+            {
+                // TODO!
+            }
+
             std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
                 Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details));
@@ -514,6 +520,11 @@ namespace AppInstaller::Repository::Microsoft
             std::string GetIdentifier() override { return m_details.Identifier; }
 
             SourceDetails& GetDetails() override { return m_details; };
+
+            bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>&) override
+            {
+                // TODO!
+            }
 
             std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {

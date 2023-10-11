@@ -393,6 +393,9 @@
     <ClInclude Include="Microsoft\Schema\1_7\Interface.h">
       <Filter>Microsoft\Schema\1_7</Filter>
     </ClInclude>
+    <ClInclude Include="SourceUpdateChecks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -622,6 +625,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_7\Interface_1_7.cpp">
       <Filter>Microsoft\Schema\1_7</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceUpdateChecks.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
