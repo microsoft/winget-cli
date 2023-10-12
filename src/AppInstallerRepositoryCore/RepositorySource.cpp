@@ -11,6 +11,7 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
 #include "PackageTrackingCatalogSourceFactory.h"
+#include "SourceUpdateChecks.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include "Microsoft/ConfigurableTestSourceFactory.h"
@@ -657,7 +658,7 @@ namespace AppInstaller::Repository
                 // Check for updates before opening.
                 for (auto& sourceReference : m_sourceReferences)
                 {
-                    if (sourceReference->ShouldUpdateBeforeOpen(m_backgroundUpdateInterval))
+                    if (ShouldUpdateBeforeOpen(sourceReference.get(), m_backgroundUpdateInterval))
                     {
                         auto& details = sourceReference->GetDetails();
 
