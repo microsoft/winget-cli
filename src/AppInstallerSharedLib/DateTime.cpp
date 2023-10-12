@@ -95,7 +95,7 @@ namespace AppInstaller::Utility
         UINT64 majorVersion = version.Major();
         if (majorVersion < 1970 || majorVersion > 3000)
         {
-            return {};
+            return std::chrono::system_clock::time_point::min();
         }
         versionTime.tm_year = static_cast<int>(majorVersion) - 1900;
 
@@ -104,7 +104,7 @@ namespace AppInstaller::Utility
         UINT64 dayValue = minorVersion % 100;
         if (monthValue < 1 || monthValue > 12 || dayValue < 1 || dayValue > 31)
         {
-            return {};
+            return std::chrono::system_clock::time_point::min();
         }
         versionTime.tm_mon = static_cast<int>(monthValue) - 1;
         versionTime.tm_mday = static_cast<int>(dayValue);
@@ -114,11 +114,11 @@ namespace AppInstaller::Utility
         UINT64 minuteValue = buildVersion % 100;
         if (hourValue < 1 || hourValue > 24 || minuteValue > 59)
         {
-            return {};
+            return std::chrono::system_clock::time_point::min();
         }
         versionTime.tm_hour = static_cast<int>(hourValue) - 1;
         versionTime.tm_min = static_cast<int>(minuteValue);
 
-        return std::chrono::system_clock::from_time_t(_mkgmtime(&versionTime));
+        return std::chrono::system_clock::from_time_t(_mkgmtime64(&versionTime));
     }
 }

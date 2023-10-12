@@ -29,6 +29,6 @@ namespace AppInstaller::Utility
 
     // Converts the given package version into a time_point using our custom format.
     // Ensure that the package is expected to use this format, or you may get strange times.
-    // If the version is not convertable, a zero time is returned.
+    // If the version is not convertable, the minimum time is returned.
     std::chrono::system_clock::time_point GetTimePointFromVersion(const UInt64Version& version);
 }
