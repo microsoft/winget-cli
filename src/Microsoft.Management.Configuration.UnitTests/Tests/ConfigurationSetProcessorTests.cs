@@ -811,8 +811,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             unit.Settings.Add("key", "key");
 
-            var importModuleExceptoin = Assert.Throws<ImportModuleException>(() => setProcessor.CreateUnitProcessor(unit));
-            Assert.Equal(ErrorCodes.WinGetConfigUnitImportModuleAdmin, importModuleExceptoin.HResult);
+            var importModuleException = Assert.Throws<ImportModuleException>(() => setProcessor.CreateUnitProcessor(unit));
+            Assert.Equal(ErrorCodes.WinGetConfigUnitImportModuleAdmin, importModuleException.HResult);
         }
 
         private ConfigurationUnit CreateConfigurationUnit()
