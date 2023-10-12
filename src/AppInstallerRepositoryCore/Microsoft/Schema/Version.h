@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
-#include <limits>
 #include <memory>
 
 namespace AppInstaller::Repository::Microsoft::Schema
@@ -35,16 +34,16 @@ namespace AppInstaller::Repository::Microsoft::Schema
         }
 
         // Gets a version that represents the latest schema known to the implementation.
-        static constexpr Version Latest() { return { std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max() }; }
+        static Version Latest();
 
         // Gets a version that represents the latest schema known to the implementation for the given major version.
-        static constexpr Version LatestForMajor(uint32_t majorVersion) { return { majorVersion, std::numeric_limits<uint32_t>::max() }; }
+        static Version LatestForMajor(uint32_t majorVersion);
 
         // Determines if this version represents the latest schema.
-        bool IsLatest() const { return (MajorVersion == std::numeric_limits<uint32_t>::max() && MinorVersion == std::numeric_limits<uint32_t>::max()); }
+        bool IsLatest() const;
 
         // Determines if this version represents the latest schema of the given major version.
-        bool IsLatestForMajor(uint32_t majorVersion) const { return (MajorVersion == majorVersion && MinorVersion == std::numeric_limits<uint32_t>::max()); }
+        bool IsLatestForMajor(uint32_t majorVersion) const;
 
         // Determines the schema version of the opened index.
         static Version GetSchemaVersion(SQLite::Connection& connection);

@@ -840,7 +840,7 @@ namespace AppInstaller::CLI
 
     void Command::Complete(Execution::Context&, Execution::Args::Type) const
     {
-        // Derived commands must suppy context sensitive argument values.
+        // Derived commands must supply context sensitive argument values.
     }
 
     void Command::Execute(Execution::Context& context) const
@@ -883,6 +883,12 @@ namespace AppInstaller::CLI
         }
     }
 
+    void Command::Resume(Execution::Context& context) const
+    {
+        context.Reporter.Error() << Resource::String::CommandDoesNotSupportResumeMessage << std::endl;
+        AICLI_TERMINATE_CONTEXT(E_NOTIMPL);
+    }
+    
     void Command::SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value)
     {
         m_selectCurrentCommandIfUnrecognizedSubcommandFound = value;

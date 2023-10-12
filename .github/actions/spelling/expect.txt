@@ -420,6 +420,7 @@ seof
 servercert
 servercertificate
 setmetadatabymanifestid
+SETTINGCHANGE
 SETTINGMAPPING
 SHCONTF
 SHGDN

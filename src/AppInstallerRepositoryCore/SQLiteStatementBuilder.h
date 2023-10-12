@@ -111,6 +111,7 @@ namespace AppInstaller::Repository::SQLite::Builder
         RowId = Int64,
         Text,
         Blob,
+        Integer, // Type for specifying a primary key column as a row id alias.
     };
 
     // Aggregate functions.
@@ -296,6 +297,10 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Specify the ordering to use.
         StatementBuilder& OrderBy(std::string_view column);
         StatementBuilder& OrderBy(const QualifiedColumn& column);
+
+        // Specify the ordering behavior.
+        StatementBuilder& Ascending();
+        StatementBuilder& Descending();
 
         // Limits the result set to the given number of rows.
         StatementBuilder& Limit(size_t rowCount);
