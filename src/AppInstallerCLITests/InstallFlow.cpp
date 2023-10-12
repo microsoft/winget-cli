@@ -644,17 +644,21 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     OverridePortableInstaller(installContext);
     TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(false);
     const auto& targetDirectory = tempDirectory.GetPath();
+    const auto& portableTargetPath = targetDirectory / "AppInstallerTestExeInstaller.exe";
     installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
     installContext.Args.AddArg(Execution::Args::Type::InstallLocation, targetDirectory.u8string());
     installContext.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
 
     InstallCommand install({});
     install.Execute(installContext);
-    INFO(installOutput.str());
 
-    const auto& portableTargetPath = targetDirectory / "AppInstallerTestExeInstaller.exe";
-    REQUIRE(std::filesystem::exists(portableTargetPath));
-    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
+    {
+        INFO(installOutput.str());
+
+        // Use CHECK to allow the uninstall to still occur
+        CHECK(std::filesystem::exists(portableTargetPath));
+        CHECK(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
+    }
 
     // Perform uninstall
     std::ostringstream uninstallOutput;

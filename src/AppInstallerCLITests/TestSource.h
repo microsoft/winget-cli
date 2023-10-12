@@ -115,6 +115,9 @@ namespace TestCommon
 
         bool SetCustomHeader(std::optional<std::string> header) override { m_header = header; return true; }
 
+        bool ShouldUpdateBeforeOpenResult = false;
+        bool ShouldUpdateBeforeOpen(const std::optional<AppInstaller::Repository::TimeSpan>&) override { return ShouldUpdateBeforeOpenResult; }
+
         std::shared_ptr<AppInstaller::Repository::ISource> Open(AppInstaller::IProgressCallback&) override
         {
             if (m_onOpenWithCustomHeader)
@@ -156,6 +159,7 @@ namespace TestCommon
         // Make copies of self when requested.
         operator std::function<std::unique_ptr<AppInstaller::Repository::ISourceFactory>()>();
 
+        bool ShouldUpdateBeforeOpenResult = false;
         OpenFunctor OnOpen;
         OpenFunctorWithCustomHeader OnOpenWithCustomHeader;
         AddFunctor OnAdd;
