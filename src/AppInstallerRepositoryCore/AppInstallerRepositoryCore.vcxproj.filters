@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -93,6 +93,9 @@
     </Filter>
     <Filter Include="Microsoft\Schema\1_7">
       <UniqueIdentifier>{f610927a-6f1d-42c5-9ad9-b59790091944}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Microsoft\Schema\Checkpoint_1_0">
+      <UniqueIdentifier>{a3f9c7ed-f487-40d6-9ee7-e9a052e55c29}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -393,6 +396,24 @@
     <ClInclude Include="Microsoft\Schema\1_7\Interface.h">
       <Filter>Microsoft\Schema\1_7</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\ICheckpointDatabase.h">
+      <Filter>Microsoft\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\CheckpointDatabase.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDataTable.h">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDatabaseInterface.h">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.h">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Checkpoint.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -623,6 +644,18 @@
     <ClCompile Include="Microsoft\Schema\1_7\Interface_1_7.cpp">
       <Filter>Microsoft\Schema\1_7</Filter>
     </ClCompile>
+    <ClCompile Include="Microsoft\CheckpointDatabase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDataTable.cpp">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClCompile>    
+    <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDatabaseInterface_1_0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.cpp">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

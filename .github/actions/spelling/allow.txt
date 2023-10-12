@@ -233,6 +233,7 @@ https
 HWND
 Hyperlink
 IAppx
+ICheckpoint
 IConfiguration
 icu
 IDX

@@ -43,8 +43,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Cancelled);
         WINGET_DEFINE_RESOURCE_STRINGID(CancellingOperation);
         WINGET_DEFINE_RESOURCE_STRINGID(ChannelArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ClientVersionMismatchError);
         WINGET_DEFINE_RESOURCE_STRINGID(Command);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(CommandDoesNotSupportResumeMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandLineArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandRequiresAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
@@ -414,6 +416,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(ReservedFilenameError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeIdArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeIdNotFoundError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeStateDataNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandShortDescription);

@@ -109,6 +109,9 @@ namespace AppInstaller::CLI::Execution
             // Error command
             ErrorInput,
 
+            // Resume Command
+            ResumeId,
+
             // Configuration
             ConfigurationFile,
             ConfigurationAcceptWarning,

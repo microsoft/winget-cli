@@ -2587,4 +2587,27 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="EnableWindowsFeaturesSuccess" xml:space="preserve">
     <value>Successfully enabled Windows Features dependencies</value>
   </data>
+  <data name="ResumeCommandLongDescription" xml:space="preserve">
+    <value>Resumes execution of a previously saved command by passing in the unique identifier of the saved command. This is used to resume an executed command that may have been terminated due to a reboot.</value>
+  </data>
+  <data name="ResumeCommandShortDescription" xml:space="preserve">
+    <value>Resumes execution of a previously saved command.</value>
+  </data>
+  <data name="ResumeIdArgumentDescription" xml:space="preserve">
+    <value>The unique identifier of the saved state to resume</value>
+  </data>
+  <data name="ClientVersionMismatchError" xml:space="preserve">
+    <value>Resuming the state from a different client version is not supported: {0}</value>
+    <comment>{Locked= "{0}"} Message displayed to inform the user that the client version of the resume state does not match the current client version. {0} is a placeholder for the client version that created the resume state.</comment>
+  </data>
+  <data name="ResumeIdNotFoundError" xml:space="preserve">
+    <value>The resume state does not exist: {0}</value>
+    <comment>{Locked="{0}" Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
+  </data>
+  <data name="ResumeStateDataNotFoundError" xml:space="preserve">
+    <value>No data found in the resume state.</value>
+  </data>
+  <data name="CommandDoesNotSupportResumeMessage" xml:space="preserve">
+    <value>This command does not support resuming.</value>
+  </data>
 </root>

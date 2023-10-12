@@ -142,6 +142,9 @@ namespace AppInstaller::Repository::SQLite::Builder
             case Type::Blob:
                 out << "BLOB";
                 break;
+            case Type::Integer:
+                out << "INTEGER";
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -501,6 +504,18 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::OrderBy(const QualifiedColumn& column)
     {
         OutputColumns(m_stream, " ORDER BY ", column);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Ascending()
+    {
+        m_stream << " ASC";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Descending()
+    {
+        m_stream << " DESC";
         return *this;
     }
 

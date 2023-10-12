@@ -66,6 +66,8 @@ namespace AppInstallerCLIE2ETests
         public const string WinGetUtil = "WinGetUtil";
         public const string E2ETestLogsPathPackaged = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
         public const string E2ETestLogsPathUnpackaged = @"WinGet\defaultState";
+        public const string CheckpointDirectoryPackaged = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\Checkpoints";
+        public const string CheckpointDirectoryUnpackaged = @"Microsoft\WinGet\State\defaultState\Checkpoints";
 
         // Installer filename
         public const string TestCommandExe = "testCommand.exe";
@@ -253,6 +255,11 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_APPTERMINATION_RECEIVED = unchecked((int)0x8A15006A);
             public const int ERROR_DOWNLOAD_DEPENDENCIES = unchecked((int)0x8A15006B);
             public const int ERROR_DOWNLOAD_COMMAND_PROHIBITED = unchecked((int)0x8A15006C);
+            public const int ERROR_SERVICE_UNAVAILABLE = unchecked((int)0x8A15006D);
+            public const int ERROR_RESUME_ID_NOT_FOUND = unchecked((int)0x8A15006E);
+            public const int ERROR_CLIENT_VERSION_MISMATCH = unchecked((int)0x8A15006F);
+            public const int ERROR_INVALID_RESUME_STATE = unchecked((int)0x8A150070);
+            public const int ERROR_CANNOT_OPEN_CHECKPOINT_INDEX = unchecked((int)0x8A150071);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

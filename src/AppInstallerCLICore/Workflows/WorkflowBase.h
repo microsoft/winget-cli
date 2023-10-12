@@ -10,7 +10,6 @@
 #include <string>
 #include <string_view>
 
-
 namespace AppInstaller::CLI::Execution
 {
     struct Context;
