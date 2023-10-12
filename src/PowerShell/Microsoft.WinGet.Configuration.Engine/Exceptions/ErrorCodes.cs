@@ -39,6 +39,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
         internal const int WinGetConfigUnitModuleConflict = unchecked((int)0x8A15C107);
         internal const int WinGetConfigUnitImportModule = unchecked((int)0x8A15C108);
         internal const int WinGetConfigUnitInvokeInvalidResult = unchecked((int)0x8A15C109);
+        internal const int WinGetConfigUnitSettingConfigRoot = unchecked((int)0x8A15C110);
+        internal const int WinGetConfigUnitImportModuleAdmin = unchecked((int)0x8A15C111);
 #pragma warning restore SA1310 // Field names should not contain underscore
 #pragma warning restore SA1600 // ElementsMustBeDocumented
     }

@@ -791,6 +791,30 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             unitProcessor.TestSettings();
         }
 
+        /// <summary>
+        /// Tests a module that requires admin is loaded from non admin.
+        /// </summary>
+        [FactSkipIfCI]
+        public void CreateUnitProcessor_ModuleRequiresAdmin()
+        {
+            var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
+
+            var setProcessor = new ConfigurationSetProcessor(processorEnv, new ConfigurationSet());
+
+            var unit = new ConfigurationUnit
+            {
+                Type = "AdminResource",
+                Intent = ConfigurationUnitIntent.Assert,
+            };
+            unit.Metadata.Add("module", "xAdminTestResource");
+            unit.Metadata.Add("version", "0.0.0.1");
+
+            unit.Settings.Add("key", "key");
+
+            var importModuleExceptoin = Assert.Throws<ImportModuleException>(() => setProcessor.CreateUnitProcessor(unit));
+            Assert.Equal(ErrorCodes.WinGetConfigUnitImportModuleAdmin, importModuleExceptoin.HResult);
+        }
+
         private ConfigurationUnit CreateConfigurationUnit()
         {
             var unit = new ConfigurationUnit();

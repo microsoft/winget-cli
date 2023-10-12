@@ -2584,4 +2584,13 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="Unavailable" xml:space="preserve">
     <value>Unavailable</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN" xml:space="preserve">
+    <value>Loading the module for the configuration unit failed because it requires administrator privileges to run.</value>
+  </data>
+  <data name="ConfigurationUnitSettingConfigRoot" xml:space="preserve">
+    <value>A unit contains a setting that requires the config root.</value>
+  </data>
+  <data name="ConfigurationUnitImportModuleAdmin" xml:space="preserve">
+    <value>Loading the module for the configuration unit failed because it requires administrator privileges to run.</value>
+  </data>
 </root>

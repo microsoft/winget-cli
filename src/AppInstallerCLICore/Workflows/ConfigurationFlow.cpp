@@ -407,8 +407,10 @@ namespace AppInstaller::CLI::Workflow
             case WINGET_CONFIG_ERROR_UNIT_INVOKE_TEST: return { Resource::String::ConfigurationUnitFailedDuringTest(), true };
             case WINGET_CONFIG_ERROR_UNIT_INVOKE_SET: return { Resource::String::ConfigurationUnitFailedDuringSet(), true };
             case WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT: return { Resource::String::ConfigurationUnitModuleConflict(), false };
-            case WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE: return { Resource::String::ConfigurationUnitModuleImportFailed(), true };
+            case WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE: return { Resource::String::ConfigurationUnitModuleImportFailed(), false };
             case WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT: return { Resource::String::ConfigurationUnitReturnedInvalidResult(), false };
+            case WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT: return { Resource::String::ConfigurationUnitSettingConfigRoot(), false };
+            case WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN: return { Resource::String::ConfigurationUnitImportModuleAdmin(), false };
             }
 
             switch (resultInformation.ResultSource())

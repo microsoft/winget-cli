@@ -65,5 +65,10 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// The unit contains a setting that requires config root.
         /// </summary>
         internal const int WinGetConfigUnitSettingConfigRoot = unchecked((int)0x8A15C110);
+
+        /// <summary>
+        /// The module where the DSC resource is implemented requires admin.
+        /// </summary>
+        internal const int WinGetConfigUnitImportModuleAdmin = unchecked((int)0x8A15C111);
     }
 }

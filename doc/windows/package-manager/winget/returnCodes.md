@@ -193,3 +193,5 @@ Installation failed. Restart your PC then try again. |
 | 0x8A15C107 | -1978285817 | WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT | The module for the configuration unit is available in multiple locations with the same version. |
 | 0x8A15C108 | -1978285816 | WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE | Loading the module for the configuration unit failed. |
 | 0x8A15C109 | -1978285815 | WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT | The configuration unit returned an unexpected result during execution. |
+| 0x8A15C110 | -1978285814 | CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT | A unit contains a setting that requires the config root. |
+| 0x8A15C111 | -1978285813 | WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN | Loading the module for the configuration unit failed because it requires administrator privileges to run. |
