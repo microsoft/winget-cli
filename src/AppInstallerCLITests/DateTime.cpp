@@ -8,6 +8,20 @@ using namespace AppInstaller::Utility;
 using namespace TestCommon;
 using namespace std::chrono;
 
+namespace Catch
+{
+    template<>
+    struct StringMaker<std::chrono::system_clock::time_point>
+    {
+        static std::string convert(const std::chrono::system_clock::time_point& value)
+        {
+            std::ostringstream stream;
+            OutputTimePoint(stream, value);
+            return std::move(stream).str();
+        }
+    };
+}
+
 void VerifyGetTimePointFromVersion(std::string_view version, int year, int month, int day, int hour, int minute)
 {
     system_clock::time_point result = GetTimePointFromVersion(UInt64Version{ std::string{ version } });
@@ -64,6 +78,7 @@ TEST_CASE("GetTimePointFromVersion", "[datetime]")
     // Epoch time
     REQUIRE(GetTimePointFromVersion(UInt64Version{ "1970.101.100.0" }) == system_clock::time_point{});
 
+    // Round trip now
     system_clock::time_point now = system_clock::now();
-    REQUIRE(GetTimePointFromVersion(UInt64Version{ StringFromTimePoint(now) }) == now);
+    REQUIRE(GetTimePointFromVersion(UInt64Version{ StringFromTimePoint(now) }) == time_point_cast<minutes>(now));
 }
