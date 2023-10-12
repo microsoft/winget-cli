@@ -6,6 +6,7 @@
 
 namespace Microsoft.WinGet.Client.Engine.Helpers
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -254,15 +255,28 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     { Name, VCLibsUWPDesktop },
                 });
 
-            // See if the required version is installed.
+            // See if the minimum (or greater) version is installed.
+            // TODO: Pull the minimum version from the target package
+            // TODO: This does not check architecture of the package
+            Version minimumVersion = new Version(VCLibsUWPDesktopVersion);
+
             bool isInstalled = false;
             if (result != null &&
                 result.Count > 0)
             {
                 foreach (dynamic psobject in result)
                 {
-                    if (psobject?.Version == VCLibsUWPDesktopVersion)
+                    string versionString = psobject?.Version?.ToString();
+                    if (versionString == null)
                     {
+                        continue;
+                    }
+
+                    Version packageVersion = new Version(versionString);
+
+                    if (packageVersion >= minimumVersion)
+                    {
+                        this.psCmdlet.WriteDebug($"VCLibs dependency satisfied by: {psobject?.PackageFullName ?? "<null>"}");
                         isInstalled = true;
                         break;
                     }
