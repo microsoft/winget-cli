@@ -437,6 +437,7 @@
     <ClInclude Include="SourceFactory.h" />
     <ClInclude Include="SourceList.h" />
     <ClInclude Include="SourcePolicy.h" />
+    <ClInclude Include="SourceUpdateChecks.h" />
     <ClInclude Include="SQLiteStatementBuilder.h" />
     <ClInclude Include="SQLiteTempTable.h" />
     <ClInclude Include="SQLiteWrapper.h" />
@@ -529,6 +530,7 @@
     <ClCompile Include="Rest\Schema\SearchResponseParser.cpp" />
     <ClCompile Include="SourceList.cpp" />
     <ClCompile Include="SourcePolicy.cpp" />
+    <ClCompile Include="SourceUpdateChecks.cpp" />
     <ClCompile Include="SQLiteStatementBuilder.cpp" />
     <ClCompile Include="SQLiteTempTable.cpp" />
     <ClCompile Include="SQLiteWrapper.cpp" />
