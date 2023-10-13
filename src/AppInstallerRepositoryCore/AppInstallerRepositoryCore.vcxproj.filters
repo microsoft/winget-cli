@@ -414,6 +414,9 @@
     <ClInclude Include="Public\winget\Checkpoint.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="SourceUpdateChecks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -653,9 +656,12 @@
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDatabaseInterface_1_0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.cpp">
+    <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.cpp">
       <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
-    </ClInclude>
+    </ClCompile>
+    <ClCompile Include="SourceUpdateChecks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

@@ -11,6 +11,7 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
 #include "PackageTrackingCatalogSourceFactory.h"
+#include "SourceUpdateChecks.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include "Microsoft/ConfigurableTestSourceFactory.h"
@@ -48,11 +49,6 @@ namespace AppInstaller::Repository
 
                 return std::chrono::milliseconds(distribution(randomEngine) * randomMultiplier);
             }
-        }
-
-        bool IsUpdateSuppressed(const SourceDetails& details)
-        {
-            return std::chrono::system_clock::now() < details.DoNotUpdateBefore;
         }
 
         struct AddOrUpdateResult
@@ -153,48 +149,6 @@ namespace AppInstaller::Repository
         bool ContainsAvailablePackagesInternal(SourceOrigin origin)
         {
             return (origin == SourceOrigin::Default || origin == SourceOrigin::GroupPolicy || origin == SourceOrigin::User);
-        }
-
-        // Determines whether (and logs why) a source should be updated before it is opened.
-        bool ShouldUpdateBeforeOpen(const SourceDetails& details, std::optional<TimeSpan> backgroundUpdateInterval)
-        {
-            if (!ContainsAvailablePackagesInternal(details.Origin))
-            {
-                return false;
-            }
-
-            // Do not update if we are still before the update block time.
-            if (IsUpdateSuppressed(details))
-            {
-                AICLI_LOG(Repo, Info, << "Background update is suppressed until: " << details.DoNotUpdateBefore);
-                return false;
-            }
-
-            constexpr static TimeSpan s_ZeroMins = 0min;
-            TimeSpan autoUpdateTime;
-            if (backgroundUpdateInterval.has_value())
-            {
-                autoUpdateTime = backgroundUpdateInterval.value();
-            }
-            else
-            {
-                autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
-            }
-
-            // A value of zero means no auto update, to get update the source run `winget update`
-            if (autoUpdateTime != s_ZeroMins)
-            {
-                auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
-                if (timeSinceLastUpdate > autoUpdateTime)
-                {
-                    AICLI_LOG(Repo, Info, << "Source past auto update time [" <<
-                        std::chrono::duration_cast<std::chrono::minutes>(autoUpdateTime).count() << " mins]; it has been at least " <<
-                        std::chrono::duration_cast<std::chrono::minutes>(timeSinceLastUpdate).count() << " mins");
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
@@ -704,9 +658,10 @@ namespace AppInstaller::Repository
                 // Check for updates before opening.
                 for (auto& sourceReference : m_sourceReferences)
                 {
-                    auto& details = sourceReference->GetDetails();
-                    if (ShouldUpdateBeforeOpen(details, m_backgroundUpdateInterval))
+                    if (ShouldUpdateBeforeOpen(sourceReference.get(), m_backgroundUpdateInterval))
                     {
+                        auto& details = sourceReference->GetDetails();
+
                         try
                         {
                             // TODO: Consider adding a context callback to indicate we are doing the same action

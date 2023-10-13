@@ -204,6 +204,7 @@
     <ClCompile Include="CompositeSource.cpp" />
     <ClCompile Include="Correlation.cpp" />
     <ClCompile Include="CustomHeader.cpp" />
+    <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Dependencies.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="DownloadFlow.cpp" />
