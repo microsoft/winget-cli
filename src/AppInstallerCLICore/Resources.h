@@ -180,6 +180,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeature);
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeatureOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeatureOverrideRequired);
+        WINGET_DEFINE_RESOURCE_STRINGID(FailedToInitiateReboot);
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToRefreshPathWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledByAdminSettingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);

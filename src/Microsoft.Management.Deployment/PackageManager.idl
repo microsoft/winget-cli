@@ -894,7 +894,7 @@ namespace Microsoft.Management.Deployment
             PackageInstallerType InstallerType;
         }
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 8)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 9)]
         {
             // Allow a reboot to complete an installation if applicable.
             Boolean AllowReboot;

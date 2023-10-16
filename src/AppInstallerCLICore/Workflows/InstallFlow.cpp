@@ -189,7 +189,7 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 AICLI_LOG(CLI, Info, << "Install requires reboot. Initiating reboot.");
-                context.Reporter.Info() << Resource::String::InitiatingReboot << std::endl;
+                context.Reporter.Warn() << Resource::String::InitiatingReboot << std::endl;
                 THROW_LAST_ERROR_IF(Reboot::InitiateReboot());
             }
         }
@@ -615,9 +615,8 @@ namespace AppInstaller::CLI::Workflow
             Workflow::CreateDependencySubContexts(Resource::String::PackageRequiresDependencies) <<
             Workflow::InstallDependencies <<
             Workflow::DownloadInstaller <<
-            Workflow::InstallPackageInstaller;
-
-        InitiateRebootIfApplicable(context);
+            Workflow::InstallPackageInstaller <<
+            Workflow::InitiateReboot;
     }
 
     void EnsureSupportForInstall(Execution::Context& context)
@@ -697,7 +696,6 @@ namespace AppInstaller::CLI::Workflow
         context << Workflow::ReportDependencies(m_dependenciesReportMessage);
 
         bool allSucceeded = true;
-        bool shouldReboot = false;
         size_t packagesCount = context.Get<Execution::Data::PackageSubContexts>().size();
         size_t packagesProgress = 0;
 
@@ -767,7 +765,7 @@ namespace AppInstaller::CLI::Workflow
 
                 if (ShouldInitiateReboot(currentContextTerminationHR))
                 {
-                    shouldReboot = true;
+                    context.SetFlags(Execution::ContextFlag::RebootRequired);
                 }
 
                 if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), currentContextTerminationHR))
@@ -779,11 +777,6 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
             }
-        }
-
-        if (shouldReboot)
-        {
-           InitiateRebootIfApplicable(context, true);
         }
 
         if (!allSucceeded)
@@ -952,6 +945,32 @@ namespace AppInstaller::CLI::Workflow
             if (itr != installedMetadata.end())
             {
                 version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, itr->second);
+            }
+        }
+    }
+
+    void InitiateReboot(Context& context)
+    {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot))
+        {
+            return;
+        }
+
+        if (!context.Args.Contains(Execution::Args::Type::AllowReboot))
+        {
+            AICLI_LOG(CLI, Info, << "No reboot flag found; skipping reboot flow...");
+            return;
+        }
+
+        bool isRebootRequired = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired);
+
+        if (isRebootRequired || ShouldInitiateReboot(context.GetTerminationHR()))
+        {
+            context.Reporter.Warn() << Resource::String::InitiatingReboot << std::endl;
+
+            if (!Reboot::InitiateReboot())
+            {
+                context.Reporter.Error() << Resource::String::FailedToInitiateReboot << std::endl;
             }
         }
     }

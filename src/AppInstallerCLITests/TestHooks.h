@@ -74,7 +74,7 @@ namespace AppInstaller
 
     namespace Reboot
     {
-        void TestHook_SetHasRebootPrivilegeResult_Override(bool* status);
+        void TestHook_SetInitiateRebootResult_Override(bool* status);
     }
 }
 
@@ -234,16 +234,16 @@ namespace TestHook
         std::vector<AppInstaller::Repository::ExtractedIconInfo> m_extractedIcons;
     };
 
-    struct SetHasRebootPrivilegeResult_Override
+    struct SetInitiateRebootResult_Override
     {
-        SetHasRebootPrivilegeResult_Override(bool status) : m_status(status)
+        SetInitiateRebootResult_Override(bool status) : m_status(status)
         {
-            AppInstaller::Reboot::TestHook_SetHasRebootPrivilegeResult_Override(&m_status);
+            AppInstaller::Reboot::TestHook_SetInitiateRebootResult_Override(&m_status);
         }
 
-        ~SetHasRebootPrivilegeResult_Override()
+        ~SetInitiateRebootResult_Override()
         {
-            AppInstaller::Reboot::TestHook_SetHasRebootPrivilegeResult_Override(nullptr);
+            AppInstaller::Reboot::TestHook_SetInitiateRebootResult_Override(nullptr);
         }
 
     private:

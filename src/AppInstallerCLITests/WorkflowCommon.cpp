@@ -645,7 +645,6 @@ namespace TestCommon
             std::filesystem::path temp = std::filesystem::temp_directory_path();
             temp /= "TestMsixInstalled.txt";
             std::ofstream file(temp, std::ofstream::out);
-            context.Add<Data::OperationReturnCode>(9);
 
             if (context.Contains(Execution::Data::InstallerPath))
             {

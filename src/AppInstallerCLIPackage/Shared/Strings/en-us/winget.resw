@@ -2588,6 +2588,9 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Allows a reboot if applicable</value>
   </data>
   <data name="InitiatingReboot" xml:space="preserve">
-    <value>Initiating reboot to complete installation...</value>
+    <value>Initiating reboot to complete operation...</value>
+  </data>
+  <data name="FailedToInitiateReboot" xml:space="preserve">
+    <value>Failed to initiate a reboot.</value>
   </data>
 </root>

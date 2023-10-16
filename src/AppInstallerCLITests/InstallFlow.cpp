@@ -1211,7 +1211,7 @@ TEST_CASE("InstallFlow_InstallMultipleWithReboot", "[InstallFlow][workflow][Mult
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFReboot>(true);
 
-    TestHook::SetHasRebootPrivilegeResult_Override hasRebootPrivilegeResultOverride(false);
+    TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1245,7 +1245,7 @@ TEST_CASE("InstallFlow_InstallWithReboot_NoPrivilege", "[InstallFlow][workflow][
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFReboot>(true);
 
-    TestHook::SetHasRebootPrivilegeResult_Override hasRebootPrivilegeResultOverride(false);
+    TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
