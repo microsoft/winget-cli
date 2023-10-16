@@ -30,7 +30,7 @@ namespace AppInstaller::Repository::Microsoft
         Schema::Version GetVersion() const { return m_version; }
 
     protected:
-        SQLiteStorageBase(const std::string& target, Schema::Version version);
+        SQLiteStorageBase(const std::string& target, const Schema::Version& version);
 
         SQLiteStorageBase(const std::string& filePath, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 

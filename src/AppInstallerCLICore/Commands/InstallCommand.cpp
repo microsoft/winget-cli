@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerRuntime.h"
+#include "CheckpointManager.h"
 #include "InstallCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/MultiQueryFlow.h"
+#include "Workflows/ResumeFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
-
 
 namespace AppInstaller::CLI
 {
@@ -50,6 +52,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Rename),
             Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
+            Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden},
         };
     }
 
@@ -102,6 +105,12 @@ namespace AppInstaller::CLI
         Argument::ValidateCommonArguments(execArgs);
     }
 
+    void InstallCommand::Resume(Context& context) const
+    {
+        // TODO: Load context data from checkpoint for install command.
+        ExecuteInternal(context);
+    }
+
     void InstallCommand::ExecuteInternal(Context& context) const
     {
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
@@ -113,6 +122,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
+                Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
                 Workflow::InstallSinglePackage;
         }
         else
@@ -139,7 +149,9 @@ namespace AppInstaller::CLI
             }
             else
             {
-                context << Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
+                context <<
+                    Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
+                    Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
             }
         }
     }

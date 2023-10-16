@@ -15,46 +15,38 @@
 #include <winget/GroupPolicy.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
+#include <winget/UserSettings.h>
 #include <Helpers.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    namespace
-    {
-        std::string GetCallerName()
-        {
-            // See if caller name is set by caller
-            static auto callerName = GetComCallerName("");
-
-            // Get process string
-            if (callerName.empty())
-            {
-                try
-                {
-                    auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
-                    THROW_IF_FAILED(hrGetCallerId);
-                    callerName = AppInstaller::Utility::ConvertToUTF8(TryGetCallerProcessInfo(callerProcessId));
-                }
-                CATCH_LOG();
-            }
-
-            if (callerName.empty())
-            {
-                callerName = "UnknownComCaller";
-            }
-
-            return callerName;
-        }
-    }
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::PackageCatalogInfo packageCatalogInfo, ::AppInstaller::Repository::Source sourceReference)
     {
         m_info = packageCatalogInfo;
         m_sourceReference = std::move(sourceReference);
+        m_packageCatalogBackgroundUpdateInterval = ::AppInstaller::Settings::User().Get<::AppInstaller::Settings::Setting::AutoUpdateTimeInMinutes>();
+
+        if (IsBackgroundProcessForPolicy())
+        {
+            // Delay the default update interval for these background processes
+            static constexpr winrt::Windows::Foundation::TimeSpan s_PackageCatalogUpdateIntervalDelay_Base = 168h; //1 week
+
+            // Add a bit of randomness to the default interval time
+            std::default_random_engine randomEngine(std::random_device{}());
+            std::uniform_int_distribution<long long> distribution(0, 604800);
+
+            m_packageCatalogBackgroundUpdateInterval = s_PackageCatalogUpdateIntervalDelay_Base + std::chrono::seconds(distribution(randomEngine));
+
+            // Prevent any update / data processing by default for these background processes for now
+            m_installedPackageInformationOnly = m_sourceReference.IsWellKnownSource(AppInstaller::Repository::WellKnownSource::WinGet);
+        }
     }
+
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions options)
     {
         m_compositePackageCatalogOptions = options;
     }
+
     bool PackageCatalogReference::IsComposite()
     {
         return (m_compositePackageCatalogOptions != nullptr);
@@ -89,10 +81,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 return GetConnectCatalogErrorResult();
             }
 
-            if (!m_acceptSourceAgreements && SourceAgreements().Size() != 0)
-            {
-                return GetConnectSourceAgreementsNotAcceptedErrorResult();
-            }
+            std::string callerName = GetCallerName();
 
             ::AppInstaller::ProgressCallback progress;
             ::AppInstaller::Repository::Source source;
@@ -103,9 +92,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 for (uint32_t i = 0; i < m_compositePackageCatalogOptions.Catalogs().Size(); ++i)
                 {
                     auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
+                    if (!catalog.AcceptSourceAgreements() && catalog.SourceAgreements().Size() != 0)
+                    {
+                        return GetConnectSourceAgreementsNotAcceptedErrorResult();
+                    }
+
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference* catalogImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>(catalog);
                     auto copy = catalogImpl->m_sourceReference;
-                    copy.SetCaller(GetCallerName());
+                    copy.SetCaller(callerName);
+                    copy.SetBackgroundUpdateInterval(catalog.PackageCatalogBackgroundUpdateInterval());
+                    copy.InstalledPackageInformationOnly(catalog.InstalledPackageInformationOnly());
                     copy.Open(progress);
                     remoteSources.emplace_back(std::move(copy));
                 }
@@ -140,8 +136,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             else
             {
+                if (!m_acceptSourceAgreements && SourceAgreements().Size() != 0)
+                {
+                    return GetConnectSourceAgreementsNotAcceptedErrorResult();
+                }
+
                 source = m_sourceReference;
-                source.SetCaller(GetCallerName());
+                source.SetCaller(callerName);
+                source.SetBackgroundUpdateInterval(PackageCatalogBackgroundUpdateInterval());
+                source.InstalledPackageInformationOnly(m_installedPackageInformationOnly);
                 source.Open(progress);
             }
 
@@ -171,11 +174,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::call_once(m_sourceAgreementsOnceFlag,
             [&]()
             {
-                for (auto const& agreement : m_sourceReference.GetInformation().SourceAgreements)
+                if (!IsComposite())
                 {
-                    auto sourceAgreement = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::SourceAgreement>>();
-                    sourceAgreement->Initialize(agreement);
-                    m_sourceAgreements.Append(*sourceAgreement);
+                    for (auto const& agreement : m_sourceReference.GetInformation().SourceAgreements)
+                    {
+                        auto sourceAgreement = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::SourceAgreement>>();
+                        sourceAgreement->Initialize(agreement);
+                        m_sourceAgreements.Append(*sourceAgreement);
+                    }
                 }
             });
         return m_sourceAgreements.GetView();
@@ -207,10 +213,44 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     void PackageCatalogReference::AcceptSourceAgreements(bool value)
     {
+        if (IsComposite())
+        {
+            // Can't set AcceptSourceAgreements on a composite. Callers should set it on each non-composite PackageCatalogReference in the composite.
+            throw winrt::hresult_illegal_state_change();
+        }
         m_acceptSourceAgreements = value;
     }
     bool PackageCatalogReference::AcceptSourceAgreements()
     {
         return m_acceptSourceAgreements;
+    }
+    
+    void PackageCatalogReference::PackageCatalogBackgroundUpdateInterval(winrt::Windows::Foundation::TimeSpan const& value)
+    {
+        if (IsComposite())
+        {
+            // Can't set PackageCatalogBackgroundUpdateInterval on a composite. Callers should set it on each non-composite PackageCatalogReference in the composite.
+            throw winrt::hresult_illegal_state_change();
+        }
+        m_packageCatalogBackgroundUpdateInterval = value;
+    }
+    winrt::Windows::Foundation::TimeSpan PackageCatalogReference::PackageCatalogBackgroundUpdateInterval()
+    {
+        return m_packageCatalogBackgroundUpdateInterval;
+    }
+
+    bool PackageCatalogReference::InstalledPackageInformationOnly()
+    {
+        return m_installedPackageInformationOnly;
+    }
+
+    void PackageCatalogReference::InstalledPackageInformationOnly(bool value)
+    {
+        if (IsComposite())
+        {
+            throw winrt::hresult_illegal_state_change();
+        }
+
+        m_installedPackageInformationOnly = value;
     }
 }

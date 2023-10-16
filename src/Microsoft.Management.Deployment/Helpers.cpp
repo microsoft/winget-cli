@@ -118,4 +118,54 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return {};
     }
+
+    std::string GetCallerName()
+    {
+        // See if caller name is set by caller
+        std::string callerName = GetComCallerName("");
+
+        // Get process string
+        if (callerName.empty())
+        {
+            try
+            {
+                auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+                if (SUCCEEDED(hrGetCallerId))
+                {
+                    callerName = AppInstaller::Utility::ConvertToUTF8(TryGetCallerProcessInfo(callerProcessId));
+                }
+            }
+            CATCH_LOG();
+        }
+
+        if (callerName.empty())
+        {
+            callerName = "UnknownComCaller";
+        }
+
+        return callerName;
+    }
+
+    bool IsBackgroundProcessForPolicy()
+    {
+        bool isBackgroundProcessForPolicy = false;
+        try
+        {
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            if (SUCCEEDED(hrGetCallerId) && callerProcessId != GetCurrentProcessId())
+            {
+                // OutOfProc case, we check for explorer.exe
+                auto callerNameWide = AppInstaller::Utility::ConvertToUTF16(GetCallerName());
+                auto processName = AppInstaller::Utility::ConvertToUTF8(std::filesystem::path{ callerNameWide }.filename().wstring());
+                if (::AppInstaller::Utility::CaseInsensitiveEquals("explorer.exe", processName) ||
+                    ::AppInstaller::Utility::CaseInsensitiveEquals("taskhostw.exe", processName))
+                {
+                    isBackgroundProcessForPolicy = true;
+                }
+            }
+        }
+        CATCH_LOG();
+
+        return isBackgroundProcessForPolicy;
+    }
 }

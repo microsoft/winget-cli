@@ -62,17 +62,6 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         }
 
         /// <summary>
-        /// Gets the state.
-        /// </summary>
-        public string State
-        {
-            get
-            {
-                return this.Set.State.ToString();
-            }
-        }
-
-        /// <summary>
         /// Gets the schema version.
         /// </summary>
         public string SchemaVersion
@@ -82,6 +71,24 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
                 return this.Set.SchemaVersion;
             }
         }
+
+        /// <summary>
+        /// Gets the state.
+        /// TODO: enable once implemented.
+        /// </summary>
+        internal string State
+        {
+            get
+            {
+                return this.Set.State.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether apply ran.
+        /// TODO: remove once State is implemented.
+        /// </summary>
+        internal bool ApplyCompleted { get; set; }
 
         /// <summary>
         /// Gets the PSConfigurationProcessor.

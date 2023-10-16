@@ -575,6 +575,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     bool updateCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
     factory.OnUpdate = [&](const SourceDetails&) { updateCalledOnFactory = true; };
+    factory.ShouldUpdateBeforeOpenResult = true;
     TestHook_SetSourceFactoryOverride(type, factory);
 
     SetSetting(Stream::UserSources, s_SingleSource);
@@ -1293,4 +1294,10 @@ TEST_CASE("RepoSources_GroupPolicy_BypassCertificatePinningForMicrosoftStore", "
         Source source(WellKnownSource::MicrosoftStore);
         REQUIRE_FALSE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
     }
+}
+
+TEST_CASE("RepoSources_BuiltInDesktopFrameworkSourceAlwaysCreatable", "[sources]")
+{
+    Source source(WellKnownSource::DesktopFrameworks);
+    REQUIRE(source);
 }

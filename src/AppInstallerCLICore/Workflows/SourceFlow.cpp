@@ -198,9 +198,17 @@ namespace AppInstaller::CLI::Workflow
             Repository::Source source{ sd.Name };
             context.Reporter.Info() << Resource::String::SourceUpdateOne(Utility::LocIndView{ sd.Name }) << std::endl;
             auto updateFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Update(progress); };
-            if (!context.Reporter.ExecuteWithProgress(updateFunction).empty())
+            auto sourceDetails = context.Reporter.ExecuteWithProgress(updateFunction);
+            if (!sourceDetails.empty())
             {
-                context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                if (std::chrono::system_clock::now() < sourceDetails[0].DoNotUpdateBefore)
+                {
+                    context.Reporter.Warn() << Resource::String::Unavailable << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                }
             }
             else
             {

@@ -24,6 +24,8 @@
 #include "DebugCommand.h"
 #include "TestCommand.h"
 #include "DownloadCommand.h"
+#include "ErrorCommand.h"
+#include "ResumeCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -180,6 +182,8 @@ namespace AppInstaller::CLI
             std::make_unique<PinCommand>(FullName()),
             std::make_unique<ConfigureCommand>(FullName()),
             std::make_unique<DownloadCommand>(FullName()),
+            std::make_unique<ErrorCommand>(FullName()),
+            std::make_unique<ResumeCommand>(FullName()),
 #if _DEBUG
             std::make_unique<DebugCommand>(FullName()),
 #endif

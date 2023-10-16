@@ -43,8 +43,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Cancelled);
         WINGET_DEFINE_RESOURCE_STRINGID(CancellingOperation);
         WINGET_DEFINE_RESOURCE_STRINGID(ChannelArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ClientVersionMismatchError);
         WINGET_DEFINE_RESOURCE_STRINGID(Command);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(CommandDoesNotSupportResumeMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandLineArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CommandRequiresAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
@@ -157,7 +159,12 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DownloadDirectoryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Downloading);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(EnableWindowsFeaturesSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(EnablingWindowsFeature);
+        WINGET_DEFINE_RESOURCE_STRINGID(ErrorCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ErrorCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ErrorInputArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ErrorNumberIsTooLarge);
         WINGET_DEFINE_RESOURCE_STRINGID(ExactArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandLongDescription);
@@ -207,6 +214,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(HelpLinkPreamble);
         WINGET_DEFINE_RESOURCE_STRINGID(IdArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreLocalArchiveMalwareScanArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IgnoreWarningsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandShortDescription);
@@ -221,7 +229,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownInListArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncompatibleArgumentsProvided);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallationAbandoned);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallAbandoned);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer1);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer2);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimerMSStore);
@@ -408,6 +416,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(ReservedFilenameError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeIdArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeIdNotFoundError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeStateDataNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandShortDescription);
@@ -533,6 +546,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyBehaviorsError);
         WINGET_DEFINE_RESOURCE_STRINGID(UnableToPurgeInstallDirectory);
+        WINGET_DEFINE_RESOURCE_STRINGID(Unavailable);
         WINGET_DEFINE_RESOURCE_STRINGID(UnexpectedErrorExecutingCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallAbandoned);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandLongDescription);

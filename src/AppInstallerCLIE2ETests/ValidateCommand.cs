@@ -48,6 +48,29 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test validate manifest with warnings.
+        /// </summary>
+        [Test]
+        public void ValidateManifestWithWarnings()
+        {
+            var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifest.yaml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_MANIFEST_VALIDATION_WARNING, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Manifest validation succeeded with warnings."));
+        }
+
+        /// <summary>
+        /// Test validate manifest with warnings suppressed.
+        /// </summary>
+        [Test]
+        public void ValidateManifestSuppressWarnings()
+        {
+            var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestWarningManifest.yaml") + " --ignore-warnings");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.False(result.StdOut.Contains("Manifest validation succeeded with warnings."));
+            Assert.True(result.StdOut.Contains("Manifest validation succeeded."));
+        }
+
+        /// <summary>
         /// Test validate manifest that doesn't exist.
         /// </summary>
         [Test]

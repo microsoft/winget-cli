@@ -107,6 +107,7 @@ ctl
 ctls
 CURSORPOSITON
 CUSTOMHEADER
+cvd
 cwctype
 datatelemetry
 dbconn
@@ -128,6 +129,7 @@ deserializing
 dest
 devblogs
 differentpath
+DISMAPI
 DIRECTONLY
 distro
 dll
@@ -231,6 +233,7 @@ https
 HWND
 Hyperlink
 IAppx
+ICheckpoint
 IConfiguration
 icu
 IDX
@@ -355,6 +358,7 @@ normalizedpackagenameandpublisher
 NOTHROW
 NOTIMPL
 NOTNULL
+nowarn
 npos
 NTFS
 NTSTATUS
@@ -396,6 +400,7 @@ pdbonly
 PEVENT
 pfp
 PGP
+pgp
 php
 PII
 pinnable

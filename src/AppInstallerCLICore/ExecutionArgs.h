@@ -66,6 +66,7 @@ namespace AppInstaller::CLI::Execution
 
             //Validate Command
             ValidateManifest,
+            IgnoreWarnings,
 
             // Complete Command
             Word,
@@ -104,6 +105,12 @@ namespace AppInstaller::CLI::Execution
             GatedVersion, // Differs from Version in that this supports wildcards
             BlockingPin,
             PinInstalled,
+
+            // Error command
+            ErrorInput,
+
+            // Resume Command
+            ResumeId,
 
             // Configuration
             ConfigurationFile,
