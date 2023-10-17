@@ -4,6 +4,8 @@
 #include "Version.h"
 #include "MetadataTable.h"
 
+#include <limits>
+
 namespace AppInstaller::Repository::Microsoft::Schema
 {
     Version Version::GetSchemaVersion(SQLite::Connection& connection)
@@ -38,5 +40,25 @@ namespace AppInstaller::Repository::Microsoft::Schema
         {
             return out << version.MajorVersion << '.' << version.MinorVersion;
         }
+    }
+
+    Version Version::Latest()
+    {
+        return { std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max() };
+    }
+
+    Version Version::LatestForMajor(uint32_t majorVersion)
+    {
+        return { majorVersion, std::numeric_limits<uint32_t>::max() };
+    }
+
+    bool Version::IsLatest() const
+    {
+        return (MajorVersion == std::numeric_limits<uint32_t>::max() && MinorVersion == std::numeric_limits<uint32_t>::max());
+    }
+
+    bool Version::IsLatestForMajor(uint32_t majorVersion) const
+    {
+        return (MajorVersion == majorVersion && MinorVersion == std::numeric_limits<uint32_t>::max());
     }
 }

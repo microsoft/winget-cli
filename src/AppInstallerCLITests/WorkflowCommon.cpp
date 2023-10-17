@@ -208,9 +208,15 @@ namespace TestCommon
             "TestExeInstallerWithExpectedReturnCodes"sv,
             [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_ExpectedReturnCodes.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_ExpectedReturnCodes.yaml"));
                 matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(std::vector<Manifest>{ manifest }, source),
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.ExpectedReturnCodes")));
             });
 

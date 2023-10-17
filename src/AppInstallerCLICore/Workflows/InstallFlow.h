@@ -214,10 +214,4 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: PackageVersion?, Manifest, Installer, CorrelatedAppsAndFeaturesEntries?
     // Outputs: None
     void RecordInstall(Execution::Context& context);
-
-    // Initiates a reboot to complete the installation if applicable.
-    // Required Args: None
-    // Inputs: None
-    // Output: None
-    void InitiateReboot(Execution::Context& context);
 }

@@ -136,14 +136,23 @@ namespace AppInstaller::Settings
             typename Mapping::value_t items;
             for (const auto& value : listKey->Values())
             {
-                auto item = Mapping::ReadAndValidateItem(value);
-                if (item.has_value())
+                std::optional<Registry::Value> potentialValue = value.Value();
+
+                if (potentialValue)
                 {
-                    items.emplace_back(std::move(item.value()));
+                    auto item = Mapping::ReadAndValidateItem(potentialValue.value());
+                    if (item.has_value())
+                    {
+                        items.emplace_back(std::move(item.value()));
+                    }
+                    else
+                    {
+                        AICLI_LOG(Core, Warning, << "Failed to read Group Policy list value. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
+                    }
                 }
                 else
                 {
-                    AICLI_LOG(Core, Warning, << "Failed to read Group Policy list value. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
+                    AICLI_LOG(Core, Verbose, << "Group Policy list value not found. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
                 }
             }
 

@@ -39,8 +39,23 @@ using namespace ::AppInstaller::CLI::Execution;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    namespace
+    {
+        void LogStartupIfApplicable()
+        {
+            static std::once_flag logStartupOnceFlag;
+            std::call_once(logStartupOnceFlag,
+                [&]()
+                {
+                    ::AppInstaller::Logging::Telemetry().SetCaller(GetCallerName());
+                    ::AppInstaller::Logging::Telemetry().LogStartup(true);
+                });
+        }
+    }
+
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageManager::GetPackageCatalogs()
     {
+        LogStartupIfApplicable();
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageCatalogReference> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalogReference>() };
         std::vector<::AppInstaller::Repository::SourceDetails> sources = ::AppInstaller::Repository::Source::GetCurrentSources();
         for (uint32_t i = 0; i < sources.size(); i++)
@@ -57,6 +72,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog)
     {
+        LogStartupIfApplicable();
         ::AppInstaller::Repository::Source source;
         switch (predefinedPackageCatalog)
         {
@@ -81,6 +97,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetLocalPackageCatalog(winrt::Microsoft::Management::Deployment::LocalPackageCatalog const& localPackageCatalog)
     {
+        LogStartupIfApplicable();
         ::AppInstaller::Repository::Source source;
         switch (localPackageCatalog)
         {
@@ -102,6 +119,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetPackageCatalogByName(hstring const& catalogName)
     {
+        LogStartupIfApplicable();
         std::string name = winrt::to_string(catalogName);
         if (name.empty())
         {
@@ -152,6 +170,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
+        LogStartupIfApplicable();
         if (!options)
         {
             // Can't make a composite source if the options aren't specified.

@@ -6,6 +6,8 @@
 #include "ExecutionArgs.h"
 #include "ExecutionContextData.h"
 #include "CompletionData.h"
+#include "CheckpointManager.h"
+#include "Public/winget/Checkpoint.h"
 
 #include <string_view>
 
@@ -66,7 +68,9 @@ namespace AppInstaller::CLI::Execution
         DisableInteractivity = 0x40,
         BypassIsStoreClientBlockedPolicyCheck = 0x80,
         InstallerDownloadOnly = 0x100,
-        RebootRequired = 0x200,
+        Resume = 0x200,
+        RebootRequired = 0x400,
+        RegisterForRestart = 0x800,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
@@ -96,6 +100,9 @@ namespace AppInstaller::CLI::Execution
 
         // The arguments given to execute with.
         Args Args;
+
+        // Creates a empty context, inheriting 
+        Context CreateEmptyContext();
 
         // Creates a child of this context.
         virtual std::unique_ptr<Context> CreateSubContext();
@@ -162,6 +169,15 @@ namespace AppInstaller::CLI::Execution
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
 
+        // Called by the resume command. Loads the checkpoint manager with the resume id and returns the automatic checkpoint.
+        std::optional<AppInstaller::Checkpoints::Checkpoint<AppInstaller::Checkpoints::AutomaticCheckpointData>> LoadCheckpoint(const std::string& resumeId);
+
+        // Returns data checkpoints in the order of latest checkpoint to earliest.
+        std::vector<AppInstaller::Checkpoints::Checkpoint<Execution::Data>> GetCheckpoints();
+
+        // Creates a checkpoint for the provided context data.
+        void Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);
+
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent
         void CopyArgsToSubContext(Context* subContext);
@@ -180,5 +196,6 @@ namespace AppInstaller::CLI::Execution
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
+        std::unique_ptr<AppInstaller::Checkpoints::CheckpointManager> m_checkpointManager;
     };
 }

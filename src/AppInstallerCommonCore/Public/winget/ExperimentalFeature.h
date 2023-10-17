@@ -24,7 +24,8 @@ namespace AppInstaller::Settings
             // Before making DirectMSI non-experimental, it should be part of manifest validation.
             DirectMSI = 0x1,
             WindowsFeature = 0x2,
-            Reboot = 0x4,
+            Resume = 0x4,
+            Reboot = 0x8,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command

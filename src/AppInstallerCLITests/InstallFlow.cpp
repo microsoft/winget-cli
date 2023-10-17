@@ -644,17 +644,21 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     OverridePortableInstaller(installContext);
     TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(false);
     const auto& targetDirectory = tempDirectory.GetPath();
+    const auto& portableTargetPath = targetDirectory / "AppInstallerTestExeInstaller.exe";
     installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
     installContext.Args.AddArg(Execution::Args::Type::InstallLocation, targetDirectory.u8string());
     installContext.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
 
     InstallCommand install({});
     install.Execute(installContext);
-    INFO(installOutput.str());
 
-    const auto& portableTargetPath = targetDirectory / "AppInstallerTestExeInstaller.exe";
-    REQUIRE(std::filesystem::exists(portableTargetPath));
-    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
+    {
+        INFO(installOutput.str());
+
+        // Use CHECK to allow the uninstall to still occur
+        CHECK(std::filesystem::exists(portableTargetPath));
+        CHECK(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
+    }
 
     // Perform uninstall
     std::ostringstream uninstallOutput;
@@ -1211,8 +1215,6 @@ TEST_CASE("InstallFlow_InstallMultipleWithReboot", "[InstallFlow][workflow][Mult
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFReboot>(true);
 
-    TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -1226,26 +1228,41 @@ TEST_CASE("InstallFlow_InstallMultipleWithReboot", "[InstallFlow][workflow][Mult
 
     context.Override({ ShellExecuteInstallImpl, [&](TestContext& context)
     {
-        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH
+        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH (not treated as an installer error)
         context.Add<Data::OperationReturnCode>(9);
     } });
 
-    InstallCommand installCommand({});
-    installCommand.Execute(context);
-    INFO(installOutput.str());
+    SECTION("Reboot success")
+    {
+        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(true);
 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NoRebootPrivilegeError).get()) != std::string::npos);
-    REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
+        InstallCommand installCommand({});
+        installCommand.Execute(context);
+        INFO(installOutput.str());
+
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
+    }
+    SECTION("Reboot failed")
+    {
+        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
+
+        InstallCommand installCommand({});
+        installCommand.Execute(context);
+        INFO(installOutput.str());
+
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
+        REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
+    }
 }
 
-TEST_CASE("InstallFlow_InstallWithReboot_NoPrivilege", "[InstallFlow][workflow][reboot]")
+TEST_CASE("InstallFlow_InstallWithReboot", "[InstallFlow][workflow][reboot]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFReboot>(true);
-
-    TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1257,15 +1274,34 @@ TEST_CASE("InstallFlow_InstallWithReboot_NoPrivilege", "[InstallFlow][workflow][
 
     context.Override({ ShellExecuteInstallImpl, [&](TestContext& context)
     {
-        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL
+        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL (should be treated as an installer error)
         context.Add<Data::OperationReturnCode>(10);
     } });
 
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
+    SECTION("Reboot success")
+    {
+        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(true);
 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
-    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NoRebootPrivilegeError).get()) != std::string::npos);
+        InstallCommand install({});
+        install.Execute(context);
+        INFO(installOutput.str());
+
+        REQUIRE(context.IsTerminated());
+        REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
+    }
+    SECTION("Reboot failed")
+    {
+        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
+
+        InstallCommand install({});
+        install.Execute(context);
+        INFO(installOutput.str());
+
+        REQUIRE(context.IsTerminated());
+        REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+        REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
+    }
 }

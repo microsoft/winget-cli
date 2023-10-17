@@ -154,6 +154,23 @@ namespace AppInstallerCLIE2ETests
             FileAssert.DoesNotExist(targetFilePath);
         }
 
+        /// <summary>
+        /// Resource name case insensitive test.
+        /// </summary>
+        [Test]
+        public void ResourceCaseInsensitive()
+        {
+            TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
+
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\ResourceCaseInsensitive.yml"));
+            Assert.AreEqual(0, result.ExitCode);
+
+            // The configuration creates a file next to itself with the given contents
+            string targetFilePath = TestCommon.GetTestDataFile("Configuration\\ResourceCaseInsensitive.txt");
+            FileAssert.Exists(targetFilePath);
+            Assert.AreEqual("Contents!", System.IO.File.ReadAllText(targetFilePath));
+        }
+
         private void DeleteTxtFiles()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests

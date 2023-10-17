@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "UpgradeCommand.h"
+#include "Reboot.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/MultiQueryFlow.h"
@@ -60,6 +61,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::InstallerType),
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AllowReboot),
             Argument::ForType(Args::Type::SkipDependencies),
             Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
@@ -208,5 +210,7 @@ namespace AppInstaller::CLI
                         APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
             }
         }
+
+        InitiateRebootIfApplicable(context);
     }
 }

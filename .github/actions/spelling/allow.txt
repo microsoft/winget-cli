@@ -129,6 +129,7 @@ deserializing
 dest
 devblogs
 differentpath
+DISMAPI
 DIRECTONLY
 distro
 dll
@@ -233,6 +234,7 @@ https
 HWND
 Hyperlink
 IAppx
+ICheckpoint
 IConfiguration
 icu
 IDX

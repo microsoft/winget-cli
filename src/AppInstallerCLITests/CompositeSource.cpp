@@ -152,6 +152,12 @@ struct TestPackageHelper
         return *this;
     }
 
+    TestPackageHelper& HideSRS(bool value = true)
+    {
+        m_hideSystemReferenceStrings = value;
+        return *this;
+    }
+
     operator std::shared_ptr<IPackage>()
     {
         if (!m_package)
@@ -162,7 +168,7 @@ struct TestPackageHelper
             }
             else
             {
-                m_package = TestPackage::Make(std::vector<Manifest::Manifest>{ m_manifest }, m_source);
+                m_package = TestPackage::Make(std::vector<Manifest::Manifest>{ m_manifest }, m_source, m_hideSystemReferenceStrings);
             }
         }
 
@@ -179,6 +185,7 @@ private:
     Manifest::Manifest m_manifest;
     std::shared_ptr<ISource> m_source;
     std::shared_ptr<TestPackage> m_package;
+    bool m_hideSystemReferenceStrings = false;
 };
 
 TestPackageHelper MakeInstalled()
@@ -1474,4 +1481,53 @@ TEST_CASE("CompositeSource_CorrelateToInstalledContainsManifestData", "[Composit
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, "NotForEverything");
     SearchResult result = setup.Composite.Search(request);
+}
+
+TEST_CASE("CompositeSource_Respects_FeatureFlag_ManifestMayContainAdditionalSystemReferenceStrings", "[CompositeSource]")
+{
+    std::string id = "Special test ID";
+    std::string productCode1 = "product-code1";
+
+    CompositeTestSetup setup;
+    bool productCodeSearched = false;
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+        {
+            for (const auto& inclusion : request.Inclusions)
+            {
+                if (inclusion.Field == PackageMatchField::ProductCode)
+                {
+                    productCodeSearched = true;
+                }
+            }
+
+            return SearchResult{};
+        };
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+        {
+            SearchResult result;
+            result.Matches.emplace_back(MakeAvailable(setup.Available).WithId(id).WithPC(productCode1).HideSRS(), Criteria());
+            return result;
+        };
+
+    SECTION("Feature false")
+    {
+        SearchRequest request;
+        request.Query = RequestMatch(MatchType::Exact, "NotForEverything");
+        SearchResult result = setup.Composite.Search(request);
+
+        REQUIRE(!productCodeSearched);
+    }
+    SECTION("Feature true")
+    {
+        setup.Available->QueryFeatureFlagFunction = [](SourceFeatureFlag flag)
+            {
+                return (flag == SourceFeatureFlag::ManifestMayContainAdditionalSystemReferenceStrings);
+            };
+
+        SearchRequest request;
+        request.Query = RequestMatch(MatchType::Exact, "NotForEverything");
+        SearchResult result = setup.Composite.Search(request);
+
+        REQUIRE(productCodeSearched);
+    }
 }

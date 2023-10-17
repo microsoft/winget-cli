@@ -4,7 +4,5 @@
 
 namespace AppInstaller::Reboot
 {
-    bool HasRebootPrivilege();
-
     bool InitiateReboot();
 }

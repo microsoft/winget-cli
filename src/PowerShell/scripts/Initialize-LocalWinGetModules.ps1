@@ -59,16 +59,16 @@ if ($BuildRoot -eq "")
     $BuildRoot = "$PSScriptRoot\..\..";
 }
 
-# Add here new modules
+# Modules, they should be in dependency order so that when importing we don't pick up the release modules.
 [WinGetModule[]]$local:modules = 
-    [WinGetModule]::new(
-        "Microsoft.WinGet.DSC",
-        "$PSScriptRoot\..\Microsoft.WinGet.DSC\",
-        $false),
     [WinGetModule]::new(
         "Microsoft.WinGet.Client",
         "$PSScriptRoot\..\Microsoft.WinGet.Client\ModuleFiles\",
         $true),
+    [WinGetModule]::new(
+        "Microsoft.WinGet.DSC",
+        "$PSScriptRoot\..\Microsoft.WinGet.DSC\",
+        $false),
     [WinGetModule]::new(
         "Microsoft.WinGet.Configuration",
         "$PSScriptRoot\..\Microsoft.WinGet.Configuration\ModuleFiles\",
@@ -111,6 +111,6 @@ if (-not $SkipImportModule)
     foreach($module in $modules)
     {
         Write-Host "Importing module $($module.Name)" -ForegroundColor Green
-        Import-Module $module.Name -Force
+        Import-Module "$moduleRootOutput\$($module.Name)\" -Force
     }
 }

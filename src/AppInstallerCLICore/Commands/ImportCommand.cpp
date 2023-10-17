@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ImportCommand.h"
+#include "Reboot.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/ImportExportFlow.h"
 #include "Workflows/MultiQueryFlow.h"
@@ -21,6 +22,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::NoUpgrade),
             Argument::ForType(Execution::Args::Type::AcceptPackageAgreements),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Execution::Args::Type::AllowReboot),
         };
     }
 
@@ -51,5 +53,7 @@ namespace AppInstaller::CLI
             Workflow::SearchSubContextsForSingle() <<
             Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
             Workflow::InstallImportedPackages;
+
+        InitiateRebootIfApplicable(context);
     }
 }

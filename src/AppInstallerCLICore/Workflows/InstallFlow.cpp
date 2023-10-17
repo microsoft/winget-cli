@@ -153,46 +153,6 @@ namespace AppInstaller::CLI::Workflow
             HRESULT HResult;
             Resource::StringId Message;
         };
-
-        bool ShouldInitiateReboot(HRESULT hr)
-        {
-            switch (hr)
-            {
-            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH:
-            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
-                return true;
-            default:
-                return false;
-            }
-        }
-
-        void InitiateRebootIfApplicable(Execution::Context& context, bool shouldRebootOverride = false)
-        {
-            if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot))
-            {
-                return;
-            }
-
-            if (!context.Args.Contains(Execution::Args::Type::AllowReboot))
-            {
-                AICLI_LOG(CLI, Info, << "No reboot flag found; skipping reboot flow...");
-                return;
-            }
-
-            if (shouldRebootOverride || ShouldInitiateReboot(context.GetTerminationHR()))
-            {
-                if (!Reboot::HasRebootPrivilege())
-                {
-                    AICLI_LOG(CLI, Info, << "Current process does not have reboot privilege.");
-                    context.Reporter.Error() << Resource::String::NoRebootPrivilegeError << std::endl;
-                    return;
-                }
-
-                AICLI_LOG(CLI, Info, << "Install requires reboot. Initiating reboot.");
-                context.Reporter.Warn() << Resource::String::InitiatingReboot << std::endl;
-                THROW_LAST_ERROR_IF(Reboot::InitiateReboot());
-            }
-        }
     }
 
     namespace details
@@ -507,6 +467,29 @@ namespace AppInstaller::CLI::Workflow
         const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->InstallerSuccessCodes;
         if (installResult != 0 && (std::find(additionalSuccessCodes.begin(), additionalSuccessCodes.end(), installResult) == additionalSuccessCodes.end()))
         {
+            const auto& expectedReturnCodes = context.Get<Execution::Data::Installer>()->ExpectedReturnCodes;
+            auto expectedReturnCodeItr = expectedReturnCodes.find(installResult);
+            bool isExpectedReturnCode = expectedReturnCodeItr != expectedReturnCodes.end() && expectedReturnCodeItr->second.ReturnResponseEnum != ExpectedReturnCodeEnum::Unknown;
+            if (isExpectedReturnCode)
+            {
+                auto returnCode = ExpectedReturnCode::GetExpectedReturnCode(expectedReturnCodeItr->second.ReturnResponseEnum);
+
+                if (returnCode.HResult == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH)
+                {
+                    // REBOOT_REQUIRED_TO_FINISH is treated as a success since installation has completed but is pending a reboot.
+                    context.SetFlags(ContextFlag::RebootRequired);
+                    context.Reporter.Warn() << returnCode.Message << std::endl;
+                    return;
+                }
+                else if (returnCode.HResult == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL)
+                {
+                    // REBOOT_REQUIRED_TO_INSTALL is treated as an error since installation has not yet completed.
+                    // Set appropriate flags in case user opts for a reboot.
+                    context.SetFlags(ContextFlag::RebootRequired);
+                    context.SetFlags(ContextFlag::RegisterForRestart);
+                }
+            }
+
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, m_installerType, installResult);
 
@@ -531,9 +514,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Show a specific message if we can identify the return code
-            const auto& expectedReturnCodes = context.Get<Execution::Data::Installer>()->ExpectedReturnCodes;
-            auto expectedReturnCodeItr = expectedReturnCodes.find(installResult);
-            if (expectedReturnCodeItr != expectedReturnCodes.end() && expectedReturnCodeItr->second.ReturnResponseEnum != ExpectedReturnCodeEnum::Unknown)
+            if (isExpectedReturnCode)
             {
                 auto returnCode = ExpectedReturnCode::GetExpectedReturnCode(expectedReturnCodeItr->second.ReturnResponseEnum);
                 context.Reporter.Error() << returnCode.Message << std::endl;
@@ -615,8 +596,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::CreateDependencySubContexts(Resource::String::PackageRequiresDependencies) <<
             Workflow::InstallDependencies <<
             Workflow::DownloadInstaller <<
-            Workflow::InstallPackageInstaller <<
-            Workflow::InitiateReboot;
+            Workflow::InstallPackageInstaller;
     }
 
     void EnsureSupportForInstall(Execution::Context& context)
@@ -752,6 +732,17 @@ namespace AppInstaller::CLI::Workflow
 
             currentContext.Reporter.Info() << std::endl;
 
+            // Check if reboot flags have been set based on the result of the sub context.
+            if (WI_IsFlagSet(currentContext.GetFlags(), ContextFlag::RebootRequired))
+            {
+                context.SetFlags(ContextFlag::RebootRequired);
+            }
+
+            if (WI_IsFlagSet(currentContext.GetFlags(), ContextFlag::RegisterForRestart))
+            {
+                context.SetFlags(ContextFlag::RegisterForRestart);
+            }
+
             if (currentContext.IsTerminated())
             {
                 if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
@@ -762,11 +753,6 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 HRESULT currentContextTerminationHR = currentContext.GetTerminationHR();
-
-                if (ShouldInitiateReboot(currentContextTerminationHR))
-                {
-                    context.SetFlags(Execution::ContextFlag::RebootRequired);
-                }
 
                 if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), currentContextTerminationHR))
                 {
@@ -945,32 +931,6 @@ namespace AppInstaller::CLI::Workflow
             if (itr != installedMetadata.end())
             {
                 version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, itr->second);
-            }
-        }
-    }
-
-    void InitiateReboot(Context& context)
-    {
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot))
-        {
-            return;
-        }
-
-        if (!context.Args.Contains(Execution::Args::Type::AllowReboot))
-        {
-            AICLI_LOG(CLI, Info, << "No reboot flag found; skipping reboot flow...");
-            return;
-        }
-
-        bool isRebootRequired = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired);
-
-        if (isRebootRequired || ShouldInitiateReboot(context.GetTerminationHR()))
-        {
-            context.Reporter.Warn() << Resource::String::InitiatingReboot << std::endl;
-
-            if (!Reboot::InitiateReboot())
-            {
-                context.Reporter.Error() << Resource::String::FailedToInitiateReboot << std::endl;
             }
         }
     }

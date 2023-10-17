@@ -5,6 +5,11 @@
 #include "COMContext.h"
 #include "Argument.h"
 #include "winget/UserSettings.h"
+#include "AppInstallerRuntime.h"
+#include "Command.h"
+#include "Public/winget/Checkpoint.h"
+
+using namespace AppInstaller::Checkpoints;
 
 namespace AppInstaller::CLI::Execution
 {
@@ -250,10 +255,24 @@ namespace AppInstaller::CLI::Execution
 
     Context::~Context()
     {
+        if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume) && !IsTerminated())
+        {
+            if (m_checkpointManager)
+            {
+                m_checkpointManager->CleanUpDatabase();
+            }
+        }
+
         if (m_disableSignalTerminationHandlerOnExit)
         {
             EnableSignalTerminationHandler(false);
         }
+    }
+
+    Context Context::CreateEmptyContext()
+    {
+        AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+        return Context(Reporter, threadGlobals);
     }
 
     std::unique_ptr<Context> Context::CreateSubContext()
@@ -407,4 +426,29 @@ namespace AppInstaller::CLI::Execution
         return SignalTerminationHandler::Instance().WaitForAppShutdownEvent();
     }
 #endif
+
+    std::optional<Checkpoint<AutomaticCheckpointData>> Context::LoadCheckpoint(const std::string& resumeId)
+    {
+        m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>(resumeId);
+        return m_checkpointManager->GetAutomaticCheckpoint();
+    }
+
+    std::vector<AppInstaller::Checkpoints::Checkpoint<Execution::Data>> Context::GetCheckpoints()
+    {
+        return m_checkpointManager->GetCheckpoints();
+    }
+
+    void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
+    {
+        UNREFERENCED_PARAMETER(checkpointName);
+        UNREFERENCED_PARAMETER(contextData);
+
+        if (!m_checkpointManager)
+        {
+            m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>();
+            m_checkpointManager->CreateAutomaticCheckpoint(*this);
+        }
+
+        // TODO: Capture context data for checkpoint.
+    }
 }

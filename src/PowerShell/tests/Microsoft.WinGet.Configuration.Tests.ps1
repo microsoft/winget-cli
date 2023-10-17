@@ -338,7 +338,7 @@ Describe 'Get configuration' {
 
 Describe 'Invoke-WinGetConfiguration' {
 
-    BeforeAll {
+    BeforeEach {
         DeleteConfigTxtFiles
     }
 
@@ -430,7 +430,6 @@ Describe 'Invoke-WinGetConfiguration' {
     }
 
     It 'Piped' {
-        DeleteConfigTxtFiles
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
         $result = Get-WinGetConfiguration -File $testFile | Invoke-WinGetConfiguration -AcceptConfigurationAgreements
         $result | Should -Not -BeNullOrEmpty
@@ -445,7 +444,6 @@ Describe 'Invoke-WinGetConfiguration' {
     }
 
     It 'Positional' {
-        DeleteConfigTxtFiles
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
         $set = Get-WinGetConfiguration $testFile
         $set | Should -Not -BeNullOrEmpty
@@ -498,11 +496,28 @@ Describe 'Invoke-WinGetConfiguration' {
         $expectedFile = Join-Path $(GetConfigTestDataPath) "DependentResources_Failure.txt"
         Test-Path $expectedFile | Should -Be $false
     }
+
+    It 'ResourceCaseInsensitive' {
+        $testFile = GetConfigTestDataFile "ResourceCaseInsensitive.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "ResourceCaseInsensitive.txt"
+        Test-Path $expectedFile | Should -Be $true
+        Get-Content $expectedFile -Raw | Should -Be "Contents!"
+    }
 }
 
 Describe 'Start|Complete-WinGetConfiguration' {
 
-    BeforeAll {
+    BeforeEach {
         DeleteConfigTxtFiles
     }
 
@@ -525,7 +540,6 @@ Describe 'Start|Complete-WinGetConfiguration' {
     }
 
     It 'From TestRepo' {
-        DeleteConfigTxtFiles
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
         $set = Get-WinGetConfiguration -File $testFile
         $set | Should -Not -BeNullOrEmpty
@@ -680,11 +694,31 @@ Describe 'Start|Complete-WinGetConfiguration' {
         $expectedFile = Join-Path $(GetConfigTestDataPath) "DependentResources_Failure.txt"
         Test-Path $expectedFile | Should -Be $false
     }
+
+    It 'ResourceCaseInsensitive' {
+        $testFile = GetConfigTestDataFile "ResourceCaseInsensitive.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $job = Start-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $job | Should -Not -BeNullOrEmpty
+
+        $result = Complete-WinGetConfiguration -ConfigurationJob $job
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+
+        $expectedFile = Join-Path $(GetConfigTestDataPath) "ResourceCaseInsensitive.txt"
+        Test-Path $expectedFile | Should -Be $true
+        Get-Content $expectedFile -Raw | Should -Be "Contents!"
+    }
 }
 
 Describe 'Test-WinGetConfiguration' {
 
-    BeforeAll {
+    BeforeEach {
         DeleteConfigTxtFiles
     }
 
@@ -702,7 +736,6 @@ Describe 'Test-WinGetConfiguration' {
     }
 
     It 'Positive' {
-        DeleteConfigTxtFiles
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
         $set = Get-WinGetConfiguration -File $testFile
         $set | Should -Not -BeNullOrEmpty
@@ -719,7 +752,6 @@ Describe 'Test-WinGetConfiguration' {
     }
 
     It 'Piped' {
-        DeleteConfigTxtFiles
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
         $result = Get-WinGetConfiguration -File $testFile | Test-WinGetConfiguration -AcceptConfigurationAgreements
         $result | Should -Not -BeNullOrEmpty
@@ -730,7 +762,6 @@ Describe 'Test-WinGetConfiguration' {
     }
 
     It 'Positional' {
-        DeleteConfigTxtFiles
         $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
         $set = Get-WinGetConfiguration $testFile
         $set | Should -Not -BeNullOrEmpty

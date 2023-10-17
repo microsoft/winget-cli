@@ -174,9 +174,6 @@
     <ClInclude Include="Public\winget\Pin.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\WindowsFeature.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\SelfManagement.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -321,9 +318,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Pin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowsFeature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SelfManagement.cpp">
