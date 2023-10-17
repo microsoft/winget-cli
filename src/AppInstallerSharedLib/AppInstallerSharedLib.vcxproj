@@ -402,6 +402,7 @@
     <ClInclude Include="Public\winget\Certificates.h" />
     <ClInclude Include="Public\winget\ConfigurationSetProcessorHandlers.h" />
     <ClInclude Include="Public\winget\GroupPolicy.h" />
+    <ClInclude Include="Public\winget\IConfigurationStaticsInternals.h" />
     <ClInclude Include="Public\winget\ILifetimeWatcher.h" />
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
     <ClInclude Include="Public\winget\JsonUtil.h" />

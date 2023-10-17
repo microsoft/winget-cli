@@ -39,6 +39,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         auto result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationProcessor>>();
         result->ConfigurationSetProcessorFactory(factory);
+        result->SetSupportsSchema03(WI_IsFlagSet(m_state, AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags::Configuration03));
         return *result;
     }
 
@@ -50,5 +51,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     Configuration::ConfigurationParameter ConfigurationStaticFunctions::CreateConfigurationParameter()
     {
         return *make_self<wil::details::module_count_wrapper<implementation::ConfigurationParameter>>();
+    }
+
+    HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::SetExperimentalState(UINT32 state)
+    {
+        m_state = static_cast<AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags>(state);
+        return S_OK;
     }
 }

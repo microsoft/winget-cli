@@ -269,6 +269,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
 
             std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(inputString);
+
+            // Temporary block on parsing 0.3 schema while it is experimental.
+            if (parser->GetSchemaVersion() == L"0.3" && !m_supportSchema03)
+            {
+                result->Initialize(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+                co_return *result;
+            }
+
             if (FAILED(parser->Result()))
             {
                 result->Initialize(parser->Result(), parser->Field(), parser->Value(), parser->Line(), parser->Column());
@@ -668,6 +676,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
     // While diagnostics can be important, a failure to send them should not cause additional issues.
     catch (...) {}
+
+    void ConfigurationProcessor::SetSupportsSchema03(bool value)
+    {
+        m_supportSchema03 = value;
+    }
 
     void ConfigurationProcessor::SendDiagnosticsImpl(const IDiagnosticInformation& information)
     {

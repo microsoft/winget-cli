@@ -862,6 +862,12 @@ namespace AppInstaller::CLI::Workflow
 
         ConfigurationSet result = openResult.Set();
 
+        // Temporary block on using schema 0.3 while experimental
+        if (result.SchemaVersion() == L"0.3")
+        {
+            AICLI_RETURN_IF_TERMINATED(context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::Configuration03));
+        }
+
         // Fill out the information about the set based on it coming from a file.
         // TODO: Consider how to properly determine a good value for name and origin.
         result.Name(absolutePath.filename().wstring());

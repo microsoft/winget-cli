@@ -2,10 +2,11 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ConfigurationStaticFunctions.g.h"
+#include <winget/IConfigurationStaticsInternals.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationStaticFunctions : ConfigurationStaticFunctionsT<ConfigurationStaticFunctions>
+    struct ConfigurationStaticFunctions : ConfigurationStaticFunctionsT<ConfigurationStaticFunctions, winrt::cloaked<AppInstaller::WinRT::IConfigurationStaticsInternals>>
     { 
         ConfigurationStaticFunctions() = default;
 
@@ -16,6 +17,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         bool IsConfigurationAvailable() { return true; }
         Windows::Foundation::IAsyncActionWithProgress<uint32_t> EnsureConfigurationAvailableAsync();
         Configuration::ConfigurationParameter CreateConfigurationParameter();
+
+        // IConfigurationStaticsInternals
+        HRESULT STDMETHODCALLTYPE SetExperimentalState(UINT32 state);
+
+    private:
+        AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags m_state = AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags::None;
     };
 }
 namespace winrt::Microsoft::Management::Configuration::factory_implementation

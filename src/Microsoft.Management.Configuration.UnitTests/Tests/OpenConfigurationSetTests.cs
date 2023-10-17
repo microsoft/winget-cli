@@ -577,6 +577,36 @@ resources:
             this.TestParameterDefaultValue(type, defaultValue, expectedValue);
         }
 
+        /// <summary>
+        /// Test to ensure that schema version and uri is working as expected.
+        /// </summary>
+        /// <param name="version">The version.</param>
+        /// <param name="uri">The uri.</param>
+        [Theory]
+        [InlineData("0.1", null)]
+        [InlineData("0.2", null)]
+        [InlineData("0.3", "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json")]
+        public void Schema_Version_Uri(string version, string? uri)
+        {
+            ConfigurationSet set = new ConfigurationSet();
+
+            set.SchemaVersion = version;
+            if (uri != null)
+            {
+                Assert.Equal(uri, set.SchemaUri.AbsoluteUri);
+            }
+            else
+            {
+                Assert.Null(set.SchemaUri);
+            }
+
+            if (!string.IsNullOrEmpty(uri))
+            {
+                set.SchemaUri = new Uri(uri);
+                Assert.Equal(version, set.SchemaVersion);
+            }
+        }
+
         private void TestParameterDefaultValue(string type, string defaultValue, object? expectedValue = null, Windows.Foundation.PropertyType? expectedType = null, bool secure = false)
         {
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();

@@ -284,3 +284,25 @@ You can enable the feature as shown below.
        "windowsFeature": true
    },
 ```
+
+### resume
+
+This feature enables support for some commands to resume.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "resume": true
+   },
+```
+
+### configuration03
+
+This feature enables the configuration schema 0.3.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "configuration03": true
+   },
+```
