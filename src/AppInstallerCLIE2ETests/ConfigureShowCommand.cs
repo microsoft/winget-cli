@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using AppInstallerCLIE2ETests.Helpers;
+    using Microsoft.VisualBasic;
     using NUnit.Framework;
 
     /// <summary>
@@ -105,6 +106,7 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\WithParameters_0_3.yml"));
             Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Failed to get detailed information about the configuration."));
         }
     }
 }
