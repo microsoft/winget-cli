@@ -199,9 +199,13 @@ Installers:
     ReleaseDate: 2021-02-02
     InstallerAbortsTerminal: false
     InstallLocationRequired: false
+    NestedInstallerFiles:
+      - RelativeFilePath: RelativeFilePath2
+        PortableCommandAlias: PortableCommandAlias2
     RequireExplicitUpgrade: false
-    DisplayInstallWarnings: false
+    DisplayInstallWarnings: true
     ElevationRequirement: elevationRequired
+    NestedInstallerType: msi
     UnsupportedArguments:
       - location
     UnsupportedOSArchitectures:
@@ -212,7 +216,15 @@ Installers:
     ExpectedReturnCodes:
     - InstallerReturnCode: 2
       ReturnResponse: contactSupport
-    DownloadCommandProhibited: false
+    DownloadCommandProhibited: true
+    InstallationMetadata:
+      DefaultInstallLocation: "%ProgramFiles%\\TestApp"
+      Files:
+        - RelativeFilePath: "main2.exe"
+          FileSha256: 79D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+          FileType: launch2
+          InvocationParameter: "/arg2"
+          DisplayName: "DisplayName2"
   - Architecture: x64
     InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
