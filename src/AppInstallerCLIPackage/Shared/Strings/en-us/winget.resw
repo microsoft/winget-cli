@@ -2074,7 +2074,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigurationModulePath" xml:space="preserve">
     <value>Specifies the location on the local computer to store modules. Default %LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules</value>
-    <comment>{Locked="allusers","currentuser","default","%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
+    <comment>{Locked="%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
   </data>
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
     <value>`--module-path` value must be `currentuser`, `allusers`, `default` or an absolute path.</value>

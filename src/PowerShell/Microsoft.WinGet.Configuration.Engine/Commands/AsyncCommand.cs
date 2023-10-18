@@ -20,10 +20,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     /// <summary>
     /// This is the base class for any command that performs async operations.
     /// It supports running tasks in an MTA thread via RunOnMta.
-    /// If the thread is already running on an MTA it will executed it, otherwise
+    /// If the thread is already running on an MTA it will execute it, otherwise
     /// it will create a new MTA thread.
     ///
-    /// Wait must be used to synchronously wait con the task.
+    /// Wait must be used to synchronously wait on the task.
     /// </summary>
     public abstract class AsyncCommand
     {
