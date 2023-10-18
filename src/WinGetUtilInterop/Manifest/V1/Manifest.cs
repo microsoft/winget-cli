@@ -141,12 +141,12 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// <summary>
         /// Gets or sets the manifest documentation.
         /// </summary>
-        public ManifestDocumentation Documentation { get; set; }
+        public List<ManifestDocumentation> Documentations { get; set; }
 
         /// <summary>
-        /// Gets or sets the manifest icon information.
+        /// Gets or sets the manifest icons information.
         /// </summary>
-        public ManifestIcon Icon { get; set; }
+        public List<ManifestIcon> Icons { get; set; }
 
         /// <summary>
         /// Gets or sets the release notes url in default locale.
@@ -271,11 +271,6 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets the nested installer files.
         /// </summary>
         public List<InstallerNestedInstallerFile> NestedInstallerFiles { get; set; }
-
-        /// <summary>
-        /// Gets or sets the excluded markets.
-        /// </summary>
-        public string ExcludedMarkets { get; set; }
 
         /// <summary>
         /// Gets or sets the unsupported arguments.
