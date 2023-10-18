@@ -243,7 +243,7 @@ namespace AppInstaller::CLI::Workflow
         if (context.Args.Contains(Execution::Args::Type::SkipDependencies))
         {
 			return;
-		}
+	}
 
         auto info = context.Reporter.Info();
         auto error = context.Reporter.Error();
@@ -256,7 +256,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (rootDependencies.Empty())
         {
-            // If there's no dependencies, there's nothing to do aside of logging the outcome
+            // If there's no dependencies there's nothing to do aside of logging the outcome
             return;
         }
 
