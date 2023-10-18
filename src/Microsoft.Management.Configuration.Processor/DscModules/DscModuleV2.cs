@@ -6,12 +6,12 @@
 
 namespace Microsoft.Management.Configuration.Processor.DscModule
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Management.Automation;
-    using System.Text;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
@@ -214,6 +214,16 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             }
 
             return setResult?.RebootRequired;
+        }
+
+        /// <inheritdoc/>
+        public IReadOnlyList<ValueSet> InvokeExportResource(
+            PowerShell pwsh,
+            ValueSet settings,
+            string name,
+            ModuleSpecification? moduleSpecification)
+        {
+            throw new NotImplementedException("Export is not supported in DSC v2");
         }
 
         private static Dictionary<string, object> PrepareInvokeParameters(

@@ -17,7 +17,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// <summary>
     /// Provides access to a specific configuration unit within the runtime.
     /// </summary>
-    internal sealed class ConfigurationUnitProcessor : IConfigurationUnitProcessor
+    internal sealed class ConfigurationUnitProcessor : IConfigurationUnitProcessor, IConfigurationUnitProcessor2
     {
         private readonly IProcessorEnvironment processorEnvironment;
         private readonly ConfigurationUnitAndResource unitResource;
@@ -69,6 +69,33 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             }
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Get`.");
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the current system state for all the instances of the configuration unit.
+        /// Calls Export on the DSC resource.
+        /// </summary>
+        /// <returns>A <see cref="IGetAllSettingsResult"/>.</returns>
+        public IGetAllSettingsResult GetAllSettings()
+        {
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `GetAll` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
+
+            var result = new GetAllSettingsResult(this.Unit);
+
+            try
+            {
+                result.Settings = this.processorEnvironment.InvokeExportResource(
+                    this.unitResource.GetSettings(),
+                    this.unitResource.ResourceName,
+                    this.unitResource.Module);
+            }
+            catch (Exception e)
+            {
+                this.ExtractExceptionInformation(e, result.InternalResult);
+            }
+
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `GetAll`.");
             return result;
         }
 

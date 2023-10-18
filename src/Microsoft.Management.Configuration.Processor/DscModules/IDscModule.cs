@@ -85,5 +85,15 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         /// <param name="moduleSpecification">Module specification.</param>
         /// <returns>If a reboot is required.</returns>
         bool InvokeSetResource(PowerShell pwsh, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
+
+        /// <summary>
+        /// Calls Invoke-DscResource -Method Export from this module.
+        /// </summary>
+        /// <param name="pwsh">PowerShell.</param>
+        /// <param name="settings">Settings.</param>
+        /// <param name="name">Name.</param>
+        /// <param name="moduleSpecification">Module specification.</param>
+        /// <returns>If a reboot is required.</returns>
+        IReadOnlyList<ValueSet> InvokeExportResource(PowerShell pwsh, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
     }
 }

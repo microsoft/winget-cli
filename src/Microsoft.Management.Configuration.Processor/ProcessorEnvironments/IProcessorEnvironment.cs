@@ -77,6 +77,15 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         bool InvokeSetResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
+        /// Calls Invoke-DscResource -Method Export from this module.
+        /// </summary>
+        /// <param name="settings">Settings.</param>
+        /// <param name="name">Name.</param>
+        /// <param name="moduleSpecification">Module specification.</param>
+        /// <returns>If a reboot is required.</returns>
+        IReadOnlyList<ValueSet> InvokeExportResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification);
+
+        /// <summary>
         /// Calls Get-Module with fully qualified name.
         /// </summary>
         /// <param name="moduleSpecification">Module name.</param>
