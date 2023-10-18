@@ -314,8 +314,13 @@ namespace Microsoft.WinGetUtil.UnitTests.ManifestUnitTest
             if (manifestVersion >= TestManifestVersion.V160)
             {
                 Assert.Equal("msi", manifest.NestedInstallerType);
-                Assert.Single(manifest.NestedInstallerFiles);
+                Assert.Equal("Default installation notes", manifest.InstallationNotes);
+                Assert.Equal("https://DefaultPurchaseUrl.com", manifest.PurchaseUrl);
 
+                Assert.True(manifest.DisplayInstallWarnings);
+                Assert.True(manifest.DownloadCommandProhibited);
+
+                Assert.Single(manifest.NestedInstallerFiles);
                 InstallerNestedInstallerFile installerNestedInstallerFile = manifest.NestedInstallerFiles[0];
                 Assert.Equal("RelativeFilePath", installerNestedInstallerFile.RelativeFilePath);
                 Assert.Equal("PortableCommandAlias", installerNestedInstallerFile.PortableCommandAlias);
@@ -329,6 +334,27 @@ namespace Microsoft.WinGetUtil.UnitTests.ManifestUnitTest
                 Assert.Equal("DisplayName", installerFile.DisplayName);
                 Assert.Equal("/arg", installerFile.InvocationParameter);
                 Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installerFile.FileSha256);
+
+                Assert.Single(manifest.Documentations);
+                ManifestDocumentation manifestDocumentation = manifest.Documentations[0];
+
+                Assert.Equal("Default document label", manifestDocumentation.DocumentLabel);
+                Assert.Equal("https://DefaultDocumentUrl.com", manifestDocumentation.DocumentUrl);
+
+                Assert.Single(manifest.Icons);
+                ManifestIcon icon = manifest.Icons[0];
+
+                Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123", icon.IconSha256);
+                Assert.Equal("default", icon.IconTheme);
+                Assert.Equal("https://testIcon", icon.IconUrl);
+                Assert.Equal("custom", icon.IconResolution);
+                Assert.Equal("ico", icon.IconFileType);
+
+                Assert.Single(manifest.UnsupportedArguments);
+                Assert.Equal("log", manifest.UnsupportedArguments[0]);
+
+                Assert.Single(manifest.UnsupportedOSArchitectures);
+                Assert.Equal("arm", manifest.UnsupportedOSArchitectures[0]);
             }
         }
 

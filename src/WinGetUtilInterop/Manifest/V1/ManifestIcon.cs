@@ -35,6 +35,6 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// <summary>
         /// Gets or sets the icon sha256.
         /// </summary>
-        public string IconSha56 { get; set; }
+        public string IconSha256 { get; set; }
     }
 }
