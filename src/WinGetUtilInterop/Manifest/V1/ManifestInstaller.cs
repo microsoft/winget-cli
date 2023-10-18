@@ -185,11 +185,6 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<InstallerNestedInstallerFile> NestedInstallerFiles { get; set; }
 
         /// <summary>
-        /// Gets or sets the excluded markets.
-        /// </summary>
-        public string ExcludedMarkets { get; set; }
-
-        /// <summary>
         /// Gets or sets the unsupported arguments.
         /// </summary>
         public List<string> UnsupportedArguments { get; set; }
@@ -265,7 +260,6 @@ namespace Microsoft.WinGetUtil.Models.V1
                    (this.InstallationMetadata == other.InstallationMetadata) &&
                    (this.NestedInstallerType == other.NestedInstallerType) && 
                    (this.NestedInstallerFiles == other.NestedInstallerFiles) &&
-                   (this.ExcludedMarkets == other.ExcludedMarkets) &&
                    (this.DisplayInstallWarnings == other.DisplayInstallWarnings);
     }
 
