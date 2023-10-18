@@ -242,8 +242,8 @@ namespace AppInstaller::CLI::Workflow
     {
         if (context.Args.Contains(Execution::Args::Type::SkipDependencies))
         {
-			return;
-	}
+            return;
+        }
 
         auto info = context.Reporter.Info();
         auto error = context.Reporter.Error();
