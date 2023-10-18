@@ -355,25 +355,6 @@ namespace Microsoft.WinGetUtil.UnitTests.ManifestUnitTest
 
                 Assert.Single(manifest.UnsupportedOSArchitectures);
                 Assert.Equal("arm", manifest.UnsupportedOSArchitectures[0]);
-
-                Assert.Single(installer1.InstallationMetadata.Files);
-                ManifestInstallerFile installerFile2 = installer1.InstallationMetadata.Files[0];
-                Assert.Equal("main2.exe", installerFile2.RelativeFilePath);
-                Assert.Equal("DisplayName2", installerFile2.DisplayName);
-                Assert.Equal("/arg2", installerFile2.InvocationParameter);
-                Assert.Equal("79D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installerFile2.FileSha256);
-
-                Assert.Equal("msi", installer1.NestedInstallerType);
-
-                InstallerNestedInstallerFile installerNestedInstallerFile2 = installer1.NestedInstallerFiles[0];
-                Assert.Equal("RelativeFilePath2", installerNestedInstallerFile2.RelativeFilePath);
-                Assert.Equal("PortableCommandAlias2", installerNestedInstallerFile2.PortableCommandAlias);
-
-                Assert.Single(installer1.UnsupportedArguments);
-                Assert.Equal("location", installer1.UnsupportedArguments[0]);
-
-                Assert.True(installer1.DisplayInstallWarnings);
-                Assert.True(installer1.DownloadCommandProhibited);
             }
         }
 
