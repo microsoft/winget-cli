@@ -249,9 +249,9 @@ namespace AppInstaller::CLI::Workflow
         const auto& rootInstaller = context.Get<Execution::Data::Installer>();
         const auto& rootDependencies = rootInstaller->Dependencies;
 
-        if (rootDependencies.Empty())
+        if (rootDependencies.Empty() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
         {
-            // If there's no dependencies there's nothing to do aside of logging the outcome
+            // If there's no dependencies or user skips them, there's nothing to do aside of logging the outcome
             return;
         }
 
