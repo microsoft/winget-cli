@@ -8,7 +8,7 @@
 #include <winget/Manifest.h>
 #include <winget/PathVariable.h>
 #include <winget/PortableARPEntry.h>
-#include <Microsoft/SQLiteStorageBase.h>
+#include <winget/SQLiteStorageBase.h>
 #include <Microsoft/Schema/IPortableIndex.h>
 #include <Microsoft/PortableIndex.h>
 
@@ -18,7 +18,7 @@ using namespace AppInstaller::Filesystem;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Registry::Environment;
 using namespace AppInstaller::Repository::Microsoft;
-using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Repository::Microsoft::Schema;
 using namespace AppInstaller::Utility;
 using namespace TestCommon;
