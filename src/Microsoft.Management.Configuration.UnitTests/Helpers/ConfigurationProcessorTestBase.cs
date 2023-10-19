@@ -7,9 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
     using System;
-    using Microsoft.CodeAnalysis.Emit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
-    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Windows.Storage.Streams;
     using Xunit;
     using Xunit.Abstractions;

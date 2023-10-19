@@ -685,7 +685,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 ExtractUnitResultInformation(std::current_exception(), unitResult);
             }
 
-            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, unit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::GetAction, result->ResultInformation());
+            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, unit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::ExportAction, result->ResultInformation());
         }
 
         return *result;
