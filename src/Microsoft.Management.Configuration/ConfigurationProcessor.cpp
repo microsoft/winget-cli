@@ -13,6 +13,7 @@
 #include "TestConfigurationUnitResult.h"
 #include "ConfigurationUnitResultInformation.h"
 #include "GetConfigurationUnitSettingsResult.h"
+#include "GetAllConfigurationUnitSettingsResult.h"
 #include "ExceptionResultHelpers.h"
 #include "ConfigurationSetChangeData.h"
 #include "GetConfigurationUnitDetailsResult.h"
@@ -614,6 +615,70 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 IGetSettingsResult settingsResult = unitProcessor.GetSettings();
                 result->Settings(settingsResult.Settings());
                 result->ResultInformation(settingsResult.ResultInformation());
+            }
+            catch (...)
+            {
+                ExtractUnitResultInformation(std::current_exception(), unitResult);
+            }
+
+            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, unit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::GetAction, result->ResultInformation());
+        }
+
+        return *result;
+    }
+
+    Configuration::GetAllConfigurationUnitSettingsResult ConfigurationProcessor::GetAllUnitSettings(const ConfigurationUnit& unit)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return GetAllUnitSettingsImpl(unit);
+    }
+
+    Windows::Foundation::IAsyncOperation<Configuration::GetAllConfigurationUnitSettingsResult> ConfigurationProcessor::GetAllUnitSettingsAsync(const ConfigurationUnit& unit)
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+
+        auto strong_this{ get_strong() };
+        ConfigurationUnit localUnit = unit;
+
+        co_await winrt::resume_background();
+
+        co_return GetAllUnitSettingsImpl(localUnit, { co_await winrt::get_cancellation_token() });
+    }
+
+    Configuration::GetAllConfigurationUnitSettingsResult ConfigurationProcessor::GetAllUnitSettingsImpl(
+        const ConfigurationUnit& unit,
+        AppInstaller::WinRT::AsyncCancellation cancellation)
+    {
+        auto threadGlobals = m_threadGlobals.SetForCurrentThread();
+
+        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
+        auto result = make_self<wil::details::module_count_wrapper<implementation::GetAllConfigurationUnitSettingsResult>>();
+        auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+        result->ResultInformation(*unitResult);
+
+        cancellation.ThrowIfCancelled();
+
+        IConfigurationUnitProcessor2 unitProcessor;
+
+        try
+        {
+            // TODO: Directives overlay to prevent running elevated for get
+            unitProcessor = setProcessor.CreateUnitProcessor(unit).as<IConfigurationUnitProcessor2>();
+        }
+        catch (...)
+        {
+            ExtractUnitResultInformation(std::current_exception(), unitResult);
+        }
+
+        cancellation.ThrowIfCancelled();
+
+        if (unitProcessor)
+        {
+            try
+            {
+                IGetAllSettingsResult allSettingsResult = unitProcessor.GetAllSettings();
+                result->Settings(allSettingsResult.Settings());
+                result->ResultInformation(allSettingsResult.ResultInformation());
             }
             catch (...)
             {

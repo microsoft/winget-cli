@@ -673,6 +673,18 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.ValueSet Settings { get; };
     }
 
+    // The result of getting the settings for all the instances of a configuration unit.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    runtimeclass GetAllConfigurationUnitSettingsResult
+    {
+        // The result of getting the settings for all the instances of the configuration unit.
+        // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // The current state of the system for all the instances of the configuration unit.
+        Windows.Foundation.Collections.IVectorView<Windows.Foundation.Collections.ValueSet> Settings { get; };
+    }
+
     // The configuration processor is responsible for the interactions with the system.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass ConfigurationProcessor
@@ -730,6 +742,13 @@ namespace Microsoft.Management.Configuration
         // Gets the current configuration unit settings.
         GetConfigurationUnitSettingsResult GetUnitSettings(ConfigurationUnit unit);
         Windows.Foundation.IAsyncOperation<GetConfigurationUnitSettingsResult> GetUnitSettingsAsync(ConfigurationUnit unit);
+
+        [contract(Microsoft.Management.Configuration.Contract, 2)]
+        {
+            // Gets the current settings for all the instances of a configuration unit.
+            GetAllConfigurationUnitSettingsResult GetAllUnitSettings(ConfigurationUnit unit);
+            Windows.Foundation.IAsyncOperation<GetAllConfigurationUnitSettingsResult> GetAllUnitSettingsAsync(ConfigurationUnit unit);
+        }
     }
 
     // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
