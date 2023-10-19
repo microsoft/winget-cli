@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
-#include "SQLiteWrapper.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteStatementBuilder.h>
 #include <winget/Manifest.h>
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_4

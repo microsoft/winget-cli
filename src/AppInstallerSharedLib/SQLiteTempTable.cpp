@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "SQLiteTempTable.h"
+#include "Public/winget/SQLiteTempTable.h"
+#include "AppInstallerStrings.h"
 
 
-namespace AppInstaller::Repository::SQLite
+namespace AppInstaller::SQLite
 {
     using namespace std::string_view_literals;
 

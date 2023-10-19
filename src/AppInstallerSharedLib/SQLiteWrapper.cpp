@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "SQLiteWrapper.h"
+#include "Public/winget/SQLiteWrapper.h"
+#include "Public/AppInstallerErrors.h"
 #include "ICU/SQLiteICU.h"
 
 #include <wil/result_macros.h>
@@ -31,7 +32,7 @@ using namespace std::string_view_literals;
         } \
     } while (0,0)
 
-namespace AppInstaller::Repository::SQLite
+namespace AppInstaller::SQLite
 {
     std::string_view RowIDName = "rowid"sv;
 

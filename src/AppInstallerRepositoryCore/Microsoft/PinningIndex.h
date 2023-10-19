@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
+#include <winget/SQLiteWrapper.h>
 #include "Microsoft/Schema/IPinningIndex.h"
-#include "Microsoft/SQLiteStorageBase.h"
+#include <winget/SQLiteStorageBase.h>
 #include "winget/Pin.h"
 #include <winget/ManagedFile.h>
 
 namespace AppInstaller::Repository::Microsoft
 {
-    struct PinningIndex : SQLiteStorageBase
+    struct PinningIndex : SQLite::SQLiteStorageBase
     {
         // An id that refers to a specific Pinning file.
         using IdType = SQLite::rowid_t;
@@ -21,7 +21,7 @@ namespace AppInstaller::Repository::Microsoft
         PinningIndex& operator=(PinningIndex&&) = default;
 
         // Creates a new PinningIndex database of the given version.
-        static PinningIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
+        static PinningIndex CreateNew(const std::string& filePath, SQLite::Version version = SQLite::Version::Latest());
 
         // Opens an existing PinningIndex database.
         static PinningIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {})
@@ -61,7 +61,7 @@ namespace AppInstaller::Repository::Microsoft
         PinningIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
         // Constructor used to create a new index.
-        PinningIndex(const std::string& target, Schema::Version version);
+        PinningIndex(const std::string& target, SQLite::Version version);
 
         // Creates the IPinningIndex interface object for this version.
         std::unique_ptr<Schema::IPinningIndex> CreateIPinningIndex() const;

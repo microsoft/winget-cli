@@ -66,7 +66,7 @@ namespace AppInstaller::Repository::Microsoft
                     [&]()
                     {
                         // Create an in memory index without paths or dependencies
-                        SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
+                        SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
 
                         g_sharedSource = std::make_shared<SQLiteIndexWriteableSource>(m_details, std::move(index), true);
                     });

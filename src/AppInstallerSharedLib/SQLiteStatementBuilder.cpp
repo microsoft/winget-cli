@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "SQLiteStatementBuilder.h"
+#include "Public/winget/SQLiteStatementBuilder.h"
 
-namespace AppInstaller::Repository::SQLite::Builder
+namespace AppInstaller::SQLite::Builder
 {
     std::ostream& operator<<(std::ostream& out, const QualifiedColumn& column)
     {

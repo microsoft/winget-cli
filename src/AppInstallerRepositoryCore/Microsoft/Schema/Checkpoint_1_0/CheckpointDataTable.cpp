@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "CheckpointDataTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {

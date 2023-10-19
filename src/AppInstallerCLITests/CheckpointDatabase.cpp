@@ -8,7 +8,7 @@
 using namespace std::string_literals;
 using namespace TestCommon;
 using namespace AppInstaller::Repository::Microsoft;
-using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Repository::Microsoft::Schema;
 using namespace AppInstaller::Checkpoints;
 
@@ -17,11 +17,11 @@ TEST_CASE("CheckpointDatabaseCreateLatestAndReopen", "[checkpointDatabase]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Schema::Version versionCreated;
+    Version versionCreated;
 
     // Create the database
     {
-        std::shared_ptr<CheckpointDatabase> database = CheckpointDatabase::CreateNew(tempFile, Schema::Version::Latest());
+        std::shared_ptr<CheckpointDatabase> database = CheckpointDatabase::CreateNew(tempFile, Version::Latest());
         versionCreated = database->GetVersion();
     }
 
@@ -29,7 +29,7 @@ TEST_CASE("CheckpointDatabaseCreateLatestAndReopen", "[checkpointDatabase]")
     {
         INFO("Trying with ReadWrite");
         std::shared_ptr<CheckpointDatabase> database = CheckpointDatabase::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
-        Schema::Version versionRead = database->GetVersion();
+        Version versionRead = database->GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
 }

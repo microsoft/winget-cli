@@ -37,7 +37,7 @@ namespace AppInstaller::Repository
             if (!std::filesystem::exists(trackingDB))
             {
                 std::filesystem::create_directories(trackingDB.parent_path());
-                return SQLiteIndex::CreateNew(trackingDB.u8string(), Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
+                return SQLiteIndex::CreateNew(trackingDB.u8string(), SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
             }
             else
             {

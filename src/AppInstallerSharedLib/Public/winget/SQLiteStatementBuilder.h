@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
+#include <winget/SQLiteWrapper.h>
 #include <AppInstallerLanguageUtilities.h>
 
 #include <functional>
@@ -14,7 +14,7 @@
 
 using namespace std::string_view_literals;
 
-namespace AppInstaller::Repository::SQLite::Builder
+namespace AppInstaller::SQLite::Builder
 {
     namespace details
     {

@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
+#include <winget/SQLiteWrapper.h>
 #include "Microsoft/Schema/ICheckpointDatabase.h"
-#include "Microsoft/SQLiteStorageBase.h"
+#include <winget/SQLiteStorageBase.h>
 #include <winget/ManagedFile.h>
 
 namespace AppInstaller::Repository::Microsoft
 {
-    struct CheckpointDatabase : SQLiteStorageBase
+    struct CheckpointDatabase : SQLite::SQLiteStorageBase
     {
         // An id that refers to a specific Checkpoint.
         using IdType = SQLite::rowid_t;
@@ -20,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft
         CheckpointDatabase& operator=(CheckpointDatabase&&) = default;
 
         // Create a new checkpoint database.
-        static std::shared_ptr<CheckpointDatabase> CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
+        static std::shared_ptr<CheckpointDatabase> CreateNew(const std::string& filePath, SQLite::Version version = SQLite::Version::Latest());
 
         // Opens an existing checkpoint database.
         static std::shared_ptr<CheckpointDatabase> Open(const std::string& filePath, OpenDisposition disposition = OpenDisposition::ReadWrite, Utility::ManagedFile&& indexFile = {})
@@ -61,7 +61,7 @@ namespace AppInstaller::Repository::Microsoft
         CheckpointDatabase(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
         // Constructor used to create a new index.
-        CheckpointDatabase(const std::string& target, Schema::Version version);
+        CheckpointDatabase(const std::string& target, SQLite::Version version);
 
         // Creates the ICheckpointDatabase interface object for this version.
         std::unique_ptr<Schema::ICheckpointDatabase> CreateICheckpointDatabase() const;

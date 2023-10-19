@@ -1,18 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
-#include "Microsoft/Schema/Version.h"
+#include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteVersion.h>
 #include <winget/ManagedFile.h>
-#include <AppInstallerVersions.h>
 
 #include <mutex>
 
-namespace AppInstaller::Repository::Microsoft
+namespace AppInstaller::SQLite
 {
     struct SQLiteStorageBase
     {
-        // The disposition for opening the index.
+        // The disposition for opening the database.
         enum class OpenDisposition
         {
             // Open for read only.
@@ -23,26 +22,23 @@ namespace AppInstaller::Repository::Microsoft
             Immutable,
         };
 
-        // Gets the last write time for the index.
+        // Gets the last write time for the database.
         std::chrono::system_clock::time_point GetLastWriteTime();
 
-        // Gets the schema version of the index.
-        Schema::Version GetVersion() const { return m_version; }
+        // Gets the schema version of the database.
+        Version GetVersion() const { return m_version; }
 
     protected:
-        SQLiteStorageBase(const std::string& target, const Schema::Version& version);
+        SQLiteStorageBase(const std::string& target, const Version& version);
 
         SQLiteStorageBase(const std::string& filePath, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
-        // Sets the last write time metadata value in the index.
+        // Sets the last write time metadata value in the database.
         void SetLastWriteTime();
-
-        // Gets the corresponding OpenFlags based on the disposition.
-        SQLite::Connection::OpenFlags GetOpenFlags(SQLiteStorageBase::OpenDisposition disposition);
 
         Utility::ManagedFile m_indexFile;
         SQLite::Connection m_dbconn;
-        Schema::Version m_version;
+        Version m_version;
         std::unique_ptr<std::mutex> m_interfaceLock = std::make_unique<std::mutex>();
     };
 }
