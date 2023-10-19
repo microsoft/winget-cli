@@ -25,7 +25,7 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 {
-    Schema::Version Interface::GetVersion() const
+    SQLite::Version Interface::GetVersion() const
     {
         return { 1, 1 };
     }

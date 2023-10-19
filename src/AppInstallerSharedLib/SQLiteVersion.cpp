@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/winget/SQLiteVersion.h"
-#include "MetadataTable.h"
+#include "Public/winget/SQLiteMetadataTable.h"
 
 #include <limits>
 

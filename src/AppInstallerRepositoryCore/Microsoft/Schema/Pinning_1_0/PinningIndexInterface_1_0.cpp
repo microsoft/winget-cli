@@ -23,7 +23,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
     }
 
     // Version 1.0
-    Schema::Version PinningIndexInterface::GetVersion() const
+    SQLite::Version PinningIndexInterface::GetVersion() const
     {
         return { 1, 0 };
     }

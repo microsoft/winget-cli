@@ -21,7 +21,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         }
     }
 
-    Schema::Version PortableIndexInterface::GetVersion() const
+    SQLite::Version PortableIndexInterface::GetVersion() const
     {
         return { 1, 0 };
     }

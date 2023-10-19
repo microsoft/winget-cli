@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "MetadataTable.h"
+#include "Public/winget/SQLiteMetadataTable.h"
 
 
 using namespace std::literals;

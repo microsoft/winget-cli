@@ -20,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_7
         Interface(Utility::NormalizationVersion normVersion = Utility::NormalizationVersion::Initial);
 
         // Version 1.0
-        Schema::Version GetVersion() const override;
+        SQLite::Version GetVersion() const override;
         std::vector<std::string> GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const override;
 
     protected:

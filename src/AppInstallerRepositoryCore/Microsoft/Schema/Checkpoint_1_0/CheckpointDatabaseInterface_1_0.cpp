@@ -7,7 +7,7 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {
-    Schema::Version CheckpointDatabaseInterface::GetVersion() const
+    SQLite::Version CheckpointDatabaseInterface::GetVersion() const
     {
         return { 1, 0 };
     }

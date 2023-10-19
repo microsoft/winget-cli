@@ -389,7 +389,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ICU\SQLiteICU.h" />
-    <ClInclude Include="MetadataTable.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerDateTime.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
@@ -414,6 +413,7 @@
     <ClInclude Include="Public\winget\Runtime.h" />
     <ClInclude Include="Public\winget\Security.h" />
     <ClInclude Include="Public\winget\SharedThreadGlobals.h" />
+    <ClInclude Include="Public\winget\SQLiteMetadataTable.h" />
     <ClInclude Include="Public\winget\SQLiteStatementBuilder.h" />
     <ClInclude Include="Public\winget\SQLiteStorageBase.h" />
     <ClInclude Include="Public\winget\SQLiteTempTable.h" />
@@ -447,7 +447,7 @@
     <ClCompile Include="JsonSchemaValidation.cpp" />
     <ClCompile Include="JsonUtil.cpp" />
     <ClCompile Include="ManagedFile.cpp" />
-    <ClCompile Include="MetadataTable.cpp" />
+    <ClCompile Include="SQLiteMetadataTable.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="pch.cpp">

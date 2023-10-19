@@ -101,9 +101,6 @@
     <ClInclude Include="Public\winget\JsonUtil.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="MetadataTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\SQLiteStatementBuilder.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -123,6 +120,9 @@
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ManagedFile.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\SQLiteMetadataTable.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
@@ -193,7 +193,7 @@
     <ClCompile Include="SQLiteWrapper.cpp">
       <Filter>SQLite</Filter>
     </ClCompile>
-    <ClCompile Include="MetadataTable.cpp">
+    <ClCompile Include="SQLiteMetadataTable.cpp">
       <Filter>SQLite</Filter>
     </ClCompile>
     <ClCompile Include="ICU\SQLiteICU.c">

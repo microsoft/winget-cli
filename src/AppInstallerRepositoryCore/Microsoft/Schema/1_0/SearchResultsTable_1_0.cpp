@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SearchResultsTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 
 #include "Microsoft/Schema/1_0/IdTable.h"
 #include "Microsoft/Schema/1_0/NameTable.h"
