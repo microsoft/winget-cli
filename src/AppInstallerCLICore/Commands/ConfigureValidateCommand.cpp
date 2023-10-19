@@ -37,7 +37,7 @@ namespace AppInstaller::CLI
     {
         context <<
             VerifyIsFullPackage <<
-            VerifyFile(Execution::Args::Type::ConfigurationFile) <<
+            VerifyFileOrUri(Execution::Args::Type::ConfigurationFile) <<
             CreateConfigurationProcessor <<
             OpenConfigurationSet <<
             ValidateConfigurationSetSemantics <<

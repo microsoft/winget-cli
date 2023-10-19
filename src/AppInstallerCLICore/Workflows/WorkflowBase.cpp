@@ -16,6 +16,7 @@ using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Pinning;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
+using namespace winrt::Windows::Foundation;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -1091,6 +1092,40 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::VerifyPathFailedNotExist(Utility::LocIndView{ path.u8string() }) << std::endl;
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND));
         }
+    }
+
+    void VerifyFileOrUri::operator()(Execution::Context& context) const
+    {
+        auto path = context.Args.GetArg(m_arg);
+
+        // try uri first
+        Uri pathAsUri = nullptr;
+        try
+        {
+            pathAsUri = Uri{ Utility::ConvertToUTF16(path) };
+        }
+        catch (...) {}
+
+        if (pathAsUri && !pathAsUri.Suspicious())
+        {
+            // SchemeName() always returns lower case
+            if (L"file" == pathAsUri.SchemeName())
+            {
+                // Let VerifyFile do the work.
+            }
+            else if (L"https" != pathAsUri.SchemeName())
+            {
+                // Currently only https supported.
+                return;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::UriSchemeNotSupported(Utility::LocIndView{ path }) << std::endl;
+                AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+            }
+        }
+
+        context << VerifyFile(m_arg);
     }
 
     void GetManifestFromArg(Execution::Context& context)

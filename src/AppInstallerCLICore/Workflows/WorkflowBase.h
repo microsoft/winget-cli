@@ -319,6 +319,20 @@ namespace AppInstaller::CLI::Workflow
         Execution::Args::Type m_arg;
     };
 
+    // Ensures the local file exists and is not a directory. Or it's a Uri. Only https is supported at the moment.
+    // Required Args: the one given
+    // Inputs: None
+    // Outputs: None
+    struct VerifyFileOrUri : public WorkflowTask
+    {
+        VerifyFileOrUri(Execution::Args::Type arg) : WorkflowTask("VerifyFileOrUri"), m_arg(arg) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::Args::Type m_arg;
+    };
+
     // Opens the manifest file provided on the command line.
     // Required Args: Manifest
     // Inputs: None

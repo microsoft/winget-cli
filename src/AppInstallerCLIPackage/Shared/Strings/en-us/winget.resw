@@ -2584,4 +2584,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="Unavailable" xml:space="preserve">
     <value>Unavailable</value>
   </data>
+  <data name="UriSchemeNotSupported" xml:space="preserve">
+    <value>Uri scheme not supported: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the provided uri is not supported. {0} is a placeholder replaced by the provided uri.</comment>
+  </data>
 </root>

@@ -4,6 +4,7 @@
 #include "ConfigurationFlow.h"
 #include "PromptFlow.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winget/SelfManagement.h>
@@ -769,12 +770,6 @@ namespace AppInstaller::CLI::Workflow
 
             bool m_isFirstProgress = true;
         };
-
-        std::filesystem::path GetConfigurationFilePath(Execution::Context& context)
-        {
-            std::filesystem::path argPath = Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationFile));
-            return std::filesystem::weakly_canonical(argPath);
-        }
     }
 
     void CreateConfigurationProcessor(Context& context)
@@ -809,10 +804,32 @@ namespace AppInstaller::CLI::Workflow
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationReadingConfigFile());
 
-        std::filesystem::path absolutePath = GetConfigurationFilePath(context);
-
+        std::string argPath{ context.Args.GetArg(Args::Type::ConfigurationFile) };
+        std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
+        bool isRemote = Utility::IsUrlRemote(argPath);
+        std::filesystem::path absolutePath;
         Streams::IInputStream inputStream = nullptr;
+
+        if (isRemote)
         {
+            std::ostringstream stringStream;
+            ProgressCallback emptyCallback;
+            Utility::DownloadToStream(argPath, stringStream, Utility::DownloadType::ConfigurationFile, emptyCallback);
+
+            auto strContent = stringStream.str();
+            std::vector<BYTE> byteContent{ strContent.begin(), strContent.end() };
+
+            Streams::InMemoryRandomAccessStream memoryStream;
+            Streams::DataWriter streamWriter{ memoryStream };
+            streamWriter.WriteBytes(byteContent);
+            streamWriter.StoreAsync().get();
+            streamWriter.DetachStream();
+            memoryStream.Seek(0);
+            inputStream = memoryStream;
+        }
+        else
+        {
+            absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });
             auto openAction = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read);
             auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
             inputStream = openAction.get();
@@ -829,7 +846,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))
         {
-            AICLI_LOG(Config, Error, << "Failed to open configuration set at " << absolutePath.u8string() << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
+            AICLI_LOG(Config, Error, << "Failed to open configuration set at " << (isRemote ? argPath : absolutePath.u8string()) << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
 
             switch (openResult.ResultCode())
             {
@@ -863,10 +880,20 @@ namespace AppInstaller::CLI::Workflow
         ConfigurationSet result = openResult.Set();
 
         // Fill out the information about the set based on it coming from a file.
-        // TODO: Consider how to properly determine a good value for name and origin.
-        result.Name(absolutePath.filename().wstring());
-        result.Origin(absolutePath.parent_path().wstring());
-        result.Path(absolutePath.wstring());
+        if (isRemote)
+        {
+            // TODO: Suggestions welcome on what values to pass in.
+            result.Name(argPathWide);
+            result.Origin(argPathWide);
+            result.Path(argPathWide);
+        }
+        else
+        {
+            // TODO: Consider how to properly determine a good value for name and origin.
+            result.Name(absolutePath.filename().wstring());
+            result.Origin(absolutePath.parent_path().wstring());
+            result.Path(absolutePath.wstring());
+        }
 
         context.Get<Data::ConfigurationContext>().Set(result);
     }
