@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteStatementBuilder.h>
 
 
-namespace AppInstaller::Repository::SQLite
+namespace AppInstaller::SQLite
 {
     // The base for a class that represents a temp table.
     struct TempTable

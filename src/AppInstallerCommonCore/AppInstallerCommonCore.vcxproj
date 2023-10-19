@@ -412,7 +412,6 @@
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
     <ClInclude Include="Public\winget\Locale.h" />
-    <ClInclude Include="Public\winget\ManagedFile.h" />
     <ClInclude Include="Public\winget\Manifest.h" />
     <ClInclude Include="Public\winget\ManifestInstaller.h" />
     <ClInclude Include="Public\winget\ManifestLocalization.h" />
@@ -466,7 +465,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Locale.cpp" />
-    <ClCompile Include="ManagedFile.cpp" />
     <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestCommon.cpp" />
     <ClCompile Include="Manifest\ManifestValidation.cpp" />

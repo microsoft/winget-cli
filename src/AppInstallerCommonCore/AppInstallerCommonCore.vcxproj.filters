@@ -150,9 +150,6 @@
     <ClInclude Include="Public\winget\PortableFileEntry.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\ManagedFile.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\MsixManifest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -288,9 +285,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PortableARPEntry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ManagedFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MsixManifest.cpp">

@@ -25,9 +25,6 @@
     <Filter Include="Public">
       <UniqueIdentifier>{69ce2e35-fe7f-41af-bd47-91a70131d167}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ICU">
-      <UniqueIdentifier>{dac1a359-45ac-4456-8a83-f7df10058197}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Microsoft\Schema\1_1">
       <UniqueIdentifier>{aef8989c-44fd-4848-ae2c-c81d3f2e2c72}</UniqueIdentifier>
     </Filter>
@@ -102,17 +99,8 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SQLiteWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\SQLiteIndex.h">
       <Filter>Microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="Microsoft\Schema\MetadataTable.h">
-      <Filter>Microsoft\Schema</Filter>
-    </ClInclude>
-    <ClInclude Include="Microsoft\Schema\Version.h">
-      <Filter>Microsoft\Schema</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h">
       <Filter>Microsoft\Schema</Filter>
@@ -153,9 +141,6 @@
     <ClInclude Include="Microsoft\Schema\1_0\PathPartTable.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
-    <ClInclude Include="SQLiteStatementBuilder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SourceFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -165,14 +150,8 @@
     <ClInclude Include="Microsoft\SQLiteIndexSource.h">
       <Filter>Microsoft</Filter>
     </ClInclude>
-    <ClInclude Include="SQLiteTempTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_0\SearchResultsTable.h">
       <Filter>Microsoft\Schema\1_0</Filter>
-    </ClInclude>
-    <ClInclude Include="ICU\SQLiteICU.h">
-      <Filter>ICU</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_1\Interface.h">
       <Filter>Microsoft\Schema\1_1</Filter>
@@ -342,9 +321,6 @@
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h">
       <Filter>Microsoft\Schema</Filter>
     </ClInclude>
-    <ClInclude Include="Microsoft\SQLiteStorageBase.h">
-      <Filter>Microsoft</Filter>
-    </ClInclude>
     <ClInclude Include="Rest\Schema\1_4\Json\ManifestDeserializer.h">
       <Filter>Rest\Schema\1_4\Json</Filter>
     </ClInclude>
@@ -422,17 +398,8 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SQLiteWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Microsoft\SQLiteIndex.cpp">
       <Filter>Microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="Microsoft\Schema\MetadataTable.cpp">
-      <Filter>Microsoft\Schema</Filter>
-    </ClCompile>
-    <ClCompile Include="Microsoft\Schema\Version.cpp">
-      <Filter>Microsoft\Schema</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\OneToOneTable.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
@@ -446,9 +413,6 @@
     <ClCompile Include="Microsoft\Schema\1_0\PathPartTable.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClCompile>
-    <ClCompile Include="SQLiteStatementBuilder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RepositorySource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -457,12 +421,6 @@
     </ClCompile>
     <ClCompile Include="Microsoft\SQLiteIndexSource.cpp">
       <Filter>Microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="SQLiteTempTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ICU\SQLiteICU.c">
-      <Filter>ICU</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\Interface_1_0.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
@@ -596,9 +554,6 @@
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp">
       <Filter>Microsoft\Schema\Portable_1_0</Filter>
     </ClCompile>
-    <ClCompile Include="Microsoft\SQLiteStorageBase.cpp">
-      <Filter>Microsoft</Filter>
-    </ClCompile>
     <ClCompile Include="Rest\Schema\1_4\Json\ManifestDeserializer_1_4.cpp">
       <Filter>Rest\Schema\1_4\Json</Filter>
     </ClCompile>
@@ -652,7 +607,7 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDataTable.cpp">
       <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
-    </ClCompile>    
+    </ClCompile>
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDatabaseInterface_1_0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

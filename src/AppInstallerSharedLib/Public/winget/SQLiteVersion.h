@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
+#include "Public/winget/SQLiteWrapper.h"
 #include <memory>
 
-namespace AppInstaller::Repository::Microsoft::Schema
+namespace AppInstaller::SQLite
 {
-    // Represents the schema version of the index.
+    // Represents the schema version of the database.
     struct Version
     {
         // The major version of the schema.
@@ -45,11 +45,11 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Determines if this version represents the latest schema of the given major version.
         bool IsLatestForMajor(uint32_t majorVersion) const;
 
-        // Determines the schema version of the opened index.
-        static Version GetSchemaVersion(SQLite::Connection& connection);
+        // Determines the schema version of the opened database.
+        static Version GetSchemaVersion(Connection& connection);
 
-        // Writes the current version to the given index.
-        void SetSchemaVersion(SQLite::Connection& connection);
+        // Writes the current version to the given database.
+        void SetSchemaVersion(Connection& connection);
     };
 
     // Output the version

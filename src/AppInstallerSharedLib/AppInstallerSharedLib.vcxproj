@@ -388,6 +388,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ICU\SQLiteICU.h" />
+    <ClInclude Include="MetadataTable.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerDateTime.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
@@ -406,11 +408,17 @@
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
     <ClInclude Include="Public\winget\JsonUtil.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
+    <ClInclude Include="Public\winget\ManagedFile.h" />
     <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\Resources.h" />
     <ClInclude Include="Public\winget\Runtime.h" />
     <ClInclude Include="Public\winget\Security.h" />
     <ClInclude Include="Public\winget\SharedThreadGlobals.h" />
+    <ClInclude Include="Public\winget\SQLiteStatementBuilder.h" />
+    <ClInclude Include="Public\winget\SQLiteStorageBase.h" />
+    <ClInclude Include="Public\winget\SQLiteTempTable.h" />
+    <ClInclude Include="Public\winget\SQLiteVersion.h" />
+    <ClInclude Include="Public\winget\SQLiteWrapper.h" />
     <ClInclude Include="Public\winget\Yaml.h" />
     <ClInclude Include="YamlWrapper.h" />
   </ItemGroup>
@@ -421,8 +429,25 @@
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
+    <ClCompile Include="ICU\SQLiteICU.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="JsonSchemaValidation.cpp" />
     <ClCompile Include="JsonUtil.cpp" />
+    <ClCompile Include="ManagedFile.cpp" />
+    <ClCompile Include="MetadataTable.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="pch.cpp">
@@ -432,6 +457,11 @@
     <ClCompile Include="Security.cpp" />
     <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="SharedThreadGlobals.cpp" />
+    <ClCompile Include="SQLiteStatementBuilder.cpp" />
+    <ClCompile Include="SQLiteStorageBase.cpp" />
+    <ClCompile Include="SQLiteTempTable.cpp" />
+    <ClCompile Include="SQLiteVersion.cpp" />
+    <ClCompile Include="SQLiteWrapper.cpp" />
     <ClCompile Include="Versions.cpp" />
     <ClCompile Include="Yaml.cpp" />
     <ClCompile Include="YamlWrapper.cpp" />

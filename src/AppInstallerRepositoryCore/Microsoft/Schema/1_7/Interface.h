@@ -8,6 +8,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_7
 {
     using namespace std::string_view_literals;
 
+    // Version 1.7
+    static constexpr std::string_view s_MetadataValueName_MapDataFolded = "mapDataFolded"sv;
+    static constexpr char s_MetadataValue_MapDataFolded_Separator = ';';
+
     // Interface to this schema version exposed through ISQLiteIndex.
     struct Interface : public V1_6::Interface
     {
