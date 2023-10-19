@@ -207,7 +207,6 @@ TEST_CASE("InstallerWithDependencies_IgnoreDependenciesSetting", "[dependencies]
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
-    OverrideOpenDependencySource(context);
 
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
 
