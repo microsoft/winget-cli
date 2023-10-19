@@ -17,12 +17,62 @@ namespace AppInstaller::Repository::Microsoft
 {
     namespace
     {
+        std::optional<std::string> GetCachedMSIXName(const Utility::NormalizedString& id, const Utility::Version& version, SQLiteIndex& cacheData)
+        {
+            SearchRequest searchRequest;
+            searchRequest.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, id);
+
+            SQLiteIndex::SearchResult searchResult = cacheData.Search(searchRequest);
+
+            if (searchResult.Matches.empty())
+            {
+                return std::nullopt;
+            }
+
+            if (searchResult.Matches.size() != 1)
+            {
+                // This is very unexpected, but just log it and carry on
+                AICLI_LOG(Repo, Warning, << "Found multiple (" << searchResult.Matches.size() << ") cache entries for: " << id);
+                return std::nullopt;
+            }
+
+            auto versionKeys = cacheData.GetVersionKeysById(searchResult.Matches[0].first);
+            const Utility::VersionAndChannel* versionKey = nullptr;
+
+            for (const auto& key : versionKeys)
+            {
+                if (key.GetVersion() == version)
+                {
+                    versionKey = &key;
+                    break;
+                }
+            }
+
+            if (!versionKey)
+            {
+                return std::nullopt;
+            }
+
+            auto manifestId = cacheData.GetManifestIdByKey(searchResult.Matches[0].first, versionKey->GetVersion().ToString(), versionKey->GetChannel().ToString());
+
+            if (!manifestId)
+            {
+                // This is very unexpected, but just log it and carry on
+                AICLI_LOG(Repo, Warning, << "Did not find manifest id for: " << id << ", " << versionKey->GetVersion().ToString() << ", " << versionKey->GetChannel().ToString());
+                return std::nullopt;
+            }
+
+            return cacheData.GetPropertyByManifestId(manifestId.value(), PackageVersionProperty::Name);
+        }
+
         // Populates the index with the entries from MSIX.
-        void PopulateIndexFromMSIX(SQLiteIndex& index, Manifest::ScopeEnum scope)
+        void PopulateIndexFromMSIX(SQLiteIndex& index, Manifest::ScopeEnum scope, SQLiteIndex* cacheData = nullptr)
         {
             using namespace winrt::Windows::ApplicationModel;
             using namespace winrt::Windows::Management::Deployment;
             using namespace winrt::Windows::Foundation::Collections;
+
+            AICLI_LOG(Repo, Info, << "Examining MSIX entries for " << ScopeToString(scope));
 
             IIterable<Package> packages;
             PackageManager packageManager;
@@ -63,10 +113,31 @@ namespace AppInstaller::Repository::Microsoft
 
                 manifest.Id = familyName;
 
+                // Get version
+                std::ostringstream strstr;
+                auto packageVersion = packageId.Version();
+                strstr << packageVersion.Major << '.' << packageVersion.Minor << '.' << packageVersion.Build << '.' << packageVersion.Revision;
+
+                manifest.Version = strstr.str();
+
+                // Determine package name
                 bool isPackageNameSet = false;
+
+                // Look for the name in the cache data first
+                if (cacheData)
+                {
+                    std::optional<std::string> cachedName = GetCachedMSIXName(manifest.Id, manifest.Version, *cacheData);
+
+                    if (cachedName)
+                    {
+                        manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(cachedName.value());
+                        isPackageNameSet = true;
+                    }
+                }
+
                 // Attempt to get the DisplayName. Since this will retrieve the localized value, it has a chance to fail.
                 // Rather than completely skip this package in that case, we will simply fall back to using the package name below.
-                if (!Runtime::IsRunningAsSystem())
+                if (!isPackageNameSet && !Runtime::IsRunningAsSystem())
                 {
                     try
                     {
@@ -93,12 +164,6 @@ namespace AppInstaller::Repository::Microsoft
                     manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(Utility::ConvertToUTF8(packageId.Name()));
                 }
 
-                std::ostringstream strstr;
-                auto packageVersion = packageId.Version();
-                strstr << packageVersion.Major << '.' << packageVersion.Minor << '.' << packageVersion.Build << '.' << packageVersion.Revision;
-
-                manifest.Version = strstr.str();
-                
                 manifest.Installers[0].PackageFamilyName = familyName;
 
                 // Use the full name as a unique key for the path
@@ -108,6 +173,98 @@ namespace AppInstaller::Repository::Microsoft
                     Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msix));
             }
         }
+
+        SQLiteIndex CreateAndPopulateIndex(PredefinedInstalledSourceFactory::Filter filter)
+        {
+            AICLI_LOG(Repo, Info, << "Creating PredefinedInstalledSource with filter [" << PredefinedInstalledSourceFactory::FilterToString(filter) << ']');
+
+            // Create an in memory index
+            SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, SQLite::Version::Latest());
+
+            // Put installed packages into the index
+            if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP ||
+                filter == PredefinedInstalledSourceFactory::Filter::User || filter == PredefinedInstalledSourceFactory::Filter::Machine)
+            {
+                ARPHelper arpHelper;
+                if (filter != PredefinedInstalledSourceFactory::Filter::User)
+                {
+                    arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::Machine);
+                }
+                if (filter != PredefinedInstalledSourceFactory::Filter::Machine)
+                {
+                    arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::User);
+                }
+            }
+
+            if (filter == PredefinedInstalledSourceFactory::Filter::None ||
+                filter == PredefinedInstalledSourceFactory::Filter::MSIX ||
+                filter == PredefinedInstalledSourceFactory::Filter::User)
+            {
+                PopulateIndexFromMSIX(index, Manifest::ScopeEnum::User);
+            }
+            else if (filter == PredefinedInstalledSourceFactory::Filter::Machine)
+            {
+                PopulateIndexFromMSIX(index, Manifest::ScopeEnum::Machine);
+            }
+
+            AICLI_LOG(Repo, Info, << " ... finished creating PredefinedInstalledSource");
+
+            return index;
+        }
+
+        struct CachedInstalledIndex
+        {
+            CachedInstalledIndex() :
+                m_index(CreateAndPopulateIndex(PredefinedInstalledSourceFactory::Filter::None))
+            {
+            }
+
+            void UpdateIndexIfNeeded()
+            {
+                // Update index if last write time is more than X ago.
+                // This prevents rapid fire updates while still being reasonably in sync.
+                constexpr auto c_updateCheckTimeout = 1s;
+                if (CheckLastWriteAgainst(c_updateCheckTimeout))
+                {
+                    auto lock = m_lock.lock_exclusive();
+
+                    if (CheckLastWriteAgainst(c_updateCheckTimeout))
+                    {
+                        // TODO: To support servicing, the initial implementation of update will simply leverage
+                        //       some data from the existing index to speed up the MSIX populate function.
+                        //       In a larger update, we may want to make it possible to actually update the cache directly.
+                        //       We may even persist the cache to disk to speed things up further.
+
+                        // Populate from ARP using standard mechanism.
+                        SQLiteIndex update = CreateAndPopulateIndex(PredefinedInstalledSourceFactory::Filter::ARP);
+
+                        // Populate from MSIX, using localization data from the existing index if applicable.
+                        PopulateIndexFromMSIX(update, Manifest::ScopeEnum::User, &m_index);
+
+                        m_index = std::move(update);
+                    }
+                }
+            }
+
+            SQLiteIndex GetCopy()
+            {
+                auto lock = m_lock.lock_shared();
+                return SQLiteIndex::CopyFrom(SQLITE_MEMORY_DB_CONNECTION_TARGET, m_index);
+            }
+
+        private:
+            bool CheckLastWriteAgainst(std::chrono::milliseconds timeout)
+            {
+                auto lastWrite = m_index.GetLastWriteTime();
+                auto now = std::chrono::system_clock::now();
+                auto duration = now - lastWrite;
+
+                return duration > timeout;
+            }
+
+            SQLiteIndex m_index;
+            wil::srwlock m_lock;
+        };
 
         struct PredefinedInstalledSourceReference : public ISourceReference
         {
@@ -127,38 +284,18 @@ namespace AppInstaller::Repository::Microsoft
 
                 // Determine the filter
                 PredefinedInstalledSourceFactory::Filter filter = PredefinedInstalledSourceFactory::StringToFilter(m_details.Arg);
-                AICLI_LOG(Repo, Info, << "Creating PredefinedInstalledSource with filter [" << PredefinedInstalledSourceFactory::FilterToString(filter) << ']');
 
-                // Create an in memory index
-                SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, SQLite::Version::Latest());
-
-                // Put installed packages into the index
-                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP ||
-                    filter == PredefinedInstalledSourceFactory::Filter::User || filter == PredefinedInstalledSourceFactory::Filter::Machine)
+                // Only cache for the unfiltered install data
+                if (filter == PredefinedInstalledSourceFactory::Filter::None)
                 {
-                    ARPHelper arpHelper;
-                    if (filter != PredefinedInstalledSourceFactory::Filter::User)
-                    {
-                        arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::Machine);
-                    }
-                    if (filter != PredefinedInstalledSourceFactory::Filter::Machine)
-                    {
-                        arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::User);
-                    }
+                    static CachedInstalledIndex s_installedIndex;
+                    s_installedIndex.UpdateIndexIfNeeded();
+                    return std::make_shared<SQLiteIndexSource>(m_details, s_installedIndex.GetCopy(), true);
                 }
-
-                if (filter == PredefinedInstalledSourceFactory::Filter::None ||
-                    filter == PredefinedInstalledSourceFactory::Filter::MSIX ||
-                    filter == PredefinedInstalledSourceFactory::Filter::User)
+                else
                 {
-                    PopulateIndexFromMSIX(index, Manifest::ScopeEnum::User);
+                    return std::make_shared<SQLiteIndexSource>(m_details, CreateAndPopulateIndex(filter), true);
                 }
-                else if (filter == PredefinedInstalledSourceFactory::Filter::Machine)
-                {
-                    PopulateIndexFromMSIX(index, Manifest::ScopeEnum::Machine);
-                }
-
-                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), true);
             }
 
         private:

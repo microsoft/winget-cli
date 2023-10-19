@@ -400,3 +400,10 @@ TEST_CASE("PredefinedInstalledSource_Search", "[installed][list]")
 
     REQUIRE_FALSE(results.Matches.empty());
 }
+
+TEST_CASE("PredefinedInstalledSource_Create_Cached", "[installed][list]")
+{
+    auto source = CreatePredefinedInstalledSource();
+    std::this_thread::sleep_for(2s);
+    auto source2 = CreatePredefinedInstalledSource();
+}

@@ -142,7 +142,7 @@ int main(int argc, char** argv)
     {
         Logging::Log().DisableChannel(Logging::Channel::SQL);
     }
-    Logging::Log().SetLevel(Logging::Level::Verbose);
+    Logging::Log().SetLevel(Logging::Level::Info);
     Logging::EnableWilFailureTelemetry();
 
     wil::SetResultFromCaughtExceptionCallback(CatchResultFromCaughtException);

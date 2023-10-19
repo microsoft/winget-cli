@@ -33,6 +33,8 @@ namespace AppInstaller::SQLite
 
         SQLiteStorageBase(const std::string& filePath, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
+        SQLiteStorageBase(const std::string& target, SQLiteStorageBase& source);
+
         // Sets the last write time metadata value in the database.
         void SetLastWriteTime();
 

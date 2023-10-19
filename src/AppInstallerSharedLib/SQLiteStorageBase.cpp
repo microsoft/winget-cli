@@ -112,4 +112,13 @@ namespace AppInstaller::SQLite
         m_version = version;
         MetadataTable::Create(m_dbconn);
     }
+    
+    SQLiteStorageBase::SQLiteStorageBase(const std::string& target, SQLiteStorageBase& source) :
+        m_dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create)),
+        m_version(source.m_version)
+    {
+        std::string mainDatabase = "main";
+        Backup backup = Backup::Create(m_dbconn, mainDatabase, source.m_dbconn, mainDatabase);
+        backup.Step();
+    }
 }

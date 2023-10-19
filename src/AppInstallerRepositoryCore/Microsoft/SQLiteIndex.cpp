@@ -36,6 +36,16 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
+    SQLiteIndex SQLiteIndex::Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile)
+    {
+        return { filePath, disposition, std::move(indexFile) };
+    }
+
+    SQLiteIndex SQLiteIndex::CopyFrom(const std::string& filePath, SQLiteIndex& source)
+    {
+        return { filePath, source };
+    }
+
     std::unique_ptr<Schema::ISQLiteIndex> SQLiteIndex::CreateISQLiteIndex(const SQLite::Version& version)
     {
         using namespace Schema;
@@ -76,6 +86,13 @@ namespace AppInstaller::Repository::Microsoft
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
         m_interface = CreateISQLiteIndex(m_version);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
+    }
+
+    SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteIndex& source) :
+        SQLiteStorageBase(target, source)
+    {
+        m_dbconn.EnableICU();
+        m_interface = CreateISQLiteIndex(m_version);
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
