@@ -240,7 +240,7 @@ namespace AppInstaller::CLI::Workflow
 
     void CreateDependencySubContexts::operator()(Execution::Context& context) const
     {
-        if (context.Args.Contains(Execution::Args::Type::SkipDependencies))
+        if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
         {
             return;
         }
