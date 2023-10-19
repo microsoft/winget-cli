@@ -21,11 +21,15 @@ namespace AppInstaller::CLI::Execution
 
         if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterForRestart))
         {
+            context.ClearFlags(Execution::ContextFlag::RegisterForRestart);
+
             // TODO: Register application for restart.
         }
 
         if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired))
         {
+            context.ClearFlags(Execution::ContextFlag::RebootRequired);
+
             if (Reboot::InitiateReboot())
             {
                 context.Reporter.Warn() << Resource::String::InitiatingReboot << std::endl;

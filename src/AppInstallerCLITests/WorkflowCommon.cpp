@@ -205,7 +205,7 @@ namespace TestCommon
             });
 
         const TestSourceResult TestInstaller_Exe_ExpectedReturnCodes(
-            "TestExeInstallerWithExpectedReturnCodes"sv,
+            "AppInstallerCliTest.ExpectedReturnCodes"sv,
             [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_ExpectedReturnCodes.yaml"));
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_ExpectedReturnCodes.yaml"));

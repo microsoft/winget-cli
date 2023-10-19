@@ -31,19 +31,23 @@ namespace AppInstaller::Reboot
         // Get a token for this process.
         if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
         {
+            AICLI_LOG(Core, Error, << "OpenProcessToken error: " << GetLastError());
             return false;
         }
 
         // Shutdown privilege must be enabled for this process. 
-        LookupPrivilegeValueW(NULL, SE_SHUTDOWN_NAME, &pTokenPrivileges.Privileges[0].Luid);
+        if (!LookupPrivilegeValueW(NULL, SE_SHUTDOWN_NAME, &pTokenPrivileges.Privileges[0].Luid))
+        {
+            AICLI_LOG(Core, Error, << "LookupPrivilegeValue error: " << GetLastError());
+            return false;
+        }
+
         pTokenPrivileges.PrivilegeCount = 1;
         pTokenPrivileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
-        AdjustTokenPrivileges(hToken.get(), FALSE, &pTokenPrivileges, 0, (PTOKEN_PRIVILEGES)NULL, 0);
-
-        if (GetLastError != ERROR_SUCCESS)
+        if (!AdjustTokenPrivileges(hToken.get(), FALSE, &pTokenPrivileges, 0, (PTOKEN_PRIVILEGES)NULL, 0))
         {
-            AICLI_LOG(Core, Error, << "Failed to adjust token shutdown privilege.");
+            AICLI_LOG(Core, Error, << "AdjustTokenPrivilege error: " << GetLastError());
             return false;
         }
 

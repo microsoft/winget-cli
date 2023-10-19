@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "TestHooks.h"
 #include "WorkflowCommon.h"
 #include <Commands/ImportCommand.h>
+#include <winget/Settings.h>
 #include <Workflows/ImportExportFlow.h>
+#include <Workflows/ShellExecuteInstallerHandler.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
@@ -15,6 +18,7 @@ void OverrideForImportSource(TestContext& context, bool useTestCompositeSource =
     auto testCompositeSource = CreateTestSource({
         TSR::TestInstaller_Exe,
         TSR::TestInstaller_Exe_Dependencies,
+        TSR::TestInstaller_Exe_ExpectedReturnCodes,
         TSR::TestInstaller_Exe_LicenseAgreement,
         TSR::TestInstaller_Exe_NothingInstalled,
         TSR::TestInstaller_Msix,
@@ -294,4 +298,36 @@ TEST_CASE("ImportFlow_LicenseAgreement_NotAccepted", "[ImportFlow][workflow]")
 
     // Command should have failed
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
+}
+
+TEST_CASE("ImportFlow_RebootRequired", "[ImportFlow][workflow][reboot]")
+{
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<AppInstaller::Settings::Setting::EFReboot>(true);
+
+    std::ostringstream importOutput;
+    TestContext context{ importOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForImportSource(context);
+    OverrideForMSIX(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-Dependencies.json").GetPath().string());
+    context.Args.AddArg(Execution::Args::Type::AllowReboot);
+
+    context.Override({ AppInstaller::CLI::Workflow::ShellExecuteInstallImpl, [&](TestContext& context)
+    {
+        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH (not treated as an installer error)
+        context.Add<Execution::Data::OperationReturnCode>(9);
+    } });
+
+    TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(true);
+
+    ImportCommand importCommand({});
+    importCommand.Execute(context);
+    INFO(importOutput.str());
+
+    // Verify dependencies for all packages are informed
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportCommandReportDependencies).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+    REQUIRE_FALSE(importOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
 }
