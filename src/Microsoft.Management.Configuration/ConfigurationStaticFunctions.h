@@ -22,7 +22,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         HRESULT STDMETHODCALLTYPE SetExperimentalState(UINT32 state);
 
     private:
-        AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags m_state = AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags::None;
+        // By default, enable all state so that in-proc usage contains it.
+        AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags m_state = AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags::All;
     };
 }
 namespace winrt::Microsoft::Management::Configuration::factory_implementation

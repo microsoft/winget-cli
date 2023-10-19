@@ -29,7 +29,7 @@ if (-not [System.String]::IsNullOrEmpty($PackageLayoutPath))
     # Configure crash dump and log file settings
     $Local:settingsExport = ConvertFrom-Json (wingetdev.exe settings export)
     $Local:settingsFilePath = $Local:settingsExport.userSettingsFile
-    $Local:settingsFileContent = ConvertTo-Json @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
+    $Local:settingsFileContent = ConvertTo-Json @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } ; experimentalFeatures= @{ configuration03=$true } }
 
     Set-Content -Path $Local:settingsFilePath -Value $Local:settingsFileContent
 }

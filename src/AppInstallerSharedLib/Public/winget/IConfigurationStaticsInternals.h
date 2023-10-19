@@ -11,6 +11,7 @@ namespace AppInstaller::WinRT
     {
         None = 0,
         Configuration03 = 0x1,
+        All = Configuration03
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ConfigurationStaticsInternalsStateFlags);

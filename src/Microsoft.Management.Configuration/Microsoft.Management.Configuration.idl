@@ -819,7 +819,7 @@ namespace Microsoft.Management.Configuration
 
     // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass ConfigurationStaticFunctions : [default]IConfigurationStatics
+    runtimeclass ConfigurationStaticFunctions : [default]IConfigurationStatics, IConfigurationStatics2
     {
         ConfigurationStaticFunctions();
     }
