@@ -223,7 +223,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             string name,
             ModuleSpecification? moduleSpecification)
         {
-            throw new NotImplementedException("Export is not supported in DSC v2");
+            throw new NotSupportedException("Export is not supported in DSC v2");
         }
 
         private static Dictionary<string, object> PrepareInvokeParameters(
