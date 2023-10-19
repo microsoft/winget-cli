@@ -217,7 +217,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<ValueSet> InvokeExportResource(
+        public IList<ValueSet> InvokeExportResource(
             PowerShell pwsh,
             ValueSet settings,
             string name,

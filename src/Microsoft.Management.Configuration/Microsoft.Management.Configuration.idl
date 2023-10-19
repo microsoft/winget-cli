@@ -386,7 +386,7 @@ namespace Microsoft.Management.Configuration
         ConfigurationUnit Unit{ get; };
 
         // The current state of the system for all the instances of the configuration unit.
-        Windows.Foundation.Collections.IVectorView<Windows.Foundation.Collections.ValueSet> Settings{ get; };
+        Windows.Foundation.Collections.IVector<Windows.Foundation.Collections.ValueSet> Settings{ get; };
 
         // The result of getting the configuration unit settings.
         // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
@@ -682,7 +682,7 @@ namespace Microsoft.Management.Configuration
         IConfigurationUnitResultInformation ResultInformation{ get; };
 
         // The current state of the system for all the instances of the configuration unit.
-        Windows.Foundation.Collections.IVectorView<Windows.Foundation.Collections.ValueSet> Settings { get; };
+        Windows.Foundation.Collections.IVector<Windows.Foundation.Collections.ValueSet> Settings { get; };
     }
 
     // The configuration processor is responsible for the interactions with the system.

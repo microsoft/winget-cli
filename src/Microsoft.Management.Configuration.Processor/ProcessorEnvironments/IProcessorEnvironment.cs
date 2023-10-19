@@ -83,7 +83,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// <param name="name">Name.</param>
         /// <param name="moduleSpecification">Module specification.</param>
         /// <returns>If a reboot is required.</returns>
-        IReadOnlyList<ValueSet> InvokeExportResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification);
+        IList<ValueSet> InvokeExportResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
         /// Calls Get-Module with fully qualified name.

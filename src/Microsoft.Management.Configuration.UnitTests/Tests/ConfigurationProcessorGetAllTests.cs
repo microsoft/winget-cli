@@ -47,7 +47,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
-            GetConfigurationUnitSettingsResult result = processor.GetUnitSettings(configurationUnit);
+            GetAllConfigurationUnitSettingsResult result = processor.GetAllUnitSettings(configurationUnit);
 
             Assert.NotNull(result);
             Assert.NotNull(result.Settings);
@@ -97,7 +97,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationUnitProcessor unitProcessor = factory.NullProcessor.CreateTestProcessor(configurationUnit);
 
             GetAllSettingsResultInstance getAllSettingsResult = new GetAllSettingsResultInstance(configurationUnit);
-            List<ValueSet> settings = new List<ValueSet>()
+            getAllSettingsResult.Settings = new List<ValueSet>()
             {
                 new ValueSet
                 {

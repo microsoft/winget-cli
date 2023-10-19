@@ -94,6 +94,6 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         /// <param name="name">Name.</param>
         /// <param name="moduleSpecification">Module specification.</param>
         /// <returns>If a reboot is required.</returns>
-        IReadOnlyList<ValueSet> InvokeExportResource(PowerShell pwsh, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
+        IList<ValueSet> InvokeExportResource(PowerShell pwsh, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
     }
 }

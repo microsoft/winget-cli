@@ -12,16 +12,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void ResultInformation(const IConfigurationUnitResultInformation& resultInformation);
-        void Settings(Windows::Foundation::Collections::IVectorView<Windows::Foundation::Collections::ValueSet>&& value);
+        void Settings(Windows::Foundation::Collections::IVector<Windows::Foundation::Collections::ValueSet>&& value);
 #endif
 
         IConfigurationUnitResultInformation ResultInformation() const;
-        Windows::Foundation::Collections::IVectorView<Windows::Foundation::Collections::ValueSet> Settings();
+        Windows::Foundation::Collections::IVector<Windows::Foundation::Collections::ValueSet> Settings();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         IConfigurationUnitResultInformation m_resultInformation;
-        Windows::Foundation::Collections::IVectorView<Windows::Foundation::Collections::ValueSet> m_settings;
+        Windows::Foundation::Collections::IVector<Windows::Foundation::Collections::ValueSet> m_settings;
 #endif
     };
 }

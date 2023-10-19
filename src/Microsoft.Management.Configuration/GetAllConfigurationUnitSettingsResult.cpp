@@ -21,12 +21,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_resultInformation;
     }
 
-    Windows::Foundation::Collections::IVectorView<Windows::Foundation::Collections::ValueSet> GetAllConfigurationUnitSettingsResult::Settings()
+    Windows::Foundation::Collections::IVector<Windows::Foundation::Collections::ValueSet> GetAllConfigurationUnitSettingsResult::Settings()
     {
         return m_settings;
     }
 
-    void GetAllConfigurationUnitSettingsResult::Settings(Windows::Foundation::Collections::IVectorView<Windows::Foundation::Collections::ValueSet>&& value)
+    void GetAllConfigurationUnitSettingsResult::Settings(Windows::Foundation::Collections::IVector<Windows::Foundation::Collections::ValueSet>&& value)
     {
         m_settings = std::move(value);
     }

@@ -41,6 +41,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public TestConfigurationUnitResultInformation InternalResult { get; } = new TestConfigurationUnitResultInformation();
 
         /// <inheritdoc/>
-        public IReadOnlyList<ValueSet>? Settings { get; internal set; }
+        public IList<ValueSet>? Settings { get; internal set; }
     }
 }

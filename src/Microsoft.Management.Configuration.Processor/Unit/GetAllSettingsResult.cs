@@ -41,6 +41,6 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         public ConfigurationUnitResultInformation InternalResult { get; } = new ConfigurationUnitResultInformation();
 
         /// <inheritdoc/>
-        public IReadOnlyList<ValueSet>? Settings { get; internal set; }
+        public IList<ValueSet>? Settings { get; internal set; }
     }
 }
