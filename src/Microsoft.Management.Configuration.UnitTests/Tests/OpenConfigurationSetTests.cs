@@ -588,7 +588,7 @@ resources:
         [InlineData("0.3", "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json")]
         public void Schema_Version_Uri(string version, string? uri)
         {
-            ConfigurationSet set = new ConfigurationSet();
+            ConfigurationSet set = this.ConfigurationSet();
 
             set.SchemaVersion = version;
             if (uri != null)
