@@ -1022,7 +1022,7 @@ TEST_CASE("UpdateFlow_UpdateWithReboot", "[UpdateFlow][workflow][reboot]")
     OverrideForShellExecute(context);
     OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_ExpectedReturnCodes }));
 
-    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe_ExpectedReturnCodes.Query);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_ExpectedReturnCodes.Query);
     context.Args.AddArg(Execution::Args::Type::AllowReboot);
 
     context.Override({ AppInstaller::CLI::Workflow::ShellExecuteInstallImpl, [&](TestContext& context)

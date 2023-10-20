@@ -1209,55 +1209,6 @@ TEST_CASE("InstallFlow_InstallAcquiresLock", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_InstallMultipleWithReboot", "[InstallFlow][workflow][MultiQuery][reboot]")
-{
-    TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFReboot>(true);
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForShellExecute(context);
-    OverrideForMSIX(context);
-    OverrideForOpenSource(context, CreateTestSource({ TSR::TestInstaller_Exe_ExpectedReturnCodes, TSR::TestInstaller_Msix }), true);
-
-    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe_ExpectedReturnCodes.Query);
-    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
-    context.Args.AddArg(Execution::Args::Type::AllowReboot);
-
-    context.Override({ ShellExecuteInstallImpl, [&](TestContext& context)
-    {
-        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH (not treated as an installer error)
-        context.Add<Data::OperationReturnCode>(9);
-    } });
-
-    SECTION("Reboot success")
-    {
-        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(true);
-
-        InstallCommand installCommand({});
-        installCommand.Execute(context);
-        INFO(installOutput.str());
-
-        REQUIRE_FALSE(context.IsTerminated());
-        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
-        REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
-    }
-    SECTION("Reboot failed")
-    {
-        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
-
-        InstallCommand installCommand({});
-        installCommand.Execute(context);
-        INFO(installOutput.str());
-
-        REQUIRE_FALSE(context.IsTerminated());
-        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
-        REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
-    }
-}
-
 TEST_CASE("InstallFlow_InstallWithReboot", "[InstallFlow][workflow][reboot]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");

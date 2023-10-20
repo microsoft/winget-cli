@@ -4,7 +4,6 @@
 #include "AppInstallerRuntime.h"
 #include "CheckpointManager.h"
 #include "InstallCommand.h"
-#include "Reboot.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
@@ -156,7 +155,5 @@ namespace AppInstaller::CLI
                     Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
             }
         }
-
-        InitiateRebootIfApplicable(context);
     }
 }

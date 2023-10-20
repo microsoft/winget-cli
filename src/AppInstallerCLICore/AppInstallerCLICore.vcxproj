@@ -396,7 +396,6 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PortableInstaller.h" />
     <ClInclude Include="Public\AppInstallerCLICore.h" />
-    <ClInclude Include="Reboot.h" />
     <ClInclude Include="Resources.h" />
     <ClInclude Include="Search\Search.h" />
     <ClInclude Include="TableOutput.h" />
@@ -473,7 +472,6 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PortableInstaller.cpp" />
-    <ClCompile Include="Reboot.cpp" />
     <ClCompile Include="Resources.cpp" />
     <ClCompile Include="VTSupport.cpp" />
     <ClCompile Include="Workflows\ArchiveFlow.cpp" />

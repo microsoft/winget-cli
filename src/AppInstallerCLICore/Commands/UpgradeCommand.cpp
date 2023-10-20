@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "UpgradeCommand.h"
-#include "Reboot.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/MultiQueryFlow.h"
@@ -210,7 +209,5 @@ namespace AppInstaller::CLI
                         APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
             }
         }
-
-        InitiateRebootIfApplicable(context);
     }
 }

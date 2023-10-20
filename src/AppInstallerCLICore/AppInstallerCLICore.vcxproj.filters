@@ -242,9 +242,6 @@
     <ClInclude Include="CheckpointManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Reboot.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -453,9 +450,6 @@
     </ClCompile>
     <ClCompile Include="Commands\ErrorCommand.cpp">
       <Filter>Commands</Filter>
-    </ClCompile>
-    <ClCompile Include="Reboot.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

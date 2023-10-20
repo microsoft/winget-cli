@@ -11,10 +11,6 @@
         {
           "Id": "AppInstallerCliTest.TestMsixInstaller.WFDep",
           "Version": "1.0.0.0"
-        },
-        {
-          "Id": "AppInstallerCliTest.ExpectedReturnCodes",
-          "Version": "1.0.0.0"
         }
       ],
       "SourceDetails": {
