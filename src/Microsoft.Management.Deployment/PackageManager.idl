@@ -906,12 +906,6 @@ namespace Microsoft.Management.Deployment
             /// The package installer type.
             PackageInstallerType InstallerType;
         }
-
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 9)]
-        {
-            // Allow a reboot to complete an installation if applicable.
-            Boolean AllowReboot;
-        }
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]

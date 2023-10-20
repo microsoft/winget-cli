@@ -160,13 +160,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_skipDependencies;
     }
-    void InstallOptions::AllowReboot(bool value)
-    {
-        m_allowReboot = value;
-    }
-    bool InstallOptions::AllowReboot()
-    {
-        return m_allowReboot;
-    }
     CoCreatableMicrosoftManagementDeploymentClass(InstallOptions);
 }
