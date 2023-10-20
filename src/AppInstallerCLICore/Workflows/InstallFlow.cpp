@@ -473,60 +473,59 @@ namespace AppInstaller::CLI::Workflow
             if (expectedReturnCodeItr != expectedReturnCodes.end() && expectedReturnCodeItr->second.ReturnResponseEnum != ExpectedReturnCodeEnum::Unknown)
             {
                 auto returnCode = ExpectedReturnCode::GetExpectedReturnCode(expectedReturnCodeItr->second.ReturnResponseEnum);
+                terminationHR = returnCode.HResult;
 
-                if (returnCode.HResult == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH)
+                switch (terminationHR)
                 {
+                case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH:
                     // REBOOT_REQUIRED_TO_FINISH is treated as a success since installation has completed but is pending a reboot.
                     context.SetFlags(ContextFlag::RebootRequired);
                     context.Reporter.Warn() << returnCode.Message << std::endl;
-                    return;
-                }
-                else if (returnCode.HResult == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL)
-                {
+                    terminationHR = S_OK;
+                    break;
+                case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
                     // REBOOT_REQUIRED_TO_INSTALL is treated as an error since installation has not yet completed.
                     context.SetFlags(ContextFlag::RebootRequired);
-
                     // TODO: Add separate workflow to handle restart registration for resume.
-                    context.SetFlags(ContextFlag::RegisterRestartForResume);
-                }
-                else
-                {
+                    context.SetFlags(ContextFlag::RegisterResume);
+                    // No break here since the error message still needs to be reported.
+                default:
                     context.Reporter.Error() << returnCode.Message << std::endl;
-
                     auto returnResponseUrl = expectedReturnCodeItr->second.ReturnResponseUrl;
                     if (!returnResponseUrl.empty())
                     {
                         context.Reporter.Error() << Resource::String::RelatedLink << ' ' << returnResponseUrl << std::endl;
                     }
                 }
-
-                terminationHR = returnCode.HResult;
             }
 
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, m_installerType, installResult);
-
-            if (m_isHResult)
+            if (FAILED(terminationHR))
             {
-                context.Reporter.Error()
-                    << Resource::String::InstallerFailedWithCode(Utility::LocIndView{ GetUserPresentableMessage(installResult) })
-                    << std::endl;
-            }
-            else
-            {
-                context.Reporter.Error()
-                    << Resource::String::InstallerFailedWithCode(installResult)
-                    << std::endl;
-            }
+                const auto& manifest = context.Get<Execution::Data::Manifest>();
+                Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, m_installerType, installResult);
 
-            // Show installer log path if exists
-            if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
-            {
-                auto installerLogPath = Utility::LocIndString{ context.Get<Execution::Data::LogPath>().u8string() };
-                context.Reporter.Info() << Resource::String::InstallerLogAvailable(installerLogPath) << std::endl;
-            }
+                if (m_isHResult)
+                {
+                    context.Reporter.Error()
+                        << Resource::String::InstallerFailedWithCode(Utility::LocIndView{ GetUserPresentableMessage(installResult) })
+                        << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Error()
+                        << Resource::String::InstallerFailedWithCode(installResult)
+                        << std::endl;
+                }
 
-            AICLI_TERMINATE_CONTEXT(terminationHR);
+                // Show installer log path if exists
+                if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
+                {
+                    auto installerLogPath = Utility::LocIndString{ context.Get<Execution::Data::LogPath>().u8string() };
+                    context.Reporter.Info() << Resource::String::InstallerLogAvailable(installerLogPath) << std::endl;
+                }
+
+                AICLI_TERMINATE_CONTEXT(terminationHR);
+            }
         }
         else
         {
