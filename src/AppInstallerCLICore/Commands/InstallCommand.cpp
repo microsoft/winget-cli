@@ -139,13 +139,15 @@ namespace AppInstaller::CLI
 
             if (context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
+                bool skipDependencies = Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies);
                 context <<
                     Workflow::GetMultiSearchRequests <<
                     Workflow::SearchSubContextsForSingle() <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
                     Workflow::ProcessMultiplePackages(
                         Resource::String::PackageRequiresDependencies,
-                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED,
+                        {}, true, skipDependencies);
             }
             else
             {
