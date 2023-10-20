@@ -43,17 +43,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             factory.NullProcessor = new TestConfigurationSetProcessor(null);
             TestConfigurationUnitProcessor unitProcessor = factory.NullProcessor.CreateTestProcessor(configurationUnit);
-            unitProcessor.GetAllSettingsDelegate = () => throw new InvalidDataException();
+            unitProcessor.GetAllSettingsDelegate = () => throw new FileNotFoundException();
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
             GetAllConfigurationUnitSettingsResult result = processor.GetAllUnitSettings(configurationUnit);
 
             Assert.NotNull(result);
-            Assert.NotNull(result.Settings);
+            Assert.Null(result.Settings);
             Assert.NotNull(result.ResultInformation);
             Assert.NotNull(result.ResultInformation.ResultCode);
-            Assert.IsType<InvalidDataException>(result.ResultInformation.ResultCode);
+            Assert.IsType<FileNotFoundException>(result.ResultInformation.ResultCode);
         }
 
         /// <summary>
