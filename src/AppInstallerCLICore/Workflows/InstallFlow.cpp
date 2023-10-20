@@ -547,7 +547,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::PackageRequiresDependencies) <<
             Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true);
+            Workflow::ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, true, true, true, true);
     }
 
     void DownloadPackageDependencies(Execution::Context& context)
@@ -619,39 +619,43 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
+        bool downloadInstallerOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
+
         // Show all prompts needed for every package before installing anything
-        context << Workflow::ShowPromptsForMultiplePackages(m_ensurePackageAgreements);
+        context << Workflow::ShowPromptsForMultiplePackages(m_ensurePackageAgreements, downloadInstallerOnly);
 
         if (context.IsTerminated())
         {
             return;
         }
 
-        bool downloadInstallerOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
-
         // Report dependencies
-        auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
-        if (!packageSubContexts.empty())
+        if (!m_ignorePackageDependencies)
         {
-            if (downloadInstallerOnly)
+            auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
+
+            DependencyList allDependencies;
+
+            for (auto& packageContext : packageSubContexts)
             {
-                context.Reporter.Info() << Resource::String::DependenciesFlowDownload << std::endl;
+                allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
             }
-            else
+
+            if (!allDependencies.Empty())
             {
-                context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
+                if (downloadInstallerOnly)
+                {
+                    context.Reporter.Info() << Resource::String::DependenciesFlowDownload << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
+                }
             }
+
+            context.Add<Execution::Data::Dependencies>(allDependencies);
+            context << Workflow::ReportDependencies(m_dependenciesReportMessage);
         }
-
-        DependencyList allDependencies;
-
-        for (auto& packageContext : packageSubContexts)
-        {
-            allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
-        }
-
-        context.Add<Execution::Data::Dependencies>(allDependencies);
-        context << Workflow::ReportDependencies(m_dependenciesReportMessage);
 
         bool allSucceeded = true;
         size_t packagesCount = context.Get<Execution::Data::PackageSubContexts>().size();
@@ -671,14 +675,11 @@ namespace AppInstaller::CLI::Workflow
             // Prevent individual exceptions from breaking out of the loop
             try
             {
-                if (!m_ignorePackageDependencies)
+                // Handle dependencies if requested.
+                if (!m_ignorePackageDependencies && !downloadInstallerOnly)
                 {
-                    if (!downloadInstallerOnly)
-                    {
-                        currentContext << Workflow::EnableWindowsFeaturesDependencies;
-                    }
-
                     currentContext <<
+                        Workflow::EnableWindowsFeaturesDependencies <<
                         Workflow::CreateDependencySubContexts(m_dependenciesReportMessage) <<
                         Workflow::ProcessMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, true, true, true, true);
                 }
