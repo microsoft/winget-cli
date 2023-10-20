@@ -634,7 +634,14 @@ namespace AppInstaller::CLI::Workflow
         {
             auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
 
-            if (!packageSubContexts.empty())
+            DependencyList allDependencies;
+
+            for (auto& packageContext : packageSubContexts)
+            {
+                allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
+            }
+
+            if (!allDependencies.Empty())
             {
                 if (downloadInstallerOnly)
                 {
@@ -644,13 +651,6 @@ namespace AppInstaller::CLI::Workflow
                 {
                     context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
                 }
-            }
-
-            DependencyList allDependencies;
-
-            for (auto& packageContext : packageSubContexts)
-            {
-                allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
             }
 
             context.Add<Execution::Data::Dependencies>(allDependencies);
