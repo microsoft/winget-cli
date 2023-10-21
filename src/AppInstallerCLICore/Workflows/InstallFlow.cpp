@@ -488,9 +488,11 @@ namespace AppInstaller::CLI::Workflow
                     context.SetFlags(ContextFlag::RebootRequired);
                     // TODO: Add separate workflow to handle restart registration for resume.
                     context.SetFlags(ContextFlag::RegisterResume);
-                    // No break here since the error message still needs to be reported.
-                    [[fallthrough]];
-                default:
+                    break;
+                }
+
+                if (FAILED(terminationHR))
+                {
                     context.Reporter.Error() << returnCode.Message << std::endl;
                     auto returnResponseUrl = expectedReturnCodeItr->second.ReturnResponseUrl;
                     if (!returnResponseUrl.empty())
