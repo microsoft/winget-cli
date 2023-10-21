@@ -68,7 +68,9 @@ namespace AppInstaller::CLI::Execution
         DisableInteractivity = 0x40,
         BypassIsStoreClientBlockedPolicyCheck = 0x80,
         InstallerDownloadOnly = 0x100,
-        Resume = 0x200
+        Resume = 0x200,
+        RebootRequired = 0x400,
+        RegisterResume = 0x800,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);

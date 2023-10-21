@@ -66,6 +66,11 @@ namespace AppInstaller
         void TestHook_SetEnableWindowsFeatureResult_Override(std::optional<DWORD>&& result);
         void TestHook_SetDoesWindowsFeatureExistResult_Override(std::optional<DWORD>&& result);
     }
+
+    namespace Reboot
+    {
+        void TestHook_SetInitiateRebootResult_Override(bool* status);
+    }
 }
 
 namespace TestHook
@@ -155,5 +160,21 @@ namespace TestHook
         {
             AppInstaller::CLI::Workflow::TestHook_SetDoesWindowsFeatureExistResult_Override({});
         }
+    };
+
+    struct SetInitiateRebootResult_Override
+    {
+        SetInitiateRebootResult_Override(bool status) : m_status(status)
+        {
+            AppInstaller::Reboot::TestHook_SetInitiateRebootResult_Override(&m_status);
+        }
+
+        ~SetInitiateRebootResult_Override()
+        {
+            AppInstaller::Reboot::TestHook_SetInitiateRebootResult_Override(nullptr);
+        }
+
+    private:
+        bool m_status;
     };
 }

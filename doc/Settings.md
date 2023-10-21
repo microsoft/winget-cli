@@ -284,3 +284,14 @@ You can enable the feature as shown below.
        "windowsFeature": true
    },
 ```
+
+### reboot
+
+This feature enables support for initiating a reboot.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "reboot": true
+   },
+```

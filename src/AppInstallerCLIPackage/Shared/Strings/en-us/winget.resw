@@ -2610,4 +2610,13 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="CommandDoesNotSupportResumeMessage" xml:space="preserve">
     <value>This command does not support resuming.</value>
   </data>
+  <data name="AllowRebootArgumentDescription" xml:space="preserve">
+    <value>Allows a reboot if applicable</value>
+  </data>
+  <data name="InitiatingReboot" xml:space="preserve">
+    <value>Initiating reboot to complete operation...</value>
+  </data>
+  <data name="FailedToInitiateReboot" xml:space="preserve">
+    <value>Failed to initiate a reboot.</value>
+  </data>
 </root>
