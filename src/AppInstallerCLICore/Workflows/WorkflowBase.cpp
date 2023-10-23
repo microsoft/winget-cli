@@ -1109,13 +1109,15 @@ namespace AppInstaller::CLI::Workflow
         if (pathAsUri && !pathAsUri.Suspicious())
         {
             // SchemeName() always returns lower case
-            if (L"file" == pathAsUri.SchemeName())
+            if (L"file" == pathAsUri.SchemeName() && !Utility::CaseInsensitiveStartsWith(path, "file:"))
             {
-                // Let VerifyFile do the work.
+                // Uri constructor is smart enough to parse an absolute local file path to file uri.
+                // In this case, we should continue with VerifyFile.
+                context << VerifyFile(m_arg);
             }
-            else if (L"https" != pathAsUri.SchemeName())
+            else if (std::find(m_supportedSchemes.begin(), m_supportedSchemes.end(), pathAsUri.SchemeName()) != m_supportedSchemes.end())
             {
-                // Currently only https supported.
+                // Scheme supported.
                 return;
             }
             else
@@ -1124,8 +1126,10 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
         }
-
-        context << VerifyFile(m_arg);
+        else
+        {
+            context << VerifyFile(m_arg);
+        }
     }
 
     void GetManifestFromArg(Execution::Context& context)

@@ -1328,6 +1328,37 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ValidateConfigurationSetUnitContents(Execution::Context& context)
+    {
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+        auto units = configContext.Set().Units();
+
+        bool foundIssues = false;
+        for (uint32_t i = 0; i < units.Size(); ++i)
+        {
+            const ConfigurationUnit& unit = units.GetAt(i);
+            auto details = unit.Details();
+            auto metadata = unit.Metadata();
+            auto settings = unit.Settings();
+            foundIssues = details.IsLocal();
+            for (const auto& [key, value] : metadata)
+            {
+                std::wcout << key.c_str() << std::endl;
+            }
+            for (const auto& [key, value] : settings)
+            {
+                std::wcout << key.c_str() << std::endl;
+            }
+            (settings);
+        }
+
+        if (foundIssues)
+        {
+            // Indicate that it was not a total success
+            AICLI_TERMINATE_CONTEXT(S_FALSE);
+        }
+    }
+
     void ValidateAllGoodMessage(Execution::Context& context)
     {
         context.Reporter.Info() << Resource::String::ConfigurationValidationFoundNoIssues << std::endl;

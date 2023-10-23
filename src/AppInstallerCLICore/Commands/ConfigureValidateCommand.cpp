@@ -42,6 +42,7 @@ namespace AppInstaller::CLI
             OpenConfigurationSet <<
             ValidateConfigurationSetSemantics <<
             ValidateConfigurationSetUnitProcessors <<
+            ValidateConfigurationSetUnitContents <<
             ValidateAllGoodMessage;
     }
 

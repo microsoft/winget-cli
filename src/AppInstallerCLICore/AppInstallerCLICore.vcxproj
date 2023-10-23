@@ -380,6 +380,7 @@
     <ClInclude Include="CompletionData.h" />
     <ClInclude Include="ConfigurationCommon.h" />
     <ClInclude Include="ConfigurationContext.h" />
+    <ClInclude Include="ConfigurationWingetDscModuleUnitValidation.h" />
     <ClInclude Include="ContextOrchestrator.h" />
     <ClInclude Include="COMContext.h" />
     <ClInclude Include="Public\ConfigurationSetProcessorFactoryRemoting.h" />
@@ -436,6 +437,7 @@
     <ClCompile Include="ConfigurationCommon.cpp" />
     <ClCompile Include="ConfigurationContext.cpp" />
     <ClCompile Include="ConfigurationSetProcessorFactoryRemoting.cpp" />
+    <ClCompile Include="ConfigurationWingetDscModuleUnitValidation.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
     <ClCompile Include="Workflows\ConfigurationFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />
