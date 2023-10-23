@@ -43,4 +43,28 @@ namespace AppInstaller::CLI::Workflow
             }
         }
     }
+
+    void RegisterForRestart(Execution::Context& context)
+    {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume) && 
+            !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot))
+        {
+            return;
+        }
+
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterResume))
+        {
+            const auto& commandLineArg = L"resume -g " + Utility::ConvertToUTF16(context.GetResumeId());
+
+            //AICLI_LOG(CLI, Info, << "Registering for restart with command line args: " << commandLineArg);
+
+            HRESULT result = RegisterApplicationRestart(commandLineArg.c_str(), 0);
+
+            if (FAILED(result))
+            {
+                AICLI_LOG(CLI, Error, << "RegisterApplicationRestart error: " << result);
+                context.Reporter.Error() << "Failed to register for restart." << std::endl;
+            }
+        }
+    }
 }

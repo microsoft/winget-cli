@@ -169,6 +169,9 @@ namespace AppInstaller::CLI::Execution
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
 
+        // Returns the resume id.
+        std::string GetResumeId();
+
         // Called by the resume command. Loads the checkpoint manager with the resume id and returns the automatic checkpoint.
         std::optional<AppInstaller::Checkpoints::Checkpoint<AppInstaller::Checkpoints::AutomaticCheckpointData>> LoadCheckpoint(const std::string& resumeId);
 

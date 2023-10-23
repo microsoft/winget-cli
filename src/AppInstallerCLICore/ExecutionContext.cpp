@@ -427,6 +427,11 @@ namespace AppInstaller::CLI::Execution
     }
 #endif
 
+    std::string Context::GetResumeId()
+    {
+        return m_checkpointManager->GetResumeId();
+    }
+
     std::optional<Checkpoint<AutomaticCheckpointData>> Context::LoadCheckpoint(const std::string& resumeId)
     {
         m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>(resumeId);

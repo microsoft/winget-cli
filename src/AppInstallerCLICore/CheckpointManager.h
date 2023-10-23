@@ -30,6 +30,9 @@ namespace AppInstaller::Checkpoints
         // Gets the file path of the checkpoint database.
         static std::filesystem::path GetCheckpointDatabasePath(const std::string_view& resumeId, bool createCheckpointDirectory = false);
 
+        // Gets the resume id.
+        std::string GetResumeId() { return m_resumeId; };
+
         // Gets the automatic checkpoint.
         std::optional<Checkpoint<AutomaticCheckpointData>> GetAutomaticCheckpoint();
 

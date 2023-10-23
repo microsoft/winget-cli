@@ -33,4 +33,6 @@ namespace AppInstaller::CLI::Workflow
 
         void operator()(Execution::Context& context) const override;
     };
+
+    void RegisterForRestart(Execution::Context& context);
 }
