@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerRuntime.h"
+#include "CheckpointManager.h"
 #include "InstallCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/MultiQueryFlow.h"
+#include "Workflows/ResumeFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
-
 
 namespace AppInstaller::CLI
 {
@@ -40,6 +42,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AllowReboot),
             Argument::ForType(Args::Type::SkipDependencies),
             Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
             Argument::ForType(Args::Type::DependencySource),
@@ -103,6 +106,12 @@ namespace AppInstaller::CLI
         Argument::ValidateCommonArguments(execArgs);
     }
 
+    void InstallCommand::Resume(Context& context) const
+    {
+        // TODO: Load context data from checkpoint for install command.
+        ExecuteInternal(context);
+    }
+
     void InstallCommand::ExecuteInternal(Context& context) const
     {
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
@@ -114,6 +123,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
+                Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
                 Workflow::InstallSinglePackage;
         }
         else
@@ -130,17 +140,21 @@ namespace AppInstaller::CLI
 
             if (context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
+                bool skipDependencies = Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies);
                 context <<
                     Workflow::GetMultiSearchRequests <<
                     Workflow::SearchSubContextsForSingle() <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
                     Workflow::ProcessMultiplePackages(
                         Resource::String::PackageRequiresDependencies,
-                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED,
+                        {}, true, skipDependencies);
             }
             else
             {
-                context << Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
+                context <<
+                    Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
+                    Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
             }
         }
     }

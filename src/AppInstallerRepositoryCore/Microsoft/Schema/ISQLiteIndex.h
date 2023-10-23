@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
-#include "Microsoft/Schema/Version.h"
+#include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteVersion.h>
 #include "ISource.h"
 #include <AppInstallerVersions.h>
 #include <winget/Manifest.h>
@@ -14,9 +14,6 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
-    // Forward declarations
-    struct Version;
-
     // The common interface used to interact with all schema versions of the index.
     struct ISQLiteIndex
     {
@@ -36,7 +33,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Version 1.0
 
         // Gets the schema version that this index interface is built for.
-        virtual Schema::Version GetVersion() const = 0;
+        virtual SQLite::Version GetVersion() const = 0;
 
         // Options for creating the index.
         enum class CreateOptions

@@ -19,7 +19,7 @@
 
 using namespace std::string_view_literals;
 
-namespace AppInstaller::Repository::SQLite
+namespace AppInstaller::SQLite
 {
     // The name of the rowid column in SQLite.
     extern std::string_view RowIDName;

@@ -575,6 +575,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     bool updateCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
     factory.OnUpdate = [&](const SourceDetails&) { updateCalledOnFactory = true; };
+    factory.ShouldUpdateBeforeOpenResult = true;
     TestHook_SetSourceFactoryOverride(type, factory);
 
     SetSetting(Stream::UserSources, s_SingleSource);

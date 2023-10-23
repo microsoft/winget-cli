@@ -3,10 +3,10 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <AppInstallerErrors.h>
-#include <SQLiteWrapper.h>
-#include <SQLiteStatementBuilder.h>
+#include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteStatementBuilder.h>
 
-using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::SQLite;
 using namespace std::string_literals;
 
 static const char* s_firstColumn = "first";

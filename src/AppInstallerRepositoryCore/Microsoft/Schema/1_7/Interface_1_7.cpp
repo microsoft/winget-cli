@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/Schema/1_7/Interface.h"
-#include "Microsoft/Schema/MetadataTable.h"
+#include <winget/SQLiteMetadataTable.h>
 #include "Microsoft/Schema/1_0/CommandsTable.h"
 #include "Microsoft/Schema/1_0/IdTable.h"
 #include "Microsoft/Schema/1_0/TagsTable.h"
@@ -20,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_7
             // Get the metadata indicator that we folded these multi properties.
             // If it contains the value for folding these properties in the 1.7 manner, also fold the incoming manifest
             // to the same value that it would have been folded to so that all manifest entries will have all of these properties.
-            std::optional<std::string> mapDataFolded = MetadataTable::TryGetNamedValue<std::string>(connection, s_MetadataValueName_MapDataFolded);
+            std::optional<std::string> mapDataFolded = SQLite::MetadataTable::TryGetNamedValue<std::string>(connection, s_MetadataValueName_MapDataFolded);
 
             if (mapDataFolded)
             {
@@ -43,7 +43,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_7
     {
     }
 
-    Schema::Version Interface::GetVersion() const
+    SQLite::Version Interface::GetVersion() const
     {
         return { 1, 7 };
     }
@@ -95,7 +95,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_7
             }
         }
 
-        MetadataTable::SetNamedValue(connection, s_MetadataValueName_MapDataFolded, MapDataFolded_VersionSpecifier);
+        SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_MapDataFolded, MapDataFolded_VersionSpecifier);
 
         V1_6::Interface::PrepareForPackaging(connection, false);
 

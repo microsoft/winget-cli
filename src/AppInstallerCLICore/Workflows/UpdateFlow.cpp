@@ -263,11 +263,13 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Add<Execution::Data::PackageSubContexts>(std::move(packageSubContexts));
             context.Reporter.Info() << std::endl;
+            bool skipDependencies = Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies);
             context <<
                 ProcessMultiplePackages(
                     Resource::String::PackageRequiresDependencies,
                     APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE,
-                    { APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE });
+                    { APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE },
+                    true, skipDependencies);
         }
 
         if (packagesWithUnknownVersionSkipped > 0)

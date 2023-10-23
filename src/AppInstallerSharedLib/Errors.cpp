@@ -196,6 +196,11 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, "Failed to download package dependencies."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED, "Failed to download package. Download for offline installation is prohibited."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE, "A required service is busy or unavailable. Try again later."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND, "The guid provided does not correspond to a valid resume state."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH, "The current client version did not match the client version of the saved state."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE, "The resume state data is invalid."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_CANNOT_OPEN_CHECKPOINT_INDEX, "Unable to open the checkpoint database."),
+
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),

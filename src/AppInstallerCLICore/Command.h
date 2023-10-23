@@ -112,6 +112,8 @@ namespace AppInstaller::CLI
 
         virtual void Execute(Execution::Context& context) const;
 
+        virtual void Resume(Execution::Context& context) const;
+
     protected:
         void SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value);
 
@@ -127,6 +129,7 @@ namespace AppInstaller::CLI
         Settings::TogglePolicy::Policy m_groupPolicy;
         CommandOutputFlags m_outputFlags;
         bool m_selectCurrentCommandIfUnrecognizedSubcommandFound = false;
+        std::string m_commandArguments;
     };
 
     template <typename Container>

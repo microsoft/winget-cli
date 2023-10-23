@@ -91,6 +91,8 @@ namespace AppInstaller::CLI
             return { type, "no-upgrade"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::SkipDependencies:
             return { type, "skip-dependencies"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
+        case Execution::Args::Type::AllowReboot:
+            return { type, "allow-reboot"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
 
         // Uninstall behavior
         case Execution::Args::Type::Purge:
@@ -179,6 +181,10 @@ namespace AppInstaller::CLI
         // Error command
         case Execution::Args::Type::ErrorInput:
             return { type, "input"_liv, ArgTypeCategory::None };
+
+        // Resume command
+        case Execution::Args::Type::ResumeId:
+            return { type, "resume-id"_liv, 'g', ArgTypeCategory::None };
 
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:
@@ -355,6 +361,10 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::DownloadDirectoryArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
         case Args::Type::InstallerType:
             return Argument{ type, Resource::String::InstallerTypeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
+        case Args::Type::ResumeId:
+            return Argument{ type, Resource::String::ResumeIdArgumentDescription, ArgumentType::Standard, true };
+        case Args::Type::AllowReboot:
+            return Argument{ type, Resource::String::AllowRebootArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Reboot };
         default:
             THROW_HR(E_UNEXPECTED);
         }

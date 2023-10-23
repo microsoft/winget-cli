@@ -166,6 +166,7 @@ etstandard
 ETW
 EULA
 EVENTTAG
+EWX
 exe
 executables
 executionengine
@@ -233,6 +234,7 @@ https
 HWND
 Hyperlink
 IAppx
+ICheckpoint
 IConfiguration
 icu
 IDX
@@ -293,6 +295,7 @@ LONGLONG
 LPCGUID
 LPCSTR
 LPVOID
+Luid
 mailto
 MAJORVERSION
 makeappx
@@ -466,6 +469,7 @@ resetpins
 resheader
 resmimetype
 RESOLVESOURCE
+RESTARTAPPS
 RESTSOURCE
 resw
 resx
@@ -508,6 +512,7 @@ SHELLEXECUTEINFOA
 SHELLEXECUTEINFOW
 shlobj
 Shlwapi
+SHTDN
 shtypes
 signtool
 silentwithprogress

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "SQLiteStatementBuilder.h"
+#include "Public/winget/SQLiteStatementBuilder.h"
 
-namespace AppInstaller::Repository::SQLite::Builder
+namespace AppInstaller::SQLite::Builder
 {
     std::ostream& operator<<(std::ostream& out, const QualifiedColumn& column)
     {
@@ -141,6 +141,9 @@ namespace AppInstaller::Repository::SQLite::Builder
                 break;
             case Type::Blob:
                 out << "BLOB";
+                break;
+            case Type::Integer:
+                out << "INTEGER";
                 break;
             default:
                 THROW_HR(E_UNEXPECTED);
@@ -501,6 +504,18 @@ namespace AppInstaller::Repository::SQLite::Builder
     StatementBuilder& StatementBuilder::OrderBy(const QualifiedColumn& column)
     {
         OutputColumns(m_stream, " ORDER BY ", column);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Ascending()
+    {
+        m_stream << " ASC";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Descending()
+    {
+        m_stream << " DESC";
         return *this;
     }
 
