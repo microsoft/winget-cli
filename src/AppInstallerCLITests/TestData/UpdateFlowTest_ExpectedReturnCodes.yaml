@@ -1,5 +1,6 @@
+# Same content with InstallFlowTest_ExpectedReturnCodes.yaml but with higher version
 PackageIdentifier: AppInstallerCliTest.ExpectedReturnCodes
-PackageVersion: 1.0.0.0
+PackageVersion: 2.0.0.0
 PackageLocale: en-US
 PackageName: TestExeInstallerWithExpectedReturnCodes
 ShortDescription: AppInstaller Test Installer

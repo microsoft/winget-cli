@@ -46,6 +46,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFResume>();
             case ExperimentalFeature::Feature::Configuration03:
                 return userSettings.Get<Setting::EFConfiguration03>();
+            case ExperimentalFeature::Feature::Reboot:
+                return userSettings.Get<Setting::EFReboot>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -81,6 +83,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Resume", "resume", "https://aka.ms/winget-settings", Feature::Resume };
         case Feature::Configuration03:
             return ExperimentalFeature{ "Configuration Schema 0.3", "configuration03", "https://aka.ms/winget-settings", Feature::Configuration03 };
+        case Feature::Reboot:
+            return ExperimentalFeature{ "Reboot", "reboot", "https://aka.ms/winget-settings", Feature::Reboot };
         default:
             THROW_HR(E_UNEXPECTED);
         }

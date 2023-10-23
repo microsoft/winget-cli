@@ -1275,7 +1275,7 @@ AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::
 
 AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, const AppInstaller::CLI::Workflow::WorkflowTask& task)
 {
-    if (!context.IsTerminated())
+    if (!context.IsTerminated() || task.ExecuteAlways())
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (context.ShouldExecuteWorkflowTask(task))

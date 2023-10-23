@@ -204,6 +204,22 @@ namespace TestCommon
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
             });
 
+        const TestSourceResult TestInstaller_Exe_ExpectedReturnCodes(
+            "AppInstallerCliTest.ExpectedReturnCodes"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_ExpectedReturnCodes.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_ExpectedReturnCodes.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.ExpectedReturnCodes")));
+            });
+
         const TestSourceResult TestInstaller_Exe_UnknownVersion(
             "TestExeInstallerWithUnknownVersion"sv,
             [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {

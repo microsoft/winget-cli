@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
-    std::shared_ptr<CheckpointDatabase> CheckpointDatabase::CreateNew(const std::string& filePath, Schema::Version version)
+    std::shared_ptr<CheckpointDatabase> CheckpointDatabase::CreateNew(const std::string& filePath, SQLite::Version version)
     {
         AICLI_LOG(Repo, Info, << "Creating new Checkpoint database with version [" << version << "] at '" << filePath << "'");
         CheckpointDatabase result{ filePath, version };
@@ -103,7 +103,7 @@ namespace AppInstaller::Repository::Microsoft
 
     std::unique_ptr<Schema::ICheckpointDatabase> CheckpointDatabase::CreateICheckpointDatabase() const
     {
-        if (m_version == Schema::Version{ 1, 0 } ||
+        if (m_version == SQLite::Version{ 1, 0 } ||
             m_version.MajorVersion == 1 ||
             m_version.IsLatest())
         {
@@ -121,7 +121,7 @@ namespace AppInstaller::Repository::Microsoft
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
 
-    CheckpointDatabase::CheckpointDatabase(const std::string& target, Schema::Version version) : SQLiteStorageBase(target, version)
+    CheckpointDatabase::CheckpointDatabase(const std::string& target, SQLite::Version version) : SQLiteStorageBase(target, version)
     {
         m_interface = CreateICheckpointDatabase();
         m_version = m_interface->GetVersion();

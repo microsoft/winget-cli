@@ -296,6 +296,17 @@ You can enable the feature as shown below.
    },
 ```
 
+### reboot
+
+This feature enables support for initiating a reboot.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "reboot": true
+   },
+```
+
 ### configuration03
 
 This feature enables the configuration schema 0.3.

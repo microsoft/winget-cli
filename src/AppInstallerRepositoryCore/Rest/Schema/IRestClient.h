@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Microsoft/Schema/Version.h"
+#include <winget/SQLiteVersion.h>
 #include <winget/Manifest.h>
 #include <winget/RepositorySearch.h>
 #include <AppInstallerVersions.h>

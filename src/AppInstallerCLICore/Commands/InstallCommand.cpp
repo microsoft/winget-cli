@@ -42,6 +42,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AllowReboot),
             Argument::ForType(Args::Type::SkipDependencies),
             Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
             Argument::ForType(Args::Type::DependencySource),
@@ -139,13 +140,15 @@ namespace AppInstaller::CLI
 
             if (context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
+                bool skipDependencies = Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies);
                 context <<
                     Workflow::GetMultiSearchRequests <<
                     Workflow::SearchSubContextsForSingle() <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
                     Workflow::ProcessMultiplePackages(
                         Resource::String::PackageRequiresDependencies,
-                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED,
+                        {}, true, skipDependencies);
             }
             else
             {

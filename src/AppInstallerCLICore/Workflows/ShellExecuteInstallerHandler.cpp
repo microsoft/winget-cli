@@ -202,45 +202,6 @@ namespace AppInstaller::CLI::Workflow
 
             return args;
         }
-
-        std::filesystem::path GetDismExecutablePath()
-        {
-            return AppInstaller::Filesystem::GetExpandedPath("%windir%\\system32\\dism.exe");
-        }
-
-        std::optional<DWORD> DoesWindowsFeatureExist(Execution::Context& context, std::string_view featureName)
-        {
-            std::string args = "/Online /Get-FeatureInfo /FeatureName:" + std::string{ featureName };
-            auto dismExecPath = GetDismExecutablePath();
-
-            auto getFeatureInfoResult = context.Reporter.ExecuteWithProgress(
-                std::bind(InvokeShellExecuteEx,
-                    dismExecPath,
-                    args,
-                    false,
-                    SW_HIDE,
-                    std::placeholders::_1));
-
-            return getFeatureInfoResult;
-        }
-
-        std::optional<DWORD> EnableWindowsFeature(Execution::Context& context, std::string_view featureName)
-        {
-            std::string args = "/Online /Enable-Feature /NoRestart /FeatureName:" + std::string{ featureName };
-            auto dismExecPath = GetDismExecutablePath();
-
-            AICLI_LOG(Core, Info, << "Enabling Windows Feature [" << featureName << "]");
-
-            auto enableFeatureResult = context.Reporter.ExecuteWithProgress(
-                std::bind(InvokeShellExecuteEx,
-                    dismExecPath,
-                    args,
-                    false,
-                    SW_HIDE,
-                    std::placeholders::_1));
-
-            return enableFeatureResult;
-        }
     }
 
     void ShellExecuteInstallImpl(Execution::Context& context)
@@ -370,17 +331,64 @@ namespace AppInstaller::CLI::Workflow
     }
 #endif
 
+    std::filesystem::path GetDismExecutablePath()
+    {
+        return AppInstaller::Filesystem::GetExpandedPath("%windir%\\system32\\dism.exe");
+    }
+
+    std::optional<DWORD> DoesWindowsFeatureExist(Execution::Context& context, std::string_view featureName)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_DoesWindowsFeatureExistResult_Override)
+        {
+            return s_DoesWindowsFeatureExistResult_Override;
+        }
+#endif
+
+        std::string args = "/Online /Get-FeatureInfo /FeatureName:" + std::string{ featureName };
+        auto dismExecPath = GetDismExecutablePath();
+
+        auto getFeatureInfoResult = context.Reporter.ExecuteWithProgress(
+            std::bind(InvokeShellExecuteEx,
+                dismExecPath,
+                args,
+                false,
+                SW_HIDE,
+                std::placeholders::_1));
+
+        return getFeatureInfoResult;
+    }
+
+    std::optional<DWORD> EnableWindowsFeature(Execution::Context& context, std::string_view featureName)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_EnableWindowsFeatureResult_Override)
+        {
+            return s_EnableWindowsFeatureResult_Override;
+        }
+#endif
+
+        std::string args = "/Online /Enable-Feature /NoRestart /FeatureName:" + std::string{ featureName };
+        auto dismExecPath = GetDismExecutablePath();
+
+        AICLI_LOG(Core, Info, << "Enabling Windows Feature [" << featureName << "]");
+
+        auto enableFeatureResult = context.Reporter.ExecuteWithProgress(
+            std::bind(InvokeShellExecuteEx,
+                dismExecPath,
+                args,
+                false,
+                SW_HIDE,
+                std::placeholders::_1));
+
+        return enableFeatureResult;
+    }
+
     void ShellExecuteEnableWindowsFeature::operator()(Execution::Context& context) const
     {
         Utility::LocIndView locIndFeatureName{ m_featureName };
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        auto doesFeatureExistResult = s_DoesWindowsFeatureExistResult_Override.has_value() ?
-            s_DoesWindowsFeatureExistResult_Override.value() :
-            DoesWindowsFeatureExist(context, m_featureName);
-#else
-        auto doesFeatureExistResult = DoesWindowsFeatureExist(context, featureName);
-#endif
+        std::optional<DWORD> doesFeatureExistResult = DoesWindowsFeatureExist(context, m_featureName);
 
         if (!doesFeatureExistResult)
         {
@@ -394,13 +402,7 @@ namespace AppInstaller::CLI::Workflow
 
         context.Reporter.Info() << Resource::String::EnablingWindowsFeature(locIndFeatureName) << std::endl;
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        auto enableFeatureResult = s_EnableWindowsFeatureResult_Override.has_value() ?
-            s_EnableWindowsFeatureResult_Override.value() :
-            EnableWindowsFeature(context, m_featureName);
-#else
-        auto enableFeatureResult = EnableWindowsFeature(context, featureName);
-#endif
+        std::optional<DWORD> enableFeatureResult = EnableWindowsFeature(context, m_featureName);
 
         if (!enableFeatureResult)
         {
