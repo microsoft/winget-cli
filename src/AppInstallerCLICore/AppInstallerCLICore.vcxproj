@@ -350,6 +350,7 @@
   <ItemGroup>
     <ClInclude Include="Argument.h" />
     <ClInclude Include="ChannelStreams.h" />
+    <ClInclude Include="CheckpointManager.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commands\COMCommand.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
@@ -359,6 +360,7 @@
     <ClInclude Include="Commands\ConfigureValidateCommand.h" />
     <ClInclude Include="Commands\DebugCommand.h" />
     <ClInclude Include="Commands\DownloadCommand.h" />
+    <ClInclude Include="Commands\ErrorCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\ExportCommand.h" />
     <ClInclude Include="Commands\ImportCommand.h" />
@@ -370,6 +372,7 @@
     <ClInclude Include="Commands\ShowCommand.h" />
     <ClInclude Include="Commands\InstallCommand.h" />
     <ClInclude Include="Commands\RootCommand.h" />
+    <ClInclude Include="Commands\ResumeCommand.h" />
     <ClInclude Include="Commands\SourceCommand.h" />
     <ClInclude Include="Commands\TestCommand.h" />
     <ClInclude Include="Commands\UninstallCommand.h" />
@@ -413,6 +416,7 @@
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
     <ClInclude Include="Workflows\ManifestComparator.h" />
+    <ClInclude Include="Workflows\ResumeFlow.h" />
     <ClInclude Include="Workflows\ShowFlow.h" />
     <ClInclude Include="Workflows\SourceFlow.h" />
     <ClInclude Include="Workflows\UninstallFlow.h" />
@@ -421,6 +425,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="COMContext.cpp" />
+    <ClCompile Include="CheckpointManager.cpp" />
     <ClCompile Include="Commands\COMCommand.cpp" />
     <ClCompile Include="Commands\ConfigureCommand.cpp" />
     <ClCompile Include="Commands\ConfigureShowCommand.cpp" />
@@ -428,6 +433,7 @@
     <ClCompile Include="Commands\ConfigureValidateCommand.cpp" />
     <ClCompile Include="Commands\DebugCommand.cpp" />
     <ClCompile Include="Commands\DownloadCommand.cpp" />
+    <ClCompile Include="Commands\ErrorCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
     <ClCompile Include="Commands\TestCommand.cpp" />
@@ -451,6 +457,7 @@
     <ClCompile Include="Commands\ShowCommand.cpp" />
     <ClCompile Include="Commands\InstallCommand.cpp" />
     <ClCompile Include="Commands\RootCommand.cpp" />
+    <ClCompile Include="Commands\ResumeCommand.cpp" />
     <ClCompile Include="Commands\SourceCommand.cpp" />
     <ClCompile Include="Commands\UninstallCommand.cpp" />
     <ClCompile Include="Commands\UpgradeCommand.cpp" />
@@ -482,6 +489,7 @@
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />
     <ClCompile Include="Workflows\ManifestComparator.cpp" />
+    <ClCompile Include="Workflows\ResumeFlow.cpp" />
     <ClCompile Include="Workflows\ShowFlow.cpp" />
     <ClCompile Include="Workflows\SourceFlow.cpp" />
     <ClCompile Include="Workflows\UninstallFlow.cpp" />

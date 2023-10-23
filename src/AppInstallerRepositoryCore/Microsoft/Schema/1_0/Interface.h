@@ -3,6 +3,7 @@
 #pragma once
 #include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Microsoft/Schema/1_0/SearchResultsTable.h"
+#include "Microsoft/Schema/1_0/OneToManyTable.h"
 
 #include <memory>
 #include <vector>
@@ -14,7 +15,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     struct Interface : public ISQLiteIndex
     {
         // Version 1.0
-        Schema::Version GetVersion() const override;
+        SQLite::Version GetVersion() const override;
         void CreateTables(SQLite::Connection& connection, CreateOptions options) override;
         SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
@@ -54,6 +55,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Gets a property already knowing that the manifest id is valid.
         virtual std::optional<std::string> GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const;
+
+        // Gets the one to many table schema to use.
+        virtual OneToManyTableSchema GetOneToManyTableSchema() const;
 
         // Force the database to shrink the file size.
         // This *must* be done outside of an active transaction.

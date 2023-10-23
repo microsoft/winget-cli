@@ -9,7 +9,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
     struct PortableIndexInterface : public IPortableIndex
     {
         // Version 1.0
-        Schema::Version GetVersion() const override;
+        SQLite::Version GetVersion() const override;
         void CreateTable(SQLite::Connection& connection) override;
 
     private:

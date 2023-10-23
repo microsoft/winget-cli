@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
+#include <winget/SQLiteWrapper.h>
 #include "Microsoft/Schema/IPortableIndex.h"
 #include "Microsoft/Schema/Portable_1_0/PortableTable.h"
-#include "Microsoft/SQLiteStorageBase.h"
+#include <winget/SQLiteStorageBase.h>
 #include "winget/PortableFileEntry.h"
 #include <winget/ManagedFile.h>
 
@@ -12,7 +12,7 @@ using namespace AppInstaller::Portable;
 
 namespace AppInstaller::Repository::Microsoft
 {
-    struct PortableIndex : SQLiteStorageBase
+    struct PortableIndex : SQLite::SQLiteStorageBase
     {
         // An id that refers to a specific portable file.
         using IdType = SQLite::rowid_t;
@@ -24,7 +24,7 @@ namespace AppInstaller::Repository::Microsoft
         PortableIndex& operator=(PortableIndex&&) = default;
 
         // Creates a new PortableIndex database of the given version.
-        static PortableIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
+        static PortableIndex CreateNew(const std::string& filePath, SQLite::Version version = SQLite::Version::Latest());
 
         // Opens an existing PortableIndex database.
         static PortableIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {})
@@ -51,7 +51,7 @@ namespace AppInstaller::Repository::Microsoft
         PortableIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
         // Constructor used to create a new index.
-        PortableIndex(const std::string& target, Schema::Version version);
+        PortableIndex(const std::string& target, SQLite::Version version);
 
         // Creates the IPortableIndex interface object for this version.
         std::unique_ptr<Schema::IPortableIndex> CreateIPortableIndex() const;

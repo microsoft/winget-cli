@@ -15,6 +15,7 @@ using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Pinning;
+using namespace AppInstaller::SQLite;
 
 void OverrideForOpenPinningIndex(TestContext& context, const std::filesystem::path& indexPath)
 {

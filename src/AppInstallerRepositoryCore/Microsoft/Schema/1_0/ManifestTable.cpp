@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ManifestTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 #include "OneToManyTable.h"
 
 

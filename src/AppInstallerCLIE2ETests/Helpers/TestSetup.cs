@@ -30,17 +30,11 @@ namespace AppInstallerCLIE2ETests.Helpers
             this.PackagedContext = this.InitializeBoolParam(Constants.PackagedContextParameter, true);
             this.VerboseLogging = this.InitializeBoolParam(Constants.VerboseLoggingParameter, true);
             this.LooseFileRegistration = this.InitializeBoolParam(Constants.LooseFileRegistrationParameter);
-            this.InvokeCommandInDesktopPackage = this.InitializeBoolParam(Constants.InvokeCommandInDesktopPackageParameter);
             this.SkipTestSource = this.InitializeBoolParam(Constants.SkipTestSourceParameter, this.IsDefault);
 
             // For packaged context, default to AppExecutionAlias
             this.AICLIPath = this.InitializeStringParam(Constants.AICLIPathParameter, this.PackagedContext ? "WinGetDev.exe" : TestCommon.GetTestFile("winget.exe"));
             this.AICLIPackagePath = this.InitializeStringParam(Constants.AICLIPackagePathParameter, TestCommon.GetTestFile("AppInstallerCLIPackage.appxbundle"));
-
-            if (this.LooseFileRegistration && this.InvokeCommandInDesktopPackage)
-            {
-                this.AICLIPath = Path.Combine(this.AICLIPackagePath, this.AICLIPath);
-            }
 
             this.StaticFileRootPath = this.InitializeDirectoryParam(Constants.StaticFileRootPathParameter, Path.GetTempPath());
 
@@ -86,11 +80,6 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets a value indicating whether to use loose file registration.
         /// </summary>
         public bool LooseFileRegistration { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether to invoke command in desktop package.
-        /// </summary>
-        public bool InvokeCommandInDesktopPackage { get; }
 
         /// <summary>
         /// Gets the static file root path.

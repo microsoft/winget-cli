@@ -161,6 +161,7 @@ if ($BuildRoot -eq "")
     $BuildRoot = "$PSScriptRoot\..\..";
 }
 
+# Modules, they should be in dependency order so that when importing we don't pick up the release modules.
 if ($moduleToConfigure.HasFlag([ModuleType]::Client))
 {
     $module = [WinGetModule]::new("Microsoft.WinGet.Client", "$PSScriptRoot\..\Microsoft.WinGet.Client\ModuleFiles\", $moduleRootOutput)
@@ -211,6 +212,6 @@ if (-not $SkipImportModule)
     foreach($module in $modules)
     {
         Write-Host "Importing module $($module.Name)" -ForegroundColor Green
-        Import-Module $module.Name -Force
+        Import-Module "$moduleRootOutput\$($module.Name)\" -Force
     }
 }

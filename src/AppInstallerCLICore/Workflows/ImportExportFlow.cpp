@@ -5,6 +5,7 @@
 #include "ImportExportFlow.h"
 #include "UpdateFlow.h"
 #include "PackageCollection.h"
+#include "DependenciesFlow.h"
 #include "WorkflowBase.h"
 #include <winget/RepositorySearch.h>
 #include <winget/Runtime.h>
@@ -305,8 +306,19 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallImportedPackages(Execution::Context& context)
     {
-        context << Workflow::ProcessMultiplePackages(
-            Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED, {}, true, true);
+        // Inform all dependencies here. During SubContexts processing, dependencies are ignored.
+        auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
+        Manifest::DependencyList allDependencies;
+        for (auto& packageContext : packageSubContexts)
+        {
+            allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
+        }
+        context.Add<Execution::Data::Dependencies>(allDependencies);
+
+        context <<
+            Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies) <<
+            Workflow::ProcessMultiplePackages(
+                Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED, {}, true, true);
 
         if (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED)
         {

@@ -42,6 +42,8 @@ namespace AppInstallerCLIE2ETests.Helpers
                         { "experimentalArg", false },
                         { "experimentalCmd", false },
                         { "directMSI", false },
+                        { "windowsFeature", false },
+                        { "resume", false },
                     }
                 },
                 {
@@ -206,7 +208,8 @@ namespace AppInstallerCLIE2ETests.Helpers
             ConfigureFeature("experimentalArg", status);
             ConfigureFeature("experimentalCmd", status);
             ConfigureFeature("directMSI", status);
-            ConfigureFeature("pinning", status);
+            ConfigureFeature("windowsFeature", status);
+            ConfigureFeature("resume", status);
         }
 
         private static JObject GetJsonSettingsObject(string objectName)

@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "SQLiteStorageBase.h"
-#include "Schema/MetadataTable.h"
+#include "Public/winget/SQLiteStorageBase.h"
+#include "Public/winget/SQLiteMetadataTable.h"
+#include "AppInstallerDateTime.h"
 
-namespace AppInstaller::Repository::Microsoft
+namespace AppInstaller::SQLite
 {
     namespace
     {
@@ -12,11 +13,11 @@ namespace AppInstaller::Repository::Microsoft
         {
             switch (disposition)
             {
-            case AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::Read:
+            case SQLiteStorageBase::OpenDisposition::Read:
                 return "Read";
-            case AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite:
+            case SQLiteStorageBase::OpenDisposition::ReadWrite:
                 return "ReadWrite";
-            case AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::Immutable:
+            case SQLiteStorageBase::OpenDisposition::Immutable:
                 return "ImmutableRead";
             default:
                 return "Unknown";
@@ -28,21 +29,21 @@ namespace AppInstaller::Repository::Microsoft
     // another method for obtaining the right flags
     void SQLiteStorageBase::SetLastWriteTime()
     {
-        Schema::MetadataTable::SetNamedValue(m_dbconn, Schema::s_MetadataValueName_LastWriteTime, Utility::GetCurrentUnixEpoch());
+        MetadataTable::SetNamedValue(m_dbconn, s_MetadataValueName_LastWriteTime, Utility::GetCurrentUnixEpoch());
     }
 
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
     // should be consistent across systems.
     std::chrono::system_clock::time_point SQLiteStorageBase::GetLastWriteTime()
     {
-        int64_t lastWriteTime = Schema::MetadataTable::GetNamedValue<int64_t>(m_dbconn, Schema::s_MetadataValueName_LastWriteTime);
+        int64_t lastWriteTime = MetadataTable::GetNamedValue<int64_t>(m_dbconn, s_MetadataValueName_LastWriteTime);
         return Utility::ConvertUnixEpochToSystemClock(lastWriteTime);
     }
 
-    SQLiteStorageBase::SQLiteStorageBase(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
-        m_indexFile(std::move(indexFile))
+    SQLiteStorageBase::SQLiteStorageBase(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& file) :
+        m_indexFile(std::move(file))
     {
-        AICLI_LOG(Repo, Info, << "Opening SQLite Index for " << GetOpenDispositionString(disposition) << " at '" << filePath << "'");
+        AICLI_LOG(Repo, Info, << "Opening database for " << GetOpenDispositionString(disposition) << " at '" << filePath << "'");
         switch (disposition)
         {
         case OpenDisposition::Read:
@@ -102,13 +103,13 @@ namespace AppInstaller::Repository::Microsoft
             THROW_HR(E_UNEXPECTED);
         }
 
-        m_version = Schema::Version::GetSchemaVersion(m_dbconn);
+        m_version = Version::GetSchemaVersion(m_dbconn);
     }
 
-    SQLiteStorageBase::SQLiteStorageBase(const std::string& target, Schema::Version version) :
+    SQLiteStorageBase::SQLiteStorageBase(const std::string& target, const Version& version) :
         m_dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create))
     {
         m_version = version;
-        Schema::MetadataTable::Create(m_dbconn);
+        MetadataTable::Create(m_dbconn);
     }
 }

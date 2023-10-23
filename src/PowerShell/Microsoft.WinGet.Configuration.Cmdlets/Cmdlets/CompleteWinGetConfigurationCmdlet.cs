@@ -7,7 +7,6 @@
 namespace Microsoft.WinGet.Configuration.Cmdlets
 {
     using System.Management.Automation;
-    using System.Threading;
     using Microsoft.WinGet.Configuration.Engine.Commands;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
@@ -19,6 +18,8 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     [Cmdlet(VerbsLifecycle.Complete, "WinGetConfiguration")]
     public sealed class CompleteWinGetConfigurationCmdlet : PSCmdlet
     {
+        private ConfigurationCommand runningCommand = null;
+
         /// <summary>
         /// Gets or sets the configuration task.
         /// </summary>
@@ -34,8 +35,20 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void ProcessRecord()
         {
-            var configCommand = new ConfigurationCommand(this);
-            configCommand.Continue(this.ConfigurationJob);
+            this.runningCommand = new ConfigurationCommand(this);
+            this.runningCommand.Continue(this.ConfigurationJob);
+        }
+
+        /// <summary>
+        /// Interrupts currently running code within the command.
+        /// </summary>
+        protected override void StopProcessing()
+        {
+            if (this.runningCommand != null)
+            {
+                this.runningCommand.Cancel(this.ConfigurationJob);
+                this.runningCommand.Cancel();
+            }
         }
     }
 }

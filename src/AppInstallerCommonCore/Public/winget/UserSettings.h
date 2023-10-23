@@ -70,6 +70,9 @@ namespace AppInstaller::Settings
         EFExperimentalCmd,
         EFExperimentalArg,
         EFDirectMSI,
+        EFWindowsFeature,
+        EFResume,
+        EFReboot,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -145,6 +148,9 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFWindowsFeature, bool, bool, false, ".experimentalFeatures.windowsFeature"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFReboot, bool, bool, false, ".experimentalFeatures.reboot"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior

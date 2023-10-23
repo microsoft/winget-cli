@@ -17,6 +17,15 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand : BaseCommand
     {
         /// <summary>
+        /// One time setup.
+        /// </summary>
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            WinGetSettingsHelper.ConfigureFeature("windowsFeature", true);
+        }
+
+        /// <summary>
         /// Set up.
         /// </summary>
         [SetUp]
@@ -624,8 +633,9 @@ namespace AppInstallerCLIE2ETests
         {
             var testDir = TestCommon.GetRandomTestDir();
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature -l {testDir}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_MISSING_DEPENDENCY, installResult.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_DEPENDENCIES, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("The feature [invalidFeature] was not found."));
+            Assert.True(installResult.StdOut.Contains("Failed to enable Windows Feature dependencies. To proceed with installation, use '--force'."));
         }
 
         /// <summary>
@@ -637,6 +647,7 @@ namespace AppInstallerCLIE2ETests
             var testDir = TestCommon.GetRandomTestDir();
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --silent --force -l {testDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Failed to enable Windows Feature dependencies; proceeding due to --force"));
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
         }

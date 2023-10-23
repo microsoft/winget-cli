@@ -41,7 +41,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void BeginProcessing()
         {
-            this.acceptedAgreements = ConfigurationCommand.ConfirmConfigurationProcessing(this, this.AcceptConfigurationAgreements.ToBool());
+            this.acceptedAgreements = ConfigurationCommand.ConfirmConfigurationProcessing(this, this.AcceptConfigurationAgreements.ToBool(), true);
         }
 
         /// <summary>

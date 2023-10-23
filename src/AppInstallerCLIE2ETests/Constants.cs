@@ -66,6 +66,8 @@ namespace AppInstallerCLIE2ETests
         public const string WinGetUtil = "WinGetUtil";
         public const string E2ETestLogsPathPackaged = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
         public const string E2ETestLogsPathUnpackaged = @"WinGet\defaultState";
+        public const string CheckpointDirectoryPackaged = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\Checkpoints";
+        public const string CheckpointDirectoryUnpackaged = @"Microsoft\WinGet\State\defaultState\Checkpoints";
 
         // Installer filename
         public const string TestCommandExe = "testCommand.exe";
@@ -138,6 +140,7 @@ namespace AppInstallerCLIE2ETests
             public const int S_FALSE = 1;
             public const int ERROR_FILE_NOT_FOUND = unchecked((int)0x80070002);
             public const int ERROR_PATH_NOT_FOUND = unchecked((int)0x80070003);
+            public const int E_INVALIDARG = unchecked((int)0x80070057);
             public const int ERROR_NO_RANGES_PROCESSED = unchecked((int)0x80070138);
             public const int OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY = unchecked((int)0x8051100F);
             public const int ERROR_OLD_WIN_VERSION = unchecked((int)0x8007047E);
@@ -252,6 +255,11 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_APPTERMINATION_RECEIVED = unchecked((int)0x8A15006A);
             public const int ERROR_DOWNLOAD_DEPENDENCIES = unchecked((int)0x8A15006B);
             public const int ERROR_DOWNLOAD_COMMAND_PROHIBITED = unchecked((int)0x8A15006C);
+            public const int ERROR_SERVICE_UNAVAILABLE = unchecked((int)0x8A15006D);
+            public const int ERROR_RESUME_ID_NOT_FOUND = unchecked((int)0x8A15006E);
+            public const int ERROR_CLIENT_VERSION_MISMATCH = unchecked((int)0x8A15006F);
+            public const int ERROR_INVALID_RESUME_STATE = unchecked((int)0x8A150070);
+            public const int ERROR_CANNOT_OPEN_CHECKPOINT_INDEX = unchecked((int)0x8A150071);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

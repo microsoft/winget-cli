@@ -11,7 +11,7 @@ using namespace std::string_literals;
 using namespace TestCommon;
 using namespace AppInstaller::Pinning;
 using namespace AppInstaller::Repository::Microsoft;
-using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Repository::Microsoft::Schema;
 
 TEST_CASE("PinningIndexCreateLatestAndReopen", "[pinningIndex]")
@@ -19,11 +19,11 @@ TEST_CASE("PinningIndexCreateLatestAndReopen", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Schema::Version versionCreated;
+    Version versionCreated;
 
     // Create the index
     {
-        PinningIndex index = PinningIndex::CreateNew(tempFile, Schema::Version::Latest());
+        PinningIndex index = PinningIndex::CreateNew(tempFile, Version::Latest());
         versionCreated = index.GetVersion();
     }
 
@@ -31,7 +31,7 @@ TEST_CASE("PinningIndexCreateLatestAndReopen", "[pinningIndex]")
     {
         INFO("Trying with Read");
         PinningIndex index = PinningIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::Read);
-        Schema::Version versionRead = index.GetVersion();
+        Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
 
@@ -39,7 +39,7 @@ TEST_CASE("PinningIndexCreateLatestAndReopen", "[pinningIndex]")
     {
         INFO("Trying with ReadWrite");
         PinningIndex index = PinningIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
-        Schema::Version versionRead = index.GetVersion();
+        Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
 
@@ -47,7 +47,7 @@ TEST_CASE("PinningIndexCreateLatestAndReopen", "[pinningIndex]")
     {
         INFO("Trying with Immutable");
         PinningIndex index = PinningIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::Immutable);
-        Schema::Version versionRead = index.GetVersion();
+        Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
 }

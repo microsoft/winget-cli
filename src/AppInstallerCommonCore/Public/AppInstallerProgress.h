@@ -78,6 +78,8 @@ namespace AppInstaller
         ProgressCallback() = default;
         ProgressCallback(IProgressSink* sink);
 
+        static bool Wait(IProgressCallback& progress, std::chrono::milliseconds ms);
+
         void BeginProgress() override;
 
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;

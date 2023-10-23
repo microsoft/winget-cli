@@ -1412,15 +1412,12 @@ namespace AppInstaller::Repository
                         }
                     }
 
-                    bool addedAvailablePackage = false;
-
                     // Directly search for the available package from tracking information.
                     if (trackingPackage)
                     {
                         auto availablePackage = GetTrackedPackageFromAvailableSource(result, trackedSource, trackingPackage->GetProperty(PackageProperty::Id));
                         if (availablePackage)
                         {
-                            addedAvailablePackage = true;
                             compositePackage->AddAvailablePackage(std::move(availablePackage));
                         }
                         compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), std::move(trackingPackageVersion));
@@ -1453,7 +1450,6 @@ namespace AppInstaller::Repository
                             });
 
                         // For non pinning cases. We found some matching packages here, don't keep going.
-                        addedAvailablePackage = true;
                         compositePackage->AddAvailablePackage(std::move(availablePackage));
                     }
                 }
@@ -1523,13 +1519,14 @@ namespace AppInstaller::Repository
             }
 
             SearchResult availableResult = result.SearchAndHandleFailures(source, request);
+            bool downloadManifests = source.QueryFeatureFlag(SourceFeatureFlag::ManifestMayContainAdditionalSystemReferenceStrings);
 
             for (auto&& match : availableResult.Matches)
             {
                 // Check for a package already in the result that should have been correlated already.
                 // In cases that PackageData will be created, also download manifests for system reference strings
                 // when search result is small (currently limiting to 1).
-                auto packageData = result.CheckForExistingResultFromAvailablePackageMatch(match, availableResult.Matches.size() == 1);
+                auto packageData = result.CheckForExistingResultFromAvailablePackageMatch(match, downloadManifests && availableResult.Matches.size() == 1);
 
                 // If found existing package in the result, continue
                 if (!packageData)

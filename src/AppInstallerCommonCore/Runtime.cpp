@@ -31,6 +31,7 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_PortablePackageRoot = "WinGet"sv;
         constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
         constexpr std::string_view s_LinksDirectory = "Links"sv;
+        constexpr std::string_view s_CheckpointsDirectory = "Checkpoints"sv;
         constexpr std::string_view s_DevModeSubkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock"sv;
         constexpr std::string_view s_AllowDevelopmentWithoutDevLicense = "AllowDevelopmentWithoutDevLicense"sv;
 #ifndef WINGET_DISABLE_FOR_FUZZING
@@ -467,6 +468,10 @@ namespace AppInstaller::Runtime
             result.Path = GetPackagePath();
             result.Create = false;
             break;
+        case PathName::CheckpointsLocation:
+            result = GetPathDetailsForPackagedContext(PathName::LocalState, forDisplay);
+            result.Path /= s_CheckpointsDirectory;
+            break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -552,6 +557,10 @@ namespace AppInstaller::Runtime
         case PathName::SelfPackageRoot:
             result.Path = GetBinaryDirectoryPath();
             result.Create = false;
+            break;
+        case PathName::CheckpointsLocation:
+            result = GetPathDetailsForUnpackagedContext(PathName::LocalState, forDisplay);
+            result.Path /= s_CheckpointsDirectory;
             break;
         default:
             THROW_HR(E_UNEXPECTED);

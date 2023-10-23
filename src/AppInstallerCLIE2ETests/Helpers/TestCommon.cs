@@ -13,8 +13,8 @@ namespace AppInstallerCLIE2ETests.Helpers
     using System.Linq;
     using System.Management.Automation;
     using System.Reflection;
+    using System.Text;
     using System.Threading;
-    using System.Xml.Linq;
     using AppInstallerCLIE2ETests;
     using AppInstallerCLIE2ETests.PowerShell;
     using Microsoft.Management.Deployment;
@@ -85,8 +85,9 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="parameters">Parameters.</param>
         /// <param name="stdIn">Optional std in.</param>
         /// <param name="timeOut">Optional timeout.</param>
+        /// <param name="throwOnTimeout">Throw on timeout.</param>
         /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000)
+        public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000, bool throwOnTimeout = true)
         {
             string inputMsg =
                     "AICLI path: " + TestSetup.Parameters.AICLIPath +
@@ -95,160 +96,9 @@ namespace AppInstallerCLIE2ETests.Helpers
                     (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
                     " Timeout: " + timeOut;
 
-            TestContext.Out.WriteLine($"Starting command run. {inputMsg} InvokeCommandInDesktopPackage: {TestSetup.Parameters.InvokeCommandInDesktopPackage}");
+            TestContext.Out.WriteLine($"Starting command run. {inputMsg}");
 
-            if (TestSetup.Parameters.InvokeCommandInDesktopPackage)
-            {
-                return RunAICLICommandViaInvokeCommandInDesktopPackage(command, parameters, stdIn, timeOut);
-            }
-            else
-            {
-                return RunAICLICommandViaDirectProcess(command, parameters, stdIn, timeOut);
-            }
-        }
-
-        /// <summary>
-        /// Run winget command via direct process.
-        /// </summary>
-        /// <param name="command">Command to run.</param>
-        /// <param name="parameters">Parameters.</param>
-        /// <param name="stdIn">Optional std in.</param>
-        /// <param name="timeOut">Optional timeout.</param>
-        /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn = null, int timeOut = 60000)
-        {
-            RunCommandResult result = new ();
-            Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(TestSetup.Parameters.AICLIPath, command + ' ' + parameters);
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.RedirectStandardError = true;
-
-            if (!string.IsNullOrEmpty(stdIn))
-            {
-                p.StartInfo.RedirectStandardInput = true;
-            }
-
-            p.Start();
-
-            if (!string.IsNullOrEmpty(stdIn))
-            {
-                p.StandardInput.Write(stdIn);
-            }
-
-            if (p.WaitForExit(timeOut))
-            {
-                result.ExitCode = p.ExitCode;
-                result.StdOut = p.StandardOutput.ReadToEnd();
-                result.StdErr = p.StandardError.ReadToEnd();
-
-                TestContext.Out.WriteLine("Command run completed with exit code: " + result.ExitCode);
-
-                if (!string.IsNullOrEmpty(result.StdErr))
-                {
-                    TestContext.Error.WriteLine("Command run error. Error: " + result.StdErr);
-                }
-
-                if (TestSetup.Parameters.VerboseLogging && !string.IsNullOrEmpty(result.StdOut))
-                {
-                    TestContext.Out.WriteLine("Command run output. Output: " + result.StdOut);
-                }
-            }
-            else
-            {
-                throw new TimeoutException($"Direct winget command run timed out: {command} {parameters}");
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// This method is used when the test is run in an OS that does not support AppExecutionAlias. E,g, our build machine.
-        /// There is not any existing API that'll activate a packaged app and wait for result, and not possible to capture the stdIn and stdOut.
-        /// This method tries to call Invoke-CommandInDesktopPackage PS command to make test executable run in packaged context.
-        /// Since Invoke-CommandInDesktopPackage just launches the executable and return, we use cmd pipe to get execution results.
-        /// The final constructed command will look like:
-        ///   Invoke-CommandInDesktopPackage ...... -Command cmd.exe -Args '-c [cmd command]'
-        ///   where [cmd command] will look like: "echo stdIn | appinst.exe args > stdout.txt 2> stderr.txt &amp;amp; echo %ERRORLEVEL% > exitcode.txt"
-        /// Then this method will read the piped result and return as RunCommandResult.
-        /// </summary>
-        /// <param name="command">Command to run.</param>
-        /// <param name="parameters">Parameters.</param>
-        /// <param name="stdIn">Optional std in.</param>
-        /// <param name="timeOut">Optional timeout.</param>
-        /// <param name="throwOnTimeout">Throw on timeout.</param>
-        /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000, bool throwOnTimeout = true)
-        {
-            string cmdCommandPiped = string.Empty;
-            if (!string.IsNullOrEmpty(stdIn))
-            {
-                cmdCommandPiped += $"echo {stdIn} | ";
-            }
-
-            string workDirectory = GetRandomTestDir();
-            string tempBatchFile = Path.Combine(workDirectory, "Batch.cmd");
-            string exitCodeFile = Path.Combine(workDirectory, "ExitCode.txt");
-            string stdOutFile = Path.Combine(workDirectory, "StdOut.txt");
-            string stdErrFile = Path.Combine(workDirectory, "StdErr.txt");
-
-            // First change the codepage so that the rest of the batch file works
-            cmdCommandPiped += $"chcp 65001\n{TestSetup.Parameters.AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile}\necho %ERRORLEVEL% > {exitCodeFile}";
-            File.WriteAllText(tempBatchFile, cmdCommandPiped, new System.Text.UTF8Encoding(false));
-
-            string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{tempBatchFile}\"'";
-
-            var psInvokeResult = RunCommandWithResult("powershell", psCommand);
-
-            if (psInvokeResult.ExitCode != 0)
-            {
-                // PS invocation failed, return result and no need to check piped output.
-                return psInvokeResult;
-            }
-
-            // The PS command just launches the app and immediately returns, we'll have to wait for up to the timeOut specified here
-            int waitedTime = 0;
-            while (!File.Exists(exitCodeFile) && waitedTime <= timeOut)
-            {
-                Thread.Sleep(1000);
-                waitedTime += 1000;
-            }
-
-            if (waitedTime >= timeOut && throwOnTimeout)
-            {
-                throw new TimeoutException($"Packaged winget command run timed out: {command} {parameters}");
-            }
-
-            RunCommandResult result = new ();
-
-            // Sometimes the files are still in use; allow for this with a wait and retry loop.
-            for (int retryCount = 0; retryCount < 4; ++retryCount)
-            {
-                bool success = false;
-
-                try
-                {
-                    result.ExitCode = File.Exists(exitCodeFile) ? int.Parse(File.ReadAllText(exitCodeFile).Trim()) : unchecked((int)0x80004005);
-                    result.StdOut = File.Exists(stdOutFile) ? File.ReadAllText(stdOutFile) : string.Empty;
-                    result.StdErr = File.Exists(stdErrFile) ? File.ReadAllText(stdErrFile) : string.Empty;
-                    success = true;
-                }
-                catch (Exception e)
-                {
-                    TestContext.Out.WriteLine("Failed to access files: " + e.Message);
-                }
-
-                if (success)
-                {
-                    break;
-                }
-                else
-                {
-                    Thread.Sleep(250);
-                }
-            }
-
-            return result;
+            return RunAICLICommandViaDirectProcess(command, parameters, stdIn, timeOut, throwOnTimeout);
         }
 
         /// <summary>
@@ -450,6 +300,22 @@ namespace AppInstallerCLIE2ETests.Helpers
         public static string GetDefaultDownloadDirectory()
         {
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        }
+
+        /// <summary>
+        /// Gets the checkpoints directory based on whether the command is invoked in desktop package or not.
+        /// </summary>
+        /// <returns>The default checkpoints directory.</returns>
+        public static string GetCheckpointsDirectory()
+        {
+            if (TestSetup.Parameters.PackagedContext)
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), Constants.CheckpointDirectoryPackaged);
+            }
+            else
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), Constants.CheckpointDirectoryUnpackaged);
+            }
         }
 
         /// <summary>
@@ -1013,6 +879,86 @@ namespace AppInstallerCLIE2ETests.Helpers
                 default:
                     throw new ArgumentException(location.ToString());
             }
+        }
+
+        /// <summary>
+        /// Run winget command via direct process.
+        /// </summary>
+        /// <param name="command">Command to run.</param>
+        /// <param name="parameters">Parameters.</param>
+        /// <param name="stdIn">Optional std in.</param>
+        /// <param name="timeOut">Optional timeout.</param>
+        /// <param name="throwOnTimeout">Throw on timeout.</param>
+        /// <returns>The result of the command.</returns>
+        private static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
+        {
+            RunCommandResult result = new ();
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo(TestSetup.Parameters.AICLIPath, command + ' ' + parameters);
+            p.StartInfo.UseShellExecute = false;
+
+            p.StartInfo.RedirectStandardOutput = true;
+            StringBuilder outputData = new ();
+            p.OutputDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    outputData.AppendLine(args.Data);
+                }
+            };
+
+            p.StartInfo.RedirectStandardError = true;
+            StringBuilder errorData = new ();
+            p.ErrorDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    errorData.AppendLine(args.Data);
+                }
+            };
+
+            if (!string.IsNullOrEmpty(stdIn))
+            {
+                p.StartInfo.RedirectStandardInput = true;
+            }
+
+            p.Start();
+            p.BeginOutputReadLine();
+            p.BeginErrorReadLine();
+
+            if (!string.IsNullOrEmpty(stdIn))
+            {
+                p.StandardInput.Write(stdIn);
+            }
+
+            if (p.WaitForExit(timeOut))
+            {
+                // According to documentation, this extra call will ensure that the redirected streams
+                // have finished reading all of the data.
+                p.WaitForExit();
+
+                result.ExitCode = p.ExitCode;
+                result.StdOut = outputData.ToString();
+                result.StdErr = errorData.ToString();
+
+                TestContext.Out.WriteLine("Command run completed with exit code: " + result.ExitCode);
+
+                if (!string.IsNullOrEmpty(result.StdErr))
+                {
+                    TestContext.Error.WriteLine("Command run error. Error: " + result.StdErr);
+                }
+
+                if (TestSetup.Parameters.VerboseLogging && !string.IsNullOrEmpty(result.StdOut))
+                {
+                    TestContext.Out.WriteLine("Command run output. Output: " + result.StdOut);
+                }
+            }
+            else if (throwOnTimeout)
+            {
+                throw new TimeoutException($"Direct winget command run timed out: {command} {parameters}");
+            }
+
+            return result;
         }
 
         /// <summary>

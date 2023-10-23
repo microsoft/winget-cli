@@ -85,7 +85,7 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, !!*index);
 
         std::string filePathUtf8 = ConvertToUTF8(filePath);
-        Schema::Version internalVersion{ majorVersion, minorVersion };
+        AppInstaller::SQLite::Version internalVersion{ majorVersion, minorVersion };
 
         std::unique_ptr<SQLiteIndex> result = std::make_unique<SQLiteIndex>(SQLiteIndex::CreateNew(filePathUtf8, internalVersion));
 

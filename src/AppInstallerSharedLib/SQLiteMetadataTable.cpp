@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "MetadataTable.h"
+#include "Public/winget/SQLiteMetadataTable.h"
 
 
-namespace AppInstaller::Repository::Microsoft::Schema
+using namespace std::literals;
+
+namespace AppInstaller::SQLite
 {
     // Table data [note that this table is not versioned, and thus *cannot change*]
     static constexpr std::string_view s_MetadataTable_Table_Name = "metadata"sv;
@@ -21,25 +23,40 @@ CREATE TABLE [metadata](
     static constexpr std::string_view s_MetadataTableStmt_GetNamedValue = "select [value] from [metadata] where [name] = ?"sv;
     static constexpr std::string_view s_MetadataTableStmt_SetNamedValue = "insert or replace into [metadata] ([name], [value]) values (?, ?)"sv;
 
-    void MetadataTable::Create(SQLite::Connection& connection)
+    void MetadataTable::Create(Connection& connection)
     {
-        SQLite::Statement create = SQLite::Statement::Create(connection, s_MetadataTable_Table_Create);
+        Statement create = Statement::Create(connection, s_MetadataTable_Table_Create);
         create.Execute();
     }
 
-    SQLite::Statement MetadataTable::GetNamedValueStatement(SQLite::Connection& connection, std::string_view name)
+    Statement MetadataTable::GetNamedValueStatement(const Connection& connection, std::string_view name)
     {
-        THROW_HR_IF(E_INVALIDARG, name.empty());
-        SQLite::Statement result = SQLite::Statement::Create(connection, s_MetadataTableStmt_GetNamedValue);
-        result.Bind(1, name);
-        THROW_HR_IF(E_NOT_SET, !result.Step());
-        return result;
+        std::optional<Statement> result = TryGetNamedValueStatement(connection, name);
+        THROW_HR_IF(E_NOT_SET, !result);
+        return std::move(result).value();
     }
 
-    SQLite::Statement MetadataTable::SetNamedValueStatement(SQLite::Connection& connection, std::string_view name)
+    std::optional<Statement> MetadataTable::TryGetNamedValueStatement(const Connection& connection, std::string_view name)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
-        SQLite::Statement result = SQLite::Statement::Create(connection, s_MetadataTableStmt_SetNamedValue);
+
+        Statement result = Statement::Create(connection, s_MetadataTableStmt_GetNamedValue);
+        result.Bind(1, name);
+
+        if (result.Step())
+        {
+            return result;
+        }
+        else
+        {
+            return std::nullopt;
+        }
+    }
+
+    Statement MetadataTable::SetNamedValueStatement(const Connection& connection, std::string_view name)
+    {
+        THROW_HR_IF(E_INVALIDARG, name.empty());
+        Statement result = Statement::Create(connection, s_MetadataTableStmt_SetNamedValue);
         result.Bind(1, name);
         return result;
     }

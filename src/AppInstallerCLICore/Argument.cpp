@@ -46,7 +46,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Command:
             return { type, "command"_liv, "cmd"_liv, ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Source:
-            return { type, "source"_liv, 's', ArgTypeCategory::Source };
+            return { type, "source"_liv, 's', ArgTypeCategory::QuerySource };
         case Execution::Args::Type::Count:
             return { type, "count"_liv, 'n', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Exact:
@@ -91,6 +91,8 @@ namespace AppInstaller::CLI
             return { type, "no-upgrade"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::SkipDependencies:
             return { type, "skip-dependencies"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
+        case Execution::Args::Type::AllowReboot:
+            return { type, "allow-reboot"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
 
         // Uninstall behavior
         case Execution::Args::Type::Purge:
@@ -176,6 +178,14 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::PinInstalled:
             return { type, "installed"_liv, ArgTypeCategory::None };
 
+        // Error command
+        case Execution::Args::Type::ErrorInput:
+            return { type, "input"_liv, ArgTypeCategory::None };
+
+        // Resume command
+        case Execution::Args::Type::ResumeId:
+            return { type, "resume-id"_liv, 'g', ArgTypeCategory::None };
+
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:
             return { type, "file"_liv, 'f' };
@@ -215,11 +225,11 @@ namespace AppInstaller::CLI
             return { type, "force"_liv, ArgTypeCategory::CopyFlagToSubContext };
 
         case Execution::Args::Type::DependencySource:
-            return { type, "dependency-source"_liv, ArgTypeCategory::Source };
+            return { type, "dependency-source"_liv, ArgTypeCategory::ExtendedSource };
         case Execution::Args::Type::CustomHeader:
-            return { type, "header"_liv, ArgTypeCategory::Source };
+            return { type, "header"_liv, ArgTypeCategory::QuerySource };
         case Execution::Args::Type::AcceptSourceAgreements:
-            return { type, "accept-source-agreements"_liv, ArgTypeCategory::Source };
+            return { type, "accept-source-agreements"_liv, ArgTypeCategory::ExtendedSource };
 
         case Execution::Args::Type::ToolVersion:
             return { type, "version"_liv, 'v' };
@@ -351,6 +361,10 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::DownloadDirectoryArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
         case Args::Type::InstallerType:
             return Argument{ type, Resource::String::InstallerTypeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
+        case Args::Type::ResumeId:
+            return Argument{ type, Resource::String::ResumeIdArgumentDescription, ArgumentType::Standard, true };
+        case Args::Type::AllowReboot:
+            return Argument{ type, Resource::String::AllowRebootArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Reboot };
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -455,7 +469,7 @@ namespace AppInstaller::CLI
 
         // If a manifest is specified, we cannot also have arguments for searching
         if (WI_IsFlagSet(categories, ArgTypeCategory::Manifest) &&
-            WI_IsAnyFlagSet(categories, ArgTypeCategory::PackageQuery | ArgTypeCategory::Source))
+            WI_IsAnyFlagSet(categories, ArgTypeCategory::PackageQuery | ArgTypeCategory::QuerySource))
         {
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }

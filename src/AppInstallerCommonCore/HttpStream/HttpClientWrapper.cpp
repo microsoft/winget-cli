@@ -4,6 +4,8 @@
 #include "pch.h"
 #include "Public/AppInstallerStrings.h"
 #include "HttpClientWrapper.h"
+#include "Public/AppInstallerRuntime.h"
+#include "Public/AppInstallerDownloader.h"
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Security::Cryptography;
@@ -32,6 +34,7 @@ namespace AppInstaller::Utility::HttpStream
 
         instance->m_httpClient.DefaultRequestHeaders().Connection().Clear();
         instance->m_httpClient.DefaultRequestHeaders().Append(L"Connection", L"Keep-Alive");
+        instance->m_httpClient.DefaultRequestHeaders().UserAgent().ParseAdd(Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent().get()));
 
         co_await instance->PopulateInfoAsync();
 
@@ -45,9 +48,19 @@ namespace AppInstaller::Utility::HttpStream
 
         HttpResponseMessage response = co_await m_httpClient.SendRequestAsync(request, HttpCompletionOption::ResponseHeadersRead);
 
-        THROW_HR_IF(
-            MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.StatusCode()),
-            response.StatusCode() != HttpStatusCode::Ok);
+        switch (response.StatusCode())
+        {
+        case HttpStatusCode::Ok:
+            // All good
+            break;
+        case HttpStatusCode::TooManyRequests:
+        case HttpStatusCode::ServiceUnavailable:
+        {
+            THROW_EXCEPTION(ServiceUnavailableException(GetRetryAfter(response)));
+        }
+        default:
+            THROW_HR(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.StatusCode()));
+        }
 
         // Get the length from the response
         if (response.Content().Headers().HasKey(L"Content-Length"))
@@ -103,6 +116,21 @@ namespace AppInstaller::Utility::HttpStream
 
         HttpResponseMessage response = co_await m_httpClient.SendRequestAsync(request, HttpCompletionOption::ResponseHeadersRead);
         HttpContentHeaderCollection contentHeaders = response.Content().Headers();
+
+        switch (response.StatusCode())
+        {
+        case HttpStatusCode::Ok:
+        case HttpStatusCode::PartialContent:
+            // All good
+            break;
+        case HttpStatusCode::TooManyRequests:
+        case HttpStatusCode::ServiceUnavailable:
+        {
+            THROW_EXCEPTION(ServiceUnavailableException(GetRetryAfter(response)));
+        }
+        default:
+            THROW_HR(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.StatusCode()));
+        }
 
         if (response.StatusCode() != HttpStatusCode::PartialContent && startPosition != 0)
         {

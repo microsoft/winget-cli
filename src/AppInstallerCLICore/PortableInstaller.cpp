@@ -17,7 +17,7 @@ using namespace AppInstaller::Registry;
 using namespace AppInstaller::Registry::Portable;
 using namespace AppInstaller::Registry::Environment;
 using namespace AppInstaller::Repository;
-using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::Microsoft::Schema;
 

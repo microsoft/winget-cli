@@ -5,11 +5,11 @@
 #include "PinFlow.h"
 #include "TableOutput.h"
 #include "Microsoft/PinningIndex.h"
-#include "Microsoft/SQLiteStorageBase.h"
+#include <winget/SQLiteStorageBase.h>
 #include "winget/RepositorySearch.h"
 
 using namespace AppInstaller::Repository;
-using namespace AppInstaller::Repository::Microsoft;
+using namespace AppInstaller::SQLite;
 
 namespace AppInstaller::CLI::Workflow
 {

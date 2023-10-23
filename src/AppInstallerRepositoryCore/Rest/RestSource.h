@@ -31,6 +31,8 @@ namespace AppInstaller::Repository::Rest
 
         SourceInformation GetInformation() const override;
 
+        bool QueryFeatureFlag(SourceFeatureFlag flag) const override;
+
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
 

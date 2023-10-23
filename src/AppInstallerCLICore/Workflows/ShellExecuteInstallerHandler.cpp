@@ -4,6 +4,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerRuntime.h>
+#include <winget/Filesystem.h>
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;
@@ -15,7 +16,7 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // ShellExecutes the given path.
-        std::optional<DWORD> InvokeShellExecuteEx(const std::filesystem::path& filePath, const std::string& args, bool useRunAs, IProgressCallback& progress)
+        std::optional<DWORD> InvokeShellExecuteEx(const std::filesystem::path& filePath, const std::string& args, bool useRunAs, int show, IProgressCallback& progress)
         {
             AICLI_LOG(CLI, Info, << "Starting: '" << filePath.u8string() << "' with arguments '" << args << '\'');
 
@@ -25,9 +26,7 @@ namespace AppInstaller::CLI::Workflow
             execInfo.lpFile = filePath.c_str();
             std::wstring argsUtf16 = Utility::ConvertToUTF16(args);
             execInfo.lpParameters = argsUtf16.c_str();
-            // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will never complete.
-            // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
-            execInfo.nShow = SW_SHOW;
+            execInfo.nShow = show;
 
             // This installer must be run elevated, but we are not currently.
             // Have ShellExecute elevate the installer since it won't do so itself.
@@ -68,7 +67,9 @@ namespace AppInstaller::CLI::Workflow
 
         std::optional<DWORD> InvokeShellExecute(const std::filesystem::path& filePath, const std::string& args, IProgressCallback& progress)
         {
-            return InvokeShellExecuteEx(filePath, args, false, progress);
+            // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will never complete.
+            // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
+            return InvokeShellExecuteEx(filePath, args, false, SW_SHOW, progress);
         }
 
         // Gets the escaped installer args.
@@ -189,17 +190,14 @@ namespace AppInstaller::CLI::Workflow
         {
             std::string args = "/x" + productCode.get();
 
-            // Set UI level for MsiExec with the /q flag.
-            // If interactive is requested, use the default instead of Reduced or Full as the installer may not use them.
+            // https://learn.microsoft.com/en-us/windows/win32/msi/standard-installer-command-line-options
             if (context.Args.Contains(Execution::Args::Type::Silent))
             {
-                // n = None = silent
-                args += " /qn";
+                args += " /quiet /norestart";
             }
             else if (!context.Args.Contains(Execution::Args::Type::Interactive))
             {
-                // b = Basic = only progress bar
-                args += " /qb";
+                args += " /passive /norestart";
             }
 
             return args;
@@ -224,16 +222,19 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Warn() << Resource::String::InstallerElevationExpected << std::endl;
         }
 
+        // Some installers force UI. Setting to SW_HIDE will hide installer UI and installation will never complete.
+        // Verified setting to SW_SHOW does not hurt silent mode since no UI will be shown.
         auto installResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeShellExecuteEx,
                 context.Get<Execution::Data::InstallerPath>(),
                 installerArgs,
                 installer->ElevationRequirement == ElevationRequirementEnum::ElevationRequired && !isElevated,
+                SW_SHOW,
                 std::placeholders::_1));
 
         if (!installResult)
         {
-            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
+            context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else
@@ -310,8 +311,106 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 context.Add<Execution::Data::OperationReturnCode>(uninstallResult.value());
-
             }
+        }
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    std::optional<DWORD> s_EnableWindowsFeatureResult_Override{};
+
+    void TestHook_SetEnableWindowsFeatureResult_Override(std::optional<DWORD>&& result)
+    {
+        s_EnableWindowsFeatureResult_Override = std::move(result);
+    }
+
+    std::optional<DWORD> s_DoesWindowsFeatureExistResult_Override{};
+
+    void TestHook_SetDoesWindowsFeatureExistResult_Override(std::optional<DWORD>&& result)
+    {
+        s_DoesWindowsFeatureExistResult_Override = std::move(result);
+    }
+#endif
+
+    std::filesystem::path GetDismExecutablePath()
+    {
+        return AppInstaller::Filesystem::GetExpandedPath("%windir%\\system32\\dism.exe");
+    }
+
+    std::optional<DWORD> DoesWindowsFeatureExist(Execution::Context& context, std::string_view featureName)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_DoesWindowsFeatureExistResult_Override)
+        {
+            return s_DoesWindowsFeatureExistResult_Override;
+        }
+#endif
+
+        std::string args = "/Online /Get-FeatureInfo /FeatureName:" + std::string{ featureName };
+        auto dismExecPath = GetDismExecutablePath();
+
+        auto getFeatureInfoResult = context.Reporter.ExecuteWithProgress(
+            std::bind(InvokeShellExecuteEx,
+                dismExecPath,
+                args,
+                false,
+                SW_HIDE,
+                std::placeholders::_1));
+
+        return getFeatureInfoResult;
+    }
+
+    std::optional<DWORD> EnableWindowsFeature(Execution::Context& context, std::string_view featureName)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_EnableWindowsFeatureResult_Override)
+        {
+            return s_EnableWindowsFeatureResult_Override;
+        }
+#endif
+
+        std::string args = "/Online /Enable-Feature /NoRestart /FeatureName:" + std::string{ featureName };
+        auto dismExecPath = GetDismExecutablePath();
+
+        AICLI_LOG(Core, Info, << "Enabling Windows Feature [" << featureName << "]");
+
+        auto enableFeatureResult = context.Reporter.ExecuteWithProgress(
+            std::bind(InvokeShellExecuteEx,
+                dismExecPath,
+                args,
+                false,
+                SW_HIDE,
+                std::placeholders::_1));
+
+        return enableFeatureResult;
+    }
+
+    void ShellExecuteEnableWindowsFeature::operator()(Execution::Context& context) const
+    {
+        Utility::LocIndView locIndFeatureName{ m_featureName };
+
+        std::optional<DWORD> doesFeatureExistResult = DoesWindowsFeatureExist(context, m_featureName);
+
+        if (!doesFeatureExistResult)
+        {
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
+        }
+        else if (doesFeatureExistResult.value() != ERROR_SUCCESS)
+        {
+            context.Add<Execution::Data::OperationReturnCode>(doesFeatureExistResult.value());
+            return;
+        }
+
+        context.Reporter.Info() << Resource::String::EnablingWindowsFeature(locIndFeatureName) << std::endl;
+
+        std::optional<DWORD> enableFeatureResult = EnableWindowsFeature(context, m_featureName);
+
+        if (!enableFeatureResult)
+        {
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
+        }
+        else
+        {
+            context.Add<Execution::Data::OperationReturnCode>(enableFeatureResult.value());
         }
     }
 }
