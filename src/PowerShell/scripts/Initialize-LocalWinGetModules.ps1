@@ -162,8 +162,10 @@ if ($BuildRoot -eq "")
 }
 
 # Modules, they should be in dependency order so that when importing we don't pick up the release modules.
+$local:modules = @()
 if ($moduleToConfigure.HasFlag([ModuleType]::Client))
 {
+    Write-Host "Setting up Microsoft.WinGet.Client"
     $module = [WinGetModule]::new("Microsoft.WinGet.Client", "$PSScriptRoot\..\Microsoft.WinGet.Client\ModuleFiles\", $moduleRootOutput)
     $module.PrepareScriptFiles()
     $module.PrepareBinaryFiles($BuildRoot, $Configuration)
@@ -174,18 +176,20 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Client))
         "UndockedRegFreeWinRT\winrtact.dll"
     )
     $module.AddArchSpecificFiles($additionalFiles, "net6.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
+    $modules += $module
 }
 
 if ($moduleToConfigure.HasFlag([ModuleType]::DSC))
 {
-    Write-Host "DSC"
+    Write-Host "Setting up Microsoft.WinGet.DSC"
     $module = [WinGetModule]::new("Microsoft.WinGet.DSC", "$PSScriptRoot\..\Microsoft.WinGet.DSC\", $moduleRootOutput)
     $module.PrepareScriptFiles()
+    $modules += $module
 }
 
 if ($moduleToConfigure.HasFlag([ModuleType]::Configuration))
 {
-    Write-Host "Config"
+    Write-Host "Setting up Microsoft.WinGet.Configuration"
     $module = [WinGetModule]::new("Microsoft.WinGet.Configuration", "$PSScriptRoot\..\Microsoft.WinGet.Configuration\ModuleFiles\", $moduleRootOutput)
     $module.PrepareScriptFiles()
     $module.PrepareBinaryFiles($BuildRoot, $Configuration)
@@ -197,6 +201,7 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Configuration))
         "Microsoft.Management.Configuration.Projection\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Projection.dll"
     )
     $module.AddAnyCpuSpecificFilesToArch($additionalFiles, "net6.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
+    $modules += $module
 }
 
 # Add it to module path if not there.

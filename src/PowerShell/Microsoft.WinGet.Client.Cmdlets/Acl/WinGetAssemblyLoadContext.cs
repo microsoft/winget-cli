@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Client.Acl
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.InteropServices;
     using System.Runtime.Loader;
 
     /// <summary>
@@ -36,7 +37,7 @@ namespace Microsoft.WinGet.Client.Acl
             Path.GetDirectoryName(typeof(WinGetAssemblyLoadContext).Assembly.Location),
             "DirectDependencies");
 
-        private static readonly IEnumerable<string> ValidArchs = new string[] { "x86", "x64" };
+        private static readonly IEnumerable<Architecture> ValidArchs = new Architecture[] { Architecture.X86, Architecture.X64 };
 
         private static readonly WinGetAssemblyLoadContext WinGetAcl = new ();
 
@@ -45,24 +46,13 @@ namespace Microsoft.WinGet.Client.Acl
         private WinGetAssemblyLoadContext()
             : base("WinGetAssemblyLoadContext", isCollectible: false)
         {
-            var arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE", EnvironmentVariableTarget.Process);
-            if (string.IsNullOrEmpty(arch))
-            {
-                throw new ArgumentNullException("PROCESSOR_ARCHITECTURE");
-            }
-
-            arch = arch.ToLower();
-            if (arch == "amd64")
-            {
-                arch = "x64";
-            }
-
+            var arch = RuntimeInformation.ProcessArchitecture;
             if (!ValidArchs.Contains(arch))
             {
-                throw new NotSupportedException(arch);
+                throw new NotSupportedException(arch.ToString());
             }
 
-            this.sharedArchDependencyPath = Path.Combine(SharedDependencyPath, arch);
+            this.sharedArchDependencyPath = Path.Combine(SharedDependencyPath, arch.ToString().ToLower());
         }
 
         /// <summary>

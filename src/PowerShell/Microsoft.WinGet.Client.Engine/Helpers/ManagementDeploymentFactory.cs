@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -63,6 +64,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Guid UninstallOptionsIid = Guid.Parse("3EBC67F0-8339-594B-8A42-F90B69D02BBE");
         private static readonly Guid PackageMatchFilterIid = Guid.Parse("D981ECA3-4DE5-5AD7-967A-698C7D60FC3B");
         private static readonly Guid DownloadOptionsIid = Guid.Parse("B4D72A63-40FF-597D-A7DA-43580268DC96");
+
+        private static readonly IEnumerable<Architecture> ValidArchs = new Architecture[] { Architecture.X86, Architecture.X64 };
 
         private static readonly Lazy<ManagementDeploymentFactory> Lazy = new (() => new ManagementDeploymentFactory());
 
@@ -159,26 +162,14 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         {
             if (Utilities.UsesInProcWinget)
             {
-                var validArchs = new string[] { "x86", "x64" };
-                var arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE", EnvironmentVariableTarget.Process);
-                if (string.IsNullOrEmpty(arch))
+                var arch = RuntimeInformation.ProcessArchitecture;
+                if (!ValidArchs.Contains(arch))
                 {
-                    throw new ArgumentNullException("PROCESSOR_ARCHITECTURE");
-                }
-
-                arch = arch.ToLower();
-                if (arch == "amd64")
-                {
-                    arch = "x64";
-                }
-
-                if (!validArchs.Contains(arch))
-                {
-                    throw new NotSupportedException(arch);
+                    throw new NotSupportedException(arch.ToString());
                 }
 
                 string executingAssemblyLocation = Assembly.GetExecutingAssembly().Location;
-                string executingAssemblyDirectory = Path.Combine(Path.GetDirectoryName(executingAssemblyLocation), arch);
+                string executingAssemblyDirectory = Path.Combine(Path.GetDirectoryName(executingAssemblyLocation), arch.ToString().ToLower());
 
                 SetDllDirectoryW(executingAssemblyDirectory);
 

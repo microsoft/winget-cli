@@ -43,8 +43,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>An async operation with progress.</returns>
         public IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options)
         {
-            return this.ExecuteWithRetry(
-                () => this.packageManager.InstallPackageAsync(package, options));
+            return this.Execute(
+                () => this.packageManager.InstallPackageAsync(package, options),
+                false);
         }
 
         /// <summary>
@@ -55,8 +56,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>An async operation with progress.</returns>
         public IAsyncOperationWithProgress<InstallResult, InstallProgress> UpgradePackageAsync(CatalogPackage package, InstallOptions options)
         {
-            return this.ExecuteWithRetry(
-                () => this.packageManager.UpgradePackageAsync(package, options));
+            return this.Execute(
+                () => this.packageManager.UpgradePackageAsync(package, options),
+                false);
         }
 
         /// <summary>
@@ -67,8 +69,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>An async operation with progress.</returns>
         public IAsyncOperationWithProgress<UninstallResult, UninstallProgress> UninstallPackageAsync(CatalogPackage package, UninstallOptions options)
         {
-            return this.ExecuteWithRetry(
-                () => this.packageManager.UninstallPackageAsync(package, options));
+            return this.Execute(
+                () => this.packageManager.UninstallPackageAsync(package, options),
+                false);
         }
 
         /// <summary>
@@ -77,8 +80,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>A list of PackageCatalogReferences.</returns>
         public IReadOnlyList<PackageCatalogReference> GetPackageCatalogs()
         {
-            return this.ExecuteWithRetry(
-                () => this.packageManager.GetPackageCatalogs());
+            return this.Execute(
+                () => this.packageManager.GetPackageCatalogs(),
+                true);
         }
 
         /// <summary>
@@ -88,8 +92,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>A PackageCatalogReference.</returns>
         public PackageCatalogReference GetPackageCatalogByName(string source)
         {
-            return this.ExecuteWithRetry(
-                () => this.packageManager.GetPackageCatalogByName(source));
+            return this.Execute(
+                () => this.packageManager.GetPackageCatalogByName(source),
+                true);
         }
 
         /// <summary>
@@ -99,11 +104,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>A PackageCatalogReference.</returns>
         public PackageCatalogReference CreateCompositePackageCatalog(CreateCompositePackageCatalogOptions options)
         {
-            return this.ExecuteWithRetry(
-                () => this.packageManager.CreateCompositePackageCatalog(options));
+            return this.Execute(
+                () => this.packageManager.CreateCompositePackageCatalog(options),
+                false);
         }
 
-        private TReturn ExecuteWithRetry<TReturn>(Func<TReturn> func)
+        private TReturn Execute<TReturn>(Func<TReturn> func, bool canRetry)
         {
             bool stopRetry = false;
             while (true)
@@ -121,7 +127,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 {
                     this.packageManager = null;
 
-                    if (stopRetry)
+                    if (stopRetry || !canRetry)
                     {
                         throw;
                     }
