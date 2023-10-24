@@ -247,6 +247,11 @@ namespace AppInstaller::CLI::Configuration
            if (unitIntent == ConfigurationUnitIntent::Assert || unitIntent == ConfigurationUnitIntent::Apply)
            {
                auto package = ParseWinGetPackageFromSettings(unit.Settings());
+               if (package.Empty())
+               {
+                   AICLI_LOG(Config, Warning, << "Failed to parse WinGetPackage or empty content.");
+                   foundIssues = true;
+               }
                // Validate basic semantics.
                if (package.Id.empty())
                {
