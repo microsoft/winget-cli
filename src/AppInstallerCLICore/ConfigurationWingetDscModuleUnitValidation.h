@@ -25,6 +25,6 @@ namespace AppInstaller::CLI::Configuration
         std::string_view ModuleName() { return "Microsoft.WinGet.DSC"sv; };
 
     private:
-        std::map<std::wstring, std::wstring> dependenciesSourceAndUnitIdMap;
+        std::map<std::string, std::string> m_dependenciesSourceAndUnitIdMap;
     };
 }
