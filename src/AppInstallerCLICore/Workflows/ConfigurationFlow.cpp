@@ -6,9 +6,11 @@
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
+#include <AppInstallerStrings.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winget/SelfManagement.h>
 #include "ConfigurationCommon.h"
+#include "ConfigurationWingetDscModuleUnitValidation.h"
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -770,6 +772,54 @@ namespace AppInstaller::CLI::Workflow
 
             bool m_isFirstProgress = true;
         };
+
+        std::string GetNormalizedIdentifier(const winrt::hstring& identifier)
+        {
+            return Utility::FoldCase(Utility::NormalizedString{ identifier });
+        }
+
+        // Get unit validation order. Make sure dependency units are before units depending on them.
+        std::vector<uint32_t> GetConfigurationSetUnitValidationOrder(winrt::Windows::Foundation::Collections::IVectorView<ConfigurationUnit> units)
+        {
+            // Create id to index map for easier processing.
+            std::map<std::string, uint32_t> idToUnitIndex;
+            for (uint32_t i = 0; i < units.Size(); ++i)
+            {
+                auto id = GetNormalizedIdentifier(units.GetAt(i).Identifier());
+                if (!id.empty())
+                {
+                    idToUnitIndex.emplace(std::move(id), i);
+                }
+            }
+
+            // We do not need to worry about duplicate id, missing dependency or loops
+            // since dependency integrity is already validated in earlier semantic checks.
+
+            std::vector<uint32_t> validationOrder;
+
+            std::function<void(const ConfigurationUnit&, uint32_t)> addUnitToValidationOrder =
+                [&](const ConfigurationUnit& unit, uint32_t index)
+                {
+                    if (std::find(validationOrder.begin(), validationOrder.end(), index) == validationOrder.end())
+                    {
+                        for (auto const& dependencyId : unit.Dependencies())
+                        {
+                            auto dependencyIndex = idToUnitIndex.find(GetNormalizedIdentifier(dependencyId))->second;
+                            addUnitToValidationOrder(units.GetAt(dependencyIndex), dependencyIndex);
+                        }
+                        validationOrder.emplace_back(index);
+                    }
+                };
+
+            for (uint32_t i = 0; i < units.Size(); ++i)
+            {
+                addUnitToValidationOrder(units.GetAt(i), i);
+            }
+
+            THROW_HR_IF(E_UNEXPECTED, units.Size() != validationOrder.size());
+
+            return validationOrder;
+        }
     }
 
     void CreateConfigurationProcessor(Context& context)
@@ -1332,24 +1382,23 @@ namespace AppInstaller::CLI::Workflow
     {
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
         auto units = configContext.Set().Units();
+        auto validationOrder = GetConfigurationSetUnitValidationOrder(units.GetView());
+
+        Configuration::WingetDscModuleUnitValidator wingetUnitValidator;
 
         bool foundIssues = false;
-        for (uint32_t i = 0; i < units.Size(); ++i)
+        for (const auto index : validationOrder)
         {
-            const ConfigurationUnit& unit = units.GetAt(i);
-            auto details = unit.Details();
-            auto metadata = unit.Metadata();
-            auto settings = unit.Settings();
-            foundIssues = details.IsLocal();
-            for (const auto& [key, value] : metadata)
+            const ConfigurationUnit& unit = units.GetAt(index);
+            auto moduleName = Utility::ConvertToUTF8(unit.Details().ModuleName());
+            if (Utility::CaseInsensitiveEquals(wingetUnitValidator.ModuleName(), moduleName))
             {
-                std::wcout << key.c_str() << std::endl;
+                auto result = wingetUnitValidator.ValidateConfigurationSetUnit(context, unit);
+                if (!result)
+                {
+                    foundIssues = true;
+                }
             }
-            for (const auto& [key, value] : settings)
-            {
-                std::wcout << key.c_str() << std::endl;
-            }
-            (settings);
         }
 
         if (foundIssues)
