@@ -120,5 +120,27 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.IsType<string>(result.Settings[0]["key"]);
             Assert.Equal("value", (string)result.Settings[0]["key"]);
         }
+
+        /// <summary>
+        /// The unit settings processor does not support GetAllSettings.
+        /// </summary>
+        [Fact]
+        public void GetAllSettings_UnsupportedByProcessor()
+        {
+            ConfigurationUnit configurationUnit = this.ConfigurationUnit();
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            factory.NullProcessor = new TestConfigurationSetProcessor(null);
+            var unitProcessor = factory.NullProcessor.CreateTestProcessor(configurationUnit);
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            GetAllConfigurationUnitSettingsResult result = processor.GetAllUnitSettings(configurationUnit);
+
+            Assert.NotNull(result);
+            Assert.NotNull(result.ResultInformation);
+            Assert.NotNull(result.ResultInformation.ResultCode);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR, result.ResultInformation.ResultCode.HResult);
+        }
     }
 }
