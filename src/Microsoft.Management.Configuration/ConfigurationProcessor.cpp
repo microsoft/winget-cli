@@ -658,14 +658,28 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         cancellation.ThrowIfCancelled();
 
-        IGetAllSettingsConfigurationUnitProcessor unitProcessor;
-        if (setProcessor.CreateUnitProcessor(unit).try_as<IGetAllSettingsConfigurationUnitProcessor>(unitProcessor))
+        IConfigurationUnitProcessor unitProcessor;
+
+        try
+        {
+            // TODO: Directives overlay to prevent running elevated for test
+            unitProcessor = setProcessor.CreateUnitProcessor(unit);
+        }
+        catch (...)
+        {
+            ExtractUnitResultInformation(std::current_exception(), unitResult);
+        }
+
+        cancellation.ThrowIfCancelled();
+
+        IGetAllSettingsConfigurationUnitProcessor getAllSettingsUnitProcessor;
+        if (unitProcessor.try_as<IGetAllSettingsConfigurationUnitProcessor>(getAllSettingsUnitProcessor))
         {
             cancellation.ThrowIfCancelled();
 
             try
             {
-                IGetAllSettingsResult allSettingsResult = unitProcessor.GetAllSettings();
+                IGetAllSettingsResult allSettingsResult = getAllSettingsUnitProcessor.GetAllSettings();
                 result->Settings(allSettingsResult.Settings());
                 result->ResultInformation(allSettingsResult.ResultInformation());
             }
@@ -675,6 +689,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
 
             m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, unit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::ExportAction, result->ResultInformation());
+        }
+        else
+        {
+            AICLI_LOG(Config, Error, << "Unit Processor does not support GetAllSettings operation");
+            unitResult->Initialize(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR, hstring{})
         }
 
         return *result;

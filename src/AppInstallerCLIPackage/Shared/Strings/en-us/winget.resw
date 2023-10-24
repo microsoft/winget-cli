@@ -2581,6 +2581,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT" xml:space="preserve">
     <value>A unit contains a setting that requires the config root.</value>
   </data>
+  <data name="WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR" xml:space="preserve">
+    <value>Operation is not supported by the configuration processor.</value>
+  </data>
   <data name="Unavailable" xml:space="preserve">
     <value>Unavailable</value>
   </data>
