@@ -42,7 +42,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             factory.NullProcessor = new TestConfigurationSetProcessor(null);
-            TestConfigurationUnitProcessor unitProcessor = factory.NullProcessor.CreateTestProcessor(configurationUnit);
+            var unitProcessor = factory.NullProcessor.CreateGetAllSettingsTestProcessor(configurationUnit);
             unitProcessor.GetAllSettingsDelegate = () => throw new FileNotFoundException();
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
@@ -66,7 +66,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             factory.NullProcessor = new TestConfigurationSetProcessor(null);
-            TestConfigurationUnitProcessor unitProcessor = factory.NullProcessor.CreateTestProcessor(configurationUnit);
+            var unitProcessor = factory.NullProcessor.CreateGetAllSettingsTestProcessor(configurationUnit);
 
             GetAllSettingsResultInstance getAllSettingsResult = new GetAllSettingsResultInstance(configurationUnit);
             getAllSettingsResult.InternalResult.ResultCode = new InvalidDataException();
@@ -94,7 +94,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             factory.NullProcessor = new TestConfigurationSetProcessor(null);
-            TestConfigurationUnitProcessor unitProcessor = factory.NullProcessor.CreateTestProcessor(configurationUnit);
+            var unitProcessor = factory.NullProcessor.CreateGetAllSettingsTestProcessor(configurationUnit);
 
             GetAllSettingsResultInstance getAllSettingsResult = new GetAllSettingsResultInstance(configurationUnit);
             getAllSettingsResult.Settings = new List<ValueSet>()

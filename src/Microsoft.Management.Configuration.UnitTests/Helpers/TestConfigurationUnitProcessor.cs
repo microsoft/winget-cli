@@ -6,13 +6,12 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
     /// A test implementation of IConfigurationProcessorFactory.
     /// </summary>
-    internal class TestConfigurationUnitProcessor : IConfigurationUnitProcessor, IGetAllSettingsConfigurationUnitProcessor
+    internal class TestConfigurationUnitProcessor : IConfigurationUnitProcessor
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestConfigurationUnitProcessor"/> class.
@@ -40,12 +39,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// </summary>
         /// <returns>The result.</returns>
         internal delegate ITestSettingsResult TestSettingsDelegateType();
-
-        /// <summary>
-        /// The delegate for GetAllSettings.
-        /// </summary>
-        /// <returns>The result.</returns>
-        internal delegate IGetAllSettingsResult GetAllSettingsDelegateType();
 
         /// <summary>
         /// Gets or sets the directives overlay.
@@ -86,16 +79,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Gets the number of times TestSettings is called.
         /// </summary>
         internal int TestSettingsCalls { get; private set; } = 0;
-
-        /// <summary>
-        /// Gets or sets the delegate object for GetAllSettings.
-        /// </summary>
-        internal GetAllSettingsDelegateType? GetAllSettingsDelegate { get; set; }
-
-        /// <summary>
-        /// Gets the number of times GetAllSettings is called.
-        /// </summary>
-        internal int GetAllSettingsCalls { get; private set; } = 0;
 
         /// <summary>
         /// Calls the ApplySettingsDelegate if one is provided; returns success if not.
@@ -145,23 +128,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             else
             {
                 return new TestSettingsResultInstance(this.Unit) { TestResult = ConfigurationTestResult.Positive };
-            }
-        }
-
-        /// <summary>
-        /// Calls the GetAllSettingsDelegate if one is provided; returns success if not (with no settings values).
-        /// </summary>
-        /// <returns>The result.</returns>
-        public IGetAllSettingsResult GetAllSettings()
-        {
-            ++this.GetAllSettingsCalls;
-            if (this.GetAllSettingsDelegate != null)
-            {
-                return this.GetAllSettingsDelegate();
-            }
-            else
-            {
-                return new GetAllSettingsResultInstance(this.Unit);
             }
         }
     }
