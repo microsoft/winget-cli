@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="ClientCommand.cs" company="Microsoft Corporation">
+// <copyright file="ManagementDeploymentCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -13,35 +13,31 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Client.Engine.Properties;
 
     /// <summary>
     /// This is the base class for all of the commands in this module that use the COM APIs.
     /// </summary>
-    public abstract class ClientCommand : BaseCommand
+    public abstract class ManagementDeploymentCommand : BaseCommand
     {
-        static ClientCommand()
+        static ManagementDeploymentCommand()
         {
+#if !POWERSHELL_WINDOWS
             InitializeUndockedRegFreeWinRT();
+#endif
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ClientCommand"/> class.
+        /// Initializes a new instance of the <see cref="ManagementDeploymentCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">psCmdlet.</param>
-        internal ClientCommand(PSCmdlet psCmdlet)
+        internal ManagementDeploymentCommand(PSCmdlet psCmdlet)
             : base(psCmdlet)
         {
+#if POWERSHELL_WINDOWS
+            throw new WindowsPowerShellNotSupported();
+#endif
         }
-
-        /// <summary>
-        /// Gets the instance of the <see cref="ComObjectFactory" /> class.
-        /// </summary>
-        protected static Lazy<ComObjectFactory> ComObjectFactory { get; } = new ();
-
-        /// <summary>
-        /// Gets the instance of the <see cref="PackageManager" /> class.
-        /// </summary>
-        protected static Lazy<PackageManager> PackageManager { get; } = new (() => ComObjectFactory.Value.CreatePackageManager());
 
         /// <summary>
         /// Retrieves the specified source or all sources if <paramref name="source" /> is null.
@@ -49,17 +45,17 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <returns>A list of <see cref="PackageCatalogReference" /> instances.</returns>
         /// <param name="source">The name of the source to retrieve. If null, then all sources are returned.</param>
         /// <exception cref="ArgumentException">The source does not exist.</exception>
-        protected static IReadOnlyList<PackageCatalogReference> GetPackageCatalogReferences(string source)
+        protected IReadOnlyList<PackageCatalogReference> GetPackageCatalogReferences(string source)
         {
             if (string.IsNullOrEmpty(source))
             {
-                return PackageManager.Value.GetPackageCatalogs();
+                return PackageManagerWrapper.Instance.GetPackageCatalogs();
             }
             else
             {
                 return new List<PackageCatalogReference>()
                 {
-                    PackageManager.Value.GetPackageCatalogByName(source)
+                    PackageManagerWrapper.Instance.GetPackageCatalogByName(source)
                         ?? throw new InvalidSourceException(source),
                 };
             }

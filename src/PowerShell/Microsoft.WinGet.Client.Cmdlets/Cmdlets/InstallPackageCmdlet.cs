@@ -42,24 +42,23 @@ namespace Microsoft.WinGet.Client.Commands
         protected override void ProcessRecord()
         {
             var command = new InstallerPackageCommand(
-                this,
-                this.Mode.ToString(),
-                this.Override,
-                this.Custom,
-                this.Location,
-                this.AllowHashMismatch.ToBool(),
-                this.Force.ToBool(),
-                this.Header,
-                this.PSCatalogPackage,
-                this.Version,
-                this.Log,
-                this.Id,
-                this.Name,
-                this.Moniker,
-                this.Source,
-                this.Query,
-                this.MatchOption.ToString());
-            command.Install(this.Scope.ToString(), this.Architecture.ToString());
+                        this,
+                        this.Mode.ToString(),
+                        this.Override,
+                        this.Custom,
+                        this.Location,
+                        this.AllowHashMismatch.ToBool(),
+                        this.Force.ToBool(),
+                        this.Header,
+                        this.PSCatalogPackage,
+                        this.Version,
+                        this.Log,
+                        this.Id,
+                        this.Name,
+                        this.Moniker,
+                        this.Source,
+                        this.Query);
+            command.Install(this.Scope.ToString(), this.Architecture.ToString(), this.MatchOption.ToString(), this.Mode.ToString());
         }
     }
 }

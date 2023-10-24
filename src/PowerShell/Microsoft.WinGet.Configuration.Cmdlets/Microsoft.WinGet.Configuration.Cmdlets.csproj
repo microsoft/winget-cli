@@ -94,40 +94,4 @@
     <Copy SourceFiles="@(ModuleSharedDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />
   </Target>
 
-  <!-- Since this is Any CPU we will have to probe for arch specific binaries -->
-  <!-- This gets defined before the target framework and the rid gets appended to the OutputPath -->
-  <PropertyGroup>
-    <Configx64Path>$(OutputPath)..\..\..\x64\$(Configuration)\Microsoft.Management.Configuration\</Configx64Path>
-    <Configx86Path>$(OutputPath)..\..\..\x86\$(Configuration)\Microsoft.Management.Configuration\</Configx86Path>
-    <ConfigArm64Path>$(OutputPath)..\..\..\ARM64\$(Configuration)\Microsoft.Management.Configuration\</ConfigArm64Path>
-  </PropertyGroup>
-
-  <!-- The projection dll is Any CPU, but WinRT.Runtime.dll expects file to be in the same location as the native dll -->
-  <Target Name="CopyConfigx64" AfterTargets="AfterBuild" Condition="Exists('$(Configx64Path)Microsoft.Management.Configuration.dll')">
-    <ItemGroup>
-      <Configx64File Include="$(OutputPath)\Microsoft.Management.Configuration.Projection.dll" />
-      <Configx64File Include="$(Configx64Path)\Microsoft.Management.Configuration.dll" />
-    </ItemGroup>
-    <Message Importance="high" Text="Copying x64 '@(Configx64File)'" />
-    <Copy SourceFiles="@(Configx64File)" DestinationFolder="$(PowerShellModuleSharedDependencies)\x64" />
-  </Target>
-
-  <Target Name="CopyConfigx86" AfterTargets="AfterBuild" Condition="Exists('$(Configx86Path)Microsoft.Management.Configuration.dll')">
-    <ItemGroup>
-      <Configx86File Include="$(OutputPath)\Microsoft.Management.Configuration.Projection.dll" />
-      <Configx86File Include="$(Configx86Path)\Microsoft.Management.Configuration.dll" />
-    </ItemGroup>
-    <Message Importance="high" Text="Copying x86 '@(Configx86File)'" />
-    <Copy SourceFiles="@(Configx86File)" DestinationFolder="$(PowerShellModuleSharedDependencies)\x86" />
-  </Target>
-
-  <Target Name="CopyConfigArm64" AfterTargets="AfterBuild" Condition="Exists('$(ConfigArm64Path)Microsoft.Management.Configuration.dll')">
-    <ItemGroup>
-      <ConfigArm64File Include="$(OutputPath)\Microsoft.Management.Configuration.Projection.dll" />
-      <ConfigArm64File Include="$(ConfigArm64Path)\Microsoft.Management.Configuration.dll" />
-    </ItemGroup>
-    <Message Importance="high" Text="Copying arm64 '@(ConfigArm64File)'" />
-    <Copy SourceFiles="@(ConfigArm64File)" DestinationFolder="$(PowerShellModuleSharedDependencies)\arm64" />
-  </Target>
-
 </Project>
