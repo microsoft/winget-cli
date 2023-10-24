@@ -72,7 +72,7 @@ namespace AppInstaller::Repository::Microsoft
             using namespace winrt::Windows::Management::Deployment;
             using namespace winrt::Windows::Foundation::Collections;
 
-            AICLI_LOG(Repo, Info, << "Examining MSIX entries for " << ScopeToString(scope));
+            AICLI_LOG(Repo, Verbose, << "Examining MSIX entries for " << ScopeToString(scope));
 
             IIterable<Package> packages;
             PackageManager packageManager;
@@ -150,12 +150,12 @@ namespace AppInstaller::Repository::Microsoft
                     }
                     catch (const winrt::hresult_error& hre)
                     {
-                        AICLI_LOG(Repo, Info, << "winrt::hresult_error[0x" << Logging::SetHRFormat << hre.code() << ": " <<
+                        AICLI_LOG(Repo, Warning, << "winrt::hresult_error[0x" << Logging::SetHRFormat << hre.code() << ": " <<
                             Utility::ConvertToUTF8(hre.message()) << "] exception thrown when getting DisplayName for " << familyName);
                     }
                     catch (...)
                     {
-                        AICLI_LOG(Repo, Info, << "Unknown exception thrown when getting DisplayName for " << familyName);
+                        AICLI_LOG(Repo, Warning, << "Unknown exception thrown when getting DisplayName for " << familyName);
                     }
                 }
 
@@ -176,7 +176,7 @@ namespace AppInstaller::Repository::Microsoft
 
         SQLiteIndex CreateAndPopulateIndex(PredefinedInstalledSourceFactory::Filter filter)
         {
-            AICLI_LOG(Repo, Info, << "Creating PredefinedInstalledSource with filter [" << PredefinedInstalledSourceFactory::FilterToString(filter) << ']');
+            AICLI_LOG(Repo, Verbose, << "Creating PredefinedInstalledSource with filter [" << PredefinedInstalledSourceFactory::FilterToString(filter) << ']');
 
             // Create an in memory index
             SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, SQLite::Version::Latest());
@@ -207,7 +207,7 @@ namespace AppInstaller::Repository::Microsoft
                 PopulateIndexFromMSIX(index, Manifest::ScopeEnum::Machine);
             }
 
-            AICLI_LOG(Repo, Info, << " ... finished creating PredefinedInstalledSource");
+            AICLI_LOG(Repo, Verbose, << " ... finished creating PredefinedInstalledSource");
 
             return index;
         }

@@ -368,7 +368,7 @@ namespace AppInstaller::Repository::Microsoft
 
     void ARPHelper::PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture, const std::map<std::string, std::string>& upgradeCodes) const
     {
-        AICLI_LOG(Repo, Info, << "Examining ARP entries for " << scope << " | " << architecture);
+        AICLI_LOG(Repo, Verbose, << "Examining ARP entries for " << scope << " | " << architecture);
 
         for (const auto& arpEntry : key)
         {

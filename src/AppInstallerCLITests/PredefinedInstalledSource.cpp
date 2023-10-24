@@ -7,6 +7,7 @@
 #include <AppInstallerStrings.h>
 #include <Microsoft/PredefinedInstalledSourceFactory.h>
 #include <Microsoft/ARPHelper.h>
+#include <Microsoft/SQLiteIndexSource.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -18,6 +19,7 @@ using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Utility;
 
 using SQLiteIndex = AppInstaller::Repository::Microsoft::SQLiteIndex;
+using SQLiteIndexSource = AppInstaller::Repository::Microsoft::SQLiteIndexSource;
 using Factory = AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory;
 using ARPHelper = AppInstaller::Repository::Microsoft::ARPHelper;
 
@@ -403,7 +405,29 @@ TEST_CASE("PredefinedInstalledSource_Search", "[installed][list]")
 
 TEST_CASE("PredefinedInstalledSource_Create_Cached", "[installed][list]")
 {
-    auto source = CreatePredefinedInstalledSource();
+    auto source1 = CreatePredefinedInstalledSource();
     std::this_thread::sleep_for(2s);
     auto source2 = CreatePredefinedInstalledSource();
+
+    // Ensure different last write times (which should mean the cache was updated)
+    REQUIRE(
+        reinterpret_cast<SQLiteIndexSource*>(source1->CastTo(ISourceType::SQLiteIndexSource))->GetIndex().GetLastWriteTime()
+        !=
+        reinterpret_cast<SQLiteIndexSource*>(source2->CastTo(ISourceType::SQLiteIndexSource))->GetIndex().GetLastWriteTime()
+    );
+
+    // Find all MSIX in first source
+    SearchRequest msix1;
+    msix1.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Tag, MatchType::CaseInsensitive, "msix"});
+    auto result1 = source1->Search(msix1);
+    REQUIRE(!result1.Matches.empty());
+
+    for (const auto& match : result1.Matches)
+    {
+        SearchRequest id2;
+        id2.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::CaseInsensitive, match.Package->GetProperty(PackageProperty::Id).get() });
+        auto result2 = source2->Search(id2);
+        REQUIRE(result2.Matches.size() == 1);
+        REQUIRE(match.Package->GetProperty(PackageProperty::Name) == result2.Matches[0].Package->GetProperty(PackageProperty::Name));
+    }
 }
