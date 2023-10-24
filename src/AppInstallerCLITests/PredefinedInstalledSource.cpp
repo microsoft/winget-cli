@@ -416,10 +416,8 @@ TEST_CASE("PredefinedInstalledSource_Create_Cached", "[installed][list]")
         reinterpret_cast<SQLiteIndexSource*>(source2->CastTo(ISourceType::SQLiteIndexSource))->GetIndex().GetLastWriteTime()
     );
 
-    // Find all MSIX in first source
-    SearchRequest msix1;
-    msix1.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Tag, MatchType::CaseInsensitive, "msix"});
-    auto result1 = source1->Search(msix1);
+    // Get all packages
+    auto result1 = source1->Search({});
     REQUIRE(!result1.Matches.empty());
 
     for (const auto& match : result1.Matches)
