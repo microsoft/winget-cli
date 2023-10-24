@@ -101,6 +101,10 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
                     return Resources.ConfigurationUnitManuallySkipped;
                 case ErrorCodes.WingetConfigErrorDependencyUnsatisfied:
                     return Resources.ConfigurationUnitNotRunDueToDependency;
+                case ErrorCodes.WinGetConfigUnitSettingConfigRoot:
+                    return Resources.WinGetConfigUnitSettingConfigRoot;
+                case ErrorCodes.WinGetConfigUnitImportModuleAdmin:
+                    return Resources.WinGetConfigUnitImportModuleAdmin;
             }
 
             switch (resultInfo.ResultSource)
