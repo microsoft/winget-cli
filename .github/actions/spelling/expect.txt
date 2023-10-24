@@ -333,6 +333,7 @@ objbase
 objidl
 ofile
 ools
+oop
 OPTOUT
 osfhandle
 Outptr
@@ -476,6 +477,7 @@ TOptions
 TProgress
 transitioning
 TResult
+TReturn
 trimstart
 TState
 TStatus

@@ -26,19 +26,10 @@ namespace AppInstallerCLIE2ETests.PowerShell
         /// <summary>
         /// Initializes a new instance of the <see cref="PowerShellHost"/> class.
         /// </summary>
-        /// <param name="importModule">If to import modules.</param>
-        public PowerShellHost(bool importModule = true)
+        public PowerShellHost()
         {
             InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
             initialSessionState.ExecutionPolicy = ExecutionPolicy.Unrestricted;
-
-            if (importModule)
-            {
-                initialSessionState.ImportPSModule(new string[]
-                {
-                    TestSetup.Parameters.PowerShellModuleManifestPath,
-                });
-            }
 
             this.runspace = RunspaceFactory.CreateRunspace(initialSessionState);
             this.runspace.Open();
