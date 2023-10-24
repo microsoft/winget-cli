@@ -154,7 +154,6 @@ TEST_CASE("ResumeFlow_InstallSuccess", "[Resume]")
     REQUIRE(checkpointFiles.size() == 0);
 }
 
-// TODO: This test will need to be updated once saving the resume state is restricted to certain HRs.
 TEST_CASE("ResumeFlow_InstallFailure", "[Resume]")
 {
     TestCommon::TempDirectory tempCheckpointRecordDirectory("TempCheckpointRecordDirectory", false);
@@ -183,15 +182,50 @@ TEST_CASE("ResumeFlow_InstallFailure", "[Resume]")
         REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
     }
 
-    // Only one checkpoint file should be created.
-    std::vector<std::filesystem::path> checkpointFiles;
-    for (const auto& entry : std::filesystem::directory_iterator(tempCheckpointRecordDirectoryPath))
+    // Checkpoint file should be cleaned up if the hr is not reboot related.
+    REQUIRE(std::filesystem::is_empty(tempCheckpointRecordDirectoryPath));
+}
+
+TEST_CASE("ResumeFlow_WindowsFeature_RebootRequired", "[Resume]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
     {
-        checkpointFiles.emplace_back(entry.path());
+        WARN("Test requires admin privilege. Skipped.");
+        return;
     }
 
-    REQUIRE(checkpointFiles.size() == 1);
+    TestCommon::TempDirectory tempCheckpointRecordDirectory("TempCheckpointRecordDirectory", false);
 
-    std::filesystem::path checkpointRecordPath = checkpointFiles[0];
-    REQUIRE(std::filesystem::exists(checkpointRecordPath));
+    const auto& tempCheckpointRecordDirectoryPath = tempCheckpointRecordDirectory.GetPath();
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointRecordDirectoryPath);
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFResume>(true);
+    testSettings.Set<Setting::EFReboot>(true);
+    testSettings.Set<Setting::EFWindowsFeature>(true);
+
+    // Override with reboot required HRESULT.
+    auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(ERROR_SUCCESS);
+    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
+    TestHook::SetRegisterForRestartResult_Override registerForRestartResultOverride(false);
+    TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(true);
+
+    {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        OverrideOpenDependencySource(context);
+
+        const auto& testManifestPath = TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string();
+        context.Args.AddArg(Execution::Args::Type::Manifest, testManifestPath);
+        context.Args.AddArg(Execution::Args::Type::AllowReboot);
+
+        InstallCommand install({});
+        install.Execute(context);
+        INFO(installOutput.str());
+
+        // Verify unsupported arguments error message is shown 
+        REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToRegisterReboot).get()) != std::string::npos);
+    }
 }

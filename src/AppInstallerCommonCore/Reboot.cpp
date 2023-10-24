@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "AppInstallerLogging.h"
+#include "AppInstallerStrings.h"
 #include "Public/winget/Reboot.h"
 #include <Windows.h>
 
@@ -13,6 +14,13 @@ namespace AppInstaller::Reboot
     void TestHook_SetInitiateRebootResult_Override(bool* status)
     {
         s_InitiateRebootResult_TestHook_Override = status;
+    }
+
+    static bool* s_RegisterForRestartResult_TestHook_Override = nullptr;
+
+    void TestHook_SetRegisterForRestartResult_Override(bool* status)
+    {
+        s_RegisterForRestartResult_TestHook_Override = status;
     }
 #endif
 
@@ -53,5 +61,28 @@ namespace AppInstaller::Reboot
 
         AICLI_LOG(Core, Info, << "Initiating reboot.");
         return ExitWindowsEx(EWX_RESTARTAPPS, SHTDN_REASON_MINOR_INSTALLATION);
+    }
+
+    bool RegisterApplicationForReboot(const std::string& commandLineArgs)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_RegisterForRestartResult_TestHook_Override)
+        {
+            return *s_RegisterForRestartResult_TestHook_Override;
+        }
+#endif
+
+        HRESULT result = RegisterApplicationRestart(AppInstaller::Utility::ConvertToUTF16(commandLineArgs).c_str(), 0 /* Always restart process */);
+        AICLI_LOG(CLI, Info, << "Register for restart with command line args: " << commandLineArgs);
+
+        if (FAILED(result))
+        {
+            AICLI_LOG(Core, Error, << "RegisterApplicationRestart failed with hr: " << result);
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 }

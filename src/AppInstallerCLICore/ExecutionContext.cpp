@@ -255,9 +255,9 @@ namespace AppInstaller::CLI::Execution
 
     Context::~Context()
     {
-        if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume) && !IsTerminated())
+        if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
         {
-            if (m_checkpointManager)
+            if (m_checkpointManager && IsTerminated() && GetTerminationHR() != APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL)
             {
                 m_checkpointManager->CleanUpDatabase();
             }

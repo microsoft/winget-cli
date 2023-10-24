@@ -2619,4 +2619,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FailedToInitiateReboot" xml:space="preserve">
     <value>Failed to initiate a reboot.</value>
   </data>
+  <data name="FailedToRegisterReboot" xml:space="preserve">
+    <value>Failed to register winget for reboot.</value>
+  </data>
 </root>

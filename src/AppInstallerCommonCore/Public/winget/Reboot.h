@@ -5,4 +5,6 @@
 namespace AppInstaller::Reboot
 {
     bool InitiateReboot();
+
+    bool RegisterApplicationForReboot(const std::string& commandLineArgs);
 }

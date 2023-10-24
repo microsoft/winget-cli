@@ -29,10 +29,19 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct InitiateRebootIfApplicable : public WorkflowTask
     {
-        InitiateRebootIfApplicable() : WorkflowTask("InitiateRebootIfApplicable", /* executeAlways */true) {}
+        InitiateRebootIfApplicable() : WorkflowTask("InitiateRebootIfApplicable", /* executeAlways */ true) {}
 
         void operator()(Execution::Context& context) const override;
     };
 
-    void RegisterForRestart(Execution::Context& context);
+    // Registers the resume command to execute upon reboot if applicable. This task always executes even if context terminates.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    struct RegisterForReboot : public WorkflowTask
+    {
+        RegisterForReboot() : WorkflowTask("RegisterForReboot", /* executeAlways*/ true) {}
+
+        void operator()(Execution::Context & context) const override;
+    };
 }

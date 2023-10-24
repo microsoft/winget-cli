@@ -44,7 +44,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void RegisterForRestart(Execution::Context& context)
+    void RegisterForReboot::operator()(Execution::Context& context) const
     {
         if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume) && 
             !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot))
@@ -54,16 +54,16 @@ namespace AppInstaller::CLI::Workflow
 
         if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterResume))
         {
-            const auto& commandLineArg = L"resume -g " + Utility::ConvertToUTF16(context.GetResumeId());
+            std::string commandLineArg = "resume -g " + context.GetResumeId();
 
-            //AICLI_LOG(CLI, Info, << "Registering for restart with command line args: " << commandLineArg);
-
-            HRESULT result = RegisterApplicationRestart(commandLineArg.c_str(), 0);
-
-            if (FAILED(result))
+            if (!Reboot::RegisterApplicationForReboot(commandLineArg))
             {
-                AICLI_LOG(CLI, Error, << "RegisterApplicationRestart error: " << result);
-                context.Reporter.Error() << "Failed to register for restart." << std::endl;
+                context.Reporter.Error() << Resource::String::FailedToRegisterReboot << std::endl;
+
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired))
+                {
+                    context.ClearFlags(Execution::ContextFlag::RebootRequired);
+                }
             }
         }
     }

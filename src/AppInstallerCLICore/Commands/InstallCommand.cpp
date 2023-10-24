@@ -123,6 +123,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
+                Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
                 Workflow::InstallSinglePackage;
         }
         else
@@ -152,6 +153,7 @@ namespace AppInstaller::CLI
             else
             {
                 context <<
+                    Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
                     Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
             }
         }
