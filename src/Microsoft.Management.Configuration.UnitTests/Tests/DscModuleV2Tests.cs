@@ -618,24 +618,5 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 PowerShellHelpers.CreateModuleSpecification(
                     TestModule.SimpleTestResourceModuleName));
         }
-
-        /// <summary>
-        /// Calls Invoke-DscResource Export. Export is not supported in v2.
-        /// </summary>
-        [Fact]
-        public void InvokeExportResource_NotSupported()
-        {
-            var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
-
-            var dscModule = new DscModuleV2();
-            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
-            Assert.Throws<NotSupportedException>(
-                () => dscModule.InvokeExportResource(
-                    pwsh,
-                    new ValueSet(),
-                    TestModule.SimpleTestResourceName,
-                    PowerShellHelpers.CreateModuleSpecification(
-                        TestModule.SimpleTestResourceModuleName)));
-        }
     }
 }

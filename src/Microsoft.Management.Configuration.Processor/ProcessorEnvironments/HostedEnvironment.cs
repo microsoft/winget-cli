@@ -164,15 +164,6 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         }
 
         /// <inheritdoc/>
-        public IList<ValueSet> InvokeExportResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification)
-        {
-            using PowerShell pwsh = PowerShell.Create(this.Runspace);
-            var result = this.DscModule.InvokeExportResource(pwsh, settings, name, moduleSpecification);
-            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
-            return result;
-        }
-
-        /// <inheritdoc/>
         public PSModuleInfo? GetImportedModule(ModuleSpecification moduleSpecification)
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);

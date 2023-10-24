@@ -658,22 +658,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         cancellation.ThrowIfCancelled();
 
-        IConfigurationUnitProcessor2 unitProcessor;
-
-        try
+        IGetAllSettingsConfigurationUnitProcessor unitProcessor;
+        if (setProcessor.CreateUnitProcessor(unit).try_as<IGetAllSettingsConfigurationUnitProcessor>(unitProcessor))
         {
-            // TODO: Directives overlay to prevent running elevated for get
-            unitProcessor = setProcessor.CreateUnitProcessor(unit).as<IConfigurationUnitProcessor2>();
-        }
-        catch (...)
-        {
-            ExtractUnitResultInformation(std::current_exception(), unitResult);
-        }
+            cancellation.ThrowIfCancelled();
 
-        cancellation.ThrowIfCancelled();
-
-        if (unitProcessor)
-        {
             try
             {
                 IGetAllSettingsResult allSettingsResult = unitProcessor.GetAllSettings();

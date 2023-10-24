@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// A test implementation of IConfigurationProcessorFactory.
     /// </summary>
-    internal class TestConfigurationUnitProcessor : IConfigurationUnitProcessor, IConfigurationUnitProcessor2
+    internal class TestConfigurationUnitProcessor : IConfigurationUnitProcessor, IGetAllSettingsConfigurationUnitProcessor
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestConfigurationUnitProcessor"/> class.

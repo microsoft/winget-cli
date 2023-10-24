@@ -411,7 +411,7 @@ namespace Microsoft.Management.Configuration
     }
 
     [contract(Microsoft.Management.Configuration.Contract, 2)]
-    interface IConfigurationUnitProcessor2 requires IConfigurationUnitProcessor
+    interface IGetAllSettingsConfigurationUnitProcessor requires IConfigurationUnitProcessor
     {
         // Gets the current system state for all the instances of the configuration unit, each of which has their own settings.
         IGetAllSettingsResult GetAllSettings();

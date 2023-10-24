@@ -216,16 +216,6 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             return setResult?.RebootRequired;
         }
 
-        /// <inheritdoc/>
-        public IList<ValueSet> InvokeExportResource(
-            PowerShell pwsh,
-            ValueSet settings,
-            string name,
-            ModuleSpecification? moduleSpecification)
-        {
-            throw new NotSupportedException("Export is not supported in DSC v2");
-        }
-
         private static Dictionary<string, object> PrepareInvokeParameters(
             string name,
             ValueSet settings,
