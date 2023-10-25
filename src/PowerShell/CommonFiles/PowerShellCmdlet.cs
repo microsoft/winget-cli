@@ -29,6 +29,7 @@ namespace Microsoft.WinGet.Common.Command
         private const string Debug = "Debug";
         private static readonly string[] WriteInformationTags = new string[] { "PSHOST" };
 
+        private readonly PSCmdlet psCmdlet;
         private readonly Thread originalThread;
 
         private readonly CancellationTokenSource source = new ();
@@ -55,14 +56,9 @@ namespace Microsoft.WinGet.Common.Command
 
             this.ValidatePolicies(policies);
 
-            this.PsCmdlet = psCmdlet;
+            this.psCmdlet = psCmdlet;
             this.originalThread = Thread.CurrentThread;
         }
-
-        /// <summary>
-        /// Gets the base cmdlet.
-        /// </summary>
-        protected PSCmdlet PsCmdlet { get; private set; }
 
         /// <summary>
         /// Request cancellation for this command.
@@ -307,43 +303,51 @@ namespace Microsoft.WinGet.Common.Command
             return this.source.Token;
         }
 
+        /// <summary>
+        /// Gets the current file system location from the cmdlet.
+        /// </summary>
+        /// <returns>Path.</returns>
+        internal string GetCurrentFileSystemLocation()
+        {
+            return this.psCmdlet.SessionState.Path.CurrentFileSystemLocation.Path;
+        }
+
         private void CmdletWrite(StreamType streamType, object data, PowerShellCmdlet writeCmdlet)
         {
             switch (streamType)
             {
                 case StreamType.Debug:
-                    writeCmdlet.PsCmdlet.WriteDebug((string)data);
+                    writeCmdlet.psCmdlet.WriteDebug((string)data);
                     break;
                 case StreamType.Verbose:
-                    writeCmdlet.PsCmdlet.WriteVerbose((string)data);
+                    writeCmdlet.psCmdlet.WriteVerbose((string)data);
                     break;
                 case StreamType.Warning:
-                    writeCmdlet.PsCmdlet.WriteWarning((string)data);
+                    writeCmdlet.psCmdlet.WriteWarning((string)data);
                     break;
                 case StreamType.Error:
-                    writeCmdlet.PsCmdlet.WriteError((ErrorRecord)data);
+                    writeCmdlet.psCmdlet.WriteError((ErrorRecord)data);
                     break;
                 case StreamType.Progress:
                     // If the activity is already completed don't write progress.
                     var progressRecord = (ProgressRecord)data;
                     if (this.progressRecords[progressRecord.ActivityId] == ProgressRecordType.Processing)
                     {
-                        writeCmdlet.PsCmdlet.WriteProgress(progressRecord);
+                        writeCmdlet.psCmdlet.WriteProgress(progressRecord);
                     }
 
                     break;
                 case StreamType.Object:
-                    writeCmdlet.PsCmdlet.WriteObject(data);
+                    writeCmdlet.psCmdlet.WriteObject(data);
                     break;
                 case StreamType.Information:
-                    writeCmdlet.PsCmdlet.WriteInformation(data, WriteInformationTags);
+                    writeCmdlet.psCmdlet.WriteInformation(data, WriteInformationTags);
                     break;
             }
         }
 
         private void ValidatePolicies(HashSet<Policy> policies)
         {
-            // TODO: how to deal with group policies?
             GroupPolicy groupPolicy = GroupPolicy.GetInstance();
 
             if (policies.Contains(Policy.WinGet))

@@ -70,6 +70,15 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Debug parameter not supported.
+        /// </summary>
+        internal static string DebugNotSupported {
+            get {
+                return ResourceManager.GetString("DebugNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An error occurred while searching for packages: {0}.
         /// </summary>
         internal static string FindPackagesExceptionMessage {

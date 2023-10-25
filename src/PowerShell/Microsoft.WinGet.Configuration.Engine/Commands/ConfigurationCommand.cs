@@ -90,7 +90,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             bool canUseTelemetry)
         {
             var openParams = new OpenConfigurationParameters(
-                this.PsCmdlet, configFile, modulePath, executionPolicy, canUseTelemetry);
+                this, configFile, modulePath, executionPolicy, canUseTelemetry);
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
