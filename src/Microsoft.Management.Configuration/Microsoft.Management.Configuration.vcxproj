@@ -212,6 +212,7 @@
     <ClInclude Include="ConfigurationStaticFunctions.h" />
     <ClInclude Include="ConfigurationUnit.h" />
     <ClInclude Include="ConfigurationUnitResultInformation.h" />
+    <ClInclude Include="DefaultSetGroupProcessor.h" />
     <ClInclude Include="DiagnosticInformationInstance.h" />
     <ClInclude Include="ExceptionResultHelpers.h" />
     <ClInclude Include="GetConfigurationSetDetailsResult.h" />
@@ -224,6 +225,8 @@
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="TestConfigurationSetResult.h" />
     <ClInclude Include="TestConfigurationUnitResult.h" />
+    <ClInclude Include="TestGroupSettingsResult.h" />
+    <ClInclude Include="TestSettingsResult.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplyConfigurationSetResult.cpp" />
@@ -245,6 +248,7 @@
     <ClCompile Include="ConfigurationStaticFunctions.cpp" />
     <ClCompile Include="ConfigurationUnit.cpp" />
     <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
+    <ClCompile Include="DefaultSetGroupProcessor.cpp" />
     <ClCompile Include="DiagnosticInformationInstance.cpp" />
     <ClCompile Include="GetConfigurationSetDetailsResult.cpp" />
     <ClCompile Include="GetConfigurationUnitDetailsResult.cpp" />
@@ -258,6 +262,8 @@
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="TestConfigurationSetResult.cpp" />
     <ClCompile Include="TestConfigurationUnitResult.cpp" />
+    <ClCompile Include="TestGroupSettingsResult.cpp" />
+    <ClCompile Include="TestSettingsResult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Microsoft_Management_Configuration.def" />
