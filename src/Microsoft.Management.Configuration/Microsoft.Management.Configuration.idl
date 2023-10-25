@@ -70,8 +70,7 @@ namespace Microsoft.Management.Configuration
         // The system state is causing the error.
         SystemState,
         // The configuration unit was not run due to a precondition not being met.
-        // For example, when an assert in the configuration set is not in the desired state,
-        // all of the units with Apply intent will have this set.
+        // For example, if a dependency fails to be applied, this will be set.
         Precondition,
     };
 
@@ -170,7 +169,14 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails> Settings{ get; };
         // Does it comes from a public repository
         Boolean IsPublic{ get; };
+    }
 
+    // Provides information for a specific configuration unit within the runtime.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface IConfigurationUnitProcessorDetails2 requires IConfigurationUnitProcessorDetails
+    {
+        // Determines if this configuration unit should be treated as a group.
+        Boolean IsGroup{ get; };
     }
 
     // Defines how the configuration unit is to be used within the configuration system.
@@ -240,6 +246,16 @@ namespace Microsoft.Management.Configuration
         //  Details will be the same value (not a copy, just another reference)
         //  State, ResultInformation, and ShouldApply will be their default constructed state
         ConfigurationUnit Copy();
+
+        [contract(Microsoft.Management.Configuration.Contract, 2)]
+        {
+            // Determines if this configuration unit should be treated as a group.
+            // A configuration unit group treats its `Settings` as the definition of child units.
+            Boolean IsGroup;
+
+            // The configuration units that are part of this unit (if IsGroup is true).
+            Windows.Foundation.Collections.IVector<ConfigurationUnit> Units;
+        }
     }
 
     // The change event type that has occurred for a configuration set change.
@@ -271,6 +287,49 @@ namespace Microsoft.Management.Configuration
 
         // The configuration unit whose state changed.
         ConfigurationUnit Unit{ get; };
+    }
+
+    // The definition of a configuration parameter; a value that may be provided to alter the processing of a configuration set.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    runtimeclass ConfigurationParameter
+    {
+        ConfigurationParameter();
+
+        // The name of the parameter.
+        String Name;
+
+        // The description of the parameter.
+        String Description;
+
+        // The metadata properties associated with the configuration parameter.
+        Windows.Foundation.Collections.ValueSet Metadata;
+
+        // The value of the parameter should be treated as a secret; not logged our output.
+        Boolean IsSecure;
+
+        // The type of the parameter.
+        Windows.Foundation.PropertyType Type;
+
+        // The default value; may be null if no default is provided.
+        Object DefaultValue;
+
+        // The set of allowed values; a null container indicates that the values are not restricted.
+        Windows.Foundation.Collections.IVector<Object> AllowedValues;
+
+        // The minimum length for a parameter type with the concept (string, array, etc.).
+        UInt32 MinimumLength;
+
+        // The maximum length for a parameter type with the concept (string, array, etc.).
+        UInt32 MaximumLength;
+
+        // For comparable parameter types, the minimum value allowed (integrals, DateTime, etc.).
+        Object MinimumValue;
+
+        // For comparable parameter types, the maximum value allowed (integrals, DateTime, etc.).
+        Object MaximumValue;
+
+        // The input value; may be null if no value is provided.
+        Object ProvidedValue;
     }
 
     // A configuration set contains a collection of configuration units and details about the set.
@@ -305,6 +364,7 @@ namespace Microsoft.Management.Configuration
 
         // The schema version to use for the set.
         // Will be set to the schema version when read in, and default to the latest if created manually.
+        // Setting SchemaVersion to a different value will change SchemaUri.
         String SchemaVersion;
 
         // Only changes for this set are sent to this event.
@@ -316,6 +376,23 @@ namespace Microsoft.Management.Configuration
 
         // Removes the configuration set from the recorded history, if present.
         void Remove();
+
+        [contract(Microsoft.Management.Configuration.Contract, 2)]
+        {
+            // The metadata properties associated with the configuration set.
+            Windows.Foundation.Collections.ValueSet Metadata;
+
+            // The parameters that this configuration set supports.
+            Windows.Foundation.Collections.IVector<ConfigurationParameter> Parameters;
+
+            // The variables that this configuration set uses.
+            Windows.Foundation.Collections.ValueSet Variables;
+
+            // The schema URI to use for the set.
+            // Will be set to the schema version when read in, and default to the latest if created manually.
+            // Setting SchemaUri to a different value will change SchemaVersion.
+            Windows.Foundation.Uri SchemaUri;
+        }
     }
 
     // The result of applying the settings with an IConfigurationUnitProcessor.
@@ -711,7 +788,6 @@ namespace Microsoft.Management.Configuration
         event Windows.Foundation.TypedEventHandler<ConfigurationSet, ConfigurationChangeData> ConfigurationChange;
 
         // Gets the configuration sets that have already been applied or with the intent to be applied (this may include in progress sets or those that are waiting on others).
-        // These configuration sets will be marked as immutable.
         Windows.Foundation.Collections.IVector<ConfigurationSet> GetConfigurationHistory();
         Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<ConfigurationSet> > GetConfigurationHistoryAsync();
 
@@ -775,8 +851,16 @@ namespace Microsoft.Management.Configuration
     }
 
     // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface IConfigurationStatics2 requires IConfigurationStatics
+    {
+        // Creates an empty configuration parameter.
+        ConfigurationParameter CreateConfigurationParameter();
+    }
+
+    // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass ConfigurationStaticFunctions : [default]IConfigurationStatics
+    runtimeclass ConfigurationStaticFunctions : [default]IConfigurationStatics, IConfigurationStatics2
     {
         ConfigurationStaticFunctions();
     }

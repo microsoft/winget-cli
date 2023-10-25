@@ -13,6 +13,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void AppendUnitResult(const TestConfigurationUnitResult& unitResult);
         void TestResult(ConfigurationTestResult value);
+
+        static ConfigurationTestResult FoldInTestResult(ConfigurationTestResult current, ConfigurationTestResult incoming);
 #endif
 
         Windows::Foundation::Collections::IVectorView<TestConfigurationUnitResult> UnitResults() const;

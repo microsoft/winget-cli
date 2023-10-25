@@ -61,8 +61,10 @@
     <None Remove="TestData\Configuration\PSGallery_NoSettings.yml" />
     <None Remove="testdata\configuration\ResourceNotFound.yml" />
     <None Remove="testdata\configuration\ResourcesNotASequence.yml" />
+    <None Remove="TestData\Configuration\ShowDetails_TestRepo_0_3.yml" />
     <None Remove="testdata\configuration\UnitNotAMap.yml" />
     <None Remove="testdata\configuration\UnknownVersion.yml" />
+    <None Remove="TestData\Configuration\WithParameters_0_3.yml" />
     <None Remove="TestData\localsource.json" />
   </ItemGroup>
 

@@ -11,11 +11,11 @@
 #include <type_traits>
 #include <vector>
 
-#define AICLI_LOG(_channel_,_level_,_outstream_) \
+#define AICLI_LOG_DIRECT(_logger_,_channel_,_level_,_outstream_) \
     do { \
         auto _aicli_log_channel = AppInstaller::Logging::Channel:: _channel_; \
         auto _aicli_log_level = AppInstaller::Logging::Level:: _level_; \
-        auto& _aicli_log_log = AppInstaller::Logging::Log(); \
+        auto& _aicli_log_log = _logger_; \
         if (_aicli_log_log.IsEnabled(_aicli_log_channel, _aicli_log_level)) \
         { \
             AppInstaller::Logging::LoggingStream _aicli_log_strstr; \
@@ -23,6 +23,8 @@
             _aicli_log_log.Write(_aicli_log_channel, _aicli_log_level, _aicli_log_strstr.str()); \
         } \
     } while (0, 0)
+
+#define AICLI_LOG(_channel_,_level_,_outstream_) AICLI_LOG_DIRECT(AppInstaller::Logging::Log(),_channel_,_level_,_outstream_)
 
 // Consider using this macro when the string might be larger than 4K.
 // The normal macro has some buffering that occurs; it can cut off larger strings and is slower.

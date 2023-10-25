@@ -94,6 +94,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Sends diagnostics objects to the event.
         void SendDiagnostics(const IDiagnosticInformation& information);
 
+        // Temporary entry point to enable experimental schema support.
+        void SetSupportsSchema03(bool value);
+
     private:
         GetConfigurationSetDetailsResult GetSetDetailsImpl(
             const ConfigurationSet& configurationSet,
@@ -125,6 +128,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
         std::recursive_mutex m_diagnosticsMutex;
         bool m_isHandlingDiagnostics = false;
+        // Temporary value to enable experimental schema support.
+        bool m_supportSchema03 = true;
 #endif
     };
 }

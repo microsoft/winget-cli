@@ -270,21 +270,28 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
 
             std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(inputString);
+
+            // Temporary block on parsing 0.3 schema while it is experimental.
+            if (parser->GetSchemaVersion() == L"0.3" && !m_supportSchema03)
+            {
+                result->Initialize(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+                co_return *result;
+            }
+
             if (FAILED(parser->Result()))
             {
                 result->Initialize(parser->Result(), parser->Field(), parser->Value(), parser->Line(), parser->Column());
                 co_return *result;
             }
 
-            auto configurationSet = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
-            configurationSet->Initialize(parser->GetConfigurationUnits());
+            parser->Parse();
             if (FAILED(parser->Result()))
             {
                 result->Initialize(parser->Result(), parser->Field(), parser->Value(), parser->Line(), parser->Column());
                 co_return *result;
             }
-            configurationSet->SchemaVersion(parser->GetSchemaVersion());
 
+            auto configurationSet = parser->GetConfigurationSet();
             PropagateLifetimeWatcher(configurationSet.as<Windows::Foundation::IUnknown>());
 
             result->Initialize(*configurationSet);
@@ -742,6 +749,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
     // While diagnostics can be important, a failure to send them should not cause additional issues.
     catch (...) {}
+
+    void ConfigurationProcessor::SetSupportsSchema03(bool value)
+    {
+        m_supportSchema03 = value;
+    }
 
     void ConfigurationProcessor::SendDiagnosticsImpl(const IDiagnosticInformation& information)
     {
