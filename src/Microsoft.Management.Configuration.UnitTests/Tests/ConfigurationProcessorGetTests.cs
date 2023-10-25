@@ -1,33 +1,32 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="ProcessorGetTests.cs" company="Microsoft Corporation">
+// <copyright file="ConfigurationProcessorGetTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
+    using System.Collections.Generic;
     using System.IO;
-    using System.Runtime.InteropServices;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
     using Xunit;
     using Xunit.Abstractions;
-    using Xunit.Sdk;
 
     /// <summary>
     /// Unit tests for getting details on processors.
     /// </summary>
     [Collection("UnitTestCollection")]
     [OutOfProc]
-    public class ProcessorGetTests : ConfigurationProcessorTestBase
+    public class ConfigurationProcessorGetTests : ConfigurationProcessorTestBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProcessorGetTests"/> class.
+        /// Initializes a new instance of the <see cref="ConfigurationProcessorGetTests"/> class.
         /// </summary>
         /// <param name="fixture">Unit test fixture.</param>
         /// <param name="log">Log helper.</param>
-        public ProcessorGetTests(UnitTestFixture fixture, ITestOutputHelper log)
+        public ConfigurationProcessorGetTests(UnitTestFixture fixture, ITestOutputHelper log)
             : base(fixture, log)
         {
         }

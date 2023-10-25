@@ -7,7 +7,6 @@
 namespace Microsoft.Management.Configuration.Processor.Unit
 {
     using System;
-    using System.Collections.Generic;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
