@@ -48,6 +48,7 @@ namespace AppInstaller::CLI::Execution
             AcceptPackageAgreements, // Accept all license agreements for packages
             Rename, // Renames the file of the executable. Only applies to the portable installerType
             NoUpgrade, // Install flow should not try to convert to upgrade flow upon finding existing installed version
+            AllowReboot, // Allows the reboot flow to proceed if applicable
 
             // Uninstall behavior
             Purge, // Removes all files and directories related to a package during an uninstall. Only applies to the portable installerType.
@@ -108,6 +109,9 @@ namespace AppInstaller::CLI::Execution
 
             // Error command
             ErrorInput,
+
+            // Resume Command
+            ResumeId,
 
             // Configuration
             ConfigurationFile,

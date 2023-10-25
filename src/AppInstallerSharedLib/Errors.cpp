@@ -196,6 +196,11 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, "Failed to download package dependencies."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED, "Failed to download package. Download for offline installation is prohibited."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE, "A required service is busy or unavailable. Try again later."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND, "The guid provided does not correspond to a valid resume state."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH, "The current client version did not match the client version of the saved state."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE, "The resume state data is invalid."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_CANNOT_OPEN_CHECKPOINT_INDEX, "Unable to open the checkpoint database."),
+
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),
@@ -256,6 +261,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE, "Loading the module for the configuration unit failed."),
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT, "The configuration unit returned an unexpected result during execution."),
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT, "A unit contains a setting that requires the config root."),
+            WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN, "Loading the module for the configuration unit failed because it requires administrator privileges to run."),
             WINGET_HRESULT_INFO(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR, "Operation is not supported by the configuration processor."),
 
             // Errors without the error bit set

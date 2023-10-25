@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteStatementBuilder.h>
 #include "Microsoft/Schema/IPinningIndex.h"
 #include <string_view>
 

@@ -150,9 +150,6 @@
     <ClInclude Include="Public\winget\PortableFileEntry.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\ManagedFile.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\MsixManifest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -174,13 +171,13 @@
     <ClInclude Include="Public\winget\Pin.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\WindowsFeature.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\SelfManagement.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\MSStore.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Reboot.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
@@ -293,9 +290,6 @@
     <ClCompile Include="PortableARPEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ManagedFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MsixManifest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -320,13 +314,13 @@
     <ClCompile Include="Pin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WindowsFeature.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SelfManagement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MSStore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Reboot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
