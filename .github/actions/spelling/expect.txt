@@ -417,6 +417,8 @@ SARL
 schematab
 sddl
 SECUREFILEPATH
+secureobject
+securestring
 seof
 servercert
 servercertificate

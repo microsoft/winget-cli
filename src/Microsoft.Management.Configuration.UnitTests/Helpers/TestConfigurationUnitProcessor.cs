@@ -42,6 +42,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         internal delegate ITestSettingsResult TestSettingsDelegateType();
 
         /// <summary>
+        /// The delegate for TestSettings that passes the unit in.
+        /// </summary>
+        /// <param name="unit">The unit.</param>
+        /// <returns>The result.</returns>
+        internal delegate ITestSettingsResult TestSettingsDelegateWithUnitType(ConfigurationUnit unit);
+
+        /// <summary>
         /// Gets or sets the directives overlay.
         /// </summary>
         public IReadOnlyDictionary<string, object>? DirectivesOverlay { get; set; }
@@ -75,6 +82,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Gets or sets the delegate object for TestSettings.
         /// </summary>
         internal TestSettingsDelegateType? TestSettingsDelegate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the delegate object for TestSettings that takes in the unit.
+        /// </summary>
+        internal TestSettingsDelegateWithUnitType? TestSettingsDelegateWithUnit { get; set; }
 
         /// <summary>
         /// Gets the number of times TestSettings is called.
@@ -122,7 +134,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public ITestSettingsResult TestSettings()
         {
             ++this.TestSettingsCalls;
-            if (this.TestSettingsDelegate != null)
+            if (this.TestSettingsDelegateWithUnit != null)
+            {
+                return this.TestSettingsDelegateWithUnit(this.Unit);
+            }
+            else if (this.TestSettingsDelegate != null)
             {
                 return this.TestSettingsDelegate();
             }

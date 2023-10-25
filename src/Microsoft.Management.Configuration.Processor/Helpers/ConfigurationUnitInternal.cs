@@ -8,6 +8,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using Microsoft.Management.Configuration.Processor.Constants;
     using Microsoft.Management.Configuration.Processor.Exceptions;
@@ -15,8 +16,8 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     using Windows.Foundation.Collections;
 
     /// <summary>
-    /// Wrapper around Configuration units and its directives. Creates a normalized directives map
-    /// for consumption.
+    /// Wrapper around Configuration units and its directives.
+    /// Creates a normalized directives map for consumption.
     /// </summary>
     internal class ConfigurationUnitInternal
     {
@@ -32,10 +33,11 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// <param name="configurationFilePath">The configuration file path.</param>
         public ConfigurationUnitInternal(
             ConfigurationUnit unit,
-            string configurationFilePath)
+            string? configurationFilePath)
         {
             this.Unit = unit;
             this.InitializeDirectives();
+            this.InitializeNames();
 
             string? moduleName = this.GetDirective<string>(DirectiveConstants.Module);
             if (string.IsNullOrEmpty(moduleName))
@@ -69,18 +71,24 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         public ConfigurationUnit Unit { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the unit type should be treated as the resource name.
+        /// </summary>
+        public bool UnitTypeIsResourceName { get; init; } = false;
+
+        /// <summary>
         /// Gets the module specification.
         /// </summary>
         public ModuleSpecification? Module { get; }
 
         /// <summary>
-        /// Creates a string that identifies this unit for diagnostics.
+        /// Gets the resource name *only*. For example, "Resource".
         /// </summary>
-        /// <returns>The string that identifies this unit for diagnostics.</returns>
-        public string ToIdentifyingString()
-        {
-            return $"{this.Unit.Type} [{this.Module?.ToString() ?? "<no module>"}]";
-        }
+        public string ResourceName { get; private set; }
+
+        /// <summary>
+        /// Gets the qualified name, which includes the module. For example, "Module/Resource".
+        /// </summary>
+        public string QualifiedName { get; private set; }
 
         /// <summary>
         /// Gets the directive value from the unit taking into account the directives overlay.
@@ -197,12 +205,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
                 {
                     if (string.IsNullOrEmpty(this.configurationFileRootPath))
                     {
-                        throw new UnitSettingConfigRootException(this.Unit.Type, settingName);
-                    }
-
-                    if (this.configurationFileRootPath == null)
-                    {
-                        throw new ArgumentException();
+                        throw new UnitSettingConfigRootException(this.QualifiedName, settingName);
                     }
 
                     return value.Replace(ConfigRootVar, this.configurationFileRootPath, StringComparison.OrdinalIgnoreCase);
@@ -218,6 +221,63 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             {
                 var normalizedKey = StringHelpers.Normalize(directive.Key);
                 this.normalizedDirectives.Add(normalizedKey, directive.Value);
+            }
+        }
+
+        private string ConstructQualifiedName(string? moduleName)
+        {
+            return $"{(moduleName == null ? string.Empty : $"{moduleName}/")}{this.ResourceName}";
+        }
+
+        [MemberNotNull(nameof(ResourceName), nameof(QualifiedName))]
+        private void InitializeNames()
+        {
+            // Determine ResourceName, QualifiedName, and the module directive
+            string unitType = this.Unit.Type;
+            string? moduleDirective = this.GetDirective<string>(DirectiveConstants.Module);
+
+            if (this.UnitTypeIsResourceName)
+            {
+                this.ResourceName = unitType;
+                this.QualifiedName = this.ConstructQualifiedName(moduleDirective);
+                return;
+            }
+
+            int unitTypeDividerPosition = unitType.IndexOf('/');
+
+            if (unitTypeDividerPosition == unitType.Length - 1)
+            {
+                throw new ArgumentException($"Invalid unit Type: {unitType}");
+            }
+
+            string? moduleName;
+
+            if (unitTypeDividerPosition == -1)
+            {
+                moduleName = moduleDirective;
+                this.ResourceName = unitType;
+                this.QualifiedName = this.ConstructQualifiedName(moduleDirective);
+            }
+            else
+            {
+                moduleName = unitType.Substring(0, unitTypeDividerPosition);
+                this.ResourceName = unitType.Substring(unitTypeDividerPosition + 1);
+                this.QualifiedName = unitType;
+            }
+
+            if (moduleName != null)
+            {
+                if (moduleDirective != null)
+                {
+                    if (moduleName != moduleDirective)
+                    {
+                        throw new ArgumentException($"Mismatched module specifiers: {moduleName} != {moduleDirective}");
+                    }
+                }
+                else
+                {
+                    this.normalizedDirectives.Add(DirectiveConstants.Module, moduleName);
+                }
             }
         }
     }

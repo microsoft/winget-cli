@@ -78,6 +78,15 @@
     <ClCompile Include="DiagnosticInformationInstance.cpp">
       <Filter>Internals</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigurationParameter.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ArgumentValidation.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSetParser_0_3.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -161,6 +170,18 @@
     </ClInclude>
     <ClInclude Include="DiagnosticInformationInstance.h">
       <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationParameter.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ArgumentValidation.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="ParsingMacros.h">
+      <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetParser_0_3.h">
+      <Filter>Parser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

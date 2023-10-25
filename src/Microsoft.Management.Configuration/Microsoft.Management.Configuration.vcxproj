@@ -194,10 +194,12 @@
   <ItemGroup>
     <ClInclude Include="ApplyConfigurationSetResult.h" />
     <ClInclude Include="ApplyConfigurationUnitResult.h" />
+    <ClInclude Include="ArgumentValidation.h" />
     <ClInclude Include="ConfigThreadGlobals.h" />
     <ClInclude Include="ConfigurationChangeData.h" />
     <ClInclude Include="ConfigurationConflict.h" />
     <ClInclude Include="ConfigurationConflictSetting.h" />
+    <ClInclude Include="ConfigurationParameter.h" />
     <ClInclude Include="ConfigurationProcessor.h" />
     <ClInclude Include="ConfigurationSet.h" />
     <ClInclude Include="ConfigurationSetApplyProcessor.h" />
@@ -206,6 +208,7 @@
     <ClInclude Include="ConfigurationSetParserError.h" />
     <ClInclude Include="ConfigurationSetParser_0_1.h" />
     <ClInclude Include="ConfigurationSetParser_0_2.h" />
+    <ClInclude Include="ConfigurationSetParser_0_3.h" />
     <ClInclude Include="ConfigurationStaticFunctions.h" />
     <ClInclude Include="ConfigurationUnit.h" />
     <ClInclude Include="ConfigurationUnitResultInformation.h" />
@@ -215,6 +218,7 @@
     <ClInclude Include="GetConfigurationUnitDetailsResult.h" />
     <ClInclude Include="GetConfigurationUnitSettingsResult.h" />
     <ClInclude Include="OpenConfigurationSetResult.h" />
+    <ClInclude Include="ParsingMacros.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Telemetry\Telemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
@@ -224,10 +228,12 @@
   <ItemGroup>
     <ClCompile Include="ApplyConfigurationSetResult.cpp" />
     <ClCompile Include="ApplyConfigurationUnitResult.cpp" />
+    <ClCompile Include="ArgumentValidation.cpp" />
     <ClCompile Include="ConfigThreadGlobals.cpp" />
     <ClCompile Include="ConfigurationChangeData.cpp" />
     <ClCompile Include="ConfigurationConflict.cpp" />
     <ClCompile Include="ConfigurationConflictSetting.cpp" />
+    <ClCompile Include="ConfigurationParameter.cpp" />
     <ClCompile Include="ConfigurationProcessor.cpp" />
     <ClCompile Include="ConfigurationSet.cpp" />
     <ClCompile Include="ConfigurationSetApplyProcessor.cpp" />
@@ -235,6 +241,7 @@
     <ClCompile Include="ConfigurationSetParser.cpp" />
     <ClCompile Include="ConfigurationSetParser_0_1.cpp" />
     <ClCompile Include="ConfigurationSetParser_0_2.cpp" />
+    <ClCompile Include="ConfigurationSetParser_0_3.cpp" />
     <ClCompile Include="ConfigurationStaticFunctions.cpp" />
     <ClCompile Include="ConfigurationUnit.cpp" />
     <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
