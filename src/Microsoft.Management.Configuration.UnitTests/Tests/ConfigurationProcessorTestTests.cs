@@ -7,16 +7,11 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Runtime.InteropServices;
-    using Microsoft.CodeAnalysis.Emit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
-    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Xunit;
     using Xunit.Abstractions;
 

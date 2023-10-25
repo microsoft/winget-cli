@@ -6,7 +6,6 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>

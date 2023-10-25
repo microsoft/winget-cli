@@ -78,6 +78,9 @@
     <ClCompile Include="DiagnosticInformationInstance.cpp">
       <Filter>Internals</Filter>
     </ClCompile>
+    <ClCompile Include="GetAllConfigurationUnitSettingsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
     <ClCompile Include="ConfigurationParameter.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
@@ -170,6 +173,9 @@
     </ClInclude>
     <ClInclude Include="DiagnosticInformationInstance.h">
       <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="GetAllConfigurationUnitSettingsResult.h">
+      <Filter>API Headers</Filter>
     </ClInclude>
     <ClInclude Include="ConfigurationParameter.h">
       <Filter>API Headers</Filter>

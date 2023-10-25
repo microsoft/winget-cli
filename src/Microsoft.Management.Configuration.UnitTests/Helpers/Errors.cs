@@ -29,6 +29,22 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public static readonly int WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE                 = unchecked((int)0x8A15C00C);
         public static readonly int WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE                  = unchecked((int)0x8A15C00D);
         public static readonly int WINGET_CONFIG_ERROR_MISSING_FIELD                        = unchecked((int)0x8A15C00E);
+        public static readonly int WINGET_CONFIG_ERROR_TEST_FAILED                          = unchecked((int)0x8A15C00F);
+        public static readonly int WINGET_CONFIG_ERROR_TEST_NOT_RUN                         = unchecked((int)0x8A15C010);
+
+        // Configuration Processor Errors
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED                   = unchecked((int)0x8A15C101);
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY            = unchecked((int)0x8A15C102);
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_MULTIPLE_MATCHES                = unchecked((int)0x8A15C103);
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_INVOKE_GET                      = unchecked((int)0x8A15C104);
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_INVOKE_TEST                     = unchecked((int)0x8A15C105);
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_INVOKE_SET                      = unchecked((int)0x8A15C106);
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT                 = unchecked((int)0x8A15C107);
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE                   = unchecked((int)0x8A15C108);
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT           = unchecked((int)0x8A15C109);
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT             = unchecked((int)0x8A15C110);
+        public static readonly int WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN             = unchecked((int)0x8A15C111);
+        public static readonly int WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR           = unchecked((int)0x8A15C112);
 
 #pragma warning restore SA1025 // Code should not contain multiple whitespace in a row
 #pragma warning restore SA1600 // Elements should be documented
