@@ -10,7 +10,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
     using System.Collections.Generic;
     using Microsoft.Management.Configuration;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Exception thrown while getting details.

@@ -11,7 +11,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
     using System.Management.Automation;
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.PowerShell;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// The parameters used to open a configuration.
