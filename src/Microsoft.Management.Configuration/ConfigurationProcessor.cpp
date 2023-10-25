@@ -693,7 +693,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         else
         {
             AICLI_LOG(Config, Error, << "Unit Processor does not support GetAllSettings operation");
-            unitResult->Initialize(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR, hstring{})
+            unitResult->Initialize(WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR, hstring{});
         }
 
         return *result;
