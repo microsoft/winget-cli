@@ -147,6 +147,10 @@
       <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</RuntimeTypeInfo>
       <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</RuntimeTypeInfo>
       <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</RuntimeTypeInfo>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Guard</ControlFlowGuard>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Guard</ControlFlowGuard>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Guard</ControlFlowGuard>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Guard</ControlFlowGuard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
