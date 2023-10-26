@@ -12,7 +12,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Validates winget runs correctly.
@@ -112,7 +112,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 if (File.Exists(wingetAliasPath))
                 {
                     // App execution alias is enabled. Then maybe the path?
-                    string envPath = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
+                    string? envPath = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
                     if (string.IsNullOrEmpty(envPath) ||
                         !envPath.EndsWith(Utilities.LocalDataWindowsAppPath) ||
                         !envPath.Contains($"{Utilities.LocalDataWindowsAppPath};"))
@@ -137,7 +137,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
             // It could be that AppInstaller package is old or the package is not
             // registered at this point. To know that, call Get-AppxPackage.
             var appxModule = new AppxModuleHelper(psCmdlet);
-            string version = appxModule.GetAppInstallerPropertyValue("Version");
+            string? version = appxModule.GetAppInstallerPropertyValue("Version");
             if (version is null)
             {
                 // This can happen in Windows Sandbox.

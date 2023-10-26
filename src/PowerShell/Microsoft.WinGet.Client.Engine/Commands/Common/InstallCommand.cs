@@ -29,17 +29,17 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <summary>
         /// Gets or sets the override arguments to be passed on to the installer.
         /// </summary>
-        protected string Override { get; set; }
+        protected string? Override { get; set; }
 
         /// <summary>
         /// Gets or sets the arguments to be passed on to the installer in addition to the defaults.
         /// </summary>
-        protected string Custom { get; set; }
+        protected string? Custom { get; set; }
 
         /// <summary>
         /// Gets or sets the installation location.
         /// </summary>
-        protected string Location { get; set; }
+        protected string? Location { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to skip the installer hash validation check.
@@ -54,7 +54,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <summary>
         /// Gets or sets the optional HTTP Header to pass on to the REST Source.
         /// </summary>
-        protected string Header { get; set; }
+        protected string? Header { get; set; }
 
         /// <summary>
         /// Gets the install options from the configured parameters.
@@ -65,7 +65,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <param name="version">The <see cref="PackageVersionId" /> to install.</param>
         /// <param name="mode">Package install mode as string.</param>
         /// <returns>An <see cref="InstallOptions" /> instance.</returns>
-        protected virtual InstallOptions GetInstallOptions(PackageVersionId version, string mode)
+        protected virtual InstallOptions GetInstallOptions(PackageVersionId? version, string mode)
         {
             InstallOptions options = ManagementDeploymentFactory.Instance.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch;

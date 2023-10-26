@@ -36,17 +36,17 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <remarks>
         /// Must match the name of the <see cref="CatalogPackage" /> field on the <see cref="MatchResult" /> class.
         /// </remarks>
-        protected PSCatalogPackage CatalogPackage { get; set; } = null;
+        protected PSCatalogPackage? CatalogPackage { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the version to install.
         /// </summary>
-        protected string Version { get; set; }
+        protected string? Version { get; set; }
 
         /// <summary>
         /// Gets or sets the path to the logging file.
         /// </summary>
-        protected string Log { get; set; }
+        protected string? Log { get; set; }
 
         /// <summary>
         /// Executes a command targeting a specific package version.
@@ -57,10 +57,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         protected void GetPackageAndExecute(
             CompositeSearchBehavior behavior,
             PackageFieldMatchOption match,
-            Action<CatalogPackage, PackageVersionId> callback)
+            Action<CatalogPackage, PackageVersionId?> callback)
         {
             CatalogPackage package = this.GetCatalogPackage(behavior, match);
-            PackageVersionId version = this.GetPackageVersionId(package);
+            PackageVersionId? version = this.GetPackageVersionId(package);
             if (this.PsCmdlet.ShouldProcess(package.ToString(version)))
             {
                 callback(package, version);
@@ -79,7 +79,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         protected override void SetQueryInFindPackagesOptions(
             ref FindPackagesOptions options,
             string match,
-            string value)
+            string? value)
         {
             var matchOption = PSEnumHelpers.ToPackageFieldMatchOption(match);
             foreach (PackageMatchField field in new PackageMatchField[] { PackageMatchField.Id, PackageMatchField.Name, PackageMatchField.Moniker })
@@ -120,7 +120,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
         }
 
-        private PackageVersionId GetPackageVersionId(CatalogPackage package)
+        private PackageVersionId? GetPackageVersionId(CatalogPackage package)
         {
             if (this.Version != null)
             {

@@ -86,7 +86,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Calls Get-AppxPackage Microsoft.DesktopAppInstaller.
         /// </summary>
         /// <returns>Result of Get-AppxPackage.</returns>
-        public PSObject GetAppInstallerObject()
+        public PSObject? GetAppInstallerObject()
         {
             return this.GetAppxObject(AppInstallerName);
         }
@@ -96,9 +96,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// </summary>
         /// <param name="propertyName">Property name.</param>
         /// <returns>Value, null if doesn't exist.</returns>
-        public string GetAppInstallerPropertyValue(string propertyName)
+        public string? GetAppInstallerPropertyValue(string propertyName)
         {
-            string result = null;
+            string? result = null;
             var packageObj = this.GetAppInstallerObject();
             if (packageObj is not null)
             {
@@ -117,7 +117,13 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// </summary>
         public void RegisterAppInstaller()
         {
-            string packageFullName = this.GetAppInstallerPropertyValue(PackageFullName);
+            string? packageFullName = this.GetAppInstallerPropertyValue(PackageFullName);
+
+            if (packageFullName == null)
+            {
+                throw new ArgumentNullException(PackageFullName);
+            }
+
             string appxManifestPath = System.IO.Path.Combine(
                 Utilities.ProgramFilesWindowsAppPath,
                 packageFullName,
@@ -223,7 +229,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private PSObject GetAppxObject(string packageName)
+        private PSObject? GetAppxObject(string packageName)
         {
             return this.ExecuteAppxCmdlet(
                 GetAppxPackage,
@@ -266,7 +272,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             {
                 foreach (dynamic psobject in result)
                 {
-                    string versionString = psobject?.Version?.ToString();
+                    string? versionString = psobject?.Version?.ToString();
                     if (versionString == null)
                     {
                         continue;
@@ -360,7 +366,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private void AddAppxPackageAsUri(string packageUri, IList<string> options = null)
+        private void AddAppxPackageAsUri(string packageUri, IList<string>? options = null)
         {
             try
             {
@@ -389,7 +395,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private void DownloadPackageAndAdd(string packageUrl, IList<string> options)
+        private void DownloadPackageAndAdd(string packageUrl, IList<string>? options)
         {
             using var tempFile = new TempFile();
 
@@ -407,7 +413,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     options);
         }
 
-        private Collection<PSObject> ExecuteAppxCmdlet(string cmdlet, Dictionary<string, object> parameters = null, IList<string> options = null)
+        private Collection<PSObject> ExecuteAppxCmdlet(string cmdlet, Dictionary<string, object>? parameters = null, IList<string>? options = null)
         {
             var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
 

@@ -10,8 +10,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Installs or updates a package from the pipeline or from a configured source.

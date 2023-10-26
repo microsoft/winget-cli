@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// This is the base class for all of the commands in this module that use the COM APIs.
@@ -45,7 +45,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <returns>A list of <see cref="PackageCatalogReference" /> instances.</returns>
         /// <param name="source">The name of the source to retrieve. If null, then all sources are returned.</param>
         /// <exception cref="ArgumentException">The source does not exist.</exception>
-        protected IReadOnlyList<PackageCatalogReference> GetPackageCatalogReferences(string source)
+        protected IReadOnlyList<PackageCatalogReference> GetPackageCatalogReferences(string? source)
         {
             if (string.IsNullOrEmpty(source))
             {

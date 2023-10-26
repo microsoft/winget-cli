@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Resources;
     using static Microsoft.WinGet.Client.Engine.Common.Constants;
 
     /// <summary>
@@ -190,8 +190,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             Utilities.AddWindowsAppToPath();
 
             // Update this sessions PowerShell environment so the user doesn't have to restart the terminal.
-            string envPathUser = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
-            string envPathMachine = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.Machine);
+            string? envPathUser = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
+            string? envPathMachine = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.Machine);
             string newPwshPathEnv = $"{envPathMachine};{envPathUser}";
             this.PsCmdlet.SessionState.PSVariable.Set(EnvPath, newPwshPathEnv);
 

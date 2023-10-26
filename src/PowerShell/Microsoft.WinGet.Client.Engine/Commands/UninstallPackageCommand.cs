@@ -11,8 +11,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Uninstalls a package from the local system.
@@ -83,7 +83,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         }
 
         private UninstallOptions GetUninstallOptions(
-            PackageVersionId version,
+            PackageVersionId? version,
             PackageUninstallMode packageUninstallMode,
             bool force)
         {

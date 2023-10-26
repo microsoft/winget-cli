@@ -31,13 +31,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// Gets or sets the filter that is matched against the tags of the package.
         /// </summary>
         [Filter(Field = PackageMatchField.Tag)]
-        protected string Tag { get; set; }
+        protected string? Tag { get; set; }
 
         /// <summary>
         /// Gets or sets the filter that is matched against the commands of the package.
         /// </summary>
         [Filter(Field = PackageMatchField.Command)]
-        protected string Command { get; set; }
+        protected string? Command { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum number of results returned.

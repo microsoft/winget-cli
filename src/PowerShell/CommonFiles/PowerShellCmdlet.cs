@@ -63,7 +63,7 @@ namespace Microsoft.WinGet.Common.Command
         /// <summary>
         /// Request cancellation for this command.
         /// </summary>
-        internal void Cancel()
+        public void Cancel()
         {
             this.source.Cancel();
         }
@@ -86,8 +86,7 @@ namespace Microsoft.WinGet.Common.Command
             // .NET 4.8 doesn't support TaskCompletionSource.
 #if POWERSHELL_WINDOWS
             throw new NotImplementedException();
-#endif
-
+#else
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
             {
@@ -118,6 +117,7 @@ namespace Microsoft.WinGet.Common.Command
             thread.SetApartmentState(ApartmentState.MTA);
             thread.Start();
             return tcs.Task;
+#endif
         }
 
         /// <summary>

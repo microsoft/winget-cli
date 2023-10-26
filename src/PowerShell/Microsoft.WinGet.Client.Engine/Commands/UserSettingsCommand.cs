@@ -35,7 +35,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             var settingsResult = wingetCliWrapper.RunCommand("settings", "export");
 
             // Read the user settings file property.
-            WinGetSettingsFilePath = (string)Utilities.ConvertToHashtable(settingsResult.StdOut)["userSettingsFile"];
+            var userSettingsFile = Utilities.ConvertToHashtable(settingsResult.StdOut)["userSettingsFile"];
+            if (userSettingsFile == null)
+            {
+                throw new ArgumentNullException("userSettingsFile");
+            }
+
+            WinGetSettingsFilePath = (string)userSettingsFile;
         }
 
         /// <summary>
@@ -175,11 +181,16 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="json">Main json.</param>
         /// <param name="otherJson">otherJson.</param>
         /// <returns>True is otherJson partially contains json.</returns>
-        private bool PartialDeepEquals(JToken json, JToken otherJson)
+        private bool PartialDeepEquals(JToken json, JToken? otherJson)
         {
             if (JToken.DeepEquals(json, otherJson))
             {
                 return true;
+            }
+
+            if (otherJson == null)
+            {
+                return false;
             }
 
             // If they are a JValue (string, integer, date, etc) or they are a JArray and DeepEquals fails then not equal.
