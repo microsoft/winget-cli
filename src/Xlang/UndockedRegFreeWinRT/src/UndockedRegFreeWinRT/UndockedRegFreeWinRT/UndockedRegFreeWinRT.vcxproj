@@ -206,6 +206,7 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
+      <AdditionalOptions>/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">
@@ -255,6 +256,7 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
+      <AdditionalOptions>/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|x64'">
@@ -304,6 +306,7 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
+      <AdditionalOptions>/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM'">
@@ -353,6 +356,7 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
+      <AdditionalOptions>/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">
