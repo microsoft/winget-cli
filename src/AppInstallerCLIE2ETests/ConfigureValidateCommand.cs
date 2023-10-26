@@ -17,6 +17,24 @@ namespace AppInstallerCLIE2ETests
         private const string Command = "configure validate";
 
         /// <summary>
+        /// Set up.
+        /// </summary>
+        [OneTimeSetUp]
+        public void BaseSetup()
+        {
+            TestCommon.SetupTestSource(false);
+        }
+
+        /// <summary>
+        /// Tear down.
+        /// </summary>
+        [OneTimeTearDown]
+        public void BaseTeardown()
+        {
+            TestCommon.TearDownTestSource();
+        }
+
+        /// <summary>
         /// The configuration file is empty.
         /// </summary>
         [Test]
