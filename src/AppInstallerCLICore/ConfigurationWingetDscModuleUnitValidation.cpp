@@ -27,7 +27,7 @@ namespace AppInstaller::CLI::Configuration
 
             bool Empty()
             {
-                return Name.empty() && Arg.empty();
+                return Name.empty() && Arg.empty() && Type == "Microsoft.PreIndexed.Package";
             }
         };
 
@@ -82,18 +82,18 @@ namespace AppInstaller::CLI::Configuration
                                 WinGetSource wingetSource;
                                 for (auto const& sourcePair : source)
                                 {
-                                    auto sourceKey = Utility::ConvertToUTF8(sourcesPair.Key());
+                                    auto sourceKey = Utility::ConvertToUTF8(sourcePair.Key());
                                     if (Utility::CaseInsensitiveEquals("Name", sourceKey))
                                     {
-                                        wingetSource.Name = GetPropertyValueAsString(sourcesPair.Value());
+                                        wingetSource.Name = GetPropertyValueAsString(sourcePair.Value());
                                     }
                                     else if (Utility::CaseInsensitiveEquals("Type", sourceKey))
                                     {
-                                        wingetSource.Type = GetPropertyValueAsString(sourcesPair.Value());
+                                        wingetSource.Type = GetPropertyValueAsString(sourcePair.Value());
                                     }
                                     else if (Utility::CaseInsensitiveEquals("Arg", sourceKey))
                                     {
-                                        wingetSource.Arg = GetPropertyValueAsString(sourcesPair.Value());
+                                        wingetSource.Arg = GetPropertyValueAsString(sourcePair.Value());
                                     }
                                 }
 
@@ -186,7 +186,7 @@ namespace AppInstaller::CLI::Configuration
         }
     }
 
-    bool WingetDscModuleUnitValidator::ValidateConfigurationSetUnit(Execution::Context& context, const ConfigurationUnit& unit)
+    bool WingetDscModuleUnitValidator::ValidateConfigurationSetUnit(Execution::Context&, const ConfigurationUnit& unit)
     {
        bool foundIssues = false;
        auto details = unit.Details();

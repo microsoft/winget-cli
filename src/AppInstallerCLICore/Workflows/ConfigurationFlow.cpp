@@ -935,7 +935,7 @@ namespace AppInstaller::CLI::Workflow
             // TODO: Suggestions welcome on what values to pass in.
             result.Name(argPathWide);
             result.Origin(argPathWide);
-            result.Path(argPathWide);
+            // Do not set path. This means ${WinGetConfigRoot} not supported in remote configs.
         }
         else
         {
