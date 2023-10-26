@@ -27,6 +27,8 @@ namespace LocalhostWebServer
 
         public static string LocalSourceJson { get; set; }
 
+        public static string TestDataPath { get; set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;

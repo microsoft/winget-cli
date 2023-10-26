@@ -281,7 +281,7 @@ namespace AppInstaller::CLI::Configuration
                        auto dependencySourceItr = m_dependenciesSourceAndUnitIdMap.find(Utility::FoldCase(std::string_view{ package.Source }));
                        if (dependencySourceItr == m_dependenciesSourceAndUnitIdMap.end())
                        {
-                           AICLI_LOG(Config, Warning, << "WinGetPackage " << package.Id << " depends on a 3rd party source not previously configured " << package.Source);
+                           AICLI_LOG(Config, Warning, << "WinGetPackage " << package.Id << " depends on a 3rd party source not previously configured: " << package.Source);
                            foundIssues = true;
                        }
                        else

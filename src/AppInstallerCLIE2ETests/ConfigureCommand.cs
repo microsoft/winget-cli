@@ -171,6 +171,17 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual("Contents!", System.IO.File.ReadAllText(targetFilePath));
         }
 
+        /// <summary>
+        /// Simple test to configure from an https configuration file.
+        /// </summary>
+        public void ConfigureFromHttpsConfigurationFile()
+        {
+            string args = $"{Constants.TestSourceUrl}/TestData/Configuration/Configure_TestRepo_Location.yml";
+
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
+            Assert.AreEqual(0, result.ExitCode);
+        }
+
         private void DeleteTxtFiles()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests

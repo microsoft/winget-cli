@@ -191,5 +191,16 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Validation found no issues."));
         }
+
+        /// <summary>
+        /// No issues detected (yet) from https configuration file.
+        /// </summary>
+        [Test]
+        public void NoIssuesDetected_HttpsConfigurationFile()
+        {
+            var result = TestCommon.RunAICLICommand(Command, $"{Constants.TestSourceUrl}/Configuration/PSGallery_NoSettings.yml", timeOut: 120000);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Validation found no issues."));
+        }
     }
 }

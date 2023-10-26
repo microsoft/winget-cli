@@ -62,5 +62,16 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.LocalModuleDescriptor));
         }
+
+        /// <summary>
+        /// Simple test to show details from a https configuration file.
+        /// </summary>
+        [Test]
+        public void ShowDetailsFromHttpsConfigurationFile()
+        {
+            var result = TestCommon.RunAICLICommand("configure show", $"{Constants.TestSourceUrl}/TestData/Configuration/ShowDetails_TestRepo.yml --verbose");
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains(Constants.TestRepoName));
+        }
     }
 }
