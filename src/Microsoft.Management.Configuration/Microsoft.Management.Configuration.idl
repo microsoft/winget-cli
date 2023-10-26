@@ -505,7 +505,7 @@ namespace Microsoft.Management.Configuration
         IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit);
     }
 
-    // The result of applying the settings with an IConfigurationGroupProcessor.
+    // The result of applying the settings with an IConfigurationSetGroupProcessor.
     [contract(Microsoft.Management.Configuration.Contract, 2)]
     interface IApplyGroupSettingsResult
     {
@@ -522,7 +522,7 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IVector<IApplySettingsResult> UnitResults{ get; };
     }
 
-    // The result of testing the settings with an IConfigurationGroupProcessor.
+    // The result of testing the settings with an IConfigurationSetGroupProcessor.
     [contract(Microsoft.Management.Configuration.Contract, 2)]
     interface ITestGroupSettingsResult
     {
@@ -540,40 +540,18 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IVector<ITestSettingsResult> UnitResults{ get; };
     }
 
-    // The result of getting the settings with an IConfigurationGroupProcessor.
-    [contract(Microsoft.Management.Configuration.Contract, 2)]
-    interface IGetGroupSettingsResult
-    {
-        // The configuration group object (set or unit).
-        Object Group{ get; };
-
-        // The current state of the system for the configuration unit group.
-        Windows.Foundation.Collections.ValueSet Settings{ get; };
-
-        // The result of getting the configuration unit group settings.
-        // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
-        IConfigurationUnitResultInformation ResultInformation{ get; };
-
-        // Results for each configuration unit in the group.
-        Windows.Foundation.Collections.IVector<IGetSettingsResult> UnitResults{ get; };
-    }
-
-    // Provides access to a specific configuration unit group within the runtime.
-    // An object returned by `CreateUnitProcessor` or `CreateSetProcessor` can implement this interface to indicate that it can take
+    // An object returned by `CreateSetProcessor` can implement this interface to indicate that it can take
     // the responsibility of executing the units that it contains.
     [contract(Microsoft.Management.Configuration.Contract, 2)]
-    interface IConfigurationGroupProcessor
+    interface IConfigurationSetGroupProcessor
     {
-        // The configuration group object (set or unit).
-        Object Group{ get; };
+        // The configuration set.
+        ConfigurationSet Set{ get; };
 
-        // Determines if the system is already in the state described by the configuration unit group.
+        // Determines if the system is already in the state described by the configuration set.
         Windows.Foundation.IAsyncOperationWithProgress<ITestGroupSettingsResult, ITestSettingsResult> TestGroupSettingsAsync();
 
-        // Gets the current system state for the configuration unit group.
-        Windows.Foundation.IAsyncOperationWithProgress<IGetGroupSettingsResult, IGetSettingsResult> GetGroupSettingsAsync();
-
-        // Applies the state described in the configuration unit group.
+        // Applies the state described in the configuration set.
         Windows.Foundation.IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplySettingsResult> ApplyGroupSettingsAsync();
     }
 

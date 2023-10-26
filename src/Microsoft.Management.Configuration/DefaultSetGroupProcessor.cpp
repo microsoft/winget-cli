@@ -5,7 +5,7 @@
 #include "ExceptionResultHelpers.h"
 #include "TestGroupSettingsResult.h"
 #include "TestSettingsResult.h"
-
+#include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
@@ -26,7 +26,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_threadGlobals = &threadGlobals;
     }
 
-    Windows::Foundation::IInspectable DefaultSetGroupProcessor::Group()
+    Configuration::ConfigurationSet DefaultSetGroupProcessor::Set()
     {
         return m_set;
     }
@@ -74,7 +74,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
                     if (unitProcessor)
                     {
-                        IConfigurationGroupProcessor groupProcessor = unitProcessor.try_as<IConfigurationGroupProcessor>();
+                        IConfigurationSetGroupProcessor groupProcessor = unitProcessor.try_as<IConfigurationSetGroupProcessor>();
 
                         if (groupProcessor)
                         {
@@ -145,11 +145,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             ExtractUnitResultInformation(std::current_exception(), result->ResultInformationInternal());
             throw;
         }
-    }
-
-    Windows::Foundation::IAsyncOperationWithProgress<IGetGroupSettingsResult, IGetSettingsResult> DefaultSetGroupProcessor::GetGroupSettingsAsync()
-    {
-        THROW_HR(E_NOTIMPL);
     }
 
     Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplySettingsResult> DefaultSetGroupProcessor::ApplyGroupSettingsAsync()

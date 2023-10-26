@@ -118,7 +118,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         
         GetAllConfigurationUnitSettingsResult GetAllUnitSettingsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
 
-        IConfigurationGroupProcessor GetSetGroupProcessor(const ConfigurationSet& configurationSet);
+        IConfigurationSetGroupProcessor GetSetGroupProcessor(const ConfigurationSet& configurationSet);
 
         void SendDiagnosticsImpl(const IDiagnosticInformation& information);
 
