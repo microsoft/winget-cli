@@ -589,6 +589,21 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsPackageManager);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsPackageManagerPreview);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsStoreTerms);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitBothPackageVersionAndUseLatest);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitDependencySourceNotConfigured);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitDependencySourceNotDeclaredAsDependency);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitEmptyContent);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitFailedToValidatePackage);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitFailedToValidatePackageMultipleFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitFailedToValidatePackageNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitFailedToValidatePackageSourceOpenFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitFailedToValidatePackageVersionNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitKnownSourceConfliction);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitMissingRecommendedArg);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitMissingRequiredArg);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitPackageVersionSpecifiedWithOnlyOnePackageVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitThirdPartySourceAssertion);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitThirdPartySourceAssertionForPackage);
         WINGET_DEFINE_RESOURCE_STRINGID(WordArgumentDescription);
     };
 

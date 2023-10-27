@@ -2588,4 +2588,64 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Uri scheme not supported: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the provided uri is not supported. {0} is a placeholder replaced by the provided uri.</comment>
   </data>
+  <data name="WinGetResourceUnitEmptyContent" xml:space="preserve">
+    <value>Failed to parse {0} configuration unit settings content or settings content is empty.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder replaced by the input winget configure resource unit type.</comment>
+  </data>
+  <data name="WinGetResourceUnitMissingRequiredArg" xml:space="preserve">
+    <value>{0} configuration unit is missing required argument: {1}</value>
+    <comment>{Locked="{0},{1}"} {0} is a placeholder for the input winget configure resource unit type. {1} is placeholder for the missing arg.</comment>
+  </data>
+  <data name="WinGetResourceUnitMissingRecommendedArg" xml:space="preserve">
+    <value>{0} configuration unit is missing recommended argument: {1}</value>
+    <comment>{Locked="{0},{1}"} {0} is a placeholder for the input winget configure resource unit type. {1} is placeholder for the missing arg.</comment>
+  </data>
+  <data name="WinGetResourceUnitKnownSourceConfliction" xml:space="preserve">
+    <value>WinGetSource configuration unit conflicts with a known source: {0}</value>
+    <comment>{Locked="WinGetSource,{0}"} {0} is a placeholder for the input winget source in the configuration unit settings.</comment>
+  </data>
+  <data name="WinGetResourceUnitThirdPartySourceAssertion" xml:space="preserve">
+    <value>WinGetSource configuration unit asserts on a third-party source: {0}</value>
+    <comment>{Locked="WinGetSource,{0}"} {0} is a placeholder for the input winget source in the configuration unit settings.</comment>
+  </data>
+  <data name="WinGetResourceUnitBothPackageVersionAndUseLatest" xml:space="preserve">
+    <value>WinGetPackage declares both UseLatest and Version. Package Id: {0}</value>
+    <comment>{Locked="WinGetPackage,UseLatest,Version,{0}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitThirdPartySourceAssertionForPackage" xml:space="preserve">
+    <value>WinGetPackage configuration unit asserts on a package from third-party source. Package Id: {0}; Source: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitDependencySourceNotConfigured" xml:space="preserve">
+    <value>WinGetPackage configuration unit package depends on a third-party source not previously configured. Package Id: {0}; Source: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitDependencySourceNotDeclaredAsDependency" xml:space="preserve">
+    <value>WinGetPackage configuration unit package depends on a 3rd party source. It is recommended to declare the dependency in uni dependsOn section. Package Id: {0}; Source: {1}</value>
+    <comment>{Locked="WinGetPackage,dependsOn,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageSourceOpenFailed" xml:space="preserve">
+    <value>WinGetPackage configuration unit package cannot be validated. Source open failed. Package Id: {0}; Source: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageNotFound" xml:space="preserve">
+    <value>WinGetPackage configuration unit package cannot be validated. Package not found. Package Id: {0}</value>
+    <comment>{Locked="WinGetPackage,{0}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageMultipleFound" xml:space="preserve">
+    <value>WinGetPackage configuration unit package cannot be validated. More than one package found. Package Id: {0}</value>
+    <comment>{Locked="WinGetPackage,{0}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageVersionNotFound" xml:space="preserve">
+    <value>WinGetPackage configuration unit package cannot be validated. Package version not found. Package Id: {0}; Version {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitPackageVersionSpecifiedWithOnlyOnePackageVersion" xml:space="preserve">
+    <value>WinGetPackage configuration unit package specified with a specific version while only one package version is available. Package Id: {0}; Version: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackage" xml:space="preserve">
+    <value>WinGetPackage configuration unit package cannot be validated. Package Id: {0}</value>
+    <comment>{Locked="WinGetPackage,{0}"}</comment>
+  </data>
 </root>

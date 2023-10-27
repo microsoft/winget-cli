@@ -8,6 +8,7 @@
 using namespace winrt::Microsoft::Management::Configuration;
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Foundation::Collections;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Configuration
 {
@@ -186,7 +187,7 @@ namespace AppInstaller::CLI::Configuration
         }
     }
 
-    bool WingetDscModuleUnitValidator::ValidateConfigurationSetUnit(Execution::Context&, const ConfigurationUnit& unit)
+    bool WingetDscModuleUnitValidator::ValidateConfigurationSetUnit(Execution::Context& context, const ConfigurationUnit& unit)
     {
        bool foundIssues = false;
        auto details = unit.Details();
@@ -201,6 +202,7 @@ namespace AppInstaller::CLI::Configuration
                if (sources.size() == 0)
                {
                    AICLI_LOG(Config, Warning, << "Failed to parse WinGetSources or empty content.");
+                   context.Reporter.Warn() << Resource::String::WinGetResourceUnitEmptyContent(Utility::LocIndView{ UnitType_WinGetSources }) << std::endl;
                    foundIssues = true;
                }
                for (auto const& source : sources)
@@ -209,11 +211,13 @@ namespace AppInstaller::CLI::Configuration
                    if (source.Name.empty())
                    {
                        AICLI_LOG(Config, Error, << "WinGetSource unit missing required arg: Name");
+                       context.Reporter.Error() << Resource::String::WinGetResourceUnitMissingRequiredArg(Utility::LocIndView{ UnitType_WinGetSources }, "Name"_liv) << std::endl;
                        foundIssues = true;
                    }
                    if (source.Arg.empty())
                    {
                        AICLI_LOG(Config, Error, << "WinGetSource unit missing required arg: Arg");
+                       context.Reporter.Error() << Resource::String::WinGetResourceUnitMissingRequiredArg(Utility::LocIndView{ UnitType_WinGetSources }, "Arg"_liv) << std::endl;
                        foundIssues = true;
                    }
 
@@ -222,7 +226,8 @@ namespace AppInstaller::CLI::Configuration
                    {
                        if (!ValidateWellKnownSource(source))
                        {
-                           AICLI_LOG(Config, Warning, << "WinGetSource " << source.Name << " conflicts with a well known source.");
+                           AICLI_LOG(Config, Warning, << "WinGetSource conflicts with a well known source. Source: " << source.Name);
+                           context.Reporter.Warn() << Resource::String::WinGetResourceUnitKnownSourceConfliction(Utility::LocIndView{ source.Name }) << std::endl;
                            foundIssues = true;
                        }
                    }
@@ -231,6 +236,7 @@ namespace AppInstaller::CLI::Configuration
                        if (unitIntent == ConfigurationUnitIntent::Assert)
                        {
                            AICLI_LOG(Config, Warning, << "Asserting on 3rd party source: " << source.Name);
+                           context.Reporter.Warn() << Resource::String::WinGetResourceUnitThirdPartySourceAssertion(Utility::LocIndView{ source.Name }) << std::endl;
                            foundIssues = true;
                        }
                        else
@@ -250,22 +256,26 @@ namespace AppInstaller::CLI::Configuration
                if (package.Empty())
                {
                    AICLI_LOG(Config, Warning, << "Failed to parse WinGetPackage or empty content.");
+                   context.Reporter.Warn() << Resource::String::WinGetResourceUnitEmptyContent(Utility::LocIndView{ UnitType_WinGetPackage }) << std::endl;
                    foundIssues = true;
                }
                // Validate basic semantics.
                if (package.Id.empty())
                {
                    AICLI_LOG(Config, Error, << "WinGetPackage unit missing required arg: Id");
+                   context.Reporter.Error() << Resource::String::WinGetResourceUnitMissingRequiredArg(Utility::LocIndView{ UnitType_WinGetPackage }, "Id"_liv) << std::endl;
                    foundIssues = true;
                }
                if (package.Source.empty())
                {
                    AICLI_LOG(Config, Warning, << "WinGetPackage unit missing recommeended arg: Source");
+                   context.Reporter.Warn() << Resource::String::WinGetResourceUnitMissingRecommendedArg(Utility::LocIndView{ UnitType_WinGetPackage }, "Source"_liv) << std::endl;
                    foundIssues = true;
                }
                if (package.UseLatest && !package.Version.empty())
                {
-                   AICLI_LOG(Config, Error, << "WinGetPackage unit both UseLatest and Version declared.");
+                   AICLI_LOG(Config, Error, << "WinGetPackage unit both UseLatest and Version declared. Package: " << package.Id);
+                   context.Reporter.Error() << Resource::String::WinGetResourceUnitBothPackageVersionAndUseLatest(Utility::LocIndView{ package.Id }) << std::endl;
                    foundIssues = true;
                }
                // Validate dependency source is configured.
@@ -273,7 +283,8 @@ namespace AppInstaller::CLI::Configuration
                {
                    if (unitIntent == ConfigurationUnitIntent::Assert)
                    {
-                       AICLI_LOG(Config, Warning, << "Asserting on a package that depends on a 3rd party source: " << package.Source);
+                       AICLI_LOG(Config, Warning, << "Asserting on a package that depends on a 3rd party source. Package: " << package.Id << " Source: " << package.Source);
+                       context.Reporter.Warn() << Resource::String::WinGetResourceUnitThirdPartySourceAssertionForPackage(Utility::LocIndView{ package.Id }, Utility::LocIndView{ package.Source }) << std::endl;
                        foundIssues = true;
                    }
                    else
@@ -281,7 +292,8 @@ namespace AppInstaller::CLI::Configuration
                        auto dependencySourceItr = m_dependenciesSourceAndUnitIdMap.find(Utility::FoldCase(std::string_view{ package.Source }));
                        if (dependencySourceItr == m_dependenciesSourceAndUnitIdMap.end())
                        {
-                           AICLI_LOG(Config, Warning, << "WinGetPackage " << package.Id << " depends on a 3rd party source not previously configured: " << package.Source);
+                           AICLI_LOG(Config, Warning, << "WinGetPackage depends on a 3rd party source not previously configured. Package: " << package.Id << " Source: " << package.Source);
+                           context.Reporter.Warn() << Resource::String::WinGetResourceUnitDependencySourceNotConfigured(Utility::LocIndView{ package.Id }, Utility::LocIndView{ package.Source }) << std::endl;
                            foundIssues = true;
                        }
                        else
@@ -298,7 +310,8 @@ namespace AppInstaller::CLI::Configuration
                            }
                            if (!foundInUnitDependencies)
                            {
-                               AICLI_LOG(Config, Warning, << "WinGetPackage " << package.Id << " depends on a 3rd party source. It is recommended to add the WinGetSources unit configuring the source to the unit's dependsOn list.");
+                               AICLI_LOG(Config, Warning, << "WinGetPackage depends on a 3rd party source. It is recommended to add the WinGetSources unit configuring the source to the unit's dependsOn list. Package: " << package.Id << " Source: " << package.Source);
+                               context.Reporter.Warn() << Resource::String::WinGetResourceUnitDependencySourceNotDeclaredAsDependency(Utility::LocIndView{ package.Id }, Utility::LocIndView{ package.Source }) << std::endl;
                                foundIssues = true;
                            }
                        }
@@ -310,7 +323,8 @@ namespace AppInstaller::CLI::Configuration
                    Repository::Source source{ package.Source };
                    if (!source)
                    {
-                       AICLI_LOG(Config, Warning, << "Failed to open WinGet source: " << package.Source);
+                       AICLI_LOG(Config, Warning, << "Failed to open WinGet source. Package: " << package.Id << " Source: " << package.Source);
+                       context.Reporter.Warn() << Resource::String::WinGetResourceUnitFailedToValidatePackageSourceOpenFailed(Utility::LocIndView{ package.Id }, Utility::LocIndView{ package.Source }) << std::endl;
                        foundIssues = true;
                    }
                    else
@@ -323,11 +337,13 @@ namespace AppInstaller::CLI::Configuration
                        if (searchResult.Matches.size() == 0)
                        {
                            AICLI_LOG(Config, Warning, << "WinGetPackage not found: " << package.Id);
+                           context.Reporter.Warn() << Resource::String::WinGetResourceUnitFailedToValidatePackageNotFound(Utility::LocIndView{ package.Id }) << std::endl;
                            foundIssues = true;
                        }
                        else if (searchResult.Matches.size() > 1)
                        {
                            AICLI_LOG(Config, Warning, << "More than one WinGetPackage found: " << package.Id);
+                           context.Reporter.Warn() << Resource::String::WinGetResourceUnitFailedToValidatePackageMultipleFound(Utility::LocIndView{ package.Id }) << std::endl;
                            foundIssues = true;
                        }
                        else
@@ -347,11 +363,13 @@ namespace AppInstaller::CLI::Configuration
                                if (!foundVersion)
                                {
                                    AICLI_LOG(Config, Warning, << "WinGetPackage version not found. Package: " << package.Id << " Version: " << package.Version);
+                                   context.Reporter.Warn() << Resource::String::WinGetResourceUnitFailedToValidatePackageVersionNotFound(Utility::LocIndView{ package.Id }, Utility::LocIndView{ package.Version }) << std::endl;
                                    foundIssues = true;
                                }
                                if (versionKeys.size() == 1)
                                {
                                    AICLI_LOG(Config, Warning, << "WinGetPackage version specified with only one version available: " << package.Id);
+                                   context.Reporter.Warn() << Resource::String::WinGetResourceUnitPackageVersionSpecifiedWithOnlyOnePackageVersion(Utility::LocIndView{ package.Id }, Utility::LocIndView{ package.Version }) << std::endl;
                                    foundIssues = true;
                                }
                            }
@@ -361,6 +379,7 @@ namespace AppInstaller::CLI::Configuration
                catch (...)
                {
                    AICLI_LOG(Config, Warning, << "Failed to validate WinGetPackage: " << package.Id);
+                   context.Reporter.Warn() << Resource::String::WinGetResourceUnitFailedToValidatePackage(Utility::LocIndView{ package.Id }) << std::endl;
                    foundIssues = true;
                }
            }
