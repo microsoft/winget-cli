@@ -99,6 +99,17 @@ namespace AppInstaller::CLI
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
         }
 
+        int currentRebootCount = std::stoi(automaticCheckpoint.Get(AutomaticCheckpointData::ResumeCount, {}));
+        if (currentRebootCount > Settings::User().Get<Settings::Setting::MaxReboots>())
+        {
+            context.Reporter.Error() << "Maximum number of reboot encountered. Terminating installation." << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
+        }
+        else
+        {
+            automaticCheckpoint.Set(AutomaticCheckpointData::ResumeCount, {}, std::to_string(currentRebootCount + 1));
+        }
+
         const auto& checkpointCommand = automaticCheckpoint.Get(AutomaticCheckpointData::Command, {});
         AICLI_LOG(CLI, Info, << "Resuming command: " << checkpointCommand);
         std::unique_ptr<Command> commandToResume = FindCommandToResume(checkpointCommand);

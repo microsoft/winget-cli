@@ -12,7 +12,8 @@ namespace AppInstaller::Checkpoints
     {
         ClientVersion,
         Command,
-        Arguments
+        Arguments,
+        ResumeCount
     };
 
     struct CheckpointManager;
