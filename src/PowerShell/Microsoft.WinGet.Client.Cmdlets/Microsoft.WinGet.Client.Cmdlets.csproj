@@ -16,7 +16,6 @@
     <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
     <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.Cmdlets.xml</DocumentationFile>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
