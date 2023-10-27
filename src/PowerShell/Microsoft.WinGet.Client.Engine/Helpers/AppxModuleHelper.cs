@@ -13,6 +13,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using System.Management.Automation;
     using System.Runtime.InteropServices;
     using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Common.Command;
     using static Microsoft.WinGet.Client.Engine.Common.Constants;
 
     /// <summary>
@@ -71,15 +72,15 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string XamlAssetArm = "Microsoft.UI.Xaml.2.7.arm.appx";
         private const string XamlAssetArm64 = "Microsoft.UI.Xaml.2.7.arm64.appx";
 
-        private readonly PSCmdlet psCmdlet;
+        private readonly PowerShellCmdlet pwshCmdlet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppxModuleHelper"/> class.
         /// </summary>
-        /// <param name="psCmdlet">The calling cmdlet.</param>
-        public AppxModuleHelper(PSCmdlet psCmdlet)
+        /// <param name="pwshCmdlet">The calling cmdlet.</param>
+        public AppxModuleHelper(PowerShellCmdlet pwshCmdlet)
         {
-            this.psCmdlet = psCmdlet;
+            this.pwshCmdlet = pwshCmdlet;
         }
 
         /// <summary>
@@ -200,7 +201,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
             catch (RuntimeException e)
             {
-                this.psCmdlet.WriteDebug($"Failed installing bundle via Add-AppxProvisionedPackage {e}");
+                this.pwshCmdlet.Write(StreamType.Verbose, $"Failed installing bundle via Add-AppxProvisionedPackage {e}");
                 throw e;
             }
         }
@@ -224,7 +225,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
             catch (RuntimeException e)
             {
-                this.psCmdlet.WriteDebug($"Failed installing bundle via Add-AppxPackage {e}");
+                this.pwshCmdlet.Write(StreamType.Verbose, $"Failed installing bundle via Add-AppxPackage {e}");
                 throw e;
             }
         }
@@ -282,7 +283,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                     if (packageVersion >= minimumVersion)
                     {
-                        this.psCmdlet.WriteDebug($"VCLibs dependency satisfied by: {psobject?.PackageFullName ?? "<null>"}");
+                        this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs dependency satisfied by: {psobject?.PackageFullName ?? "<null>"}");
                         isInstalled = true;
                         break;
                     }
@@ -291,7 +292,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             if (!isInstalled)
             {
-                this.psCmdlet.WriteDebug("Couldn't find required VCLibs package");
+                this.pwshCmdlet.Write(StreamType.Verbose, "Couldn't find required VCLibs package");
 
                 var vcLibsDependencies = new List<string>();
                 var arch = RuntimeInformation.OSArchitecture;
@@ -323,7 +324,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
             else
             {
-                this.psCmdlet.WriteDebug($"VCLibs are updated.");
+                this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs are updated.");
             }
         }
 
@@ -384,12 +385,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 // If we couldn't install it via URI, try download and install.
                 if (e.ErrorRecord.CategoryInfo.Category == ErrorCategory.OpenError)
                 {
-                    this.psCmdlet.WriteDebug($"Failed adding package [{packageUri}]. Retrying downloading it.");
+                    this.pwshCmdlet.Write(StreamType.Verbose, $"Failed adding package [{packageUri}]. Retrying downloading it.");
                     this.DownloadPackageAndAdd(packageUri, options);
                 }
                 else
                 {
-                    this.psCmdlet.WriteError(e.ErrorRecord);
+                    this.pwshCmdlet.Write(StreamType.Error, e.ErrorRecord);
                     throw e;
                 }
             }
@@ -453,7 +454,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 }
             }
 
-            this.psCmdlet.WriteDebug($"Executing Appx cmdlet {cmd}");
+            this.pwshCmdlet.Write(StreamType.Verbose, $"Executing Appx cmdlet {cmd}");
             var result = ps.Invoke();
             return result;
         }

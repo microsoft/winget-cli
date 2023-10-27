@@ -12,6 +12,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Common.Command;
     using Microsoft.WinGet.Resources;
 
     /// <summary>
@@ -78,7 +79,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 {
                     UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);
                     UninstallResult result = this.UninstallPackage(package, options);
-                    this.PsCmdlet.WriteObject(new PSUninstallResult(result));
+                    this.Write(StreamType.Object, new PSUninstallResult(result));
                 });
         }
 
@@ -113,17 +114,19 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 package.Name);
 
             var operation = PackageManagerWrapper.Instance.UninstallPackageAsync(package, options);
-            WriteProgressAdapter adapter = new (this.PsCmdlet);
+
+            var activityId = this.GetNewProgressActivityId();
+            WriteProgressAdapter adapter = new (this);
             operation.Progress = (context, progress) =>
             {
-                adapter.WriteProgress(new ProgressRecord(1, activity, progress.State.ToString())
+                adapter.WriteProgress(new ProgressRecord(activityId, activity, progress.State.ToString())
                 {
                     RecordType = ProgressRecordType.Processing,
                 });
             };
             operation.Completed = (context, status) =>
             {
-                adapter.WriteProgress(new ProgressRecord(1, activity, status.ToString())
+                adapter.WriteProgress(new ProgressRecord(activityId, activity, status.ToString())
                 {
                     RecordType = ProgressRecordType.Completed,
                 });

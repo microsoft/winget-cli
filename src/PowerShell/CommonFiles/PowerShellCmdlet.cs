@@ -312,13 +312,38 @@ namespace Microsoft.WinGet.Common.Command
             return this.psCmdlet.SessionState.Path.CurrentFileSystemLocation.Path;
         }
 
+        /// <summary>
+        /// Sets a variable.
+        /// </summary>
+        /// <param name="variableName">Variable name.</param>
+        /// <param name="value">Value.</param>
+        internal void SetVariable(string variableName, object value)
+        {
+            this.psCmdlet.SessionState.PSVariable.Set(variableName, value);
+        }
+
+        /// <summary>
+        /// Prompts the user if it should continue processing if possible.
+        /// </summary>
+        /// <param name="target">Message.</param>
+        /// <returns>If the operation should continue.</returns>
+        internal bool ShouldProcess(string target)
+        {
+            // If not on the main thread just continue.
+            if (this.originalThread != Thread.CurrentThread)
+            {
+                return true;
+            }
+
+            return this.psCmdlet.ShouldProcess(target);
+        }
+
         private void CmdletWrite(StreamType streamType, object data, PowerShellCmdlet writeCmdlet)
         {
             switch (streamType)
             {
                 case StreamType.Debug:
-                    writeCmdlet.psCmdlet.WriteDebug((string)data);
-                    break;
+                    throw new NotSupportedException();
                 case StreamType.Verbose:
                     writeCmdlet.psCmdlet.WriteVerbose((string)data);
                     break;

@@ -115,10 +115,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             IAsyncOperationWithProgress<InstallResult, InstallProgress> operation,
             string activity)
         {
-            WriteProgressAdapter adapter = new (this.PsCmdlet);
+            var activityId = this.GetNewProgressActivityId();
+            WriteProgressAdapter adapter = new (this);
             operation.Progress = (context, progress) =>
             {
-                ProgressRecord record = new (1, activity, progress.State.ToString())
+                ProgressRecord record = new (activityId, activity, progress.State.ToString())
                 {
                     RecordType = ProgressRecordType.Processing,
                 };
@@ -137,7 +138,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             };
             operation.Completed = (context, status) =>
             {
-                adapter.WriteProgress(new ProgressRecord(1, activity, status.ToString())
+                adapter.WriteProgress(new ProgressRecord(activityId, activity, status.ToString())
                 {
                     RecordType = ProgressRecordType.Completed,
                 });

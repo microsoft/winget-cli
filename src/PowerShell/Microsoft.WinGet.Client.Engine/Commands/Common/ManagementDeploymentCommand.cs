@@ -55,8 +55,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             {
                 return new List<PackageCatalogReference>()
                 {
-                    PackageManagerWrapper.Instance.GetPackageCatalogByName(source)
-                        ?? throw new InvalidSourceException(source),
+                    PackageManagerWrapper.Instance.GetPackageCatalogByName(source!)
+                        ?? throw new InvalidSourceException(source!),
                 };
             }
         }

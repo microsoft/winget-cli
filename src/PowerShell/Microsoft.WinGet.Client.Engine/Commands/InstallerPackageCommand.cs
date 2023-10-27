@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Common.Command;
     using Microsoft.WinGet.Resources;
 
     /// <summary>
@@ -109,7 +110,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
 
                     InstallResult result = this.InstallPackage(package, options);
-                    this.PsCmdlet.WriteObject(new PSInstallResult(result));
+                    this.Write(StreamType.Object, new PSInstallResult(result));
                 });
         }
 
@@ -133,7 +134,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     options.AllowUpgradeToUnknownVersion = includeUnknown;
 
                     InstallResult result = this.UpgradePackage(package, options);
-                    this.PsCmdlet.WriteObject(new PSInstallResult(result));
+                    this.Write(StreamType.Object, new PSInstallResult(result));
                 });
         }
 

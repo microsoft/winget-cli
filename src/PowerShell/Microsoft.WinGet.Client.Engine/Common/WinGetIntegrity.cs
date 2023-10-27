@@ -12,6 +12,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Common.Command;
     using Microsoft.WinGet.Resources;
 
     /// <summary>
@@ -22,9 +23,9 @@ namespace Microsoft.WinGet.Client.Engine.Common
         /// <summary>
         /// Verifies winget runs correctly. If it doesn't, tries to find the reason why it failed.
         /// </summary>
-        /// <param name="psCmdlet">The calling cmdlet.</param>
+        /// <param name="pwshCmdlet">The calling cmdlet.</param>
         /// <param name="expectedVersion">Expected version.</param>
-        public static void AssertWinGet(PSCmdlet psCmdlet, string expectedVersion)
+        public static void AssertWinGet(PowerShellCmdlet pwshCmdlet, string expectedVersion)
         {
             // In-proc shouldn't have other dependencies and thus should be ok.
             if (Utilities.UsesInProcWinget)
@@ -48,17 +49,17 @@ namespace Microsoft.WinGet.Client.Engine.Common
             }
             catch (Win32Exception e)
             {
-                psCmdlet.WriteDebug($"'winget.exe' Win32Exception {e.Message}");
-                throw new WinGetIntegrityException(GetReason(psCmdlet));
+                pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' Win32Exception {e.Message}");
+                throw new WinGetIntegrityException(GetReason(pwshCmdlet));
             }
             catch (Exception e) when (e is WinGetCLIException || e is WinGetCLITimeoutException)
             {
-                psCmdlet.WriteDebug($"'winget.exe' WinGetCLIException {e.Message}");
+                pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' WinGetCLIException {e.Message}");
                 throw new WinGetIntegrityException(IntegrityCategory.Failure, e);
             }
             catch (Exception e)
             {
-                psCmdlet.WriteDebug($"'winget.exe' Exception {e.Message}");
+                pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' Exception {e.Message}");
                 throw new WinGetIntegrityException(IntegrityCategory.Unknown, e);
             }
 
@@ -80,7 +81,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
             }
         }
 
-        private static IntegrityCategory GetReason(PSCmdlet psCmdlet)
+        private static IntegrityCategory GetReason(PowerShellCmdlet pwshCmdlet)
         {
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
 
@@ -96,7 +97,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
             }
             catch (ApplicationFailedException e)
             {
-                psCmdlet.WriteDebug(e.Message);
+                pwshCmdlet.Write(StreamType.Verbose, e.Message);
                 return IntegrityCategory.AppInstallerNoLicense;
             }
             catch (Exception)
@@ -136,7 +137,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
 
             // It could be that AppInstaller package is old or the package is not
             // registered at this point. To know that, call Get-AppxPackage.
-            var appxModule = new AppxModuleHelper(psCmdlet);
+            var appxModule = new AppxModuleHelper(pwshCmdlet);
             string? version = appxModule.GetAppInstallerPropertyValue("Version");
             if (version is null)
             {

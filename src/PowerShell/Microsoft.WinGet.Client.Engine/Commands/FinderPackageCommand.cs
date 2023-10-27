@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// Searches configured sources for packages.
@@ -63,7 +64,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             var results = this.FindPackages(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs, PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption));
             for (var i = 0; i < results.Count; i++)
             {
-                this.PsCmdlet.WriteObject(new PSFoundCatalogPackage(results[i].CatalogPackage));
+                this.Write(StreamType.Object, new PSFoundCatalogPackage(results[i].CatalogPackage));
             }
         }
 
@@ -76,7 +77,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             var results = this.FindPackages(CompositeSearchBehavior.LocalCatalogs, PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption));
             for (var i = 0; i < results.Count; i++)
             {
-                this.PsCmdlet.WriteObject(new PSInstalledCatalogPackage(results[i].CatalogPackage));
+                this.Write(StreamType.Object, new PSInstalledCatalogPackage(results[i].CatalogPackage));
             }
         }
     }

@@ -61,7 +61,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         {
             CatalogPackage package = this.GetCatalogPackage(behavior, match);
             PackageVersionId? version = this.GetPackageVersionId(package);
-            if (this.PsCmdlet.ShouldProcess(package.ToString(version)))
+            if (this.ShouldProcess(package.ToString(version)))
             {
                 callback(package, version);
             }
