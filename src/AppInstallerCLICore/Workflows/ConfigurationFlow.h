@@ -73,7 +73,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ValidateConfigurationSetUnitProcessors(Execution::Context& context);
 
-    // Validates that specifc unit contents referenced by the set are valid/available/etc.
+    // Validates that specific unit contents referenced by the set are valid/available/etc.
     // Required Args: None
     // Inputs: ConfigurationProcessor, ConfigurationSet
     // Outputs: None

@@ -268,7 +268,7 @@ namespace AppInstaller::CLI::Configuration
                }
                if (package.Source.empty())
                {
-                   AICLI_LOG(Config, Warning, << "WinGetPackage unit missing recommeended arg: Source");
+                   AICLI_LOG(Config, Warning, << "WinGetPackage unit missing recommended arg: Source");
                    context.Reporter.Warn() << Resource::String::WinGetResourceUnitMissingRecommendedArg(Utility::LocIndView{ UnitType_WinGetPackage }, "Source"_liv) << std::endl;
                    foundIssues = true;
                }
@@ -301,7 +301,7 @@ namespace AppInstaller::CLI::Configuration
                            bool foundInUnitDependencies = false;
                            for (auto const& entry : unit.Dependencies())
                            {
-                               // The map contains normailzed string, so just use direct comparison;
+                               // The map contains normalized string, so just use direct comparison;
                                if (dependencySourceItr->second == Utility::FoldCase(Utility::NormalizedString{ entry }))
                                {
                                    foundInUnitDependencies = true;
