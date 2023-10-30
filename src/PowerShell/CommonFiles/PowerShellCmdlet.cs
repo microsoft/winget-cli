@@ -78,6 +78,7 @@ namespace Microsoft.WinGet.Common.Command
 
         /// <summary>
         /// Execute the delegate in a MTA thread.
+        /// Caller must wait on task.
         /// </summary>
         /// <param name="func">Function to execute.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
@@ -122,6 +123,7 @@ namespace Microsoft.WinGet.Common.Command
 
         /// <summary>
         /// Execute the delegate in a MTA thread.
+        /// Caller must wait on task.
         /// </summary>
         /// <param name="func">Function to execute.</param>
         /// <typeparam name="TResult">Return type of function.</typeparam>
@@ -158,6 +160,48 @@ namespace Microsoft.WinGet.Common.Command
             thread.SetApartmentState(ApartmentState.MTA);
             thread.Start();
             return tcs.Task;
+        }
+
+        /// <summary>
+        /// Execute the delegate in a MTA thread.
+        /// Synchronous call.
+        /// </summary>
+        /// <param name="func">Function to execute.</param>
+        /// <typeparam name="TResult">Return type of function.</typeparam>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal TResult RunOnMTA<TResult>(Func<TResult> func)
+        {
+            // This must be called in the main thread.
+            if (this.originalThread != Thread.CurrentThread)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
+            {
+                this.Write(StreamType.Verbose, "Already running on MTA");
+                return func();
+            }
+
+            this.Write(StreamType.Verbose, "Creating MTA thread");
+            var tcs = new TaskCompletionSource<TResult>();
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var result = func();
+                    tcs.SetResult(result);
+                }
+                catch (Exception e)
+                {
+                    tcs.SetException(e);
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.MTA);
+            thread.Start();
+            this.Wait(tcs.Task);
+            return tcs.Task.Result;
         }
 
         /// <summary>

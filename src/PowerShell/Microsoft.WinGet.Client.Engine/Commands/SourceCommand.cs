@@ -32,7 +32,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="name">Optional name.</param>
         public void Get(string name)
         {
-            var results = this.GetPackageCatalogReferences(name);
+            var results = this.Execute(
+                () => this.GetPackageCatalogReferences(name));
             for (var i = 0; i < results.Count; i++)
             {
                 this.Write(StreamType.Object, new PSSourceResult(results[i]));

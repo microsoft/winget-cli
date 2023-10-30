@@ -72,15 +72,20 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageFieldMatchOption,
             bool force)
         {
-            this.GetPackageAndExecute(
-                CompositeSearchBehavior.LocalCatalogs,
-                PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
-                (package, version) =>
-                {
-                    UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);
-                    UninstallResult result = this.UninstallPackage(package, options);
-                    this.Write(StreamType.Object, new PSUninstallResult(result));
-                });
+            var result = this.Execute(
+                () => this.GetPackageAndExecute(
+                    CompositeSearchBehavior.LocalCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                    (package, version) =>
+                    {
+                        UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);
+                        return this.UninstallPackage(package, options);
+                    }));
+
+            if (result != null)
+            {
+                this.Write(StreamType.Object, new PSUninstallResult(result));
+            }
         }
 
         private UninstallOptions GetUninstallOptions(

@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using System.Management.Automation;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Resources;
@@ -37,6 +38,23 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 #if POWERSHELL_WINDOWS
             throw new WindowsPowerShellNotSupported();
 #endif
+        }
+
+        /// <summary>
+        /// Executes the cmdlet. ALL cmdlets that uses the COM APIs use this method.
+        /// The inproc COM API may deadlock on an STA thread.
+        /// </summary>
+        /// <typeparam name="TResult">The type of result of the cmdlet.</typeparam>
+        /// <param name="func">Cmdlet function.</param>
+        /// <returns>The result of the cmdlet.</returns>
+        protected TResult Execute<TResult>(Func<TResult> func)
+        {
+            if (Utilities.UsesInProcWinget)
+            {
+                return this.RunOnMTA(func);
+            }
+
+            return func();
         }
 
         /// <summary>

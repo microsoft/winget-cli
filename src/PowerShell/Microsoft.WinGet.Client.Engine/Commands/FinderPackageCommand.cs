@@ -61,7 +61,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
         public void Find(string psPackageFieldMatchOption)
         {
-            var results = this.FindPackages(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs, PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption));
+            var results = this.Execute(
+                () => this.FindPackages(
+                    CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption)));
+
             for (var i = 0; i < results.Count; i++)
             {
                 this.Write(StreamType.Object, new PSFoundCatalogPackage(results[i].CatalogPackage));
@@ -74,7 +78,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
         public void Get(string psPackageFieldMatchOption)
         {
-            var results = this.FindPackages(CompositeSearchBehavior.LocalCatalogs, PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption));
+            var results = this.Execute(
+                () => this.FindPackages(
+                    CompositeSearchBehavior.LocalCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption)));
             for (var i = 0; i < results.Count; i++)
             {
                 this.Write(StreamType.Object, new PSInstalledCatalogPackage(results[i].CatalogPackage));

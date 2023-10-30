@@ -51,20 +51,25 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <summary>
         /// Executes a command targeting a specific package version.
         /// </summary>
+        /// <typeparam name="TResult">Type of callback's result.</typeparam>
         /// <param name="behavior">The <see cref="CompositeSearchBehavior" /> value.</param>
         /// <param name="match">The match option.</param>
         /// <param name="callback">The method to call after retrieving the package and version to operate upon.</param>
-        protected void GetPackageAndExecute(
+        /// <returns>Result of the callback.</returns>
+        protected TResult? GetPackageAndExecute<TResult>(
             CompositeSearchBehavior behavior,
             PackageFieldMatchOption match,
-            Action<CatalogPackage, PackageVersionId?> callback)
+            Func<CatalogPackage, PackageVersionId?, TResult> callback)
+            where TResult : class
         {
             CatalogPackage package = this.GetCatalogPackage(behavior, match);
             PackageVersionId? version = this.GetPackageVersionId(package);
             if (this.ShouldProcess(package.ToString(version)))
             {
-                callback(package, version);
+                return callback(package, version);
             }
+
+            return null;
         }
 
         /// <summary>
