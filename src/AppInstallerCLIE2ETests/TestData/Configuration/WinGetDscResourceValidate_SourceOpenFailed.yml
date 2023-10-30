@@ -5,9 +5,10 @@ properties:
       id: configureSource
       directives:
         description: Add test source
+        allowPrerelease: true
       settings:
         Sources:
-          - Name: TestSource
+          - Name: TestSourceV2
             Arg: "https://localhost:5001/TestKit"
     - resource: Microsoft.WinGet.DSC/WinGetPackage
       id: testPackage
@@ -15,8 +16,9 @@ properties:
         - configureSource
       directives:
         description: Install Test Package
+        allowPrerelease: true
       settings:
         id: AppInstallerTest.TestExeInstaller
-        source: TestSource
-        version: 101.0.101.0
+        source: TestSourceV2
+        version: 1.0.1.0
  

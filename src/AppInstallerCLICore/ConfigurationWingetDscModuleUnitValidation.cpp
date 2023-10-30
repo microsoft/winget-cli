@@ -317,7 +317,7 @@ namespace AppInstaller::CLI::Configuration
                        }
                    }
                }
-               // Validate package is found and version applies.
+               // Validate package is found and version available.
                try
                {
                    Repository::Source source{ package.Source };

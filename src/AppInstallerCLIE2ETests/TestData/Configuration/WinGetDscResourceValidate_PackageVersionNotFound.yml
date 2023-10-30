@@ -5,6 +5,7 @@ properties:
       id: configureSource
       directives:
         description: Add test source
+        allowPrerelease: true
       settings:
         Sources:
           - Name: TestSource
@@ -15,9 +16,9 @@ properties:
         - configureSource
       directives:
         description: Install Test Package
+        allowPrerelease: true
       settings:
         id: AppInstallerTest.TestExeInstaller
         source: TestSource
-        version: 1.0.1.0
-        useLatest: true
+        version: 101.0.101.0
  
