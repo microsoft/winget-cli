@@ -96,14 +96,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
                 async () =>
                 {
-                    try
-                    {
-                        return await this.OpenConfigurationSetAsync(openParams);
-                    }
-                    finally
-                    {
-                        this.Complete();
-                    }
+                    return await this.OpenConfigurationSetAsync(openParams);
                 });
 
             this.Wait(runningTask);
@@ -134,7 +127,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
-                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
 
@@ -232,7 +224,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
-                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
                 });
@@ -264,7 +255,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
-                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
                 });
@@ -347,7 +337,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
-                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
                 });

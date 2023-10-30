@@ -69,14 +69,6 @@ namespace Microsoft.WinGet.Common.Command
         }
 
         /// <summary>
-        /// Complete this operation.
-        /// </summary>
-        internal virtual void Complete()
-        {
-            this.queuedStreams.CompleteAdding();
-        }
-
-        /// <summary>
         /// Execute the delegate in a MTA thread.
         /// Caller must wait on task.
         /// </summary>
@@ -97,7 +89,14 @@ namespace Microsoft.WinGet.Common.Command
             if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
             {
                 this.Write(StreamType.Verbose, "Already running on MTA");
-                return func();
+                try
+                {
+                    return func();
+                }
+                finally
+                {
+                    this.Complete();
+                }
             }
 
             this.Write(StreamType.Verbose, "Creating MTA thread");
@@ -112,6 +111,10 @@ namespace Microsoft.WinGet.Common.Command
                 catch (Exception e)
                 {
                     tcs.SetException(e);
+                }
+                finally
+                {
+                    this.Complete();
                 }
             });
 
@@ -139,7 +142,14 @@ namespace Microsoft.WinGet.Common.Command
             if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
             {
                 this.Write(StreamType.Verbose, "Already running on MTA");
-                return func();
+                try
+                {
+                    return func();
+                }
+                finally
+                {
+                    this.Complete();
+                }
             }
 
             this.Write(StreamType.Verbose, "Creating MTA thread");
@@ -154,6 +164,10 @@ namespace Microsoft.WinGet.Common.Command
                 catch (Exception e)
                 {
                     tcs.SetException(e);
+                }
+                finally
+                {
+                    this.Complete();
                 }
             });
 
@@ -180,7 +194,14 @@ namespace Microsoft.WinGet.Common.Command
             if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
             {
                 this.Write(StreamType.Verbose, "Already running on MTA");
-                return func();
+                try
+                {
+                    return func();
+                }
+                finally
+                {
+                    this.Complete();
+                }
             }
 
             this.Write(StreamType.Verbose, "Creating MTA thread");
@@ -195,6 +216,10 @@ namespace Microsoft.WinGet.Common.Command
                 catch (Exception e)
                 {
                     tcs.SetException(e);
+                }
+                finally
+                {
+                    this.Complete();
                 }
             });
 
@@ -380,6 +405,11 @@ namespace Microsoft.WinGet.Common.Command
             }
 
             return this.psCmdlet.ShouldProcess(target);
+        }
+
+        private void Complete()
+        {
+            this.queuedStreams.CompleteAdding();
         }
 
         private void CmdletWrite(StreamType streamType, object data, PowerShellCmdlet writeCmdlet)
