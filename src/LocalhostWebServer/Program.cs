@@ -16,7 +16,11 @@ namespace LocalhostWebServer
     using Microsoft.WinGetSourceCreator;
 
     public class Program
-    {    
+    {
+        const string CertificateProviderString = "Microsoft.PowerShell.Security\\Certificate::";
+        const string StoreLocationCurrentUser = "CurrentUser";
+        const string StoreLocationLocalMachine = "LocalMachine";
+
         static void Main(string[] args)
         {
             IConfiguration config = new ConfigurationBuilder()
@@ -40,6 +44,46 @@ namespace LocalhostWebServer
 
             Directory.CreateDirectory(Startup.StaticFileRoot);
 
+            if (Startup.CertPath.StartsWith(CertificateProviderString))
+            {
+                string certPath = Startup.CertPath.Substring(CertificateProviderString.Length);
+                string[] pathParts = certPath.Split('\\');
+
+                if (pathParts.Length != 3)
+                {
+                    throw new InvalidDataException($"Don't know how to handle: {Startup.CertPath}");
+                }
+
+                StoreLocation storeLocation = StoreLocation.CurrentUser;
+                if (pathParts[0] == StoreLocationCurrentUser)
+                {
+                    // The default
+                }
+                else if (pathParts[0] == StoreLocationLocalMachine)
+                {
+                    storeLocation = StoreLocation.LocalMachine;
+                }
+                else
+                {
+                    throw new InvalidDataException($"Unknown store scope: {Startup.CertPath}");
+                }
+
+                X509Store x509Store = new X509Store(pathParts[1], storeLocation);
+                X509Certificate2Collection collection = x509Store.Certificates;
+                X509Certificate2Collection results = collection.Find(X509FindType.FindByThumbprint, pathParts[2], true);
+
+                if (results.Count != 1)
+                {
+                    throw new InvalidDataException($"Found {results.Count} matches for: {Startup.CertPath}");
+                }
+
+                ServerCertificate = results[0];
+            }
+            else
+            {
+                ServerCertificate = new X509Certificate2(Startup.CertPath, Startup.CertPassword, X509KeyStorageFlags.EphemeralKeySet);
+            }
+
             if (!string.IsNullOrEmpty(Startup.OutCertFile))
             {
                 string parent = Path.GetDirectoryName(Startup.OutCertFile);
@@ -48,8 +92,7 @@ namespace LocalhostWebServer
                     Directory.CreateDirectory(parent);
                 }
 
-                X509Certificate2 serverCertificate = new X509Certificate2(Startup.CertPath, Startup.CertPassword, X509KeyStorageFlags.EphemeralKeySet);
-                File.WriteAllBytes(Startup.OutCertFile, serverCertificate.Export(X509ContentType.Cert));
+                File.WriteAllBytes(Startup.OutCertFile, ServerCertificate.Export(X509ContentType.Cert));
             }
 
             if (!string.IsNullOrEmpty(Startup.LocalSourceJson))
@@ -73,11 +116,13 @@ namespace LocalhostWebServer
                     {   
                         opt.ListenAnyIP(Startup.Port, listOpt =>
                         {
-                            listOpt.UseHttps(Startup.CertPath, Startup.CertPassword);
+                            listOpt.UseHttps(ServerCertificate);
                         });
                     });
                     webBuilder.UseContentRoot(Startup.StaticFileRoot);
                     webBuilder.UseStartup<Startup>();
                 });
+
+        public static X509Certificate2 ServerCertificate { get; private set; }
     }
 }
