@@ -8,6 +8,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_7
 {
     using namespace std::string_view_literals;
 
+    // Version 1.7
+    static constexpr std::string_view s_MetadataValueName_MapDataFolded = "mapDataFolded"sv;
+    static constexpr char s_MetadataValue_MapDataFolded_Separator = ';';
+
     // Interface to this schema version exposed through ISQLiteIndex.
     struct Interface : public V1_6::Interface
     {
@@ -16,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_7
         Interface(Utility::NormalizationVersion normVersion = Utility::NormalizationVersion::Initial);
 
         // Version 1.0
-        Schema::Version GetVersion() const override;
+        SQLite::Version GetVersion() const override;
         std::vector<std::string> GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const override;
 
     protected:

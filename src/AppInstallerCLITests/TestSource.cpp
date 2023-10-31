@@ -301,14 +301,20 @@ namespace TestCommon
 
     std::shared_ptr<ISourceReference> TestSourceFactory::Create(const SourceDetails& details)
     {
+        std::shared_ptr<TestSourceReference> result;
+
         if (OnOpenWithCustomHeader)
         {
-            return std::make_shared<TestSourceReference>(details, OnOpenWithCustomHeader);
+            result = std::make_shared<TestSourceReference>(details, OnOpenWithCustomHeader);
         }
         else
         {
-            return std::make_shared<TestSourceReference>(details, OnOpen);
+            result = std::make_shared<TestSourceReference>(details, OnOpen);
         }
+
+        result->ShouldUpdateBeforeOpenResult = ShouldUpdateBeforeOpenResult;
+
+        return result;
     }
 
     bool TestSourceFactory::Add(SourceDetails& details, IProgressCallback&)

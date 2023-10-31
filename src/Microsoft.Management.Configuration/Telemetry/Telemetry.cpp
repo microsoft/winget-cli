@@ -131,6 +131,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 summaryItem = &result.InformSummary;
                 break;
             case ConfigurationUnitIntent::Apply:
+            case ConfigurationUnitIntent::Unknown:
                 summaryItem = &result.ApplySummary;
                 break;
             default:
@@ -215,6 +216,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationUnitResultSource failurePoint,
         std::wstring_view settingNames) const noexcept try
     {
+        // Change unknown to Apply for telemetry, as it will have been treated that way
+        if (unitIntent == ConfigurationUnitIntent::Unknown)
+        {
+            unitIntent = ConfigurationUnitIntent::Apply;
+        }
+
         if (IsTelemetryEnabled())
         {
             AICLI_TraceLoggingWriteActivity(

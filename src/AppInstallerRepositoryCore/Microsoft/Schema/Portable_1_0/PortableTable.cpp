@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PortableTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 #include "Microsoft/Schema/IPortableIndex.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0

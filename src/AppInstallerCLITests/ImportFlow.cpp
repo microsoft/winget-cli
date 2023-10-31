@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "TestHooks.h"
 #include "WorkflowCommon.h"
 #include <Commands/ImportCommand.h>
+#include <winget/Settings.h>
 #include <Workflows/ImportExportFlow.h>
+#include <Workflows/ShellExecuteInstallerHandler.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;

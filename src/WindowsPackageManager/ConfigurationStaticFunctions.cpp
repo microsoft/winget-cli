@@ -3,19 +3,22 @@
 #include <Unknwn.h>
 #include <wil\cppwinrt_wrl.h>
 #include <winrt/Microsoft.Management.Configuration.h>
+#include <winrt/Microsoft.Management.Deployment.h>
 #include <ComClsids.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerFileLogger.h>
+#include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerStrings.h>
 #include <winget/ConfigurationSetProcessorHandlers.h>
 #include <ConfigurationSetProcessorFactoryRemoting.h>
 #include <winget/ILifetimeWatcher.h>
+#include <winget/IConfigurationStaticsInternals.h>
 #include <winget/GroupPolicy.h>
 #include <winget/Security.h>
 #include <winget/ThreadGlobals.h>
 #include <winget/SelfManagement.h>
 #include <winget/MSStore.h>
-#include <winrt/Microsoft.Management.Deployment.h>
+#include <winget/ExperimentalFeature.h>
 
 using namespace AppInstaller::SelfManagement;
 using namespace winrt::Microsoft::Management::Deployment;
@@ -38,7 +41,9 @@ namespace ConfigurationShim
 
     struct
     DECLSPEC_UUID(WINGET_OUTOFPROC_COM_CLSID_ConfigurationStaticFunctions)
-    ConfigurationStaticFunctionsShim : winrt::implements<ConfigurationStaticFunctionsShim, winrt::Microsoft::Management::Configuration::IConfigurationStatics>
+    ConfigurationStaticFunctionsShim : winrt::implements<ConfigurationStaticFunctionsShim,
+        winrt::Microsoft::Management::Configuration::IConfigurationStatics,
+        winrt::Microsoft::Management::Configuration::IConfigurationStatics2>
     {
         ConfigurationStaticFunctionsShim()
         {
@@ -50,7 +55,14 @@ namespace ConfigurationShim
 
             if (IsConfigurationAvailable())
             {
-                m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions();
+                m_statics = winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions().as<winrt::Microsoft::Management::Configuration::IConfigurationStatics2>();
+
+                // Forward the current feature state to the internal statics
+                using namespace AppInstaller;
+                using Flags = WinRT::ConfigurationStaticsInternalsStateFlags;
+
+                Flags flags = Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Configuration03) ? Flags::Configuration03 : Flags::None;
+                m_statics.as<AppInstaller::WinRT::IConfigurationStaticsInternals>()->SetExperimentalState(ToIntegral(flags));
             }
         }
 
@@ -193,6 +205,20 @@ namespace ConfigurationShim
             s_canBeCreated = false;
         }
 
+        winrt::Microsoft::Management::Configuration::ConfigurationParameter CreateConfigurationParameter()
+        {
+            THROW_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);
+
+            if (!m_statics)
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
+            }
+
+            auto result = m_statics.CreateConfigurationParameter();
+            result.as<AppInstaller::WinRT::ILifetimeWatcher>()->SetLifetimeWatcher(CreateLifetimeWatcher());
+            return result;
+        }
+
     private:
         // Returns a lifetime watcher object that is currently *unowned*.
         IUnknown* CreateLifetimeWatcher()
@@ -204,7 +230,7 @@ namespace ConfigurationShim
             return out.detach();
         }
 
-        winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions m_statics = nullptr;
+        winrt::Microsoft::Management::Configuration::IConfigurationStatics2 m_statics = nullptr;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
     };
 
@@ -218,7 +244,6 @@ namespace ConfigurationShim
             *object = nullptr;
             RETURN_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet));
             RETURN_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::Configuration));
-            // TODO: Review of security for configuration OOP
             RETURN_HR_IF(E_ACCESSDENIED, !::AppInstaller::Security::IsCOMCallerSameUserAndIntegrityLevel());
 
             RETURN_HR_IF(CO_E_CLASS_DISABLED, !s_canBeCreated);

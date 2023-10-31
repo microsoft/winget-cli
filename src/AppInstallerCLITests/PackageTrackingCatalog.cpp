@@ -11,14 +11,14 @@ using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
-using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Utility;
 
 namespace
 {
     static Source SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
     {
-        SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
+        SQLiteIndex index = SQLiteIndex::CreateNew(filePath, AppInstaller::SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
 
         TestDataFile testManifest("Manifest-Good.yaml");
         manifest = YamlParser::CreateFromPath(testManifest);

@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PinningIndex.h"
-#include "SQLiteStorageBase.h"
+#include <winget/SQLiteStorageBase.h>
 #include "Schema/Pinning_1_0/PinningIndexInterface.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
-    PinningIndex PinningIndex::CreateNew(const std::string& filePath, Schema::Version version)
+    PinningIndex PinningIndex::CreateNew(const std::string& filePath, SQLite::Version version)
     {
         AICLI_LOG(Repo, Info, << "Creating new Pinning Index with version [" << version << "] at '" << filePath << "'");
         PinningIndex result{ filePath, version };
@@ -152,7 +152,7 @@ namespace AppInstaller::Repository::Microsoft
 
     std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndex() const
     {
-        if (m_version == Schema::Version{ 1, 0 } ||
+        if (m_version == SQLite::Version{ 1, 0 } ||
             m_version.MajorVersion == 1 ||
             m_version.IsLatest())
         {
@@ -170,7 +170,7 @@ namespace AppInstaller::Repository::Microsoft
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
 
-    PinningIndex::PinningIndex(const std::string& target, Schema::Version version) : SQLiteStorageBase(target, version)
+    PinningIndex::PinningIndex(const std::string& target, SQLite::Version version) : SQLiteStorageBase(target, version)
     {
         m_interface = CreateIPinningIndex();
         m_version = m_interface->GetVersion();

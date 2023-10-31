@@ -4,7 +4,9 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
+#include "SourceUpdateChecks.h"
 
+#include <AppInstallerDateTime.h>
 #include <AppInstallerDeployment.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerMsixInfo.h>
@@ -345,6 +347,82 @@ namespace AppInstaller::Repository::Microsoft
             return catalog.FindByPackageFamilyAndId(GetPackageFamilyNameFromDetails(details), Deployment::IndexDBId);
         }
 
+        std::optional<Msix::PackageVersion> PackagedContextGetCurrentVersion(const SourceDetails& details)
+        {
+            auto extension = GetExtensionFromDetails(details);
+
+            if (extension)
+            {
+                auto version = extension->GetPackageVersion();
+                return Msix::PackageVersion{ version.Major, version.Minor, version.Build, version.Revision };
+            }
+            else
+            {
+                return std::nullopt;
+            }
+        }
+
+        // Constructs the location that we will write files to.
+        std::filesystem::path GetStatePathFromDetails(const SourceDetails& details)
+        {
+            std::filesystem::path result = Runtime::GetPathTo(Runtime::PathName::LocalState);
+            result /= PreIndexedPackageSourceFactory::Type();
+            result /= GetPackageFamilyNameFromDetails(details);
+            return result;
+        }
+
+        std::optional<Msix::PackageVersion> DesktopContextGetCurrentVersion(const SourceDetails& details)
+        {
+            std::filesystem::path packageState = GetStatePathFromDetails(details);
+            std::filesystem::path packagePath = packageState / s_PreIndexedPackageSourceFactory_PackageFileName;
+
+            if (std::filesystem::exists(packagePath))
+            {
+                // If we already have a trusted index package, use it to determine if we need to update or not.
+                Msix::WriteLockedMsixFile indexPackage{ packagePath };
+                if (indexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
+                {
+                    Msix::MsixInfo msixInfo{ packagePath };
+                    auto manifest = msixInfo.GetAppPackageManifests();
+
+                    if (manifest.size() == 1)
+                    {
+                        return manifest[0].GetIdentity().GetVersion();
+                    }
+                }
+            }
+
+            return std::nullopt;
+        }
+
+        bool CheckForUpdateBeforeOpen(const SourceDetails& details, std::optional<Msix::PackageVersion> currentVersion, const std::optional<TimeSpan>& requestedUpdateInterval)
+        {
+            // If we can't find a good package, then we have to update to operate
+            if (!currentVersion)
+            {
+                AICLI_LOG(Repo, Verbose, << "Source `" << details.Name << "` has no data");
+                return true;
+            }
+
+            using namespace std::chrono_literals;
+            using clock = std::chrono::system_clock;
+
+            // Attempt to convert the package version to a time_point
+            clock::time_point versionTime = Utility::GetTimePointFromVersion(currentVersion.value());
+
+            // Since we expect that the version time indicates creation time, don't let it be far in the future.
+            auto now = clock::now();
+            if (versionTime > now && versionTime - now > 24h)
+            {
+                versionTime = clock::time_point::min();
+            }
+
+            // Use the later of the version and last update times
+            clock::time_point timeToCheck = (versionTime > details.LastUpdateTime ? versionTime : details.LastUpdateTime);
+
+            return IsAfterUpdateCheckTime(details.Name, timeToCheck, requestedUpdateInterval);
+        }
+
         struct PackagedContextSourceReference : public ISourceReference
         {
             PackagedContextSourceReference(const SourceDetails& details) : m_details(details)
@@ -358,6 +436,11 @@ namespace AppInstaller::Repository::Microsoft
             std::string GetIdentifier() override { return m_details.Identifier; }
 
             SourceDetails& GetDetails() override { return m_details; };
+
+            bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>& requestedUpdateInterval) override
+            {
+                return CheckForUpdateBeforeOpen(m_details, PackagedContextGetCurrentVersion(m_details), requestedUpdateInterval);
+            }
 
             std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
@@ -405,17 +488,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::optional<Msix::PackageVersion> GetCurrentVersion(const SourceDetails& details) override
             {
-                auto extension = GetExtensionFromDetails(details);
-
-                if (extension)
-                {
-                    auto version = extension->GetPackageVersion();
-                    return Msix::PackageVersion{ version.Major, version.Minor, version.Build, version.Revision };
-                }
-                else
-                {
-                    return std::nullopt;
-                }
+                return PackagedContextGetCurrentVersion(details);
             }
 
             bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) override
@@ -492,15 +565,6 @@ namespace AppInstaller::Repository::Microsoft
             }
         };
 
-        // Constructs the location that we will write files to.
-        std::filesystem::path GetStatePathFromDetails(const SourceDetails& details)
-        {
-            std::filesystem::path result = Runtime::GetPathTo(Runtime::PathName::LocalState);
-            result /= PreIndexedPackageSourceFactory::Type();
-            result /= GetPackageFamilyNameFromDetails(details);
-            return result;
-        }
-
         struct DesktopContextSourceReference : public ISourceReference
         {
             DesktopContextSourceReference(const SourceDetails& details) : m_details(details)
@@ -514,6 +578,11 @@ namespace AppInstaller::Repository::Microsoft
             std::string GetIdentifier() override { return m_details.Identifier; }
 
             SourceDetails& GetDetails() override { return m_details; };
+
+            bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>& requestedUpdateInterval) override
+            {
+                return CheckForUpdateBeforeOpen(m_details, DesktopContextGetCurrentVersion(m_details), requestedUpdateInterval);
+            }
 
             std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
@@ -574,26 +643,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::optional<Msix::PackageVersion> GetCurrentVersion(const SourceDetails& details) override
             {
-                std::filesystem::path packageState = GetStatePathFromDetails(details);
-                std::filesystem::path packagePath = packageState / s_PreIndexedPackageSourceFactory_PackageFileName;
-
-                if (std::filesystem::exists(packagePath))
-                {
-                    // If we already have a trusted index package, use it to determine if we need to update or not.
-                    Msix::WriteLockedMsixFile indexPackage{ packagePath };
-                    if (indexPackage.ValidateTrustInfo(WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::StoreOrigin)))
-                    {
-                        Msix::MsixInfo msixInfo{ packagePath };
-                        auto manifest = msixInfo.GetAppPackageManifests();
-
-                        if (manifest.size() == 1)
-                        {
-                            return manifest[0].GetIdentity().GetVersion();
-                        }
-                    }
-                }
-
-                return std::nullopt;
+                return DesktopContextGetCurrentVersion(details);
             }
 
             bool UpdateInternal(const std::string& packageLocation, const SourceDetails& details, IProgressCallback& progress) override

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SQLiteIndex.h"
-#include "SQLiteStorageBase.h"
+#include <winget/SQLiteStorageBase.h>
 #include "ArpVersionValidation.h"
 #include <winget/ManifestYamlParser.h>
 
@@ -17,7 +17,7 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
-    SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, Schema::Version version, CreateOptions options)
+    SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, SQLite::Version version, CreateOptions options)
     {
         AICLI_LOG(Repo, Info, << "Creating new SQLite Index with version [" << version << "] at '" << filePath << "'");
         SQLiteIndex result{ filePath, version };
@@ -36,7 +36,7 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    std::unique_ptr<Schema::ISQLiteIndex> SQLiteIndex::CreateISQLiteIndex(const Schema::Version& version)
+    std::unique_ptr<Schema::ISQLiteIndex> SQLiteIndex::CreateISQLiteIndex(const SQLite::Version& version)
     {
         using namespace Schema;
 
@@ -62,7 +62,7 @@ namespace AppInstaller::Repository::Microsoft
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
 
-    SQLiteIndex::SQLiteIndex(const std::string& target, const Schema::Version& version) : SQLiteStorageBase(target, version)
+    SQLiteIndex::SQLiteIndex(const std::string& target, const SQLite::Version& version) : SQLiteStorageBase(target, version)
     {
         m_dbconn.EnableICU();
         m_interface = CreateISQLiteIndex(version);
@@ -79,14 +79,14 @@ namespace AppInstaller::Repository::Microsoft
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-    void SQLiteIndex::ForceVersion(const Schema::Version& version)
+    void SQLiteIndex::ForceVersion(const SQLite::Version& version)
     {
         m_interface = CreateISQLiteIndex(version);
     }
 
-    Schema::Version SQLiteIndex::GetLatestVersion()
+    SQLite::Version SQLiteIndex::GetLatestVersion()
     {
-        return CreateISQLiteIndex(Schema::Version::Latest())->GetVersion();
+        return CreateISQLiteIndex(SQLite::Version::Latest())->GetVersion();
     }
 #endif
 

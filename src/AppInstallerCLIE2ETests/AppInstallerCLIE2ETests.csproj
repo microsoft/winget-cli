@@ -50,6 +50,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="TestData\Configuration\ShowDetails_TestRepo_0_3.yml" />
+    <None Remove="TestData\Configuration\WithParameters_0_3.yml" />
     <Content Include="..\..\doc\admx\DesktopAppInstaller.admx" Link="TestData\DesktopAppInstaller.admx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

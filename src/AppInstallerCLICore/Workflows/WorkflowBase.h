@@ -10,7 +10,6 @@
 #include <string>
 #include <string_view>
 
-
 namespace AppInstaller::CLI::Execution
 {
     struct Context;
@@ -50,7 +49,7 @@ namespace AppInstaller::CLI::Workflow
         using Func = void (*)(Execution::Context&);
 
         WorkflowTask(Func f) : m_isFunc(true), m_func(f) {}
-        WorkflowTask(std::string_view name) : m_name(name) {}
+        WorkflowTask(std::string_view name, bool executeAlways = false) : m_name(name), m_executeAlways(executeAlways) {}
 
         virtual ~WorkflowTask() = default;
 
@@ -67,11 +66,13 @@ namespace AppInstaller::CLI::Workflow
         const std::string& GetName() const { return m_name; }
         bool IsFunction() const { return m_isFunc; }
         Func Function() const { return m_func; }
+        bool ExecuteAlways() const { return m_executeAlways; }
 
     private:
         bool m_isFunc = false;
         Func m_func = nullptr;
         std::string m_name;
+        bool m_executeAlways = false;
     };
 
     // Helper to determine installed source to use based on context input.

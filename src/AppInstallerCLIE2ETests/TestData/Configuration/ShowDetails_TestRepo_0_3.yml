@@ -1,0 +1,9 @@
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+resources:
+  - name: Name1
+    type: xE2ETestResource/E2EFileResource
+    metadata:
+      repository: AppInstallerCLIE2ETestsRepo
+    properties:
+      prop1: 3
+      prop2: '4'

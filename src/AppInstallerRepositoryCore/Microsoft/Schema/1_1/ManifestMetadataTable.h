@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
+#include <winget/SQLiteWrapper.h>
 #include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Public/winget/RepositorySearch.h"
 

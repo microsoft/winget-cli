@@ -412,7 +412,6 @@
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
     <ClInclude Include="Public\winget\Locale.h" />
-    <ClInclude Include="Public\winget\ManagedFile.h" />
     <ClInclude Include="Public\winget\Manifest.h" />
     <ClInclude Include="Public\winget\ManifestInstaller.h" />
     <ClInclude Include="Public\winget\ManifestLocalization.h" />
@@ -428,6 +427,7 @@
     <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h" />
     <ClInclude Include="Public\winget\Pin.h" />
+    <ClInclude Include="Public\winget\Reboot.h" />
     <ClInclude Include="Public\winget\Regex.h" />
     <ClInclude Include="Public\winget\PathVariable.h" />
     <ClInclude Include="Public\winget\PortableARPEntry.h" />
@@ -438,7 +438,6 @@
     <ClInclude Include="Public\winget\ThreadGlobals.h" />
     <ClInclude Include="Public\winget\TraceLogger.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
-    <ClInclude Include="Public\winget\WindowsFeature.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
   </ItemGroup>
   <ItemGroup>
@@ -467,7 +466,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Locale.cpp" />
-    <ClCompile Include="ManagedFile.cpp" />
     <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestCommon.cpp" />
     <ClCompile Include="Manifest\ManifestValidation.cpp" />
@@ -486,6 +484,7 @@
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="Pin.cpp" />
     <ClCompile Include="Progress.cpp" />
+    <ClCompile Include="Reboot.cpp" />
     <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">
@@ -503,7 +502,6 @@
     <ClCompile Include="ThreadGlobals.cpp" />
     <ClCompile Include="TraceLogger.cpp" />
     <ClCompile Include="UserSettings.cpp" />
-    <ClCompile Include="WindowsFeature.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
