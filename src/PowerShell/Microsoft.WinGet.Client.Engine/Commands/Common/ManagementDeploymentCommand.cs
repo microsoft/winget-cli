@@ -41,7 +41,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         }
 
         /// <summary>
-        /// Executes the cmdlet. ALL cmdlets that uses the COM APIs use this method.
+        /// Executes the cmdlet. All cmdlets that uses the COM APIs MUST use this method.
         /// The inproc COM API may deadlock on an STA thread.
         /// </summary>
         /// <typeparam name="TResult">The type of result of the cmdlet.</typeparam>
