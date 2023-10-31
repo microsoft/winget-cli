@@ -37,7 +37,7 @@ param(
     [string]$LocalSourceJson,
 
     [Parameter()]
-    [string]$SourceCert
+    [string]$SourceCert,
 
     [Parameter()]
     [string]TestDataPath
