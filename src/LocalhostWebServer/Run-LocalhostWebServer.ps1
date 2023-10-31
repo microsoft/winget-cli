@@ -38,6 +38,9 @@ param(
 
     [Parameter()]
     [string]$SourceCert
+
+    [Parameter()]
+    [string]TestDataPath
 )
 
 if (-not [System.String]::IsNullOrEmpty($sourceCert))
@@ -48,4 +51,4 @@ if (-not [System.String]::IsNullOrEmpty($sourceCert))
 
 cd $BuildRoot
 
-Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson"
+Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson TestDataPath=$TestDaaPath"

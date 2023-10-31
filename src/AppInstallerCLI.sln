@@ -147,6 +147,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Detours", "Xlang\UndockedRe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{8E43F982-40D5-4DF1-9044-C08047B5F43B}"
 	ProjectSection(SolutionItems) = preProject
+		..\templates\e2e-setup.yml = ..\templates\e2e-setup.yml
 		..\templates\e2e-test.template.yml = ..\templates\e2e-test.template.yml
 	EndProjectSection
 EndProject
