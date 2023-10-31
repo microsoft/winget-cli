@@ -69,12 +69,19 @@ namespace LocalhostWebServer
                 }
 
                 X509Store x509Store = new X509Store(pathParts[1], storeLocation);
+                x509Store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
                 X509Certificate2Collection collection = x509Store.Certificates;
+
+                if (collection.Count == 0)
+                {
+                    throw new InvalidDataException($"Found {collection.Count} certificates in store '{pathParts[0]}' [{storeLocation}] \\ '{pathParts[1]}': {Startup.CertPath}");
+                }
+
                 X509Certificate2Collection results = collection.Find(X509FindType.FindByThumbprint, pathParts[2], true);
 
                 if (results.Count != 1)
                 {
-                    throw new InvalidDataException($"Found {results.Count} matches for: {Startup.CertPath}");
+                    throw new InvalidDataException($"Found {results.Count} matches for '{pathParts[2]}': {Startup.CertPath}");
                 }
 
                 ServerCertificate = results[0];

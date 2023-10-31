@@ -7,9 +7,23 @@
    The tests require the localhost web server to be running and serving the test data.
    'Invoke-Pester' should be called in an admin PowerShell window.
 #>
+[CmdletBinding()]
+param(
+    # Whether to use production or developement targets.
+    [switch]$TargetProduction
+)
 
 BeforeAll {
-    $settingsFilePath = (ConvertFrom-Json (wingetdev.exe settings export)).userSettingsFile
+    if ($TargetProduction)
+    {
+        $wingetExeName = "winget.exe"
+    }
+    else
+    {
+        $wingetExeName = "wingetdev.exe"
+    }
+    
+    $settingsFilePath = (ConvertFrom-Json (& $wingetExeName settings export)).userSettingsFile
 
     $deviceGroupPolicyRoot = "HKLM:\Software\Policies\Microsoft\Windows"
     $wingetPolicyKeyName = "AppInstaller"
@@ -42,7 +56,7 @@ BeforeAll {
                 # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
                 # This is a workaround to an issue where the server takes longer than expected to terminate when
                 # running from PowerShell. This can cause other E2E tests to fail when attempting to reset the test source.
-                Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
+                Start-Process -FilePath $wingetExeName -ArgumentList "source remove TestSource"
             }
         }
     }

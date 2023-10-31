@@ -4,7 +4,8 @@
 param(
     [string]$testModulesPath,
     [string]$outputPath,
-    [string]$packageLayoutPath
+    [string]$packageLayoutPath,
+    [switch]$TargetProduction
 )
 
 # This updates pester not always necessary but worth noting
@@ -34,17 +35,38 @@ if (-not [System.String]::IsNullOrEmpty($packageLayoutPath))
     Add-AppxPackage -Register $local:packageManifestPath
 
     # Configure crash dump and log file settings
-    $local:settingsExport = ConvertFrom-Json (wingetdev.exe settings export)
+    if ($TargetProduction)
+    {
+        $local:wingetExeName = "winget.exe"
+    }
+    else
+    {
+        $local:wingetExeName = "wingetdev.exe"
+    }
+    
+    $local:settingsExport = ConvertFrom-Json (& $local:wingetExeName settings export)
     $local:settingsFilePath = $local:settingsExport.userSettingsFile
     $local:settingsFileContent = ConvertTo-Json @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
 
     Set-Content -Path $local:settingsFilePath -Value $local:settingsFileContent
 }
 
-Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Client.Tests.ps1 -OutputFile $outputPath\Tests-WinGetClient.XML -OutputFormat NUnitXML
+$clientConfig = New-PesterConfiguration
+$clientConfig.TestResult.OutputFormat = "NUnitXML"
+$clientConfig.TestResult.OutputPath = "$outputPath\Tests-WinGetClient.XML"
+$clientConfig.TestResult.Enabled = $true
+$clientConfig.Run.Container = New-PesterContainer -Path "$PSScriptRoot\Microsoft.WinGet.Client.Tests.ps1" -Data @{ TargetProduction = $TargetProduction }
+
+Invoke-Pester -Configuration $clientConfig
 
 if ($PSEdition -eq "Core")
 {
-    Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Configuration.Tests.ps1 -OutputFile $outputPath\Tests-WinGetConfiguration.XML -OutputFormat NUnitXML
+    $configConfig = New-PesterConfiguration
+    $configConfig.TestResult.OutputFormat = "NUnitXML"
+    $configConfig.TestResult.OutputPath = "$outputPath\Tests-WinGetConfiguration.XML"
+    $configConfig.TestResult.Enabled = $true
+    $configConfig.Run.Container = New-PesterContainer -Path "$PSScriptRoot\Microsoft.WinGet.Configuration.Tests.ps1"
+
+    Invoke-Pester -Configuration $configConfig
 }
 

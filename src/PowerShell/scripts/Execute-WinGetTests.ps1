@@ -67,11 +67,17 @@ else
     winget install Microsoft.PowerShell -s winget -v $PwshVersion
 }
 
+# Get VC Runtime
+winget install 'Microsoft.VCRedist.2015+.x64' -s winget
+
 # Install .NET 6 for the local web server
 winget install Microsoft.DotNet.AspNetCore.6 -s winget
 
-# Generate a new TLS certificate
+# Generate a new TLS certificate and trust it
 $TLSCertificate = New-SelfSignedCertificate -CertStoreLocation "Cert:\LocalMachine\My" -DnsName "localhost"
+$CertTempPath = Join-Path $env:TEMP New-Guid
+Export-Certificate -Cert $TLSCertificate -FilePath $CertTempPath
+Import-Certificate -FilePath $CertTempPath -CertStoreLocation "Cert:\LocalMachine\Root"
 
 # Start local host web server
 .\Run-LocalhostWebServer.ps1 -BuildRoot $LocalhostWebServerPath -StaticFileRoot $HostedFilePath -CertPath $TLSCertificate.PSPath -SourceCert $SourceCertPath
@@ -80,9 +86,9 @@ $TLSCertificate = New-SelfSignedCertificate -CertStoreLocation "Cert:\LocalMachi
 & 'C:\Program Files\PowerShell\7\pwsh.exe' -ExecutionPolicy Unrestricted -Command ".\Init-TestRepository.ps1 -Force"
 
 # Run tests
-& 'C:\Program Files\PowerShell\7\pwsh.exe' -ExecutionPolicy Unrestricted -Command ".\RunTests.ps1 -outputPath $ResultsPath"
+& 'C:\Program Files\PowerShell\7\pwsh.exe' -ExecutionPolicy Unrestricted -Command ".\RunTests.ps1 -TargetProduction -outputPath $ResultsPath"
 
 # Terminate the local web server
-#Get-Process LocalhostWebServer.exe -ErrorAction Ignore | Stop-Process -ErrorAction Ignore
+Get-Process LocalhostWebServer -ErrorAction Ignore | Stop-Process -ErrorAction Ignore
 
 Write-Host "Results: $ResultsPath"
