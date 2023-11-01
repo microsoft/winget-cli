@@ -27,6 +27,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string GetAppxPackage = "Get-AppxPackage";
         private const string AddAppxPackage = "Add-AppxPackage";
         private const string AddAppxProvisionedPackage = "Add-AppxProvisionedPackage";
+        private const string GetCommand = "Get-Command";
 
         // Parameters name
         private const string Name = "Name";
@@ -35,12 +36,15 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string WarningAction = "WarningAction";
         private const string PackagePath = "PackagePath";
         private const string LicensePath = "LicensePath";
+        private const string Module = "Module";
+        private const string StubPackageOption = "StubPackageOption";
 
         // Parameter Values
         private const string Appx = "Appx";
         private const string Stop = "Stop";
         private const string SilentlyContinue = "SilentlyContinue";
         private const string Online = "Online";
+        private const string UsePreference = "UsePreference";
 
         // Options
         private const string UseWindowsPowerShell = "UseWindowsPowerShell";
@@ -231,6 +235,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 options.Add(ForceTargetApplicationShutdown);
             }
 
+            var parameters = new Dictionary<string, object>();
+            if (this.IsStubPackageOptionPresent())
+            {
+                parameters.Add(StubPackageOption, UsePreference);
+            }
+
             try
             {
                 var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
@@ -238,7 +248,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                 using var bundleFile = new TempFile();
                 var bundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
-                await this.AddAppxPackageAsUriAsync(bundleAsset.BrowserDownloadUrl, options);
+                await this.AddAppxPackageAsUriAsync(bundleAsset.BrowserDownloadUrl, parameters, options);
             }
             catch (RuntimeException e)
             {
@@ -384,17 +394,27 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private async Task AddAppxPackageAsUriAsync(string packageUri, IList<string>? options = null)
+        private async Task AddAppxPackageAsUriAsync(string packageUri, Dictionary<string, object>? parameters = null, IList<string>? options = null)
         {
             try
             {
+                var thisParams = new Dictionary<string, object>
+                {
+                    { Path, packageUri },
+                    { ErrorAction, Stop },
+                };
+
+                if (parameters != null)
+                {
+                    foreach (var param in parameters)
+                    {
+                        thisParams.Add(param.Key, param.Value);
+                    }
+                }
+
                 _ = this.ExecuteAppxCmdlet(
                         AddAppxPackage,
-                        new Dictionary<string, object>
-                        {
-                            { Path, packageUri },
-                            { ErrorAction, Stop },
-                        },
+                        thisParams,
                         options);
             }
             catch (RuntimeException e)
@@ -476,6 +496,34 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                     this.pwshCmdlet.Write(StreamType.Verbose, $"Executing Appx cmdlet {cmd}");
                     result = ps.Invoke();
+                });
+
+            return result;
+        }
+
+        private bool IsStubPackageOptionPresent()
+        {
+            bool result = false;
+            this.pwshCmdlet.ExecuteInPowerShellThread(
+                () =>
+                {
+                    var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+
+#if !POWERSHELL_WINDOWS
+                    ps.AddCommand(ImportModule)
+                      .AddParameter(Name, Appx)
+                      .AddParameter(UseWindowsPowerShell)
+                      .AddParameter(WarningAction, SilentlyContinue)
+                      .AddStatement();
+#endif
+
+                    var cmdInfo = ps.AddCommand(GetCommand)
+                                    .AddParameter(Name, AddAppxPackage)
+                                    .AddParameter(Module, Appx)
+                                    .Invoke<CommandInfo>()
+                                    .FirstOrDefault();
+
+                    result = cmdInfo != null && cmdInfo.Parameters.ContainsKey(StubPackageOption);
                 });
 
             return result;
