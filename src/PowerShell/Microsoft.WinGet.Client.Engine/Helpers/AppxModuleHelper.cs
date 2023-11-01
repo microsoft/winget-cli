@@ -12,6 +12,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using System.Linq;
     using System.Management.Automation;
     using System.Runtime.InteropServices;
+    using System.Threading.Tasks;
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Common.Command;
     using static Microsoft.WinGet.Client.Engine.Common.Constants;
@@ -73,6 +74,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string XamlAssetArm64 = "Microsoft.UI.Xaml.2.7.arm64.appx";
 
         private readonly PowerShellCmdlet pwshCmdlet;
+        private readonly HttpClientHelper httpClientHelper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppxModuleHelper"/> class.
@@ -81,6 +83,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public AppxModuleHelper(PowerShellCmdlet pwshCmdlet)
         {
             this.pwshCmdlet = pwshCmdlet;
+            this.httpClientHelper = new HttpClientHelper();
         }
 
         /// <summary>
@@ -149,45 +152,48 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="releaseTag">Release tag of GitHub release.</param>
         /// <param name="allUsers">If install for all users is needed.</param>
         /// <param name="isDowngrade">Is downgrade.</param>
-        public void InstallFromGitHubRelease(string releaseTag, bool allUsers, bool isDowngrade)
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task InstallFromGitHubReleaseAsync(string releaseTag, bool allUsers, bool isDowngrade)
         {
-            this.InstallDependencies();
+            await this.InstallDependenciesAsync();
 
             if (isDowngrade)
             {
                 // Add-AppxProvisionedPackage doesn't support downgrade.
-                this.AddAppInstallerBundle(releaseTag, true);
+                await this.AddAppInstallerBundleAsync(releaseTag, true);
 
                 if (allUsers)
                 {
-                    this.AddProvisionPackage(releaseTag);
+                    await this.AddProvisionPackageAsync(releaseTag);
                 }
             }
             else
             {
                 if (allUsers)
                 {
-                    this.AddProvisionPackage(releaseTag);
+                    await this.AddProvisionPackageAsync(releaseTag);
                 }
                 else
                 {
-                    this.AddAppInstallerBundle(releaseTag, false);
+                    await this.AddAppInstallerBundleAsync(releaseTag, false);
                 }
             }
         }
 
-        private void AddProvisionPackage(string releaseTag)
+        private async Task AddProvisionPackageAsync(string releaseTag)
         {
             var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
-            var release = githubClient.GetRelease(releaseTag);
+            var release = await githubClient.GetReleaseAsync(releaseTag);
 
             using var bundleFile = new TempFile();
             var bundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
-            githubClient.DownloadUrl(bundleAsset.BrowserDownloadUrl, bundleFile.FullPath);
+            await this.httpClientHelper.DownloadUrlWithProgressAsync(
+                bundleAsset.BrowserDownloadUrl, bundleFile.FullPath, this.pwshCmdlet);
 
             using var licenseFile = new TempFile();
             var licenseAsset = release.Assets.Where(a => a.Name.EndsWith(License)).First();
-            githubClient.DownloadUrl(licenseAsset.BrowserDownloadUrl, licenseFile.FullPath);
+            await this.httpClientHelper.DownloadUrlWithProgressAsync(
+                licenseAsset.BrowserDownloadUrl, licenseFile.FullPath, this.pwshCmdlet);
 
             try
             {
@@ -206,7 +212,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private void AddAppInstallerBundle(string releaseTag, bool downgrade)
+        private async Task AddAppInstallerBundleAsync(string releaseTag, bool downgrade)
         {
             var options = new List<string>();
             if (downgrade)
@@ -217,11 +223,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             try
             {
                 var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
-                var release = githubClient.GetRelease(releaseTag);
+                var release = await githubClient.GetReleaseAsync(releaseTag);
 
                 using var bundleFile = new TempFile();
                 var bundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
-                this.AddAppxPackageAsUri(bundleAsset.BrowserDownloadUrl, options);
+                await this.AddAppxPackageAsUriAsync(bundleAsset.BrowserDownloadUrl, options);
             }
             catch (RuntimeException e)
             {
@@ -241,7 +247,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 .FirstOrDefault();
         }
 
-        private void InstallDependencies()
+        private async Task InstallDependenciesAsync()
         {
             // A better implementation would use Add-AppxPackage with -DependencyPath, but
             // the Appx module needs to be remoted into Windows PowerShell. When the string[] parameter
@@ -249,11 +255,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             // Here we should: if we are in Windows Powershell then run Add-AppxPackage with -DependencyPath
             // if we are in Core, then start powershell.exe and run the same command. Right now, we just
             // do Add-AppxPackage for each one.
-            this.InstallVCLibsDependencies();
-            this.InstallUiXaml();
+            await this.InstallVCLibsDependenciesAsync();
+            await this.InstallUiXamlAsync();
         }
 
-        private void InstallVCLibsDependencies()
+        private async Task InstallVCLibsDependenciesAsync()
         {
             var result = this.ExecuteAppxCmdlet(
                 GetAppxPackage,
@@ -319,7 +325,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                 foreach (var vclib in vcLibsDependencies)
                 {
-                    this.AddAppxPackageAsUri(vclib);
+                    await this.AddAppxPackageAsUriAsync(vclib);
                 }
             }
             else
@@ -328,14 +334,14 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private void InstallUiXaml()
+        private async Task InstallUiXamlAsync()
         {
             var uiXamlObjs = this.GetAppxObject(XamlPackage27);
             if (uiXamlObjs is null)
             {
                 var githubRelease = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.UiXaml);
 
-                var xamlRelease = githubRelease.GetRelease(XamlReleaseTag273);
+                var xamlRelease = await githubRelease.GetReleaseAsync(XamlReleaseTag273);
 
                 var packagesToInstall = new List<string>();
                 var arch = RuntimeInformation.OSArchitecture;
@@ -362,12 +368,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                 foreach (var package in packagesToInstall)
                 {
-                    this.AddAppxPackageAsUri(package);
+                    await this.AddAppxPackageAsUriAsync(package);
                 }
             }
         }
 
-        private void AddAppxPackageAsUri(string packageUri, IList<string>? options = null)
+        private async Task AddAppxPackageAsUriAsync(string packageUri, IList<string>? options = null)
         {
             try
             {
@@ -386,7 +392,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 if (e.ErrorRecord.CategoryInfo.Category == ErrorCategory.OpenError)
                 {
                     this.pwshCmdlet.Write(StreamType.Verbose, $"Failed adding package [{packageUri}]. Retrying downloading it.");
-                    this.DownloadPackageAndAdd(packageUri, options);
+                    await this.DownloadPackageAndAddAsync(packageUri, options);
                 }
                 else
                 {
@@ -396,13 +402,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private void DownloadPackageAndAdd(string packageUrl, IList<string>? options)
+        private async Task DownloadPackageAndAddAsync(string packageUrl, IList<string>? options)
         {
             using var tempFile = new TempFile();
 
-            // This is weird but easy.
-            var githubRelease = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
-            githubRelease.DownloadUrl(packageUrl, tempFile.FullPath);
+            await this.httpClientHelper.DownloadUrlWithProgressAsync(packageUrl, tempFile.FullPath, this.pwshCmdlet);
 
             _ = this.ExecuteAppxCmdlet(
                     AddAppxPackage,

@@ -43,7 +43,6 @@ namespace Microsoft.WinGet.Client.Commands
         {
             var command = new InstallerPackageCommand(
                         this,
-                        this.Mode.ToString(),
                         this.Override,
                         this.Custom,
                         this.Location,

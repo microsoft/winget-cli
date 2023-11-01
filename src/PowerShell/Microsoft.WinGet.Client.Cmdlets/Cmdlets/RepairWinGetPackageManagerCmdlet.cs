@@ -34,14 +34,15 @@ namespace Microsoft.WinGet.Client.Commands
         protected override void ProcessRecord()
         {
             var command = new WinGetPackageManagerCommand(this);
-            if (this.ParameterSetName == Constants.IntegrityLatestSet)
-            {
-                command.RepairUsingLatest(this.IncludePreRelease.ToBool(), this.AllUsers.ToBool());
-            }
-            else
-            {
-                command.Repair(this.Version, this.AllUsers.ToBool());
-            }
+            command.Test();
+            ////if (this.ParameterSetName == Constants.IntegrityLatestSet)
+            ////{
+            ////    command.RepairUsingLatest(this.IncludePreRelease.ToBool(), this.AllUsers.ToBool());
+            ////}
+            ////else
+            ////{
+            ////    command.Repair(this.Version, this.AllUsers.ToBool());
+            ////}
         }
     }
 }

@@ -227,4 +227,7 @@
   <data name="DebugNotSupported" xml:space="preserve">
     <value>Debug parameter not supported</value>
   </data>
+  <data name="DownloadingMessage" xml:space="preserve">
+    <value>Downloading</value>
+  </data>
 </root>

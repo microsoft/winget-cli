@@ -23,7 +23,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Initializes a new instance of the <see cref="InstallerPackageCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">Caller cmdlet.</param>
-        /// <param name="psInstallMode">Install mode to use.</param>
         /// <param name="override">Override arguments to be passed on to the installer.</param>
         /// <param name="custom">Additional arguments.</param>
         /// <param name="location">Installation location.</param>
@@ -40,7 +39,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="query">Match against any field of a package.</param>
         public InstallerPackageCommand(
             PSCmdlet psCmdlet,
-            string psInstallMode,
             string @override,
             string custom,
             string location,
