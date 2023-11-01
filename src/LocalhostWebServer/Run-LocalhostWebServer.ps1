@@ -40,7 +40,7 @@ param(
     [string]$SourceCert,
 
     [Parameter()]
-    [string]TestDataPath
+    [string]$TestDataPath
 )
 
 if (-not [System.String]::IsNullOrEmpty($sourceCert))
