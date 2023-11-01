@@ -60,31 +60,39 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 {
                     pwshCmdlet.Write(StreamType.Verbose, $"Size {contentLength} bytes");
 
-                    const int BufferSize = 1024 * 1024; // 1MB
-                    byte[] buffer = new byte[BufferSize];
+                    const int oneMB = 1024 * 1024;
+                    double lengthInMB = (double)(contentLength / oneMB);
+
+                    byte[] buffer = new byte[oneMB];
                     int bytesRead, totalBytes = 0;
 
                     var activityId = pwshCmdlet.GetNewProgressActivityId();
 
-                    // TODO: in win pwsh progress is weird.
                     try
                     {
+                        int maxPercentComplete = 0;
                         while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
                         {
                             await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
                             totalBytes += bytesRead;
-                            ProgressRecord record = new (activityId, url, Resources.DownloadingMessage)
+
+                            int percentComplete = (int)(((double)totalBytes / (double)contentLength) * 100);
+                            if (percentComplete > maxPercentComplete)
                             {
-                                RecordType = ProgressRecordType.Processing,
-                            };
-                            record.StatusDescription = $"{totalBytes / 1000000.0f:0.0} MB / {contentLength / 1000000.0f:0.0} MB";
-                            record.PercentComplete = (int)((double)totalBytes / (double)contentLength * 100);
-                            pwshCmdlet.Write(StreamType.Progress, record);
+                                maxPercentComplete = percentComplete;
+                                ProgressRecord record = new (activityId, url, Resources.DownloadingMessage)
+                                {
+                                    RecordType = ProgressRecordType.Processing,
+                                };
+                                record.StatusDescription = $"{totalBytes / oneMB} MB / {lengthInMB} MB";
+                                record.PercentComplete = percentComplete;
+                                pwshCmdlet.Write(StreamType.Progress, record);
+                            }
                         }
                     }
                     finally
                     {
-                        pwshCmdlet.CompleteProgress(activityId, url, Resources.DownloadingMessage);
+                        pwshCmdlet.CompleteProgress(activityId, url, Resources.DownloadingMessage, true);
                     }
                 }
                 else

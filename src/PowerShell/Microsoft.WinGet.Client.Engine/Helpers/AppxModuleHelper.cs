@@ -47,6 +47,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string ForceUpdateFromAnyVersion = "ForceUpdateFromAnyVersion";
         private const string Register = "Register";
         private const string DisableDevelopmentMode = "DisableDevelopmentMode";
+        private const string ForceTargetApplicationShutdown = "ForceTargetApplicationShutdown";
 
         private const string AppInstallerName = "Microsoft.DesktopAppInstaller";
         private const string AppxManifest = "AppxManifest.xml";
@@ -152,15 +153,16 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="releaseTag">Release tag of GitHub release.</param>
         /// <param name="allUsers">If install for all users is needed.</param>
         /// <param name="isDowngrade">Is downgrade.</param>
+        /// <param name="force">Force application shutdown.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task InstallFromGitHubReleaseAsync(string releaseTag, bool allUsers, bool isDowngrade)
+        public async Task InstallFromGitHubReleaseAsync(string releaseTag, bool allUsers, bool isDowngrade, bool force)
         {
             await this.InstallDependenciesAsync();
 
             if (isDowngrade)
             {
                 // Add-AppxProvisionedPackage doesn't support downgrade.
-                await this.AddAppInstallerBundleAsync(releaseTag, true);
+                await this.AddAppInstallerBundleAsync(releaseTag, true, force);
 
                 if (allUsers)
                 {
@@ -175,7 +177,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 }
                 else
                 {
-                    await this.AddAppInstallerBundleAsync(releaseTag, false);
+                    await this.AddAppInstallerBundleAsync(releaseTag, false, force);
                 }
             }
         }
@@ -197,13 +199,17 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             try
             {
-                var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
-                ps.AddCommand(AddAppxProvisionedPackage)
-                  .AddParameter(Online)
-                  .AddParameter(PackagePath, bundleFile.FullPath)
-                  .AddParameter(LicensePath, licenseFile.FullPath)
-                  .AddParameter(ErrorAction, Stop)
-                  .Invoke();
+                this.pwshCmdlet.ExecuteInPowerShellThread(
+                    () =>
+                    {
+                        var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+                        ps.AddCommand(AddAppxProvisionedPackage)
+                          .AddParameter(Online)
+                          .AddParameter(PackagePath, bundleFile.FullPath)
+                          .AddParameter(LicensePath, licenseFile.FullPath)
+                          .AddParameter(ErrorAction, Stop)
+                          .Invoke();
+                    });
             }
             catch (RuntimeException e)
             {
@@ -212,12 +218,17 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private async Task AddAppInstallerBundleAsync(string releaseTag, bool downgrade)
+        private async Task AddAppInstallerBundleAsync(string releaseTag, bool downgrade, bool force)
         {
             var options = new List<string>();
             if (downgrade)
             {
                 options.Add(ForceUpdateFromAnyVersion);
+            }
+
+            if (force)
+            {
+                options.Add(ForceTargetApplicationShutdown);
             }
 
             try
@@ -420,46 +431,53 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         private Collection<PSObject> ExecuteAppxCmdlet(string cmdlet, Dictionary<string, object>? parameters = null, IList<string>? options = null)
         {
-            var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+            Collection<PSObject> result = new Collection<PSObject>();
 
-            // There's a bug in the Appx Module that it can't be loaded from Core in pre 10.0.22453.0 builds without
-            // the -UseWindowsPowerShell option. In post 10.0.22453.0 builds there's really no difference between
-            // using or not -UseWindowsPowerShell as it will automatically get loaded using WinPSCompatSession remoting session.
-            // https://github.com/PowerShell/PowerShell/issues/13138.
-            // Set warning action to silently continue to avoid the console with
-            // 'Module Appx is loaded in Windows PowerShell using WinPSCompatSession remoting session'
+            this.pwshCmdlet.ExecuteInPowerShellThread(
+                () =>
+                {
+                    var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+
+                    // There's a bug in the Appx Module that it can't be loaded from Core in pre 10.0.22453.0 builds without
+                    // the -UseWindowsPowerShell option. In post 10.0.22453.0 builds there's really no difference between
+                    // using or not -UseWindowsPowerShell as it will automatically get loaded using WinPSCompatSession remoting session.
+                    // https://github.com/PowerShell/PowerShell/issues/13138.
+                    // Set warning action to silently continue to avoid the console with
+                    // 'Module Appx is loaded in Windows PowerShell using WinPSCompatSession remoting session'
 #if !POWERSHELL_WINDOWS
-            ps.AddCommand(ImportModule)
-              .AddParameter(Name, Appx)
-              .AddParameter(UseWindowsPowerShell)
-              .AddParameter(WarningAction, SilentlyContinue)
-              .AddStatement();
+                    ps.AddCommand(ImportModule)
+                      .AddParameter(Name, Appx)
+                      .AddParameter(UseWindowsPowerShell)
+                      .AddParameter(WarningAction, SilentlyContinue)
+                      .AddStatement();
 #endif
 
-            string cmd = cmdlet;
-            ps.AddCommand(cmdlet);
+                    string cmd = cmdlet;
+                    ps.AddCommand(cmdlet);
 
-            if (parameters != null)
-            {
-                foreach (var p in parameters)
-                {
-                    cmd += $" -{p.Key} {p.Value}";
-                }
+                    if (parameters != null)
+                    {
+                        foreach (var p in parameters)
+                        {
+                            cmd += $" -{p.Key} {p.Value}";
+                        }
 
-                ps.AddParameters(parameters);
-            }
+                        ps.AddParameters(parameters);
+                    }
 
-            if (options != null)
-            {
-                foreach (var option in options)
-                {
-                    cmd += $" -{option}";
-                    ps.AddParameter(option);
-                }
-            }
+                    if (options != null)
+                    {
+                        foreach (var option in options)
+                        {
+                            cmd += $" -{option}";
+                            ps.AddParameter(option);
+                        }
+                    }
 
-            this.pwshCmdlet.Write(StreamType.Verbose, $"Executing Appx cmdlet {cmd}");
-            var result = ps.Invoke();
+                    this.pwshCmdlet.Write(StreamType.Verbose, $"Executing Appx cmdlet {cmd}");
+                    result = ps.Invoke();
+                });
+
             return result;
         }
     }

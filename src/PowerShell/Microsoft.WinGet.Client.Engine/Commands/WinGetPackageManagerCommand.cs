@@ -35,26 +35,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         }
 
         /// <summary>
-        /// Test.
-        /// </summary>
-        public void Test()
-        {
-            var runningTask = this.RunOnMTA(
-                async () =>
-                {
-                    var httpClientHelper = new HttpClientHelper();
-                    await httpClientHelper.DownloadUrlWithProgressAsync(
-                        "https://github.com/microsoft/winget-cli/releases/download/v1.7.2782-preview/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle",
-                        @"D:\Dev\borrar\test.msixbundle",
-                        this);
-
-                    return true;
-                });
-
-            this.Wait(runningTask);
-        }
-
-        /// <summary>
         /// Asserts winget version is the latest version on winget-cli.
         /// </summary>
         /// <param name="preRelease">Use prerelease version on GitHub.</param>
@@ -86,7 +66,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         /// <param name="preRelease">Use prerelease version on GitHub.</param>
         /// <param name="allUsers">Install for all users. Requires admin.</param>
-        public void RepairUsingLatest(bool preRelease, bool allUsers)
+        /// <param name="force">Force application shutdown.</param>
+        public void RepairUsingLatest(bool preRelease, bool allUsers, bool force)
         {
             this.ValidateWhenAllUsers(allUsers);
             var runningTask = this.RunOnMTA(
@@ -94,7 +75,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 {
                     var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
                     string expectedVersion = await gitHubClient.GetLatestReleaseTagNameAsync(preRelease);
-                    await this.RepairStateMachineAsync(expectedVersion, allUsers);
+                    await this.RepairStateMachineAsync(expectedVersion, allUsers, force);
                     return true;
                 });
 
@@ -106,19 +87,20 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         /// <param name="expectedVersion">The expected version, if any.</param>
         /// <param name="allUsers">Install for all users. Requires admin.</param>
-        public void Repair(string expectedVersion, bool allUsers)
+        /// <param name="force">Force application shutdown.</param>
+        public void Repair(string expectedVersion, bool allUsers, bool force)
         {
             this.ValidateWhenAllUsers(allUsers);
             var runningTask = this.RunOnMTA(
                 async () =>
                 {
-                    await this.RepairStateMachineAsync(expectedVersion, allUsers);
+                    await this.RepairStateMachineAsync(expectedVersion, allUsers, force);
                     return true;
                 });
             this.Wait(runningTask);
         }
 
-        private async Task RepairStateMachineAsync(string expectedVersion, bool allUsers)
+        private async Task RepairStateMachineAsync(string expectedVersion, bool allUsers, bool force)
         {
             var seenCategories = new HashSet<IntegrityCategory>();
 
@@ -147,7 +129,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     switch (currentCategory)
                     {
                         case IntegrityCategory.UnexpectedVersion:
-                            await this.InstallDifferentVersionAsync(new WinGetVersion(expectedVersion), allUsers);
+                            await this.InstallDifferentVersionAsync(new WinGetVersion(expectedVersion), allUsers, force);
                             break;
                         case IntegrityCategory.NotInPath:
                             this.RepairEnvPath();
@@ -158,13 +140,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                         case IntegrityCategory.AppInstallerNotInstalled:
                         case IntegrityCategory.AppInstallerNotSupported:
                         case IntegrityCategory.Failure:
-                            await this.InstallAsync(expectedVersion, allUsers);
+                            await this.InstallAsync(expectedVersion, allUsers, force);
                             break;
                         case IntegrityCategory.AppInstallerNoLicense:
                             // This requires -AllUsers in admin mode.
                             if (allUsers && Utilities.ExecutingAsAdministrator)
                             {
-                                await this.InstallAsync(expectedVersion, allUsers);
+                                await this.InstallAsync(expectedVersion, allUsers, force);
                             }
                             else
                             {
@@ -182,7 +164,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
         }
 
-        private async Task InstallDifferentVersionAsync(WinGetVersion toInstallVersion, bool allUsers)
+        private async Task InstallDifferentVersionAsync(WinGetVersion toInstallVersion, bool allUsers, bool force)
         {
             var installedVersion = WinGetVersion.InstalledWinGetVersion;
             bool isDowngrade = installedVersion.CompareAsDeployment(toInstallVersion) > 0;
@@ -194,10 +176,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 StreamType.Verbose,
                 message);
             var appxModule = new AppxModuleHelper(this);
-            await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion.TagVersion, allUsers, isDowngrade);
+            await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion.TagVersion, allUsers, isDowngrade, force);
         }
 
-        private async Task InstallAsync(string toInstallVersion, bool allUsers)
+        private async Task InstallAsync(string toInstallVersion, bool allUsers, bool force)
         {
             // If we are here and toInstallVersion is empty, it means that they just ran Repair-WinGetPackageManager.
             // When there is not version specified, we don't want to assume an empty version means latest, but in
@@ -209,7 +191,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
 
             var appxModule = new AppxModuleHelper(this);
-            await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion, allUsers, false);
+            await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion, allUsers, false, force);
         }
 
         private void Register()

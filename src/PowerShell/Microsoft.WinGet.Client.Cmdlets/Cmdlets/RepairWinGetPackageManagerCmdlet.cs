@@ -28,21 +28,26 @@ namespace Microsoft.WinGet.Client.Commands
         public SwitchParameter AllUsers { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to force application shutdown.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter Force { get; set; }
+
+        /// <summary>
         /// Attempts to repair winget.
         /// TODO: consider WhatIf and Confirm options.
         /// </summary>
         protected override void ProcessRecord()
         {
             var command = new WinGetPackageManagerCommand(this);
-            command.Test();
-            ////if (this.ParameterSetName == Constants.IntegrityLatestSet)
-            ////{
-            ////    command.RepairUsingLatest(this.IncludePreRelease.ToBool(), this.AllUsers.ToBool());
-            ////}
-            ////else
-            ////{
-            ////    command.Repair(this.Version, this.AllUsers.ToBool());
-            ////}
+            if (this.ParameterSetName == Constants.IntegrityLatestSet)
+            {
+                command.RepairUsingLatest(this.IncludePreRelease.ToBool(), this.AllUsers.ToBool(), this.Force.ToBool());
+            }
+            else
+            {
+                command.Repair(this.Version, this.AllUsers.ToBool(), this.Force.ToBool());
+            }
         }
     }
 }

@@ -84,24 +84,32 @@ namespace Microsoft.WinGet.Client.Engine.Common
         private static IntegrityCategory GetReason(PowerShellCmdlet pwshCmdlet)
         {
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
+            var category = IntegrityCategory.Unknown;
+            pwshCmdlet.ExecuteInPowerShellThread(() =>
+            {
+                // When running winget.exe on PowerShell the message of the Win32Exception will distinguish between
+                // 'The system cannot find the file specified' and 'No applicable app licenses found' but of course
+                // the HRESULT is the same (E_FAIL).
+                // To not compare strings let Powershell handle it. If calling winget throws an
+                // ApplicationFailedException then is most likely that the license is not there.
+                try
+                {
+                    var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+                    ps.AddCommand("winget").Invoke();
+                }
+                catch (ApplicationFailedException e)
+                {
+                    pwshCmdlet.Write(StreamType.Verbose, e.Message);
+                    category = IntegrityCategory.AppInstallerNoLicense;
+                }
+                catch (Exception)
+                {
+                }
+            });
 
-            // When running winget.exe on PowerShell the message of the Win32Exception will distinguish between
-            // 'The system cannot find the file specified' and 'No applicable app licenses found' but of course
-            // the HRESULT is the same (E_FAIL).
-            // To not compare strings let Powershell handle it. If calling winget throws an
-            // ApplicationFailedException then is most likely that the license is not there.
-            try
+            if (category != IntegrityCategory.Unknown)
             {
-                var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
-                ps.AddCommand("winget").Invoke();
-            }
-            catch (ApplicationFailedException e)
-            {
-                pwshCmdlet.Write(StreamType.Verbose, e.Message);
-                return IntegrityCategory.AppInstallerNoLicense;
-            }
-            catch (Exception)
-            {
+                return category;
             }
 
             // First lets check if the file is there, which means it is installed or someone is taking our place.

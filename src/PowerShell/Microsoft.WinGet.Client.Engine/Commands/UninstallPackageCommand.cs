@@ -131,10 +131,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             };
             operation.Completed = (context, status) =>
             {
-                adapter.WriteProgress(new ProgressRecord(activityId, activity, status.ToString())
-                {
-                    RecordType = ProgressRecordType.Completed,
-                });
+                this.CompleteProgress(activityId, activity, status.ToString(), true);
                 adapter.Completed = true;
             };
             Console.CancelKeyPress += (sender, e) =>
