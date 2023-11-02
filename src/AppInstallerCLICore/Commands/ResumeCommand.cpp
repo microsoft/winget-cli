@@ -99,15 +99,16 @@ namespace AppInstaller::CLI
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
         }
 
-        int currentRebootCount = std::stoi(automaticCheckpoint.Get(AutomaticCheckpointData::ResumeCount, {}));
-        if (currentRebootCount > Settings::User().Get<Settings::Setting::MaxReboots>())
+        const auto& resumeCountString = automaticCheckpoint.Get(AutomaticCheckpointData::ResumeCount, {});
+        int resumeCount = std::stoi(resumeCountString);
+        if (resumeCount >= Settings::User().Get<Settings::Setting::MaxResumes>())
         {
-            context.Reporter.Error() << "Maximum number of reboot encountered. Terminating installation." << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
+            context.Reporter.Error() << Resource::String::ResumeLimitExceeded(Utility::LocIndView{ resumeCountString }) << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED);
         }
         else
         {
-            automaticCheckpoint.Set(AutomaticCheckpointData::ResumeCount, {}, std::to_string(currentRebootCount + 1));
+            automaticCheckpoint.Update(AutomaticCheckpointData::ResumeCount, {}, std::to_string(resumeCount + 1));
         }
 
         const auto& checkpointCommand = automaticCheckpoint.Get(AutomaticCheckpointData::Command, {});

@@ -37,5 +37,8 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Gets all field values for a checkpoint data type.
         virtual std::optional<std::vector<std::string>> GetCheckpointDataFieldValues(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType, std::string_view name) = 0;
+    
+        // Removes all values for a checkpoint data type.
+        virtual void RemoveCheckpointDataType(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType) = 0;
     };
 }

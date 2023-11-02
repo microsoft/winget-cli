@@ -149,10 +149,10 @@
           "type": "string",
           "maxLength": "32767"
         },
-        "maxReboots": {
-          "description": "The maximum number of reboots allowed when performing a command. This is to prevent continuous reboots if a install that requires a reboot is not properly detected.",
+        "maxResumes": {
+          "description": "The maximum number of resumes allowed for a single resume id. This is to prevent continuous reboots if an install that requires a reboot is not properly detected.",
           "type": "integer",
-          "default": 3,
+          "default": 4,
           "minimum": 1
         }
       }

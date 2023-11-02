@@ -424,6 +424,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeIdArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeIdNotFoundError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeLimitExceeded);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeStateDataNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
