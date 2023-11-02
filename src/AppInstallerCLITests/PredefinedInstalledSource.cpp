@@ -466,7 +466,7 @@ TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate", "[installed][list
     }
 }
 
-TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate_Recached", "[installed][list][installed-cache]")
+TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate_StillCached", "[installed][list][installed-cache]")
 {
     auto source1 = CreatePredefinedInstalledSource();
     auto source2 = CreatePredefinedInstalledSource(Factory::Filter::NoneWithForcedCacheUpdate);
