@@ -174,6 +174,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Simple test to configure from an https configuration file.
         /// </summary>
+        [Test]
         public void ConfigureFromHttpsConfigurationFile()
         {
             string args = $"{Constants.TestSourceUrl}/TestData/Configuration/Configure_TestRepo_Location.yml";

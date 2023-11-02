@@ -85,7 +85,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ConfigureTest_HttpsConfigurationFile()
         {
-            var result = TestCommon.RunAICLICommand(CommandAndAgreements, $"{Constants.TestSourceUrl}/Configuration/Configure_TestRepo_Location.yml");
+            var result = TestCommon.RunAICLICommand(CommandAndAgreements, $"{Constants.TestSourceUrl}/TestData/Configuration/Configure_TestRepo_Location.yml");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("System is in the described configuration state."));
         }
