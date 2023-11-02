@@ -2,8 +2,11 @@
 # Licensed under the MIT License.
 [CmdletBinding()]
 param(
-    # The version of the PS module to use.
+    # The version of the client PS module to use.
     [string]$ClientModuleVersion,
+
+    # The version of the configuration PS module to use.
+    [string]$ConfigurationModuleVersion,
     
     # The version of the client to use. Use 'existing' to skip updating.
     [string]$ClientVersion,
@@ -19,6 +22,14 @@ param(
     
     # The path to the certificate that signed the source.msix package.
     [string]$SourceCertPath = (Join-Path $PSScriptRoot "AppInstallerTest.cer"),
+
+    # The path to pwsh.exe
+    [string]$PwshPath = 'C:\Program Files\PowerShell\7\pwsh.exe',
+
+    # Switches to prevent isntalling various runtimes required for the tests
+    [switch]$SkipVCRuntime,
+    [switch]$SkipDotNetRuntime,
+    [switch]$SkipAspNetRuntime,
     
     # The path to write results to.
     [string]$ResultsPath = (Join-Path ([System.IO.Path]::GetTempPath()) (New-Guid))
@@ -31,12 +42,18 @@ Install-PackageProvider -Name NuGet -Force | Out-Null
 if ([System.String]::IsNullOrEmpty($ClientModuleVersion))
 {
     Install-Module Microsoft.WinGet.Client -Force
-    Import-Module Microsoft.WinGet.Client
 }
 else
 {
     Install-Module Microsoft.WinGet.Client -RequiredVersion $ClientModuleVersion -Force
-    Import-Module Microsoft.WinGet.Client -RequiredVersion $ClientModuleVersion
+}
+
+### TEMPORARY SOLUTION UNTIL AN UPDATE IS PUSHED THAT FIXES REPAIR IN WINDOWS POWERSHELL ###
+### This does prevent testing versions less than 0.2.1 ###
+if ($ClientVersion -ne "existing")
+{
+    Install-Module Microsoft.WinGet.Client -RequiredVersion 0.2.1 -Force
+    Import-Module Microsoft.WinGet.Client -RequiredVersion 0.2.1
 }
 
 # Get the client
@@ -68,10 +85,21 @@ else
 }
 
 # Get VC Runtime
-winget install 'Microsoft.VCRedist.2015+.x64' -s winget
+if (-not $SkipVCRuntime)
+{
+    winget install 'Microsoft.VCRedist.2015+.x64' -s winget
+}
 
 # Install .NET 6 for the local web server
-winget install Microsoft.DotNet.AspNetCore.6 -s winget
+if (-not $SkipDotNetRuntime)
+{
+    winget install Microsoft.DotNet.Runtime.6 -s winget
+}
+
+if (-not $SkipAspNetRuntime)
+{
+    winget install Microsoft.DotNet.AspNetCore.6 -s winget
+}
 
 # Generate a new TLS certificate and trust it
 $TLSCertificate = New-SelfSignedCertificate -CertStoreLocation "Cert:\LocalMachine\My" -DnsName "localhost"
@@ -82,11 +110,22 @@ Import-Certificate -FilePath $CertTempPath -CertStoreLocation "Cert:\LocalMachin
 # Start local host web server
 .\Run-LocalhostWebServer.ps1 -BuildRoot $LocalhostWebServerPath -StaticFileRoot $HostedFilePath -CertPath $TLSCertificate.PSPath -SourceCert $SourceCertPath
 
+# Get the configuration module using pwsh since AllowPrerelease doesn't working in Windows PowerShell baseline
+if ([System.String]::IsNullOrEmpty($ConfigurationModuleVersion))
+{
+    & $PwshPath -Command "Install-Module Microsoft.WinGet.Configuration -Force -AllowPrerelease"
+}
+else
+{
+    & $PwshPath -Command "Install-Module Microsoft.WinGet.Configuration -RequiredVersion $ConfigurationModuleVersion -Force -AllowPrerelease"
+}
+
 # Create local PS repo
-& 'C:\Program Files\PowerShell\7\pwsh.exe' -ExecutionPolicy Unrestricted -Command ".\Init-TestRepository.ps1 -Force"
+& $PwshPath -ExecutionPolicy Unrestricted -Command ".\Configuration\Init-TestRepository.ps1 -Force"
 
 # Run tests
-& 'C:\Program Files\PowerShell\7\pwsh.exe' -ExecutionPolicy Unrestricted -Command ".\RunTests.ps1 -TargetProduction -outputPath $ResultsPath"
+$ConfigurationTestDataPath = (Join-Path $PSScriptRoot Configuration)
+& $PwshPath -ExecutionPolicy Unrestricted -Command ".\RunTests.ps1 -TargetProduction -ConfigurationTestDataPath $ConfigurationTestDataPath -outputPath $ResultsPath"
 
 # Terminate the local web server
 Get-Process LocalhostWebServer -ErrorAction Ignore | Stop-Process -ErrorAction Ignore

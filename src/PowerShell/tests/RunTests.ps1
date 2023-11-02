@@ -5,7 +5,8 @@ param(
     [string]$testModulesPath,
     [string]$outputPath,
     [string]$packageLayoutPath,
-    [switch]$TargetProduction
+    [switch]$TargetProduction,
+    [string]$ConfigurationTestDataPath
 )
 
 # This updates pester not always necessary but worth noting
@@ -65,7 +66,7 @@ if ($PSEdition -eq "Core")
     $configConfig.TestResult.OutputFormat = "NUnitXML"
     $configConfig.TestResult.OutputPath = "$outputPath\Tests-WinGetConfiguration.XML"
     $configConfig.TestResult.Enabled = $true
-    $configConfig.Run.Container = New-PesterContainer -Path "$PSScriptRoot\Microsoft.WinGet.Configuration.Tests.ps1"
+    $configConfig.Run.Container = New-PesterContainer -Path "$PSScriptRoot\Microsoft.WinGet.Configuration.Tests.ps1" -Data @{ ConfigurationTestDataPath = $ConfigurationTestDataPath }
 
     Invoke-Pester -Configuration $configConfig
 }
