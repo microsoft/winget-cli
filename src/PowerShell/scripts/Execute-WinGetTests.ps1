@@ -26,7 +26,7 @@ param(
     # The path to pwsh.exe
     [string]$PwshPath = 'C:\Program Files\PowerShell\7\pwsh.exe',
 
-    # Switches to prevent isntalling various runtimes required for the tests
+    # Switches to prevent installing various runtimes required for the tests
     [switch]$SkipVCRuntime,
     [switch]$SkipDotNetRuntime,
     [switch]$SkipAspNetRuntime,
