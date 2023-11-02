@@ -403,17 +403,21 @@ TEST_CASE("PredefinedInstalledSource_Search", "[installed][list]")
     REQUIRE_FALSE(results.Matches.empty());
 }
 
-TEST_CASE("PredefinedInstalledSource_Create_Cached", "[installed][list]")
+std::string GetDatabaseIdentifier(const std::shared_ptr<Repository::ISource>& source)
+{
+    return reinterpret_cast<SQLiteIndexSource*>(source->CastTo(ISourceType::SQLiteIndexSource))->GetIndex().GetDatabaseIdentifier();
+}
+
+TEST_CASE("PredefinedInstalledSource_Create_Cached", "[installed][list][installed-cache]")
 {
     auto source1 = CreatePredefinedInstalledSource();
-    std::this_thread::sleep_for(2s);
     auto source2 = CreatePredefinedInstalledSource();
 
-    // Ensure different last write times (which should mean the cache was updated)
+    // Ensure the same identifier (which should mean the cache was not updated)
     REQUIRE(
-        reinterpret_cast<SQLiteIndexSource*>(source1->CastTo(ISourceType::SQLiteIndexSource))->GetIndex().GetLastWriteTime()
-        !=
-        reinterpret_cast<SQLiteIndexSource*>(source2->CastTo(ISourceType::SQLiteIndexSource))->GetIndex().GetLastWriteTime()
+        GetDatabaseIdentifier(source1)
+        ==
+        GetDatabaseIdentifier(source2)
     );
 
     // Get all packages
@@ -422,10 +426,65 @@ TEST_CASE("PredefinedInstalledSource_Create_Cached", "[installed][list]")
 
     for (const auto& match : result1.Matches)
     {
+        std::string packageId = match.Package->GetProperty(PackageProperty::Id).get();
+        INFO(packageId);
+
         SearchRequest id2;
-        id2.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::CaseInsensitive, match.Package->GetProperty(PackageProperty::Id).get() });
+        id2.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::CaseInsensitive, packageId });
         auto result2 = source2->Search(id2);
         REQUIRE(result2.Matches.size() == 1);
         REQUIRE(match.Package->GetProperty(PackageProperty::Name) == result2.Matches[0].Package->GetProperty(PackageProperty::Name));
     }
+}
+
+TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate", "[installed][list][installed-cache]")
+{
+    auto source1 = CreatePredefinedInstalledSource();
+    auto source2 = CreatePredefinedInstalledSource(Factory::Filter::NoneWithForcedCacheUpdate);
+
+    // Ensure different identifier (which should mean the cache was updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source1)
+        !=
+        GetDatabaseIdentifier(source2)
+    );
+
+    // Get all packages
+    auto result1 = source1->Search({});
+    REQUIRE(!result1.Matches.empty());
+
+    for (const auto& match : result1.Matches)
+    {
+        std::string packageId = match.Package->GetProperty(PackageProperty::Id).get();
+        INFO(packageId);
+
+        SearchRequest id2;
+        id2.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::CaseInsensitive, packageId });
+        auto result2 = source2->Search(id2);
+        REQUIRE(result2.Matches.size() == 1);
+        REQUIRE(match.Package->GetProperty(PackageProperty::Name) == result2.Matches[0].Package->GetProperty(PackageProperty::Name));
+    }
+}
+
+TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate_Recached", "[installed][list][installed-cache]")
+{
+    auto source1 = CreatePredefinedInstalledSource();
+    auto source2 = CreatePredefinedInstalledSource(Factory::Filter::NoneWithForcedCacheUpdate);
+    auto source3 = CreatePredefinedInstalledSource();
+
+    CAPTURE(GetDatabaseIdentifier(source1), GetDatabaseIdentifier(source2), GetDatabaseIdentifier(source3));
+
+    // Ensure different identifier (which should mean the cache was updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source1)
+        !=
+        GetDatabaseIdentifier(source2)
+    );
+
+    // Ensure the same identifier (which should mean the cache was not updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source2)
+        ==
+        GetDatabaseIdentifier(source3)
+    );
 }

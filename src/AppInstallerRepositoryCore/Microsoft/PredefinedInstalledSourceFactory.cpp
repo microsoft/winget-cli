@@ -214,21 +214,22 @@ namespace AppInstaller::Repository::Microsoft
 
         struct CachedInstalledIndex
         {
-            CachedInstalledIndex() :
-                m_index(CreateAndPopulateIndex(PredefinedInstalledSourceFactory::Filter::None))
-            {
-            }
+            CachedInstalledIndex() = default;
 
             void UpdateIndexIfNeeded()
             {
-                // Update index if last write time is more than X ago.
+                // Update index if last update time is more than X ago.
                 // This prevents rapid fire updates while still being reasonably in sync.
                 constexpr auto c_updateCheckTimeout = 1s;
-                if (CheckLastWriteAgainst(c_updateCheckTimeout))
-                {
-                    auto lock = m_lock.lock_exclusive();
 
-                    if (CheckLastWriteAgainst(c_updateCheckTimeout))
+                auto sharedLock = m_lock.lock_shared();
+                if (CheckLastUpdateAgainst(c_updateCheckTimeout))
+                {
+                    // Upgrade to exclusive
+                    sharedLock.reset();
+                    auto exclusiveLock = m_lock.lock_exclusive();
+
+                    if (CheckLastUpdateAgainst(c_updateCheckTimeout))
                     {
                         // TODO: To support servicing, the initial implementation of update will simply leverage
                         //       some data from the existing index to speed up the MSIX populate function.
@@ -239,9 +240,10 @@ namespace AppInstaller::Repository::Microsoft
                         SQLiteIndex update = CreateAndPopulateIndex(PredefinedInstalledSourceFactory::Filter::ARP);
 
                         // Populate from MSIX, using localization data from the existing index if applicable.
-                        PopulateIndexFromMSIX(update, Manifest::ScopeEnum::User, &m_index);
+                        PopulateIndexFromMSIX(update, Manifest::ScopeEnum::User, m_index.get());
 
-                        m_index = std::move(update);
+                        m_index = std::make_unique<SQLiteIndex>(std::move(update));
+                        m_lastUpdateTime = std::chrono::system_clock::now();
                         m_forceNextUpdate = false;
                     }
                 }
@@ -250,7 +252,8 @@ namespace AppInstaller::Repository::Microsoft
             SQLiteIndex GetCopy()
             {
                 auto lock = m_lock.lock_shared();
-                return SQLiteIndex::CopyFrom(SQLITE_MEMORY_DB_CONNECTION_TARGET, m_index);
+                THROW_HR_IF(E_POINTER, !m_index);
+                return SQLiteIndex::CopyFrom(SQLITE_MEMORY_DB_CONNECTION_TARGET, *m_index);
             }
 
             void ForceNextUpdate()
@@ -259,21 +262,21 @@ namespace AppInstaller::Repository::Microsoft
             }
 
         private:
-            bool CheckLastWriteAgainst(std::chrono::milliseconds timeout)
+            bool CheckLastUpdateAgainst(std::chrono::milliseconds timeout)
             {
-                if (m_forceNextUpdate.load())
+                if (!m_index || m_forceNextUpdate.load())
                 {
                     return true;
                 }
 
-                auto lastWrite = m_index.GetLastWriteTime();
                 auto now = std::chrono::system_clock::now();
-                auto duration = now - lastWrite;
+                auto duration = now - m_lastUpdateTime;
 
                 return duration > timeout;
             }
 
-            SQLiteIndex m_index;
+            std::unique_ptr<SQLiteIndex> m_index;
+            std::chrono::system_clock::time_point m_lastUpdateTime = std::chrono::system_clock::time_point::min();
             wil::srwlock m_lock;
             std::atomic_bool m_forceNextUpdate{ false };
         };
@@ -303,7 +306,7 @@ namespace AppInstaller::Repository::Microsoft
                 PredefinedInstalledSourceFactory::Filter filter = PredefinedInstalledSourceFactory::StringToFilter(m_details.Arg);
 
                 // Only cache for the unfiltered install data
-                if (filter == PredefinedInstalledSourceFactory::Filter::None)
+                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::NoneWithForcedCacheUpdate)
                 {
                     CachedInstalledIndex& cachedIndex = GetCachedInstalledIndex();
                     cachedIndex.UpdateIndexIfNeeded();
