@@ -242,6 +242,7 @@ namespace AppInstaller::Repository::Microsoft
                         PopulateIndexFromMSIX(update, Manifest::ScopeEnum::User, &m_index);
 
                         m_index = std::move(update);
+                        m_forceNextUpdate = false;
                     }
                 }
             }
@@ -252,9 +253,19 @@ namespace AppInstaller::Repository::Microsoft
                 return SQLiteIndex::CopyFrom(SQLITE_MEMORY_DB_CONNECTION_TARGET, m_index);
             }
 
+            void ForceNextUpdate()
+            {
+                m_forceNextUpdate = true;
+            }
+
         private:
             bool CheckLastWriteAgainst(std::chrono::milliseconds timeout)
             {
+                if (m_forceNextUpdate.load())
+                {
+                    return true;
+                }
+
                 auto lastWrite = m_index.GetLastWriteTime();
                 auto now = std::chrono::system_clock::now();
                 auto duration = now - lastWrite;
@@ -264,6 +275,7 @@ namespace AppInstaller::Repository::Microsoft
 
             SQLiteIndex m_index;
             wil::srwlock m_lock;
+            std::atomic_bool m_forceNextUpdate{ false };
         };
 
         struct PredefinedInstalledSourceReference : public ISourceReference
@@ -271,6 +283,11 @@ namespace AppInstaller::Repository::Microsoft
             PredefinedInstalledSourceReference(const SourceDetails& details) : m_details(details)
             {
                 m_details.Identifier = "*PredefinedInstalledSource";
+
+                if (PredefinedInstalledSourceFactory::StringToFilter(m_details.Arg) == PredefinedInstalledSourceFactory::Filter::NoneWithForcedCacheUpdate)
+                {
+                    GetCachedInstalledIndex().ForceNextUpdate();
+                }
             }
 
             std::string GetIdentifier() override { return m_details.Identifier; }
@@ -288,9 +305,9 @@ namespace AppInstaller::Repository::Microsoft
                 // Only cache for the unfiltered install data
                 if (filter == PredefinedInstalledSourceFactory::Filter::None)
                 {
-                    static CachedInstalledIndex s_installedIndex;
-                    s_installedIndex.UpdateIndexIfNeeded();
-                    return std::make_shared<SQLiteIndexSource>(m_details, s_installedIndex.GetCopy(), true);
+                    CachedInstalledIndex& cachedIndex = GetCachedInstalledIndex();
+                    cachedIndex.UpdateIndexIfNeeded();
+                    return std::make_shared<SQLiteIndexSource>(m_details, cachedIndex.GetCopy(), true);
                 }
                 else
                 {
@@ -299,6 +316,12 @@ namespace AppInstaller::Repository::Microsoft
             }
 
         private:
+            CachedInstalledIndex& GetCachedInstalledIndex()
+            {
+                static CachedInstalledIndex s_installedIndex;
+                return s_installedIndex;
+            }
+
             SourceDetails m_details;
         };
 
@@ -351,6 +374,8 @@ namespace AppInstaller::Repository::Microsoft
             return "User"sv;
         case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::Machine:
             return "Machine"sv;
+        case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::NoneWithForcedCacheUpdate:
+            return "NoneWithForcedCacheUpdate"sv;
         default:
             return "Unknown"sv;
         }
@@ -373,6 +398,10 @@ namespace AppInstaller::Repository::Microsoft
         else if (filter == FilterToString(Filter::Machine))
         {
             return Filter::Machine;
+        }
+        else if (filter == FilterToString(Filter::NoneWithForcedCacheUpdate))
+        {
+            return Filter::NoneWithForcedCacheUpdate;
         }
         else
         {
