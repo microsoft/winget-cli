@@ -39,6 +39,9 @@ namespace AppInstaller
     namespace Repository::Microsoft
     {
         void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath);
+
+        using GetARPKeyFunc = Registry::Key(*)(void*, Manifest::ScopeEnum, Utility::Architecture);
+        void SetGetARPKeyOverride(GetARPKeyFunc value, void* context);
     }
 
     namespace Logging
@@ -155,5 +158,27 @@ namespace TestHook
         {
             AppInstaller::CLI::Workflow::TestHook_SetDoesWindowsFeatureExistResult_Override({});
         }
+    };
+
+    struct SetGetARPKey_Override
+    {
+        SetGetARPKey_Override(std::function<AppInstaller::Registry::Key(AppInstaller::Manifest::ScopeEnum, AppInstaller::Utility::Architecture)>&& function) :
+            m_function(std::move(function))
+        {
+            AppInstaller::Repository::Microsoft::SetGetARPKeyOverride(&Callback, this);
+        }
+
+        ~SetGetARPKey_Override()
+        {
+            AppInstaller::Repository::Microsoft::SetGetARPKeyOverride(nullptr, nullptr);
+        }
+
+    private:
+        static AppInstaller::Registry::Key Callback(void* context, AppInstaller::Manifest::ScopeEnum scope, AppInstaller::Utility::Architecture architecture)
+        {
+            return reinterpret_cast<SetGetARPKey_Override*>(context)->m_function(scope, architecture);
+        }
+
+        std::function<AppInstaller::Registry::Key(AppInstaller::Manifest::ScopeEnum, AppInstaller::Utility::Architecture)> m_function;
     };
 }

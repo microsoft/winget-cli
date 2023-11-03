@@ -115,8 +115,27 @@ namespace AppInstaller::Repository::Microsoft
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    using GetARPKeyFunc = Registry::Key(*)(void*, Manifest::ScopeEnum, Utility::Architecture);
+    static GetARPKeyFunc s_GetARPKey_Override = nullptr;
+    static void* s_GetARPKey_OverrideContext = nullptr;
+
+    void SetGetARPKeyOverride(GetARPKeyFunc value, void* context)
+    {
+        s_GetARPKey_Override = value;
+        s_GetARPKey_OverrideContext = context;
+    }
+#endif
+
     Registry::Key ARPHelper::GetARPKey(Manifest::ScopeEnum scope, Utility::Architecture architecture) const
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_GetARPKey_Override)
+        {
+            return s_GetARPKey_Override(s_GetARPKey_OverrideContext, scope, architecture);
+        }
+#endif
+
         HKEY rootKey = NULL;
 
         switch (scope)

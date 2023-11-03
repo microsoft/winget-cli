@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestHooks.h"
 #include "Microsoft/ARPHelper.h"
 #include "AppInstallerStrings.h"
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Registry;
 
 
 TEST_CASE("ARPHelper_Watcher", "[ARPHelper]")
@@ -22,6 +24,19 @@ TEST_CASE("ARPHelper_Watcher", "[ARPHelper]")
 
     ScopeEnum scopeTarget = ScopeEnum::User;
     Architecture architectureTarget = Architecture::X64;
+
+    auto fakeRoot = TestCommon::RegCreateVolatileTestRoot();
+    TestHook::SetGetARPKey_Override arpOverride([&](ScopeEnum scope, Architecture arch)
+        {
+            if (scope == scopeTarget && arch == architectureTarget)
+            {
+                return Key(fakeRoot.get(), L"");
+            }
+            else
+            {
+                return Key{};
+            }
+        });
 
     auto watchers = helper.CreateRegistryWatchers(scopeTarget, [&](ScopeEnum scope, Architecture arch, wil::RegistryChangeKind)
         {

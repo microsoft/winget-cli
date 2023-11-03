@@ -126,8 +126,8 @@ jobs:
     displayName: 'Copy Symbols to artifacts folder'
     inputs:
       Contents: |
-          '$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb'
-          '$(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.pdb'
+          $(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb
+          $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.pdb
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
