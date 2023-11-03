@@ -4,6 +4,7 @@
 #include "Public/winget/Regex.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerLogging.h"
+#include "Public/AppInstallerLanguageUtilities.h"
 
 #define WINGET_THROW_REGEX_ERROR_IF_FAILED(_err_,_func_) \
     if (U_FAILURE(_err_)) \
@@ -19,6 +20,61 @@ namespace AppInstaller::Regex
     {
         using uregex_ptr = wil::unique_any<URegularExpression*, decltype(uregex_close), uregex_close>;
         using utext_ptr = wil::unique_any<UText*, decltype(utext_close), utext_close>;
+
+        static std::unique_ptr<impl> Create(std::string_view pattern, Options options)
+        {
+            struct key
+            {
+                std::string pattern;
+                Options options = Options::None;
+
+                bool operator<(const key& other) const
+                {
+                    if (pattern < other.pattern)
+                    {
+                        return true;
+                    }
+                    else if (pattern == other.pattern)
+                    {
+                        return ToIntegral(options) < ToIntegral(other.options);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            };
+
+            static std::map<key, impl> s_regex_cache;
+            static wil::srwlock s_regex_cache_lock;
+
+            key requested;
+            requested.pattern = pattern;
+            requested.options = options;
+
+            {
+                // Attempt to find in the cache
+                auto sharedLock = s_regex_cache_lock.lock_shared();
+
+                auto itr = s_regex_cache.find(requested);
+                if (itr != s_regex_cache.end())
+                {
+                    return std::make_unique<impl>(itr->second);
+                }
+            }
+
+            auto exclusiveLock = s_regex_cache_lock.lock_exclusive();
+
+            auto itr = s_regex_cache.find(requested);
+            if (itr != s_regex_cache.end())
+            {
+                return std::make_unique<impl>(itr->second);
+            }
+            else
+            {
+                return std::make_unique<impl>(s_regex_cache.emplace(std::move(requested), impl{ pattern, options }).first->second);
+            }
+        }
 
         impl(std::string_view pattern, Options options)
         {
@@ -167,7 +223,7 @@ namespace AppInstaller::Regex
 
     Expression::Expression() = default;
 
-    Expression::Expression(std::string_view pattern, Options options) : pImpl(std::make_unique<impl>(pattern, options)) {}
+    Expression::Expression(std::string_view pattern, Options options) : pImpl(impl::Create(pattern, options)) {}
 
     Expression::Expression(const Expression& other)
     {
