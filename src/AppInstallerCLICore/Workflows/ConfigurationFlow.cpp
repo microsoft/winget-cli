@@ -1401,7 +1401,7 @@ namespace AppInstaller::CLI::Workflow
             auto moduleName = Utility::ConvertToUTF8(unit.Details().ModuleName());
             if (Utility::CaseInsensitiveEquals(wingetUnitValidator.ModuleName(), moduleName))
             {
-                auto result = wingetUnitValidator.ValidateConfigurationSetUnit(context, unit);
+                bool result = wingetUnitValidator.ValidateConfigurationSetUnit(context, unit);
                 if (!result)
                 {
                     foundIssues = true;

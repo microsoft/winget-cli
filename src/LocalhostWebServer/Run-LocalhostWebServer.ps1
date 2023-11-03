@@ -51,4 +51,4 @@ if (-not [System.String]::IsNullOrEmpty($sourceCert))
 
 cd $BuildRoot
 
-Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson TestDataPath=$TestDaaPath"
+Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson TestDataPath=$TestDataPath"

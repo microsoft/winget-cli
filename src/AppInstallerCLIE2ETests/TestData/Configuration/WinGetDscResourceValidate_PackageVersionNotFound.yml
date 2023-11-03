@@ -20,5 +20,5 @@ properties:
       settings:
         id: AppInstallerTest.TestExeInstaller
         source: TestSource
-        version: 101.0.101.0
+        version: "101.0.101.0"
  

@@ -20,5 +20,5 @@ properties:
       settings:
         id: AppInstallerTest.DoesNotExist
         source: TestSource
-        version: 1.0.1.0
+        version: "1.0.1.0"
  

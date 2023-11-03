@@ -260,7 +260,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ValidateWinGetDscResource_PackageVersionNotFound()
         {
-            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\inGetDscResourceValidate_PackageVersionNotFound.yml"), timeOut: 120000);
+            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_PackageVersionNotFound.yml"), timeOut: 120000);
             Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
             Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package cannot be validated. Package version not found. Package Id: AppInstallerTest.TestExeInstaller; Version 101.0.101.0"));
         }
