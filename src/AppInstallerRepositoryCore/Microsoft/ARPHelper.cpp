@@ -532,4 +532,34 @@ namespace AppInstaller::Repository::Microsoft
             }
         }
     }
+
+    std::vector<wil::unique_registry_watcher> ARPHelper::CreateRegistryWatchers(Manifest::ScopeEnum scope, std::function<void(Manifest::ScopeEnum, Utility::Architecture, wil::RegistryChangeKind)> callback)
+    {
+        std::vector<wil::unique_registry_watcher> result;
+
+        auto addToResult = [&](Manifest::ScopeEnum scopeToUse)
+            {
+                for (auto architecture : Utility::GetApplicableArchitectures())
+                {
+                    Registry::Key arpRootKey = GetARPKey(scopeToUse, architecture);
+
+                    if (arpRootKey)
+                    {
+                        result.emplace_back(wil::make_registry_watcher(arpRootKey, L"", true, [scopeToUse, architecture, callback](wil::RegistryChangeKind change) { callback(scopeToUse, architecture, change); }));
+                    }
+                }
+            };
+
+        if (scope == Manifest::ScopeEnum::Unknown)
+        {
+            addToResult(Manifest::ScopeEnum::User);
+            addToResult(Manifest::ScopeEnum::Machine);
+        }
+        else
+        {
+            addToResult(scope);
+        }
+
+        return result;
+    }
 }

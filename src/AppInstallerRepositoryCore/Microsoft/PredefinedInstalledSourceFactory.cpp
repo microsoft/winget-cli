@@ -214,27 +214,37 @@ namespace AppInstaller::Repository::Microsoft
 
         struct CachedInstalledIndex
         {
-            CachedInstalledIndex() = default;
+            CachedInstalledIndex()
+            {
+                ARPHelper arpHelper;
+                m_registryWatchers = arpHelper.CreateRegistryWatchers(Manifest::ScopeEnum::Unknown,
+                    [this](Manifest::ScopeEnum, Utility::Architecture, wil::RegistryChangeKind) { ForceNextUpdate(); });
+
+                m_catalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentUser();
+                m_eventRevoker = m_catalog.PackageStatusChanged(winrt::auto_revoke, [this](auto...) { ForceNextUpdate(); });
+            }
 
             void UpdateIndexIfNeeded()
             {
-                // Update index if last update time is more than X ago.
-                // This prevents rapid fire updates while still being reasonably in sync.
-                constexpr auto c_updateCheckTimeout = 1s;
-
                 auto sharedLock = m_lock.lock_shared();
-                if (CheckLastUpdateAgainst(c_updateCheckTimeout))
+                if (CheckForUpdate())
                 {
                     // Upgrade to exclusive
                     sharedLock.reset();
                     auto exclusiveLock = m_lock.lock_exclusive();
 
-                    if (CheckLastUpdateAgainst(c_updateCheckTimeout))
+                    if (CheckForUpdate())
                     {
                         // TODO: To support servicing, the initial implementation of update will simply leverage
                         //       some data from the existing index to speed up the MSIX populate function.
                         //       In a larger update, we may want to make it possible to actually update the cache directly.
                         //       We may even persist the cache to disk to speed things up further.
+
+                        // Set the update indicator to false before we start reading so that an external change can
+                        // reindicate a need to update in the middle. But in the event that we error here, set it back to true
+                        // to prevent an error from blocking further attempts.
+                        m_forceNextUpdate = false;
+                        auto scopeExit = wil::scope_exit([&]() { m_forceNextUpdate = true; });
 
                         // Populate from ARP using standard mechanism.
                         SQLiteIndex update = CreateAndPopulateIndex(PredefinedInstalledSourceFactory::Filter::ARP);
@@ -243,8 +253,7 @@ namespace AppInstaller::Repository::Microsoft
                         PopulateIndexFromMSIX(update, Manifest::ScopeEnum::User, m_index.get());
 
                         m_index = std::make_unique<SQLiteIndex>(std::move(update));
-                        m_lastUpdateTime = std::chrono::system_clock::now();
-                        m_forceNextUpdate = false;
+                        scopeExit.release();
                     }
                 }
             }
@@ -262,23 +271,17 @@ namespace AppInstaller::Repository::Microsoft
             }
 
         private:
-            bool CheckLastUpdateAgainst(std::chrono::milliseconds timeout)
+            bool CheckForUpdate()
             {
-                if (!m_index || m_forceNextUpdate.load())
-                {
-                    return true;
-                }
-
-                auto now = std::chrono::system_clock::now();
-                auto duration = now - m_lastUpdateTime;
-
-                return duration > timeout;
+                return (!m_index || m_forceNextUpdate.load());
             }
 
-            std::unique_ptr<SQLiteIndex> m_index;
-            std::chrono::system_clock::time_point m_lastUpdateTime = std::chrono::system_clock::time_point::min();
             wil::srwlock m_lock;
             std::atomic_bool m_forceNextUpdate{ false };
+            std::unique_ptr<SQLiteIndex> m_index;
+            std::vector<wil::unique_registry_watcher> m_registryWatchers;
+            winrt::Windows::ApplicationModel::PackageCatalog m_catalog = nullptr;
+            decltype(winrt::Windows::ApplicationModel::PackageCatalog{ nullptr }.PackageStatusChanged(winrt::auto_revoke, nullptr)) m_eventRevoker;
         };
 
         struct PredefinedInstalledSourceReference : public ISourceReference
