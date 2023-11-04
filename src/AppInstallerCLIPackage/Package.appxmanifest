@@ -79,6 +79,7 @@
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationUnit&gt;" InterfaceId="0BB82BF3-EC6D-55DB-B399-08813A4EB204" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationSet&gt;" InterfaceId="6D54B059-3766-5DC9-81E3-83587EB3A58E" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationConflict&gt;" InterfaceId="41A1F29F-518B-5776-BCF2-E42FC9DDE32A" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationParameter&gt;" InterfaceId="4257159F-6172-5202-A45D-4C4303A6C2C2" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.IConfigurationUnitSettingDetails&gt;" InterfaceId="FC91924A-215F-50A7-9AEE-254B4D7A50CB" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationConflictSetting&gt;" InterfaceId="EB1E5A3C-A444-5394-B7B3-F1593937E31E" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.GetConfigurationUnitDetailsResult&gt;" InterfaceId="3A034399-0F2B-51C2-A9C5-4BC6E9940068" />

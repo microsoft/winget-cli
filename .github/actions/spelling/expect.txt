@@ -334,6 +334,7 @@ objbase
 objidl
 ofile
 ools
+oop
 OPTOUT
 osfhandle
 Outptr
@@ -417,6 +418,8 @@ SARL
 schematab
 sddl
 SECUREFILEPATH
+secureobject
+securestring
 seof
 servercert
 servercertificate
@@ -477,6 +480,7 @@ TOptions
 TProgress
 transitioning
 TResult
+TReturn
 trimstart
 TState
 TStatus

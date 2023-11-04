@@ -28,6 +28,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingHeader);
+        WINGET_DEFINE_RESOURCE_STRINGID(AllowRebootArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchitectureArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScan);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScanOverridden);
@@ -103,6 +104,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitFailedUnitProcessing);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitHasDuplicateIdentifier);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitHasMissingDependency);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitImportModuleAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitIsPartOfDependencyCycle);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitManuallySkipped);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitModuleConflict);
@@ -117,6 +119,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitNotRunDueToDependency);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitNotRunDueToFailedAssert);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitReturnedInvalidResult);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitSettingConfigRoot);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitSkipped);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationValidationFoundNoIssues);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWaitingOnAnother);
@@ -182,6 +185,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeature);
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeatureOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeatureOverrideRequired);
+        WINGET_DEFINE_RESOURCE_STRINGID(FailedToInitiateReboot);
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToRefreshPathWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledByAdminSettingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);
@@ -229,6 +233,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownInListArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncompatibleArgumentsProvided);
+        WINGET_DEFINE_RESOURCE_STRINGID(InitiatingReboot);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallAbandoned);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer1);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer2);

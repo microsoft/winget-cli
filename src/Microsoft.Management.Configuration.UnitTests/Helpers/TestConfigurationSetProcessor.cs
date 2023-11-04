@@ -96,6 +96,18 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         }
 
         /// <summary>
+        /// Creates a new test processor that supports GetAllSettings for the given unit.
+        /// </summary>
+        /// <param name="unit">The unit.</param>
+        /// <returns>The configuration unit processor.</returns>
+        internal TestGetAllSettingsConfigurationUnitProcessor CreateGetAllSettingsTestProcessor(ConfigurationUnit unit)
+        {
+            var processor = new TestGetAllSettingsConfigurationUnitProcessor(unit);
+            this.Processors[unit] = processor;
+            return processor;
+        }
+
+        /// <summary>
         /// Creates a new unit processor details for the given unit.
         /// </summary>
         /// <param name="unit">The unit.</param>

@@ -435,7 +435,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowPromptsForMultiplePackages::operator()(Execution::Context& context) const
     {
-        for (auto& prompt : GetPackagePrompts(m_ensureAgreementsAcceptance))
+        for (auto& prompt : GetPackagePrompts(m_ensureAgreementsAcceptance, m_installerDownloadOnly))
         {
             // Find which packages need this prompt
             std::vector<Execution::Context*> packagesToPrompt;

@@ -15,7 +15,6 @@
     <LangVersion>10</LangVersion>
     <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
     <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
-    <Platforms>x64;x86;ARM64</Platforms>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
     <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.Engine.xml</DocumentationFile>
     <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
@@ -29,6 +28,10 @@
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Octokit" Version="4.0.3" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
@@ -39,6 +42,8 @@
     <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" Condition="'$(TargetFramework)' == '$(CoreFramework)'"/>
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" Condition="'$(TargetFramework)' == '$(DesktopFramework)'"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -76,32 +81,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <RuntimeIdentifiers>win10-x64;win10-x86;win10-arm;win10-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifier>win10</RuntimeIdentifier>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Platform)' == 'x64' AND '$(TargetFramework)' == '$(CoreFramework)'">
-    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Platform)' == 'x86' AND '$(TargetFramework)' == '$(CoreFramework)'">
-    <RuntimeIdentifier>win10-x86</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Platform)' == 'arm' AND '$(TargetFramework)' == '$(CoreFramework)'">
-    <RuntimeIdentifier>win10-arm</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Platform)' == 'arm64' AND '$(TargetFramework)' == '$(CoreFramework)'">
-    <RuntimeIdentifier>win10-arm64</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" />
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
@@ -143,45 +124,5 @@
     <!-- Ensure Support for Windows 10, Version 1809 -->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
   </PropertyGroup>
-
-  <!-- Copy unmanaged dlls that are not copied in the build server -->
-  <Target Name="CopyWinRTAct" AfterTargets="AfterBuild">
-    <PropertyGroup>
-      <WinRTActDir>$(OutputPath)..\..\..\UndockedRegFreeWinRT\</WinRTActDir>
-      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
-      <WinRTActDir Condition="!Exists('$(WinRTActDir)winrtact.dll')">$(OutputPath)..\..\UndockedRegFreeWinRT\</WinRTActDir>
-    </PropertyGroup>
-    <ItemGroup>
-      <WinRTActDll Include="$(WinRTActDir)winrtact.dll" />
-    </ItemGroup>
-    <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
-    <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
-  </Target>
-
-  <Target Name="CopyDeploymentInproc" AfterTargets="AfterBuild">
-    <PropertyGroup>
-      <DeploymentInprocDir>$(OutputPath)..\..\..\Microsoft.Management.Deployment.InProc\</DeploymentInprocDir>
-      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
-      <DeploymentInprocDir Condition="!Exists('$(DeploymentInprocDir)Microsoft.Management.Deployment.InProc.dll')">$(OutputPath)..\..\Microsoft.Management.Deployment.InProc\</DeploymentInprocDir>
-    </PropertyGroup>
-    <ItemGroup>
-      <DeploymentInprocDll Include="$(DeploymentInprocDir)Microsoft.Management.Deployment.InProc.dll" />
-    </ItemGroup>
-    <Message Importance="high" Text="Copying '@(DeploymentInprocDll)'" />
-    <Copy SourceFiles="@(DeploymentInprocDll)" DestinationFolder="$(OutputPath)" />
-  </Target>
-
-  <Target Name="CopyWindowsPackageManager" AfterTargets="AfterBuild">
-    <PropertyGroup>
-      <WindowsPackageManagerDir>$(OutputPath)..\..\..\WindowsPackageManager\</WindowsPackageManagerDir>
-      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
-      <WindowsPackageManagerDir Condition="!Exists('$(WindowsPackageManagerDir)WindowsPackageManager.dll')">$(OutputPath)..\..\WindowsPackageManager\</WindowsPackageManagerDir>
-    </PropertyGroup>
-    <ItemGroup>
-      <WindowsPackageManagerDll Include="$(WindowsPackageManagerDir)WindowsPackageManager.dll" />
-    </ItemGroup>
-    <Message Importance="high" Text="Copying '@(WindowsPackageManagerDll)'" />
-    <Copy SourceFiles="@(WindowsPackageManagerDll)" DestinationFolder="$(OutputPath)" />
-  </Target>
 
 </Project>

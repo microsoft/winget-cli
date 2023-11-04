@@ -167,18 +167,6 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
-        /// Run PowerShell Core command with result.
-        /// </summary>
-        /// <param name="cmdlet">Cmdlet to run.</param>
-        /// <param name="args">Args.</param>
-        /// <param name="timeOut">Optional timeout.</param>
-        /// <returns>Command result.</returns>
-        public static RunCommandResult RunPowerShellCoreCommandWithResult(string cmdlet, string args, int timeOut = 60000)
-        {
-            return RunCommandWithResult("pwsh.exe", $"-Command ipmo {TestSetup.Parameters.PowerShellModuleManifestPath}; {cmdlet} {args}", timeOut);
-        }
-
-        /// <summary>
         /// Get test file path.
         /// </summary>
         /// <param name="fileName">Test file name.</param>
@@ -723,7 +711,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             ICollection<PSModuleInfo> e2eModule;
             bool isPresent = false;
             {
-                using var pwsh = new PowerShellHost(false);
+                using var pwsh = new PowerShellHost();
                 pwsh.AddModulePath($"{wingetModulePath};{customPath}");
 
                 e2eModule = pwsh.PowerShell.AddCommand("Get-Module").AddParameter("Name", moduleName).AddParameter("ListAvailable").Invoke<PSModuleInfo>();
@@ -763,7 +751,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                 if (location == TestModuleLocation.CurrentUser ||
                     location == TestModuleLocation.AllUsers)
                 {
-                    using var pwsh = new PowerShellHost(false);
+                    using var pwsh = new PowerShellHost();
                     pwsh.AddModulePath($"{wingetModulePath};{customPath}");
                     pwsh.PowerShell.AddCommand("Install-Module").AddParameter("Name", moduleName).AddParameter("Force");
 
@@ -788,7 +776,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                         path = wingetModulePath;
                     }
 
-                    using var pwsh = new PowerShellHost(false);
+                    using var pwsh = new PowerShellHost();
                     pwsh.AddModulePath($"{wingetModulePath};{customPath}");
                     pwsh.PowerShell.AddCommand("Save-Module").AddParameter("Name", moduleName).AddParameter("Path", path).AddParameter("Force");
 

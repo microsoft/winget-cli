@@ -7,22 +7,18 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Runtime.InteropServices;
     using System.Threading;
-    using Microsoft.CodeAnalysis.Emit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
-    using Microsoft.VisualStudio.TestPlatform.ObjectModel;
     using Xunit;
     using Xunit.Abstractions;
 
     /// <summary>
-    /// Unit tests for running test on the processor.
+    /// Unit tests for running apply on the processor.
     /// </summary>
     [Collection("UnitTestCollection")]
     [OutOfProc]

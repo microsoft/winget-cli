@@ -696,6 +696,9 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_ExpectedReturnCodes.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

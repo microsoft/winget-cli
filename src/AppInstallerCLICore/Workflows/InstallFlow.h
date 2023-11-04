@@ -142,7 +142,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
     
-    // Installs the dependencies for a specific package.
+    // Installs the dependencies for a specific package. CreateDependencySubContexts should have been called before this task.
     // Required Args: None
     // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
