@@ -37,11 +37,11 @@ namespace AppInstaller::Repository::Microsoft
             }
 
             auto versionKeys = cacheData.GetVersionKeysById(searchResult.Matches[0].first);
-            const Utility::VersionAndChannel* versionKey = nullptr;
+            const SQLiteIndex::VersionKey* versionKey = nullptr;
 
             for (const auto& key : versionKeys)
             {
-                if (key.GetVersion() == version)
+                if (key.VersionAndChannel.GetVersion() == version)
                 {
                     versionKey = &key;
                     break;
@@ -53,16 +53,7 @@ namespace AppInstaller::Repository::Microsoft
                 return std::nullopt;
             }
 
-            auto manifestId = cacheData.GetManifestIdByKey(searchResult.Matches[0].first, versionKey->GetVersion().ToString(), versionKey->GetChannel().ToString());
-
-            if (!manifestId)
-            {
-                // This is very unexpected, but just log it and carry on
-                AICLI_LOG(Repo, Warning, << "Did not find manifest id for: " << id << ", " << versionKey->GetVersion().ToString() << ", " << versionKey->GetChannel().ToString());
-                return std::nullopt;
-            }
-
-            return cacheData.GetPropertyByManifestId(manifestId.value(), PackageVersionProperty::Name);
+            return cacheData.GetPropertyByManifestId(versionKey->ManifestId, PackageVersionProperty::Name);
         }
 
         // Populates the index with the entries from MSIX.

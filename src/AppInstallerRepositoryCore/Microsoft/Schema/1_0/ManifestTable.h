@@ -51,13 +51,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetAllValuesByIds_Statement(
             const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
-            std::initializer_list<std::string_view> idColumns,
-            std::initializer_list<SQLite::rowid_t> ids);
-
-        // Gets all values for rows that match the given ids.
-        SQLite::Statement ManifestTableGetAllValuesByIdsChooseJoins_Statement(
-            const SQLite::Connection& connection,
-            std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
             std::initializer_list<SQLite::Builder::QualifiedColumn> joinColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids);
@@ -166,13 +159,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Gets all values for rows that match the given id.
         template <typename IdTable, typename... ValueTables>
-        static std::vector<std::tuple<typename ValueTables::value_t...>> GetAllValuesById(const SQLite::Connection& connection, SQLite::rowid_t id)
+        static std::vector<std::tuple<SQLite::rowid_t, typename ValueTables::value_t...>> GetAllValuesById(const SQLite::Connection& connection, SQLite::rowid_t id)
         {
-            auto stmt = details::ManifestTableGetAllValuesByIds_Statement(connection, { SQLite::Builder::QualifiedColumn{ ValueTables::TableName(), ValueTables::ValueName() }... }, { IdTable::ValueName() }, { id });
-            std::vector<std::tuple<typename ValueTables::value_t...>> result;
+            auto stmt = details::ManifestTableGetAllValuesByIds_Statement(connection,
+                { SQLite::Builder::QualifiedColumn{ TableName(), SQLite::RowIDName }, SQLite::Builder::QualifiedColumn{ ValueTables::TableName(), ValueTables::ValueName() }... },
+                { SQLite::Builder::QualifiedColumn{ ValueTables::TableName(), ValueTables::ValueName() }... },
+                { IdTable::ValueName() }, { id });
+            std::vector<std::tuple<SQLite::rowid_t, typename ValueTables::value_t...>> result;
             while (stmt.Step())
             {
-                result.emplace_back(stmt.GetRow<typename ValueTables::value_t...>());
+                result.emplace_back(stmt.GetRow<SQLite::rowid_t, typename ValueTables::value_t...>());
             }
             return result;
         }

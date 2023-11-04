@@ -551,15 +551,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return {};
     }
 
-    std::vector<Utility::VersionAndChannel> Interface::GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const
+    std::vector<ISQLiteIndex::VersionKey> Interface::GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const
     {
         auto versionsAndChannels = ManifestTable::GetAllValuesById<IdTable, VersionTable, ChannelTable>(connection, id);
 
-        std::vector<Utility::VersionAndChannel> result;
+        std::vector<ISQLiteIndex::VersionKey> result;
         result.reserve(versionsAndChannels.size());
         for (auto&& vac : versionsAndChannels)
         {
-            result.emplace_back(Utility::Version{ std::move(std::get<0>(vac)) }, Utility::Channel{ std::move(std::get<1>(vac)) });
+            result.emplace_back(ISQLiteIndex::VersionKey{ Utility::VersionAndChannel{ Utility::Version{ std::move(std::get<1>(vac)) }, Utility::Channel{ std::move(std::get<2>(vac)) } }, std::get<0>(vac) });
         }
 
         std::sort(result.begin(), result.end());

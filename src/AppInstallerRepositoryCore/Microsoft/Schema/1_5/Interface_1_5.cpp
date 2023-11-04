@@ -197,19 +197,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
                 auto versionKeys = GetVersionKeysById(connection, match.first);
                 for (auto const& versionKey : versionKeys)
                 {
-                    auto manifestRowId = GetManifestIdByKey(connection, match.first, versionKey.GetVersion().ToString(), versionKey.GetChannel().ToString());
-                    if (manifestRowId)
+                    auto arpMinVersion = GetPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionProperty::ArpMinVersion).value_or("");
+                    auto arpMaxVersion = GetPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionProperty::ArpMaxVersion).value_or("");
+
+                    // Either both empty or both not empty
+                    THROW_HR_IF(E_UNEXPECTED, arpMinVersion.empty() != arpMaxVersion.empty());
+
+                    if (!arpMinVersion.empty() && !arpMaxVersion.empty())
                     {
-                        auto arpMinVersion = GetPropertyByManifestId(connection, manifestRowId.value(), PackageVersionProperty::ArpMinVersion).value_or("");
-                        auto arpMaxVersion = GetPropertyByManifestId(connection, manifestRowId.value(), PackageVersionProperty::ArpMaxVersion).value_or("");
-
-                        // Either both empty or both not empty
-                        THROW_HR_IF(E_UNEXPECTED, arpMinVersion.empty() != arpMaxVersion.empty());
-
-                        if (!arpMinVersion.empty() && !arpMaxVersion.empty())
-                        {
-                            ranges.emplace_back(Utility::VersionRange{ Utility::Version{ std::move(arpMinVersion) }, Utility::Version{ std::move(arpMaxVersion) } });
-                        }
+                        ranges.emplace_back(Utility::VersionRange{ Utility::Version{ std::move(arpMinVersion) }, Utility::Version{ std::move(arpMaxVersion) } });
                     }
                 }
 

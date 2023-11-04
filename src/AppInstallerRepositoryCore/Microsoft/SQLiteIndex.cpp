@@ -266,7 +266,7 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetManifestIdByManifest(m_dbconn, manifest);
     }
 
-    std::vector<Utility::VersionAndChannel> SQLiteIndex::GetVersionKeysById(IdType id) const
+    std::vector<SQLiteIndex::VersionKey> SQLiteIndex::GetVersionKeysById(IdType id) const
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         return m_interface->GetVersionKeysById(m_dbconn, id);

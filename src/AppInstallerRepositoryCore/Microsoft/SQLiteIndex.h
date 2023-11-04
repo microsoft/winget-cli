@@ -37,6 +37,9 @@ namespace AppInstaller::Repository::Microsoft
         // Options for creating a new index.
         using CreateOptions = Schema::ISQLiteIndex::CreateOptions;
 
+        // The type of version keys.
+        using VersionKey = Schema::ISQLiteIndex::VersionKey;
+
         SQLiteIndex(const SQLiteIndex&) = delete;
         SQLiteIndex& operator=(const SQLiteIndex&) = delete;
 
@@ -124,7 +127,7 @@ namespace AppInstaller::Repository::Microsoft
         std::optional<IdType> GetManifestIdByManifest(const Manifest::Manifest& manifest) const;
 
         // Gets all versions and channels for the given id.
-        std::vector<Utility::VersionAndChannel> GetVersionKeysById(IdType id) const;
+        std::vector<VersionKey> GetVersionKeysById(IdType id) const;
 
         // Gets the string for the given metadata and manifest id, if present.
         MetadataResult GetMetadataByManifestId(SQLite::rowid_t manifestId) const;

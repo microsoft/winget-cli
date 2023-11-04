@@ -116,15 +116,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetAllValuesByIds_Statement(
             const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
-            std::initializer_list<std::string_view> idColumns,
-            std::initializer_list<SQLite::rowid_t> ids)
-        {
-            return ManifestTableGetAllValuesByIdsChooseJoins_Statement(connection, valueColumns, valueColumns, idColumns, ids);
-        }
-
-        SQLite::Statement ManifestTableGetAllValuesByIdsChooseJoins_Statement(
-            const SQLite::Connection& connection,
-            std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
             std::initializer_list<SQLite::Builder::QualifiedColumn> joinColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
@@ -174,7 +165,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
         {
-            auto select = ManifestTableGetAllValuesByIdsChooseJoins_Statement(connection, valueColumns, joinColumns, idColumns, ids);
+            auto select = ManifestTableGetAllValuesByIds_Statement(connection, valueColumns, joinColumns, idColumns, ids);
 
             std::vector<std::pair<SQLite::rowid_t, std::string>> result;
             while (select.Step())
