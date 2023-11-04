@@ -119,6 +119,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
         {
+            return ManifestTableGetAllValuesByIdsChooseJoins_Statement(connection, valueColumns, valueColumns, idColumns, ids);
+        }
+
+        SQLite::Statement ManifestTableGetAllValuesByIdsChooseJoins_Statement(
+            const SQLite::Connection& connection,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> joinColumns,
+            std::initializer_list<std::string_view> idColumns,
+            std::initializer_list<SQLite::rowid_t> ids)
+        {
             using QCol = SQLite::Builder::QualifiedColumn;
 
             THROW_HR_IF(E_INVALIDARG, idColumns.size() != ids.size());
@@ -126,9 +136,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             SQLite::Builder::StatementBuilder builder;
             builder.Select(valueColumns).From(s_ManifestTable_Table_Name);
 
-            for (const auto& valueColumn : valueColumns)
+            for (const auto& joinColumn : joinColumns)
             {
-                builder.Join(valueColumn.Table).On(QCol{ s_ManifestTable_Table_Name, valueColumn.Column }, QCol{ valueColumn.Table, SQLite::RowIDName });
+                builder.Join(joinColumn.Table).On(QCol{ s_ManifestTable_Table_Name, joinColumn.Column }, QCol{ joinColumn.Table, SQLite::RowIDName });
             }
 
             bool isFirst = true;
@@ -157,18 +167,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return select;
         }
 
-        std::vector<std::string> ManifestTableGetAllValuesByIds(
+        std::vector<std::pair<SQLite::rowid_t, std::string>> ManifestTableGetAllValuesByIds(
             const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> joinColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
         {
-            auto select = ManifestTableGetAllValuesByIds_Statement(connection, valueColumns, idColumns, ids);
+            auto select = ManifestTableGetAllValuesByIdsChooseJoins_Statement(connection, valueColumns, joinColumns, idColumns, ids);
 
-            std::vector<std::string> result;
+            std::vector<std::pair<SQLite::rowid_t, std::string>> result;
             while (select.Step())
             {
-                result.emplace_back(select.GetColumn<std::string>(0));
+                result.emplace_back(select.GetColumn<SQLite::rowid_t>(0), select.GetColumn<std::string>(1));
             }
             return result;
         }

@@ -7,6 +7,7 @@
 #include <initializer_list>
 #include <optional>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 
@@ -54,9 +55,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::initializer_list<SQLite::rowid_t> ids);
 
         // Gets all values for rows that match the given ids.
-        std::vector<std::string> ManifestTableGetAllValuesByIds(
+        SQLite::Statement ManifestTableGetAllValuesByIdsChooseJoins_Statement(
             const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> joinColumns,
+            std::initializer_list<std::string_view> idColumns,
+            std::initializer_list<SQLite::rowid_t> ids);
+
+        // Gets all values for rows that match the given ids.
+        std::vector<std::pair<SQLite::rowid_t, std::string>> ManifestTableGetAllValuesByIds(
+            const SQLite::Connection& connection,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> joinColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids);
 
@@ -144,11 +154,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return details::ManifestTableGetValuesById_Statement(connection, id, { SQLite::Builder::QualifiedColumn{ Tables::TableName(), Tables::ValueName() }... }, { details::GetManifestTableColumnName<Tables>()... }).GetRow<typename Tables::value_t...>();
         }
 
-        // Gets the values for rows that match the given ids.
+        // Gets the row ids and values for rows that match the given ids.
         template <typename ValueTable, typename... IdTables>
-        static std::vector<typename ValueTable::value_t> GetAllValuesByIds(const SQLite::Connection& connection, std::initializer_list<SQLite::rowid_t> ids)
+        static std::vector<std::pair<SQLite::rowid_t, typename ValueTable::value_t>> GetAllValuesByIds(const SQLite::Connection& connection, std::initializer_list<SQLite::rowid_t> ids)
         {
-            return details::ManifestTableGetAllValuesByIds(connection, { SQLite::Builder::QualifiedColumn{ ValueTable::TableName(), ValueTable::ValueName() } }, { IdTables::ValueName()... }, ids);
+            return details::ManifestTableGetAllValuesByIds(connection,
+                { SQLite::Builder::QualifiedColumn{ ValueTable::TableName(), SQLite::RowIDName }, SQLite::Builder::QualifiedColumn{ ValueTable::TableName(), ValueTable::ValueName() } },
+                { SQLite::Builder::QualifiedColumn{ ValueTable::TableName(), ValueTable::ValueName() } },
+                { IdTables::ValueName()... }, ids);
         }
 
         // Gets all values for rows that match the given id.

@@ -63,53 +63,60 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::optional<SQLite::rowid_t> channelIdOpt = ChannelTable::SelectIdByValue(connection, channel, true);
             if (!channelIdOpt && !channel.empty())
             {
-                // If a non-empty channel was given but none was found, we will just not filter on channel.
                 AICLI_LOG(Repo, Info, << "Did not find a Channel { " << channel << " }");
                 return {};
             }
 
             std::optional<SQLite::rowid_t> versionIdOpt;
+            std::vector<std::pair<SQLite::rowid_t, std::string>> versionStrings;
 
-            if (version.empty())
+            if (channelIdOpt)
             {
-                std::vector<std::string> versionStrings;
-                
-                if (channelIdOpt)
-                {
-                    versionStrings = ManifestTable::GetAllValuesByIds<VersionTable, IdTable, ChannelTable>(connection, { id, channelIdOpt.value() });
-                }
-                else
-                {
-                    versionStrings = ManifestTable::GetAllValuesByIds<VersionTable, IdTable>(connection, { id });
-                }
-
-                if (versionStrings.empty())
-                {
-                    AICLI_LOG(Repo, Info, << "Did not find any Versions { " << id << ", " << channel << " }");
-                    return {};
-                }
-
-                // Convert the strings to Versions and sort them
-                std::vector<Utility::Version> versions;
-                for (std::string& v : versionStrings)
-                {
-                    versions.emplace_back(std::move(v));
-                }
-
-                std::sort(versions.begin(), versions.end());
-
-                // Get the last version in the list (the highest version) and its rowid
-                const std::string& latestVersion = versions.back().ToString();
-                versionIdOpt = VersionTable::SelectIdByValue(connection, latestVersion);
-
-                if (!versionIdOpt)
-                {
-                    AICLI_LOG(Repo, Warning, << "Did not find a Version row for the latest version { " << latestVersion << " }");
-                }
+                versionStrings = ManifestTable::GetAllValuesByIds<VersionTable, IdTable, ChannelTable>(connection, { id, channelIdOpt.value() });
             }
             else
             {
-                versionIdOpt = VersionTable::SelectIdByValue(connection, version, true);
+                versionStrings = ManifestTable::GetAllValuesByIds<VersionTable, IdTable>(connection, { id });
+            }
+
+            if (versionStrings.empty())
+            {
+                AICLI_LOG(Repo, Info, << "Did not find any Versions { " << id << ", " << channel << " }");
+                return {};
+            }
+
+            // Convert the strings to Versions and sort them
+            struct VersionAndRow
+            {
+                SQLite::rowid_t Row = 0;
+                Utility::Version Version;
+
+                bool operator<(const VersionAndRow& other) const { return Version < other.Version; }
+            };
+
+            std::vector<VersionAndRow> versions;
+            for (auto& v : versionStrings)
+            {
+                versions.emplace_back(VersionAndRow{ v.first, std::move(v.second) });
+            }
+
+            std::sort(versions.begin(), versions.end());
+
+            if (version.empty())
+            {
+                // Get the last version in the list (the highest version)
+                versionIdOpt = versions.back().Row;
+            }
+            else
+            {
+                VersionAndRow requested;
+                requested.Version = Utility::Version{ std::string(version) };
+
+                auto itr = std::lower_bound(versions.begin(), versions.end(), requested);
+                if (itr != versions.end() && itr->Version == requested.Version)
+                {
+                    versionIdOpt = itr->Row;
+                }
             }
 
             if (!versionIdOpt)
