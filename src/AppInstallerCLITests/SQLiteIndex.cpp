@@ -1980,7 +1980,7 @@ TEST_CASE("SQLiteIndex_PathString_CaseInsensitive", "[sqliteindex]")
     REQUIRE(result.has_value());
 
     result = index.GetManifestIdByKey(results.Matches[0].first, "13.2.0-BugFix", "BETA");
-    REQUIRE(!result.has_value());
+    REQUIRE(result.has_value());
 }
 
 TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")
