@@ -63,14 +63,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetIdsById_Statement(
             const SQLite::Connection& connection,
             SQLite::rowid_t id,
-            std::initializer_list<std::string_view> values)
+            std::initializer_list<std::string_view> values,
+            bool stepAndVerify)
         {
             SQLite::Builder::StatementBuilder builder;
             builder.Select(values).From(s_ManifestTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
             SQLite::Statement result = builder.Prepare(connection);
 
-            THROW_HR_IF(E_NOT_SET, !result.Step());
+            if (stepAndVerify)
+            {
+                THROW_HR_IF(E_NOT_SET, !result.Step());
+            }
 
             return result;
         }
@@ -84,7 +88,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             const SQLite::Connection& connection,
             SQLite::rowid_t id,
             std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
-            std::initializer_list<std::string_view> manifestColumnNames)
+            std::initializer_list<std::string_view> manifestColumnNames,
+            bool stepAndVerify)
         {
             THROW_HR_IF(E_UNEXPECTED, manifestColumnNames.size() != columns.size());
 
@@ -108,7 +113,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             SQLite::Statement result = builder.Prepare(connection);
 
-            THROW_HR_IF(E_NOT_SET, !result.Step());
+            if (stepAndVerify)
+            {
+                THROW_HR_IF(E_NOT_SET, !result.Step());
+            }
 
             return result;
         }

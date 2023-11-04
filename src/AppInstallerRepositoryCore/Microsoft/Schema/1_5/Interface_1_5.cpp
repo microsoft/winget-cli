@@ -173,9 +173,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
         switch (property)
         {
         case AppInstaller::Repository::PackageVersionProperty::ArpMinVersion:
-            return std::get<0>(V1_0::ManifestTable::GetValuesById<ArpMinVersionVirtualTable>(connection, manifestId));
+            return V1_0::ManifestTable::GetValueById<ArpMinVersionVirtualTable>(connection, manifestId);
         case AppInstaller::Repository::PackageVersionProperty::ArpMaxVersion:
-            return std::get<0>(V1_0::ManifestTable::GetValuesById<ArpMaxVersionVirtualTable>(connection, manifestId));
+            return V1_0::ManifestTable::GetValueById<ArpMaxVersionVirtualTable>(connection, manifestId);
         default:
             return V1_4::Interface::GetPropertyByManifestIdInternal(connection, manifestId, property);
         }
