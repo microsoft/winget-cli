@@ -301,4 +301,10 @@ namespace AppInstaller::CLI::Workflow
             }
         }
     }
+
+    void ForceInstalledCacheUpdate(Execution::Context&)
+    {
+        // Creating this object is currently sufficient to mark the cache as needing an update for the next time it is opened.
+        Repository::Source ignore{ Repository::PredefinedSource::InstalledForceCacheUpdate };
+    }
 }
