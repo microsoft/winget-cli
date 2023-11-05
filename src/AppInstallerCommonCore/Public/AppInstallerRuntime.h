@@ -12,6 +12,9 @@
 
 namespace AppInstaller::Runtime
 {
+    // Substitutes environment variables if applicable in the given path.
+    void ReplaceProfilePathsWithEnvironmentVariable(std::filesystem::path& path);
+
     // Sets the runtime path state name globally.
     void SetRuntimePathStateName(std::string name);
 

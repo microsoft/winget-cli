@@ -217,14 +217,14 @@ namespace AppInstaller::Runtime
             PSID SID;
             TRUSTEE_TYPE TrusteeType;
         };
+    }
 
-        // Try to replace LOCALAPPDATA first as it is the likely location, fall back to trying USERPROFILE.
-        void ReplaceProfilePathsWithEnvironmentVariable(std::filesystem::path& path)
+    // Try to replace LOCALAPPDATA first as it is the likely location, fall back to trying USERPROFILE.
+    void ReplaceProfilePathsWithEnvironmentVariable(std::filesystem::path& path)
+    {
+        if (!ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_LocalAppData), s_LocalAppDataEnvironmentVariable))
         {
-            if (!ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_LocalAppData), s_LocalAppDataEnvironmentVariable))
-            {
-                ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_Profile), s_UserProfileEnvironmentVariable);
-            }
+            ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_Profile), s_UserProfileEnvironmentVariable);
         }
     }
 

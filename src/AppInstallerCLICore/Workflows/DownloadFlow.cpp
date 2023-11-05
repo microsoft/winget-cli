@@ -549,6 +549,12 @@ namespace AppInstaller::CLI::Workflow
 
             renamedDownloadedInstaller = downloadDirectory / GetInstallerDownloadOnlyFileName(context);
             Filesystem::RenameFile(installerPath, renamedDownloadedInstaller);
+
+            if (Settings::User().Get<Settings::Setting::AnonymizePathForDisplay>())
+            {
+                Runtime::ReplaceProfilePathsWithEnvironmentVariable(renamedDownloadedInstaller);
+            }
+
             context.Reporter.Info() << Resource::String::InstallerDownloaded(Utility::LocIndView{ renamedDownloadedInstaller.u8string() }) << std::endl;
         }
         else
