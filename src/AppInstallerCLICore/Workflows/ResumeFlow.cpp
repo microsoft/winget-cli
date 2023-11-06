@@ -18,7 +18,7 @@ namespace AppInstaller::CLI::Workflow
 
     void RegisterForReboot::operator()(Execution::Context& context) const
     {
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume) && 
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume) || 
             !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot))
         {
             return;
