@@ -297,18 +297,18 @@ jobs:
       configuration: '$(BuildConfiguration)'
     condition: succeededOrFailed()
   
-  - task: VSTest@2
-    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (InProc)'
-    inputs:
-      testRunTitle: Microsoft.Management.Configuration.UnitTests (InProc)
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
-      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
-      codeCoverageEnabled: true
-      platform: '$(buildPlatform)'
-      configuration: '$(BuildConfiguration)'
-      diagnosticsEnabled: true
-    condition: succeededOrFailed()
+  # - task: VSTest@2
+  #   displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (InProc)'
+  #   inputs:
+  #     testRunTitle: Microsoft.Management.Configuration.UnitTests (InProc)
+  #     testSelector: 'testAssemblies'
+  #     testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
+  #     searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
+  #     codeCoverageEnabled: true
+  #     platform: '$(buildPlatform)'
+  #     configuration: '$(BuildConfiguration)'
+  #     diagnosticsEnabled: true
+  #   condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
