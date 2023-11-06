@@ -6,6 +6,7 @@
 #include <winget/UserSettings.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Locale.h>
+#include <winget/Reboot.h>
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility::literals;
@@ -870,16 +871,45 @@ namespace AppInstaller::CLI
             ExecuteInternal(context);
         }
 
-        if (context.Args.Contains(Execution::Args::Type::OpenLogs))
-        {   
-            // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
-            // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
-            ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
-        }
-
-        if (context.Args.Contains(Execution::Args::Type::Wait))
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot) &&
+            context.Args.Contains(Execution::Args::Type::AllowReboot) &&
+            WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired))
         {
-            context.Reporter.PromptForEnter();
+            context.Reporter.Warn() << Resource::String::InitiatingReboot << std::endl;
+
+            if (context.Args.Contains(Execution::Args::Type::Wait))
+            {
+                context.Reporter.PromptForEnter();
+            }
+
+            context.ClearFlags(Execution::ContextFlag::RebootRequired);
+
+            if (!Reboot::InitiateReboot())
+            {
+                context.Reporter.Error() << Resource::String::FailedToInitiateReboot << std::endl;
+            }
+            else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterResume))
+            {
+                context.ClearFlags(Execution::ContextFlag::RegisterResume);
+
+                // For Windows Error Reporting to restart this process, the process must be rebooted while it is still running.
+                // Workaround is to have the program sleep while the reboot process is kicked off. Only applies to resume.
+                Sleep(5000);
+            }
+        }
+        else
+        {
+            if (context.Args.Contains(Execution::Args::Type::OpenLogs))
+            {
+                // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
+                // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
+                ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::Wait))
+            {
+                context.Reporter.PromptForEnter();
+            }
         }
     }
 

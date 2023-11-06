@@ -152,7 +152,7 @@
         "maxResumes": {
           "description": "The maximum number of resumes allowed for a single resume id. This is to prevent continuous reboots if an install that requires a reboot is not properly detected.",
           "type": "integer",
-          "default": 4,
+          "default": 3,
           "minimum": 1
         }
       }

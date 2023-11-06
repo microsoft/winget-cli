@@ -562,3 +562,17 @@ TEST_CASE("SettingsInstallScope", "[settings]")
         REQUIRE(userSettingTest.Get<Setting::InstallScopeRequirement>() == AppInstaller::Manifest::ScopeEnum::Machine);
     }
 }
+
+TEST_CASE("SettingsMaxResumes", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Modify max number of resumes")
+    {
+        std::string_view json = R"({ "installBehavior": { "maxResumes": 5 } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::MaxResumes>() == 5);
+    }
+}

@@ -597,8 +597,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::InstallDependencies <<
             Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller <<
-            Workflow::RegisterForReboot() <<
-            Workflow::InitiateRebootIfApplicable();
+            Workflow::RegisterForReboot();
     }
 
     void EnsureSupportForInstall(Execution::Context& context)
