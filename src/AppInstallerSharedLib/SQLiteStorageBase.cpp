@@ -42,7 +42,7 @@ namespace AppInstaller::SQLite
 
     std::string SQLiteStorageBase::GetDatabaseIdentifier()
     {
-        return MetadataTable::GetNamedValue<std::string>(m_dbconn, s_MetadataValueName_DatabaseIdentifier);
+        return MetadataTable::TryGetNamedValue<std::string>(m_dbconn, s_MetadataValueName_DatabaseIdentifier).value_or(std::string{});
     }
 
     SQLiteStorageBase::SQLiteStorageBase(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& file) :

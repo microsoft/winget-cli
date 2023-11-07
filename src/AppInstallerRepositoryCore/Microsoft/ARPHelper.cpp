@@ -116,14 +116,12 @@ namespace AppInstaller::Repository::Microsoft
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-    using GetARPKeyFunc = Registry::Key(*)(void*, Manifest::ScopeEnum, Utility::Architecture);
-    static GetARPKeyFunc s_GetARPKey_Override = nullptr;
-    static void* s_GetARPKey_OverrideContext = nullptr;
+    using GetARPKeyFunc = std::function<Registry::Key(Manifest::ScopeEnum, Utility::Architecture)>;
+    static GetARPKeyFunc s_GetARPKey_Override;
 
-    void SetGetARPKeyOverride(GetARPKeyFunc value, void* context)
+    void SetGetARPKeyOverride(GetARPKeyFunc value)
     {
         s_GetARPKey_Override = value;
-        s_GetARPKey_OverrideContext = context;
     }
 #endif
 
@@ -132,7 +130,7 @@ namespace AppInstaller::Repository::Microsoft
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_GetARPKey_Override)
         {
-            return s_GetARPKey_Override(s_GetARPKey_OverrideContext, scope, architecture);
+            return s_GetARPKey_Override(scope, architecture);
         }
 #endif
 

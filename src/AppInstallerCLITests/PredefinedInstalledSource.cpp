@@ -408,6 +408,25 @@ std::string GetDatabaseIdentifier(const std::shared_ptr<Repository::ISource>& so
     return reinterpret_cast<SQLiteIndexSource*>(source->CastTo(ISourceType::SQLiteIndexSource))->GetIndex().GetDatabaseIdentifier();
 }
 
+void RequirePackagesHaveSameNames(std::shared_ptr<ISource>& source1, std::shared_ptr<ISource>& source2)
+{
+    auto result1 = source1->Search({});
+    REQUIRE(!result1.Matches.empty());
+
+    // Ensure that all packages have the same name values
+    for (const auto& match : result1.Matches)
+    {
+        std::string packageId = match.Package->GetProperty(PackageProperty::Id).get();
+        INFO(packageId);
+
+        SearchRequest id2;
+        id2.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::CaseInsensitive, packageId });
+        auto result2 = source2->Search(id2);
+        REQUIRE(result2.Matches.size() == 1);
+        REQUIRE(match.Package->GetProperty(PackageProperty::Name) == result2.Matches[0].Package->GetProperty(PackageProperty::Name));
+    }
+}
+
 TEST_CASE("PredefinedInstalledSource_Create_Cached", "[installed][list][installed-cache]")
 {
     auto source1 = CreatePredefinedInstalledSource();
@@ -420,21 +439,8 @@ TEST_CASE("PredefinedInstalledSource_Create_Cached", "[installed][list][installe
         GetDatabaseIdentifier(source2)
     );
 
-    // Get all packages
-    auto result1 = source1->Search({});
-    REQUIRE(!result1.Matches.empty());
-
-    for (const auto& match : result1.Matches)
-    {
-        std::string packageId = match.Package->GetProperty(PackageProperty::Id).get();
-        INFO(packageId);
-
-        SearchRequest id2;
-        id2.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::CaseInsensitive, packageId });
-        auto result2 = source2->Search(id2);
-        REQUIRE(result2.Matches.size() == 1);
-        REQUIRE(match.Package->GetProperty(PackageProperty::Name) == result2.Matches[0].Package->GetProperty(PackageProperty::Name));
-    }
+    RequirePackagesHaveSameNames(source1, source2);
+    RequirePackagesHaveSameNames(source2, source1);
 }
 
 TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate", "[installed][list][installed-cache]")
@@ -449,21 +455,8 @@ TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate", "[installed][list
         GetDatabaseIdentifier(source2)
     );
 
-    // Get all packages
-    auto result1 = source1->Search({});
-    REQUIRE(!result1.Matches.empty());
-
-    for (const auto& match : result1.Matches)
-    {
-        std::string packageId = match.Package->GetProperty(PackageProperty::Id).get();
-        INFO(packageId);
-
-        SearchRequest id2;
-        id2.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::CaseInsensitive, packageId });
-        auto result2 = source2->Search(id2);
-        REQUIRE(result2.Matches.size() == 1);
-        REQUIRE(match.Package->GetProperty(PackageProperty::Name) == result2.Matches[0].Package->GetProperty(PackageProperty::Name));
-    }
+    RequirePackagesHaveSameNames(source1, source2);
+    RequirePackagesHaveSameNames(source2, source1);
 }
 
 TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate_StillCached", "[installed][list][installed-cache]")

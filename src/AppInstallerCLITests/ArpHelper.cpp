@@ -22,8 +22,8 @@ TEST_CASE("ARPHelper_Watcher", "[ARPHelper]")
     ScopeEnum scopeCallback = ScopeEnum::Unknown;
     Architecture architectureCallback = Architecture::Unknown;
 
-    ScopeEnum scopeTarget = ScopeEnum::User;
-    Architecture architectureTarget = Architecture::X64;
+    ScopeEnum scopeTarget = ScopeEnum::Machine;
+    Architecture architectureTarget = Architecture::X86;
 
     auto fakeRoot = TestCommon::RegCreateVolatileTestRoot();
     TestHook::SetGetARPKey_Override arpOverride([&](ScopeEnum scope, Architecture arch)

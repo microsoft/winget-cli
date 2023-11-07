@@ -147,7 +147,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static std::optional<typename Table::id_t> GetIdById(const SQLite::Connection& connection, SQLite::rowid_t id)
         {
             auto statement = details::ManifestTableGetIdsById_Statement(connection, id, { details::GetManifestTableColumnName<Table>() }, false);
-            if (statement.Step()) { return statement.GetColumn<typename Table::id_t>(0); } else { return std::nullopt; }
+            if (statement.Step()) { return statement.GetColumn<typename Table::id_t>(0); }
+            else { return std::nullopt; }
         }
 
         // Gets the values requested for the manifest with the given rowid.
@@ -162,7 +163,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static std::optional<typename Table::value_t> GetValueById(const SQLite::Connection& connection, SQLite::rowid_t id)
         {
             auto statement = details::ManifestTableGetValuesById_Statement(connection, id, { SQLite::Builder::QualifiedColumn{ Table::TableName(), Table::ValueName() } }, { details::GetManifestTableColumnName<Table>() }, false);
-            if (statement.Step()) { return statement.GetColumn<typename Table::value_t>(0); } else { return std::nullopt; }
+            if (statement.Step()) { return statement.GetColumn<typename Table::value_t>(0); }
+            else { return std::nullopt; }
         }
 
         // Gets the row ids and values for rows that match the given ids.

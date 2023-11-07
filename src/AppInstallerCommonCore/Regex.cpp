@@ -21,6 +21,8 @@ namespace AppInstaller::Regex
         using uregex_ptr = wil::unique_any<URegularExpression*, decltype(uregex_close), uregex_close>;
         using utext_ptr = wil::unique_any<UText*, decltype(utext_close), utext_close>;
 
+        // Create caches the original ICU regex objects in a static map and hands out copies of them
+        // when requested. Since we have a limited set, this is a very simple cache-all-forever pattern.
         static std::unique_ptr<impl> Create(std::string_view pattern, Options options)
         {
             struct key
@@ -70,6 +72,7 @@ namespace AppInstaller::Regex
 
             auto exclusiveLock = s_regex_cache.lock.lock_exclusive();
 
+            // Check if another thread created it while we waited for the lock.
             auto itr = s_regex_cache.map.find(requested);
             if (itr != s_regex_cache.map.end())
             {
