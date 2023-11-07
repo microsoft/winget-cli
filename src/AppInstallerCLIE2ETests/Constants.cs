@@ -82,7 +82,7 @@ namespace AppInstallerCLIE2ETests
         public const string PortableExePackageId = "AppInstallerTest.TestPortableExe";
         public const string PortableExeWithCommandPackageId = "AppInstallerTest.TestPortableExeWithCommand";
 
-        public const string ExeInstalleDefaultProductCode = "{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
+        public const string ExeInstalledDefaultProductCode = "{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
         public const string MsiInstallerProductCode = "{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         public const string MsixInstallerName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
         public const string MsixInstallerPackageFamilyName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe";

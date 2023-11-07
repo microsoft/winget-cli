@@ -668,7 +668,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installedCatalogReference = this.packageManager.GetLocalPackageCatalog(LocalPackageCatalog.InstalledPackages);
 
             // Ensure package is not installed
-            var installedResult = this.FindAllPackages(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalleDefaultProductCode);
+            var installedResult = this.FindAllPackages(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalledDefaultProductCode);
             Assert.IsNotNull(installedResult);
             Assert.AreEqual(0, installedResult.Count);
 
@@ -688,7 +688,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
             // Check installed catalog after
-            this.FindOnePackage(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalleDefaultProductCode);
+            this.FindOnePackage(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalledDefaultProductCode);
 
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
         }
