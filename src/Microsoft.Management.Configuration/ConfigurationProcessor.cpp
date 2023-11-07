@@ -445,18 +445,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
-        bool consistencyCheckOnly = WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly);
-        IConfigurationSetProcessor setProcessor;
-
-        if (!consistencyCheckOnly)
+        if (WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly))
         {
-            setProcessor = m_factory.CreateSetProcessor(configurationSet);
+            ConfigurationSetApplyProcessor applyProcessor{ configurationSet, std::move(progress) };
+            // Consistency check only
+            applyProcessor.Process(true);
+
+            return applyProcessor.Result();
         }
+        else
+        {
 
-        ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_threadGlobals.GetTelemetryLogger(), std::move(setProcessor), std::move(progress) };
-        applyProcessor.Process(consistencyCheckOnly);
-
-        return applyProcessor.Result();
+        }
     }
 
     Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSet(const ConfigurationSet& configurationSet)

@@ -149,7 +149,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplySettingsResult> DefaultSetGroupProcessor::ApplyGroupSettingsAsync()
     {
-        THROW_HR(E_NOTIMPL);
+        // Previous implementation...
+        ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_threadGlobals.GetTelemetryLogger(), m_factory.CreateSetProcessor(configurationSet), std::move(progress) };
+        applyProcessor.Process();
+
+        return applyProcessor.Result();
     }
 
     void DefaultSetGroupProcessor::ThrowIf(bool cancellation)
