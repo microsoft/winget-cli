@@ -1,8 +1,8 @@
 {
-  "$id": "https://aka.ms/winget-manifest.installer.1.7.0.schema.json",
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "A representation of a single-file manifest representing an app installers in the OWC. v1.7.0",
-  "definitions": {
+  "$id": "https://aka.ms/winget-manifest.installer.1.6.0.schema.json",
+  "$schema": "http://json-schema.org/draft/2020-12/schema#",
+  "description": "A representation of a single-file manifest representing an app installers in the OWC. v1.6.0",
+  "$defs": {
     "PackageIdentifier": {
       "type": "string",
       "pattern": "^[^\\.\\s\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]{1,32}(\\.[^\\.\\s\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]{1,32}){1,7}$",
@@ -187,12 +187,6 @@
           "minLength": 1,
           "maxLength": 2048,
           "description": "Custom switches will be passed directly to the installer by winget"
-        },
-        "Repair" : {
-          "type": [ "string", "null" ],
-          "minLength": 1,
-          "maxLength": 512,
-          "description": "The 'Repair' value must be passed to the installer, ModifyPath ARP command, or uninstaller ARP command when the user opts for a repair."
         }
       }
     },
@@ -209,7 +203,7 @@
     "InstallerSuccessCodes": {
       "type": [ "array", "null" ],
       "items": {
-        "$ref": "#/definitions/InstallerReturnCode"
+        "$ref": "#/$defs/InstallerReturnCode"
       },
       "maxItems": 16,
       "uniqueItems": true,
@@ -222,7 +216,7 @@
         "title": "ExpectedReturnCode",
         "properties": {
           "InstallerReturnCode": {
-            "$ref": "#/definitions/InstallerReturnCode"
+            "$ref": "#/$defs/InstallerReturnCode"
           },
           "ReturnResponse": {
             "type": "string",
@@ -249,7 +243,7 @@
             ]
           },
           "ReturnResponseUrl": {
-            "$ref": "#/definitions/Url",
+            "$ref": "#/$defs/Url",
             "description": "The return response url to provide additional guidance for expected return codes"
           }
         }
@@ -329,10 +323,10 @@
             "type": "object",
             "properties": {
               "PackageIdentifier": {
-                "$ref": "#/definitions/PackageIdentifier"
+                "$ref": "#/$defs/PackageIdentifier"
               },
               "MinimumVersion": {
-                "$ref": "#/definitions/PackageVersion"
+                "$ref": "#/$defs/PackageVersion"
               }
             },
             "required": [ "PackageIdentifier" ]
@@ -398,7 +392,7 @@
       "uniqueItems": true,
       "maxItems": 256,
       "items": {
-        "$ref": "#/definitions/Market"
+        "$ref": "#/$defs/Market"
       },
       "description": "Array of markets"
     },
@@ -409,7 +403,7 @@
         {
           "properties": {
             "AllowedMarkets": {
-              "$ref": "#/definitions/MarketArray"
+              "$ref": "#/$defs/MarketArray"
             }
           },
           "required": [ "AllowedMarkets" ]
@@ -417,7 +411,7 @@
         {
           "properties": {
             "ExcludedMarkets": {
-              "$ref": "#/definitions/MarketArray"
+              "$ref": "#/$defs/MarketArray"
             }
           },
           "required": [ "ExcludedMarkets" ]
@@ -495,13 +489,13 @@
           "description": "The DisplayVersion registry value"
         },
         "ProductCode": {
-          "$ref": "#/definitions/ProductCode"
+          "$ref": "#/$defs/ProductCode"
         },
         "UpgradeCode": {
-          "$ref": "#/definitions/ProductCode"
+          "$ref": "#/$defs/ProductCode"
         },
         "InstallerType": {
-          "$ref": "#/definitions/InstallerType"
+          "$ref": "#/$defs/InstallerType"
         }
       },
       "description": "Various key values under installer's ARP entry"
@@ -511,7 +505,7 @@
       "uniqueItems": true,
       "maxItems": 128,
       "items": {
-        "$ref": "#/definitions/AppsAndFeaturesEntry"
+        "$ref": "#/$defs/AppsAndFeaturesEntry"
       },
       "description": "List of ARP entries."
     },
@@ -587,41 +581,32 @@
       "type": [ "boolean", "null" ],
       "description": "Indicates whether the installer is prohibited from being downloaded for offline installation."
     },
-    "RepairBehavior": { 
-      "type": [ "string", "null" ],
-      "enum": [
-        "modify",
-        "uninstaller",
-        "installer"
-      ],
-      "description": "The repair method"
-    },
     "Installer": {
       "type": "object",
       "properties": {
         "InstallerLocale": {
-          "$ref": "#/definitions/Locale"
+          "$ref": "#/$defs/Locale"
         },
         "Platform": {
-          "$ref": "#/definitions/Platform"
+          "$ref": "#/$defs/Platform"
         },
         "MinimumOSVersion": {
-          "$ref": "#/definitions/MinimumOSVersion"
+          "$ref": "#/$defs/MinimumOSVersion"
         },
         "Architecture": {
-          "$ref": "#/definitions/Architecture"
+          "$ref": "#/$defs/Architecture"
         },
         "InstallerType": {
-          "$ref": "#/definitions/InstallerType"
+          "$ref": "#/$defs/InstallerType"
         },
         "NestedInstallerType": {
-          "$ref": "#/definitions/NestedInstallerType"
+          "$ref": "#/$defs/NestedInstallerType"
         },
         "NestedInstallerFiles": {
-          "$ref": "#/definitions/NestedInstallerFiles"
+          "$ref": "#/$defs/NestedInstallerFiles"
         },
         "Scope": {
-          "$ref": "#/definitions/Scope"
+          "$ref": "#/$defs/Scope"
         },
         "InstallerUrl": {
           "type": "string",
@@ -640,82 +625,79 @@
           "description": "SignatureSha256 is recommended for appx or msix. It is the sha256 of signature file inside appx or msix. Could be used during streaming install if applicable"
         },
         "InstallModes": {
-          "$ref": "#/definitions/InstallModes"
+          "$ref": "#/$defs/InstallModes"
         },
         "InstallerSwitches": {
-          "$ref": "#/definitions/InstallerSwitches"
+          "$ref": "#/$defs/InstallerSwitches"
         },
         "InstallerSuccessCodes": {
-          "$ref": "#/definitions/InstallerSuccessCodes"
+          "$ref": "#/$defs/InstallerSuccessCodes"
         },
         "ExpectedReturnCodes": {
-          "$ref": "#/definitions/ExpectedReturnCodes"
+          "$ref": "#/$defs/ExpectedReturnCodes"
         },
         "UpgradeBehavior": {
-          "$ref": "#/definitions/UpgradeBehavior"
+          "$ref": "#/$defs/UpgradeBehavior"
         },
         "Commands": {
-          "$ref": "#/definitions/Commands"
+          "$ref": "#/$defs/Commands"
         },
         "Protocols": {
-          "$ref": "#/definitions/Protocols"
+          "$ref": "#/$defs/Protocols"
         },
         "FileExtensions": {
-          "$ref": "#/definitions/FileExtensions"
+          "$ref": "#/$defs/FileExtensions"
         },
         "Dependencies": {
-          "$ref": "#/definitions/Dependencies"
+          "$ref": "#/$defs/Dependencies"
         },
         "PackageFamilyName": {
-          "$ref": "#/definitions/PackageFamilyName"
+          "$ref": "#/$defs/PackageFamilyName"
         },
         "ProductCode": {
-          "$ref": "#/definitions/ProductCode"
+          "$ref": "#/$defs/ProductCode"
         },
         "Capabilities": {
-          "$ref": "#/definitions/Capabilities"
+          "$ref": "#/$defs/Capabilities"
         },
         "RestrictedCapabilities": {
-          "$ref": "#/definitions/RestrictedCapabilities"
+          "$ref": "#/$defs/RestrictedCapabilities"
         },
         "Markets": {
-          "$ref": "#/definitions/Markets"
+          "$ref": "#/$defs/Markets"
         },
         "InstallerAbortsTerminal": {
-          "$ref": "#/definitions/InstallerAbortsTerminal"
+          "$ref": "#/$defs/InstallerAbortsTerminal"
         },
         "ReleaseDate": {
-          "$ref": "#/definitions/ReleaseDate"
+          "$ref": "#/$defs/ReleaseDate"
         },
         "InstallLocationRequired": {
-          "$ref": "#/definitions/InstallLocationRequired"
+          "$ref": "#/$defs/InstallLocationRequired"
         },
         "RequireExplicitUpgrade": {
-          "$ref": "#/definitions/RequireExplicitUpgrade"
+          "$ref": "#/$defs/RequireExplicitUpgrade"
         },
         "DisplayInstallWarnings": {
-          "$ref": "#/definitions/DisplayInstallWarnings"
+          "$ref": "#/$defs/DisplayInstallWarnings"
         },
         "UnsupportedOSArchitectures": {
-          "$ref": "#/definitions/UnsupportedOSArchitectures"
+          "$ref": "#/$defs/UnsupportedOSArchitectures"
         },
         "UnsupportedArguments": {
-          "$ref": "#/definitions/UnsupportedArguments"
+          "$ref": "#/$defs/UnsupportedArguments"
         },
         "AppsAndFeaturesEntries": {
-          "$ref": "#/definitions/AppsAndFeaturesEntries"
+          "$ref": "#/$defs/AppsAndFeaturesEntries"
         },
         "ElevationRequirement": {
-          "$ref": "#/definitions/ElevationRequirement"
+          "$ref": "#/$defs/ElevationRequirement"
         },
         "InstallationMetadata": {
-          "$ref": "#/definitions/InstallationMetadata"
+          "$ref": "#/$defs/InstallationMetadata"
         },
         "DownloadCommandProhibited": {
-          "$ref": "#/definitions/DownloadCommandProhibited"
-        },
-        "RepairBehavior": {
-          "$ref": "#/definitions/RepairBehavior"
+          "$ref": "#/$defs/DownloadCommandProhibited"
         }
       },
       "required": [
@@ -728,117 +710,114 @@
   "type": "object",
   "properties": {
     "PackageIdentifier": {
-      "$ref": "#/definitions/PackageIdentifier"
+      "$ref": "#/$defs/PackageIdentifier"
     },
     "PackageVersion": {
-      "$ref": "#/definitions/PackageVersion"
+      "$ref": "#/$defs/PackageVersion"
     },
     "Channel": {
-      "$ref": "#/definitions/Channel"
+      "$ref": "#/$defs/Channel"
     },
     "InstallerLocale": {
-      "$ref": "#/definitions/Locale"
+      "$ref": "#/$defs/Locale"
     },
     "Platform": {
-      "$ref": "#/definitions/Platform"
+      "$ref": "#/$defs/Platform"
     },
     "MinimumOSVersion": {
-      "$ref": "#/definitions/MinimumOSVersion"
+      "$ref": "#/$defs/MinimumOSVersion"
     },
     "InstallerType": {
-      "$ref": "#/definitions/InstallerType"
+      "$ref": "#/$defs/InstallerType"
     },
     "NestedInstallerType": {
-      "$ref": "#/definitions/NestedInstallerType"
+      "$ref": "#/$defs/NestedInstallerType"
     },
     "NestedInstallerFiles": {
-      "$ref": "#/definitions/NestedInstallerFiles"
+      "$ref": "#/$defs/NestedInstallerFiles"
     },
     "Scope": {
-      "$ref": "#/definitions/Scope"
+      "$ref": "#/$defs/Scope"
     },
     "InstallModes": {
-      "$ref": "#/definitions/InstallModes"
+      "$ref": "#/$defs/InstallModes"
     },
     "InstallerSwitches": {
-      "$ref": "#/definitions/InstallerSwitches"
+      "$ref": "#/$defs/InstallerSwitches"
     },
     "InstallerSuccessCodes": {
-      "$ref": "#/definitions/InstallerSuccessCodes"
+      "$ref": "#/$defs/InstallerSuccessCodes"
     },
     "ExpectedReturnCodes": {
-      "$ref": "#/definitions/ExpectedReturnCodes"
+      "$ref": "#/$defs/ExpectedReturnCodes"
     },
     "UpgradeBehavior": {
-      "$ref": "#/definitions/UpgradeBehavior"
+      "$ref": "#/$defs/UpgradeBehavior"
     },
     "Commands": {
-      "$ref": "#/definitions/Commands"
+      "$ref": "#/$defs/Commands"
     },
     "Protocols": {
-      "$ref": "#/definitions/Protocols"
+      "$ref": "#/$defs/Protocols"
     },
     "FileExtensions": {
-      "$ref": "#/definitions/FileExtensions"
+      "$ref": "#/$defs/FileExtensions"
     },
     "Dependencies": {
-      "$ref": "#/definitions/Dependencies"
+      "$ref": "#/$defs/Dependencies"
     },
     "PackageFamilyName": {
-      "$ref": "#/definitions/PackageFamilyName"
+      "$ref": "#/$defs/PackageFamilyName"
     },
     "ProductCode": {
-      "$ref": "#/definitions/ProductCode"
+      "$ref": "#/$defs/ProductCode"
     },
     "Capabilities": {
-      "$ref": "#/definitions/Capabilities"
+      "$ref": "#/$defs/Capabilities"
     },
     "RestrictedCapabilities": {
-      "$ref": "#/definitions/RestrictedCapabilities"
+      "$ref": "#/$defs/RestrictedCapabilities"
     },
     "Markets": {
-      "$ref": "#/definitions/Markets"
+      "$ref": "#/$defs/Markets"
     },
     "InstallerAbortsTerminal": {
-      "$ref": "#/definitions/InstallerAbortsTerminal"
+      "$ref": "#/$defs/InstallerAbortsTerminal"
     },
     "ReleaseDate": {
-      "$ref": "#/definitions/ReleaseDate"
+      "$ref": "#/$defs/ReleaseDate"
     },
     "InstallLocationRequired": {
-      "$ref": "#/definitions/InstallLocationRequired"
+      "$ref": "#/$defs/InstallLocationRequired"
     },
     "RequireExplicitUpgrade": {
-      "$ref": "#/definitions/RequireExplicitUpgrade"
+      "$ref": "#/$defs/RequireExplicitUpgrade"
     },
     "DisplayInstallWarnings": {
-      "$ref": "#/definitions/DisplayInstallWarnings"
+      "$ref": "#/$defs/DisplayInstallWarnings"
     },
     "UnsupportedOSArchitectures": {
-      "$ref": "#/definitions/UnsupportedOSArchitectures"
+      "$ref": "#/$defs/UnsupportedOSArchitectures"
     },
     "UnsupportedArguments": {
-      "$ref": "#/definitions/UnsupportedArguments"
+      "$ref": "#/$defs/UnsupportedArguments"
     },
     "AppsAndFeaturesEntries": {
-      "$ref": "#/definitions/AppsAndFeaturesEntries"
+      "$ref": "#/$defs/AppsAndFeaturesEntries"
     },
     "ElevationRequirement": {
-      "$ref": "#/definitions/ElevationRequirement"
+      "$ref": "#/$defs/ElevationRequirement"
     },
     "InstallationMetadata": {
-      "$ref": "#/definitions/InstallationMetadata"
+      "$ref": "#/$defs/InstallationMetadata"
     },
     "DownloadCommandProhibited": {
-      "$ref": "#/definitions/DownloadCommandProhibited"
-    },
-    "RepairBehavior": {
-      "$ref": "#/definitions/RepairBehavior"
+      "$ref": "#/$defs/DownloadCommandProhibited"
     },
     "Installers": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/Installer"
+        "$ref": "#/$defs/Installer"
       },
       "minItems": 1,
       "maxItems": 1024
@@ -851,7 +830,7 @@
     },
     "ManifestVersion": {
       "type": "string",
-      "default": "1.7.0",
+      "default": "1.6.0",
       "pattern": "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){2}$",
       "description": "The manifest syntax version"
     }
