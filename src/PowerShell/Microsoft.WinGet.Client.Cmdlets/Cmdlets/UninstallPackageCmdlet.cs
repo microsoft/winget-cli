@@ -42,17 +42,16 @@ namespace Microsoft.WinGet.Client.Commands
         protected override void ProcessRecord()
         {
             var command = new UninstallPackageCommand(
-                this,
-                this.PSCatalogPackage,
-                this.Version,
-                this.Log,
-                this.Id,
-                this.Name,
-                this.Moniker,
-                this.Source,
-                this.Query,
-                this.MatchOption.ToString());
-            command.Uninstall(this.Mode.ToString(), this.Force.ToBool());
+                        this,
+                        this.PSCatalogPackage,
+                        this.Version,
+                        this.Log,
+                        this.Id,
+                        this.Name,
+                        this.Moniker,
+                        this.Source,
+                        this.Query);
+            command.Uninstall(this.Mode.ToString(), this.MatchOption.ToString(), this.Force.ToBool());
         }
     }
 }

@@ -80,4 +80,45 @@ namespace AppInstaller::Utility
     {
         return std::chrono::system_clock::from_time_t(static_cast<time_t>(epoch));
     }
+
+    std::chrono::system_clock::time_point GetTimePointFromVersion(const UInt64Version& version)
+    {
+        // Our custom format for converting UTC into a version is:
+        //  Major :: `Year` [1, 9999]
+        //  Minor :: `Month * 100 + Day` where Month [1, 12] and Day [1, 31]
+        //  Build :: `Hour * 100 + Minute` where Hour [1, 24] and Minute [0, 59]
+        //  Revision :: Milliseconds, but since no seconds are available we will disregard this
+
+        tm versionTime{};
+
+        // Limit to the range supported by _mkgmtime64, which is 1970 to 3000 (hello to Y3K maintainers from 2023!)
+        UINT64 majorVersion = version.Major();
+        if (majorVersion < 1970 || majorVersion > 3000)
+        {
+            return std::chrono::system_clock::time_point::min();
+        }
+        versionTime.tm_year = static_cast<int>(majorVersion) - 1900;
+
+        UINT64 minorVersion = version.Minor();
+        UINT64 monthValue = minorVersion / 100;
+        UINT64 dayValue = minorVersion % 100;
+        if (monthValue < 1 || monthValue > 12 || dayValue < 1 || dayValue > 31)
+        {
+            return std::chrono::system_clock::time_point::min();
+        }
+        versionTime.tm_mon = static_cast<int>(monthValue) - 1;
+        versionTime.tm_mday = static_cast<int>(dayValue);
+
+        UINT64 buildVersion = version.Build();
+        UINT64 hourValue = buildVersion / 100;
+        UINT64 minuteValue = buildVersion % 100;
+        if (hourValue < 1 || hourValue > 24 || minuteValue > 59)
+        {
+            return std::chrono::system_clock::time_point::min();
+        }
+        versionTime.tm_hour = static_cast<int>(hourValue) - 1;
+        versionTime.tm_min = static_cast<int>(minuteValue);
+
+        return std::chrono::system_clock::from_time_t(_mkgmtime64(&versionTime));
+    }
 }

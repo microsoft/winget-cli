@@ -387,6 +387,9 @@
     <ClInclude Include="Rest\Schema\1_6\Interface.h">
       <Filter>Rest\Schema\1_6</Filter>
     </ClInclude>
+    <ClInclude Include="SourceUpdateChecks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -613,6 +616,9 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_6\RestInterface_1_6.cpp">
       <Filter>Rest\Schema\1_6</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceUpdateChecks.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

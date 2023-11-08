@@ -279,6 +279,7 @@ minexample
 minidump
 minschema
 missingdependency
+mkgmtime
 MMmmbbbb
 mof
 monicka
@@ -330,6 +331,7 @@ objbase
 objidl
 ofile
 ools
+oop
 OPTOUT
 osfhandle
 Outptr
@@ -417,6 +419,7 @@ seof
 servercert
 servercertificate
 setmetadatabymanifestid
+SETTINGCHANGE
 SETTINGMAPPING
 SHCONTF
 SHGDN
@@ -472,6 +475,7 @@ TOptions
 TProgress
 transitioning
 TResult
+TReturn
 trimstart
 TState
 TStatus

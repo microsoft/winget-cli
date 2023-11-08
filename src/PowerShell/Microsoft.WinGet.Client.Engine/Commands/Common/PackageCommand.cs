@@ -12,6 +12,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Extensions;
+    using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
     /// This is the base class for commands which operate on a specific package and version i.e.,
@@ -34,7 +36,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <remarks>
         /// Must match the name of the <see cref="CatalogPackage" /> field on the <see cref="MatchResult" /> class.
         /// </remarks>
-        protected CatalogPackage CatalogPackage { get; set; } = null;
+        protected PSCatalogPackage CatalogPackage { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the version to install.
@@ -50,12 +52,14 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// Executes a command targeting a specific package version.
         /// </summary>
         /// <param name="behavior">The <see cref="CompositeSearchBehavior" /> value.</param>
+        /// <param name="match">The match option.</param>
         /// <param name="callback">The method to call after retrieving the package and version to operate upon.</param>
         protected void GetPackageAndExecute(
             CompositeSearchBehavior behavior,
+            PackageFieldMatchOption match,
             Action<CatalogPackage, PackageVersionId> callback)
         {
-            CatalogPackage package = this.GetCatalogPackage(behavior);
+            CatalogPackage package = this.GetCatalogPackage(behavior, match);
             PackageVersionId version = this.GetPackageVersionId(package);
             if (this.PsCmdlet.ShouldProcess(package.ToString(version)))
             {
@@ -65,35 +69,39 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
         /// <summary>
         /// Sets the find package options for a query input that is looking for a specific package.
+        /// DO NOT pass PackageFieldMatchOption WinRT enum type in this method.
+        /// That will cause the type to attempt to be loaded in the construction
+        /// of this method and throw a different exception for Windows PowerShell.
         /// </summary>
         /// <param name="options">The options object.</param>
         /// <param name="match">The match type.</param>
         /// <param name="value">The query value.</param>
         protected override void SetQueryInFindPackagesOptions(
             ref FindPackagesOptions options,
-            PackageFieldMatchOption match,
+            string match,
             string value)
         {
+            var matchOption = PSEnumHelpers.ToPackageFieldMatchOption(match);
             foreach (PackageMatchField field in new PackageMatchField[] { PackageMatchField.Id, PackageMatchField.Name, PackageMatchField.Moniker })
             {
-                var selector = ComObjectFactory.Value.CreatePackageMatchFilter();
+                var selector = ManagementDeploymentFactory.Instance.CreatePackageMatchFilter();
                 selector.Field = field;
                 selector.Value = value ?? string.Empty;
-                selector.Option = match;
+                selector.Option = matchOption;
                 options.Selectors.Add(selector);
             }
         }
 
-        private CatalogPackage GetCatalogPackage(CompositeSearchBehavior behavior)
+        private CatalogPackage GetCatalogPackage(CompositeSearchBehavior behavior, PackageFieldMatchOption match)
         {
             if (this.CatalogPackage != null)
             {
                 // The package was already provided via a parameter or the pipeline.
-                return this.CatalogPackage;
+                return this.CatalogPackage.CatalogPackageCOM;
             }
             else
             {
-                IReadOnlyList<MatchResult> results = this.FindPackages(behavior, 0);
+                IReadOnlyList<MatchResult> results = this.FindPackages(behavior, 0, match);
                 if (results.Count == 1)
                 {
                     // Exactly one package matched, so we can just return it.
