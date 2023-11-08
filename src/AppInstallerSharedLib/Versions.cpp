@@ -295,10 +295,15 @@ namespace AppInstaller::Utility
         {
             Other = end;
         }
+
+        m_foldedOther = Utility::FoldCase(static_cast<std::string_view>(Other));
     }
 
     Version::Part::Part(uint64_t integer, std::string other) :
-        Integer(integer), Other(std::move(other)) {}
+        Integer(integer), Other(std::move(other))
+    {
+        m_foldedOther = Utility::FoldCase(static_cast<std::string_view>(Other));
+    }
 
     bool Version::Part::operator<(const Part& other) const
     {
@@ -320,8 +325,9 @@ namespace AppInstaller::Utility
             // If the other Other is empty and this is not, this is less.
             return true;
         }
-        else if (Other < other.Other)
+        else if (m_foldedOther < other.m_foldedOther)
         {
+            // Compare the folded versions
             return true;
         }
 
@@ -331,7 +337,7 @@ namespace AppInstaller::Utility
 
     bool Version::Part::operator==(const Part& other) const
     {
-        return Integer == other.Integer && Other == other.Other;
+        return Integer == other.Integer && m_foldedOther == other.m_foldedOther;
     }
 
     bool Version::Part::operator!=(const Part& other) const

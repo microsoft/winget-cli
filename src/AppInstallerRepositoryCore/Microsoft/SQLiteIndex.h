@@ -37,6 +37,9 @@ namespace AppInstaller::Repository::Microsoft
         // Options for creating a new index.
         using CreateOptions = Schema::ISQLiteIndex::CreateOptions;
 
+        // The type of version keys.
+        using VersionKey = Schema::ISQLiteIndex::VersionKey;
+
         SQLiteIndex(const SQLiteIndex&) = delete;
         SQLiteIndex& operator=(const SQLiteIndex&) = delete;
 
@@ -47,10 +50,10 @@ namespace AppInstaller::Repository::Microsoft
         static SQLiteIndex CreateNew(const std::string& filePath, SQLite::Version version = SQLite::Version::Latest(), CreateOptions options = CreateOptions::None);
 
         // Opens an existing SQLiteIndex database.
-        static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {})
-        {
-            return { filePath, disposition, std::move(indexFile) };
-        }
+        static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {});
+
+        // Creates a copy of the given index.
+        static SQLiteIndex CopyFrom(const std::string& filePath, SQLiteIndex& source);
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Changes the version of the interface being used to operate on the database.
@@ -124,7 +127,7 @@ namespace AppInstaller::Repository::Microsoft
         std::optional<IdType> GetManifestIdByManifest(const Manifest::Manifest& manifest) const;
 
         // Gets all versions and channels for the given id.
-        std::vector<Utility::VersionAndChannel> GetVersionKeysById(IdType id) const;
+        std::vector<VersionKey> GetVersionKeysById(IdType id) const;
 
         // Gets the string for the given metadata and manifest id, if present.
         MetadataResult GetMetadataByManifestId(SQLite::rowid_t manifestId) const;
@@ -139,12 +142,16 @@ namespace AppInstaller::Repository::Microsoft
         // Get all the dependencies for a specific manifest.
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const;
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(AppInstaller::Manifest::string_t packageId) const;
+
     private:
         // Constructor used to create a new index.
         SQLiteIndex(const std::string& target, const SQLite::Version& version);
 
         // Constructor used to open an existing index.
         SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
+
+        // Constructor used to copy the given index.
+        SQLiteIndex(const std::string& target, SQLiteIndex& source);
 
         // Internal functions to normalize on the relativePath being present.
         IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
