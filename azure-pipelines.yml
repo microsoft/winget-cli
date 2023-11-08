@@ -123,9 +123,11 @@ jobs:
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: CopyFiles@2
-    displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
+    displayName: 'Copy Symbols to artifacts folder'
     inputs:
-      Contents: '$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb'
+      Contents: |
+          $(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb
+          $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.pdb
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
@@ -305,7 +307,8 @@ jobs:
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
-    condition: succeededOrFailed()
+      diagnosticsEnabled: true
+    condition: and(succeededOrFailed(), eq(variables.buildPlatform, 'x86'))
 
   - task: PowerShell@2
     displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)

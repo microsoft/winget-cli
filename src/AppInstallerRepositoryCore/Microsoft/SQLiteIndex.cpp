@@ -35,6 +35,16 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
+    SQLiteIndex SQLiteIndex::Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile)
+    {
+        return { filePath, disposition, std::move(indexFile) };
+    }
+
+    SQLiteIndex SQLiteIndex::CopyFrom(const std::string& filePath, SQLiteIndex& source)
+    {
+        return { filePath, source };
+    }
+
     std::unique_ptr<Schema::ISQLiteIndex> SQLiteIndex::CreateISQLiteIndex() const
     {
         using namespace Schema;
@@ -88,6 +98,13 @@ namespace AppInstaller::Repository::Microsoft
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
         m_interface = CreateISQLiteIndex();
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
+    }
+
+    SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteIndex& source) :
+        SQLiteStorageBase(target, source)
+    {
+        m_dbconn.EnableICU();
+        m_interface = CreateISQLiteIndex();
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -257,7 +274,7 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetManifestIdByManifest(m_dbconn, manifest);
     }
 
-    std::vector<Utility::VersionAndChannel> SQLiteIndex::GetVersionKeysById(IdType id) const
+    std::vector<SQLiteIndex::VersionKey> SQLiteIndex::GetVersionKeysById(IdType id) const
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         return m_interface->GetVersionKeysById(m_dbconn, id);

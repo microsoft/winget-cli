@@ -130,6 +130,7 @@ ENDSESSION
 EPester
 epth
 EQU
+errcode
 errmsg
 ERRORONEXIT
 ESource

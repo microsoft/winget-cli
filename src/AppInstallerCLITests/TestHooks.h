@@ -40,6 +40,9 @@ namespace AppInstaller
     namespace Repository::Microsoft
     {
         void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath);
+
+        using GetARPKeyFunc = std::function<Registry::Key(Manifest::ScopeEnum, Utility::Architecture)>;
+        void SetGetARPKeyOverride(GetARPKeyFunc value);
     }
 
     namespace Logging
@@ -227,5 +230,20 @@ namespace TestHook
 
     private:
         std::vector<AppInstaller::Repository::ExtractedIconInfo> m_extractedIcons;
+    };
+
+    struct SetGetARPKey_Override
+    {
+        SetGetARPKey_Override(std::function<AppInstaller::Registry::Key(AppInstaller::Manifest::ScopeEnum, AppInstaller::Utility::Architecture)> function)
+        {
+            AppInstaller::Repository::Microsoft::SetGetARPKeyOverride(function);
+        }
+
+        ~SetGetARPKey_Override()
+        {
+            AppInstaller::Repository::Microsoft::SetGetARPKeyOverride({});
+        }
+
+    private:
     };
 }

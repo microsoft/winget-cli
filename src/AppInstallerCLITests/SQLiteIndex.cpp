@@ -321,7 +321,14 @@ bool AreArpVersionsSupported(const SQLiteIndex& index, const Schema::Version& te
     return (index.GetVersion() >= Schema::Version{ 1, 5 } && testVersion >= Schema::Version{ 1, 5 });
 }
 
-std::string GetPropertyStringByKey(const SQLiteIndex& index, SQLite::rowid_t id, PackageVersionProperty property, std::string_view version, std::string_view channel)
+std::string GetPropertyStringByKey(const SQLiteIndex& index, rowid_t manifestId, PackageVersionProperty property)
+{
+    auto result = index.GetPropertyByManifestId(manifestId, property);
+    REQUIRE(result);
+    return result.value();
+}
+
+std::string GetPropertyStringByKey(const SQLiteIndex& index, rowid_t id, PackageVersionProperty property, std::string_view version, std::string_view channel)
 {
     auto manifestId = index.GetManifestIdByKey(id, version, channel);
     REQUIRE(manifestId);
@@ -334,7 +341,7 @@ std::string GetPropertyStringById(const SQLiteIndex& index, SQLite::rowid_t id, 
 {
     auto versions = index.GetVersionKeysById(id);
     REQUIRE(!versions.empty());
-    return GetPropertyStringByKey(index, id, property, versions[0].GetVersion().ToString(), versions[0].GetChannel().ToString());
+    return GetPropertyStringByKey(index, versions[0].ManifestId, property);
 }
 
 std::string GetIdStringById(const SQLiteIndex& index, SQLite::rowid_t id)
@@ -1821,8 +1828,8 @@ TEST_CASE("SQLiteIndex_Versions", "[sqliteindex]")
 
     auto result = index.GetVersionKeysById(results.Matches[0].first);
     REQUIRE(result.size() == 1);
-    REQUIRE(result[0].GetVersion().ToString() == manifest.Version);
-    REQUIRE(result[0].GetChannel().ToString() == manifest.Channel);
+    REQUIRE(result[0].VersionAndChannel.GetVersion().ToString() == manifest.Version);
+    REQUIRE(result[0].VersionAndChannel.GetChannel().ToString() == manifest.Channel);
 }
 
 TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
@@ -1867,7 +1874,7 @@ TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
     for (size_t i = 0; i < result.size(); ++i)
     {
         const VersionAndChannel& sortedVAC = sortedList[i];
-        const VersionAndChannel& resultVAC = result[i];
+        const VersionAndChannel& resultVAC = result[i].VersionAndChannel;
 
         INFO(i);
         REQUIRE(sortedVAC.GetVersion().ToString() == resultVAC.GetVersion().ToString());
@@ -1955,7 +1962,7 @@ TEST_CASE("SQLiteIndex_PathString_CaseInsensitive", "[sqliteindex]")
     REQUIRE(result.has_value());
 
     result = index.GetManifestIdByKey(results.Matches[0].first, "13.2.0-BugFix", "BETA");
-    REQUIRE(!result.has_value());
+    REQUIRE(result.has_value());
 }
 
 TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")
