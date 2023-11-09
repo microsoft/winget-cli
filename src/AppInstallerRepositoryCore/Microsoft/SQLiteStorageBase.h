@@ -26,7 +26,10 @@ namespace AppInstaller::Repository::Microsoft
         // Gets the last write time for the index.
         std::chrono::system_clock::time_point GetLastWriteTime();
 
-        // Gets the schema version of the index.
+        // Gets the identifier written to the database when it was created.
+        std::string GetDatabaseIdentifier();
+
+        // Gets the schema version of the database.
         Schema::Version GetVersion() const { return m_version; }
 
     protected:
@@ -34,7 +37,9 @@ namespace AppInstaller::Repository::Microsoft
 
         SQLiteStorageBase(const std::string& filePath, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
-        // Sets the last write time metadata value in the index.
+        SQLiteStorageBase(const std::string& target, SQLiteStorageBase& source);
+
+        // Sets the last write time metadata value in the database.
         void SetLastWriteTime();
 
         // Gets the corresponding OpenFlags based on the disposition.

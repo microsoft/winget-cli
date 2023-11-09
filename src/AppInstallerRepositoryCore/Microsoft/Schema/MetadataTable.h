@@ -12,6 +12,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
     // Named metadata values are defined here to reduce the risk of duplicate names.
 
     // Version 1.0
+    static constexpr std::string_view s_MetadataValueName_DatabaseIdentifier = "databaseIdentifier"sv;
     static constexpr std::string_view s_MetadataValueName_MajorVersion = "majorVersion"sv;
     static constexpr std::string_view s_MetadataValueName_MinorVersion = "minorVersion"sv;
     static constexpr std::string_view s_MetadataValueName_LastWriteTime = "lastwritetime"sv;
@@ -30,6 +31,22 @@ namespace AppInstaller::Repository::Microsoft::Schema
             return statement.GetColumn<Value>(0);
         }
 
+        // Gets the named value from the metadata table, interpreting it as the given type.
+        // Returns nullopt if the value is not present.
+        template <typename Value>
+        static std::optional<Value> TryGetNamedValue(SQLite::Connection& connection, std::string_view name)
+        {
+            std::optional<SQLite::Statement> statement = TryGetNamedValueStatement(connection, name);
+            if (statement)
+            {
+                return statement->GetColumn<Value>(0);
+            }
+            else
+            {
+                return std::nullopt;
+            }
+        }
+
         // Sets the named value into the metadata table.
         template <typename Value>
         static void SetNamedValue(SQLite::Connection& connection, std::string_view name, Value&& v)
@@ -42,6 +59,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
     private:
         // Internal function that gets the named value.
         static SQLite::Statement GetNamedValueStatement(SQLite::Connection& connection, std::string_view name);
+
+        // Internal function that gets the named value, or nullopt if it is not present.
+        static std::optional<SQLite::Statement> TryGetNamedValueStatement(SQLite::Connection& connection, std::string_view name);
 
         // Internal function that sets the named value.
         static SQLite::Statement SetNamedValueStatement(SQLite::Connection& connection, std::string_view name);

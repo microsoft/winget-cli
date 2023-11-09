@@ -15,6 +15,7 @@
 #include "WorkflowBase.h"
 #include "DependenciesFlow.h"
 #include "PromptFlow.h"
+#include "SourceFlow.h"
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDeployment.h>
 #include <AppInstallerSynchronization.h>
@@ -531,6 +532,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
             Workflow::RecordInstall <<
+            Workflow::ForceInstalledCacheUpdate <<
             Workflow::RemoveInstaller <<
             Workflow::DisplayInstallationNotes;
     }

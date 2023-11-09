@@ -36,6 +36,23 @@ CREATE TABLE [metadata](
         return result;
     }
 
+    std::optional<SQLite::Statement> MetadataTable::TryGetNamedValueStatement(SQLite::Connection& connection, std::string_view name)
+    {
+        THROW_HR_IF(E_INVALIDARG, name.empty());
+
+        SQLite::Statement result = SQLite::Statement::Create(connection, s_MetadataTableStmt_GetNamedValue);
+        result.Bind(1, name);
+
+        if (result.Step())
+        {
+            return result;
+        }
+        else
+        {
+            return std::nullopt;
+        }
+    }
+
     SQLite::Statement MetadataTable::SetNamedValueStatement(SQLite::Connection& connection, std::string_view name)
     {
         THROW_HR_IF(E_INVALIDARG, name.empty());
