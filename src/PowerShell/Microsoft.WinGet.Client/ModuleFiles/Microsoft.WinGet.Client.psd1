@@ -9,27 +9,13 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = if ($env:PROCESSOR_ARCHITECTURE -like 'x86')
+RootModule = if ($PSEdition -like 'Core')
 {
-    if ($PSEdition -eq 'Core')
-    {
-        "runtimes\win10-x86\lib\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll"
-    }
-    else
-    {
-        "runtimes\win10-x86\lib\net48\Microsoft.WinGet.Client.Cmdlets.dll"
-    }
+    "net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll"
 }
 else
 {
-    if ($PSEdition -eq 'Core')
-    {
-        "runtimes\win10-x64\lib\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll"
-    }
-    else
-    {
-        "runtimes\win10-x64\lib\net48\Microsoft.WinGet.Client.Cmdlets.dll"
-    }
+    "net48\Microsoft.WinGet.Client.Cmdlets.dll"
 }
 
 # Version number of this module.

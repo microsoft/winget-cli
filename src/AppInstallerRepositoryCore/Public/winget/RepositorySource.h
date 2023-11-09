@@ -68,6 +68,9 @@ namespace AppInstaller::Repository
         ARP,
         MSIX,
         Installing,
+        // Same as `Installed`, but creating the source reference for this is sufficient to cause the cache to be updated
+        // on next Open of any `Installed` or `InstalledForceCacheUpdate`.
+        InstalledForceCacheUpdate,
     };
 
     // A well known source.

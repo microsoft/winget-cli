@@ -162,6 +162,10 @@ namespace AppInstaller::Repository
                 details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
                 return details;
+            case PredefinedSource::InstalledForceCacheUpdate:
+                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::NoneWithForcedCacheUpdate);
+                return details;
             case PredefinedSource::InstalledUser:
                 details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::User);

@@ -302,7 +302,7 @@ Describe 'Get configuration' {
 
     It 'Missing property' {
         $testFile = GetConfigTestDataFile "NotConfig.yml"
-        { Get-WinGetConfiguration -File $testFile } | Should -Throw "*0x8A15C00E*properties*missing*"
+        { Get-WinGetConfiguration -File $testFile } | Should -Throw '*0x8A15C00E*$schema*missing*'
     }
 
     It 'Missing configurationVersion' {

@@ -14,26 +14,29 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         m_unitResults.Append(unitResult);
 
-        ConfigurationTestResult unitValue = unitResult.TestResult();
-
         // Also aggregate the result of this incoming test into the overall result
-        switch (m_testResult)
+        m_testResult = FoldInTestResult(m_testResult, unitResult.TestResult());
+    }
+
+    ConfigurationTestResult TestConfigurationSetResult::FoldInTestResult(ConfigurationTestResult current, ConfigurationTestResult incoming)
+    {
+        switch (current)
         {
         case ConfigurationTestResult::Unknown:
         case ConfigurationTestResult::NotRun:
             // In these "default" cases, just take the unit result
-            m_testResult = unitValue;
+            return incoming;
             break;
         case ConfigurationTestResult::Positive:
-            if (unitValue == ConfigurationTestResult::Negative || unitValue == ConfigurationTestResult::Failed)
+            if (incoming == ConfigurationTestResult::Negative || incoming == ConfigurationTestResult::Failed)
             {
-                m_testResult = unitValue;
+                return incoming;
             }
             break;
         case ConfigurationTestResult::Negative:
-            if (unitValue == ConfigurationTestResult::Failed)
+            if (incoming == ConfigurationTestResult::Failed)
             {
-                m_testResult = unitValue;
+                return incoming;
             }
             break;
         case ConfigurationTestResult::Failed:
@@ -42,6 +45,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         default:
             THROW_HR(E_UNEXPECTED);
         }
+
+        return current;
     }
 
     Windows::Foundation::Collections::IVectorView<TestConfigurationUnitResult> TestConfigurationSetResult::UnitResults() const

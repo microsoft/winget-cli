@@ -68,11 +68,17 @@ namespace Microsoft.Management.Configuration.Processor
         /// </summary>
         /// <param name="set">Configuration Set.</param>
         /// <returns>Configuration set processor.</returns>
-        public IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet set)
+        public IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet? set)
         {
             try
             {
-                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating set processor for `{set.Name}`...");
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating set processor for `{set?.Name ?? "<null>"}`...");
+
+                if (set != null && (set.Parameters.Count > 0 || set.Variables.Count > 0))
+                {
+                    this.OnDiagnostics(DiagnosticLevel.Error, $"  Parameters/variables are not yet supported.");
+                    throw new NotImplementedException();
+                }
 
                 var envFactory = new ProcessorEnvironmentFactory(this.ProcessorType);
                 var processorEnvironment = envFactory.CreateEnvironment(

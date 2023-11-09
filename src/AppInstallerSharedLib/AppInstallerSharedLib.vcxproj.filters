@@ -101,6 +101,9 @@
     <ClInclude Include="Public\winget\JsonUtil.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\IConfigurationStaticsInternals.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
     <ClInclude Include="Public\winget\SQLiteStatementBuilder.h">
       <Filter>Public\winget</Filter>
     </ClInclude>

@@ -59,7 +59,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             string boolDirective2 = "boolDirective2";
             bool boolDirective2Value = false;
 
-            var unit = new ConfigurationUnit();
+            var unit = new ConfigurationUnit().Assign(new { Type = $"{unitModule}/unitResource" });
             unit.Metadata.Add(moduleDirective, unitModule);
             unit.Metadata.Add(versionDirective, unitVersion);
             unit.Metadata.Add(descriptionDirective, unitDescription);
@@ -108,7 +108,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             using var tmpFile = new TempFile("fakeConfigFile.yml", content: "content");
 
-            var unit = new ConfigurationUnit();
+            var unit = new ConfigurationUnit().Assign(new { Type = "unitModule/unitResource" });
             unit.Settings.Add("var1", @"$WinGetConfigRoot\this\is\a\path.txt");
             unit.Settings.Add("var2", @"${WinGetConfigRoot}\this\is\a\path.txt");
             unit.Settings.Add("var3", @"this\is\a\$WINGETCONFIGROOT\path.txt");
@@ -147,7 +147,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void GetExpandedSetting_ConfigRoot_Throw()
         {
-            var unit = new ConfigurationUnit();
+            var unit = new ConfigurationUnit().Assign(new { Type = "unitModule/unitResource" });
             unit.Settings.Add("var2", @"${WinGetConfigRoot}\this\is\a\path.txt");
 
             var unitInternal = new ConfigurationUnitInternal(unit, null!);

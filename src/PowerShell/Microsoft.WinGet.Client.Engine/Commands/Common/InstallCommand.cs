@@ -27,11 +27,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         }
 
         /// <summary>
-        /// Gets or sets the mode to manipulate the package with.
-        /// </summary>
-        protected PackageInstallMode Mode { get; set; } = PackageInstallMode.Default;
-
-        /// <summary>
         /// Gets or sets the override arguments to be passed on to the installer.
         /// </summary>
         protected string Override { get; set; }
@@ -63,15 +58,19 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
         /// <summary>
         /// Gets the install options from the configured parameters.
+        /// DO NOT pass PackageInstallMode WinRT enum type in this method.
+        /// That will cause the type to attempt to be loaded in the construction
+        /// of this method and throw a different exception for Windows PowerShell.
         /// </summary>
         /// <param name="version">The <see cref="PackageVersionId" /> to install.</param>
+        /// <param name="mode">Package install mode as string.</param>
         /// <returns>An <see cref="InstallOptions" /> instance.</returns>
-        protected virtual InstallOptions GetInstallOptions(PackageVersionId version)
+        protected virtual InstallOptions GetInstallOptions(PackageVersionId version, string mode)
         {
-            InstallOptions options = ComObjectFactory.Value.CreateInstallOptions();
+            InstallOptions options = ManagementDeploymentFactory.Instance.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch;
             options.Force = this.Force;
-            options.PackageInstallMode = this.Mode;
+            options.PackageInstallMode = PSEnumHelpers.ToPackageInstallMode(mode);
             if (version != null)
             {
                 options.PackageVersionId = version;

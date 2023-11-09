@@ -8,6 +8,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Management.Automation;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;

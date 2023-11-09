@@ -123,9 +123,11 @@ jobs:
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: CopyFiles@2
-    displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
+    displayName: 'Copy Symbols to artifacts folder'
     inputs:
-      Contents: '$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb'
+      Contents: |
+          $(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb
+          $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.pdb
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
@@ -305,7 +307,8 @@ jobs:
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
-    condition: succeededOrFailed()
+      diagnosticsEnabled: true
+    condition: and(succeededOrFailed(), eq(variables.buildPlatform, 'x86'))
 
   - task: PowerShell@2
     displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
@@ -344,11 +347,34 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
-    displayName: 'Copy PowerShell Module Files'
+    displayName: 'Copy native binaries for Microsoft.WinGet.Client'
     inputs:
-      SourceFolder: '$(buildOutDir)\PowerShell'
-      TargetFolder: '$(artifactsDir)\PowerShell'
-    condition: succeededOrFailed()
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll
+          Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
+          WindowsPackageManager\WindowsPackageManager.dll
+          UndockedRegFreeWinRT\winrtact.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net6.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy native binaries for Microsoft.WinGet.Configuration'
+    inputs:
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy managed binaries for Microsoft.WinGet.Configuration in arch specific'
+    inputs:
+      SourceFolder: $(buildOutDirAnyCpu)
+      Contents: |
+          Microsoft.Management.Configuration.Projection\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Projection.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
 
   - task: CopyFiles@2
     displayName: 'Copy PowerShell AnyCPU Module Files'
@@ -444,14 +470,28 @@ jobs:
 
   - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
-    displayName: Run Tests
+    displayName: Run PowerShell 7 Tests
+  
+  - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest
+    workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
+    displayName: Run Windows PowerShell Tests
+    condition: succeededOrFailed()
 
   - task: PublishTestResults@2
-    displayName: Publish Pester Test Results
+    displayName: Publish Pester Test Results PowerShell 7
     inputs:
       testResultsFormat: 'NUnit'
       testResultsFiles: '$(Pipeline.Workspace)\PesterTest\Test*.xml'
       failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    displayName: Publish Pester Test Results Windows PowerShell
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\WPPesterTest\Test*.xml'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish PowerShell Module Artifacts

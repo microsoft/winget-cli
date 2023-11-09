@@ -6,6 +6,7 @@
 #include "ConfigurationUnit.h"
 #include "ConfigurationSet.h"
 #include "ConfigurationProcessor.h"
+#include "ConfigurationParameter.h"
 #include <AppInstallerStrings.h>
 #include <winget/ConfigurationSetProcessorHandlers.h>
 
@@ -38,11 +39,23 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         auto result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationProcessor>>();
         result->ConfigurationSetProcessorFactory(factory);
+        result->SetSupportsSchema03(WI_IsFlagSet(m_state, AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags::Configuration03));
         return *result;
     }
 
     Windows::Foundation::IAsyncActionWithProgress<uint32_t> ConfigurationStaticFunctions::EnsureConfigurationAvailableAsync()
     {
         THROW_HR(E_NOTIMPL);
+    }
+
+    Configuration::ConfigurationParameter ConfigurationStaticFunctions::CreateConfigurationParameter()
+    {
+        return *make_self<wil::details::module_count_wrapper<implementation::ConfigurationParameter>>();
+    }
+
+    HRESULT STDMETHODCALLTYPE ConfigurationStaticFunctions::SetExperimentalState(UINT32 state)
+    {
+        m_state = static_cast<AppInstaller::WinRT::ConfigurationStaticsInternalsStateFlags>(state);
+        return S_OK;
     }
 }

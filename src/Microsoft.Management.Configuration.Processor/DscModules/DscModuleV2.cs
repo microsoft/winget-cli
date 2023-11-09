@@ -6,12 +6,12 @@
 
 namespace Microsoft.Management.Configuration.Processor.DscModule
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Management.Automation;
-    using System.Text;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;

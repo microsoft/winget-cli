@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="ComObjectFactory.cs" company="Microsoft Corporation">
+// <copyright file="ManagementDeploymentFactory.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -7,7 +7,9 @@
 namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
@@ -21,7 +23,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     /// <summary>
     /// Constructs instances of classes from the <see cref="Management.Deployment" /> namespace.
     /// </summary>
-    public class ComObjectFactory
+    internal sealed class ManagementDeploymentFactory
     {
 #if USE_PROD_CLSIDS
         private static readonly Guid PackageManagerClsid = Guid.Parse("C53A4F16-787E-42A4-B304-29EFFB4BF597");
@@ -63,10 +65,14 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Guid PackageMatchFilterIid = Guid.Parse("D981ECA3-4DE5-5AD7-967A-698C7D60FC3B");
         private static readonly Guid DownloadOptionsIid = Guid.Parse("B4D72A63-40FF-597D-A7DA-43580268DC96");
 
+        private static readonly IEnumerable<Architecture> ValidArchs = new Architecture[] { Architecture.X86, Architecture.X64 };
+
+        private static readonly Lazy<ManagementDeploymentFactory> Lazy = new (() => new ManagementDeploymentFactory());
+
         /// <summary>
-        /// Initializes static members of the <see cref="ComObjectFactory"/> class.
+        /// Initializes static members of the <see cref="ManagementDeploymentFactory"/> class.
         /// </summary>
-        static ComObjectFactory()
+        static ManagementDeploymentFactory()
         {
             if (Utilities.UsesInProcWinget)
             {
@@ -75,11 +81,23 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
+        private ManagementDeploymentFactory()
+        {
+        }
+
+        /// <summary>
+        /// Gets the instance object.
+        /// </summary>
+        public static ManagementDeploymentFactory Instance
+        {
+            get { return Lazy.Value; }
+        }
+
         /// <summary>
         /// Creates an instance of the <see cref="PackageManager" /> class.
         /// </summary>
         /// <returns>A <see cref="PackageManager" /> instance.</returns>
-        public virtual PackageManager CreatePackageManager()
+        public PackageManager CreatePackageManager()
         {
             return Create<PackageManager>(PackageManagerType, PackageManagerIid);
         }
@@ -88,7 +106,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Creates an instance of the <see cref="FindPackagesOptions" /> class.
         /// </summary>
         /// <returns>A <see cref="FindPackagesOptions" /> instance.</returns>
-        public virtual FindPackagesOptions CreateFindPackagesOptions()
+        public FindPackagesOptions CreateFindPackagesOptions()
         {
             return Create<FindPackagesOptions>(FindPackagesOptionsType, FindPackagesOptionsIid);
         }
@@ -97,7 +115,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Creates an instance of the <see cref="CreateCompositePackageCatalogOptions" /> class.
         /// </summary>
         /// <returns>A <see cref="CreateCompositePackageCatalogOptions" /> instance.</returns>
-        public virtual CreateCompositePackageCatalogOptions CreateCreateCompositePackageCatalogOptions()
+        public CreateCompositePackageCatalogOptions CreateCreateCompositePackageCatalogOptions()
         {
             return Create<CreateCompositePackageCatalogOptions>(CreateCompositePackageCatalogOptionsType, CreateCompositePackageCatalogOptionsIid);
         }
@@ -106,7 +124,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Creates an instance of the <see cref="InstallOptions" /> class.
         /// </summary>
         /// <returns>An <see cref="InstallOptions" /> instance.</returns>
-        public virtual InstallOptions CreateInstallOptions()
+        public InstallOptions CreateInstallOptions()
         {
             return Create<InstallOptions>(InstallOptionsType, InstallOptionsIid);
         }
@@ -115,7 +133,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Creates an instance of the <see cref="UninstallOptions" /> class.
         /// </summary>
         /// <returns>A <see cref="UninstallOptions" /> instance.</returns>
-        public virtual UninstallOptions CreateUninstallOptions()
+        public UninstallOptions CreateUninstallOptions()
         {
             return Create<UninstallOptions>(UninstallOptionsType, UninstallOptionsIid);
         }
@@ -124,7 +142,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Creates an instance of the <see cref="DownloadOptions" /> class.
         /// </summary>
         /// <returns>A <see cref="DownloadOptions" /> instance.</returns>
-        public virtual DownloadOptions CreateDownloadOptions()
+        public DownloadOptions CreateDownloadOptions()
         {
             return Create<DownloadOptions>(DownloadOptionsType, DownloadOptionsIid);
         }
@@ -133,7 +151,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Creates an instance of the <see cref="PackageMatchFilter" /> class.
         /// </summary>
         /// <returns>A <see cref="PackageMatchFilter" /> instance.</returns>
-        public virtual PackageMatchFilter CreatePackageMatchFilter()
+        public PackageMatchFilter CreatePackageMatchFilter()
         {
             return Create<PackageMatchFilter>(PackageMatchFilterType, PackageMatchFilterIid);
         }
@@ -144,8 +162,15 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         {
             if (Utilities.UsesInProcWinget)
             {
+                var arch = RuntimeInformation.ProcessArchitecture;
+                if (!ValidArchs.Contains(arch))
+                {
+                    throw new NotSupportedException(arch.ToString());
+                }
+
                 string executingAssemblyLocation = Assembly.GetExecutingAssembly().Location;
-                string executingAssemblyDirectory = Path.GetDirectoryName(executingAssemblyLocation);
+                string executingAssemblyDirectory = Path.Combine(Path.GetDirectoryName(executingAssemblyLocation), arch.ToString().ToLower());
+
                 SetDllDirectoryW(executingAssemblyDirectory);
 
                 try

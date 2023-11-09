@@ -34,7 +34,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\NotConfig.yml"));
             Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_MISSING_FIELD, result.ExitCode);
-            Assert.True(result.StdOut.Contains("properties"));
+            Assert.True(result.StdOut.Contains("$schema"));
             Assert.True(result.StdOut.Contains("missing"));
         }
 

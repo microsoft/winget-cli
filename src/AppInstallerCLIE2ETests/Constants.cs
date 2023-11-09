@@ -82,6 +82,7 @@ namespace AppInstallerCLIE2ETests
         public const string PortableExePackageId = "AppInstallerTest.TestPortableExe";
         public const string PortableExeWithCommandPackageId = "AppInstallerTest.TestPortableExeWithCommand";
 
+        public const string ExeInstalledDefaultProductCode = "{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
         public const string MsiInstallerProductCode = "{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         public const string MsixInstallerName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
         public const string MsixInstallerPackageFamilyName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe";
@@ -317,6 +318,7 @@ namespace AppInstallerCLIE2ETests
             public const int CONFIG_ERROR_UNIT_IMPORT_MODULE = unchecked((int)0x8A15C108);
             public const int CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT = unchecked((int)0x8A15C109);
             public const int CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT = unchecked((int)0x8A15C110);
+            public const int CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN = unchecked((int)0x8A15C111);
         }
 
 #pragma warning restore SA1310 // Field names should not contain underscore
