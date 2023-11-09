@@ -11,7 +11,10 @@
 #include <Msi.h>
 #include <KnownFolders.h>
 
+#pragma warning( push )
+#pragma warning ( disable : 26439 26451 26495 )
 #include <catch.hpp>
+#pragma warning( pop )
 
 #include <json/json.h>
 
@@ -20,10 +23,14 @@
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.Management.Deployment.h>
 
+#pragma warning( push )
+#pragma warning ( disable : 6001 6553 6387 6388 28193 28196 )
 #include <wil/filesystem.h>
 #include <wil/resource.h>
+#include <wil/result.h>
 #include <wil/result_macros.h>
 #include <wil/token_helpers.h>
+#pragma warning( push )
 
 #include <atomic>
 #include <filesystem>
@@ -39,3 +46,11 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
+// The compiler complains about MarketsInfo::ExcludedMarkets being uninitialized,
+// only in this project for some reason.
+// Adding = {} didn't fix it, so disabling warning here.
+#pragma warning( push )
+#pragma warning ( disable : 26495 )
+#include <winget/ManifestInstaller.h>
+#pragma warning( pop )

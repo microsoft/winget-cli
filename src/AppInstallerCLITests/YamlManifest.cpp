@@ -394,7 +394,12 @@ void CopyTestDataFilesToFolder(const std::vector<std::string>& testDataFiles, co
     }
 }
 
+// Function uses too much stack space.
+// We should be okay here since this is called from tests and it doesn't do calls that are too complicated
+#pragma warning( push )
+#pragma warning ( disable : 6262 )
 void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, ManifestVer manifestVer = { s_ManifestVersionV1 }, bool isExported = false)
+#pragma warning( pop )
 {
     REQUIRE(manifest.Id == "microsoft.msixsdk");
     REQUIRE(manifest.Version == "1.7.32");

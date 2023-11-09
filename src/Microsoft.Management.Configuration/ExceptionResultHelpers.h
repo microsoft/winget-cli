@@ -3,6 +3,7 @@
 #pragma once
 #include <exception>
 #include <AppInstallerLogging.h>
+#include <AppInstallerStrings.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {

@@ -82,7 +82,6 @@
   <ItemGroup>
     <None Include="Microsoft_Management_Deployment.def" />
     <None Include="packages.config" />
-    <None Include="PropertySheet.props" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Public">

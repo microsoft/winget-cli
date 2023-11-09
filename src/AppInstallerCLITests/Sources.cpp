@@ -1066,7 +1066,7 @@ TEST_CASE("RepoSources_OpenMultipleWithSingleFailure", "[sources]")
     }
     catch (...) {}
 
-    REQUIRE(openFailure == FailingSourcesTestSource::FailingHR);
+    REQUIRE((openFailure == FailingSourcesTestSource::FailingHR));
 }
 
 TEST_CASE("RepoSources_OpenMultipleWithTotalFailure", "[sources]")

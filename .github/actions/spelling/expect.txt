@@ -80,6 +80,7 @@ cls
 clsctx
 clsid
 CODEOWNERS
+Codeql
 COINIT
 COMGLB
 commandline
@@ -420,6 +421,7 @@ sddl
 SECUREFILEPATH
 secureobject
 securestring
+Semmle
 seof
 servercert
 servercertificate

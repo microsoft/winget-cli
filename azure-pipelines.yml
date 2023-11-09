@@ -19,6 +19,10 @@ pool:
 variables:
   solution: 'src\AppInstallerCLI.sln'
   appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
+  # Enable CodeQL/Semmle static analysis for default branch
+  Codeql.Enabled: true
+  # TODO: Remove. Only for testing, we should use standard cadence of 72h
+  CodeQL.Cadence: 0
 
 # Do not set the build version for a PR build.
 
@@ -61,6 +65,10 @@ jobs:
     packageLayoutDir: $(Build.BinariesDirectory)\WingetPackageLayout
 
   steps:
+
+  # TODO: Remove; only to test in non-default branch
+  - task: CodeQL3000Init@0
+
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
 
@@ -97,6 +105,9 @@ jobs:
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
       workingDirectory: 'src'
 
+  # TODO: remove
+  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
+
   # Build all solutions in the root directory.
   - task: VSBuild@1
     displayName: Build Solution
@@ -110,6 +121,9 @@ jobs:
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
+  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
+    condition: always()
+  
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
@@ -121,6 +135,41 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
+
+  # Run static analysis and compliance checks for all the binaries
+  - task: ComponentGovernanceComponentDetection@0
+    displayName: Component Governance
+    inputs:
+      scanType: 'LogOnly'
+      verbosity: 'Verbose'
+      alertWarningLevel: 'High'
+      failOnAlert: true
+
+  - task: CredScan@3
+
+  # TODO: remove
+  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
+    condition: always()
+
+  - task: BinSkim@4
+    inputs:
+      InputType: 'Basic'
+      Function: 'analyze'
+      TargetPattern: 'guardianGlob'
+      AnalyzeTargetGlob: 'f|$(buildOutDir)/**.dll;f|$(buildOutDir)/**.exe;f|$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\*.dll'
+    continueOnError: true # TODO: remove once we pass these checks
+
+  # TODO: remove
+  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
+    condition: always()
+
+  - task: PublishSecurityAnalysisLogs@3
+    inputs:
+      ArtifactName: 'CodeAnalysisLogs'
+      ArtifactType: 'Container'
+      AllTools: true
+      ToolLogsNotFoundAction: 'Standard'
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Symbols to artifacts folder'
@@ -403,12 +452,6 @@ jobs:
       targetPath: '$(artifactsDir)'
     condition: succeededOrFailed()
 
-  - task: ComponentGovernanceComponentDetection@0
-    displayName: Component Governance
-    inputs:
-      scanType: 'Register'
-      verbosity: 'Verbose'
-      alertWarningLevel: 'High'
 
   # Run BimSkim for all the binaries
   - task: BinSkim@3

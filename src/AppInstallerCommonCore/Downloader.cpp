@@ -97,8 +97,8 @@ namespace AppInstaller::Utility
         bool computeHash)
     {
         // For AICLI_LOG usages with string literals.
-        #pragma warning(push)
-        #pragma warning(disable:26449)
+        #pragma warning( push )
+        #pragma warning ( disable : 26449 )
 
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
@@ -217,7 +217,7 @@ namespace AppInstaller::Utility
 
         AICLI_LOG(Core, Info, << "Download completed.");
 
-        #pragma warning(pop)
+        #pragma warning( pop )
 
         return result;
     }

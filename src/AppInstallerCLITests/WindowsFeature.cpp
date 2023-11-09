@@ -36,7 +36,7 @@ TEST_CASE("InstallFlow_WindowsFeatureDoesNotExist", "[windowsFeature]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::WindowsFeatureNotFound(LocIndView{ "testFeature1" })).get()) != std::string::npos);
 
@@ -72,7 +72,7 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverrideRequired).get()) != std::string::npos);
 }
@@ -108,7 +108,7 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
-    REQUIRE(context.GetTerminationHR() == ERROR_SUCCESS);
+    REQUIRE_SUCCEEDED(context);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndView{ "testFeature1" }, expectedErrorCode)).get()) != std::string::npos);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndView{ "testFeature2" }, expectedErrorCode)).get()) != std::string::npos);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverridden).get()) != std::string::npos);
@@ -149,7 +149,7 @@ TEST_CASE("InstallFlow_RebootRequired", "[windowsFeature]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::RebootRequiredToEnableWindowsFeatureOverrideRequired).get()) != std::string::npos);
 }
@@ -185,7 +185,7 @@ TEST_CASE("InstallFlow_RebootRequired_Force", "[windowsFeature]")
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
-    REQUIRE(context.GetTerminationHR() == ERROR_SUCCESS);
+    REQUIRE_SUCCEEDED(context);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::RebootRequiredToEnableWindowsFeatureOverridden).get()) != std::string::npos);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());
