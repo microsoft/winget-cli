@@ -105,8 +105,9 @@
       <PreprocessorDefinitions Condition=" '$(UseProdCLSIDs)' == 'true' ">USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition=" '$(UseProdWingetServer)' == 'true' ">USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
-      <!-- Unclear what this is used for, but Visual Studio adds it so... -->
+      <!-- Unclear what WIN32 is used for, but Visual Studio adds it so... -->
       <PreprocessorDefinitions Condition=" '$(Platform)' == 'Win32' ">WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Platform)'=='ARM'">WIN32;_ARM_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
       <!-- Enable in specific projects if needed -->
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
