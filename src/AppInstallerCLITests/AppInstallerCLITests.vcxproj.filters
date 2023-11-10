@@ -34,9 +34,6 @@
     <Filter Include="TestData\MultiFileManifestV1_6">
       <UniqueIdentifier>{82dd5390-16ce-4a4c-a61a-148013890cc4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TestData\MultiFileManifestV1_7">
-      <UniqueIdentifier>{3e7d4dff-5513-46dd-95d2-f616c867ebe4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\CLI">
       <UniqueIdentifier>{b35e1a8b-1961-46d5-98e5-adc8e52c54a9}</UniqueIdentifier>
     </Filter>
@@ -46,11 +43,8 @@
     <Filter Include="Source Files\Repository">
       <UniqueIdentifier>{13d4d227-0f04-4e57-a663-c3c535438ab3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TestData\Shadow">
-      <UniqueIdentifier>{6f8102b7-ea5f-4379-bb59-067ced63d970}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TestData\Shadow\V1_5">
-      <UniqueIdentifier>{6bd68492-3f96-4023-af35-63249cd18158}</UniqueIdentifier>
+    <Filter Include="TestData\MultiFileManifestV1_7">
+      <UniqueIdentifier>{3e7d4dff-5513-46dd-95d2-f616c867ebe4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -146,9 +140,6 @@
     <ClCompile Include="ManifestComparator.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
-    <ClCompile Include="MSStoreDownloadFlow.cpp">
-      <Filter>Source Files\CLI</Filter>
-    </ClCompile>
     <ClCompile Include="MsiExecArguments.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
@@ -182,10 +173,10 @@
     <ClCompile Include="Registry.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="Rest.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
     <ClCompile Include="RestClient.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="RestHelper.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
     <ClCompile Include="RestInterface_1_0.cpp">
@@ -341,26 +332,9 @@
     <ClCompile Include="ArpHelper.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
-    <ClCompile Include="AppShutdown.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="RestInterface_1_7.cpp">
-      <Filter>Source Files\Repository</Filter>
-    </ClCompile>
-    <ClCompile Include="PackageVersionDataManifest.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Yaml.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="FileCache.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="SQLiteDynamicStorage.cpp">
-      <Filter>Source Files\Repository</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="PropertySheet.props" />
     <None Include="packages.config" />
     <None Include="Run-TestsInPackage.ps1" />
   </ItemGroup>
@@ -626,9 +600,6 @@
     <CopyFileToFolders Include="TestData\DownloadFlowTest_DownloadCommandProhibited.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\DownloadFlowTest_MSStore.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -800,9 +771,6 @@
     <CopyFileToFolders Include="TestData\ManifestV1_6-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ManifestV1_7-Singleton.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
@@ -874,18 +842,6 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_6</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-DefaultLocale.yaml">
-      <Filter>TestData\MultiFileManifestV1_7</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Installer.yaml">
-      <Filter>TestData\MultiFileManifestV1_7</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Locale.yaml">
-      <Filter>TestData\MultiFileManifestV1_7</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Version.yaml">
-      <Filter>TestData\MultiFileManifestV1_7</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <Filter>TestData</Filter>
@@ -965,34 +921,19 @@
     <CopyFileToFolders Include="TestData\notepad.ico">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-DefaultLocale.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale2.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow2.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Installer.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Node-Merge.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Node-Merge2.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Node-Mapping.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ContainsEscapeControlCode.yaml">
+    <CopyFileToFolders Include="TestData\ManifestV1_7-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
