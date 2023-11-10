@@ -1,8 +1,8 @@
 {
   "$id": "https://aka.ms/winget-manifest.defaultlocale.1.6.0.schema.json",
-  "$schema": "http://json-schema.org/draft/2020-12/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "A representation of a multiple-file manifest representing a default app metadata in the OWC. v1.6.0",
-  "$defs": {
+  "definitions": {
     "Url": {
       "type": [ "string", "null" ],
       "pattern": "^([Hh][Tt][Tt][Pp][Ss]?)://.+$",
@@ -31,7 +31,7 @@
           "description": "The agreement text content."
         },
         "AgreementUrl": {
-          "$ref": "#/$defs/Url",
+          "$ref": "#/definitions/Url",
           "description": "The agreement URL."
         }
       }
@@ -46,7 +46,7 @@
           "description": "The label of the documentation for providing software guides such as manuals and troubleshooting URLs."
         },
         "DocumentUrl": {
-          "$ref": "#/$defs/Url",
+          "$ref": "#/definitions/Url",
           "description": "The documentation URL."
         }
       }
@@ -55,7 +55,7 @@
       "type": "object",
       "properties": {
         "IconUrl": {
-          "$ref": "#/$defs/Url",
+          "$ref": "#/definitions/Url",
           "description": "The url of the hosted icon file"
         },
         "IconFileType": {
@@ -138,15 +138,15 @@
       "description": "The publisher name"
     },
     "PublisherUrl": {
-      "$ref": "#/$defs/Url",
+      "$ref": "#/definitions/Url",
       "description": "The publisher home page"
     },
     "PublisherSupportUrl": {
-      "$ref": "#/$defs/Url",
+      "$ref": "#/definitions/Url",
       "description": "The publisher support page"
     },
     "PrivacyUrl": {
-      "$ref": "#/$defs/Url",
+      "$ref": "#/definitions/Url",
       "description": "The publisher privacy page or the package privacy page"
     },
     "Author": {
@@ -162,7 +162,7 @@
       "description": "The package name"
     },
     "PackageUrl": {
-      "$ref": "#/$defs/Url",
+      "$ref": "#/definitions/Url",
       "description": "The package home page"
     },
     "License": {
@@ -172,7 +172,7 @@
       "description": "The package license"
     },
     "LicenseUrl": {
-      "$ref": "#/$defs/Url",
+      "$ref": "#/definitions/Url",
       "description": "The license page"
     },
     "Copyright": {
@@ -182,7 +182,7 @@
       "description": "The package copyright"
     },
     "CopyrightUrl": {
-      "$ref": "#/$defs/Url",
+      "$ref": "#/definitions/Url",
       "description": "The package copyright page"
     },
     "ShortDescription": {
@@ -198,13 +198,13 @@
       "description": "The full package description"
     },
     "Moniker": {
-      "$ref": "#/$defs/Tag",
+      "$ref": "#/definitions/Tag",
       "description": "The most common package term"
     },
     "Tags": {
       "type": [ "array", "null" ],
       "items": {
-        "$ref": "#/$defs/Tag"
+        "$ref": "#/definitions/Tag"
       },
       "maxItems": 16,
       "uniqueItems": true,
@@ -213,7 +213,7 @@
     "Agreements": {
       "type": [ "array", "null" ],
       "items": {
-        "$ref": "#/$defs/Agreement"
+        "$ref": "#/definitions/Agreement"
       },
       "maxItems": 128
     },
@@ -224,11 +224,11 @@
       "description": "The package release notes"
     },
     "ReleaseNotesUrl": {
-      "$ref": "#/$defs/Url",
+      "$ref": "#/definitions/Url",
       "description": "The package release notes url"
     },
     "PurchaseUrl": {
-      "$ref": "#/$defs/Url",
+      "$ref": "#/definitions/Url",
       "description": "The purchase url for acquiring entitlement for the package."
     },
     "InstallationNotes": {
@@ -240,14 +240,14 @@
     "Documentations": {
       "type": [ "array", "null" ],
       "items": {
-        "$ref": "#/$defs/Documentation"
+        "$ref": "#/definitions/Documentation"
       },
       "maxItems": 256
     },
     "Icons": {
       "type": [ "array", "null" ],
       "items": {
-        "$ref": "#/$defs/Icon"
+        "$ref": "#/definitions/Icon"
       },
       "maxItems": 1024
     },
