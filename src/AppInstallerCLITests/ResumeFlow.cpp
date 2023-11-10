@@ -256,62 +256,35 @@ TEST_CASE("ResumeFlow_ResumeLimitExceeded", "[Resume]")
         return;
     }
 
-    TestCommon::TempDirectory tempCheckpointRecordDirectory("TempCheckpointRecordDirectory", false);
+    TestCommon::TempDirectory tempCheckpointsLocationDir("TempCheckpointsLocationDir", true);
 
-    const auto& tempCheckpointRecordDirectoryPath = tempCheckpointRecordDirectory.GetPath();
+    const auto& tempCheckpointRecordDirectoryPath = tempCheckpointsLocationDir.GetPath();
     TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointRecordDirectoryPath);
 
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFResume>(true);
-    testSettings.Set<Setting::EFReboot>(true);
-    testSettings.Set<Setting::EFWindowsFeature>(true);
     testSettings.Set<Setting::MaxResumes>(1);
 
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
+    std::filesystem::path testResumeId = L"testResumeId";
+    std::filesystem::path tempResumeDir = tempCheckpointRecordDirectoryPath / testResumeId;
+    std::filesystem::path tempCheckpointDatabasePath = tempResumeDir / L"checkpoints.db";
 
-    // Override with reboot required HRESULT.
-    auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(ERROR_SUCCESS);
-    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
-
-    TestHook::SetRegisterForRestartResult_Override registerForRestartResultOverride(true);
-    TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(true);
-
-    const auto& testManifestPath = TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string();
-    context.Args.AddArg(Execution::Args::Type::Manifest, testManifestPath);
-    context.Args.AddArg(Execution::Args::Type::AllowReboot);
-    context.Args.AddArg(Execution::Args::Type::AcceptSourceAgreements);
-
-    InstallCommand install({});
-    context.SetExecutingCommand(&install);
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    std::string resumeId;
-    for (const auto& entry : std::filesystem::directory_iterator(tempCheckpointRecordDirectoryPath))
     {
-        // There should only be one checkpoint folder created.
-        resumeId = entry.path().filename().u8string();
+        std::filesystem::create_directory(tempResumeDir);
+        std::shared_ptr<CheckpointDatabase> database = CheckpointDatabase::CreateNew(tempCheckpointDatabasePath.u8string(), {1, 0});
+        std::string_view testCheckpointName = "testCheckpoint"sv;
+
+        CheckpointDatabase::IdType checkpointId = database->AddCheckpoint(testCheckpointName);
+        database->SetDataValue(checkpointId, AutomaticCheckpointData::Command, {}, { "install" });
+        database->SetDataValue(checkpointId, AutomaticCheckpointData::ClientVersion, {}, { GetClientVersion()});
+        database->SetDataValue(checkpointId, AutomaticCheckpointData::ResumeCount, {}, {"1"});
     }
 
     {
-        // Execute resume once.
         std::ostringstream resumeOutput;
         TestContext resumeContext{ resumeOutput, std::cin };
-        previousThreadGlobals = resumeContext.SetForCurrentThread();
-        resumeContext.Args.AddArg(Execution::Args::Type::ResumeId, resumeId);
-
-        ResumeCommand resume({});
-        resume.Execute(resumeContext);
-    }
-
-    {
-        // Resume should fail as the resume limit has been exceeded.
-        std::ostringstream resumeOutput;
-        TestContext resumeContext{ resumeOutput, std::cin };
-        previousThreadGlobals = resumeContext.SetForCurrentThread();
-        resumeContext.Args.AddArg(Execution::Args::Type::ResumeId, resumeId);
+        auto previousThreadGlobals = resumeContext.SetForCurrentThread();
+        resumeContext.Args.AddArg(Execution::Args::Type::ResumeId, testResumeId.u8string());
 
         ResumeCommand resume({});
         resume.Execute(resumeContext);
