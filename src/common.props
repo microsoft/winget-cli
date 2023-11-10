@@ -113,6 +113,9 @@
 
       <!-- This causes the VC runtime to be linked statically -->
       <RuntimeLibrary Condition=" '$(Configuration)' == 'ReleaseStatic' ">MultiThreaded</RuntimeLibrary>
+
+      <!-- Enable Native Code Analysis. -->
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,6 +135,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -145,8 +149,6 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <!-- Enable Native Code Analysis. This requires more space than is available on release build machines, so we only use it for debug. -->
-      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
   </ItemDefinitionGroup>
 
