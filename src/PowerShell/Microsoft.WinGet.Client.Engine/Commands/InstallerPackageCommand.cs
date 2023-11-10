@@ -10,8 +10,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Common.Command;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Installs or updates a package from the pipeline or from a configured source.
@@ -94,23 +95,28 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageFieldMatchOption,
             string psPackageInstallMode)
         {
-            this.GetPackageAndExecute(
-                CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs,
-                PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
-                (package, version) =>
-                {
-                    InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
-                    if (psProcessorArchitecture != "Default")
+            var result = this.Execute(
+                () => this.GetPackageAndExecute(
+                    CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                    (package, version) =>
                     {
-                        options.AllowedArchitectures.Clear();
-                        options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
-                    }
+                        InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
+                        if (psProcessorArchitecture != "Default")
+                        {
+                            options.AllowedArchitectures.Clear();
+                            options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
+                        }
 
-                    options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
+                        options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
 
-                    InstallResult result = this.InstallPackage(package, options);
-                    this.PsCmdlet.WriteObject(new PSInstallResult(result));
-                });
+                        return this.InstallPackage(package, options);
+                    }));
+
+            if (result != null)
+            {
+                this.Write(StreamType.Object, new PSInstallResult(result));
+            }
         }
 
         /// <summary>
@@ -124,17 +130,21 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageFieldMatchOption,
             string psPackageInstallMode)
         {
-            this.GetPackageAndExecute(
-                CompositeSearchBehavior.LocalCatalogs,
-                PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
-                (package, version) =>
-                {
-                    InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
-                    options.AllowUpgradeToUnknownVersion = includeUnknown;
+            var result = this.Execute(
+                () => this.GetPackageAndExecute(
+                    CompositeSearchBehavior.LocalCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                    (package, version) =>
+                    {
+                        InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
+                        options.AllowUpgradeToUnknownVersion = includeUnknown;
+                        return this.UpgradePackage(package, options);
+                    }));
 
-                    InstallResult result = this.UpgradePackage(package, options);
-                    this.PsCmdlet.WriteObject(new PSInstallResult(result));
-                });
+            if (result != null)
+            {
+                this.Write(StreamType.Object, new PSInstallResult(result));
+            }
         }
 
         private InstallResult InstallPackage(

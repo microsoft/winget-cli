@@ -8,7 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
 {
     using System;
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Failed connecting to catalog.

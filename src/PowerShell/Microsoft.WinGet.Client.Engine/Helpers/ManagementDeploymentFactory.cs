@@ -43,19 +43,19 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Guid DownloadOptionsClsid = Guid.Parse("8EF324ED-367C-4880-83E5-BB2ABD0B72F6");
 #endif
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type PackageManagerType = Type.GetTypeFromCLSID(PackageManagerClsid);
+        private static readonly Type? PackageManagerType = Type.GetTypeFromCLSID(PackageManagerClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type FindPackagesOptionsType = Type.GetTypeFromCLSID(FindPackagesOptionsClsid);
+        private static readonly Type? FindPackagesOptionsType = Type.GetTypeFromCLSID(FindPackagesOptionsClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type CreateCompositePackageCatalogOptionsType = Type.GetTypeFromCLSID(CreateCompositePackageCatalogOptionsClsid);
+        private static readonly Type? CreateCompositePackageCatalogOptionsType = Type.GetTypeFromCLSID(CreateCompositePackageCatalogOptionsClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type InstallOptionsType = Type.GetTypeFromCLSID(InstallOptionsClsid);
+        private static readonly Type? InstallOptionsType = Type.GetTypeFromCLSID(InstallOptionsClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type UninstallOptionsType = Type.GetTypeFromCLSID(UninstallOptionsClsid);
+        private static readonly Type? UninstallOptionsType = Type.GetTypeFromCLSID(UninstallOptionsClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type PackageMatchFilterType = Type.GetTypeFromCLSID(PackageMatchFilterClsid);
+        private static readonly Type? PackageMatchFilterType = Type.GetTypeFromCLSID(PackageMatchFilterClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type DownloadOptionsType = Type.GetTypeFromCLSID(DownloadOptionsClsid);
+        private static readonly Type? DownloadOptionsType = Type.GetTypeFromCLSID(DownloadOptionsClsid);
 
         private static readonly Guid PackageManagerIid = Guid.Parse("B375E3B9-F2E0-5C93-87A7-B67497F7E593");
         private static readonly Guid FindPackagesOptionsIid = Guid.Parse("A5270EDD-7DA7-57A3-BACE-F2593553561F");
@@ -157,9 +157,14 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static T Create<T>(Type type, in Guid iid)
+        private static T Create<T>(Type? type, in Guid iid)
             where T : new()
         {
+            if (type == null)
+            {
+                throw new ArgumentNullException(iid.ToString());
+            }
+
             if (Utilities.UsesInProcWinget)
             {
                 var arch = RuntimeInformation.ProcessArchitecture;
@@ -169,7 +174,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 }
 
                 string executingAssemblyLocation = Assembly.GetExecutingAssembly().Location;
-                string executingAssemblyDirectory = Path.Combine(Path.GetDirectoryName(executingAssemblyLocation), arch.ToString().ToLower());
+                string executingAssemblyDirectory = Path.Combine(Path.GetDirectoryName(executingAssemblyLocation) !, arch.ToString().ToLower());
 
                 SetDllDirectoryW(executingAssemblyDirectory);
 
@@ -183,7 +188,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 }
             }
 
-            object instance = null;
+            object? instance = null;
 
             if (Utilities.ExecutingAsAdministrator)
             {
@@ -206,6 +211,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 instance = Activator.CreateInstance(type);
             }
 
+            if (instance == null)
+            {
+                throw new ArgumentNullException();
+            }
+
 #if NET
             IntPtr pointer = Marshal.GetIUnknownForObject(instance);
             return MarshalInterface<T>.FromAbi(pointer);
@@ -223,6 +233,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetDllDirectoryW([MarshalAs(UnmanagedType.LPWStr)] string directory);
+        private static extern bool SetDllDirectoryW([MarshalAs(UnmanagedType.LPWStr)] string? directory);
     }
 }

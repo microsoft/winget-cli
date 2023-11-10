@@ -10,6 +10,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// Commands that just calls winget.exe underneath.
@@ -55,11 +56,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
             if (asPlainText)
             {
-                this.PsCmdlet.WriteObject(result.StdOut);
+                this.Write(StreamType.Object, result.StdOut);
             }
             else
             {
-                this.PsCmdlet.WriteObject(Utilities.ConvertToHashtable(result.StdOut));
+                this.Write(StreamType.Object, Utilities.ConvertToHashtable(result.StdOut));
             }
         }
 

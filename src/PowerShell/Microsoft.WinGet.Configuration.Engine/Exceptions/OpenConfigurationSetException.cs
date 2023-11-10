@@ -9,7 +9,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
     using System;
     using System.Text;
     using Microsoft.Management.Configuration;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Exception thrown when failed to open a configuration set.

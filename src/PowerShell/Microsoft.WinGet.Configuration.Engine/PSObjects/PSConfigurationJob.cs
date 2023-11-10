@@ -7,7 +7,7 @@
 namespace Microsoft.WinGet.Configuration.Engine.PSObjects
 {
     using System.Threading.Tasks;
-    using Microsoft.WinGet.Configuration.Engine.Commands;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// This is a wrapper object for asynchronous task for this module.
@@ -22,7 +22,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         /// <param name="startCommand">The start command.</param>
         internal PSConfigurationJob(
             Task<PSApplyConfigurationSetResult> applyConfigTask,
-            AsyncCommand startCommand)
+            PowerShellCmdlet startCommand)
         {
             this.ApplyConfigurationTask = applyConfigTask;
             this.StartCommand = startCommand;
@@ -36,6 +36,6 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         /// <summary>
         /// Gets the command that started async operation.
         /// </summary>
-        internal AsyncCommand StartCommand { get; private set; }
+        internal PowerShellCmdlet StartCommand { get; private set; }
     }
 }
