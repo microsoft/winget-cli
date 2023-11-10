@@ -23,12 +23,16 @@ namespace AppInstallerCLIE2ETests
         /// Runs winget test appshutdown and register the application to force a WM_QUERYENDSESSION message.
         /// </summary>
         [Test]
-        [Ignore("This test won't work on Window Server")]
         public void RegisterApplicationTest()
         {
             if (!TestSetup.Parameters.PackagedContext)
             {
                 Assert.Ignore("Not packaged context.");
+            }
+
+            if (!TestCommon.ExecutingAsAdministrator && TestCommon.IsCIEnvironment)
+            {
+                Assert.Ignore("This test won't work on Window Server as non-admin");
             }
 
             if (string.IsNullOrEmpty(TestSetup.Parameters.AICLIPackagePath))

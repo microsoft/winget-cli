@@ -5,6 +5,7 @@
 #ifndef AICLI_DISABLE_TEST_HOOKS
 
 #include "TestCommand.h"
+#include "AppInstallerRuntime.h"
 
 namespace AppInstaller::CLI
 {
@@ -49,25 +50,28 @@ namespace AppInstaller::CLI
 
     void TestAppShutdownCommand::ExecuteInternal(Execution::Context& context) const
     {
-        auto windowHandle = Execution::GetWindowHandle();
-
-        if (windowHandle == NULL)
+        if (!Runtime::IsRunningAsAdmin())
         {
-            LogAndReport(context, "Window was not created");
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
-        }
+            auto windowHandle = Execution::GetWindowHandle();
 
-        if (context.Args.Contains(Execution::Args::Type::Force))
-        {
-            LogAndReport(context, "Sending WM_QUERYENDSESSION message");
-            THROW_LAST_ERROR_IF(!SendMessageTimeout(
-                windowHandle,
-                WM_QUERYENDSESSION,
-                NULL,
-                ENDSESSION_CLOSEAPP,
-                (SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT),
-                5000,
-                NULL));
+            if (windowHandle == NULL)
+            {
+                LogAndReport(context, "Window was not created");
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::Force))
+            {
+                LogAndReport(context, "Sending WM_QUERYENDSESSION message");
+                THROW_LAST_ERROR_IF(!SendMessageTimeout(
+                    windowHandle,
+                    WM_QUERYENDSESSION,
+                    NULL,
+                    ENDSESSION_CLOSEAPP,
+                    (SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT),
+                    5000,
+                    NULL));
+            }
         }
 
         LogAndReport(context, "Waiting for app shutdown event");
