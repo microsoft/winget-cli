@@ -1,0 +1,17 @@
+function(cpprest_find_winhttppal)
+  if(TARGET cpprestsdk_winhttppal_internal)
+    return()
+  endif()
+
+  if(NOT WINHTTPPAL_LIBRARY OR NOT WINHTTPPAL_INCLUDE_DIRS)
+    find_package(winhttppal REQUIRED)
+  endif()
+
+  add_library(cpprestsdk_winhttppal_internal INTERFACE)
+  if(TARGET winhttppal::winhttppal)
+    target_link_libraries(cpprestsdk_winhttppal_internal INTERFACE winhttppal::winhttppal)
+  else()
+    target_link_libraries(cpprestsdk_winhttppal_internal INTERFACE "$<BUILD_INTERFACE:${WINHTTPPAL_LIBRARY}>")
+    target_include_directories(cpprestsdk_winhttppal_internal INTERFACE "$<BUILD_INTERFACE:${WINHTTPPAL_INCLUDE_DIRS}>")
+  endif()
+endfunction()

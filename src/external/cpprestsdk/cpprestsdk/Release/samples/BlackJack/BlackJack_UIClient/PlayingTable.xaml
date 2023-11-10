@@ -1,0 +1,106 @@
+﻿<Page
+    x:Class="BlackjackClient.PlayingTable"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BlackjackClient"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <Style x:Key="AppBarStyle" TargetType="AppBar">
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="Padding" Value="40,0,40,0"/>
+        </Style>
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="FontFamily" Value="Comic Sans MS"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="Yellow"/>
+            <Setter Property="Height" Value="41"/>
+            <Setter Property="Width" Value="85"/>
+        </Style>
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Comic Sans MS"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="Yellow"/>
+            <Setter Property="Height" Value="31"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid  x:Name="LayoutRoot" Background="#008024" >
+
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="40,40,0,0">
+            <TextBlock Text="Hit" HorizontalAlignment="Left" Margin="0,0,0,0" x:Name="hitButton" VerticalAlignment="Top" Style="{StaticResource LabelStyle}" Tapped="HitButton_Click" Visibility="Visible"/>
+            <TextBlock Text="Stand" HorizontalAlignment="Left" Margin="0,30,0,0" x:Name="stayButton" VerticalAlignment="Top" Style="{StaticResource LabelStyle}" Tapped="StayButton_Click" Visibility="Visible"/>
+            <TextBlock Text="Double" HorizontalAlignment="Left" Margin="0,30,0,0" x:Name="doubleButton" VerticalAlignment="Top" Style="{StaticResource LabelStyle}" Tapped="DoubleButton_Click" Visibility="Visible"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,30,0,0">
+                <TextBlock Text="Buy Insurance" Height="40" HorizontalAlignment="Left" Margin="0,0,0,0" x:Name="buyInsuranceButton" VerticalAlignment="Top" Width="154" Style="{StaticResource LabelStyle}"  Tapped="InsuranceButton_Click" Visibility="Visible"/>
+                <TextBlock Text="Amount:" Style="{StaticResource LabelStyle}" HorizontalAlignment="Left" Margin="0,0,15,0" x:Name="buyInsuranceLabel" VerticalAlignment="Top" Width="84"  Visibility="Visible"/>
+                <TextBox AcceptsReturn="False" FontSize="14" Height="23" HorizontalAlignment="Left" Margin="0,0,0,0" x:Name="buyInsuranceTextBox" Text="100" VerticalAlignment="Top" Width="55" Visibility="Visible"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,0">
+                <TextBlock Text="Bet" Style="{StaticResource LabelStyle}" FontSize="20" HorizontalAlignment="Left" Margin="0,0,0,0" x:Name="label1" VerticalAlignment="Top" Width="39" />
+                <TextBox Text="100" FontSize="18" Height="25" HorizontalAlignment="Left" Margin="37,0,0,0" x:Name="betBox" VerticalAlignment="Top" Width="51"  AcceptsReturn="False" IsEnabled="False"/>
+            </StackPanel>
+            <TextBlock Text="Deal" FontSize="30" Margin="0,30,0,0" Height="40" HorizontalAlignment="Left" x:Name="button1" VerticalAlignment="Top" Style="{StaticResource LabelStyle}" Tapped="BetButton_Click" />
+        </StackPanel>
+
+        <!-- Dealer controls, displaying the dealer's cards-->
+
+        <Grid Name="dealerGrid" Height="150" HorizontalAlignment="Center" VerticalAlignment="Top" Width="242" Grid.ColumnSpan="2"></Grid>
+        <TextBlock Text="" Style="{StaticResource LabelStyle}" FontSize="28" Height="61" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="40,88,0,619" Name="resultLabel" Width="428"/>
+        <StackPanel Margin="0,256,0,0"></StackPanel>
+
+        <!-- Player controls, duplicated for each player at the table -->
+
+        <StackPanel Margin="0,256,0,0" VerticalAlignment="Bottom" >
+            <TextBlock Text="BLACKJACK PAYS 3 TO 2" Style="{StaticResource LabelStyle}" FontSize="60" FontFamily="Times New Roman" Height="61" HorizontalAlignment="Center" Width="744"/>
+            <TextBlock Text="Dealer must stand on 17 and draw to 16" FontFamily="Segoe UI Light" Style="{StaticResource LabelStyle}" FontSize="32" Height="61" HorizontalAlignment="Center" Margin="0,20,0,0" Width="650"/>
+            <Border BorderBrush="Yellow" BorderThickness="4" HorizontalAlignment="Center" Height="72" Margin="0,0,0,0" VerticalAlignment="Top" Width="1280">
+                <TextBlock FontSize="50" FontFamily="Times New Roman" Foreground="Yellow" Height="61" HorizontalAlignment="Center" TextWrapping="Wrap" Text="INSURANCE PAYS 2 TO 1" VerticalAlignment="Top"/>
+            </Border>
+            <Grid HorizontalAlignment="Stretch" Name="playerGrid" VerticalAlignment="Bottom" d:LayoutOverrides="GridBox" Margin="0,40,0,0" >
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Width="1280" Margin="0,0,0,0" VerticalAlignment="Bottom" Name="playerPanel">
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+        <!-- Betting controls, should display under current player -->
+
+
+        <!-- Insurance controls, used when dealer has an Ace -->
+
+
+        <!-- Application bars, used for game control -->
+
+        <AppBar Name="TopBar" Height="88" VerticalAlignment="Top" Opacity=".75" Style="{StaticResource AppBarStyle}">
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" >
+                    <TextBlock Text="Your name" Style="{StaticResource LabelStyle}" FontSize="18" Foreground="White"/>
+                    <TextBox Text="" x:Name="playerName" AcceptsReturn="False"   FontSize="14" FontWeight="Bold" Foreground="Black" Height="28" Width="200" Margin="5,15,0,15"/>
+                </StackPanel>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                    <TextBlock Text="Server address" Style="{StaticResource LabelStyle}" FontSize="18" Foreground="White" />
+                    <TextBox Text="http://localhost:2121/blackjack" x:Name="serverAddress" AcceptsReturn="False"   FontSize="14" FontWeight="Bold" Foreground="Black" Height="28" Width="450" Margin="5,15,0,15"/>
+                </StackPanel>
+            </Grid>
+        </AppBar>
+        <AppBar Name="BottomBar" Height="88" VerticalAlignment="Bottom" Opacity=".75" Style="{StaticResource AppBarStyle}" Grid.ColumnSpan="2">
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" >
+                    <Button Content="&#xE0F8;" AutomationProperties.Name="Exit Game" Name="exitButton" Click="ExitButton_Click" Style="{StaticResource AppBarButtonStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Button Content="&#xE125;" AutomationProperties.Name="Join Table" Name="joinButton" Click="JoinButton_Click" Style="{StaticResource AppBarButtonStyle}" VerticalAlignment="Center"/>
+                    <Button Content="&#xE106;" AutomationProperties.Name="Leave Table" Name="leaveButton" Click="LeaveButton_Click" Style="{StaticResource AppBarButtonStyle}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </AppBar>
+    </Grid>
+</Page>

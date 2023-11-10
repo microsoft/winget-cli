@@ -1,0 +1,33 @@
+﻿<UserControl
+    x:Class="BlackjackClient.CardShape"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BlackjackClient"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="97" d:DesignWidth="72">
+    <Canvas x:Name="LayoutRoot">
+        <Canvas x:Name="CardCanvas" Height="96" Width="71" RenderTransformOrigin="0.5,0.5">
+            <Canvas.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Canvas.RenderTransform>
+            <Image HorizontalAlignment="Left" Source="Cards.PNG" Stretch="None" VerticalAlignment="Top" RenderTransformOrigin="0.05,0.08" x:Name="imgCard">
+                <Image.RenderTransform> 
+                          <TransformGroup>
+                        <ScaleTransform/>
+                        <TranslateTransform X="0" Y="0"/>
+                    </TransformGroup>
+                </Image.RenderTransform>
+                <Image.Clip>
+                    <RectangleGeometry Rect="0,0,72,97"/>
+                </Image.Clip>
+            </Image>
+        </Canvas>
+    </Canvas>
+</UserControl>
