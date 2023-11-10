@@ -34,9 +34,6 @@
     <Filter Include="TestData\MultiFileManifestV1_6">
       <UniqueIdentifier>{82dd5390-16ce-4a4c-a61a-148013890cc4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TestData\MultiFileManifestV1_7">
-      <UniqueIdentifier>{3e7d4dff-5513-46dd-95d2-f616c867ebe4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\CLI">
       <UniqueIdentifier>{b35e1a8b-1961-46d5-98e5-adc8e52c54a9}</UniqueIdentifier>
     </Filter>
@@ -45,6 +42,9 @@
     </Filter>
     <Filter Include="Source Files\Repository">
       <UniqueIdentifier>{13d4d227-0f04-4e57-a663-c3c535438ab3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestData\MultiFileManifestV1_7">
+      <UniqueIdentifier>{3e7d4dff-5513-46dd-95d2-f616c867ebe4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -334,6 +334,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="PropertySheet.props" />
     <None Include="packages.config" />
     <None Include="Run-TestsInPackage.ps1" />
   </ItemGroup>
@@ -770,9 +771,6 @@
     <CopyFileToFolders Include="TestData\ManifestV1_6-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ManifestV1_7-Singleton.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
@@ -844,18 +842,6 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_6</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-DefaultLocale.yaml">
-      <Filter>TestData\MultiFileManifestV1_7</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Installer.yaml">
-      <Filter>TestData\MultiFileManifestV1_7</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Locale.yaml">
-      <Filter>TestData\MultiFileManifestV1_7</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Version.yaml">
-      <Filter>TestData\MultiFileManifestV1_7</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <Filter>TestData</Filter>
@@ -933,6 +919,21 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\notepad.ico">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_7-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
