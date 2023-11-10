@@ -1052,7 +1052,7 @@ TEST_CASE("UpdateFlow_UpdateWithReboot", "[UpdateFlow][workflow][reboot]")
         INFO(updateOutput.str());
 
         REQUIRE_FALSE(context.IsTerminated());
-        REQUIRE_FALSE(updateOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
         REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
     }
 }
