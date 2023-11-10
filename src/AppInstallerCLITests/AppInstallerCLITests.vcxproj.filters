@@ -43,6 +43,9 @@
     <Filter Include="Source Files\Repository">
       <UniqueIdentifier>{13d4d227-0f04-4e57-a663-c3c535438ab3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TestData\MultiFileManifestV1_7">
+      <UniqueIdentifier>{3e7d4dff-5513-46dd-95d2-f616c867ebe4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -916,6 +919,21 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\notepad.ico">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_7-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
