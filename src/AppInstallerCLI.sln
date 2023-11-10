@@ -1432,6 +1432,7 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ManifestSchema\ManifestSchema.vcxitems*{1622da16-914f-4f57-a259-d5169003cc8c}*SharedItemsImports = 4
+		external\Valijson\Valijson.vcxitems*{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}*SharedItemsImports = 4
 		WinGetSchemas\WinGetSchemas.vcxitems*{1c6e0108-2860-4b17-9f7e-fa5c6c1f3d3d}*SharedItemsImports = 4
 		COMServer\COMServer.vcxitems*{1cc41a9a-ae66-459d-9210-1e572dd7be69}*SharedItemsImports = 4
 		binver\binver.vcxitems*{2046b5af-666d-4ce8-8d3e-c32c57908a56}*SharedItemsImports = 4

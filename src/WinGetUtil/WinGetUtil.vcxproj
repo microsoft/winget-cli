@@ -59,13 +59,41 @@
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <SubSystem>Windows</SubSystem>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore;$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\external\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\external\JsonCppLib;$(ProjectDir)..\external\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(ProjectDir);
+        $(ProjectDir)..\AppInstallerCommonCore;
+        $(ProjectDir)..\AppInstallerRepositoryCore;
+        $(ProjectDir)..\AppInstallerRepositoryCore\Public;
+        $(ProjectDir)..\AppInstallerCommonCore\Public;
+        $(ProjectDir)..\AppInstallerSharedLib\Public;
+        $(ProjectDir)..\external\cpprestsdk\cpprestsdk\Release\include;
+        $(ProjectDir)..\external\JsonCppLib;
+        $(ProjectDir)..\external\JsonCppLib\json;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>Source.def</ModuleDefinitionFile>
-      <AdditionalDependencies>wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>winsqlite3.dll;icuuc.dll;icuin.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalDependencies>
+        wininet.lib;
+        shell32.lib;
+        winsqlite3.lib;
+        shlwapi.lib;
+        icuuc.lib;
+        icuin.lib;
+        urlmon.lib;
+        Advapi32.lib;
+        winhttp.lib;
+        onecoreuap.lib;
+        msi.lib;
+        %(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>
+        winsqlite3.dll;
+        icuuc.dll;
+        icuin.dll;
+        %(DelayLoadDLLs)
+      </DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>

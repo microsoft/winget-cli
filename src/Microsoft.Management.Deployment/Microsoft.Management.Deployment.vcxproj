@@ -82,7 +82,17 @@
     <ClCompile>
       <PreprocessorDefinitions>_WINRT_DLL;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\AppInstallerCLICore;$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\external\JsonCppLib\json;$(ProjectDir)..\external\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(ProjectDir)..\AppInstallerCLICore;
+        $(ProjectDir);
+        $(ProjectDir)..\AppInstallerRepositoryCore;
+        $(ProjectDir)..\AppInstallerRepositoryCore\Public;
+        $(ProjectDir)..\AppInstallerCommonCore\Public;
+        $(ProjectDir)..\AppInstallerSharedLib\Public;
+        $(ProjectDir)..\external\JsonCppLib\json;
+        $(ProjectDir)..\external\JsonCppLib;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
       <!-- Equivalent to using /permissive-
            Allows use of [uuid] attribute as this is a non-standard ATL extension.
            Alternative is to use the __declspec form. -->
@@ -91,7 +101,25 @@
     <Link>
       <ModuleDefinitionFile>Microsoft_Management_Deployment.def</ModuleDefinitionFile>
       <WindowsMetadataFile>$(OutDir)$(ProjectName).winmd</WindowsMetadataFile>
-      <AdditionalDependencies>AppInstallerCLICore.lib;AppInstallerCommonCore.lib;AppInstallerRepositoryCore.lib;JsonCppLib.lib;YamlCppLib.lib;cpprestsdk.lib;wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;pure.lib%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+        AppInstallerCLICore.lib;
+        AppInstallerCommonCore.lib;
+        AppInstallerRepositoryCore.lib;
+        JsonCppLib.lib;
+        YamlCppLib.lib;
+        cpprestsdk.lib;
+        wininet.lib;
+        shell32.lib;
+        winsqlite3.lib;
+        shlwapi.lib;
+        icuuc.lib;
+        icuin.lib;
+        urlmon.lib;
+        Advapi32.lib;
+        winhttp.lib;
+        pure.lib
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">

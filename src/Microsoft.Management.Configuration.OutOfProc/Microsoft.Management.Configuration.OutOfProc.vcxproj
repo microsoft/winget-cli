@@ -263,7 +263,20 @@
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Source.def</ModuleDefinitionFile>
       <ModuleDefinitionFile Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Source.def</ModuleDefinitionFile>
-      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)'=='Debug'">
+        wininet.lib;
+        shell32.lib;
+        winsqlite3.lib;
+        shlwapi.lib;
+        icuuc.lib;
+        icuin.lib;
+        urlmon.lib;
+        Advapi32.lib;
+        winhttp.lib;
+        onecoreuap.lib;
+        msi.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>

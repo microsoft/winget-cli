@@ -69,13 +69,16 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>_CONSOLE;CLICOREDLLBUILD;%(PreprocessorDefinitions);</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\AppInstallerRepositoryCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\AppInstallerRepositoryCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\AppInstallerCommonCore\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\external\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\external\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(ProjectDir);
+        $(ProjectDir)..\AppInstallerRepositoryCore;
+        $(ProjectDir)..\AppInstallerRepositoryCore\Public;
+        $(ProjectDir)..\AppInstallerCommonCore\Public;
+        $(ProjectDir)..\AppInstallerSharedLib\Public;
+        $(ProjectDir)..\external\JsonCppLib\json;
+        $(ProjectDir)..\external\JsonCppLib;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

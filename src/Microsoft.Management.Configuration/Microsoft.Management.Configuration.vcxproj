@@ -81,13 +81,21 @@
     <ClCompile>
       <PreprocessorDefinitions>_WINRT_DLL;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\external\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(ProjectDir);
+        $(ProjectDir)..\AppInstallerSharedLib\Public;
+        $(ProjectDir)..\external\JsonCppLib;
+        %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>Microsoft_Management_Configuration.def</ModuleDefinitionFile>
       <WindowsMetadataFile>$(OutDir)$(ProjectName).winmd</WindowsMetadataFile>
-      <AdditionalDependencies>Advapi32.lib;onecoreuap.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+        Advapi32.lib;
+        onecoreuap.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">

@@ -45,11 +45,35 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_NO_ASYNCRTIMP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\external\JsonCppLib;$(ProjectDir)..\external\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(MSBuildThisFileDirectory)..\AppInstallerCommonCore;
+        $(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;
+        $(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;
+        $(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;
+        $(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;
+        $(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;
+        $(MSBuildThisFileDirectory)..\AppInstallerCLICore;
+        $(ProjectDir)..\external\JsonCppLib;
+        $(ProjectDir)..\external\cpprestsdk\cpprestsdk\Release\include;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+        wininet.lib;
+        shell32.lib;
+        winsqlite3.lib;
+        shlwapi.lib;
+        icuuc.lib;
+        icuin.lib;
+        urlmon.lib;
+        Advapi32.lib;
+        winhttp.lib;
+        onecoreuap.lib;
+        msi.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>

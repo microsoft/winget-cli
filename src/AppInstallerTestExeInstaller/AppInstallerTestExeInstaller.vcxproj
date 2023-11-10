@@ -60,7 +60,10 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+        Advapi32.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

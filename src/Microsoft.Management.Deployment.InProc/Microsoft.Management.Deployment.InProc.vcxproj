@@ -68,12 +68,28 @@
   </ImportGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\WindowsPackageManager;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(ProjectDir)..\WindowsPackageManager;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <ModuleDefinitionFile>Source.def</ModuleDefinitionFile>
-      <AdditionalDependencies>wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+        wininet.lib;
+        shell32.lib;
+        winsqlite3.lib;
+        shlwapi.lib;
+        icuuc.lib;
+        icuin.lib;
+        urlmon.lib;
+        Advapi32.lib;
+        winhttp.lib;
+        onecoreuap.lib;
+        msi.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>

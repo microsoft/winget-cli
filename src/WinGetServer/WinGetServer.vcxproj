@@ -59,13 +59,31 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PreprocessorDefinitions>_CONSOLE;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\WindowsPackageManager;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(ProjectDir)..\WindowsPackageManager;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalLibraryDirectories>$(OutDir)..\Microsoft.Management.Deployment;$(OutDir)..\AppInstallerCLICore;$(OutDir)..\external\JsonCppLib;$(OutDir)..\AppInstallerRepositoryCore;$(OutDir)..\external\YamlCppLib;$(OutDir)..\AppInstallerCommonCore;$(OutDir)..\external\cpprestsdk;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Rpcrt4.lib;Advapi32.lib;Shell32.lib;Ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+        $(OutDir)..\Microsoft.Management.Deployment;
+        $(OutDir)..\AppInstallerCLICore;
+        $(OutDir)..\external\JsonCppLib;
+        $(OutDir)..\AppInstallerRepositoryCore;
+        $(OutDir)..\external\YamlCppLib;
+        $(OutDir)..\AppInstallerCommonCore;
+        $(OutDir)..\external\cpprestsdk;
+        %(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+        Rpcrt4.lib;
+        Advapi32.lib;
+        Shell32.lib;
+        Ole32.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup>

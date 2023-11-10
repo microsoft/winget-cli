@@ -77,7 +77,19 @@
       <Optimization>Disabled</Optimization>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PreprocessorDefinitions>_NO_ASYNCRTIMP;CLICOREDLLBUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\external\YamlCppLib\libyaml\include;$(ProjectDir)..\external\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\external\JsonCppLib;$(ProjectDir)..\external\PureLib\pure;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(ProjectDir);
+        $(ProjectDir)Public;
+        $(ProjectDir)Telemetry;
+        $(ProjectDir)..\AppInstallerSharedLib;
+        $(ProjectDir)..\AppInstallerSharedLib\Public;
+        $(ProjectDir)..\binver;
+        $(ProjectDir)..\external\YamlCppLib\libyaml\include;
+        $(ProjectDir)..\external\cpprestsdk\cpprestsdk\Release\include;
+        $(ProjectDir)..\external\JsonCppLib;
+        $(ProjectDir)..\external\PureLib\pure;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -7,7 +7,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        %(AdditionalIncludeDirectories);
+        $(MSBuildThisFileDirectory)include
+      </AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

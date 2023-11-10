@@ -78,7 +78,16 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\AppInstallerCLICore\Public\;$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\external\JsonCppLib\json;$(ProjectDir)..\Microsoft.Management.Deployment\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+        $(ProjectDir);
+        $(ProjectDir)..\AppInstallerCLICore\Public\;
+        $(ProjectDir)..\AppInstallerRepositoryCore;
+        $(ProjectDir)..\AppInstallerCommonCore\Public;
+        $(ProjectDir)..\AppInstallerSharedLib\Public;
+        $(ProjectDir)..\external\JsonCppLib\json;
+        $(ProjectDir)..\Microsoft.Management.Deployment\Public;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
