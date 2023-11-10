@@ -1,0 +1,14 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+namespace Microsoft.Management.Configuration.Processor.Dsc
+{
+    [contractversion(1)]
+    apicontract Contract{};
+
+    [contract(Microsoft.Management.Configuration.Processor.Dsc.Contract, 1)]
+    runtimeclass MyRuntimeClass
+    {
+        MyRuntimeClass();
+        String Name;
+    }
+}
