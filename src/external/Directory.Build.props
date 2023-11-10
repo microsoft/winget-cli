@@ -1,0 +1,30 @@
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+
+<!-- Common properties we set for the external projects included here. -->
+
+<Project>
+  <!-- Don't report warnings from external projects, but do include the configurations required by BinSkim -->
+  <PropertyGroup>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Release'">
+    <SpectreMitigation>Spectre</SpectreMitigation>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Release'">
+    <ClCompile>
+      <SDLCheck>true</SDLCheck>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+    </ClCompile>
+    <Link>
+      <CETCompat>true</CETCompat>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>
