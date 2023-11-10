@@ -60,7 +60,7 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="Shared">
-    <Import Project="..\Valijson\Valijson.vcxitems" Label="Shared" />
+    <Import Project="..\external\Valijson\Valijson.vcxitems" Label="Shared" />
     <Import Project="..\WinGetSchemas\WinGetSchemas.vcxitems" Label="Shared" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
@@ -243,7 +243,7 @@
     <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
       <Project>{ca460806-5e41-4e97-9a3d-1d74b433b663}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
+    <ProjectReference Include="..\external\YamlCppLib\YamlCppLib.vcxproj">
       <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj">

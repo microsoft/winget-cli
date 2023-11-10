@@ -53,7 +53,7 @@
   </ImportGroup>
   <PropertyGroup>
     <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
-    <LibraryPath>$(OutDir)..\Microsoft.Management.Deployment;$(OutDir)..\AppInstallerCLICore;$(OutDir)..\JsonCppLib;$(OutDir)..\AppInstallerRepositoryCore;$(OutDir)..\YamlCppLib;$(OutDir)..\AppInstallerCommonCore;$(OutDir)..\cpprestsdk;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(OutDir)..\Microsoft.Management.Deployment;$(OutDir)..\AppInstallerCLICore;$(OutDir)..\external\JsonCppLib;$(OutDir)..\AppInstallerRepositoryCore;$(OutDir)..\external\YamlCppLib;$(OutDir)..\AppInstallerCommonCore;$(OutDir)..\external\cpprestsdk;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -64,7 +64,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalLibraryDirectories>$(OutDir)..\Microsoft.Management.Deployment;$(OutDir)..\AppInstallerCLICore;$(OutDir)..\JsonCppLib;$(OutDir)..\AppInstallerRepositoryCore;$(OutDir)..\YamlCppLib;$(OutDir)..\AppInstallerCommonCore;$(OutDir)..\cpprestsdk;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)..\Microsoft.Management.Deployment;$(OutDir)..\AppInstallerCLICore;$(OutDir)..\external\JsonCppLib;$(OutDir)..\AppInstallerRepositoryCore;$(OutDir)..\external\YamlCppLib;$(OutDir)..\AppInstallerCommonCore;$(OutDir)..\external\cpprestsdk;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Rpcrt4.lib;Advapi32.lib;Shell32.lib;Ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

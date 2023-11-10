@@ -59,7 +59,7 @@
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <SubSystem>Windows</SubSystem>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore;$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\AppInstallerCommonCore;$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\external\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\external\JsonCppLib;$(ProjectDir)..\external\JsonCppLib\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
@@ -92,16 +92,16 @@
     <ProjectReference Include="..\AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj">
       <Project>{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\cpprestsdk\cpprestsdk.vcxproj">
+    <ProjectReference Include="..\external\cpprestsdk\cpprestsdk.vcxproj">
       <Project>{866c3f06-636f-4be8-bc24-5f86ecc606a1}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\JsonCppLib\JsonCppLib.vcxproj">
+    <ProjectReference Include="..\external\JsonCppLib\JsonCppLib.vcxproj">
       <Project>{82b39fda-e86b-4713-a873-9d56de00247a}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
+    <ProjectReference Include="..\external\YamlCppLib\YamlCppLib.vcxproj">
       <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\PureLib\PureLib.vcxproj">
+    <ProjectReference Include="..\external\PureLib\PureLib.vcxproj">
       <Project>{bb14d603-f44e-4415-8770-bf3e13f4c17f}</Project>
     </ProjectReference>
   </ItemGroup>
