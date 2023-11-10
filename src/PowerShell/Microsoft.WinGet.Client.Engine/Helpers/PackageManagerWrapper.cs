@@ -22,7 +22,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     {
         private static readonly Lazy<PackageManagerWrapper> Lazy = new (() => new PackageManagerWrapper());
 
-        private PackageManager? packageManager = null;
+        private PackageManager packageManager = null!;
 
         private PackageManagerWrapper()
         {
@@ -45,7 +45,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options)
         {
             return this.Execute(
-                () => this.packageManager!.InstallPackageAsync(package, options),
+                () => this.packageManager.InstallPackageAsync(package, options),
                 false);
         }
 
@@ -58,7 +58,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public IAsyncOperationWithProgress<InstallResult, InstallProgress> UpgradePackageAsync(CatalogPackage package, InstallOptions options)
         {
             return this.Execute(
-                () => this.packageManager!.UpgradePackageAsync(package, options),
+                () => this.packageManager.UpgradePackageAsync(package, options),
                 false);
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public IAsyncOperationWithProgress<UninstallResult, UninstallProgress> UninstallPackageAsync(CatalogPackage package, UninstallOptions options)
         {
             return this.Execute(
-                () => this.packageManager!.UninstallPackageAsync(package, options),
+                () => this.packageManager.UninstallPackageAsync(package, options),
                 false);
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public IReadOnlyList<PackageCatalogReference> GetPackageCatalogs()
         {
             return this.Execute(
-                () => this.packageManager!.GetPackageCatalogs(),
+                () => this.packageManager.GetPackageCatalogs(),
                 true);
         }
 
@@ -94,7 +94,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public PackageCatalogReference GetPackageCatalogByName(string source)
         {
             return this.Execute(
-                () => this.packageManager!.GetPackageCatalogByName(source),
+                () => this.packageManager.GetPackageCatalogByName(source),
                 true);
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public PackageCatalogReference CreateCompositePackageCatalog(CreateCompositePackageCatalogOptions options)
         {
             return this.Execute(
-                () => this.packageManager!.CreateCompositePackageCatalog(options),
+                () => this.packageManager.CreateCompositePackageCatalog(options),
                 false);
         }
 
@@ -132,7 +132,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 }
                 catch (COMException ex) when (ex.HResult == ErrorCode.RpcServerUnavailable || ex.HResult == ErrorCode.RpcCallFailed)
                 {
-                    this.packageManager = null;
+                    this.packageManager = null!;
 
                     if (stopRetry || !canRetry)
                     {
