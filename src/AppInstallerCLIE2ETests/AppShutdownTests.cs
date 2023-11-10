@@ -95,26 +95,5 @@ namespace AppInstallerCLIE2ETests
             // Look for the output.
             Assert.True(testCmdTask.Result.StdOut.Contains("Succeeded waiting for app shutdown event"));
         }
-
-        /// <summary>
-        /// Runs winget test appshutdown --force.
-        /// </summary>
-        [Test]
-        public void RegisterApplicationTest_Force()
-        {
-            if (!TestSetup.Parameters.PackagedContext)
-            {
-                Assert.Ignore("Not packaged context.");
-            }
-
-            if (string.IsNullOrEmpty(TestSetup.Parameters.AICLIPackagePath))
-            {
-                throw new NullReferenceException("AICLIPackagePath");
-            }
-
-            var result = TestCommon.RunAICLICommand("test", "appshutdown --force", timeOut: 300000, throwOnTimeout: false);
-            TestContext.Out.Write(result.StdOut);
-            Assert.True(result.StdOut.Contains("Succeeded waiting for app shutdown event"));
-        }
     }
 }

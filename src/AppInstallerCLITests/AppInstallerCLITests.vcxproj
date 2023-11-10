@@ -194,6 +194,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
+    <ClCompile Include="AppShutdown.cpp" />
     <ClCompile Include="Archive.cpp" />
     <ClCompile Include="Argument.cpp" />
     <ClCompile Include="ARPChanges.cpp" />
