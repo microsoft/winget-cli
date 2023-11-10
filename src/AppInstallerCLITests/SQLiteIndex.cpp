@@ -2756,7 +2756,7 @@ TEST_CASE("SQLiteIndex_ManifestMetadata", "[sqliteindex]")
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 2);
 
-    for (const auto [id, match] : results.Matches)
+    for (auto [id, match] : results.Matches)
     {
         REQUIRE(index.GetMetadataByManifestId(id).empty());
     }

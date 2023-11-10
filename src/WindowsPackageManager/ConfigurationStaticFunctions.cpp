@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License
 #include <Unknwn.h>
+#pragma warning( push )
+#pragma warning ( disable : 4324 )
 #include <wil\cppwinrt_wrl.h>
+#pragma warning( pop )
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winrt/Microsoft.Management.Deployment.h>
 #include <ComClsids.h>

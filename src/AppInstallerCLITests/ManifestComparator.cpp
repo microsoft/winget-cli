@@ -739,7 +739,12 @@ TEST_CASE("ManifestComparator_Scope_AllowUnknown", "[manifest_comparator]")
     }
 }
 
+// Function uses too much stack space.
+// We should be okay here since this is called from tests and it doesn't do calls that are too complicated
+#pragma warning( push )
+#pragma warning ( disable : 6262 )
 TEST_CASE("ManifestComparator_InstallerType", "[manifest_comparator]")
+#pragma warning( pop )
 {
     Manifest manifest;
     ManifestInstaller msi = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User);

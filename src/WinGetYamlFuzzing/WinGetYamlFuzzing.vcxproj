@@ -38,7 +38,9 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>
         $(ProjectDir)..\AppInstallerCommonCore\Public;
-        %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+        $(ProjectDir)..\AppInstallerSharedLib\Public;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

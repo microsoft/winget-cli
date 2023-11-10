@@ -62,6 +62,7 @@
     <Link>
       <AdditionalDependencies>
         Advapi32.lib;
+        shell32.lib;
         %(AdditionalDependencies)
       </AdditionalDependencies>
     </Link>

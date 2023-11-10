@@ -4,7 +4,7 @@ Do not change code under the UndockedRegFreeWinRT directory; it contains Microso
 
 It is created using git subtree command and points to this specific commit [cfe510d0d2b07484fea2c6d77163de017738c100]:
 
-    git subtree add --prefix=src/Xlang/UndockedRegFreeWinRT https://github.com/microsoft/xlang cfe510d0d2b07484fea2c6d77163de017738c100 --squash
+    git subtree add --prefix=src/external/Xlang/UndockedRegFreeWinRT https://github.com/microsoft/xlang cfe510d0d2b07484fea2c6d77163de017738c100 --squash
 
 Any future PR updates to this subtree should not be squashed. 
 

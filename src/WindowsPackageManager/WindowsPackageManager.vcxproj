@@ -84,6 +84,7 @@
         $(ProjectDir)..\AppInstallerRepositoryCore;
         $(ProjectDir)..\AppInstallerCommonCore\Public;
         $(ProjectDir)..\AppInstallerSharedLib\Public;
+        $(ProjectDir)..\external\JsonCppLib;
         $(ProjectDir)..\external\JsonCppLib\json;
         $(ProjectDir)..\Microsoft.Management.Deployment\Public;
         %(AdditionalIncludeDirectories)
@@ -92,7 +93,20 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <ModuleDefinitionFile>Source.def</ModuleDefinitionFile>
-      <AdditionalDependencies>wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+        wininet.lib;
+        shell32.lib;
+        winsqlite3.lib;
+        shlwapi.lib;
+        icuuc.lib;
+        icuin.lib;
+        urlmon.lib;
+        Advapi32.lib;
+        winhttp.lib;
+        onecoreuap.lib;
+        msi.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)..\manifest\shared.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>

@@ -3,7 +3,7 @@
 Do not change code under the pure directory; it contains pure source code version [1.0.4](https://github.com/ronomon/pure/releases/tag/v1.0.4).  
 It is created using git subtree command:
 
-    git subtree add --prefix=src/PureLib/pure https://github.com/ronomon/pure.git v1.0.4 --squash
+    git subtree add --prefix=src/external/PureLib/pure https://github.com/ronomon/pure.git v1.0.4 --squash
 
 The PureLib.vcxproj and PureLib.vcxproj.filters are created to make pure code compiled as part of the WinGet solution.
 

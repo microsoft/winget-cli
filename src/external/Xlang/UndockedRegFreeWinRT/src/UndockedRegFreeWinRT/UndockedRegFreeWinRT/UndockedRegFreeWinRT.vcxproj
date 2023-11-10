@@ -395,10 +395,10 @@
     <None Include="winrtact.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\WinGetServer\WinGetServerManualActivation_Client.cpp" />
-    <ClCompile Include="..\..\..\..\..\WinGetServer\WinGetServer_c.c" />
-    <ClInclude Include="..\..\..\..\..\WinGetServer\Utils.h" />
-    <ClCompile Include="..\..\..\..\..\WinGetServer\Utils.cpp" />
+    <ClCompile Include="$(SolutionDir)\WinGetServer\WinGetServerManualActivation_Client.cpp" />
+    <ClCompile Include="$(SolutionDir)\WinGetServer\WinGetServer_c.c" />
+    <ClInclude Include="$(SolutionDir)\WinGetServer\Utils.h" />
+    <ClCompile Include="$(SolutionDir)\WinGetServer\Utils.cpp" />
     <ClCompile Include="catalog.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="typeresolution.cpp" />
