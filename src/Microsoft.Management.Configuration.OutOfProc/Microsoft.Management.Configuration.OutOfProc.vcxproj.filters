@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="PropertySheet.props" />
     <None Include="Source.def">
       <Filter>Source Files</Filter>
     </None>
