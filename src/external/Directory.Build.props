@@ -12,6 +12,7 @@
     <ClCompile>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
 
