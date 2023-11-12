@@ -150,38 +150,22 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             CatalogPackage package,
             InstallOptions options)
         {
-            var operation = PackageManagerWrapper.Instance.InstallPackageAsync(package, options);
-            var progressHandler = new InstallProgressOperation(
+            var installOperation = new InstallOperationWithProgress(
                 this,
-                string.Format(Resources.ProgressRecordActivityInstalling, package.Name),
-                operation);
-            try
-            {
-                return await progressHandler.GetResult();
-            }
-            finally
-            {
-                progressHandler.CompleteProgress();
-            }
+                string.Format(Resources.ProgressRecordActivityInstalling, package.Name));
+            return await installOperation.ExecuteAsync(
+                    () => PackageManagerWrapper.Instance.InstallPackageAsync(package, options));
         }
 
         private async Task<InstallResult> UpgradePackageAsync(
             CatalogPackage package,
             InstallOptions options)
         {
-            var operation = PackageManagerWrapper.Instance.UpgradePackageAsync(package, options);
-            var progressHandler = new InstallProgressOperation(
+            var installOperation = new InstallOperationWithProgress(
                 this,
-                string.Format(Resources.ProgressRecordActivityUpdating, package.Name),
-                operation);
-            try
-            {
-                return await progressHandler.GetResult();
-            }
-            finally
-            {
-                progressHandler.CompleteProgress();
-            }
+                string.Format(Resources.ProgressRecordActivityUpdating, package.Name));
+            return await installOperation.ExecuteAsync(
+                    () => PackageManagerWrapper.Instance.UpgradePackageAsync(package, options));
         }
     }
 }

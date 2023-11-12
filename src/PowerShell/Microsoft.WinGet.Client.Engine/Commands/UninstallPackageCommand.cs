@@ -114,19 +114,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             CatalogPackage package,
             UninstallOptions options)
         {
-            var operation = PackageManagerWrapper.Instance.UninstallPackageAsync(package, options);
-            var progressHandler = new UninstallProgressOperation(
+            var progressOperation = new UninstallOperationWithProgress(
                 this,
-                string.Format(Resources.ProgressRecordActivityUninstalling, package.Name),
-                operation);
-            try
-            {
-                return await progressHandler.GetResult();
-            }
-            finally
-            {
-                progressHandler.CompleteProgress();
-            }
+                string.Format(Resources.ProgressRecordActivityUninstalling, package.Name));
+            return await progressOperation.ExecuteAsync(
+                    () => PackageManagerWrapper.Instance.UninstallPackageAsync(package, options));
         }
     }
 }

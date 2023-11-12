@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="UninstallProgressOperation.cs" company="Microsoft Corporation">
+// <copyright file="UninstallOperationWithProgress.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -15,24 +15,16 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     /// <summary>
     /// Handler progress for uninstall.
     /// </summary>
-    internal class UninstallProgressOperation : ProgressOperationBase<UninstallResult, UninstallProgress>
+    internal class UninstallOperationWithProgress : OperationWithProgressBase<UninstallResult, UninstallProgress>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="UninstallProgressOperation"/> class.
+        /// Initializes a new instance of the <see cref="UninstallOperationWithProgress"/> class.
         /// </summary>
         /// <param name="pwshCmdlet">A <see cref="PowerShellCmdlet" /> instance.</param>
         /// <param name="activity">Activity.</param>
-        /// <param name="operation">Operation.</param>
-        public UninstallProgressOperation(PowerShellCmdlet pwshCmdlet, string activity, IAsyncOperationWithProgress<UninstallResult, UninstallProgress> operation)
-            : base(pwshCmdlet, activity, operation)
+        public UninstallOperationWithProgress(PowerShellCmdlet pwshCmdlet, string activity)
+            : base(pwshCmdlet, activity)
         {
-            ProgressRecord record = new (this.ActivityId, this.Activity, Resources.Uninstalling)
-            {
-                RecordType = ProgressRecordType.Processing,
-            };
-            record.StatusDescription = Resources.Uninstalling;
-            record.PercentComplete = 1;
-            this.PwshCmdlet.Write(StreamType.Progress, record);
         }
 
         /// <inheritdoc/>

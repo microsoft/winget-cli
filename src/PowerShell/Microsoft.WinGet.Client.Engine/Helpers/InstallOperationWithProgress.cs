@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="InstallProgressOperation.cs" company="Microsoft Corporation">
+// <copyright file="InstallOperationWithProgress.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -13,18 +13,17 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using Windows.Foundation;
 
     /// <summary>
-    /// Handler progress for install and update.
+    /// Handlers install or update operations with progress.
     /// </summary>
-    internal class InstallProgressOperation : ProgressOperationBase<InstallResult, InstallProgress>
+    internal class InstallOperationWithProgress : OperationWithProgressBase<InstallResult, InstallProgress>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="InstallProgressOperation"/> class.
+        /// Initializes a new instance of the <see cref="InstallOperationWithProgress"/> class.
         /// </summary>
         /// <param name="pwshCmdlet">A <see cref="PowerShellCmdlet" /> instance.</param>
         /// <param name="activity">Activity.</param>
-        /// <param name="operation">Operation.</param>
-        public InstallProgressOperation(PowerShellCmdlet pwshCmdlet, string activity, IAsyncOperationWithProgress<InstallResult, InstallProgress> operation)
-            : base(pwshCmdlet, activity, operation)
+        public InstallOperationWithProgress(PowerShellCmdlet pwshCmdlet, string activity)
+            : base(pwshCmdlet, activity)
         {
         }
 

@@ -77,7 +77,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                             int percentComplete = (int)((double)totalBytes / contentLength * 100);
                             if (percentComplete > maxPercentComplete)
                             {
-                                pwshCmdlet.Write(StreamType.Verbose, $"DEBUG: {percentComplete}");
                                 maxPercentComplete = percentComplete;
                                 ProgressRecord record = new (activityId, url, Resources.DownloadingMessage)
                                 {

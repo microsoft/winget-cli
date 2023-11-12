@@ -406,8 +406,8 @@ namespace Microsoft.WinGet.Common.Command
                 _ = this.progressRecords.TryUpdate(activityId, record.RecordType, ProgressRecordType.Processing);
             }
 
-            // You should only use force if you know the cmdlet that is completing this progress is an sync cmdlet that
-            // is running in an async context.
+            // You should only use force if you know the cmdlet that is completing this progress is a sync cmdlet that
+            // is running in an async context. A sync cmdlet is anything that doesn't start with Start-*
             if (force)
             {
                 this.ExecuteInPowerShellThread(() => this.CmdletWrite(StreamType.Progress, record, this));

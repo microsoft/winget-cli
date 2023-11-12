@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="ProgressOperationBase.cs" company="Microsoft Corporation">
+// <copyright file="OperationWithProgressBase.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -13,31 +13,24 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using Windows.Foundation;
 
     /// <summary>
-    /// Base class to handle progress.
+    /// Base class for async operations with progress.
     /// </summary>
     /// <typeparam name="TOperationResult">The operation result.</typeparam>
     /// <typeparam name="TProgressData">Progress data.</typeparam>
-    internal abstract class ProgressOperationBase<TOperationResult, TProgressData>
+    internal abstract class OperationWithProgressBase<TOperationResult, TProgressData>
     {
-        private IAsyncOperationWithProgress<TOperationResult, TProgressData> operation;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProgressOperationBase{TOperationResult, TProgressData}"/> class.
+        /// Initializes a new instance of the <see cref="OperationWithProgressBase{TOperationResult, TProgressData}"/> class.
         /// </summary>
         /// <param name="pwshCmdlet">A <see cref="PowerShellCmdlet" /> instance.</param>
         /// <param name="activity">Activity.</param>
-        /// <param name="operation">Operation.</param>
-        public ProgressOperationBase(
+        public OperationWithProgressBase(
             PowerShellCmdlet pwshCmdlet,
-            string activity,
-            IAsyncOperationWithProgress<TOperationResult, TProgressData> operation)
+            string activity)
         {
             this.PwshCmdlet = pwshCmdlet;
             this.ActivityId = pwshCmdlet.GetNewProgressActivityId();
             this.Activity = activity;
-            this.operation = operation;
-
-            operation.Progress = this.Progress;
         }
 
         /// <summary>
@@ -63,19 +56,30 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public abstract void Progress(IAsyncOperationWithProgress<TOperationResult, TProgressData> operation, TProgressData progress);
 
         /// <summary>
-        /// Gets the result of the async operation.
+        /// Starts the operation and executes it as task.
         /// Supports cancellation.
         /// </summary>
+        /// <param name="func">Lambda with operation.</param>
         /// <returns>TOperationReturn.</returns>
-        public async Task<TOperationResult> GetResult()
+        public async Task<TOperationResult> ExecuteAsync(Func<IAsyncOperationWithProgress<TOperationResult, TProgressData>> func)
         {
-            return await this.operation.AsTask(this.PwshCmdlet.GetCancellationToken());
+            var operation = func();
+            operation.Progress = this.Progress;
+
+            try
+            {
+                return await operation.AsTask(this.PwshCmdlet.GetCancellationToken());
+            }
+            finally
+            {
+                this.Complete();
+            }
         }
 
         /// <summary>
         /// Completes progress for this activity.
         /// </summary>
-        public void CompleteProgress()
+        protected virtual void Complete()
         {
             this.PwshCmdlet.CompleteProgress(this.ActivityId, this.Activity, Resources.Completed, true);
         }
