@@ -327,6 +327,12 @@ namespace Microsoft.WinGet.Common.Command
             {
                 // If IsFaulted is true, the task's Status is equal to Faulted,
                 // and its Exception property will be non-null.
+                AggregateException? ae = runningTask.Exception! as AggregateException;
+                if (ae != null && ae.InnerExceptions.Count == 1)
+                {
+                    throw ae.InnerExceptions[0];
+                }
+
                 throw runningTask.Exception!;
             }
         }

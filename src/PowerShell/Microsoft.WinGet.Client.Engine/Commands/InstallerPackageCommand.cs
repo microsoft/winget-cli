@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
     using System.Management.Automation;
+    using System.Threading.Tasks;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
@@ -94,10 +95,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageInstallMode)
         {
             var result = this.Execute(
-                () => this.GetPackageAndExecute(
+                async () => await this.GetPackageAndExecuteAsync(
                     CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs,
                     PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
-                    (package, version) =>
+                    async (package, version) =>
                     {
                         InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
                         if (psProcessorArchitecture != "Default")
@@ -108,7 +109,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
                         options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
 
-                        return this.InstallPackage(package, options);
+                        return await this.InstallPackageAsync(package, options);
                     }));
 
             if (result != null)
@@ -129,14 +130,14 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageInstallMode)
         {
             var result = this.Execute(
-                () => this.GetPackageAndExecute(
+                async () => await this.GetPackageAndExecuteAsync(
                     CompositeSearchBehavior.LocalCatalogs,
                     PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
-                    (package, version) =>
+                    async (package, version) =>
                     {
                         InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
                         options.AllowUpgradeToUnknownVersion = includeUnknown;
-                        return this.UpgradePackage(package, options);
+                        return await this.UpgradePackageAsync(package, options);
                     }));
 
             if (result != null)
@@ -145,26 +146,42 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
         }
 
-        private InstallResult InstallPackage(
+        private async Task<InstallResult> InstallPackageAsync(
             CatalogPackage package,
             InstallOptions options)
         {
             var operation = PackageManagerWrapper.Instance.InstallPackageAsync(package, options);
-            return this.RegisterCallbacksAndWait(operation, string.Format(
-                Resources.ProgressRecordActivityInstalling,
-                package.Name));
+            var progressHandler = new InstallProgressOperation(
+                this,
+                string.Format(Resources.ProgressRecordActivityInstalling, package.Name),
+                operation);
+            try
+            {
+                return await progressHandler.GetResult();
+            }
+            finally
+            {
+                progressHandler.CompleteProgress();
+            }
         }
 
-        private InstallResult UpgradePackage(
+        private async Task<InstallResult> UpgradePackageAsync(
             CatalogPackage package,
             InstallOptions options)
         {
             var operation = PackageManagerWrapper.Instance.UpgradePackageAsync(package, options);
-            return this.RegisterCallbacksAndWait(
-                operation,
-                string.Format(
-                    Resources.ProgressRecordActivityUpdating,
-                    package.Name));
+            var progressHandler = new InstallProgressOperation(
+                this,
+                string.Format(Resources.ProgressRecordActivityUpdating, package.Name),
+                operation);
+            try
+            {
+                return await progressHandler.GetResult();
+            }
+            finally
+            {
+                progressHandler.CompleteProgress();
+            }
         }
     }
 }

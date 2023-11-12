@@ -230,4 +230,10 @@
   <data name="DownloadingMessage" xml:space="preserve">
     <value>Downloading</value>
   </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Uninstalling" xml:space="preserve">
+    <value>Uninstalling</value>
+  </data>
 </root>

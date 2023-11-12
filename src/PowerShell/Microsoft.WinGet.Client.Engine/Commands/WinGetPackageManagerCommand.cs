@@ -103,10 +103,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         private async Task RepairStateMachineAsync(string expectedVersion, bool allUsers, bool force)
         {
             var seenCategories = new HashSet<IntegrityCategory>();
+            var cancellationToken = this.GetCancellationToken();
 
             var currentCategory = IntegrityCategory.Unknown;
             while (currentCategory != IntegrityCategory.Installed)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     WinGetIntegrity.AssertWinGet(this, expectedVersion);

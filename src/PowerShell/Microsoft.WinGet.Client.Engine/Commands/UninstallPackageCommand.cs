@@ -6,8 +6,8 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
-    using System;
     using System.Management.Automation;
+    using System.Threading.Tasks;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
@@ -73,13 +73,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             bool force)
         {
             var result = this.Execute(
-                () => this.GetPackageAndExecute(
+                async () => await this.GetPackageAndExecuteAsync(
                     CompositeSearchBehavior.LocalCatalogs,
                     PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
-                    (package, version) =>
+                    async (package, version) =>
                     {
                         UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);
-                        return this.UninstallPackage(package, options);
+                        return await this.UninstallPackageAsync(package, options);
                     }));
 
             if (result != null)
@@ -110,36 +110,23 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             return options;
         }
 
-        private UninstallResult UninstallPackage(
+        private async Task<UninstallResult> UninstallPackageAsync(
             CatalogPackage package,
             UninstallOptions options)
         {
-            string activity = string.Format(
-                Resources.ProgressRecordActivityUninstalling,
-                package.Name);
-
             var operation = PackageManagerWrapper.Instance.UninstallPackageAsync(package, options);
-
-            var activityId = this.GetNewProgressActivityId();
-            WriteProgressAdapter adapter = new (this);
-            operation.Progress = (context, progress) =>
+            var progressHandler = new UninstallProgressOperation(
+                this,
+                string.Format(Resources.ProgressRecordActivityUninstalling, package.Name),
+                operation);
+            try
             {
-                adapter.WriteProgress(new ProgressRecord(activityId, activity, progress.State.ToString())
-                {
-                    RecordType = ProgressRecordType.Processing,
-                });
-            };
-            operation.Completed = (context, status) =>
+                return await progressHandler.GetResult();
+            }
+            finally
             {
-                this.CompleteProgress(activityId, activity, status.ToString(), true);
-                adapter.Completed = true;
-            };
-            Console.CancelKeyPress += (sender, e) =>
-            {
-                operation.Cancel();
-            };
-            adapter.Wait();
-            return operation.GetResults();
+                progressHandler.CompleteProgress();
+            }
         }
     }
 }

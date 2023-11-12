@@ -12,6 +12,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using System.Management.Automation;
     using System.Net.Http;
     using System.Threading.Tasks;
+    using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Common.Command;
     using Microsoft.WinGet.Resources;
 
@@ -60,14 +61,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 {
                     pwshCmdlet.Write(StreamType.Verbose, $"Size {contentLength} bytes");
 
-                    const int oneMB = 1024 * 1024;
-                    double lengthInMB = (double)(contentLength / oneMB);
-
-                    byte[] buffer = new byte[oneMB];
+                    byte[] buffer = new byte[Constants.OneMB];
                     int bytesRead, totalBytes = 0;
 
                     var activityId = pwshCmdlet.GetNewProgressActivityId();
-
+                    double lengthInMB = (double)contentLength.Value / Constants.OneMB;
                     try
                     {
                         int maxPercentComplete = 0;
@@ -76,15 +74,18 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                             await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
                             totalBytes += bytesRead;
 
-                            int percentComplete = (int)(((double)totalBytes / (double)contentLength) * 100);
+                            int percentComplete = (int)((double)totalBytes / contentLength * 100);
                             if (percentComplete > maxPercentComplete)
                             {
+                                pwshCmdlet.Write(StreamType.Verbose, $"DEBUG: {percentComplete}");
                                 maxPercentComplete = percentComplete;
                                 ProgressRecord record = new (activityId, url, Resources.DownloadingMessage)
                                 {
                                     RecordType = ProgressRecordType.Processing,
                                 };
-                                record.StatusDescription = $"{totalBytes / oneMB} MB / {lengthInMB} MB";
+
+                                double progress = (double)totalBytes / Constants.OneMB;
+                                record.StatusDescription = $"{progress:0.0} MB / {lengthInMB:0.0} MB";
                                 record.PercentComplete = percentComplete;
                                 pwshCmdlet.Write(StreamType.Progress, record);
                             }
@@ -107,6 +108,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 {
                     File.Delete(fileName);
                 }
+
+                throw;
             }
         }
     }

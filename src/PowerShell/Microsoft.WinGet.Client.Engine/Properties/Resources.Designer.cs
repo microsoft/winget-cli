@@ -70,6 +70,15 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Completed.
+        /// </summary>
+        internal static string Completed {
+            get {
+                return ResourceManager.GetString("Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Debug parameter not supported.
         /// </summary>
         internal static string DebugNotSupported {
@@ -300,6 +309,15 @@ namespace Microsoft.WinGet.Resources {
         internal static string SingleThreadedApartmentNotSupportedMessage {
             get {
                 return ResourceManager.GetString("SingleThreadedApartmentNotSupportedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uninstalling.
+        /// </summary>
+        internal static string Uninstalling {
+            get {
+                return ResourceManager.GetString("Uninstalling", resourceCulture);
             }
         }
         
