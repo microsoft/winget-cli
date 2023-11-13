@@ -80,7 +80,7 @@ TEST_CASE("HttpStream_ReadLastFullPage", "[HttpStream]")
         stream = GetReadOnlyStreamFromURI("https://cdn.winget.microsoft.com/cache/source.msix");
 
         stat = { 0 };
-        REQUIRE(stream->Stat(&stat, STATFLAG_NONAME) == S_OK);
+        REQUIRE(SUCCEEDED(stream->Stat(&stat, STATFLAG_NONAME)));
 
         if (stat.cbSize.QuadPart > 0)
         {
@@ -97,10 +97,10 @@ TEST_CASE("HttpStream_ReadLastFullPage", "[HttpStream]")
 
     LARGE_INTEGER seek;
     seek.QuadPart = (stat.cbSize.QuadPart / HttpStream::HttpLocalCache::PAGE_SIZE) * HttpStream::HttpLocalCache::PAGE_SIZE;
-    REQUIRE(stream->Seek(seek, STREAM_SEEK_SET, nullptr) == S_OK);
+    REQUIRE(SUCCEEDED(stream->Seek(seek, STREAM_SEEK_SET, nullptr)));
 
     std::unique_ptr<BYTE[]> buffer = std::make_unique<BYTE[]>(HttpStream::HttpLocalCache::PAGE_SIZE);
     ULONG read = 0;
-    REQUIRE(stream->Read(buffer.get(), static_cast<ULONG>(HttpStream::HttpLocalCache::PAGE_SIZE), &read) >= S_OK);
+    REQUIRE(SUCCEEDED(stream->Read(buffer.get(), static_cast<ULONG>(HttpStream::HttpLocalCache::PAGE_SIZE), &read)));
     REQUIRE(read == (stat.cbSize.QuadPart % HttpStream::HttpLocalCache::PAGE_SIZE));
 }

@@ -210,13 +210,4 @@ namespace AppInstaller::Runtime
     {
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_LOCAL_SYSTEM_RID);
     }
-
-    constexpr bool IsReleaseBuild()
-    {
-#ifdef WINGET_ENABLE_RELEASE_BUILD
-        return true;
-#else
-        return false;
-#endif
-    }
 }

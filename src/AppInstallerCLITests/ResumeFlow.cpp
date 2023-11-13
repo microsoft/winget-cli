@@ -179,8 +179,8 @@ TEST_CASE("ResumeFlow_InstallFailure", "[Resume]")
         install.Execute(context);
         INFO(installOutput.str());
 
-        // Verify unsupported arguments error message is shown 
-        REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+        // Verify unsupported arguments error message is shown
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
     }
 
     // Only one checkpoint file should be created.

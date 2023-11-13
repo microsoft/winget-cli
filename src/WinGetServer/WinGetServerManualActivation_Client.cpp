@@ -3,9 +3,12 @@
 #include "WinGetServer.h"
 #include "Utils.h"
 
+#pragma warning( push )
+#pragma warning ( disable : 6388 6553)
 #include <wil/com.h>
 #include <wil/result.h>
 #include <wil/safecast.h>
+#pragma warning( pop )
 
 #include <memory>
 #include <mutex>
@@ -85,6 +88,9 @@ HRESULT LaunchWinGetServerWithManualActivation()
     return S_OK;
 }
 
+// Warning C6320: Exception-filter expression is the constant EXCEPTION_EXECUTE_HANDLER. This might mask exceptions that were not intended to be handled.
+#pragma warning( push )
+#pragma warning ( disable : 6320)
 HRESULT CallCreateInstance(REFCLSID rclsid, REFIID riid, UINT32 flags, UINT32* bufferByteCount, BYTE** buffer)
 {
     RpcTryExcept
@@ -99,6 +105,7 @@ HRESULT CallCreateInstance(REFCLSID rclsid, REFIID riid, UINT32 flags, UINT32* b
 
     return S_OK;
 }
+#pragma warning( pop )
 
 HRESULT CreateComInstance(REFCLSID rclsid, REFIID riid, UINT32 flags, void** out)
 {
