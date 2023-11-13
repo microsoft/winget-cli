@@ -79,15 +79,8 @@
 ^src/AppInstallerCLITests/TestData/InputPublishers.txt$
 ^src/AppInstallerCLITests/TestData/NormalizationInitialIds.txt$
 ^src/AppInstallerCommonCore/external/do.h$
-^src/catch2/
-^src/cpprestsdk/
-^src/JsonCppLib/
+^src/external/
 ^src/PowerShell/ExternalModules
-^src/PureLib/
-^src/UndockedRegFreeWinRT/
-^src/Valijson/
-^src/Xlang/
-^src/YamlCppLib/
 # Because it doesn't handle argument -Words well
 ^tools/CorrelationTestbed/.*\.ps1$
 ^tools/COMTrace/ComTrace.wprp$
