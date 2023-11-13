@@ -7,7 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.Exceptions
 {
     using System;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Time out exception for a winget cli command.
@@ -19,7 +19,7 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
         /// </summary>
         /// <param name="command">Command.</param>
         /// <param name="parameters">Parameters.</param>
-        public WinGetCLITimeoutException(string command, string parameters)
+        public WinGetCLITimeoutException(string command, string? parameters)
             : base(string.Format(Resources.WinGetCLITimeoutExceptionMessage, command, parameters))
         {
         }

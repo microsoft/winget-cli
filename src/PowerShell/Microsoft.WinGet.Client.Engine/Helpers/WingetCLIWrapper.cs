@@ -69,7 +69,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="parameters">Parameters.</param>
         /// <param name="timeOut">Time out.</param>
         /// <returns>WinGetCommandResult.</returns>
-        public WinGetCLICommandResult RunCommand(string command, string parameters = null, int timeOut = 60000)
+        public WinGetCLICommandResult RunCommand(string command, string? parameters = null, int timeOut = 60000)
         {
             string args = command;
             if (!string.IsNullOrEmpty(parameters))

@@ -26,9 +26,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="content">Optional content. If not null or empty, creates file and writes to it.</param>
         /// <param name="cleanup">Deletes file at disposing time. Default true.</param>
         public TempFile(
-            string fileName = null,
+            string? fileName = null,
             bool deleteIfExists = true,
-            string content = null,
+            string? content = null,
             bool cleanup = true)
         {
             if (fileName is null)
@@ -78,7 +78,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Creates the file.
         /// </summary>
         /// <param name="content">Content.</param>
-        public void CreateFile(string content = null)
+        public void CreateFile(string? content = null)
         {
             if (content is null)
             {

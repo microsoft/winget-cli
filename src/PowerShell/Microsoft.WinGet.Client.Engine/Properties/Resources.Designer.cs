@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Engine.Properties {
+namespace Microsoft.WinGet.Resources {
     using System;
     
     
@@ -66,6 +66,15 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         internal static string CatalogConnectExceptionMessage {
             get {
                 return ResourceManager.GetString("CatalogConnectExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Debug parameter not supported.
+        /// </summary>
+        internal static string DebugNotSupported {
+            get {
+                return ResourceManager.GetString("DebugNotSupported", resourceCulture);
             }
         }
         
