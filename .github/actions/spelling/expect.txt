@@ -40,7 +40,6 @@ AUrl
 Authenticode
 azurefd
 azurewebsites
-Azure-Pipelines-1ESPT-ExDShared
 bcp
 BEFACEF
 bfd
@@ -119,6 +118,7 @@ DMPAs
 dnld
 Dobbeleer
 dsc
+DShared
 DUPLICATEALIAS
 dustojnikhummer
 dvinns
@@ -137,6 +137,7 @@ errcode
 errmsg
 ERRORONEXIT
 ESource
+ESPT
 ESRB
 ests
 etest
