@@ -230,7 +230,7 @@ namespace AppInstaller::CLI::Workflow
                     context.Reporter.Error() << Resource::String::RebootRequiredToEnableWindowsFeatureOverrideRequired << std::endl;
                     context.SetFlags(Execution::ContextFlag::RegisterResume);
                     context.SetFlags(Execution::ContextFlag::RebootRequired);
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL);
                 }
             }
             else

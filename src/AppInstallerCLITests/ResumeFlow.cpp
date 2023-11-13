@@ -227,7 +227,7 @@ TEST_CASE("ResumeFlow_WindowsFeature_RebootFailures", "[Resume][windowsFeature]"
         install.Execute(context);
         INFO(installOutput.str());
 
-        REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+        REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL);
         REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToRegisterReboot).get()) != std::string::npos);
     }
     SECTION("Initiate reboot fails")
@@ -243,7 +243,7 @@ TEST_CASE("ResumeFlow_WindowsFeature_RebootFailures", "[Resume][windowsFeature]"
         install.Execute(context);
         INFO(installOutput.str());
 
-        REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+        REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL);
         REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
     }
 }

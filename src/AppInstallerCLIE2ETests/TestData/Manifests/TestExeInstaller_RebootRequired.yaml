@@ -22,7 +22,7 @@ Installers:
         ReturnResponse: rebootRequiredToFinish
         ReturnResponseUrl: https://DefaultReturnResponseUrl.com
       - InstallerReturnCode: 10
-        ReturnResponse: rebootRequiredToInstall
+        ReturnResponse: rebootRequiredForInstall
         ReturnResponseUrl: https://DefaultReturnResponseUrl.com
 ManifestType: singleton
-ManifestVersion: 1.4.0
+ManifestVersion: 1.6.0

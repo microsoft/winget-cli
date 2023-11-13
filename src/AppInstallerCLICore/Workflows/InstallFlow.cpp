@@ -132,7 +132,7 @@ namespace AppInstaller::CLI::Workflow
                 case ExpectedReturnCodeEnum::RebootRequiredToFinish:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH, Resource::String::InstallFlowReturnCodeRebootRequiredToFinish);
                 case ExpectedReturnCodeEnum::RebootRequiredForInstall:
-                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL, Resource::String::InstallFlowReturnCodeRebootRequiredForInstall);
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL, Resource::String::InstallFlowReturnCodeRebootRequiredForInstall);
                 case ExpectedReturnCodeEnum::RebootInitiated:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED, Resource::String::InstallFlowReturnCodeRebootInitiated);
                 case ExpectedReturnCodeEnum::CancelledByUser:
@@ -484,7 +484,7 @@ namespace AppInstaller::CLI::Workflow
                     context.Reporter.Warn() << returnCode.Message << std::endl;
                     terminationHR = S_OK;
                     break;
-                case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
+                case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL:
                     // REBOOT_REQUIRED_TO_INSTALL is treated as an error since installation has not yet completed.
                     context.SetFlags(ContextFlag::RebootRequired);
                     // TODO: Add separate workflow to handle restart registration for resume.

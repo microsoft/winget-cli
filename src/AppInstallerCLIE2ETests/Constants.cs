@@ -271,7 +271,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_NO_NETWORK = unchecked((int)0x8A150107);
             public const int ERROR_INSTALL_CONTACT_SUPPORT = unchecked((int)0x8A150108);
             public const int ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH = unchecked((int)0x8A150109);
-            public const int ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL = unchecked((int)0x8A15010A);
+            public const int ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL = unchecked((int)0x8A15010A);
             public const int ERROR_INSTALL_REBOOT_INITIATED = unchecked((int)0x8A15010B);
             public const int ERROR_INSTALL_CANCELLED_BY_USER = unchecked((int)0x8A15010C);
             public const int ERROR_INSTALL_ALREADY_INSTALLED = unchecked((int)0x8A15010D);

@@ -76,7 +76,7 @@ namespace AppInstallerCLIE2ETests
             var checkpointsDir = TestCommon.GetCheckpointsDirectory();
             int initialCheckpointsCount = Directory.Exists(checkpointsDir) ? Directory.GetDirectories(checkpointsDir).Length : 0;
 
-            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.RebootRequired --custom '/ExitCode 9'");
+            var result = TestCommon.RunAICLICommand("install", $"--id AppInstallerTest.RebootRequired --custom '/ExitCode 9'");
             Assert.AreNotEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH, result.ExitCode);
             Assert.True(result.StdOut.Contains("Restart your PC to finish installation."));
 
@@ -89,14 +89,15 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Test install a package that returns REBOOT_REQUIRED_TO_INSTALL and verify that resume command can be called successfully.
         /// </summary>
+        [Test]
         public void InstallRequiresRebootToInstall()
         {
             var checkpointsDir = TestCommon.GetCheckpointsDirectory();
 
             int initialCheckpointsCount = Directory.Exists(checkpointsDir) ? Directory.GetDirectories(checkpointsDir).Length : 0;
 
-            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.RebootRequired --custom '/ExitCode 10'");
-            Assert.AreNotEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL, result.ExitCode);
+            var result = TestCommon.RunAICLICommand("install", $"--id AppInstallerTest.RebootRequired --custom '/ExitCode 10'");
+            Assert.AreNotEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL, result.ExitCode);
             Assert.True(result.StdOut.Contains("Installation failed. Restart your PC then try again."));
 
             int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
@@ -110,7 +111,7 @@ namespace AppInstallerCLIE2ETests
 
             // Resume output should be the same as the install result.
             var resumeResult = TestCommon.RunAICLICommand("resume", $"-g {checkpoint.Name}");
-            Assert.AreNotEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL, resumeResult.ExitCode);
+            Assert.AreNotEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL, resumeResult.ExitCode);
             Assert.True(resumeResult.StdOut.Contains("Installation failed. Restart your PC then try again."));
         }
     }
