@@ -55,6 +55,7 @@ namespace AppInstallerCLIE2ETests
             WinGetSettingsHelper.ConfigureFeature("directMSI", true);
             WinGetSettingsHelper.ConfigureFeature("windowsFeature", true);
             WinGetSettingsHelper.ConfigureFeature("resume", true);
+            WinGetSettingsHelper.ConfigureFeature("repair", true);
             var result = TestCommon.RunAICLICommand("features", string.Empty);
             Assert.True(result.StdOut.Contains("Enabled"));
         }

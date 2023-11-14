@@ -277,10 +277,15 @@
           "default": false
         },
         "reboot": {
-          "description": "Enable support for initiating a reboot",
+            "description": "Enable support for initiating a reboot",
+            "type": "boolean",
+            "default": false
+        },
+        "repair": {
+          "description": "Enable support for repairing a package",
           "type": "boolean",
           "default": false
-        }
+        },
       }
     }
   },

@@ -74,6 +74,7 @@ namespace AppInstaller::Settings
         EFResume,
         EFConfiguration03,
         EFReboot,
+        EFRepair,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -155,6 +156,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfiguration03, bool, bool, false, ".experimentalFeatures.configuration03"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFReboot, bool, bool, false, ".experimentalFeatures.reboot"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFRepair, bool, bool, false, ".experimentalFeatures.repair"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior
