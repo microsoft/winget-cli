@@ -1,5 +1,14 @@
 # See https://github.com/check-spelling/check-spelling/wiki/Configuration-Examples:-patterns
 
+# hit-count: 7 file-count: 1
+# regex choice
+\(\?:[^)]+\|[^)]+\)
+
+\[[A-Z][a-z]\][a-z]+
+
+Regex::Expression \w+\{\s*R".*"
+
+"ContinuationToken"\s*:\s*"[^"]+"
 WinGetDevCLI_8wekyb3d8bbwe
 _tisf_sqliteReturnValue
 microsoft\.com/[^])">]*
@@ -60,7 +69,7 @@ REQUIRE\(RestHelper::GetRestAPIBaseUri\(".*"\) == L".*"
 # Automatically suggested patterns
 # hit-count: 407 file-count: 78
 # IServiceProvider
-\bI(?=(?:[A-Z][a-z]{2,})+\b)
+\b[IT](?=(?:[A-Z][a-z]{2,})+(?:[A-Z]|\b))
 
 # hit-count: 13 file-count: 9
 # GitHub SHAs (markdown)
@@ -141,16 +150,18 @@ ReplaceWhileCopying\(L.*\)
 
 # acceptable duplicates
 # ls directory listings
-[-bcdlpsw](?:[-r][-w][-sx]){3}\s+\d+\s+(\S+)\s+\g{-1}\s+\d+\s+
-# C types
-\s(Architecture|long|LONG) \g{-1}\s
 
+[-bcdlpsw](?:[-r][-w][-SsTtx]){3}[\.+*]?\s+\d+\s+\S+\s+\S+\s+\d+\s+
+# mount
+\bmount\s+-t\s+(\w+)\s+\g{-1}\b
 # C types and repeated CSS values
-\s(center|div|inherit|long|LONG|none|normal|solid|thin|transparent|very)(?: \g{-1})+\s
+\s(Architecture|auto|center|div|inherit|long|LONG|none|normal|solid|thin|transparent|very)(?: \g{-1})+\s
+# C struct
+\bstruct\s+(\w+)\s+\g{-1}\b
 # go templates
-\s(\w+)\s+\g{-1}\s+\`(?:graphql|json|yaml):
-# javadoc / .net
-(?:[\\@](?:groupname|param)|(?:public|private)(?:\s+static|\s+readonly)*)\s+(\w+)\s+\g{-1}\s
+\s(\w+)\s+\g{-1}\s+\`(?:graphql|inject|json|yaml):
+# doxygen / javadoc / .net
+(?:[\\@](?:brief|groupname|t?param|return|retval)|(?:public|private|\[Parameter(?:\(.+\)|)\])(?:\s+static|\s+override|\s+readonly)*)(?:\s+\{\w+\}|)\s+(\w+)\s+\g{-1}\s
 
 # Commit message -- Signed-off-by and friends
 ^\s*(?:(?:Based-on-patch|Co-authored|Helped|Mentored|Reported|Reviewed|Signed-off)-by|Thanks-to): (?:[^<]*<[^>]*>|[^<]*)\s*$
