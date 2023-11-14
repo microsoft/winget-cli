@@ -18,6 +18,7 @@ APSTUDIO
 ARRAYSIZE
 artifactstagingdirectory
 aspirational
+Authenticode
 AUTOLISTEN
 azureedge
 binlog
@@ -68,6 +69,7 @@ denelon
 depersist
 differentpath
 DIRECTONLY
+DISMAPI
 distro
 dllmain
 dotnet
@@ -142,6 +144,7 @@ INVALIDARG
 INVALIDSID
 iot
 IPinning
+ipmo
 IPortable
 ISAPPROVEDFOROUTPUT
 IUnknown
@@ -162,6 +165,7 @@ MAKEINTRESOURCE
 makemsix
 MANIFESTSCHEMA
 MANIFESTVERSION
+meme
 metadatas
 Minimatch
 Moq
@@ -208,6 +212,9 @@ packagefamilyname
 packageidentifier
 packagename
 PACKAGESSCHEMA
+paket
+Params
+params
 parentidx
 pathpart
 Pathto
@@ -223,11 +230,14 @@ pinningindex
 pipssource
 Pkcs
 portableindex
+powertoys
 pplx
 ppv
 PRECONFIG
 preindexed
 prepareforpackaging
+prepopulate
+prepopulated
 prioritization
 processthreadsapi
 PRODUCTNAME
@@ -250,6 +260,7 @@ removemanifest
 removepin
 removeportablefile
 repolibtest
+requeue
 rescap
 resetpins
 resheader
@@ -286,6 +297,7 @@ SHTDN
 shtypes
 signtool
 silentwithprogress
+Silverlight
 simplesave
 simpletest
 sln
@@ -370,6 +382,7 @@ vcvars
 vcxitems
 VERYSILENT
 VFT
+visualstudio
 VOS
 vso
 wapproj

@@ -1,5 +1,14 @@
 # See https://github.com/check-spelling/check-spelling/wiki/Configuration-Examples:-patterns
 
+# hit-count: 7 file-count: 1
+# regex choice
+\(\?:[^)]+\|[^)]+\)
+
+\[[A-Z][a-z]\][a-z]+
+
+Regex::Expression \w+\{\s*R".*"
+
+"ContinuationToken"\s*:\s*"[^"]+"
 WinGetDevCLI_8wekyb3d8bbwe
 8wekyb3d8bbwe
 _tisf_sqliteReturnValue
@@ -33,10 +42,6 @@ El proyecto .* diferentes
 # .gitignore
 ^\[[\w/[\]*.]*$
 
-# compile flags
- -D(?=[A-Z]{2,}|[cgl][a-z]+)
- -T(?=h[a-z]{2,})
-
 # URLs -- Added here instead of allow.txt to facilitate wildcarding them as more are added
 http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
 
@@ -47,7 +52,7 @@ http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
 ^ShortDescription: Le nouveau.*$
 
 # Ignore test patterns
-REQUIRE\(Rest::GetRestAPIBaseUri\(".*"\) == L".*"
+GetRestAPIBaseUri\(".*"\) == L".*"
 
 # fabricbot.json
 "(?:id|user)": "[-A-Za-z0-9_]*"
@@ -55,28 +60,36 @@ REQUIRE\(Rest::GetRestAPIBaseUri\(".*"\) == L".*"
 # URL escaped characters
 \%[0-9A-F]{2}
 
+# some forms of `any more` are correct
+\battempt any more\b
+
 # Sample store product id for App Installer
 9nblggh4nns1
 
 # Automatically suggested patterns
 # hit-count: 407 file-count: 78
-# IServiceProvider
-\bI(?=(?:[A-Z][a-z]{2,})+\b)
+# IServiceProvider / isAThing
+(?:\b|_)(?:[IT]|isA)(?=(?:[A-Z][a-z]{2,})+(?:[A-Z]|\b))
 
 # hit-count: 13 file-count: 9
 # GitHub SHAs (markdown)
 (?:\[`?[0-9a-f]+`?\]\(https:/|)/(?:www\.|)github\.com(?:/[^/\s"]+){2,}(?:/[^/\s")]+)(?:[0-9a-f]+(?:[-0-9a-zA-Z/#.]*|)\b|)
 
 # Compiler flags
-(?:^|[\t ,"'`=(])-[D](?!ependency|esktop|estination|ev|irectory)
+(?:^|[\t ,"'`=(])-[D](?!ata|ependency|epth|esktop|estination|ev|irectory|ownload)
 (?:^|[\t ,"'`=(])-[W](?!ait|in|orking)
 (?:^|[\t ,"'`=(])-[l](?!og)
-(?:^|[\t ,"'`=(])-[f](?!ind|eatures)
+(?:^|[\t ,"'`=(])-[f](?!eatures|ile|ind)
+ -T(?=h[a-z]{2,})
 
 # Automatically suggested patterns
 # hit-count: 30 file-count: 4
 # version suffix <word>v#
 (?:(?<=[A-Z]{2})V|(?<=[a-z]{2}|[A-Z]{2})v)\d+(?:\b|(?=[a-zA-Z_]))
+
+# hit-count: 8 file-count: 4
+# libraries
+\b(?i)lib(?!elous|erty|rar(?:i(?:an|es)|y))(?=[a-z])
 
 # hit-count: 4 file-count: 4
 # Non-English
@@ -85,6 +98,11 @@ REQUIRE\(Rest::GetRestAPIBaseUri\(".*"\) == L".*"
 # hit-count: 3 file-count: 3
 # tar arguments
 \b(?:\\n|)g?tar(?:\.exe|)(?:(?:\s+--[-a-zA-Z]+|\s+-[a-zA-Z]+|\s[ABGJMOPRSUWZacdfh-pr-xz]+\b)(?:=[^ ]*|))+
+
+# hit-count: 3 file-count: 3
+# Python string prefix / binary prefix
+# Note that there's a high false positive rate, remove the `?=` and search for the regex to see if the matches seem like reasonable strings
+(?<!['"])\b(?:B|BR|Br|F|FR|Fr|R|RB|RF|Rb|Rf|U|UR|Ur|b|bR|br|f|fR|fr|r|rB|rF|rb|rf|u|uR|ur)['"](?=[A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})
 
 # hit-count: 3 file-count: 2
 # mailto urls
@@ -110,6 +128,10 @@ data:[-a-zA-Z=;:/0-9+]*,\S*
 # Wikipedia
 \ben\.wikipedia\.org/wiki/[-\w%.#]+
 
+# hit-count: 1 file-count: 1
+# GitHub actions
+\buses:\s+[-\w.]+/[-\w./]+@[-\w.]+
+
 # hit-count: 4 file-count: 2
 # w3
 \bw3\.org/[-0-9a-zA-Z/#.]+
@@ -134,6 +156,8 @@ GHSA(?:-[0-9a-z]{4}){3}
 # hex digits including css/html color classes:
 (?:[\\0][xX]|\\u|[uU]\+|#x?|\%23)[0-9a-fA-FgGrR_]{2,}(?:[uUlL]{0,3}|u\d+)\b
 
+E2E
+
 # first-letter-bracketed-remainder
 \b\w\[[A-Za-z]{3,}\]
 
@@ -142,16 +166,29 @@ ReplaceWhileCopying\(L.*\)
 
 # acceptable duplicates
 # ls directory listings
-[-bcdlpsw](?:[-r][-w][-sx]){3}\s+\d+\s+(\S+)\s+\g{-1}\s+\d+\s+
-# C types
-\s(Architecture|long|LONG) \g{-1}\s
-
+[-bcdlpsw](?:[-r][-w][-SsTtx]){3}[\.+*]?\s+\d+\s+\S+\s+\S+\s+[.\d]+(?:[KMGT]|)\s+
+# mount
+\bmount\s+-t\s+(\w+)\s+\g{-1}\b
 # C types and repeated CSS values
-\s(center|div|inherit|long|LONG|none|normal|solid|thin|transparent|very)(?: \g{-1})+\s
+\s(Architecture|auto|buffalo|center|div|inherit|long|LONG|none|normal|solid|thin|transparent|very)(?: \g{-1})+\s
+# C struct
+\bstruct\s+(\w+)\s+\g{-1}\b
 # go templates
-\s(\w+)\s+\g{-1}\s+\`(?:graphql|json|yaml):
-# javadoc / .net
-(?:[\\@](?:groupname|param)|(?:public|private)(?:\s+static|\s+readonly)*)\s+(\w+)\s+\g{-1}\s
+\s(\w+)\s+\g{-1}\s+\`(?:graphql|inject|json|yaml):
+# doxygen / javadoc / .net
+(?:[\\@](?:brief|defgroup|groupname|link|t?param|return|retval)|(?:public|private|\[Parameter(?:\(.+\)|)\])(?:\s+(?:static|override|readonly|required|virtual))*)(?:\s+\{\w+\}|)\s+(\w+)\s+\g{-1}\s
+
+# macOS file path
+/MacOS
+
+# Python package registry has incorrect spelling for macOS / Mac OS X
+"Operating System :: MacOS :: MacOS X"
+
+# "company" in Germany
+\bGmbH\b
+
+# IntelliJ
+\bIntelliJ\b
 
 # Commit message -- Signed-off-by and friends
 ^\s*(?:(?:Based-on-patch|Co-authored|Helped|Mentored|Reported|Reviewed|Signed-off)-by|Thanks-to): (?:[^<]*<[^>]*>|[^<]*)\s*$

@@ -1,10 +1,12 @@
 ^attache$
+^bellow$
 benefitting
 occurences?
 ^dependan.*
 ^oer$
 Sorce
 ^[Ss]pae.*
+^Teh$
 ^untill$
 ^untilling$
 ^wether.*
