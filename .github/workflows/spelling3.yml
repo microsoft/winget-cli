@@ -88,7 +88,6 @@ jobs:
           cspell:fullstack/fullstack.txt
           cspell:powershell/powershell.txt
           cspell:software-terms/src/software-terms.txt
-          cspell:win32/src/win32.txt
 
   comment-push:
     name: Report (Push)
