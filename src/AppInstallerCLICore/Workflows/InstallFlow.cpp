@@ -485,7 +485,7 @@ namespace AppInstaller::CLI::Workflow
                     terminationHR = S_OK;
                     break;
                 case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL:
-                    // REBOOT_REQUIRED_TO_INSTALL is treated as an error since installation has not yet completed.
+                    // REBOOT_REQUIRED_FOR_INSTALL is treated as an error since installation has not yet completed.
                     context.SetFlags(ContextFlag::RebootRequired);
                     // TODO: Add separate workflow to handle restart registration for resume.
                     context.SetFlags(ContextFlag::RegisterResume);
