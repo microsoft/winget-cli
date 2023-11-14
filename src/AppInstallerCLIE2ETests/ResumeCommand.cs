@@ -76,9 +76,11 @@ namespace AppInstallerCLIE2ETests
             var checkpointsDir = TestCommon.GetCheckpointsDirectory();
             int initialCheckpointsCount = Directory.Exists(checkpointsDir) ? Directory.GetDirectories(checkpointsDir).Length : 0;
 
-            var result = TestCommon.RunAICLICommand("install", $"--id AppInstallerTest.RebootRequired --custom '/ExitCode 9'");
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"TestRebootRequired --custom '/ExitCode 9' -l {installDir}");
             Assert.AreNotEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH, result.ExitCode);
             Assert.True(result.StdOut.Contains("Restart your PC to finish installation."));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
 
             int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
 
@@ -96,9 +98,11 @@ namespace AppInstallerCLIE2ETests
 
             int initialCheckpointsCount = Directory.Exists(checkpointsDir) ? Directory.GetDirectories(checkpointsDir).Length : 0;
 
-            var result = TestCommon.RunAICLICommand("install", $"--id AppInstallerTest.RebootRequired --custom '/ExitCode 10'");
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"TestRebootRequired --custom '/ExitCode 10' -l {installDir}");
             Assert.AreNotEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL, result.ExitCode);
             Assert.True(result.StdOut.Contains("Installation failed. Restart your PC then try again."));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
 
             int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
             Assert.AreEqual(initialCheckpointsCount + 1, actualCheckpointsCount);
