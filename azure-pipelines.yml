@@ -128,7 +128,6 @@ jobs:
       Contents: |
           $(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb
           $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.pdb
-          $(buildOutDir)\Microsoft.Management.Configuration.UnitTests\**
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
@@ -309,7 +308,7 @@ jobs:
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
       diagnosticsEnabled: true
-    condition: succeededOrFailed()
+    condition: and(succeededOrFailed(), eq(variables.buildPlatform, 'x86'))
 
   - task: PowerShell@2
     displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
