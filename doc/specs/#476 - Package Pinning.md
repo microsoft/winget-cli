@@ -170,7 +170,7 @@ Security of the Windows Package Manager should not be impacted by this change. H
 
 ### Reliability
 
-The change will improve reliability, as users will be able to have fine grained control of the Windows Package Manager's upgrade functionality to ensure their workflow is not disrupted.
+The change will improve reliability, as users will be able to have fine-grained control of the Windows Package Manager's upgrade functionality to ensure their workflow is not disrupted.
 
 ### Compatibility
 
