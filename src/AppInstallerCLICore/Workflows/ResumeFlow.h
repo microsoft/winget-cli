@@ -27,9 +27,9 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    struct RegisterForReboot : public WorkflowTask
+    struct RegisterStartupAfterReboot : public WorkflowTask
     {
-        RegisterForReboot() : WorkflowTask("RegisterForReboot", /* executeAlways*/ true) {}
+        RegisterStartupAfterReboot() : WorkflowTask("RegisterStartupAfterReboot", /* executeAlways*/ true) {}
 
         void operator()(Execution::Context & context) const override;
     };

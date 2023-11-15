@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "ExecutionContext.h"
-#include "COMContext.h"
-#include "Argument.h"
-#include "winget/UserSettings.h"
 #include "AppInstallerRuntime.h"
+#include "Argument.h"
+#include "COMContext.h"
 #include "Command.h"
+#include "ExecutionContext.h"
 #include "Public/winget/Checkpoint.h"
+#include "winget/Reboot.h"
+#include "winget/UserSettings.h"
 
 using namespace AppInstaller::Checkpoints;
 
@@ -260,6 +261,7 @@ namespace AppInstaller::CLI::Execution
             if (m_checkpointManager && (!IsTerminated() || GetTerminationHR() != APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL))
             {
                 m_checkpointManager->CleanUpDatabase();
+                AppInstaller::Reboot::UnregisterApplicationForReboot();
             }
         }
 
@@ -452,6 +454,10 @@ namespace AppInstaller::CLI::Execution
         {
             m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>();
             m_checkpointManager->CreateAutomaticCheckpoint(*this);
+
+            // Register for restart only when we first call checkpoint to support restarting from an unexpected shutdown.
+            std::string commandLineArg = "resume -g " + GetResumeId();
+            AppInstaller::Reboot::RegisterApplicationForReboot(commandLineArg);
         }
 
         // TODO: Capture context data for checkpoint.

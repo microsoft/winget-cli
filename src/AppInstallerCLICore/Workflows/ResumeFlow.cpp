@@ -16,7 +16,7 @@ namespace AppInstaller::CLI::Workflow
         context.Checkpoint(m_checkpointName, m_contextData);
     }
 
-    void RegisterForReboot::operator()(Execution::Context& context) const
+    void RegisterStartupAfterReboot::operator()(Execution::Context& context) const
     {
         if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume) || 
             !Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot))
@@ -26,17 +26,8 @@ namespace AppInstaller::CLI::Workflow
 
         if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterResume))
         {
-            std::string commandLineArg = "resume -g " + context.GetResumeId();
-
-            if (!Reboot::RegisterApplicationForReboot(commandLineArg))
-            {
-                context.Reporter.Error() << Resource::String::FailedToRegisterReboot << std::endl;
-
-                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired))
-                {
-                    context.ClearFlags(Execution::ContextFlag::RebootRequired);
-                }
-            }
+            std::string commandLine = "winget resume -g " + context.GetResumeId();
+            Reboot::WriteToRunOnceRegistry(commandLine);
         }
     }
 }

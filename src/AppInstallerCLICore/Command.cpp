@@ -882,19 +882,20 @@ namespace AppInstaller::CLI
                 context.Reporter.PromptForEnter();
             }
 
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterResume))
+            {
+                // RegisterResume context flag assumes we already wrote to the RunOnce registry.
+                // Since we are about to initiate a restart, this is no longer needed as a safety net.
+                Reboot::UnregisterApplicationForReboot();
+
+                context.ClearFlags(Execution::ContextFlag::RegisterResume);
+            }
+
             context.ClearFlags(Execution::ContextFlag::RebootRequired);
 
             if (!Reboot::InitiateReboot())
             {
                 context.Reporter.Error() << Resource::String::FailedToInitiateReboot << std::endl;
-            }
-            else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterResume))
-            {
-                context.ClearFlags(Execution::ContextFlag::RegisterResume);
-
-                // For Windows Error Reporting to restart this process, the process must be rebooted while it is still running.
-                // Workaround is to have the program sleep while the reboot process is kicked off. Only applies to resume.
-                Sleep(5000);
             }
         }
         else

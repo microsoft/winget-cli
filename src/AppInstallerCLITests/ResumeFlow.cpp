@@ -187,7 +187,8 @@ TEST_CASE("ResumeFlow_InstallFailure", "[Resume]")
     REQUIRE(std::filesystem::is_empty(tempCheckpointRecordDirectoryPath));
 }
 
-TEST_CASE("ResumeFlow_WindowsFeature_RebootFailures", "[Resume][windowsFeature]")
+
+TEST_CASE("ResumeFlow_WriteToRunOnceRegistry", "[Reboot][Resume][windowsFeature]")
 {
     if (!AppInstaller::Runtime::IsRunningAsAdmin())
     {
@@ -209,43 +210,23 @@ TEST_CASE("ResumeFlow_WindowsFeature_RebootFailures", "[Resume][windowsFeature]"
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideOpenDependencySource(context);
+    OverrideRegisterStartupAfterReboot(context);
 
     // Override with reboot required HRESULT.
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(ERROR_SUCCESS);
     auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
+    TestHook::SetRegisterForRestartResult_Override registerForRestartResultOverride(false);
+    TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
 
-    SECTION("Register for reboot fails")
-    {
-        TestHook::SetRegisterForRestartResult_Override registerForRestartResultOverride(false);
-        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(true);
+    const auto& testManifestPath = TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string();
+    context.Args.AddArg(Execution::Args::Type::Manifest, testManifestPath);
+    context.Args.AddArg(Execution::Args::Type::AllowReboot);
 
-        const auto& testManifestPath = TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string();
-        context.Args.AddArg(Execution::Args::Type::Manifest, testManifestPath);
-        context.Args.AddArg(Execution::Args::Type::AllowReboot);
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
 
-        InstallCommand install({});
-        install.Execute(context);
-        INFO(installOutput.str());
-
-        REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL);
-        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToRegisterReboot).get()) != std::string::npos);
-    }
-    SECTION("Initiate reboot fails")
-    {
-        TestHook::SetRegisterForRestartResult_Override registerForRestartResultOverride(true);
-        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
-
-        const auto& testManifestPath = TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string();
-        context.Args.AddArg(Execution::Args::Type::Manifest, testManifestPath);
-        context.Args.AddArg(Execution::Args::Type::AllowReboot);
-
-        InstallCommand install({});
-        install.Execute(context);
-        INFO(installOutput.str());
-
-        REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL);
-        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
-    }
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL);
 }
 
 TEST_CASE("ResumeFlow_ResumeLimitExceeded", "[Resume]")

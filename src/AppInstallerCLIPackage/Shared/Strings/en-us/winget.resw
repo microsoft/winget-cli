@@ -2631,9 +2631,6 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="FailedToInitiateReboot" xml:space="preserve">
     <value>Failed to initiate a reboot.</value>
   </data>
-  <data name="FailedToRegisterReboot" xml:space="preserve">
-    <value>Failed to register winget for reboot.</value>
-  </data>
   <data name="ResumeLimitExceeded" xml:space="preserve">
     <value>Resume operation exceeds the allowable limit of {0} resume(s).</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of the number of allowed resumes.</comment>

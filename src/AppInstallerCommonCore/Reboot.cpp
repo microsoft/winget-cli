@@ -4,10 +4,18 @@
 #include "AppInstallerLogging.h"
 #include "AppInstallerStrings.h"
 #include "Public/winget/Reboot.h"
+#include "Public/winget/Registry.h"
 #include <Windows.h>
+
+using namespace AppInstaller::Registry;
 
 namespace AppInstaller::Reboot
 {
+    namespace
+    {
+        constexpr std::wstring_view s_RunOnceRegistry = L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce";
+    }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
     static bool* s_InitiateRebootResult_TestHook_Override = nullptr;
 
@@ -84,5 +92,38 @@ namespace AppInstaller::Reboot
         {
             return true;
         }
+    }
+
+    bool UnregisterApplicationForReboot()
+    {
+        HRESULT result = UnregisterApplicationRestart();
+        AICLI_LOG(CLI, Info, << "Application unregistered for restart.");
+
+        if (FAILED(result))
+        {
+            AICLI_LOG(Core, Error, << "RegisterApplicationRestart failed with hr: " << result);
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    void WriteToRunOnceRegistry(const std::string& commandLine)
+    {
+        THROW_HR_IF(E_UNEXPECTED, commandLine.size() > MAX_PATH);
+
+        HKEY root = HKEY_CURRENT_USER;
+        std::wstring subKey = std::wstring{ s_RunOnceRegistry };
+        Key key = Key::OpenIfExists(HKEY_CURRENT_USER, subKey, 0, KEY_ALL_ACCESS);
+
+        if (key == NULL)
+        {
+            key = Key::Create(root, subKey);
+        }
+
+        key.SetValue(L"ResumeWinget", Utility::ConvertToUTF16(commandLine), REG_SZ);
+        AICLI_LOG(CLI, Info, << "Set RunOnce registry with value: " << commandLine);
     }
 }
