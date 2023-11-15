@@ -121,7 +121,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Test search with exact case sensitive.
+        /// Test search with exact case-sensitive.
         /// </summary>
         [Test]
         public void SearchWithExactArgCaseSensitivity()

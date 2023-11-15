@@ -103,7 +103,7 @@ Function Find-WinGetPackage{
             $WinGetArgs += "--Command", $Command.Replace("…", "")
         }
         if($Exact){
-            ## Search using exact values specified (case sensitive)
+            ## Search using exact values specified (case-sensitive)
             $WinGetArgs += "--Exact"
         }
         if($PSBoundParameters.ContainsKey('Source')){
@@ -119,7 +119,7 @@ Function Find-WinGetPackage{
             $WinGetArgs += "--header", $Header
         }
         if($PSBoundParameters.ContainsKey('VerboseLog')){
-            ## Search using exact values specified (case sensitive)
+            ## Search using exact values specified (case-sensitive)
             $WinGetArgs += "--VerboseLog", $VerboseLog
         }
         if($AcceptSourceAgreement){
