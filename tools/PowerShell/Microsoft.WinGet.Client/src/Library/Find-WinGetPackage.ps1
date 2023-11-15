@@ -26,7 +26,7 @@ Function Find-WinGetPackage{
         Used to specify the Command of the package
         
         .PARAMETER Exact
-        Used to specify an exact match for any parameters provided. Many of the other parameters may be used for case insensitive substring matches if Exact is not specified.
+        Used to specify an exact match for any parameters provided. Many of the other parameters may be used for case-insensitive substring matches if Exact is not specified.
 
         .PARAMETER Source
         Name of the Windows Package Manager private source. Can be identified by running: "Get-WinGetSource" and using the source Name
