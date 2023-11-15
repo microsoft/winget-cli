@@ -108,7 +108,7 @@ namespace AppInstaller::Repository
         // Case 2:
         //  - The source is not a tombstone and we don't need the policy to be explicitly enabled.
         //  - Check only against the source argument and type as the user source may have a different name.
-        //  - Do a case insensitive check as the domain portion of the URL is case insensitive,
+        //  - Do a case-insensitive check as the domain portion of the URL is case-insensitive,
         //    and we don't need case sensitivity for the rest as we control the domain.
         if (Utility::CaseInsensitiveEquals(arg, GetWellKnownSourceArg(WellKnownSource::WinGet)) &&
             Utility::CaseInsensitiveEquals(type, Microsoft::PreIndexedPackageSourceFactory::Type()))

@@ -776,7 +776,7 @@ namespace AppInstaller::Manifest
             std::string key = keyValuePair.first.as<std::string>();
             const YAML::Node& valueNode = keyValuePair.second;
 
-            // We'll do case insensitive search first and validate correct case later.
+            // We'll do case-insensitive search first and validate correct case later.
             auto fieldIter = std::find_if(fieldInfos.begin(), fieldInfos.end(),
                 [&](auto const& s)
                 {

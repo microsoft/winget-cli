@@ -157,7 +157,7 @@ namespace AppInstaller::YAML
         Node& operator[](std::string_view key);
         const Node& operator[](std::string_view key) const;
 
-        // Gets a child node from the mapping by its name case insensitive.
+        // Gets a child node from the mapping by its name case-insensitive.
         Node& GetChildNode(std::string_view key);
         const Node& GetChildNode(std::string_view key) const;
 

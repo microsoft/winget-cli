@@ -154,7 +154,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Resource name case insensitive test.
+        /// Resource name case-insensitive test.
         /// </summary>
         [Test]
         public void ResourceCaseInsensitive()
