@@ -104,7 +104,7 @@ Function Get-WinGetPackage{
             $WinGetArgs += "--Count", $Count
         }
         if($Exact){
-            ## Search using exact values specified (case sensitive)
+            ## Search using exact values specified (case-sensitive)
             $WinGetArgs += "--Exact"
         }
         if($PSBoundParameters.ContainsKey('Header')){
