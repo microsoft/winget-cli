@@ -20,6 +20,6 @@ namespace AppInstaller::Locale
     // Get the list of user Preferred Languages from settings. Returns an empty vector in rare cases of failure.
     std::vector<std::string> GetUserPreferredLanguages();
 
-    // Get the bcp47 tag from a locale id. Returns empty string if conversion can not be performed.
+    // Get the bcp47 tag from a locale id. Returns empty string if conversion cannot be performed.
     std::string LocaleIdToBcp47Tag(LCID localeId);
 }
