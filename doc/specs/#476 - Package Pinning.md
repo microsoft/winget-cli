@@ -191,7 +191,7 @@ There should not be any notable performance changes.
 - Implementation in this spec only supports pinning from remote sources, so all installed versions from same package share the same pinning configuration. Winget could better support side by side installations by introducing package pinning from installed source.
 - Package pinning from user and from manifest are stored separately, we may integrate the `winget pin` commands to control package pinning from manifests.
 - A couple UI integrations can be made to `winget upgrade` and `winget list` to show pinned status during listing.
-- Dependencies flow can be improved to first check pinned status of each dependant package before trying to install all dependencies.
+- Dependencies flow can be improved to first check pinned status of each dependent package before trying to install all dependencies.
 - Support setting pinned state right after installation/upgrades like `winget install foo --pin`.
 - Improvements to import export commands to work seamlessly with existing package pinning configurations.
 

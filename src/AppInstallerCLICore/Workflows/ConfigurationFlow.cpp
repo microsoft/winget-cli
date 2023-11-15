@@ -1119,7 +1119,7 @@ namespace AppInstaller::CLI::Workflow
             return getResult;
         }
 
-        std::optional<ConfigurationUnit> CreateConfigurationUnit(Execution::Context& context, const std::optional<ConfigurationUnit> dependantUnit)
+        std::optional<ConfigurationUnit> CreateConfigurationUnit(Execution::Context& context, const std::optional<ConfigurationUnit> dependentUnit)
         {
             if (context.Args.Contains(Execution::Args::Type::ConfigurationExportModule, Execution::Args::Type::ConfigurationExportResource))
             {
@@ -1136,9 +1136,9 @@ namespace AppInstaller::CLI::Workflow
                 directives.Insert(s_Directive_Module, PropertyValue::CreateString(moduleNameWide));
 
                 Utility::LocIndString description;
-                if (dependantUnit.has_value())
+                if (dependentUnit.has_value())
                 {
-                    description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ Utility::ConvertToUTF8(dependantUnit.value().Identifier()) });
+                    description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ Utility::ConvertToUTF8(dependentUnit.value().Identifier()) });
                 }
                 else
                 {
@@ -1186,10 +1186,10 @@ namespace AppInstaller::CLI::Workflow
                 unit.Intent(ConfigurationUnitIntent::Apply);
 
                 // Add dependency if needed.
-                if (dependantUnit.has_value())
+                if (dependentUnit.has_value())
                 {
                     auto dependencies = winrt::single_threaded_vector<winrt::hstring>();
-                    dependencies.Append(dependantUnit.value().Identifier());
+                    dependencies.Append(dependentUnit.value().Identifier());
                     unit.Dependencies(std::move(dependencies));
                 }
 
