@@ -7,6 +7,7 @@
 #include <AppInstallerStrings.h>
 #include <Microsoft/PredefinedInstalledSourceFactory.h>
 #include <Microsoft/ARPHelper.h>
+#include <Microsoft/SQLiteIndexSource.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -18,6 +19,7 @@ using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Utility;
 
 using SQLiteIndex = AppInstaller::Repository::Microsoft::SQLiteIndex;
+using SQLiteIndexSource = AppInstaller::Repository::Microsoft::SQLiteIndexSource;
 using Factory = AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory;
 using ARPHelper = AppInstaller::Repository::Microsoft::ARPHelper;
 
@@ -399,4 +401,83 @@ TEST_CASE("PredefinedInstalledSource_Search", "[installed][list]")
     auto results = source->Search(request);
 
     REQUIRE_FALSE(results.Matches.empty());
+}
+
+std::string GetDatabaseIdentifier(const std::shared_ptr<Repository::ISource>& source)
+{
+    return reinterpret_cast<SQLiteIndexSource*>(source->CastTo(ISourceType::SQLiteIndexSource))->GetIndex().GetDatabaseIdentifier();
+}
+
+void RequirePackagesHaveSameNames(std::shared_ptr<ISource>& source1, std::shared_ptr<ISource>& source2)
+{
+    auto result1 = source1->Search({});
+    REQUIRE(!result1.Matches.empty());
+
+    // Ensure that all packages have the same name values
+    for (const auto& match : result1.Matches)
+    {
+        std::string packageId = match.Package->GetProperty(PackageProperty::Id).get();
+        INFO(packageId);
+
+        SearchRequest id2;
+        id2.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::CaseInsensitive, packageId });
+        auto result2 = source2->Search(id2);
+        REQUIRE(result2.Matches.size() == 1);
+        REQUIRE(match.Package->GetProperty(PackageProperty::Name) == result2.Matches[0].Package->GetProperty(PackageProperty::Name));
+    }
+}
+
+TEST_CASE("PredefinedInstalledSource_Create_Cached", "[installed][list][installed-cache]")
+{
+    auto source1 = CreatePredefinedInstalledSource();
+    auto source2 = CreatePredefinedInstalledSource();
+
+    // Ensure the same identifier (which should mean the cache was not updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source1)
+        ==
+        GetDatabaseIdentifier(source2)
+    );
+
+    RequirePackagesHaveSameNames(source1, source2);
+    RequirePackagesHaveSameNames(source2, source1);
+}
+
+TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate", "[installed][list][installed-cache]")
+{
+    auto source1 = CreatePredefinedInstalledSource();
+    auto source2 = CreatePredefinedInstalledSource(Factory::Filter::NoneWithForcedCacheUpdate);
+
+    // Ensure different identifier (which should mean the cache was updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source1)
+        !=
+        GetDatabaseIdentifier(source2)
+    );
+
+    RequirePackagesHaveSameNames(source1, source2);
+    RequirePackagesHaveSameNames(source2, source1);
+}
+
+TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate_StillCached", "[installed][list][installed-cache]")
+{
+    auto source1 = CreatePredefinedInstalledSource();
+    auto source2 = CreatePredefinedInstalledSource(Factory::Filter::NoneWithForcedCacheUpdate);
+    auto source3 = CreatePredefinedInstalledSource();
+
+    CAPTURE(GetDatabaseIdentifier(source1), GetDatabaseIdentifier(source2), GetDatabaseIdentifier(source3));
+
+    // Ensure different identifier (which should mean the cache was updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source1)
+        !=
+        GetDatabaseIdentifier(source2)
+    );
+
+    // Ensure the same identifier (which should mean the cache was not updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source2)
+        ==
+        GetDatabaseIdentifier(source3)
+    );
 }

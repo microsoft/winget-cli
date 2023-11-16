@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Configuration.Engine.Resources {
+namespace Microsoft.WinGet.Resources {
     using System;
     
     

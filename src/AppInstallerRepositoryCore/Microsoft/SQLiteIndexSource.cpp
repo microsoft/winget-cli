@@ -288,14 +288,34 @@ namespace AppInstaller::Repository::Microsoft
             std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior) const override
             {
                 std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
-                std::vector<Utility::VersionAndChannel> versions = source->GetIndex().GetVersionKeysById(m_idId);
 
-                std::vector<PackageVersionKey> result;
-                for (const auto& vac : versions)
                 {
-                    result.emplace_back(source->GetIdentifier(), vac.GetVersion().ToString(), vac.GetChannel().ToString());
+                    auto sharedLock = m_availableVersionKeysLock.lock_shared();
+
+                    if (!m_availableVersionKeys.empty())
+                    {
+                        return m_availableVersionKeys;
+                    }
                 }
-                return result;
+
+                auto exclusiveLock = m_availableVersionKeysLock.lock_exclusive();
+
+                if (!m_availableVersionKeys.empty())
+                {
+                    return m_availableVersionKeys;
+                }
+
+                std::vector<SQLiteIndex::VersionKey> versions = source->GetIndex().GetVersionKeysById(m_idId);
+
+                for (const auto& vk : versions)
+                {
+                    std::string version = vk.VersionAndChannel.GetVersion().ToString();
+                    std::string channel = vk.VersionAndChannel.GetChannel().ToString();
+                    m_availableVersionKeys.emplace_back(source->GetIdentifier(), version, channel);
+                    m_availableVersionKeysMap.emplace(MapKey{ std::move(version), std::move(channel) }, vk.ManifestId);
+                }
+
+                return m_availableVersionKeys;
             }
 
             std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
@@ -313,7 +333,23 @@ namespace AppInstaller::Repository::Microsoft
                     return {};
                 }
 
-                std::optional<SQLiteIndex::IdType> manifestId = source->GetIndex().GetManifestIdByKey(m_idId, versionKey.Version, versionKey.Channel);
+                std::optional<SQLiteIndex::IdType> manifestId;
+
+                {
+                    MapKey requested{ versionKey.Version, versionKey.Channel };
+                    auto sharedLock = m_availableVersionKeysLock.lock_shared();
+
+                    auto itr = m_availableVersionKeysMap.find(requested);
+                    if (itr != m_availableVersionKeysMap.end())
+                    {
+                        manifestId = itr->second;
+                    }
+                }
+
+                if (!manifestId)
+                {
+                    manifestId = source->GetIndex().GetManifestIdByKey(m_idId, versionKey.Version, versionKey.Channel);
+                }
 
                 if (manifestId)
                 {
@@ -349,6 +385,35 @@ namespace AppInstaller::Repository::Microsoft
 
                 return nullptr;
             }
+
+        private:
+            // Contains the information needed to map a version key to it's rows.
+            struct MapKey
+            {
+                Utility::NormalizedString Version;
+                Utility::NormalizedString Channel;
+
+                bool operator<(const MapKey& other) const
+                {
+                    if (Version < other.Version)
+                    {
+                        return true;
+                    }
+                    else if (Version == other.Version)
+                    {
+                        return Channel < other.Channel;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            };
+
+            // To avoid removing const from the interface
+            mutable wil::srwlock m_availableVersionKeysLock;
+            mutable std::vector<PackageVersionKey> m_availableVersionKeys;
+            mutable std::map<MapKey, SQLiteIndex::IdType> m_availableVersionKeysMap;
         };
 
         // The IPackage impl for SQLiteIndexSource of Installed packages.
