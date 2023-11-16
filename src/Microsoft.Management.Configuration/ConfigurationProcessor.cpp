@@ -483,7 +483,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
-        IConfigurationSetGroupProcessor groupProcessor = GetSetGroupProcessor(configurationSet);
+        IConfigurationGroupProcessor groupProcessor = GetSetGroupProcessor(configurationSet);
         auto result = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationSetResult>>();
         result->TestResult(ConfigurationTestResult::NotRun);
         progress.Result(*result);
@@ -669,11 +669,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *result;
     }
 
-    IConfigurationSetGroupProcessor ConfigurationProcessor::GetSetGroupProcessor(const ConfigurationSet& configurationSet)
+    IConfigurationGroupProcessor ConfigurationProcessor::GetSetGroupProcessor(const ConfigurationSet& configurationSet)
     {
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(configurationSet);
 
-        IConfigurationSetGroupProcessor result = setProcessor.try_as<IConfigurationSetGroupProcessor>();
+        IConfigurationGroupProcessor result = setProcessor.try_as<IConfigurationGroupProcessor>();
         if (!result)
         {
             auto groupProcessor = make_self<wil::details::module_count_wrapper<implementation::DefaultSetGroupProcessor>>();
