@@ -57,8 +57,7 @@ namespace AppInstaller::Checkpoints
         // Update a single existing field value for a data type.
         void Update(T dataType, const std::string& fieldName, const std::string& value)
         {
-            m_checkpointDatabase->RemoveDataType(m_checkpointId, dataType);
-            m_checkpointDatabase->SetDataValue(m_checkpointId, dataType, fieldName, { value });
+            m_checkpointDatabase->UpdateDataValue(m_checkpointId, dataType, fieldName, { value });
         }
 
         // Gets a single field value for a data type.

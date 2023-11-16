@@ -252,13 +252,26 @@ namespace AppInstaller::CLI::Execution
                 SignalTerminationHandler::Instance().RemoveContext(context);
             }
         }
+
+        bool ShouldRemoveCheckpointDatabase(HRESULT hr)
+        {
+            switch (hr)
+            {
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL:
+            case APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED:
+            case APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH:
+                return false;
+            default:
+                return true;
+            }
+        }
     }
 
     Context::~Context()
     {
         if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
         {
-            if (m_checkpointManager && (!IsTerminated() || GetTerminationHR() != APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL))
+            if (m_checkpointManager && (!IsTerminated() || ShouldRemoveCheckpointDatabase(GetTerminationHR())))
             {
                 m_checkpointManager->CleanUpDatabase();
                 AppInstaller::Reboot::UnregisterApplicationForReboot();
@@ -456,8 +469,7 @@ namespace AppInstaller::CLI::Execution
             m_checkpointManager->CreateAutomaticCheckpoint(*this);
 
             // Register for restart only when we first call checkpoint to support restarting from an unexpected shutdown.
-            std::string commandLineArg = "resume -g " + GetResumeId();
-            AppInstaller::Reboot::RegisterApplicationForReboot(commandLineArg);
+            AppInstaller::Reboot::RegisterApplicationForReboot("resume -g " + GetResumeId());
         }
 
         // TODO: Capture context data for checkpoint.

@@ -13,5 +13,5 @@ namespace AppInstaller::Reboot
     bool UnregisterApplicationForReboot();
 
     // Runs a program when a user logs on.
-    void WriteToRunOnceRegistry(const std::string& commandLine);
+    void WriteToRunOnceRegistry(const std::string& commandLine, bool isAdmin);
 }

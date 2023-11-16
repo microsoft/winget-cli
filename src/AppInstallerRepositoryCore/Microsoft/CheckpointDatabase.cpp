@@ -77,6 +77,20 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
     }
 
+    void CheckpointDatabase::UpdateDataValue(IdType checkpointId, int dataType, const std::string& field, const std::vector<std::string>& values)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Updating checkpoint data [" << dataType << "]");
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "CheckpointDatabase_updateDataValue");
+
+        m_interface->RemoveCheckpointDataType(m_dbconn, checkpointId, dataType);
+        m_interface->SetCheckpointDataValues(m_dbconn, checkpointId, dataType, field, values);
+
+        SetLastWriteTime();
+        savepoint.Commit();
+    }
+
     void CheckpointDatabase::RemoveDataType(IdType checkpointId, int dataType)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };

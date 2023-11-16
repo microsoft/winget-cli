@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include <AppInstallerRuntime.h>
 #include "ResumeFlow.h"
 #include "winget/Reboot.h"
 
@@ -26,8 +27,15 @@ namespace AppInstaller::CLI::Workflow
 
         if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterResume))
         {
-            std::string commandLine = "winget resume -g " + context.GetResumeId();
-            Reboot::WriteToRunOnceRegistry(commandLine);
+            int argc = 0;
+            wil::unique_hlocal_ptr<LPWSTR> argv{ CommandLineToArgvW(GetCommandLineW(), &argc) };
+            THROW_LAST_ERROR_IF_NULL(argv);
+
+            // RunOnce registry value must start with the full path of the executable.
+            std::string commandLine = Utility::ConvertToUTF8(argv.get()[0]) + " resume -g " + context.GetResumeId();
+
+            bool isAdmin = AppInstaller::Runtime::IsRunningAsAdmin();
+            Reboot::WriteToRunOnceRegistry(commandLine, isAdmin);
         }
     }
 }

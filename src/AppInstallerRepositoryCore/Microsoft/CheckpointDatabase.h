@@ -50,6 +50,9 @@ namespace AppInstaller::Repository::Microsoft
         // Sets the value(s) for a data type and field.
         void SetDataValue(IdType checkpointId, int dataType, const std::string& field, const std::vector<std::string>& values);
 
+        // Updates the value(s) for a data type and field.
+        void UpdateDataValue(IdType checkpointId, int dataType, const std::string& field, const std::vector<std::string>& values);
+
         // Gets a single value for a data type field.
         std::string GetDataFieldSingleValue(IdType checkpointId, int dataType, const std::string& field);
 

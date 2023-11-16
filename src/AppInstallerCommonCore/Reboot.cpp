@@ -110,20 +110,20 @@ namespace AppInstaller::Reboot
         }
     }
 
-    void WriteToRunOnceRegistry(const std::string& commandLine)
+    void WriteToRunOnceRegistry(const std::string& commandLine, bool isAdmin)
     {
         THROW_HR_IF(E_UNEXPECTED, commandLine.size() > MAX_PATH);
 
-        HKEY root = HKEY_CURRENT_USER;
+        HKEY root = isAdmin ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
         std::wstring subKey = std::wstring{ s_RunOnceRegistry };
-        Key key = Key::OpenIfExists(HKEY_CURRENT_USER, subKey, 0, KEY_ALL_ACCESS);
+        Key key = Key::OpenIfExists(root, subKey, 0, KEY_ALL_ACCESS);
 
         if (key == NULL)
         {
             key = Key::Create(root, subKey);
         }
 
-        key.SetValue(L"ResumeWinget", Utility::ConvertToUTF16(commandLine), REG_SZ);
+        key.SetValue(L"WingetResume", Utility::ConvertToUTF16(commandLine), REG_SZ);
         AICLI_LOG(CLI, Info, << "Set RunOnce registry with value: " << commandLine);
     }
 }

@@ -249,9 +249,9 @@ TEST_CASE("ResumeFlow_ResumeLimitExceeded", "[Resume]")
     std::filesystem::path testResumeId = L"testResumeId";
     std::filesystem::path tempResumeDir = tempCheckpointRecordDirectoryPath / testResumeId;
     std::filesystem::path tempCheckpointDatabasePath = tempResumeDir / L"checkpoints.db";
+    std::filesystem::create_directory(tempResumeDir);
 
     {
-        std::filesystem::create_directory(tempResumeDir);
         std::shared_ptr<CheckpointDatabase> database = CheckpointDatabase::CreateNew(tempCheckpointDatabasePath.u8string(), {1, 0});
         std::string_view testCheckpointName = "testCheckpoint"sv;
 
@@ -272,5 +272,8 @@ TEST_CASE("ResumeFlow_ResumeLimitExceeded", "[Resume]")
         INFO(resumeOutput.str());
         REQUIRE(resumeContext.IsTerminated());
         REQUIRE(resumeContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED);
+
+        REQUIRE(resumeOutput.str().find(Resource::LocString(Resource::String::ResumeLimitExceeded('1')).get()) != std::string::npos);
+        REQUIRE(resumeOutput.str().find("winget resume -g " + testResumeId.u8string() + " --ignore-resume-limit") != std::string::npos);
     }
 }
