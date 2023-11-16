@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// Version commands.
@@ -29,7 +30,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         public void Get()
         {
-            this.PsCmdlet.WriteObject(WinGetVersion.InstalledWinGetVersion.TagVersion);
+            this.Write(StreamType.Object, WinGetVersion.InstalledWinGetVersion.TagVersion);
         }
     }
 }

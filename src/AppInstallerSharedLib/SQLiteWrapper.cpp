@@ -18,14 +18,14 @@ using namespace std::string_view_literals;
 
 #define THROW_SQLITE(_error_,_connection_) \
     do { \
-        int _ts_sqliteReturnValue = _error_; \
-        sqlite3* _ts_sqliteConnection = _connection_; \
-        THROW_EXCEPTION_MSG(SQLiteException(_ts_sqliteReturnValue), _ts_sqliteConnection ? sqlite3_errmsg(_ts_sqliteConnection) : sqlite3_errstr(_ts_sqliteReturnValue)); \
+        int _ts_sqliteReturnValue = (_error_); \
+        sqlite3* _ts_sqliteConnection = (_connection_); \
+        THROW_EXCEPTION_MSG(SQLiteException(_ts_sqliteReturnValue), "%hs", _ts_sqliteConnection ? sqlite3_errmsg(_ts_sqliteConnection) : sqlite3_errstr(_ts_sqliteReturnValue)); \
     } while (0,0)
 
 #define THROW_IF_SQLITE_FAILED(_statement_,_connection_) \
     do { \
-        int _tisf_sqliteReturnValue = _statement_; \
+        int _tisf_sqliteReturnValue = (_statement_); \
         if (_tisf_sqliteReturnValue != SQLITE_OK) \
         { \
             THROW_SQLITE(_tisf_sqliteReturnValue,_connection_); \
@@ -347,6 +347,46 @@ namespace AppInstaller::SQLite
             AICLI_LOG(SQL, Verbose, << "Commit savepoint: " << m_name);
             m_release.Step(true);
             m_inProgress = false;
+        }
+    }
+
+    Backup::Backup(Connection& destination, const std::string& destinationName, Connection& source, const std::string& sourceName)
+    {
+        m_backup.reset(sqlite3_backup_init(destination, destinationName.c_str(), source, sourceName.c_str()));
+
+        if (!m_backup)
+        {
+            THROW_SQLITE(sqlite3_errcode(destination), destination);
+        }
+    }
+
+    Backup Backup::Create(Connection& destination, const std::string& destinationName, Connection& source, const std::string& sourceName)
+    {
+        return { destination, destinationName, source, sourceName };
+    }
+
+    bool Backup::Step(int pages)
+    {
+        int stepResult = sqlite3_backup_step(m_backup.get(), pages);
+
+        if (stepResult == SQLITE_OK)
+        {
+            // A negative number of pages should finish the operation
+            if (pages < 0)
+            {
+                THROW_HR(E_UNEXPECTED);
+            }
+
+            // Success but not done
+            return false;
+        }
+        else if (stepResult == SQLITE_DONE)
+        {
+            return true;
+        }
+        else
+        {
+            THROW_SQLITE(stepResult, nullptr);
         }
     }
 

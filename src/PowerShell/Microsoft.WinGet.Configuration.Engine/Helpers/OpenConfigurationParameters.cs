@@ -11,7 +11,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
     using System.Management.Automation;
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.PowerShell;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Common.Command;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// The parameters used to open a configuration.
@@ -25,19 +26,19 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// <summary>
         /// Initializes a new instance of the <see cref="OpenConfigurationParameters"/> class.
         /// </summary>
-        /// <param name="psCmdlet">PsCmdlet caller.</param>
+        /// <param name="pwshCmdlet">PowerShellCmdlet.</param>
         /// <param name="file">The configuration file.</param>
         /// <param name="modulePath">The module path to use.</param>
         /// <param name="executionPolicy">Execution policy.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
         public OpenConfigurationParameters(
-            PSCmdlet psCmdlet,
+            PowerShellCmdlet pwshCmdlet,
             string file,
             string modulePath,
             ExecutionPolicy executionPolicy,
             bool canUseTelemetry)
         {
-            this.ConfigFile = this.VerifyFile(file, psCmdlet);
+            this.ConfigFile = this.VerifyFile(file, pwshCmdlet);
             this.InitializeModulePath(modulePath);
             this.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
             this.CanUseTelemetry = canUseTelemetry;
@@ -68,13 +69,13 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// </summary>
         public bool CanUseTelemetry { get; }
 
-        private string VerifyFile(string filePath, PSCmdlet psCmdlet)
+        private string VerifyFile(string filePath, PowerShellCmdlet pwshCmdlet)
         {
             if (!Path.IsPathRooted(filePath))
             {
                 filePath = Path.GetFullPath(
                     Path.Combine(
-                        psCmdlet.SessionState.Path.CurrentFileSystemLocation.Path,
+                        pwshCmdlet.GetCurrentFileSystemLocation(),
                         filePath));
             }
             else

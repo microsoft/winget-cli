@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Client.Engine.Exceptions;
     using Windows.Foundation;
 
     /// <summary>
@@ -21,7 +22,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     {
         private static readonly Lazy<PackageManagerWrapper> Lazy = new (() => new PackageManagerWrapper());
 
-        private PackageManager packageManager = null;
+        private PackageManager packageManager = null!;
 
         private PackageManagerWrapper()
         {
@@ -111,6 +112,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         private TReturn Execute<TReturn>(Func<TReturn> func, bool canRetry)
         {
+            if (Utilities.UsesInProcWinget && Utilities.ThreadIsSTA)
+            {
+                // If you failed here, then you didn't wrap your call in ManagementDeploymentCommand.Execute
+                throw new SingleThreadedApartmentException();
+            }
+
             bool stopRetry = false;
             while (true)
             {
@@ -125,7 +132,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 }
                 catch (COMException ex) when (ex.HResult == ErrorCode.RpcServerUnavailable || ex.HResult == ErrorCode.RpcCallFailed)
                 {
-                    this.packageManager = null;
+                    this.packageManager = null!;
 
                     if (stopRetry || !canRetry)
                     {

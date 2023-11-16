@@ -24,7 +24,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="deleteIfExists">Delete directory if already exists. Default true.</param>
         /// <param name="cleanup">Deletes directory at disposing time. Default true.</param>
         public TempDirectory(
-            string directoryName = null,
+            string? directoryName = null,
             bool deleteIfExists = true,
             bool cleanup = true)
         {

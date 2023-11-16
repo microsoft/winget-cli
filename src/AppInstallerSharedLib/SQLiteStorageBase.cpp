@@ -40,6 +40,11 @@ namespace AppInstaller::SQLite
         return Utility::ConvertUnixEpochToSystemClock(lastWriteTime);
     }
 
+    std::string SQLiteStorageBase::GetDatabaseIdentifier()
+    {
+        return MetadataTable::TryGetNamedValue<std::string>(m_dbconn, s_MetadataValueName_DatabaseIdentifier).value_or(std::string{});
+    }
+
     SQLiteStorageBase::SQLiteStorageBase(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& file) :
         m_indexFile(std::move(file))
     {
@@ -111,5 +116,21 @@ namespace AppInstaller::SQLite
     {
         m_version = version;
         MetadataTable::Create(m_dbconn);
+
+        // Write a new identifier for this database
+        GUID databaseIdentifier;
+        THROW_IF_FAILED(CoCreateGuid(&databaseIdentifier));
+        std::ostringstream stream;
+        stream << databaseIdentifier;
+        MetadataTable::SetNamedValue(m_dbconn, s_MetadataValueName_DatabaseIdentifier, stream.str());
+    }
+    
+    SQLiteStorageBase::SQLiteStorageBase(const std::string& target, SQLiteStorageBase& source) :
+        m_dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create)),
+        m_version(source.m_version)
+    {
+        std::string mainDatabase = "main";
+        Backup backup = Backup::Create(m_dbconn, mainDatabase, source.m_dbconn, mainDatabase);
+        backup.Step();
     }
 }

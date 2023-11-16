@@ -339,6 +339,13 @@ bool IsMapDataFolded(const SQLiteIndex& index)
     return (index.GetVersion() >= SQLiteVersion{ 1, 7 });
 }
 
+std::string GetPropertyStringByKey(const SQLiteIndex& index, rowid_t manifestId, PackageVersionProperty property)
+{
+    auto result = index.GetPropertyByManifestId(manifestId, property);
+    REQUIRE(result);
+    return result.value();
+}
+
 std::string GetPropertyStringByKey(const SQLiteIndex& index, rowid_t id, PackageVersionProperty property, std::string_view version, std::string_view channel)
 {
     auto manifestId = index.GetManifestIdByKey(id, version, channel);
@@ -352,7 +359,7 @@ std::string GetPropertyStringById(const SQLiteIndex& index, rowid_t id, PackageV
 {
     auto versions = index.GetVersionKeysById(id);
     REQUIRE(!versions.empty());
-    return GetPropertyStringByKey(index, id, property, versions[0].GetVersion().ToString(), versions[0].GetChannel().ToString());
+    return GetPropertyStringByKey(index, versions[0].ManifestId, property);
 }
 
 std::string GetIdStringById(const SQLiteIndex& index, rowid_t id)
@@ -1839,8 +1846,8 @@ TEST_CASE("SQLiteIndex_Versions", "[sqliteindex]")
 
     auto result = index.GetVersionKeysById(results.Matches[0].first);
     REQUIRE(result.size() == 1);
-    REQUIRE(result[0].GetVersion().ToString() == manifest.Version);
-    REQUIRE(result[0].GetChannel().ToString() == manifest.Channel);
+    REQUIRE(result[0].VersionAndChannel.GetVersion().ToString() == manifest.Version);
+    REQUIRE(result[0].VersionAndChannel.GetChannel().ToString() == manifest.Channel);
 }
 
 TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
@@ -1885,7 +1892,7 @@ TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
     for (size_t i = 0; i < result.size(); ++i)
     {
         const VersionAndChannel& sortedVAC = sortedList[i];
-        const VersionAndChannel& resultVAC = result[i];
+        const VersionAndChannel& resultVAC = result[i].VersionAndChannel;
 
         INFO(i);
         REQUIRE(sortedVAC.GetVersion().ToString() == resultVAC.GetVersion().ToString());
@@ -1973,7 +1980,7 @@ TEST_CASE("SQLiteIndex_PathString_CaseInsensitive", "[sqliteindex]")
     REQUIRE(result.has_value());
 
     result = index.GetManifestIdByKey(results.Matches[0].first, "13.2.0-BugFix", "BETA");
-    REQUIRE(!result.has_value());
+    REQUIRE(result.has_value());
 }
 
 TEST_CASE("SQLiteIndex_SearchResultsTableSearches", "[sqliteindex][V1_0]")
@@ -3270,14 +3277,11 @@ TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding]")
     auto versionKeys = index.GetVersionKeysById(results1.Matches[0].first);
     REQUIRE(versionKeys.size() == 2);
 
-    auto manifestId1 = index.GetManifestIdByKey(results1.Matches[0].first, versionKeys[0].GetVersion().ToString(), versionKeys[0].GetChannel().ToString());
-    auto manifestId2 = index.GetManifestIdByKey(results1.Matches[0].first, versionKeys[1].GetVersion().ToString(), versionKeys[1].GetChannel().ToString());
+    auto manifestId1 = versionKeys[0].ManifestId;
+    auto manifestId2 = versionKeys[1].ManifestId;
 
-    REQUIRE(manifestId1.has_value());
-    REQUIRE(manifestId2.has_value());
-
-    auto pfnValues1 = index.GetMultiPropertyByManifestId(manifestId1.value(), PackageVersionMultiProperty::PackageFamilyName);
-    auto pfnValues2 = index.GetMultiPropertyByManifestId(manifestId2.value(), PackageVersionMultiProperty::PackageFamilyName);
+    auto pfnValues1 = index.GetMultiPropertyByManifestId(manifestId1, PackageVersionMultiProperty::PackageFamilyName);
+    auto pfnValues2 = index.GetMultiPropertyByManifestId(manifestId2, PackageVersionMultiProperty::PackageFamilyName);
 
     if (IsMapDataFoldingSupported(index, testVersion))
     {
@@ -3341,14 +3345,11 @@ TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafoldi
     auto versionKeys = index.GetVersionKeysById(results1.Matches[0].first);
     REQUIRE(versionKeys.size() == 2);
 
-    auto manifestId1 = index.GetManifestIdByKey(results1.Matches[0].first, versionKeys[0].GetVersion().ToString(), versionKeys[0].GetChannel().ToString());
-    auto manifestId2 = index.GetManifestIdByKey(results1.Matches[0].first, versionKeys[1].GetVersion().ToString(), versionKeys[1].GetChannel().ToString());
+    auto manifestId1 = versionKeys[0].ManifestId;
+    auto manifestId2 = versionKeys[1].ManifestId;
 
-    REQUIRE(manifestId1.has_value());
-    REQUIRE(manifestId2.has_value());
-
-    auto pcValues1 = index.GetMultiPropertyByManifestId(manifestId1.value(), PackageVersionMultiProperty::ProductCode);
-    auto pcValues2 = index.GetMultiPropertyByManifestId(manifestId2.value(), PackageVersionMultiProperty::ProductCode);
+    auto pcValues1 = index.GetMultiPropertyByManifestId(manifestId1, PackageVersionMultiProperty::ProductCode);
+    auto pcValues2 = index.GetMultiPropertyByManifestId(manifestId2, PackageVersionMultiProperty::ProductCode);
 
     REQUIRE(pcValues1.size() == 1);
     REQUIRE(pcValues2.size() == 1);

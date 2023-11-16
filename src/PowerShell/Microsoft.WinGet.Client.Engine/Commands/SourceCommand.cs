@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// Wrapper for source cmdlets.
@@ -31,10 +32,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="name">Optional name.</param>
         public void Get(string name)
         {
-            var results = this.GetPackageCatalogReferences(name);
+            var results = this.Execute(
+                () => this.GetPackageCatalogReferences(name));
             for (var i = 0; i < results.Count; i++)
             {
-                this.PsCmdlet.WriteObject(new PSSourceResult(results[i]));
+                this.Write(StreamType.Object, new PSSourceResult(results[i]));
             }
         }
     }
