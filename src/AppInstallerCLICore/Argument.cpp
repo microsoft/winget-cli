@@ -185,6 +185,8 @@ namespace AppInstaller::CLI
         // Resume command
         case Execution::Args::Type::ResumeId:
             return { type, "resume-id"_liv, 'g', ArgTypeCategory::None };
+        case Execution::Args::Type::IgnoreResumeLimit:
+            return { type, "ignore-resume-limit"_liv, ArgTypeCategory::None };
 
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:
