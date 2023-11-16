@@ -278,6 +278,16 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
+    displayName: 'Copy test scripts to artifacts'
+    inputs:
+      Contents: |
+          $(Build.SourcesDirectory)\src\PowerShell\scripts\Execute-WinGetTests.ps1
+          $(Build.SourcesDirectory)\src\PowerShell\tests\**
+          $(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1
+      TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\net6.0'

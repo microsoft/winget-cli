@@ -15,13 +15,16 @@ param(
     [string]$PwshVersion,
     
     # The path to the binaries to run the web server.
-    [string]$LocalhostWebServerPath = (Join-Path $PSScriptRoot "LocalhostWebServer"),
+    [string]$LocalhostWebServerPath = (Join-Path $PSScriptRoot "..\LocalhostWebServer"),
     
     # The path to the files to be hosted by the web server.
-    [string]$HostedFilePath = (Join-Path $PSScriptRoot "TestLocalIndex"),
+    [string]$HostedFilePath = (Join-Path $PSScriptRoot "..\TestLocalIndex"),
     
     # The path to the certificate that signed the source.msix package.
-    [string]$SourceCertPath = (Join-Path $PSScriptRoot "AppInstallerTest.cer"),
+    [string]$SourceCertPath = (Join-Path $PSScriptRoot "..\TestData\AppInstallerTest.cer"),
+
+    # The path to the configuration test data.
+    [string]$ConfigurationTestDataPath = (Join-Path $PSScriptRoot "..\TestData\Configuration")
 
     # The path to pwsh.exe
     [string]$PwshPath = 'C:\Program Files\PowerShell\7\pwsh.exe',
@@ -46,14 +49,6 @@ if ([System.String]::IsNullOrEmpty($ClientModuleVersion))
 else
 {
     Install-Module Microsoft.WinGet.Client -RequiredVersion $ClientModuleVersion -Force
-}
-
-### TEMPORARY SOLUTION UNTIL AN UPDATE IS PUSHED THAT FIXES REPAIR IN WINDOWS POWERSHELL ###
-### This does prevent testing versions less than 0.2.1 ###
-if ($ClientVersion -ne "existing")
-{
-    Install-Module Microsoft.WinGet.Client -RequiredVersion 0.2.1 -Force
-    Import-Module Microsoft.WinGet.Client -RequiredVersion 0.2.1
 }
 
 # Get the client
@@ -124,7 +119,6 @@ else
 & $PwshPath -ExecutionPolicy Unrestricted -Command ".\Configuration\Init-TestRepository.ps1 -Force"
 
 # Run tests
-$ConfigurationTestDataPath = (Join-Path $PSScriptRoot Configuration)
 & $PwshPath -ExecutionPolicy Unrestricted -Command ".\RunTests.ps1 -TargetProduction -ConfigurationTestDataPath $ConfigurationTestDataPath -outputPath $ResultsPath"
 
 # Terminate the local web server
