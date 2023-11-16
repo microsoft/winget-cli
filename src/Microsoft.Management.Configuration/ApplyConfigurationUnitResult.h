@@ -13,6 +13,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ApplyConfigurationUnitResult() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+        void Initialize(const IApplySettingsResult& result);
+
         void Unit(ConfigurationUnit value);
         void State(ConfigurationUnitState value);
         void PreviouslyInDesiredState(bool value);

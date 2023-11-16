@@ -7,6 +7,14 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    void ApplyConfigurationUnitResult::Initialize(const IApplySettingsResult& result)
+    {
+        m_unit = result.Unit();
+        THROW_HR_IF(E_POINTER, !m_unit);
+        m_resultInformation = result.ResultInformation();
+        THROW_HR_IF(E_POINTER, !m_resultInformation);
+    }
+
     ConfigurationUnit ApplyConfigurationUnitResult::Unit()
     {
         return m_unit;

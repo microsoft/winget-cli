@@ -19,11 +19,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void DefaultSetGroupProcessor::Initialize(const ConfigurationSet& set, const IConfigurationSetProcessor& setProcessor, ConfigThreadGlobals& threadGlobals)
+    void DefaultSetGroupProcessor::Initialize(const ConfigurationSet& set, const IConfigurationSetProcessor& setProcessor, ConfigThreadGlobals& threadGlobals, bool consistencyCheckOnly)
     {
         m_set = set;
         m_setProcessor = setProcessor;
         m_threadGlobals = &threadGlobals;
+        m_consistencyCheckOnly = consistencyCheckOnly;
     }
 
     Windows::Foundation::IInspectable DefaultSetGroupProcessor::Group()
@@ -147,18 +148,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    Windows::Foundation::IAsyncOperationWithProgress<IGetGroupSettingsResult, IGetSettingsResult> DefaultSetGroupProcessor::GetGroupSettingsAsync()
-    {
-        THROW_HR(E_NOTIMPL);
-    }
-
     Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplySettingsResult> DefaultSetGroupProcessor::ApplyGroupSettingsAsync()
     {
-        // Previous implementation...
-        ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_threadGlobals.GetTelemetryLogger(), m_factory.CreateSetProcessor(configurationSet), std::move(progress) };
-        applyProcessor.Process();
+        //// Previous implementation...
+        //ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_threadGlobals.GetTelemetryLogger(), m_factory.CreateSetProcessor(configurationSet), std::move(progress) };
+        //applyProcessor.Process();
 
-        return applyProcessor.Result();
+        //return applyProcessor.Result();
+        THROW_HR(E_NOTIMPL);
     }
 
     void DefaultSetGroupProcessor::ThrowIf(bool cancellation)

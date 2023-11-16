@@ -445,17 +445,68 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
+        IConfigurationGroupProcessor groupProcessor;
+
         if (WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly))
         {
-            ConfigurationSetApplyProcessor applyProcessor{ configurationSet, std::move(progress) };
-            // Consistency check only
-            applyProcessor.Process(true);
-
-            return applyProcessor.Result();
+            // If performing a consistency check, always use the default processor and let it know as well
+            auto defaultGroupProcessor = make_self<wil::details::module_count_wrapper<implementation::DefaultSetGroupProcessor>>();
+            defaultGroupProcessor->Initialize(configurationSet, nullptr, m_threadGlobals, true);
+            groupProcessor = *defaultGroupProcessor;
         }
         else
         {
+            groupProcessor = GetSetGroupProcessor(configurationSet);
+        }
 
+        auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationSetResult>>();
+        progress.Result(*result);
+
+        try
+        {
+            auto applyOperation = groupProcessor.ApplyGroupSettingsAsync();
+
+            // Cancel the inner operation if we are cancelled
+            progress.Callback([applyOperation]() { applyOperation.Cancel(); });
+
+            // Forward unit result progress to caller
+            applyOperation.Progress([&](const auto&, const IApplySettingsResult& unitResult)
+                {
+                    UNREFERENCED_PARAMETER(unitResult);
+                    auto applyResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSetChangeData>>();
+                    //applyResult->Initialize(unitResult);
+                    progress.Progress(*applyResult);
+                });
+
+            IApplyGroupSettingsResult applyResult = applyOperation.get();
+
+            // Place all results from the processor into our result
+            for (const IApplySettingsResult& unitResult : applyResult.UnitResults())
+            {
+                UNREFERENCED_PARAMETER(unitResult);
+                auto applyUnitResult = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>();
+                //applyUnitResult->Initialize(unitResult);
+
+                m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(
+                    configurationSet.InstanceIdentifier(),
+                    applyUnitResult->Unit(),
+                    ConfigurationUnitIntent::Apply,
+                    TelemetryTraceLogger::ApplyAction,
+                    applyUnitResult->ResultInformation());
+
+                //result->AppendUnitResult(*applyUnitResult);
+            }
+
+            m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(configurationSet), *result);
+            return *result;
+        }
+        catch (...)
+        {
+            m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForApplyException(
+                *winrt::get_self<implementation::ConfigurationSet>(configurationSet),
+                LOG_CAUGHT_EXCEPTION(),
+                *result);
+            throw;
         }
     }
 

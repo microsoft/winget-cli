@@ -13,13 +13,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         DefaultSetGroupProcessor() = default;
 
-        void Initialize(const ConfigurationSet& set, const IConfigurationSetProcessor& setProcessor, ConfigThreadGlobals& threadGlobals);
+        void Initialize(const ConfigurationSet& set, const IConfigurationSetProcessor& setProcessor, ConfigThreadGlobals& threadGlobals, bool consistencyCheckOnly = false);
 
         IInspectable Group();
 
         Windows::Foundation::IAsyncOperationWithProgress<ITestGroupSettingsResult, ITestSettingsResult> TestGroupSettingsAsync();
-
-        Windows::Foundation::IAsyncOperationWithProgress<IGetGroupSettingsResult, IGetSettingsResult> GetGroupSettingsAsync();
 
         Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplySettingsResult> ApplyGroupSettingsAsync();
 
@@ -29,5 +27,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationSet m_set = nullptr;
         IConfigurationSetProcessor m_setProcessor;
         ConfigThreadGlobals* m_threadGlobals = nullptr;
+        bool m_consistencyCheckOnly = false;
     };
 }
