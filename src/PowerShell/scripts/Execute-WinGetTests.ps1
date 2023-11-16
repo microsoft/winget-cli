@@ -24,7 +24,7 @@ param(
     [string]$SourceCertPath = (Join-Path $PSScriptRoot "..\TestData\AppInstallerTest.cer"),
 
     # The path to the configuration test data.
-    [string]$ConfigurationTestDataPath = (Join-Path $PSScriptRoot "..\TestData\Configuration")
+    [string]$ConfigurationTestDataPath = (Join-Path $PSScriptRoot "..\TestData\Configuration"),
 
     # The path to pwsh.exe
     [string]$PwshPath = 'C:\Program Files\PowerShell\7\pwsh.exe',
@@ -116,7 +116,8 @@ else
 }
 
 # Create local PS repo
-& $PwshPath -ExecutionPolicy Unrestricted -Command ".\Configuration\Init-TestRepository.ps1 -Force"
+$InitRepositoryPath = Join-Path $ConfigurationTestDataPath Init-TestRepository.ps1
+& $PwshPath -ExecutionPolicy Unrestricted -Command "$InitRepositoryPath -Force"
 
 # Run tests
 & $PwshPath -ExecutionPolicy Unrestricted -Command ".\RunTests.ps1 -TargetProduction -ConfigurationTestDataPath $ConfigurationTestDataPath -outputPath $ResultsPath"
