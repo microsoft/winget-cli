@@ -88,7 +88,7 @@ namespace LocalhostWebServer
             }
             else
             {
-                ServerCertificate = new X509Certificate2(Startup.CertPath, Startup.CertPassword, X509KeyStorageFlags.EphemeralKeySet);
+                ServerCertificate = new X509Certificate2(Startup.CertPath, Startup.CertPassword);
             }
 
             if (!string.IsNullOrEmpty(Startup.OutCertFile))
