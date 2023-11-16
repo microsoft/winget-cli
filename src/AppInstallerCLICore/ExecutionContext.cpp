@@ -68,12 +68,31 @@ namespace AppInstaller::CLI::Execution
         private:
             SignalTerminationHandler()
             {
-                // Create message only window.
-                m_messageQueueReady.create();
-                m_windowThread = std::thread(&SignalTerminationHandler::CreateWindowAndStartMessageLoop, this);
-                if (!m_messageQueueReady.wait(100))
+                if (Runtime::IsRunningAsAdmin() && Runtime::IsRunningInPackagedContext())
                 {
-                    AICLI_LOG(CLI, Warning, << "Timeout creating winget window");
+                    m_catalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentPackage();
+                    m_updatingEvent = m_catalog.PackageUpdating(
+                        winrt::auto_revoke, [this](winrt::Windows::ApplicationModel::PackageCatalog, winrt::Windows::ApplicationModel::PackageUpdatingEventArgs args)
+                        {
+                            // There are 3 events being hit with 0%, 1% and 38%
+                            // Typically the window message is received between the first two.
+                            constexpr double minProgress = 0;
+                            auto progress = args.Progress();
+                            if (progress > minProgress)
+                            {
+                                SignalTerminationHandler::Instance().StartAppShutdown();
+                            }
+                        });
+                }
+                else
+                {
+                    // Create message only window.
+                    m_messageQueueReady.create();
+                    m_windowThread = std::thread(&SignalTerminationHandler::CreateWindowAndStartMessageLoop, this);
+                    if (!m_messageQueueReady.wait(100))
+                    {
+                        AICLI_LOG(CLI, Warning, << "Timeout creating winget window");
+                    }
                 }
 
                 // Set up ctrl-c handler.
@@ -237,6 +256,8 @@ namespace AppInstaller::CLI::Execution
             wil::unique_event m_messageQueueReady;
             wil::unique_hwnd m_windowHandle;
             std::thread m_windowThread;
+            winrt::Windows::ApplicationModel::PackageCatalog m_catalog = nullptr;
+            decltype(winrt::Windows::ApplicationModel::PackageCatalog{ nullptr }.PackageUpdating(winrt::auto_revoke, nullptr)) m_updatingEvent;
         };
 
         void SetSignalTerminationHandlerContext(bool add, Context* context)

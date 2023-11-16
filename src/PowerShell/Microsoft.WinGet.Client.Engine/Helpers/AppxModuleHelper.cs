@@ -13,6 +13,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using System.Management.Automation;
     using System.Runtime.InteropServices;
     using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Common.Command;
     using static Microsoft.WinGet.Client.Engine.Common.Constants;
 
     /// <summary>
@@ -71,22 +72,22 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string XamlAssetArm = "Microsoft.UI.Xaml.2.7.arm.appx";
         private const string XamlAssetArm64 = "Microsoft.UI.Xaml.2.7.arm64.appx";
 
-        private readonly PSCmdlet psCmdlet;
+        private readonly PowerShellCmdlet pwshCmdlet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppxModuleHelper"/> class.
         /// </summary>
-        /// <param name="psCmdlet">The calling cmdlet.</param>
-        public AppxModuleHelper(PSCmdlet psCmdlet)
+        /// <param name="pwshCmdlet">The calling cmdlet.</param>
+        public AppxModuleHelper(PowerShellCmdlet pwshCmdlet)
         {
-            this.psCmdlet = psCmdlet;
+            this.pwshCmdlet = pwshCmdlet;
         }
 
         /// <summary>
         /// Calls Get-AppxPackage Microsoft.DesktopAppInstaller.
         /// </summary>
         /// <returns>Result of Get-AppxPackage.</returns>
-        public PSObject GetAppInstallerObject()
+        public PSObject? GetAppInstallerObject()
         {
             return this.GetAppxObject(AppInstallerName);
         }
@@ -96,9 +97,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// </summary>
         /// <param name="propertyName">Property name.</param>
         /// <returns>Value, null if doesn't exist.</returns>
-        public string GetAppInstallerPropertyValue(string propertyName)
+        public string? GetAppInstallerPropertyValue(string propertyName)
         {
-            string result = null;
+            string? result = null;
             var packageObj = this.GetAppInstallerObject();
             if (packageObj is not null)
             {
@@ -117,7 +118,13 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// </summary>
         public void RegisterAppInstaller()
         {
-            string packageFullName = this.GetAppInstallerPropertyValue(PackageFullName);
+            string? packageFullName = this.GetAppInstallerPropertyValue(PackageFullName);
+
+            if (packageFullName == null)
+            {
+                throw new ArgumentNullException(PackageFullName);
+            }
+
             string appxManifestPath = System.IO.Path.Combine(
                 Utilities.ProgramFilesWindowsAppPath,
                 packageFullName,
@@ -194,7 +201,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
             catch (RuntimeException e)
             {
-                this.psCmdlet.WriteDebug($"Failed installing bundle via Add-AppxProvisionedPackage {e}");
+                this.pwshCmdlet.Write(StreamType.Verbose, $"Failed installing bundle via Add-AppxProvisionedPackage {e}");
                 throw e;
             }
         }
@@ -218,12 +225,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
             catch (RuntimeException e)
             {
-                this.psCmdlet.WriteDebug($"Failed installing bundle via Add-AppxPackage {e}");
+                this.pwshCmdlet.Write(StreamType.Verbose, $"Failed installing bundle via Add-AppxPackage {e}");
                 throw e;
             }
         }
 
-        private PSObject GetAppxObject(string packageName)
+        private PSObject? GetAppxObject(string packageName)
         {
             return this.ExecuteAppxCmdlet(
                 GetAppxPackage,
@@ -266,7 +273,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             {
                 foreach (dynamic psobject in result)
                 {
-                    string versionString = psobject?.Version?.ToString();
+                    string? versionString = psobject?.Version?.ToString();
                     if (versionString == null)
                     {
                         continue;
@@ -276,7 +283,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                     if (packageVersion >= minimumVersion)
                     {
-                        this.psCmdlet.WriteDebug($"VCLibs dependency satisfied by: {psobject?.PackageFullName ?? "<null>"}");
+                        this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs dependency satisfied by: {psobject?.PackageFullName ?? "<null>"}");
                         isInstalled = true;
                         break;
                     }
@@ -285,7 +292,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             if (!isInstalled)
             {
-                this.psCmdlet.WriteDebug("Couldn't find required VCLibs package");
+                this.pwshCmdlet.Write(StreamType.Verbose, "Couldn't find required VCLibs package");
 
                 var vcLibsDependencies = new List<string>();
                 var arch = RuntimeInformation.OSArchitecture;
@@ -317,7 +324,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
             else
             {
-                this.psCmdlet.WriteDebug($"VCLibs are updated.");
+                this.pwshCmdlet.Write(StreamType.Verbose, $"VCLibs are updated.");
             }
         }
 
@@ -360,7 +367,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private void AddAppxPackageAsUri(string packageUri, IList<string> options = null)
+        private void AddAppxPackageAsUri(string packageUri, IList<string>? options = null)
         {
             try
             {
@@ -378,18 +385,18 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 // If we couldn't install it via URI, try download and install.
                 if (e.ErrorRecord.CategoryInfo.Category == ErrorCategory.OpenError)
                 {
-                    this.psCmdlet.WriteDebug($"Failed adding package [{packageUri}]. Retrying downloading it.");
+                    this.pwshCmdlet.Write(StreamType.Verbose, $"Failed adding package [{packageUri}]. Retrying downloading it.");
                     this.DownloadPackageAndAdd(packageUri, options);
                 }
                 else
                 {
-                    this.psCmdlet.WriteError(e.ErrorRecord);
+                    this.pwshCmdlet.Write(StreamType.Error, e.ErrorRecord);
                     throw e;
                 }
             }
         }
 
-        private void DownloadPackageAndAdd(string packageUrl, IList<string> options)
+        private void DownloadPackageAndAdd(string packageUrl, IList<string>? options)
         {
             using var tempFile = new TempFile();
 
@@ -407,7 +414,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     options);
         }
 
-        private Collection<PSObject> ExecuteAppxCmdlet(string cmdlet, Dictionary<string, object> parameters = null, IList<string> options = null)
+        private Collection<PSObject> ExecuteAppxCmdlet(string cmdlet, Dictionary<string, object>? parameters = null, IList<string>? options = null)
         {
             var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
 
@@ -447,7 +454,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 }
             }
 
-            this.psCmdlet.WriteDebug($"Executing Appx cmdlet {cmd}");
+            this.pwshCmdlet.Write(StreamType.Verbose, $"Executing Appx cmdlet {cmd}");
             var result = ps.Invoke();
             return result;
         }

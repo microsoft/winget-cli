@@ -35,31 +35,33 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// Gets or sets the field that is matched against the identifier of a package.
         /// </summary>
         [Filter(Field = PackageMatchField.Id)]
-        protected string Id { get; set; }
+        protected string? Id { get; set; }
 
         /// <summary>
         /// Gets or sets the field that is matched against the name of a package.
         /// </summary>
         [Filter(Field = PackageMatchField.Name)]
-        protected string Name { get; set; }
+        protected string? Name { get; set; }
 
         /// <summary>
         /// Gets or sets the field that is matched against the moniker of a package.
         /// </summary>
         [Filter(Field = PackageMatchField.Moniker)]
-        protected string Moniker { get; set; }
+        protected string? Moniker { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the source to search for packages. If null, then all sources are searched.
         /// </summary>
-        protected string Source { get; set; }
+        protected string? Source { get; set; }
 
         /// <summary>
         /// Gets or sets how to match against package fields.
         /// </summary>
-        protected string[] Query { get; set; }
+#pragma warning disable SA1011 // Closing square brackets should be spaced correctly
+        protected string[]? Query { get; set; }
+#pragma warning restore SA1011 // Closing square brackets should be spaced correctly
 
-        private string QueryAsJoinedString
+        private string? QueryAsJoinedString
         {
             get
             {
@@ -98,7 +100,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         protected virtual void SetQueryInFindPackagesOptions(
             ref FindPackagesOptions options,
             string match,
-            string value)
+            string? value)
         {
             var selector = ManagementDeploymentFactory.Instance.CreatePackageMatchFilter();
             selector.Field = PackageMatchField.CatalogDefault;
@@ -111,7 +113,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             ref FindPackagesOptions options,
             PackageMatchField field,
             PackageFieldMatchOption match,
-            string value)
+            string? value)
         {
             if (value != null)
             {
@@ -187,7 +189,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
                 if (info.GetCustomAttribute(typeof(FilterAttribute), true) is FilterAttribute attribute)
                 {
                     PackageMatchField field = attribute.Field;
-                    string value = info.GetValue(this, null) as string;
+                    string? value = info.GetValue(this, null) as string;
                     this.AddFilterToFindPackagesOptionsIfNotNull(ref options, field, match, value);
                 }
             }

@@ -142,7 +142,6 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// The configuration server unexpectedly exits. Winget should continue to operate properly.
         /// </summary>
-        [Ignore("The version of CppWinRT that we are currently using is old and causes an assert on this test. Once it is updated, remove this Ignore.")]
         [Test]
         public void ConfigServerUnexpectedExit()
         {

@@ -114,7 +114,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         public PSPackageVersionInfo GetPackageVersionInfo(string version)
         {
             // get specific version that matches
-            PackageVersionId packageVersionId = this.AvailablePackageVersionIds.FirstOrDefault(x => x.Version == version);
+            PackageVersionId? packageVersionId = this.AvailablePackageVersionIds.FirstOrDefault(x => x.Version == version);
             if (packageVersionId != null)
             {
                 return new PSPackageVersionInfo(this.CatalogPackageCOM.GetPackageVersionInfo(packageVersionId));

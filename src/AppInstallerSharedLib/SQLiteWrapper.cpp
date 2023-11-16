@@ -20,7 +20,7 @@ using namespace std::string_view_literals;
     do { \
         int _ts_sqliteReturnValue = (_error_); \
         sqlite3* _ts_sqliteConnection = (_connection_); \
-        THROW_EXCEPTION_MSG(SQLiteException(_ts_sqliteReturnValue), _ts_sqliteConnection ? sqlite3_errmsg(_ts_sqliteConnection) : sqlite3_errstr(_ts_sqliteReturnValue)); \
+        THROW_EXCEPTION_MSG(SQLiteException(_ts_sqliteReturnValue), "%hs", _ts_sqliteConnection ? sqlite3_errmsg(_ts_sqliteConnection) : sqlite3_errstr(_ts_sqliteReturnValue)); \
     } while (0,0)
 
 #define THROW_IF_SQLITE_FAILED(_statement_,_connection_) \

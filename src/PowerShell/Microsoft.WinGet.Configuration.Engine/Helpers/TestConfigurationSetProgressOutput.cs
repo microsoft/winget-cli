@@ -7,7 +7,7 @@
 namespace Microsoft.WinGet.Configuration.Engine.Helpers
 {
     using Microsoft.Management.Configuration;
-    using Microsoft.WinGet.Configuration.Engine.Commands;
+    using Microsoft.WinGet.Common.Command;
     using Windows.Foundation;
 
     /// <summary>
@@ -26,7 +26,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// <param name="inProgressMessage">The message in the progress bar.</param>
         /// <param name="completeMessage">The activity complete message.</param>
         /// <param name="totalUnitsExpected">Total of units expected.</param>
-        public TestConfigurationSetProgressOutput(AsyncCommand cmd, int activityId, string activity, string inProgressMessage, string completeMessage, int totalUnitsExpected)
+        public TestConfigurationSetProgressOutput(PowerShellCmdlet cmd, int activityId, string activity, string inProgressMessage, string completeMessage, int totalUnitsExpected)
             : base(cmd, activityId, activity, inProgressMessage, completeMessage, totalUnitsExpected)
         {
         }

@@ -48,7 +48,7 @@
 
   <!-- This project doesn't reference it directly, but if I don't add it here it will fail with NETSDK1130 *.winmd cannot be referenced. -->
   <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -89,7 +89,7 @@
   <Target Name="CopyWinGetBinaries" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
     <ItemGroup>
       <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.dll" />
-      <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" Condition="'$(Configuration)' == 'Debug'"/>
+      <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
     <Message Importance="high" Text="Copying CopyWinGetBinaries: '@(ModuleWinGetFile)'" />
     <Copy SourceFiles="@(ModuleWinGetFile)" DestinationFolder="$(PowerShellModuleRuntimesDir)" />
@@ -99,7 +99,7 @@
   <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
     <ItemGroup>
       <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
-      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb"  Condition="'$(Configuration)' == 'Debug'" />
+      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
     <Message Importance="high" Text="Copying direct dependencies: '@(ModuleDirectDependency)'" />
     <Copy SourceFiles="@(ModuleDirectDependency)" DestinationFolder="$(PowerShellModuleDirectDependencies)" />

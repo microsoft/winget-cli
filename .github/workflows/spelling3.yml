@@ -80,16 +80,14 @@ jobs:
         use_magic_file: 1
         extra_dictionary_limit: 10
         extra_dictionaries:
-          cspell:software-terms/src/software-terms.txt
+          cspell:cpp/src/compiler-msvc.txt
+          cspell:cpp/src/cpp.txt
           cspell:cpp/src/stdlib-c.txt
-          cspell:node/node.txt
-          cspell:mnemonics/src/mnemonics.txt
           cspell:cpp/src/stdlib-cpp.txt
-          cspell:html/html.txt
-          cspell:fullstack/fullstack.txt
           cspell:filetypes/filetypes.txt
-          cspell:cpp/src/stdlib-cmath.txt
-          cspell:aws/aws.txt
+          cspell:fullstack/fullstack.txt
+          cspell:powershell/powershell.txt
+          cspell:software-terms/src/software-terms.txt
 
   comment-push:
     name: Report (Push)

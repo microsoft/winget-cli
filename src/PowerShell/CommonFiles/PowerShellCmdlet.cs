@@ -1,34 +1,35 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="AsyncCommand.cs" company="Microsoft Corporation">
+// <copyright file="PowerShellCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Configuration.Engine.Commands
+namespace Microsoft.WinGet.Common.Command
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Management.Automation;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.PowerShell.Commands;
-    using Microsoft.WinGet.Configuration.Engine.Exceptions;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Resources;
     using Microsoft.WinGet.SharedLib.Exceptions;
     using Microsoft.WinGet.SharedLib.PolicySettings;
 
     /// <summary>
-    /// This is the base class for any command that performs async operations.
-    /// It supports running tasks in an MTA thread via RunOnMta.
-    /// If the thread is already running on an MTA it will executed it, otherwise
-    /// it will create a new MTA thread.
-    ///
+    /// This must be the base class for every cmdlet for winget PowerShell modules.
+    /// It supports:
+    ///  - Async operations.
+    ///  - Execute on an MTA. If the thread is already running on an MTA it will executed it, otherwise
+    ///    it will create a new MTA thread.
     /// Wait must be used to synchronously wait con the task.
     /// </summary>
-    public abstract class AsyncCommand
+    public abstract class PowerShellCmdlet
     {
+        private const string Debug = "Debug";
         private static readonly string[] WriteInformationTags = new string[] { "PSHOST" };
 
+        private readonly PSCmdlet psCmdlet;
         private readonly Thread originalThread;
 
         private readonly CancellationTokenSource source = new ();
@@ -38,86 +39,26 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         private ConcurrentDictionary<int, ProgressRecordType> progressRecords = new ();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncCommand"/> class.
+        /// Initializes a new instance of the <see cref="PowerShellCmdlet"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
-        public AsyncCommand(PSCmdlet psCmdlet)
+        /// <param name="policies">Policies.</param>
+        public PowerShellCmdlet(PSCmdlet psCmdlet, HashSet<Policy> policies)
         {
             // Passing Debug will make all the message actions to be Inquire. For async operations
             // and the current queue message implementation this doesn't make sense.
             // PowerShell will inquire for any message giving the impression that the task is
             // paused, but the async operation is still running.
-            if (psCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug"))
+            if (psCmdlet.MyInvocation.BoundParameters.ContainsKey(Debug))
             {
                 throw new NotSupportedException(Resources.DebugNotSupported);
             }
 
-            GroupPolicy groupPolicy = GroupPolicy.GetInstance();
+            this.ValidatePolicies(policies);
 
-            if (!groupPolicy.IsEnabled(Policy.WinGet))
-            {
-                throw new GroupPolicyException(Policy.WinGet, GroupPolicyFailureType.BlockedByPolicy);
-            }
-
-            if (!groupPolicy.IsEnabled(Policy.Configuration))
-            {
-                throw new GroupPolicyException(Policy.Configuration, GroupPolicyFailureType.BlockedByPolicy);
-            }
-
-            if (!groupPolicy.IsEnabled(Policy.WinGetCommandLineInterfaces))
-            {
-                throw new GroupPolicyException(Policy.WinGetCommandLineInterfaces, GroupPolicyFailureType.BlockedByPolicy);
-            }
-
-            this.PsCmdlet = psCmdlet;
+            this.psCmdlet = psCmdlet;
             this.originalThread = Thread.CurrentThread;
         }
-
-        /// <summary>
-        /// The write stream type.
-        /// </summary>
-        public enum StreamType
-        {
-            /// <summary>
-            /// Debug.
-            /// </summary>
-            Debug,
-
-            /// <summary>
-            /// Verbose.
-            /// </summary>
-            Verbose,
-
-            /// <summary>
-            /// Warning.
-            /// </summary>
-            Warning,
-
-            /// <summary>
-            /// Error.
-            /// </summary>
-            Error,
-
-            /// <summary>
-            /// Progress.
-            /// </summary>
-            Progress,
-
-            /// <summary>
-            /// Object.
-            /// </summary>
-            Object,
-
-            /// <summary>
-            /// Information.
-            /// </summary>
-            Information,
-        }
-
-        /// <summary>
-        /// Gets the base cmdlet.
-        /// </summary>
-        protected PSCmdlet PsCmdlet { get; private set; }
 
         /// <summary>
         /// Request cancellation for this command.
@@ -128,20 +69,17 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
-        /// Complete this operation.
-        /// </summary>
-        public virtual void Complete()
-        {
-            this.queuedStreams.CompleteAdding();
-        }
-
-        /// <summary>
         /// Execute the delegate in a MTA thread.
+        /// Caller must wait on task.
         /// </summary>
         /// <param name="func">Function to execute.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         internal Task RunOnMTA(Func<Task> func)
         {
+            // .NET 4.8 doesn't support TaskCompletionSource.
+#if POWERSHELL_WINDOWS
+            throw new NotImplementedException();
+#else
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
             {
@@ -151,7 +89,14 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
             {
                 this.Write(StreamType.Verbose, "Already running on MTA");
-                return func();
+                try
+                {
+                    return func();
+                }
+                finally
+                {
+                    this.Complete();
+                }
             }
 
             this.Write(StreamType.Verbose, "Creating MTA thread");
@@ -167,15 +112,21 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 {
                     tcs.SetException(e);
                 }
+                finally
+                {
+                    this.Complete();
+                }
             });
 
             thread.SetApartmentState(ApartmentState.MTA);
             thread.Start();
             return tcs.Task;
+#endif
         }
 
         /// <summary>
         /// Execute the delegate in a MTA thread.
+        /// Caller must wait on task.
         /// </summary>
         /// <param name="func">Function to execute.</param>
         /// <typeparam name="TResult">Return type of function.</typeparam>
@@ -191,7 +142,14 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
             {
                 this.Write(StreamType.Verbose, "Already running on MTA");
-                return func();
+                try
+                {
+                    return func();
+                }
+                finally
+                {
+                    this.Complete();
+                }
             }
 
             this.Write(StreamType.Verbose, "Creating MTA thread");
@@ -207,6 +165,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 {
                     tcs.SetException(e);
                 }
+                finally
+                {
+                    this.Complete();
+                }
             });
 
             thread.SetApartmentState(ApartmentState.MTA);
@@ -215,13 +177,66 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
+        /// Execute the delegate in a MTA thread.
+        /// Synchronous call.
+        /// </summary>
+        /// <param name="func">Function to execute.</param>
+        /// <typeparam name="TResult">Return type of function.</typeparam>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        internal TResult RunOnMTA<TResult>(Func<TResult> func)
+        {
+            // This must be called in the main thread.
+            if (this.originalThread != Thread.CurrentThread)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
+            {
+                this.Write(StreamType.Verbose, "Already running on MTA");
+                try
+                {
+                    return func();
+                }
+                finally
+                {
+                    this.Complete();
+                }
+            }
+
+            this.Write(StreamType.Verbose, "Creating MTA thread");
+            var tcs = new TaskCompletionSource<TResult>();
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    var result = func();
+                    tcs.SetResult(result);
+                }
+                catch (Exception e)
+                {
+                    tcs.SetException(e);
+                }
+                finally
+                {
+                    this.Complete();
+                }
+            });
+
+            thread.SetApartmentState(ApartmentState.MTA);
+            thread.Start();
+            this.Wait(tcs.Task);
+            return tcs.Task.Result;
+        }
+
+        /// <summary>
         /// Waits for the task to be completed. This MUST be called from the main thread.
         /// </summary>
         /// <param name="runningTask">Task to wait for.</param>
-        /// <param name="writeCommand">The command that can write to PowerShell.</param>
-        internal void Wait(Task runningTask, AsyncCommand? writeCommand = null)
+        /// <param name="writeCmdlet">The cmdlet that can write to PowerShell.</param>
+        internal void Wait(Task runningTask, PowerShellCmdlet? writeCmdlet = null)
         {
-            writeCommand ??= this;
+            writeCmdlet ??= this;
 
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
@@ -231,7 +246,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             do
             {
-                this.ConsumeAndWriteStreams(writeCommand);
+                this.ConsumeAndWriteStreams(writeCmdlet);
             }
             while (!(runningTask.IsCompleted && this.queuedStreams.IsCompleted));
 
@@ -269,41 +284,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
 
             this.queuedStreams.Add(new QueuedStream(type, data));
-        }
-
-        /// <summary>
-        /// Write error with an exception.
-        /// </summary>
-        /// <param name="errorId">Error id.</param>
-        /// <param name="e">Exception.</param>
-        internal void WriteError(ErrorRecordErrorId errorId, Exception e)
-        {
-            this.Write(
-                StreamType.Error,
-                new ErrorRecord(
-                    e,
-                    errorId.ToString(),
-                    ErrorCategory.WriteError,
-                    null));
-        }
-
-        /// <summary>
-        /// Write error with a message. Create WriteErrorException.
-        /// </summary>
-        /// <param name="errorId">Error id.</param>
-        /// <param name="message">Message.</param>
-        /// <param name="e">Inner exception.</param>
-        internal void WriteError(ErrorRecordErrorId errorId, string message, Exception? e = null)
-        {
-            // The error record requires a exception that can't be null, but there's no requirement that it was thrown.
-            // If not specified use WriteErrorException.
-            this.Write(
-                StreamType.Error,
-                new ErrorRecord(
-                    new WriteErrorException(message, e),
-                    errorId.ToString(),
-                    ErrorCategory.WriteError,
-                    null));
         }
 
         /// <summary>
@@ -346,8 +326,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// This method must be called in the original thread.
         /// WARNING: You must only call this when the task is completed or in Wait.
         /// </summary>
-        /// <param name="writeCommand">The command that can write to PowerShell.</param>
-        internal void ConsumeAndWriteStreams(AsyncCommand writeCommand)
+        /// <param name="writeCmdlet">The cmdlet that can write to PowerShell.</param>
+        internal void ConsumeAndWriteStreams(PowerShellCmdlet writeCmdlet)
         {
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
@@ -363,7 +343,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     var queuedOutput = this.queuedStreams.Take();
                     if (queuedOutput != null)
                     {
-                        this.CmdletWrite(queuedOutput.Type, queuedOutput.Data, writeCommand);
+                        this.CmdletWrite(queuedOutput.Type, queuedOutput.Data, writeCmdlet);
                     }
                 }
             }
@@ -387,42 +367,121 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Gets the cancellation token.
         /// </summary>
         /// <returns>CancellationToken.</returns>
-        protected CancellationToken GetCancellationToken()
+        internal CancellationToken GetCancellationToken()
         {
             return this.source.Token;
         }
 
-        private void CmdletWrite(StreamType streamType, object data, AsyncCommand writeCommand)
+        /// <summary>
+        /// Gets the current file system location from the cmdlet.
+        /// </summary>
+        /// <returns>Path.</returns>
+        internal string GetCurrentFileSystemLocation()
+        {
+            return this.psCmdlet.SessionState.Path.CurrentFileSystemLocation.Path;
+        }
+
+        /// <summary>
+        /// Sets a variable.
+        /// </summary>
+        /// <param name="variableName">Variable name.</param>
+        /// <param name="value">Value.</param>
+        internal void SetVariable(string variableName, object value)
+        {
+            this.psCmdlet.SessionState.PSVariable.Set(variableName, value);
+        }
+
+        /// <summary>
+        /// Prompts the user if it should continue processing if possible.
+        /// </summary>
+        /// <param name="target">Message.</param>
+        /// <returns>If the operation should continue.</returns>
+        internal bool ShouldProcess(string target)
+        {
+            // If not on the main thread just continue.
+            if (this.originalThread != Thread.CurrentThread)
+            {
+                return true;
+            }
+
+            return this.psCmdlet.ShouldProcess(target);
+        }
+
+        private void Complete()
+        {
+            this.queuedStreams.CompleteAdding();
+        }
+
+        private void CmdletWrite(StreamType streamType, object data, PowerShellCmdlet writeCmdlet)
         {
             switch (streamType)
             {
                 case StreamType.Debug:
-                    writeCommand.PsCmdlet.WriteDebug((string)data);
-                    break;
+                    throw new NotSupportedException();
                 case StreamType.Verbose:
-                    writeCommand.PsCmdlet.WriteVerbose((string)data);
+                    writeCmdlet.psCmdlet.WriteVerbose((string)data);
                     break;
                 case StreamType.Warning:
-                    writeCommand.PsCmdlet.WriteWarning((string)data);
+                    writeCmdlet.psCmdlet.WriteWarning((string)data);
                     break;
                 case StreamType.Error:
-                    writeCommand.PsCmdlet.WriteError((ErrorRecord)data);
+                    writeCmdlet.psCmdlet.WriteError((ErrorRecord)data);
                     break;
                 case StreamType.Progress:
                     // If the activity is already completed don't write progress.
                     var progressRecord = (ProgressRecord)data;
                     if (this.progressRecords[progressRecord.ActivityId] == ProgressRecordType.Processing)
                     {
-                        writeCommand.PsCmdlet.WriteProgress(progressRecord);
+                        writeCmdlet.psCmdlet.WriteProgress(progressRecord);
                     }
 
                     break;
                 case StreamType.Object:
-                    writeCommand.PsCmdlet.WriteObject(data);
+                    writeCmdlet.psCmdlet.WriteObject(data);
                     break;
                 case StreamType.Information:
-                    writeCommand.PsCmdlet.WriteInformation(data, WriteInformationTags);
+                    writeCmdlet.psCmdlet.WriteInformation(data, WriteInformationTags);
                     break;
+            }
+        }
+
+        private void ValidatePolicies(HashSet<Policy> policies)
+        {
+            GroupPolicy groupPolicy = GroupPolicy.GetInstance();
+
+            if (policies.Contains(Policy.WinGet))
+            {
+                if (!groupPolicy.IsEnabled(Policy.WinGet))
+                {
+                    throw new GroupPolicyException(Policy.WinGet, GroupPolicyFailureType.BlockedByPolicy);
+                }
+
+                policies.Remove(Policy.WinGet);
+            }
+
+            if (policies.Contains(Policy.Configuration))
+            {
+                if (!groupPolicy.IsEnabled(Policy.Configuration))
+                {
+                    throw new GroupPolicyException(Policy.Configuration, GroupPolicyFailureType.BlockedByPolicy);
+                }
+
+                policies.Remove(Policy.Configuration);
+            }
+
+            if (policies.Contains(Policy.WinGetCommandLineInterfaces))
+            {
+                if (!groupPolicy.IsEnabled(Policy.WinGetCommandLineInterfaces))
+                {
+                    throw new GroupPolicyException(Policy.WinGetCommandLineInterfaces, GroupPolicyFailureType.BlockedByPolicy);
+                }
+
+                policies.Remove(Policy.WinGetCommandLineInterfaces);
+            }
+
+            if (policies.Count > 0)
+            {
+                throw new NotSupportedException($"Invalid policies {string.Join(",", policies)}");
             }
         }
 
