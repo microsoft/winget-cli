@@ -173,26 +173,17 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     throw new NotSupportedException(arch.ToString());
                 }
 
-                string executingAssemblyLocation = Assembly.GetExecutingAssembly().Location;
-                string executingAssemblyDirectory = Path.Combine(Path.GetDirectoryName(executingAssemblyLocation) !, arch.ToString().ToLower());
-
-                SetDllDirectoryW(executingAssemblyDirectory);
-
-                try
-                {
-                    return new T();
-                }
-                finally
-                {
-                    SetDllDirectoryW(null);
-                }
+                // TODO: This doesn't work for Windows PowerShell, even manually loading
+                // Microsoft.Management.Deployment.dll.
+                // Error: Requested Windows Runtime type 'T' is not registered.
+                return new T();
             }
 
             object? instance = null;
 
             if (Utilities.ExecutingAsAdministrator)
             {
-                int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, 0, out instance);
+                int hr = WinRTHelpers.ManualActivation(type.GUID, iid, 0, out instance);
 
                 if (hr < 0)
                 {
@@ -223,16 +214,5 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             return (T)instance;
 #endif
         }
-
-        [DllImport("winrtact.dll", EntryPoint = "WinGetServerManualActivation_CreateInstance", ExactSpelling = true, PreserveSig = true)]
-        private static extern int WinGetServerManualActivation_CreateInstance(
-            [In, MarshalAs(UnmanagedType.LPStruct)] Guid clsid,
-            [In, MarshalAs(UnmanagedType.LPStruct)] Guid iid,
-            uint flags,
-            [Out, MarshalAs(UnmanagedType.IUnknown)] out object instance);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetDllDirectoryW([MarshalAs(UnmanagedType.LPWStr)] string? directory);
     }
 }

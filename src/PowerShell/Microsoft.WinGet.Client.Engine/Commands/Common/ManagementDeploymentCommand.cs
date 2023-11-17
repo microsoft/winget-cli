@@ -9,12 +9,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using System;
     using System.Collections.Generic;
     using System.Management.Automation;
-    using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// This is the base class for all of the commands in this module that use the COM APIs.
@@ -23,9 +21,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     {
         static ManagementDeploymentCommand()
         {
-#if !POWERSHELL_WINDOWS
-            InitializeUndockedRegFreeWinRT();
-#endif
+            WinRTHelpers.Initialize();
         }
 
         /// <summary>
@@ -36,7 +32,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             : base(psCmdlet)
         {
 #if POWERSHELL_WINDOWS
-            throw new WindowsPowerShellNotSupported();
+            if (Utilities.UsesInProcWinget)
+            {
+                throw new WindowsPowerShellNotSupported();
+            }
 #endif
         }
 
@@ -78,8 +77,5 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
                 };
             }
         }
-
-        [DllImport("winrtact.dll", EntryPoint = "winrtact_Initialize", ExactSpelling = true, PreserveSig = true)]
-        private static extern void InitializeUndockedRegFreeWinRT();
     }
 }

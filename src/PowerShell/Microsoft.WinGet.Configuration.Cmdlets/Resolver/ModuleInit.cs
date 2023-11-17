@@ -3,10 +3,14 @@
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
-#if !POWERSHELL_WINDOWS
-namespace Microsoft.WinGet.Client.Acl
+
+namespace Microsoft.WinGet.Resolver
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Management.Automation;
+    using System.Runtime.InteropServices;
     using System.Runtime.Loader;
 
     /// <summary>
@@ -14,9 +18,17 @@ namespace Microsoft.WinGet.Client.Acl
     /// </summary>
     public class ModuleInit : IModuleAssemblyInitializer, IModuleAssemblyCleanup
     {
+        private static readonly IEnumerable<Architecture> ValidArchs = new Architecture[] { Architecture.X86, Architecture.X64, Architecture.Arm64 };
+
         /// <inheritdoc/>
         public void OnImport()
         {
+            var arch = RuntimeInformation.ProcessArchitecture;
+            if (!ValidArchs.Contains(arch))
+            {
+                throw new NotSupportedException(arch.ToString());
+            }
+
             AssemblyLoadContext.Default.Resolving += WinGetAssemblyLoadContext.ResolvingHandler;
         }
 
@@ -27,4 +39,3 @@ namespace Microsoft.WinGet.Client.Acl
         }
     }
 }
-#endif

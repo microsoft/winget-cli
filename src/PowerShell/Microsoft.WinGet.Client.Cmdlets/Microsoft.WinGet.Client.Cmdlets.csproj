@@ -31,6 +31,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\CommonFiles\WinGetAssemblyLoadContext.cs" Link="WinGetAssemblyLoadContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
@@ -66,14 +70,9 @@
     <PowerShellModuleRuntimesDir>$(PowerShellModuleOutputDirectory)\$(TargetFramework)</PowerShellModuleRuntimesDir>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+  <PropertyGroup>
     <PowerShellModuleSharedDependencies>$(PowerShellModuleRuntimesDir)\SharedDependencies</PowerShellModuleSharedDependencies>
     <PowerShellModuleDirectDependencies>$(PowerShellModuleRuntimesDir)\DirectDependencies</PowerShellModuleDirectDependencies>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
-    <PowerShellModuleSharedDependencies>$(PowerShellModuleRuntimesDir)</PowerShellModuleSharedDependencies>
-    <PowerShellModuleDirectDependencies>$(PowerShellModuleRuntimesDir)</PowerShellModuleDirectDependencies>
   </PropertyGroup>
 
   <!-- psd1 and ps1xml-->
@@ -89,7 +88,7 @@
   <Target Name="CopyWinGetBinaries" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
     <ItemGroup>
       <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.dll" />
-      <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" Condition="'$(Configuration)' == 'Debug'"/>
+      <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
     <Message Importance="high" Text="Copying CopyWinGetBinaries: '@(ModuleWinGetFile)'" />
     <Copy SourceFiles="@(ModuleWinGetFile)" DestinationFolder="$(PowerShellModuleRuntimesDir)" />
@@ -99,7 +98,7 @@
   <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
     <ItemGroup>
       <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
-      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb"  Condition="'$(Configuration)' == 'Debug'" />
+      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" Condition="'$(Configuration)' == 'Debug'" />
     </ItemGroup>
     <Message Importance="high" Text="Copying direct dependencies: '@(ModuleDirectDependency)'" />
     <Copy SourceFiles="@(ModuleDirectDependency)" DestinationFolder="$(PowerShellModuleDirectDependencies)" />

@@ -65,7 +65,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.CatalogPackageCOM.DefaultInstallVersion.PackageCatalog.Info.Name;
+                return this.CatalogPackageCOM.DefaultInstallVersion?.PackageCatalog.Info.Name ?? string.Empty;
             }
         }
 
