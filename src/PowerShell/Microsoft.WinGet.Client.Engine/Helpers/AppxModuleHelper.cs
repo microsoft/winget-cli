@@ -14,7 +14,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Common.Command;
+    using Octokit;
     using static Microsoft.WinGet.Client.Engine.Common.Constants;
 
     /// <summary>
@@ -191,13 +193,13 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
             var release = await githubClient.GetReleaseAsync(releaseTag);
 
-            using var bundleFile = new TempFile();
-            var bundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
+            var bundleAsset = release.GetAsset(MsixBundleName);
+            using var bundleFile = new TempFile(fileName: MsixBundleName);
             await this.httpClientHelper.DownloadUrlWithProgressAsync(
                 bundleAsset.BrowserDownloadUrl, bundleFile.FullPath, this.pwshCmdlet);
 
-            using var licenseFile = new TempFile();
-            var licenseAsset = release.Assets.Where(a => a.Name.EndsWith(License)).First();
+            var licenseAsset = release.GetAssetEndsWith(License);
+            using var licenseFile = new TempFile(fileName: licenseAsset.Name);
             await this.httpClientHelper.DownloadUrlWithProgressAsync(
                 licenseAsset.BrowserDownloadUrl, licenseFile.FullPath, this.pwshCmdlet);
 
@@ -246,9 +248,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
                 var release = await githubClient.GetReleaseAsync(releaseTag);
 
-                using var bundleFile = new TempFile();
-                var bundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
-                await this.AddAppxPackageAsUriAsync(bundleAsset.BrowserDownloadUrl, parameters, options);
+                var bundleAsset = release.GetAsset(MsixBundleName);
+                await this.AddAppxPackageAsUriAsync(bundleAsset.BrowserDownloadUrl, MsixBundleName, parameters, options);
             }
             catch (RuntimeException e)
             {
@@ -346,7 +347,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                 foreach (var vclib in vcLibsDependencies)
                 {
-                    await this.AddAppxPackageAsUriAsync(vclib);
+                    await this.AddAppxPackageAsUriAsync(vclib, vclib.Substring(vclib.LastIndexOf('/') + 1));
                 }
             }
             else
@@ -364,23 +365,23 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                 var xamlRelease = await githubRelease.GetReleaseAsync(XamlReleaseTag273);
 
-                var packagesToInstall = new List<string>();
+                var packagesToInstall = new List<ReleaseAsset>();
                 var arch = RuntimeInformation.OSArchitecture;
                 if (arch == Architecture.X64)
                 {
-                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetX64).First().BrowserDownloadUrl);
+                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetX64));
                 }
                 else if (arch == Architecture.X86)
                 {
-                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetX86).First().BrowserDownloadUrl);
+                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetX86));
                 }
                 else if (arch == Architecture.Arm64)
                 {
                     // Deployment please figure out for me.
-                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetX64).First().BrowserDownloadUrl);
-                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetX86).First().BrowserDownloadUrl);
-                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetArm).First().BrowserDownloadUrl);
-                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetArm64).First().BrowserDownloadUrl);
+                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetX64));
+                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetX86));
+                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetArm));
+                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetArm64));
                 }
                 else
                 {
@@ -389,12 +390,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                 foreach (var package in packagesToInstall)
                 {
-                    await this.AddAppxPackageAsUriAsync(package);
+                    await this.AddAppxPackageAsUriAsync(package.BrowserDownloadUrl, package.Name);
                 }
             }
         }
 
-        private async Task AddAppxPackageAsUriAsync(string packageUri, Dictionary<string, object>? parameters = null, IList<string>? options = null)
+        private async Task AddAppxPackageAsUriAsync(string packageUri, string fileName, Dictionary<string, object>? parameters = null, IList<string>? options = null)
         {
             try
             {
@@ -423,7 +424,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 if (e.ErrorRecord.CategoryInfo.Category == ErrorCategory.OpenError)
                 {
                     this.pwshCmdlet.Write(StreamType.Verbose, $"Failed adding package [{packageUri}]. Retrying downloading it.");
-                    await this.DownloadPackageAndAddAsync(packageUri, options);
+                    await this.DownloadPackageAndAddAsync(packageUri, fileName, options);
                 }
                 else
                 {
@@ -433,9 +434,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private async Task DownloadPackageAndAddAsync(string packageUrl, IList<string>? options)
+        private async Task DownloadPackageAndAddAsync(string packageUrl, string fileName, IList<string>? options)
         {
-            using var tempFile = new TempFile();
+            using var tempFile = new TempFile(fileName: fileName);
 
             await this.httpClientHelper.DownloadUrlWithProgressAsync(packageUrl, tempFile.FullPath, this.pwshCmdlet);
 

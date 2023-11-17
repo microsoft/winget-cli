@@ -196,11 +196,11 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Configuration))
     $additionalFiles = @(
         "Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll"
     )
-    $module.AddArchSpecificFiles($additionalFiles, "net6.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
+    $module.AddArchSpecificFiles($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $additionalFiles = @(
         "Microsoft.Management.Configuration.Projection\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Projection.dll"
     )
-    $module.AddAnyCpuSpecificFilesToArch($additionalFiles, "net6.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
+    $module.AddAnyCpuSpecificFilesToArch($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $modules += $module
 }
 

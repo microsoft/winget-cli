@@ -259,6 +259,15 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find asset {0}.
+        /// </summary>
+        internal static string ReleaseAssetNotFound {
+            get {
+                return ResourceManager.GetString("ReleaseAssetNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Try running with -AllUsers in administrator mode..
         /// </summary>
         internal static string RepairAllUsersHelpMessage {

@@ -34,13 +34,15 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             if (fileName is null)
             {
                 this.FileName = Path.GetRandomFileName();
+                this.FullPath = Path.Combine(Path.GetTempPath(), this.FileName);
             }
             else
             {
                 this.FileName = fileName;
+                var randomDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+                Directory.CreateDirectory(randomDir);
+                this.FullPath = Path.Combine(randomDir, this.FileName);
             }
-
-            this.FullPath = Path.Combine(Path.GetTempPath(), this.FileName);
 
             if (deleteIfExists && File.Exists(this.FullPath))
             {
