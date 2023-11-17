@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.8" GeneratePathProperty="true">
       <ExcludeAssets>contentFiles</ExcludeAssets>
     </PackageReference>
@@ -74,7 +74,7 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="PwshFiles" AfterTargets="AfterBuild" >
+  <Target Name="PwshFiles" AfterTargets="AfterBuild">
     <ItemGroup>
       <RefFiles Include="$(PkgMicrosoft_PowerShell_SDK)\contentFiles\any\any\ref\*.*" />
       <WinModuleFiles Include="$(PkgMicrosoft_PowerShell_SDK)\contentFiles\any\any\runtimes\win\lib\$(DotNetVersion)\Modules\**\*.*" />
