@@ -17,6 +17,7 @@
 
 #define APPINSTALLER_CLI_ERROR_FACILITY 0xA15
 
+// Changes to any of these errors require the corresponding resource string in winget.resw to be updated.
 #define APPINSTALLER_CLI_ERROR_INTERNAL_ERROR                       ((HRESULT)0x8A150001)
 #define APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS                 ((HRESULT)0x8A150002)
 #define APPINSTALLER_CLI_ERROR_COMMAND_FAILED                       ((HRESULT)0x8A150003)

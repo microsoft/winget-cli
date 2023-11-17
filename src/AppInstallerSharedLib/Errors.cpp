@@ -87,6 +87,7 @@ namespace AppInstaller
 
         constexpr const WinGetHResultData s_wingetHResultData[] =
         {
+            // Changes to any of these errors require the corresponding resource string in winget.resw to be updated.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR, "Internal Error"),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, "Invalid command line arguments"),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_COMMAND_FAILED, "Executing command failed"),
