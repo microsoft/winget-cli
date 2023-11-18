@@ -32,18 +32,20 @@ BeforeAll {
         }
     }
 
+    # This is a workaround to an issue where the server takes longer than expected to terminate when
+    # running from PowerShell. This can cause other E2E tests to fail when attempting to reset the test source.
     function RemoveTestSource {
-        if ($PSEdition -eq "Core")
-        {
-            try {
-                Get-WinGetSource -Name 'TestSource'
+        try {
+            # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
+            $testSource = Get-WinGetSource | Where-Object -Property 'Name' -eq 'TestSource'
+            if ($null -ne $testSource)
+            {
+                Remove-WinGetSource -Name 'TestSource'
             }
-            catch {
-                # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
-                # This is a workaround to an issue where the server takes longer than expected to terminate when
-                # running from PowerShell. This can cause other E2E tests to fail when attempting to reset the test source.
-                Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
-            }
+        }
+        catch {
+            # Non-admin
+            Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
         }
     }
 
@@ -111,7 +113,7 @@ Describe 'Get-WinGetVersion' {
     }
 }
 
-Describe 'Get|Add|Reset-WinGetSource' -Skip:($PSEdition -eq "Desktop") {
+Describe 'Get|Add|Reset-WinGetSource' {
 
     BeforeAll {
         AddTestSource
@@ -136,7 +138,7 @@ Describe 'Get|Add|Reset-WinGetSource' -Skip:($PSEdition -eq "Desktop") {
     }
 }
 
-Describe 'Find-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
+Describe 'Find-WinGetPackage' {
 
     BeforeAll {
         AddTestSource
@@ -189,7 +191,7 @@ Describe 'Find-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
     }
 }
 
-Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
+Describe 'Install|Update|Uninstall-WinGetPackage' {
 
     BeforeAll {
         AddTestSource
@@ -265,7 +267,7 @@ Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop
    }
 }
 
-Describe 'Get-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
+Describe 'Get-WinGetPackage' {
 
     BeforeAll {
         AddTestSource
@@ -644,18 +646,6 @@ Describe 'WindowsPackageManagerServer' -Skip:($PSEdition -eq "Desktop") {
         # From the ones we got, at least one exited
         WaitForWindowsPackageManagerServer
         $wingetProcess | Where-Object { $_.HasExited -eq $true } | Should -Not -BeNullOrEmpty
-    }
-}
-
-Describe 'WindowsPowerShell not supported' -Skip:($PSEdition -eq "Core") {
-
-    It 'Throw not supported' {
-        { Find-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
-        { Get-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
-        { Install-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
-        { Uninstall-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
-        { Update-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
-        { Get-WinGetSource } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
     }
 }
 

@@ -8,9 +8,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Common;
@@ -167,15 +164,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             if (Utilities.UsesInProcWinget)
             {
-                var arch = RuntimeInformation.ProcessArchitecture;
-                if (!ValidArchs.Contains(arch))
-                {
-                    throw new NotSupportedException(arch.ToString());
-                }
-
-                // TODO: This doesn't work for Windows PowerShell, even manually loading
-                // Microsoft.Management.Deployment.dll.
-                // Error: Requested Windows Runtime type 'T' is not registered.
+                // This doesn't work on Windows PowerShell
+                // If we want to support it, we need something that loads the
+                // Microsoft.Management.Deployment.dll for .NET framework as CsWinRT
+                // does for .NET Core
                 return new T();
             }
 
