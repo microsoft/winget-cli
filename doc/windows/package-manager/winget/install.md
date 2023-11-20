@@ -16,6 +16,9 @@ The **install** command requires that you specify the exact string to install. I
 
 `winget install [[-q] <query>] [<options>]`
 
+The following command aliases are available: \
+`add`
+
 ![search command](images/install.png)
 
 ## Arguments
@@ -24,8 +27,7 @@ The following arguments are available.
 
 | Argument | Description |
 |-------------|-------------|  
-| **-q,--query** | The query used to search for an app. |
-| **-?, --help** | Get additional help on this command. |
+| **-q, --query** | The query used to search for an app. |
 
 ## Options
 
@@ -47,6 +49,26 @@ The options allow you to customize the install experience to meet your needs.
 | **--override** | A string that will be passed directly to the installer. |
 | **-l, --location** | Location to install to (if supported). |
 | **--force** | Override the installer hash check. |
+| **-a, --architecture** | Select the architecture |
+| **--installer-type** | Select the installer type |
+| **--locale** | Locale to use (BCP47 format) |
+| **--custom** | Arguments to be passed on to the installer in addition to the defaults |
+| **--ignore-security-hash** | Ignore the installer hash check failure |
+| **--skip-dependencies** | Skip processing package dependencies and Windows features |
+| **--ignore-local-archive-malware-scan** | Ignore the malware scan performed as part of installing an archive-type package from a local manifest |
+| **--dependency-source** | Find package dependencies using the specified source |
+| **--accept-package-agreements** | Accept all license agreements for packages |
+| **--no-upgrade** | Skip upgrade if an installed version already exists |
+| **--header** | Optional Windows-Package-Manager REST source HTTP header |
+| **--accept-source-agreements** | Accept all source agreements during source operations |
+| **-r, --rename** | The value to rename the executable file (portable) |
+| **--uninstall-previous** | Uninstall the previous version of the package during the upgrade |
+| **--ignore-interactivity** | Disable interactive prompts |
+| **-?, --help** | Get additional help on this command. |
+| **--wait** | Prompts the user to press any key before exiting |
+| **--logs, --open-logs** | Open the default logs location |
+| **--verbose, --verbose-logs** | Enables verbose logging for winget |
+| **--disable-interactivity** | Disable interactive prompts |
 
 ### Example queries
 

@@ -45,7 +45,6 @@ One of the most common usage scenarios is to search for and install a favorite t
 ### Commands
 
 The current preview of the **winget** tool supports the following commands.
-
 | Command | Description |
 |---------|-------------|
 | [install](install.md) | Installs the specified application. |
@@ -61,6 +60,9 @@ The current preview of the **winget** tool supports the following commands.
 | [features](features.md) | Shows the status of experimental features. |
 | [export](export.md) | Exports a list of the installed packages. |
 | [import](import.md) | Installs all the packages in a file. |
+| pin | Manage package pins. |
+| configure | Configures the system into a desired state. |
+| download | Downloads the installer from a given package. |
 
 ### Options
 
@@ -72,6 +74,9 @@ The current version of the **winget** tool supports the following options.
 | **--info** |  Provides you with all detailed information on winget, including the links to the license, privacy statement, and configured group policies. |
 | **-?, --help** |  Shows additional help for winget. |
 | **--wait** | Waits for user input upon command completion. |
+| **--logs,--open-logs** | Open the default logs location |
+| **--verbose,--verbose-logs** | Enables verbose logging for winget |
+| **--disable-interactivity** | Disable interactive prompts |
 
 ## Supported installer formats
 

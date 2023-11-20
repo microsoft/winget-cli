@@ -14,7 +14,10 @@ The **upgrade** command requires that you specify the exact string to upgrade. I
 
 ## Usage
 
-`winget upgrade [[-q] <query>] [<options>]`
+`winget upgrade [[-q] <query>...] [<options>]`
+
+The following command aliases are available: \
+`update`
 
 ![upgrade command](images/upgrade.png)
 
