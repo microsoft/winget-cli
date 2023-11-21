@@ -5,11 +5,72 @@
     <ClCompile Include="MyRuntimeClass.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="ApplySettingsResult.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="DscConfigurationSetProcessorFactory.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="DscConfigurationSetProcessor.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="DscConfigurationUnitProcessor.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="DscConfigurationUnitProcessorDetails.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="DscConfigurationUnitResultInformation.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="DscConfigurationUnitSettingDetails.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="GetAllSettingsResult.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="GetSettingsResult.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="TestSettingsResult.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="MyRuntimeClass.h">
       <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplySettingsResult.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="DscConfigurationSetProcessorFactory.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="DscConfigurationSetProcessor.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="DscConfigurationUnitProcessor.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="DscConfigurationUnitProcessorDetails.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="DscConfigurationUnitResultInformation.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="DscConfigurationUnitSettingDetails.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="GetAllSettingsResult.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="GetSettingsResult.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="TestSettingsResult.h">
+      <Filter>Internals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -26,6 +87,9 @@
     </Filter>
     <Filter Include="API Source">
       <UniqueIdentifier>{9f2b70b9-6b13-4308-9214-b313c0a13770}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Internals">
+      <UniqueIdentifier>{bb12a186-8526-43c3-a5f2-56293f28a9a1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

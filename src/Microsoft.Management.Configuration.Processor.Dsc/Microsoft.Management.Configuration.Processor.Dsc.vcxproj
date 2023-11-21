@@ -196,15 +196,35 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ApplySettingsResult.h" />
+    <ClInclude Include="DscConfigurationSetProcessor.h" />
+    <ClInclude Include="DscConfigurationSetProcessorFactory.h" />
+    <ClInclude Include="DscConfigurationUnitProcessor.h" />
+    <ClInclude Include="DscConfigurationUnitProcessorDetails.h" />
+    <ClInclude Include="DscConfigurationUnitResultInformation.h" />
+    <ClInclude Include="DscConfigurationUnitSettingDetails.h" />
+    <ClInclude Include="GetAllSettingsResult.h" />
+    <ClInclude Include="GetSettingsResult.h" />
     <ClInclude Include="MyRuntimeClass.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="TestSettingsResult.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ApplySettingsResult.cpp" />
+    <ClCompile Include="DscConfigurationSetProcessor.cpp" />
+    <ClCompile Include="DscConfigurationSetProcessorFactory.cpp" />
+    <ClCompile Include="DscConfigurationUnitProcessor.cpp" />
+    <ClCompile Include="DscConfigurationUnitProcessorDetails.cpp" />
+    <ClCompile Include="DscConfigurationUnitResultInformation.cpp" />
+    <ClCompile Include="DscConfigurationUnitSettingDetails.cpp" />
+    <ClCompile Include="GetAllSettingsResult.cpp" />
+    <ClCompile Include="GetSettingsResult.cpp" />
     <ClCompile Include="MyRuntimeClass.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="TestSettingsResult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Microsoft_Management_Configuration_Processor_Dsc.def" />
@@ -216,6 +236,9 @@
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerSharedLib\AppInstallerSharedLib.vcxproj">
       <Project>{f3f6e699-bc5d-4950-8a05-e49dd9eb0d51}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
+      <Project>{ca460806-5e41-4e97-9a3d-1d74b433b663}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
