@@ -368,6 +368,7 @@
     <ClInclude Include="Commands\HashCommand.h" />
     <ClInclude Include="Commands\ListCommand.h" />
     <ClInclude Include="Commands\PinCommand.h" />
+    <ClInclude Include="Commands\RepairCommand.h" />
     <ClInclude Include="Commands\SearchCommand.h" />
     <ClInclude Include="Commands\ShowCommand.h" />
     <ClInclude Include="Commands\InstallCommand.h" />
@@ -437,6 +438,7 @@
     <ClCompile Include="Commands\ErrorCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
+    <ClCompile Include="Commands\RepairCommand.cpp" />
     <ClCompile Include="Commands\TestCommand.cpp" />
     <ClCompile Include="ConfigurationCommon.cpp" />
     <ClCompile Include="ConfigurationContext.cpp" />

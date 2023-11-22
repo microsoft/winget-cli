@@ -419,6 +419,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(RebootRequiredToEnableWindowsFeatureOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(RelatedLink);
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ReparsePointsNotSupportedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityForAgreements);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);

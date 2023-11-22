@@ -2757,4 +2757,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The {0} source requires authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with the source for access authorization.</value>
     <comment>{Locked="{0}"}</comment>
   </data>
+  <data name="RepairCommandLongDescription" xml:space="preserve">
+    <value>(TODO: long description) Repairs the selected package</value>
+  </data>
+  <data name="RepairCommandShortDescription" xml:space="preserve">
+    <value>(TODO: short description) Repairs the selected package</value>
+  </data>
 </root>
