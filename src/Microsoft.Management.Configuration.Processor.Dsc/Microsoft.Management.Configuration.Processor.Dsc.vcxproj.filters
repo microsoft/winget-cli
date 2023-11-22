@@ -2,14 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="MyRuntimeClass.cpp">
+    <ClCompile Include="DscConfigurationSetProcessorFactory.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="ApplySettingsResult.cpp">
-      <Filter>Internals</Filter>
-    </ClCompile>
-    <ClCompile Include="DscConfigurationSetProcessorFactory.cpp">
       <Filter>Internals</Filter>
     </ClCompile>
     <ClCompile Include="DscConfigurationSetProcessor.cpp">
@@ -39,13 +36,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="MyRuntimeClass.h">
+    <ClInclude Include="DscConfigurationSetProcessorFactory.h">
       <Filter>API Headers</Filter>
     </ClInclude>
     <ClInclude Include="ApplySettingsResult.h">
-      <Filter>Internals</Filter>
-    </ClInclude>
-    <ClInclude Include="DscConfigurationSetProcessorFactory.h">
       <Filter>Internals</Filter>
     </ClInclude>
     <ClInclude Include="DscConfigurationSetProcessor.h">
@@ -90,6 +84,9 @@
     </Filter>
     <Filter Include="Internals">
       <UniqueIdentifier>{bb12a186-8526-43c3-a5f2-56293f28a9a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Processor">
+      <UniqueIdentifier>{2aadb50b-5347-4eb2-a04e-a55fab08385c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

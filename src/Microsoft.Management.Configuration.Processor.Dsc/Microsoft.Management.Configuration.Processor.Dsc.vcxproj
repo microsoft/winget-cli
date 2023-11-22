@@ -198,28 +198,26 @@
   <ItemGroup>
     <ClInclude Include="ApplySettingsResult.h" />
     <ClInclude Include="DscConfigurationSetProcessor.h" />
-    <ClInclude Include="DscConfigurationSetProcessorFactory.h" />
     <ClInclude Include="DscConfigurationUnitProcessor.h" />
     <ClInclude Include="DscConfigurationUnitProcessorDetails.h" />
     <ClInclude Include="DscConfigurationUnitResultInformation.h" />
     <ClInclude Include="DscConfigurationUnitSettingDetails.h" />
     <ClInclude Include="GetAllSettingsResult.h" />
     <ClInclude Include="GetSettingsResult.h" />
-    <ClInclude Include="MyRuntimeClass.h" />
+    <ClInclude Include="DscConfigurationSetProcessorFactory.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestSettingsResult.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplySettingsResult.cpp" />
     <ClCompile Include="DscConfigurationSetProcessor.cpp" />
-    <ClCompile Include="DscConfigurationSetProcessorFactory.cpp" />
     <ClCompile Include="DscConfigurationUnitProcessor.cpp" />
     <ClCompile Include="DscConfigurationUnitProcessorDetails.cpp" />
     <ClCompile Include="DscConfigurationUnitResultInformation.cpp" />
     <ClCompile Include="DscConfigurationUnitSettingDetails.cpp" />
     <ClCompile Include="GetAllSettingsResult.cpp" />
     <ClCompile Include="GetSettingsResult.cpp" />
-    <ClCompile Include="MyRuntimeClass.cpp" />
+    <ClCompile Include="DscConfigurationSetProcessorFactory.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
@@ -254,5 +252,16 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <PropertyGroup>
+      <MicrosoftManagementConfigurationPath>$(OutputPath)..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+    </PropertyGroup>
+    <Message Importance="high" Text="Microsoft.Management.Configuration.winmd -&gt; $(MicrosoftManagementConfigurationPath)" />
+    <Error Condition="!Exists('$(MicrosoftManagementConfigurationPath)')" Text="Microsoft.Management.Configuration.winmd was not found in $(MicrosoftManagementConfigurationPath)" />
+    <ItemGroup Condition="Exists('$(MicrosoftManagementConfigurationPath)')">
+      <Reference Include="Microsoft.Management.Configuration">
+        <HintPath>$(MicrosoftManagementConfigurationPath)</HintPath>
+        <IsWinMDFile>true</IsWinMDFile>
+      </Reference>
+    </ItemGroup>
   </Target>
 </Project>

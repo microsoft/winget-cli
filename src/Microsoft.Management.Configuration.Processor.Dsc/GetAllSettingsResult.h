@@ -3,7 +3,7 @@
 #pragma once
 #include <winrt/Microsoft.Management.Configuration.h>
 
-namespace winrt::Microsoft::Management::Configuration::Dsc::implementation
+namespace winrt::Microsoft::Management::Configuration::Processor::Dsc::implementation
 {
     struct GetAllSettingsResult : winrt::implements<GetAllSettingsResult, winrt::Microsoft::Management::Configuration::IGetAllSettingsResult>
     {

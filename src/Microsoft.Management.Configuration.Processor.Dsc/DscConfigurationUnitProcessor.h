@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 #pragma once
 #include <winrt/Microsoft.Management.Configuration.h>
+#include "DscConfigurationSetProcessorFactory.h"
 
-namespace winrt::Microsoft::Management::Configuration::Dsc::implementation
+namespace winrt::Microsoft::Management::Configuration::Processor::Dsc::implementation
 {
     struct DscConfigurationUnitProcessor : winrt::implements<DscConfigurationUnitProcessor, winrt::Microsoft::Management::Configuration::IGetAllSettingsConfigurationUnitProcessor>
     {
-        DscConfigurationUnitProcessor(
-            const winrt::Microsoft::Management::Configuration::ConfigurationUnit& unit);
+        DscConfigurationUnitProcessor(const winrt::Microsoft::Management::Configuration::ConfigurationUnit& unit, winrt::weak_ref<DscConfigurationSetProcessorFactory> const& weakFactory);
 
         winrt::Microsoft::Management::Configuration::ConfigurationUnit Unit();
 
@@ -22,5 +22,7 @@ namespace winrt::Microsoft::Management::Configuration::Dsc::implementation
 
     private:
         winrt::Microsoft::Management::Configuration::ConfigurationUnit m_unit;
+        bool m_isGroup;
+        winrt::weak_ref<DscConfigurationSetProcessorFactory> m_weakFactory;
     };
 }

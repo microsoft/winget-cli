@@ -3,7 +3,7 @@
 #pragma once
 #include <winrt/Microsoft.Management.Configuration.h>
 
-namespace winrt::Microsoft::Management::Configuration::Dsc::implementation
+namespace winrt::Microsoft::Management::Configuration::Processor::Dsc::implementation
 {
     struct DscConfigurationUnitSettingDetails : winrt::implements<DscConfigurationUnitSettingDetails, winrt::Microsoft::Management::Configuration::IConfigurationUnitSettingDetails>
     {

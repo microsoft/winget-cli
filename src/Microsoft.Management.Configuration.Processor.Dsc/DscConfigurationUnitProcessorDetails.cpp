@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "DscConfigurationUnitProcessorDetails.h"
 
-namespace winrt::Microsoft::Management::Configuration::Dsc::implementation
+namespace winrt::Microsoft::Management::Configuration::Processor::Dsc::implementation
 {
     using namespace winrt::Microsoft::Management::Configuration;
     using namespace winrt::Windows::Foundation;
