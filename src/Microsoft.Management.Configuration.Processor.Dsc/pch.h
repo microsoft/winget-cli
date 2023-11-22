@@ -11,6 +11,6 @@
 #pragma warning ( disable : 4467 6388)
 // 4467 Allow use of uuid attribute for com object creation.
 // 6388 Allow CreateInstance.
-//#include <wil/cppwinrt_wrl.h>
-//#include <wil/resource.h>
+#include <wil/cppwinrt_wrl.h>
+#include <wil/resource.h>
 #pragma warning( pop )

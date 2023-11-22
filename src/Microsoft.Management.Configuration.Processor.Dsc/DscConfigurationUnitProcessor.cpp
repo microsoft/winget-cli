@@ -19,7 +19,7 @@ namespace winrt::Microsoft::Management::Configuration::Processor::Dsc::implement
 
         if (!m_isGroup)
         {
-            //THROW_HR(E_NOTIMPL);
+            THROW_HR(E_NOTIMPL);
         }
     }
 
