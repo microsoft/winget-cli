@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Configuration.Engine.Commands
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
@@ -14,10 +15,12 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.PowerShell;
+    using Microsoft.WinGet.Common.Command;
     using Microsoft.WinGet.Configuration.Engine.Exceptions;
     using Microsoft.WinGet.Configuration.Engine.Helpers;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Resources;
+    using Microsoft.WinGet.SharedLib.PolicySettings;
     using Windows.Storage;
     using Windows.Storage.Streams;
     using WinRT;
@@ -25,14 +28,14 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     /// <summary>
     /// Class that deals configuration commands.
     /// </summary>
-    public sealed class ConfigurationCommand : AsyncCommand
+    public sealed class ConfigurationCommand : PowerShellCmdlet
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
         public ConfigurationCommand(PSCmdlet psCmdlet)
-            : base(psCmdlet)
+            : base(psCmdlet, new HashSet<Policy> { Policy.WinGet, Policy.Configuration, Policy.WinGetCommandLineInterfaces })
         {
         }
 
@@ -87,20 +90,13 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             bool canUseTelemetry)
         {
             var openParams = new OpenConfigurationParameters(
-                this.PsCmdlet, configFile, modulePath, executionPolicy, canUseTelemetry);
+                this, configFile, modulePath, executionPolicy, canUseTelemetry);
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
                 async () =>
                 {
-                    try
-                    {
-                        return await this.OpenConfigurationSetAsync(openParams);
-                    }
-                    finally
-                    {
-                        this.Complete();
-                    }
+                    return await this.OpenConfigurationSetAsync(openParams);
                 });
 
             this.Wait(runningTask);
@@ -131,7 +127,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
-                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
 
@@ -229,7 +224,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
-                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
                 });
@@ -261,7 +255,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
-                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
                 });
@@ -344,7 +337,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
-                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
                 });

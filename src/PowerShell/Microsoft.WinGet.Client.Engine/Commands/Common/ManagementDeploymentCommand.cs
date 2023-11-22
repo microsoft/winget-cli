@@ -11,9 +11,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using System.Management.Automation;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// This is the base class for all of the commands in this module that use the COM APIs.
@@ -40,12 +41,29 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         }
 
         /// <summary>
+        /// Executes the cmdlet. All cmdlets that uses the COM APIs MUST use this method.
+        /// The inproc COM API may deadlock on an STA thread.
+        /// </summary>
+        /// <typeparam name="TResult">The type of result of the cmdlet.</typeparam>
+        /// <param name="func">Cmdlet function.</param>
+        /// <returns>The result of the cmdlet.</returns>
+        protected TResult Execute<TResult>(Func<TResult> func)
+        {
+            if (Utilities.UsesInProcWinget)
+            {
+                return this.RunOnMTA(func);
+            }
+
+            return func();
+        }
+
+        /// <summary>
         /// Retrieves the specified source or all sources if <paramref name="source" /> is null.
         /// </summary>
         /// <returns>A list of <see cref="PackageCatalogReference" /> instances.</returns>
         /// <param name="source">The name of the source to retrieve. If null, then all sources are returned.</param>
         /// <exception cref="ArgumentException">The source does not exist.</exception>
-        protected IReadOnlyList<PackageCatalogReference> GetPackageCatalogReferences(string source)
+        protected IReadOnlyList<PackageCatalogReference> GetPackageCatalogReferences(string? source)
         {
             if (string.IsNullOrEmpty(source))
             {
@@ -55,8 +73,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             {
                 return new List<PackageCatalogReference>()
                 {
-                    PackageManagerWrapper.Instance.GetPackageCatalogByName(source)
-                        ?? throw new InvalidSourceException(source),
+                    PackageManagerWrapper.Instance.GetPackageCatalogByName(source!)
+                        ?? throw new InvalidSourceException(source!),
                 };
             }
         }

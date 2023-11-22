@@ -13,7 +13,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Common.Command;
+    using Microsoft.WinGet.Resources;
     using static Microsoft.WinGet.Client.Engine.Common.Constants;
 
     /// <summary>
@@ -49,7 +50,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="expectedVersion">The expected version.</param>
         public void Assert(string expectedVersion)
         {
-            WinGetIntegrity.AssertWinGet(this.PsCmdlet, expectedVersion);
+            WinGetIntegrity.AssertWinGet(this, expectedVersion);
         }
 
         /// <summary>
@@ -96,8 +97,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             {
                 try
                 {
-                    WinGetIntegrity.AssertWinGet(this.PsCmdlet, expectedVersion);
-                    this.PsCmdlet.WriteDebug($"WinGet is in a good state.");
+                    WinGetIntegrity.AssertWinGet(this, expectedVersion);
+                    this.Write(StreamType.Verbose, $"WinGet is in a good state.");
                     currentCategory = IntegrityCategory.Installed;
                 }
                 catch (WinGetIntegrityException e)
@@ -106,11 +107,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
                     if (seenCategories.Contains(currentCategory))
                     {
-                        this.PsCmdlet.WriteDebug($"{currentCategory} encountered previously");
+                        this.Write(StreamType.Verbose, $"{currentCategory} encountered previously");
                         throw;
                     }
 
-                    this.PsCmdlet.WriteDebug($"Integrity category type: {currentCategory}");
+                    this.Write(StreamType.Verbose, $"Integrity category type: {currentCategory}");
                     seenCategories.Add(currentCategory);
 
                     switch (currentCategory)
@@ -156,10 +157,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             var installedVersion = WinGetVersion.InstalledWinGetVersion;
             bool isDowngrade = installedVersion.CompareAsDeployment(toInstallVersion) > 0;
 
-            this.PsCmdlet.WriteDebug($"Installed WinGet version '{installedVersion.TagVersion}' " +
+            string message = $"Installed WinGet version '{installedVersion.TagVersion}' " +
                 $"Installing WinGet version '{toInstallVersion.TagVersion}' " +
-                $"Is downgrade {isDowngrade}");
-            var appxModule = new AppxModuleHelper(this.PsCmdlet);
+                $"Is downgrade {isDowngrade}";
+            this.Write(
+                StreamType.Verbose,
+                message);
+            var appxModule = new AppxModuleHelper(this);
             appxModule.InstallFromGitHubRelease(toInstallVersion.TagVersion, allUsers, isDowngrade);
         }
 
@@ -174,13 +178,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 toInstallVersion = gitHubClient.GetLatestVersionTagName(false);
             }
 
-            var appxModule = new AppxModuleHelper(this.PsCmdlet);
+            var appxModule = new AppxModuleHelper(this);
             appxModule.InstallFromGitHubRelease(toInstallVersion, allUsers, false);
         }
 
         private void Register()
         {
-            var appxModule = new AppxModuleHelper(this.PsCmdlet);
+            var appxModule = new AppxModuleHelper(this);
             appxModule.RegisterAppInstaller();
         }
 
@@ -190,12 +194,12 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             Utilities.AddWindowsAppToPath();
 
             // Update this sessions PowerShell environment so the user doesn't have to restart the terminal.
-            string envPathUser = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
-            string envPathMachine = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.Machine);
+            string? envPathUser = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
+            string? envPathMachine = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.Machine);
             string newPwshPathEnv = $"{envPathMachine};{envPathUser}";
-            this.PsCmdlet.SessionState.PSVariable.Set(EnvPath, newPwshPathEnv);
+            this.SetVariable(EnvPath, newPwshPathEnv);
 
-            this.PsCmdlet.WriteDebug($"PATH environment variable updated");
+            this.Write(StreamType.Verbose, $"PATH environment variable updated");
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Microsoft.WinGet.Client.Engine.Extensions
         /// <returns>A <see cref="string" /> instance.</returns>
         public static string ToString(
             this CatalogPackage package,
-            PackageVersionId version)
+            PackageVersionId? version)
         {
             if ((version != null) || (package.AvailableVersions.Count > 0))
             {

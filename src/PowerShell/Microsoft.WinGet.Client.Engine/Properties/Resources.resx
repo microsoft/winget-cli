@@ -224,4 +224,7 @@
   <data name="RequiresAdminMessage" xml:space="preserve">
     <value>This cmdlet requires administrator privileges to execute.</value>
   </data>
+  <data name="DebugNotSupported" xml:space="preserve">
+    <value>Debug parameter not supported</value>
+  </data>
 </root>

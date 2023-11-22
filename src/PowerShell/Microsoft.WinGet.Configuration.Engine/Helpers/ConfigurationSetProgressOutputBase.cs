@@ -9,7 +9,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
     using System;
     using System.Collections.Generic;
     using Microsoft.Management.Configuration;
-    using Microsoft.WinGet.Configuration.Engine.Commands;
+    using Microsoft.WinGet.Common.Command;
     using Windows.Foundation;
 
     /// <summary>
@@ -19,7 +19,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
     /// <typeparam name="TProgressData">Progress data.</typeparam>
     internal abstract class ConfigurationSetProgressOutputBase<TOperationResult, TProgressData>
     {
-        private readonly AsyncCommand cmd;
+        private readonly PowerShellCmdlet cmd;
         private readonly int activityId;
         private readonly string activity;
         private readonly string inProgressMessage;
@@ -35,7 +35,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// <param name="inProgressMessage">The message in the progress bar.</param>
         /// <param name="completeMessage">The activity complete message.</param>
         /// <param name="totalUnitsExpected">Total of units expected.</param>
-        public ConfigurationSetProgressOutputBase(AsyncCommand cmd, int activityId, string activity, string inProgressMessage, string completeMessage, int totalUnitsExpected)
+        public ConfigurationSetProgressOutputBase(PowerShellCmdlet cmd, int activityId, string activity, string inProgressMessage, string completeMessage, int totalUnitsExpected)
         {
             this.cmd = cmd;
             this.activityId = activityId;

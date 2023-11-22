@@ -160,24 +160,27 @@ namespace AppInstaller::Logging
     }
 }
 
-std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
+namespace std
 {
-    AppInstaller::Utility::OutputTimePoint(out, time);
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const GUID& guid)
-{
-    wchar_t buffer[256];
-
-    if (StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)))
+    std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
     {
-        out << AppInstaller::Utility::ConvertToUTF8(buffer);
-    }
-    else
-    {
-        out << "error";
+        AppInstaller::Utility::OutputTimePoint(out, time);
+        return out;
     }
 
-    return out;
+    std::ostream& operator<<(std::ostream& out, const GUID& guid)
+    {
+        wchar_t buffer[256];
+
+        if (StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)))
+        {
+            out << AppInstaller::Utility::ConvertToUTF8(buffer);
+        }
+        else
+        {
+            out << "error";
+        }
+
+        return out;
+    }
 }

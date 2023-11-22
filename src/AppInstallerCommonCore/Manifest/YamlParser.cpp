@@ -492,7 +492,7 @@ namespace AppInstaller::Manifest::YamlParser
         }
         catch (const std::exception& e)
         {
-            THROW_EXCEPTION_MSG(ManifestException(), e.what());
+            THROW_EXCEPTION_MSG(ManifestException(), "%hs", e.what());
         }
 
         return ParseManifest(docList, validateOption, mergedManifestPath);
@@ -513,7 +513,7 @@ namespace AppInstaller::Manifest::YamlParser
         }
         catch (const std::exception& e)
         {
-            THROW_EXCEPTION_MSG(ManifestException(), e.what());
+            THROW_EXCEPTION_MSG(ManifestException(), "%hs", e.what());
         }
 
         return ParseManifest(docList, validateOption, mergedManifestPath);
@@ -538,7 +538,7 @@ namespace AppInstaller::Manifest::YamlParser
         }
         catch (const std::exception& e)
         {
-            THROW_EXCEPTION_MSG(ManifestException(), e.what());
+            THROW_EXCEPTION_MSG(ManifestException(), "%hs", e.what());
         }
 
         if (!errors.empty())

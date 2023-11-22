@@ -11,8 +11,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Common.Command;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Uninstalls a package from the local system.
@@ -71,19 +72,24 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageFieldMatchOption,
             bool force)
         {
-            this.GetPackageAndExecute(
-                CompositeSearchBehavior.LocalCatalogs,
-                PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
-                (package, version) =>
-                {
-                    UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);
-                    UninstallResult result = this.UninstallPackage(package, options);
-                    this.PsCmdlet.WriteObject(new PSUninstallResult(result));
-                });
+            var result = this.Execute(
+                () => this.GetPackageAndExecute(
+                    CompositeSearchBehavior.LocalCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                    (package, version) =>
+                    {
+                        UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);
+                        return this.UninstallPackage(package, options);
+                    }));
+
+            if (result != null)
+            {
+                this.Write(StreamType.Object, new PSUninstallResult(result));
+            }
         }
 
         private UninstallOptions GetUninstallOptions(
-            PackageVersionId version,
+            PackageVersionId? version,
             PackageUninstallMode packageUninstallMode,
             bool force)
         {
@@ -113,17 +119,19 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 package.Name);
 
             var operation = PackageManagerWrapper.Instance.UninstallPackageAsync(package, options);
-            WriteProgressAdapter adapter = new (this.PsCmdlet);
+
+            var activityId = this.GetNewProgressActivityId();
+            WriteProgressAdapter adapter = new (this);
             operation.Progress = (context, progress) =>
             {
-                adapter.WriteProgress(new ProgressRecord(1, activity, progress.State.ToString())
+                adapter.WriteProgress(new ProgressRecord(activityId, activity, progress.State.ToString())
                 {
                     RecordType = ProgressRecordType.Processing,
                 });
             };
             operation.Completed = (context, status) =>
             {
-                adapter.WriteProgress(new ProgressRecord(1, activity, status.ToString())
+                adapter.WriteProgress(new ProgressRecord(activityId, activity, status.ToString())
                 {
                     RecordType = ProgressRecordType.Completed,
                 });
