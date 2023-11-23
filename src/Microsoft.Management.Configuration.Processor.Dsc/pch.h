@@ -14,3 +14,6 @@
 #include <wil/cppwinrt_wrl.h>
 #include <wil/resource.h>
 #pragma warning( pop )
+
+#include <string>
+#include <string_view>
