@@ -36,35 +36,40 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <remarks>
         /// Must match the name of the <see cref="CatalogPackage" /> field on the <see cref="MatchResult" /> class.
         /// </remarks>
-        protected PSCatalogPackage CatalogPackage { get; set; } = null;
+        protected PSCatalogPackage? CatalogPackage { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the version to install.
         /// </summary>
-        protected string Version { get; set; }
+        protected string? Version { get; set; }
 
         /// <summary>
         /// Gets or sets the path to the logging file.
         /// </summary>
-        protected string Log { get; set; }
+        protected string? Log { get; set; }
 
         /// <summary>
         /// Executes a command targeting a specific package version.
         /// </summary>
+        /// <typeparam name="TResult">Type of callback's result.</typeparam>
         /// <param name="behavior">The <see cref="CompositeSearchBehavior" /> value.</param>
         /// <param name="match">The match option.</param>
         /// <param name="callback">The method to call after retrieving the package and version to operate upon.</param>
-        protected void GetPackageAndExecute(
+        /// <returns>Result of the callback.</returns>
+        protected TResult? GetPackageAndExecute<TResult>(
             CompositeSearchBehavior behavior,
             PackageFieldMatchOption match,
-            Action<CatalogPackage, PackageVersionId> callback)
+            Func<CatalogPackage, PackageVersionId?, TResult> callback)
+            where TResult : class
         {
             CatalogPackage package = this.GetCatalogPackage(behavior, match);
-            PackageVersionId version = this.GetPackageVersionId(package);
-            if (this.PsCmdlet.ShouldProcess(package.ToString(version)))
+            PackageVersionId? version = this.GetPackageVersionId(package);
+            if (this.ShouldProcess(package.ToString(version)))
             {
-                callback(package, version);
+                return callback(package, version);
             }
+
+            return null;
         }
 
         /// <summary>
@@ -79,7 +84,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         protected override void SetQueryInFindPackagesOptions(
             ref FindPackagesOptions options,
             string match,
-            string value)
+            string? value)
         {
             var matchOption = PSEnumHelpers.ToPackageFieldMatchOption(match);
             foreach (PackageMatchField field in new PackageMatchField[] { PackageMatchField.Id, PackageMatchField.Name, PackageMatchField.Moniker })
@@ -120,7 +125,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
         }
 
-        private PackageVersionId GetPackageVersionId(CatalogPackage package)
+        private PackageVersionId? GetPackageVersionId(CatalogPackage package)
         {
             if (this.Version != null)
             {

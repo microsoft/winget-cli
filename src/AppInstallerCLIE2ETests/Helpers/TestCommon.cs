@@ -13,6 +13,7 @@ namespace AppInstallerCLIE2ETests.Helpers
     using System.Linq;
     using System.Management.Automation;
     using System.Reflection;
+    using System.Security.Principal;
     using System.Text;
     using System.Threading;
     using AppInstallerCLIE2ETests;
@@ -76,6 +77,31 @@ namespace AppInstallerCLIE2ETests.Helpers
             /// Default winget configure.
             /// </summary>
             Default,
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the current assembly is executing in an administrative context.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only API")]
+        public static bool ExecutingAsAdministrator
+        {
+            get
+            {
+                WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                WindowsPrincipal principal = new (identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the test is running in the CI build.
+        /// </summary>
+        public static bool IsCIEnvironment
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable("BUILD_BUILDNUMBER") != null;
+            }
         }
 
         /// <summary>

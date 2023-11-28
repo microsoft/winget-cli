@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using System.Collections.Generic;
     using System.Management.Automation;
     using System.Threading;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// Marshals calls to <see cref="Cmdlet.WriteProgress(ProgressRecord)" /> back to the main thread.
@@ -17,16 +18,16 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     {
         private readonly AutoResetEvent resetEvent = new (false);
         private readonly Queue<ProgressRecord> records = new ();
-        private readonly Cmdlet cmdlet;
+        private readonly PowerShellCmdlet pwshCmdlet;
         private volatile bool completed = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WriteProgressAdapter" /> class.
         /// </summary>
-        /// <param name="cmdlet">A <see cref="Cmdlet" /> instance.</param>
-        public WriteProgressAdapter(Cmdlet cmdlet)
+        /// <param name="pwshCmdlet">A <see cref="PowerShellCmdlet" /> instance.</param>
+        public WriteProgressAdapter(PowerShellCmdlet pwshCmdlet)
         {
-            this.cmdlet = cmdlet;
+            this.pwshCmdlet = pwshCmdlet;
         }
 
         /// <summary>
@@ -83,7 +84,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         {
             while (this.records.Count > 0)
             {
-                this.cmdlet.WriteProgress(this.records.Dequeue());
+                this.pwshCmdlet.Write(StreamType.Progress, this.records.Dequeue());
             }
         }
     }

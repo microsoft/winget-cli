@@ -25,6 +25,9 @@ namespace AppInstaller::SQLite
         // Gets the last write time for the database.
         std::chrono::system_clock::time_point GetLastWriteTime();
 
+        // Gets the identifier written to the database when it was created.
+        std::string GetDatabaseIdentifier();
+
         // Gets the schema version of the database.
         Version GetVersion() const { return m_version; }
 
@@ -32,6 +35,8 @@ namespace AppInstaller::SQLite
         SQLiteStorageBase(const std::string& target, const Version& version);
 
         SQLiteStorageBase(const std::string& filePath, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
+
+        SQLiteStorageBase(const std::string& target, SQLiteStorageBase& source);
 
         // Sets the last write time metadata value in the database.
         void SetLastWriteTime();

@@ -7,7 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.Exceptions
 {
     using System;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Invalid version.

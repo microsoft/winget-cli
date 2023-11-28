@@ -7,12 +7,8 @@
 namespace Microsoft.WinGet.Configuration.Engine.PSObjects
 {
     using System;
-    using System.Management.Automation;
     using Microsoft.Management.Configuration;
-    using Microsoft.PowerShell.Commands;
-    using Microsoft.WinGet.Configuration.Engine.Commands;
-    using Microsoft.WinGet.Configuration.Engine.Exceptions;
-    using static Microsoft.WinGet.Configuration.Engine.Commands.AsyncCommand;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// Creates configuration processor and set up diagnostic logging.
@@ -26,7 +22,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
     {
         private static readonly object CmdletLock = new ();
 
-        private AsyncCommand diagnosticCommand;
+        private PowerShellCmdlet diagnosticCommand;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PSConfigurationProcessor"/> class.
@@ -34,7 +30,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         /// <param name="factory">Factory.</param>
         /// <param name="diagnosticCommand">AsyncCommand to use for diagnostics.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
-        internal PSConfigurationProcessor(IConfigurationSetProcessorFactory factory, AsyncCommand diagnosticCommand, bool canUseTelemetry)
+        internal PSConfigurationProcessor(IConfigurationSetProcessorFactory factory, PowerShellCmdlet diagnosticCommand, bool canUseTelemetry)
         {
             this.Processor = new ConfigurationProcessor(factory);
             this.Processor.MinimumLevel = DiagnosticLevel.Verbose;
@@ -53,7 +49,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         /// Updates the cmdlet that is used for diagnostics.
         /// </summary>
         /// <param name="newDiagnosticCommand">New diagnostic command.</param>
-        internal void UpdateDiagnosticCmdlet(AsyncCommand newDiagnosticCommand)
+        internal void UpdateDiagnosticCmdlet(PowerShellCmdlet newDiagnosticCommand)
         {
             lock (CmdletLock)
             {
@@ -65,13 +61,13 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         {
             try
             {
-                AsyncCommand asyncCommand = this.diagnosticCommand;
-                if (asyncCommand != null)
+                PowerShellCmdlet pwshCmdlet = this.diagnosticCommand;
+                if (pwshCmdlet != null)
                 {
                     // Printing each diagnostic error in their own equivalent stream is too noisy.
                     // If users want them they have to specify -Verbose.
                     string tag = $"[Diagnostic{diagnosticInformation.Level}] ";
-                    asyncCommand.Write(StreamType.Verbose, $"{tag}{diagnosticInformation.Message}");
+                    pwshCmdlet.Write(StreamType.Verbose, $"{tag}{diagnosticInformation.Message}");
                 }
             }
             catch (Exception)

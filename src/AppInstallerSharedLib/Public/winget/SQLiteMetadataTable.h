@@ -10,6 +10,7 @@ namespace AppInstaller::SQLite
 {
     using namespace std::string_view_literals;
 
+    static constexpr std::string_view s_MetadataValueName_DatabaseIdentifier = "databaseIdentifier"sv;
     static constexpr std::string_view s_MetadataValueName_MajorVersion = "majorVersion"sv;
     static constexpr std::string_view s_MetadataValueName_MinorVersion = "minorVersion"sv;
     static constexpr std::string_view s_MetadataValueName_LastWriteTime = "lastwritetime"sv;

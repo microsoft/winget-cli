@@ -93,6 +93,9 @@ namespace AppInstaller::Utility
 
             uint64_t Integer = 0;
             std::string Other;
+
+        private:
+            std::string m_foldedOther;
         };
 
         // Gets the part breakdown for a given version.

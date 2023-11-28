@@ -18,25 +18,21 @@ namespace AppInstaller::Repository
             {
                 // For manifest update, the manifest to be updated does not need to be checked.
                 // In unlikely cases if both version 1.0.0 and 1.0 of the same package exist, we compare raw values here as what sqlite index does.
-                if (versionKey.GetVersion().ToString() == excludeVersionAndChannel.GetVersion().ToString() &&
-                    versionKey.GetChannel().ToString() == excludeVersionAndChannel.GetChannel().ToString())
+                if (versionKey.VersionAndChannel.GetVersion().ToString() == excludeVersionAndChannel.GetVersion().ToString() &&
+                    versionKey.VersionAndChannel.GetChannel().ToString() == excludeVersionAndChannel.GetChannel().ToString())
                 {
                     continue;
                 }
 
-                std::optional<Microsoft::SQLiteIndex::IdType> manifestRowId = index->GetManifestIdByKey(packageRowId, versionKey.GetVersion().ToString(), versionKey.GetChannel().ToString());
-                if (manifestRowId)
+                auto arpMinVersion = index->GetPropertyByManifestId(versionKey.ManifestId, PackageVersionProperty::ArpMinVersion).value_or("");
+                auto arpMaxVersion = index->GetPropertyByManifestId(versionKey.ManifestId, PackageVersionProperty::ArpMaxVersion).value_or("");
+
+                // Either both empty or both not empty
+                THROW_HR_IF(E_UNEXPECTED, arpMinVersion.empty() != arpMaxVersion.empty());
+
+                if (!arpMinVersion.empty() && !arpMaxVersion.empty())
                 {
-                    auto arpMinVersion = index->GetPropertyByManifestId(manifestRowId.value(), PackageVersionProperty::ArpMinVersion).value_or("");
-                    auto arpMaxVersion = index->GetPropertyByManifestId(manifestRowId.value(), PackageVersionProperty::ArpMaxVersion).value_or("");
-
-                    // Either both empty or both not empty
-                    THROW_HR_IF(E_UNEXPECTED, arpMinVersion.empty() != arpMaxVersion.empty());
-
-                    if (!arpMinVersion.empty() && !arpMaxVersion.empty())
-                    {
-                        result.emplace_back(Utility::VersionRange{ Utility::Version{ std::move(arpMinVersion) }, Utility::Version{ std::move(arpMaxVersion) } });
-                    }
+                    result.emplace_back(Utility::VersionRange{ Utility::Version{ std::move(arpMinVersion) }, Utility::Version{ std::move(arpMaxVersion) } });
                 }
             }
 

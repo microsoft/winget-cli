@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://aka.ms/configuration-dsc-schema/0.2
-# Reference: https://github.com/microsoft/winget-cli-restsource#building-the-client
+# Reference: https://github.com/microsoft/winget-cli#building-the-client
 properties:
   resources:
     - resource: Microsoft.Windows.Developer/DeveloperMode

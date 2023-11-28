@@ -150,7 +150,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 {
                     auto versionKeys = GetVersionKeysById(connection, dependency.first);
                     THROW_HR_IF(E_UNEXPECTED, versionKeys.empty());
-                    checkedVersions.emplace(dependency.first, versionKeys[0].GetVersion());
+                    checkedVersions.emplace(dependency.first, versionKeys[0].VersionAndChannel.GetVersion());
                 }
 
                 // If the latest version is less than min version required, fail the validation.

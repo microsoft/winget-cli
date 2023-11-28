@@ -657,5 +657,72 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(PackageInstallerScope.User, packageInstallerInfo.Scope);
             Assert.AreEqual("en-US", packageInstallerInfo.Locale);
         }
+
+        /// <summary>
+        /// Install exe and verify that we can find it as installed after.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallExe_VerifyInstalledCatalog()
+        {
+            var installedCatalogReference = this.packageManager.GetLocalPackageCatalog(LocalPackageCatalog.InstalledPackages);
+
+            // Ensure package is not installed
+            var installedResult = this.FindAllPackages(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalledDefaultProductCode);
+            Assert.IsNotNull(installedResult);
+            Assert.AreEqual(0, installedResult.Count);
+
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.AcceptPackageAgreements = true;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+
+            // Check installed catalog after
+            this.FindOnePackage(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalledDefaultProductCode);
+
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+        }
+
+        /// <summary>
+        /// Install msix and verify that we can find it as installed after.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallMSIX_VerifyInstalledCatalog()
+        {
+            var installedCatalogReference = this.packageManager.GetLocalPackageCatalog(LocalPackageCatalog.InstalledPackages);
+
+            // Ensure package is not installed
+            var installedResult = this.FindAllPackages(installedCatalogReference, PackageMatchField.PackageFamilyName, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageFamilyName);
+            Assert.IsNotNull(installedResult);
+            Assert.AreEqual(0, installedResult.Count);
+
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "TestMsixInstaller");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+
+            // Check installed catalog after
+            this.FindOnePackage(installedCatalogReference, PackageMatchField.PackageFamilyName, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageFamilyName);
+
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+        }
     }
 }
