@@ -33,6 +33,9 @@
     <ClCompile Include="TestSettingsResult.cpp">
       <Filter>Internals</Filter>
     </ClCompile>
+    <ClCompile Include="DscProcessor.cpp">
+      <Filter>Processor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -66,6 +69,9 @@
     <ClInclude Include="TestSettingsResult.h">
       <Filter>Internals</Filter>
     </ClInclude>
+    <ClInclude Include="DscProcessor.h">
+      <Filter>Processor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Microsoft.Management.Configuration.Processor.Dsc.idl" />
@@ -88,5 +94,8 @@
     <Filter Include="Processor">
       <UniqueIdentifier>{2aadb50b-5347-4eb2-a04e-a55fab08385c}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

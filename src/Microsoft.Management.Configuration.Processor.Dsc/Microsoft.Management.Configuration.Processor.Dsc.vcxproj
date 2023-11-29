@@ -202,6 +202,7 @@
     <ClInclude Include="DscConfigurationUnitProcessorDetails.h" />
     <ClInclude Include="DscConfigurationUnitResultInformation.h" />
     <ClInclude Include="DscConfigurationUnitSettingDetails.h" />
+    <ClInclude Include="DscProcessor.h" />
     <ClInclude Include="GetAllSettingsResult.h" />
     <ClInclude Include="GetSettingsResult.h" />
     <ClInclude Include="DscConfigurationSetProcessorFactory.h" />
@@ -215,6 +216,7 @@
     <ClCompile Include="DscConfigurationUnitProcessorDetails.cpp" />
     <ClCompile Include="DscConfigurationUnitResultInformation.cpp" />
     <ClCompile Include="DscConfigurationUnitSettingDetails.cpp" />
+    <ClCompile Include="DscProcessor.cpp" />
     <ClCompile Include="GetAllSettingsResult.cpp" />
     <ClCompile Include="GetSettingsResult.cpp" />
     <ClCompile Include="DscConfigurationSetProcessorFactory.cpp" />
