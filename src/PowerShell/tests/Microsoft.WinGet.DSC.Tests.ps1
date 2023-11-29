@@ -67,3 +67,60 @@ Describe 'WinGetAdminSettings' {
         Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Set -Property @{ Settings = $initialAdminSettings }
     }
 }
+
+Describe 'WinGetUserSettings' {
+
+    BeforeAll {
+        $initialUserSettings = (Get-WinGetUserSettings).experimentalFeatures
+        $initialInstallBehaviorPref = (Get-WinGetUserSettings).installBehavior
+
+        $userSettingsHash = @{
+            experimentalFeatures = @{ directMSI = $true };
+            installBehavior = @{ Preferences = @{ Scope = User }}
+        }
+    }
+
+    It 'Get user settings' {
+        $initialAdminSettings.BypassCertificatePinningForMicrosoftStore | Should -Be $False -ErrorAction Stop
+
+        $getResult = Invoke-DscResource -Name WinGetUserSettings -ModuleName Microsoft.WinGet.DSC -Method Get -Property @{ Settings = $userSettingsHash }
+        $getResult.experimentalFeatures.DirectMSI | Should -Be $initialUserSettings.experimentalFeatures.DirectMSI
+    }
+
+    # It 'Test admin settings' {
+    #     $testResult = Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Test -Property @{ Settings = $settingsHash }
+    #     $testResult.InDesiredState | Should -Be $false
+    # }
+
+    # It 'Set admin settings' {
+    #     Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Set -Property @{ Settings = $settingsHash }
+        
+    #     # Verify admin settings have been set.
+    #     $getResult = Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Get -Property @{ Settings = $settingsHash }
+    #     $getResult.Settings.BypassCertificatePinningForMicrosoftStore | Should -Not -Be $initialAdminSettings.BypassCertificatePinningForMicrosoftStore
+    #     $getResult.Settings.InstallerHashOverride | Should -Not -Be $initialAdminSettings.InstallerHashOverride
+    #     $getResult.Settings.LocalManifestFiles | Should -Not -Be $initialAdminSettings.LocalManifestFiles
+    #     $getResult.Settings.LocalArchiveMalwareScanOverride | Should -Not -Be $initialAdminSettings.LocalArchiveMalwareScanOverride
+
+    #     $testResult = Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Test -Property @{ Settings = $settingsHash }
+    #     $testResult | Should -Be $true
+    # }
+
+    # AfterAll {
+    #     # Reset back to original state
+    #     Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Set -Property @{ Settings = $initialAdminSettings }
+    # }
+}
+
+Describe 'WinGetSources' {
+
+}
+
+Describe 'WinGetPackage' {
+
+}
+
+Describe 'WinGetPackageManager' {
+
+}
+
