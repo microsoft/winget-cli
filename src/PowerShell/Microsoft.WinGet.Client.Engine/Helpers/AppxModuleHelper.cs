@@ -195,7 +195,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             catch (RuntimeException e)
             {
                 this.psCmdlet.WriteDebug($"Failed installing bundle via Add-AppxProvisionedPackage {e}");
-                throw e;
+                throw;
             }
         }
 
@@ -219,7 +219,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             catch (RuntimeException e)
             {
                 this.psCmdlet.WriteDebug($"Failed installing bundle via Add-AppxPackage {e}");
-                throw e;
+                throw;
             }
         }
 
@@ -384,7 +384,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 else
                 {
                     this.psCmdlet.WriteError(e.ErrorRecord);
-                    throw e;
+                    throw;
                 }
             }
         }
