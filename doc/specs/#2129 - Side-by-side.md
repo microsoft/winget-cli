@@ -46,6 +46,9 @@ For `winget uninstall <package>`:
 
 When more than one version of a package is installed on the system, the user will be prompted to disambiguate. The user will be informed "Multiple package versions found matching input criteria. Please specify the version to be uninstalled or use "--all" to remove all versions of the package". All installed versions will be displayed so the user may either disambiguate by specifying the version to be removed or by passing "--all" as an argument to specify every installed version of the package should be uninstalled.
 
+> [NOTE!]
+> The use of "--all" for the uninstall command requires a package to be specified. Attempting to run `winget uninstall --all` is not supported.
+
 For `winget uninstall <package> --version <version>`:
 
 If the version specified is one of the installed versions, only that version will be uninstalled. 
