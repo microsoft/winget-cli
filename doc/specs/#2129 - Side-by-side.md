@@ -38,7 +38,7 @@ When more than one version of a package is installed on the system, all installe
 
 ### WinGet Upgrade
 
-When more than one version of a package is installed on the system, only the latest installed version will be listed if a newer version is available in a configured source.
+When more than one version of a package is installed on the system, only the latest installed version will be listed if a newer version is available in a configured source. If the latest available version is in the collection of installed packages, no upgrade will be listed.
 
 ### WinGet Uninstall
 
