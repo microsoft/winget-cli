@@ -34,7 +34,7 @@ When one or more versions (but not the latest) of a package are installed on the
 
 ### WinGet List
 
-When more than one version of a package is installed on the system, all installed versions will all be listed. Only the latest version of an installed package will show results in the "Available" column if a newer version is available in a configured source.
+When more than one version of a package is installed on the system, all installed versions will be listed. Only the latest version of an installed package will show results in the "Available" column if a newer version is available in a configured source.
 
 ### WinGet Upgrade
 
