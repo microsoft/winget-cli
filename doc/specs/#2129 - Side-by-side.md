@@ -29,7 +29,8 @@ Several different commands will be impacted by this change. In some cases, addit
 ### WinGet Install
 
 When one or more versions (but not the latest) of a package are installed on the system and none of them are pinned, running `winget install <package>` will install the latest version of the package side-by-side unless the manifest specifies the previous version should be uninstalled or denied. The user may override this behavior with "--retain-previous".
-> Note: WinGet will not attempt to override the default behavior the installer may have related to the removal of previous versions of the package.
+> [!NOTE]  
+> WinGet will not attempt to override the default behavior the installer may have related to the removal of previous versions of the package.
 
 ### WinGet List
 
