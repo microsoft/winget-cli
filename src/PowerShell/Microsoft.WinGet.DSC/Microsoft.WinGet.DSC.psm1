@@ -284,34 +284,37 @@ class WinGetSources
         Assert-WinGetCommand "Reset-WinGetSource"
         Assert-WinGetCommand "Remove-WinGetSource"
 
-        foreach ($sourceName in $this.Sources.Keys)
+        if (-not $this.Test())
         {
-            $sourceType = "Microsoft.PreIndexed.Package"
-            $source = $this.Sources.$($sourceName)
-
-            if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
+            foreach ($sourceName in $this.Sources.Keys)
             {
-                # TODO: Localize.
-                throw "Invalid source input. Arg is required."
-            }
-
-            if ($source.ContainsKey("Type") -and (-not([string]::IsNullOrWhiteSpace($source.Type))))
-            {
-                $sourceType = $source.Type
-            }
-
-            if ($this.Ensure -eq [Ensure]::Present)
-            {
-                Add-WinGetSource -Name $sourceName -Argument $source.Arg -Type $sourceType
-
-                if ($this.Reset)
+                $sourceType = "Microsoft.PreIndexed.Package"
+                $source = $this.Sources.$($sourceName)
+    
+                if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
                 {
-                    Reset-WinGetSource -Name $sourceName
+                    # TODO: Localize.
+                    throw "Invalid source input. Arg is required."
                 }
-            }
-            else
-            {
-                Remove-WinGetSource -Name $sourceName
+    
+                if ($source.ContainsKey("Type") -and (-not([string]::IsNullOrWhiteSpace($source.Type))))
+                {
+                    $sourceType = $source.Type
+                }
+    
+                if ($this.Ensure -eq [Ensure]::Present)
+                {
+                    Add-WinGetSource -Name $sourceName -Argument $source.Arg -Type $sourceType
+    
+                    if ($this.Reset)
+                    {
+                        Reset-WinGetSource -Name $sourceName
+                    }
+                }
+                else
+                {
+                    Remove-WinGetSource -Name $sourceName
+                }
             }
         }
     }

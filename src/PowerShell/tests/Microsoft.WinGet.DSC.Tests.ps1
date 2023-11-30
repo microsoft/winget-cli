@@ -136,8 +136,8 @@ Describe 'WinGetSources' {
             Type = 'Microsoft.PreIndexed.Package'
             Arg = 'https://localhost:5001/TestKit/'
         }
-
-        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Ensure = 'Absent'; Sources = @{ $testSourceName = $testSourceValue }}
+        
+        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Absent'; Sources = @{ $testSourceName = $testSourceValue }}
     }
 
     It 'Get WinGet source' {  
@@ -155,10 +155,10 @@ Describe 'WinGetSources' {
         $result = InvokeWinGetDSC -Name WinGetSources -Method Get -Property @{ Sources = @{ $testSourceName = $testSourceValue }}
         $result.Sources.Keys  | Should -Contain $testSourceName
 
-        $wingetSource = $result.Sources.$($testSourceName)
-        $wingetSource.Type | Should -Be 'Microsoft.PreIndexed.Package'
-        $wingetSource.Arg | Should -Be 'https://localhost:5001/TestKit/'
-        $wingetSource.Identifier | Should -Be $null
+        $testSource = $result.Sources.$($testSourceName)
+        $testSource.Type | Should -Be 'Microsoft.PreIndexed.Package'
+        $testSource.Arg | Should -Be 'https://localhost:5001/TestKit/'
+        $testSource.Identifier | Should -Be $null
     }
 }
 
@@ -206,12 +206,12 @@ Describe 'WinGetPackage' {
     It 'Set WingetPackage | Absent(Uninstall)' {
         InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Id = $testPackageId; UseLatest = $true }
 
-        $testResult = InvokeWinGetDSC -Name WinGetPackage -Method Test -Property @{ Ensure = 'Absent'; Id = $testPackageId; Version = $testPackageVersion }
+        $testResult = InvokeWinGetDSC -Name WinGetPackage -Method Test -Property @{ Ensure = 'Absent'; Id = $testPackageId; UseLatest = $true }
         $testResult.InDesiredState | Should -Be $false
 
         # Verify package uninstalled.
-        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent'; Id = $testPackageId; Version = $testPackageVersion }
-        $result = InvokeWinGetDSC -Name WinGetPackage -Method Get -Property @{ Ensure = 'Absent'; Id = $testPackageId; Version = $testPackageVersion }
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent'; Id = $testPackageId; UseLatest = $true }
+        $result = InvokeWinGetDSC -Name WinGetPackage -Method Get -Property @{ Ensure = 'Absent'; Id = $testPackageId; UseLatest = $true }
         $result.IsInstalled | Should -Be $false
     }
 
