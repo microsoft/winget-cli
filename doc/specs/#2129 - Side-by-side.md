@@ -7,7 +7,7 @@ issue id: 2129
 
 # Better support for Side by Side packages
 
-[comment]: # Link to issue: "For [#2929](https://github.com/microsoft/winget-cli/issues/2129)"
+"For [#2929](https://github.com/microsoft/winget-cli/issues/2129)"
 
 ## Abstract
 
