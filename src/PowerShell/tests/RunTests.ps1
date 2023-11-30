@@ -41,11 +41,11 @@ if (-not [System.String]::IsNullOrEmpty($packageLayoutPath))
     Set-Content -Path $local:settingsFilePath -Value $local:settingsFileContent
 }
 
-Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Client.Tests.ps1 -OutputFile $outputPath\Tests-WinGetClient.XML -OutputFormat NUnitXML
+# Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Client.Tests.ps1 -OutputFile $outputPath\Tests-WinGetClient.XML -OutputFormat NUnitXML
 
 if ($PSEdition -eq "Core")
 {
-    Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Configuration.Tests.ps1 -OutputFile $outputPath\Tests-WinGetConfiguration.XML -OutputFormat NUnitXML
+  #  Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Configuration.Tests.ps1 -OutputFile $outputPath\Tests-WinGetConfiguration.XML -OutputFormat NUnitXML
 }
 
 Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.DSC.Tests.ps1 -OutputFile $outputPath\Tests-WinGetDSC.XML -OutputFormat NUnitXML

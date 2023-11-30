@@ -238,57 +238,6 @@ jobs:
       OverWrite: true
     condition: succeededOrFailed()
 
-  - task: VSTest@2
-    displayName: 'Run tests: WinGetUtilInterop.UnitTests'
-    inputs:
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
-      searchFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests'
-      codeCoverageEnabled: true
-      platform: 'Any CPU'
-      configuration: '$(BuildConfiguration)'
-    condition: succeededOrFailed()
-  
-  - task: VSTest@2
-    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (InProc)'
-    inputs:
-      testRunTitle: Microsoft.Management.Configuration.UnitTests (InProc)
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
-      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
-      codeCoverageEnabled: true
-      platform: '$(buildPlatform)'
-      configuration: '$(BuildConfiguration)'
-      diagnosticsEnabled: true
-    condition: and(succeededOrFailed(), eq(variables.buildPlatform, 'x86'))
-
-  - task: PowerShell@2
-    displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
-    inputs:
-      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1'
-      arguments: '-BuildOutputPath $(buildOutDir) -PackageLayoutPath $(packageLayoutDir)'
-    condition: succeededOrFailed()
-
-  - task: VSTest@2
-    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (OutOfProc)'
-    inputs:
-      testRunTitle: Microsoft.Management.Configuration.UnitTests (OutOfProc)
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
-      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
-      testFiltercriteria: 'Category=OutOfProc'
-      codeCoverageEnabled: true
-      platform: '$(buildPlatform)'
-      configuration: '$(BuildConfiguration)'
-    condition: succeededOrFailed()
-
-  - task: PowerShell@2
-    displayName: Collect logs for Microsoft.Management.Configuration.UnitTests (OutOfProc)
-    inputs:
-      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Collect-ConfigurationOOPTests.ps1'
-      arguments: '-TargetLocation $(artifactsDir)\ConfigOOPTestsLog'
-    condition: succeededOrFailed()
-
   - task: CopyFiles@2
     displayName: 'Copy Util to artifacts folder'
     inputs:

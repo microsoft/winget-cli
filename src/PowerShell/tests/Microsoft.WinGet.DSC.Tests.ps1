@@ -9,7 +9,9 @@
 #>
 
 BeforeAll {
-    Import-Module -Name Microsoft.WinGet.DSC
+    Install-Module -Name PSDesiredStateConfiguration -Force -SkipPublisherCheck
+    Import-Module Microsoft.WinGet.Client
+    Import-Module Microsoft.WinGet.DSC
 
     # Helper function for calling Invoke-DscResource on the Microsoft.WinGet.DSC module.
     function InvokeWinGetDSC() {
