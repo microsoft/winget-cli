@@ -10,10 +10,25 @@
 
 BeforeAll {
     Import-Module -Name Microsoft.WinGet.DSC
+
+    # Helper function for calling Invoke-DscResource on the Microsoft.WinGet.DSC module.
+    function InvokeWinGetDSC() {
+        param (
+            [Parameter()]
+            [string]$Name,
+
+            [Parameter()]
+            [string]$Method,
+
+            [Parameter()]
+            [hashtable]$Property
+        )
+
+        return Invoke-DscResource -Name $Name -ModuleName Microsoft.WinGet.DSC -Method $Method -Property $Property
+    }
 }
 
-
-Describe 'Get-WinGetDscResources'{
+Describe 'List available DSC resources'{
     It 'Shows DSC Resources'{
         $expectedDSCResources = "WinGetAdminSettings", "WinGetPackage", "WinGetPackageManager", "WinGetSources", "WinGetUserSettings"
         $availableDSCResources = (Get-DscResource -Module Microsoft.WinGet.DSC).Name
@@ -21,11 +36,12 @@ Describe 'Get-WinGetDscResources'{
         $availableDSCResources | Where-Object {$expectedDSCResources -notcontains $_} | Should -BeNullOrEmpty -ErrorAction Stop
     }
 }
+
 Describe 'WinGetAdminSettings' {
 
     BeforeAll {
         $initialAdminSettings = (Get-WinGetSettings).adminSettings
-        $settingsHash = @{
+        $adminSettingsHash = @{
             BypassCertificatePinningForMicrosoftStore = !$initialAdminSettings.BypassCertificatePinningForMicrosoftStore;
             InstallerHashOverride = !$initialAdminSettings.InstallerHashOverride;
             LocalManifestFiles = !$initialAdminSettings.LocalManifestFiles;
@@ -34,93 +50,188 @@ Describe 'WinGetAdminSettings' {
     }
 
     It 'Get admin settings' {
-        $initialAdminSettings.BypassCertificatePinningForMicrosoftStore | Should -Be $False -ErrorAction Stop
-
-        $getResult = Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Get -Property @{ Settings = $settingsHash }
-        $getResult.Settings.BypassCertificatePinningForMicrosoftStore | Should -Be $initialAdminSettings.BypassCertificatePinningForMicrosoftStore
-        $getResult.Settings.InstallerHashOverride | Should -Be $initialAdminSettings.InstallerHashOverride
-        $getResult.Settings.LocalManifestFiles | Should -Be $initialAdminSettings.LocalManifestFiles
-        $getResult.Settings.LocalArchiveMalwareScanOverride | Should -Be $initialAdminSettings.LocalArchiveMalwareScanOverride
+        $result = InvokeWinGetDSC -Name WinGetAdminSettings -Method Get -Property @{ Settings = $adminSettingsHash }
+        $adminSettings = $result.Settings
+        $adminSettings.BypassCertificatePinningForMicrosoftStore | Should -Be $initialAdminSettings.BypassCertificatePinningForMicrosoftStore
+        $adminSettings.InstallerHashOverride | Should -Be $initialAdminSettings.InstallerHashOverride
+        $adminSettings.LocalManifestFiles | Should -Be $initialAdminSettings.LocalManifestFiles
+        $adminSettings.LocalArchiveMalwareScanOverride | Should -Be $initialAdminSettings.LocalArchiveMalwareScanOverride
     }
 
     It 'Test admin settings' {
-        $testResult = Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Test -Property @{ Settings = $settingsHash }
-        $testResult.InDesiredState | Should -Be $false
+        $result = InvokeWinGetDSC -Name WinGetAdminSettings -Method Test -Property @{ Settings = $adminSettingsHash }
+        $result.InDesiredState | Should -Be $false
     }
 
     It 'Set admin settings' {
-        Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Set -Property @{ Settings = $settingsHash }
-        
-        # Verify admin settings have been set.
-        $getResult = Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Get -Property @{ Settings = $settingsHash }
-        $getResult.Settings.BypassCertificatePinningForMicrosoftStore | Should -Not -Be $initialAdminSettings.BypassCertificatePinningForMicrosoftStore
-        $getResult.Settings.InstallerHashOverride | Should -Not -Be $initialAdminSettings.InstallerHashOverride
-        $getResult.Settings.LocalManifestFiles | Should -Not -Be $initialAdminSettings.LocalManifestFiles
-        $getResult.Settings.LocalArchiveMalwareScanOverride | Should -Not -Be $initialAdminSettings.LocalArchiveMalwareScanOverride
+        InvokeWinGetDSC -Name WinGetAdminSettings -Method Set -Property @{ Settings = $adminSettingsHash }
 
-        $testResult = Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Test -Property @{ Settings = $settingsHash }
+        # Verify settings were applied.
+        $result = InvokeWinGetDSC -Name WinGetAdminSettings -Method Get -Property @{ Settings = $adminSettingsHash }
+        $adminSettings = $result.Settings
+        $adminSettings.BypassCertificatePinningForMicrosoftStore | Should -Not -Be $initialAdminSettings.BypassCertificatePinningForMicrosoftStore
+        $adminSettings.InstallerHashOverride | Should -Not -Be $initialAdminSettings.InstallerHashOverride
+        $adminSettings.LocalManifestFiles | Should -Not -Be $initialAdminSettings.LocalManifestFiles
+        $adminSettings.LocalArchiveMalwareScanOverride | Should -Not -Be $initialAdminSettings.LocalArchiveMalwareScanOverride
+
+        $testResult = InvokeWinGetDSC -Name WinGetAdminSettings -Method Test -Property @{ Settings = $adminSettingsHash }
         $testResult | Should -Be $true
     }
 
     AfterAll {
-        # Reset back to original state
-        Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Set -Property @{ Settings = $initialAdminSettings }
+        InvokeWinGetDSC -Name WinGetAdminSettings -Method Set -Property @{ Settings = $initialAdminSettings }
     }
 }
 
 Describe 'WinGetUserSettings' {
-
     BeforeAll {
-        $initialUserSettings = (Get-WinGetUserSettings).experimentalFeatures
-        $initialInstallBehaviorPref = (Get-WinGetUserSettings).installBehavior
+        # Delete existing user settings file.
+        $settingsFilePath = (Get-WinGetSettings).userSettingsFile
+        $backupSettingsFilePath = $settingsFilePath + ".backup"
+
+        if (Test-Path -Path $settingsFilePath)
+        {
+            Remove-Item $settingsFilePath
+        }
+
+        if (Test-Path -Path $backupSettingsFilePath)
+        {
+            Remove-Item $backupSettingsFilePath
+        }
 
         $userSettingsHash = @{
             experimentalFeatures = @{ directMSI = $true };
-            installBehavior = @{ Preferences = @{ Scope = User }}
+            installBehavior = @{ Preferences = @{ Scope = 'User' }}
         }
     }
 
     It 'Get user settings' {
-        $initialAdminSettings.BypassCertificatePinningForMicrosoftStore | Should -Be $False -ErrorAction Stop
-
-        $getResult = Invoke-DscResource -Name WinGetUserSettings -ModuleName Microsoft.WinGet.DSC -Method Get -Property @{ Settings = $userSettingsHash }
-        $getResult.experimentalFeatures.DirectMSI | Should -Be $initialUserSettings.experimentalFeatures.DirectMSI
+        $result = InvokeWinGetDSC -Name WinGetUserSettings -Method Get -Property @{ Settings = $userSettingsHash }
+        $result.Settings.Count | Should -Be 0
     }
 
-    # It 'Test admin settings' {
-    #     $testResult = Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Test -Property @{ Settings = $settingsHash }
-    #     $testResult.InDesiredState | Should -Be $false
-    # }
+    It 'Test user settings' {
+        $result = InvokeWinGetDSC -Name WinGetUserSettings -Method Test -Property @{ Settings = $userSettingsHash }
+        $result.InDesiredState | Should -Be $false
+    }
 
-    # It 'Set admin settings' {
-    #     Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Set -Property @{ Settings = $settingsHash }
-        
-    #     # Verify admin settings have been set.
-    #     $getResult = Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Get -Property @{ Settings = $settingsHash }
-    #     $getResult.Settings.BypassCertificatePinningForMicrosoftStore | Should -Not -Be $initialAdminSettings.BypassCertificatePinningForMicrosoftStore
-    #     $getResult.Settings.InstallerHashOverride | Should -Not -Be $initialAdminSettings.InstallerHashOverride
-    #     $getResult.Settings.LocalManifestFiles | Should -Not -Be $initialAdminSettings.LocalManifestFiles
-    #     $getResult.Settings.LocalArchiveMalwareScanOverride | Should -Not -Be $initialAdminSettings.LocalArchiveMalwareScanOverride
+    It 'Set user settings' {
+        InvokeWinGetDSC -Name WinGetUserSettings -Method Set -Property @{ Settings = $userSettingsHash }
 
-    #     $testResult = Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Test -Property @{ Settings = $settingsHash }
-    #     $testResult | Should -Be $true
-    # }
-
-    # AfterAll {
-    #     # Reset back to original state
-    #     Invoke-DscResource -Name WinGetAdminSettings -ModuleName Microsoft.WinGet.DSC -Method Set -Property @{ Settings = $initialAdminSettings }
-    # }
+        # Verify user settings were applied.
+        $result = InvokeWinGetDSC -Name WinGetUserSettings -Method Get -Property @{ Settings = $userSettingsHash }
+        $userSettings = $result.Settings
+        $userSettings.experimentalFeatures.directMSI | Should -Be $true
+        $userSettings.installBehavior.Preferences.Scope | Should -Be 'User'
+    }
 }
 
 Describe 'WinGetSources' {
+    BeforeAll {
+        $testSourceName = 'winget'
 
+        $testSourceValue = @{
+            Type = "Microsoft.PreIndexed.Package"
+            Arg = "https://cdn.winget.microsoft.com/cache"
+        }
+
+        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Ensure = 'Absent'; Sources = @{ $testSourceName = $testSourceValue }}
+    }
+
+    It 'Get WinGet source' {  
+        $result = InvokeWinGetDSC -Name WinGetSources -Method Get -Property @{ Sources = @{ $testSourceName = $testSourceValue }}
+        $result.Sources.Keys  | Should -Not -Contain $testSourceName
+    }
+
+    It 'Test WinGet source' {
+        $result = InvokeWinGetDSC -Name WinGetSources -Method Test -Property @{ Ensure='Present'; Sources = @{ $testSourceName = $testSourceValue }}
+        $result.InDesiredState | Should -Be $false
+    }
+
+    It 'Set WinGet source' {
+        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Ensure = 'Present'; Sources = @{ $testSourceName = $testSourceValue }}
+        $result = InvokeWinGetDSC -Name WinGetSources -Method Get -Property @{ Sources = @{ $testSourceName = $testSourceValue }}
+        $result.Sources.Keys  | Should -Contain $testSourceName
+
+        $wingetSource = $result.Sources.$($testSourceName)
+        $wingetSource.Type | Should -Be "Microsoft.PreIndexed.Package"
+        $wingetSource.Arg | Should -Be "https://cdn.winget.microsoft.com/cache"
+        $wingetSource.Identifier | Should -Be $null
+    }
 }
 
 Describe 'WinGetPackage' {
+    BeforeAll {
+        $testPackageId = "Microsoft.Nuget"
+        $testPackageVersion = "6.2.1"
 
+        # Add test source.
+        # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Present'; Sources = @{ TestSource = @{ Arg = 'https://localhost:5001/TestKit/'; Type = 'Microsoft.PreIndexed.Package' }}}
+    }
+
+    It 'Get WinGetPackage' {
+        $result = InvokeWinGetDSC -Name WinGetPackage -Method Get -Property @{ Id = $testPackageId; Version = $testPackageVersion }
+        $result.IsInstalled | Should -Be $false
+    }
+
+    It 'Test WinGetPackage' {
+        $result = InvokeWinGetDSC -Name WinGetPackage -Method Test -Property @{ Id = $testPackageId; Version = $testPackageVersion }
+        $result.InDesiredState | Should -Be $false
+    }
+
+    It 'Set WingetPackage | Present(Install)' {
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Id = $testPackageId; Version = $testPackageVersion }
+
+        # Verify package installed.
+        $result = InvokeWinGetDSC -Name WinGetPackage -Method Get -Property @{ Id = $testPackageId; Version = $testPackageVersion }
+        $result.IsInstalled | Should -Be $true
+        $result.IsUpdateAvailable | Should -Be $true
+        $result.InstalledVersion | Should -Be 6.2.1.2
+    }
+
+    It 'Update WingetPackage' {
+        $testResult = InvokeWinGetDSC -Name WinGetPackage -Method Test -Property @{ Id = $testPackageId; UseLatest = $true }
+        $testResult.InDesiredState | Should -Be $false
+
+        # Verify package updated.
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Id = $testPackageId; UseLatest = $true }
+        $result = InvokeWinGetDSC -Name WinGetPackage -Method Get -Property @{ Id = $testPackageId; UseLatest = $true }
+        $result.IsInstalled | Should -Be $true
+        $result.IsUpdateAvailable | Should -Be $false
+        $result.InstalledVersion | Should -Not -Be 6.2.1.2
+    }
+
+    It 'Set WingetPackage | Absent(Uninstall)' {
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Id = $testPackageId; UseLatest = $true }
+
+        $testResult = InvokeWinGetDSC -Name WinGetPackage -Method Test -Property @{ Ensure = 'Absent'; Id = $testPackageId; Version = $testPackageVersion }
+        $testResult.InDesiredState | Should -Be $false
+
+        # Verify package uninstalled.
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent'; Id = $testPackageId; Version = $testPackageVersion }
+        $result = InvokeWinGetDSC -Name WinGetPackage -Method Get -Property @{ Ensure = 'Absent'; Id = $testPackageId; Version = $testPackageVersion }
+        $result.IsInstalled | Should -Be $false
+    }
+
+    AfterAll {
+        InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Ensure = 'Absent'; Id = $testPackageId}
+    }
 }
 
 Describe 'WinGetPackageManager' {
+    It 'Get WinGet version' {
+        $result = InvokeWinGetDSC -Name WinGetPackageManager -Method Get -Property @{}
+        $result.Version | Should -Not -Be $null
+    }
 
+    It 'Test WinGet version' {
+        $result = InvokeWinGetDSC -Name WinGetPackageManager -Method Test -Property @{ Version = "1.2.3.4" }
+        $result.InDesiredState | Should -Be $false
+
+        $currentVersion = Get-WinGetVersion
+        $result = InvokeWinGetDSC -Name WinGetPackageManager -Method Test -Property @{ Version = $currentVersion }
+        $result.InDesiredState | Should -Be $true
+    }
+
+    # TODO: Add test to verify Set method for WinGetPackageManager
 }
-
