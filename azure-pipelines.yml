@@ -386,7 +386,7 @@ jobs:
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
   - task: CopyFiles@2
-    display: 'Copy Microsoft.WinGet.DSC module to staging directory'
+    displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\PowerShell\Microsoft.WinGet.DSC'
       Contents: '**\*'
