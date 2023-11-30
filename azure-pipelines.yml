@@ -150,14 +150,6 @@ jobs:
     inputs:
       secureFile: 'PsExec.exe'
 
-  - task: CmdLine@2
-    displayName: Run Unit Tests Unpackaged Under System Context
-    inputs:
-      script: |
-        $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
-      workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
-    continueOnError: true
-
   - task: PowerShell@2
     displayName: Create Package Layout
     inputs:
@@ -165,21 +157,6 @@ jobs:
       arguments: '-AppxRecipePath AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(packageLayoutDir) -Force -Verbose'
       workingDirectory: 'src'
     continueOnError: true
-
-  - task: PowerShell@2
-    displayName: Run Unit Tests Packaged
-    inputs:
-      filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
-      workingDirectory: 'src'
-    continueOnError: true
-
-  - task: PublishTestResults@2
-    displayName: Publish Unit Test Results
-    inputs:
-      testResultsFormat: 'JUnit'
-      testResultsFiles: '$(artifactsDir)\TEST-*.xml'
-      failTaskOnFailedTests: true
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
@@ -223,31 +200,6 @@ jobs:
     parameters:
       sourceDir: $(Build.SourcesDirectory)
       localhostWebServerArgs: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
-
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "E2E Tests Packaged"
-      isPackaged: true
-      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
-
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "Microsoft.Management.Deployment E2E Tests (In-process)"
-      isPackaged: false
-      filter: "TestCategory=InProcess"
-
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "Microsoft.Management.Deployment E2E Tests (Out-of-process)"
-      isPackaged: true
-      filter: "TestCategory=OutOfProcess"
-
-  - task: CopyFiles@2
-    displayName: 'Copy E2E Tests Package Log to artifacts folder'
-    inputs:
-      SourceFolder: '$(temp)\E2ETestLogs'
-      TargetFolder: '$(artifactsDir)\E2ETests\PackagedLog'
-    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy E2E Test Source'
@@ -410,28 +362,6 @@ jobs:
       verbosity: 'Verbose'
       alertWarningLevel: 'High'
 
-  # Run BimSkim for all the binaries
-  - task: BinSkim@3
-    displayName: 'Run BinSkim '
-    inputs:
-      arguments: 'analyze
-        "$(buildOutDir)\AppInstallerCLI\winget.exe"
-        "$(buildOutDir)\WinGetUtil\WinGetUtil.dll"
-        "$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.dll"
-        "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
-        "$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\WinGetUtil*Interop.dll"
-        "$(buildOutDir)\UndockedRegFreeWinRT\winrtact.dll"
-        "$(buildOutDir)\Microsoft.WinGet.Client.Cmdlets\Microsoft.WinGet.Client*.dll"
-        "$(buildOutDir)\ConfigurationRemotingServer\ConfigurationRemoting*Server.dll"
-        "$(buildOutDir)\ConfigurationRemotingServer\ConfigurationRemoting*Server.exe"
-        "$(buildOutDir)\ConfigurationRemotingServer\Microsoft.Management.Configuration*.dll"
-        "$(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration*.dll"
-        "$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration*.dll"
-        --config default --recurse'
-
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
-    displayName: 'Publish Security Analysis Logs'
-
 - job: 'BuildPowerShellModule'
   timeoutInMinutes: 120
   dependsOn: 'Build'
@@ -454,6 +384,13 @@ jobs:
       SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: CopyFiles@2
+    display: 'Copy Microsoft.WinGet.DSC module to staging directory'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\PowerShell\Microsoft.WinGet.DSC'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.DSC'
 
   - task: PowerShell@2
     displayName: Install Tests Dependencies

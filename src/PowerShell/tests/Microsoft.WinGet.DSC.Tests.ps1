@@ -128,11 +128,11 @@ Describe 'WinGetUserSettings' {
 
 Describe 'WinGetSources' {
     BeforeAll {
-        $testSourceName = 'winget'
+        $testSourceName = 'TestSource'
 
         $testSourceValue = @{
-            Type = "Microsoft.PreIndexed.Package"
-            Arg = "https://cdn.winget.microsoft.com/cache"
+            Type = 'Microsoft.PreIndexed.Package'
+            Arg = 'https://localhost:5001/TestKit/'
         }
 
         InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Ensure = 'Absent'; Sources = @{ $testSourceName = $testSourceValue }}
@@ -154,19 +154,19 @@ Describe 'WinGetSources' {
         $result.Sources.Keys  | Should -Contain $testSourceName
 
         $wingetSource = $result.Sources.$($testSourceName)
-        $wingetSource.Type | Should -Be "Microsoft.PreIndexed.Package"
-        $wingetSource.Arg | Should -Be "https://cdn.winget.microsoft.com/cache"
+        $wingetSource.Type | Should -Be 'Microsoft.PreIndexed.Package'
+        $wingetSource.Arg | Should -Be 'https://localhost:5001/TestKit/'
         $wingetSource.Identifier | Should -Be $null
     }
 }
 
 Describe 'WinGetPackage' {
     BeforeAll {
-        $testPackageId = "Microsoft.Nuget"
-        $testPackageVersion = "6.2.1"
+        $testPackageId = 'AppInstallerTest.TestExeInstaller'
+        $testPackageVersion = '1.0.0.0'
 
         # Add test source.
-        # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Present'; Sources = @{ TestSource = @{ Arg = 'https://localhost:5001/TestKit/'; Type = 'Microsoft.PreIndexed.Package' }}}
+        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Present'; Sources = @{ TestSource = @{ Arg = 'https://localhost:5001/TestKit/'; Type = 'Microsoft.PreIndexed.Package' }}}
     }
 
     It 'Get WinGetPackage' {
@@ -186,7 +186,7 @@ Describe 'WinGetPackage' {
         $result = InvokeWinGetDSC -Name WinGetPackage -Method Get -Property @{ Id = $testPackageId; Version = $testPackageVersion }
         $result.IsInstalled | Should -Be $true
         $result.IsUpdateAvailable | Should -Be $true
-        $result.InstalledVersion | Should -Be 6.2.1.2
+        $result.InstalledVersion | Should -Be 1.0.0.0
     }
 
     It 'Update WingetPackage' {
@@ -198,7 +198,7 @@ Describe 'WinGetPackage' {
         $result = InvokeWinGetDSC -Name WinGetPackage -Method Get -Property @{ Id = $testPackageId; UseLatest = $true }
         $result.IsInstalled | Should -Be $true
         $result.IsUpdateAvailable | Should -Be $false
-        $result.InstalledVersion | Should -Not -Be 6.2.1.2
+        $result.InstalledVersion | Should -Not -Be 1.0.0.0
     }
 
     It 'Set WingetPackage | Absent(Uninstall)' {
