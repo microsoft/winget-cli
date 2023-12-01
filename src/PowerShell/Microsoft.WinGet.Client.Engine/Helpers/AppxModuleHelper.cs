@@ -220,7 +220,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             catch (RuntimeException e)
             {
                 this.pwshCmdlet.Write(StreamType.Verbose, $"Failed installing bundle via Add-AppxProvisionedPackage {e}");
-                throw e;
+                throw;
             }
         }
 
@@ -254,7 +254,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             catch (RuntimeException e)
             {
                 this.pwshCmdlet.Write(StreamType.Verbose, $"Failed installing bundle via Add-AppxPackage {e}");
-                throw e;
+                throw;
             }
         }
 
@@ -429,7 +429,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 else
                 {
                     this.pwshCmdlet.Write(StreamType.Error, e.ErrorRecord);
-                    throw e;
+                    throw;
                 }
             }
         }

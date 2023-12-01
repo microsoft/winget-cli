@@ -59,6 +59,6 @@ namespace AppInstaller::Repository
         Source m_installedSource;
         std::vector<Source> m_availableSources;
         SourceDetails m_details;
-        CompositeSearchBehavior m_searchBehavior;
+        CompositeSearchBehavior m_searchBehavior = CompositeSearchBehavior::Installed;
     };
 }

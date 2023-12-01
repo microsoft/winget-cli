@@ -35,6 +35,12 @@ The options allow you to customize the export experience to meet your needs.
 |--------|-------------|  
 | **-s, --source**  |  [optional] Specifies a source to export files from.  Use this option when you only want files from a specific source.  |
 | **--include-versions** | [optional] Includes the version of the app currently installed.  Use this option if you want a specific version.  By default, unless specified, [**import**](import.md) will use latest. |
+| **--accept-source-agreements**  | Accept all source agreements during source operations |
+| **-?, --help** | Shows help about the selected command |
+| **--wait** | Prompts the user to press any key before exiting |
+| **--logs, --open-logs** | Open the default logs location |
+| **--verbose, --verbose-logs** | Enables verbose logging for winget |
+| **--disable-interactivity** | Disable interactive prompts |
 
 ## JSON Schema
 The driving force behind the **export** command is the JSON file.  As mentioned, you can find the schema for the JSON file [here](https://aka.ms/winget-packages.schema.1.0.json).
