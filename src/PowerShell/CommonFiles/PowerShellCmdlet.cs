@@ -598,7 +598,7 @@ namespace Microsoft.WinGet.Common.Command
 
             if (this.pwshThreadActionException != null)
             {
-                throw this.pwshThreadActionException;
+                throw new AggregateException(this.pwshThreadActionException.Message, this.pwshThreadActionException);
             }
 
             this.semaphore.Release();
