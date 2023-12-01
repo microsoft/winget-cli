@@ -13,6 +13,12 @@ issue id: 2129
 
 WinGet should better support multiple versions of the same package being installed on the same machine. This happens, and WinGet currently tries to pretend it doesn't.
 
+Several different characteristics uniquely identify an installer for a given version of a package, and one or more of these characteristics may also lead to a side-by-side installation. These characteristics include:
+* Installer Type (MSIX, MSI, EXE)
+* Architecture (x86, x64, ARM, ARM64)
+* Locale (BCP-47 format)
+* Scope (User vs. System)
+
 ## Inspiration
 
 Multiple [issues](https://github.com/microsoft/winget-cli/issues?q=is%3Aissue+is%3Aopen+label%3Aside-by-side) have been submitted with the "side-by-side" label.
