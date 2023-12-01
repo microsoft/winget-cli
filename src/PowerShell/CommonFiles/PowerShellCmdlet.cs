@@ -41,6 +41,7 @@ namespace Microsoft.WinGet.Common.Command
         private int progressActivityId = 0;
         private ConcurrentDictionary<int, ProgressRecordType> progressRecords = new ();
         private Action? pwshThreadAction = null;
+        private Exception? pwshThreadActionException = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PowerShellCmdlet"/> class.
@@ -248,28 +249,10 @@ namespace Microsoft.WinGet.Common.Command
 
             this.WaitForOurTurn();
 
-            // Make sure we don't throw in the PowerShell thread, this way
-            // we'll get a more meaningful stack by Get-Error.
-            Exception? pwshThreadException = null;
-            this.pwshThreadAction =
-                () =>
-                {
-                    try
-                    {
-                        action();
-                    }
-                    catch (Exception e)
-                    {
-                        pwshThreadException = e;
-                    }
-                };
+            this.pwshThreadAction = action;
+            this.pwshThreadActionException = null;
             this.pwshThreadActionReady.Set();
             this.WaitMainThreadActionCompletion();
-
-            if (pwshThreadException != null)
-            {
-                throw pwshThreadException;
-            }
         }
 
         /// <summary>
@@ -296,7 +279,17 @@ namespace Microsoft.WinGet.Common.Command
 
                     if (this.pwshThreadAction != null)
                     {
-                        this.pwshThreadAction();
+                        try
+                        {
+                            this.pwshThreadAction();
+                        }
+                        catch (Exception e)
+                        {
+                            // Make sure we don't throw in the PowerShell thread, this way
+                            // we'll get a more meaningful stack by Get-Error.
+                            this.pwshThreadActionException = e;
+                        }
+
                         this.pwshThreadAction = null;
                     }
 
@@ -602,6 +595,11 @@ namespace Microsoft.WinGet.Common.Command
                 this.GetCancellationToken().WaitHandle,
                 this.pwshThreadActionCompleted.WaitHandle,
             });
+
+            if (this.pwshThreadActionException != null)
+            {
+                throw this.pwshThreadActionException;
+            }
 
             this.semaphore.Release();
         }
