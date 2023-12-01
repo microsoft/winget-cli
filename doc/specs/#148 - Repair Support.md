@@ -1,5 +1,5 @@
 ---
-author: Madhusudhan Gumablapura Sudarshan @Madhusudhan-MSFT
+author: Madhusudhan Gumbalapura Sudarshan @Madhusudhan-MSFT
 created on: 2023-12-01
 last updated: 2023-12-01
 issue id: 148
@@ -24,7 +24,7 @@ The motivation for creating a repair feature in the Windows Package Manager is t
 will initiate the repair of the application whose name matches the search results.The command will display an error message if the application is not installed. The command will attempt to repair the application if it is installed. The command will display a success message if the repair succeeds. The command will display an error message if the repair fails.
 
 ### Repair Feature for different Installer Types with Native Repair Capabilities
-  - Msi, Wix : The repair command will use the built-in repair features of the MSI installer type. It will run the msiexec command with the default [repair options](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec#repair-options) to repair the application using a ShellExecute call or by invoking [MsiReinstallProduct](https://learn.microsoft.com/en-us/windows/win32/api/msi/nf-msi-msireinstallproductw) API call with REINSTALLMODE mode property set.
+  - Msi, Wix : The repair command will use the built-in repair features of the MSI installer type. It will run the msiexec command with the default [repair options](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec#repair-options) to repair the application using a ShellExecute call or by invoking [MsiReinstallProduct](https://learn.microsoft.com/en-us/windows/win32/api/msi/nf-msi-msireinstallproductw) API call with `REINSTALLMODE` mode property set.
   - Msix : The repair command will use the built-in repair features of the MSIX installer type. It will make an MSIX API call to register the application package, which will usually fix the application as much as possible. 
     > We can't do the same thing as setting app repair for MSIX app right now because we can't use the private APIs that it uses to do repair operations with winget.
   - MSStore : The repair command will make an MSStore API  [StartProductInstallAsync](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.store.preview.installcontrol.appinstallmanager.startproductinstallasync?view=winrt-22621) call to repair the application with 'Repair' property of AppInstallOption set to true.
@@ -32,7 +32,7 @@ will initiate the repair of the application whose name matches the search result
 ### Repair Feature for Installer Types that require Custom Repair Switch
   -  Burn/Exe : The custom switch for repair in the YAML manifest file will be used to perform the repair. The repair command will run the installer with the custom switch to fix the application. To have enough flexibility, different options are possible depending on the installer source used for repair. 
    - Installed Source: If the YAML manifest file has the 'ModifyRepair' switch, the repair command will use the modify command in the ARP 'ModifyPath' registry key with the repair switch through a ShellExecute call.
-   - Remote Source: If the YAML manifest file has the 'InstalleRepair' switch, the repair command will get the matching installer from the remote source and use the repair switch on the downloaded installer through a ShellExecute call.
+   - Remote Source: If the YAML manifest file has the 'InstallerRepair' switch, the repair command will get the matching installer from the remote source and use the repair switch on the downloaded installer through a ShellExecute call.
       > If neither switch is specified, the repair command will display an error message.
 
 > Note: The initial implementation will not support repair for Nullsoft, Inno, Portables installer types. Based on feedback from the community, we may add the repair feature for these installer types in a future release.
