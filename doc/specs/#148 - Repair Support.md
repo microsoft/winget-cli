@@ -11,7 +11,7 @@ issue id: 148
 
 ## Abstract
 
-This specification outlines the design the design and implementation of a repair feature for the Windows Package Manager.The repair feature aims to provide a convenient and reliable way for users to fix any issues that may arise with their installed applications, such as corrupted files, missing dependencies, or broken registry entries.The initial implementation will support repair for main installer types, such as Msi, Wix, Msix and MSStore installer types, which have native repair capabilities from their respective frameworks. Additionally, other installer types such as Burn/Exe that can specify a custom repair switch in their YAML manifest files can also use the repair feature.The document also outlines the future plans for extending the repair feature to other installer types (Nullsoft, Inno, Portables) that do not have a standard repair mechanism.
+This specification outlines the design and implementation of a repair feature for the Windows Package Manager.The repair feature aims to provide a convenient and reliable way for users to fix any issues that may arise with their installed applications, such as corrupted files, missing dependencies, or broken registry entries.The initial implementation will support repair for main installer types, such as Msi, Wix, Msix and MSStore installer types, which have native repair capabilities from their respective frameworks. Additionally, other installer types such as Burn/Exe that can specify a custom repair switch in their YAML manifest files can also use the repair feature.The document also outlines the future plans for extending the repair feature to other installer types (Nullsoft, Inno, Portables) that do not have a standard repair mechanism.
 
 ## Inspiration
 
@@ -20,12 +20,12 @@ The motivation for creating a repair feature in the Windows Package Manager is t
 ## Solution Design
 
 ### Repair Command Syntax
-`winget repair <appname>`
-will initiate the repair of the application whose name matches the search results.The command will display an error message if the application is not installed. The command will attempt to repair the application if it is installed. The command will display a success message if the repair succeeds. The command will display an error message if the repair fails.
+`winget repair <package>`
+will initiate the repair of the specified package. The command will display an error message if the application is not installed. The command will attempt to repair the application if it is installed. The command will display a success message if the repair succeeds. The command will display an error message if the repair fails.
 
 ### Repair Feature for different Installer Types with Native Repair Capabilities
   - Msi, Wix : The repair command will use the built-in repair features of the MSI installer type. It will run the msiexec command with the default [repair options](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec#repair-options) to repair the application using a ShellExecute call or by invoking [MsiReinstallProduct](https://learn.microsoft.com/en-us/windows/win32/api/msi/nf-msi-msireinstallproductw) API call with `REINSTALLMODE` mode property set.
-  - Msix : The repair command will use the built-in repair features of the MSIX installer type. It will make an MSIX API call to register the application package, which will usually fix the application as much as possible. 
+  - Msix : The repair command will use the built-in repair features of the MSIX installer type. It will make an MSIX API call to register the application package, which will attempt to repair the package.
     > We can't do the same thing as setting app repair for MSIX app right now because we can't use the private APIs that it uses to do repair operations with winget.
   - MSStore : The repair command will make an MSStore API  [StartProductInstallAsync](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.store.preview.installcontrol.appinstallmanager.startproductinstallasync?view=winrt-22621) call to repair the application with 'Repair' property of AppInstallOption set to true.
 
