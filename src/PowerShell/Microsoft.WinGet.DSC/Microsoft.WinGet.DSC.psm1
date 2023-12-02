@@ -243,10 +243,10 @@ class WinGetSources
         $currentSources = $this.Get().Sources
         $currentState = [Ensure]::Present
 
-        # If this is a full match and the counts are different give up.
-        if (($this.Action -eq [WinGetAction]::Full) -and ($this.Sources.Count -ne $currentSources.Count))
+        # If this is a full match and the counts are different return false. This only applies if we want to ensure the full source is present.
+        if (($this.Action -eq [WinGetAction]::Full) -and ($this.Sources.Count -ne $currentSources.Count) -and ($this.Ensure -eq [Ensure]::Present))
         {
-            return $currentState = [Ensure]::Absent
+            return $false
         }
 
         foreach ($sourceName in $this.Sources.Keys)
