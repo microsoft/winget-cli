@@ -295,7 +295,7 @@ namespace AppInstaller::CLI::Execution
             if (m_checkpointManager && (!IsTerminated() || ShouldRemoveCheckpointDatabase(GetTerminationHR())))
             {
                 m_checkpointManager->CleanUpDatabase();
-                AppInstaller::Reboot::UnregisterApplicationForReboot();
+                AppInstaller::Reboot::UnregisterRestartForWER();
             }
         }
 
@@ -490,7 +490,7 @@ namespace AppInstaller::CLI::Execution
             m_checkpointManager->CreateAutomaticCheckpoint(*this);
 
             // Register for restart only when we first call checkpoint to support restarting from an unexpected shutdown.
-            AppInstaller::Reboot::RegisterApplicationForReboot("resume -g " + GetResumeId());
+            AppInstaller::Reboot::RegisterRestartForWER("resume -g " + GetResumeId());
         }
 
         // TODO: Capture context data for checkpoint.

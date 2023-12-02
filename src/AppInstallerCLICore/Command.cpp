@@ -886,7 +886,7 @@ namespace AppInstaller::CLI
             {
                 // RegisterResume context flag assumes we already wrote to the RunOnce registry.
                 // Since we are about to initiate a restart, this is no longer needed as a safety net.
-                Reboot::UnregisterApplicationForReboot();
+                Reboot::UnregisterRestartForWER();
 
                 context.ClearFlags(Execution::ContextFlag::RegisterResume);
             }

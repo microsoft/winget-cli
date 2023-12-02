@@ -41,6 +41,7 @@ namespace AppInstaller::Runtime
 
         constexpr std::string_view s_UserProfileEnvironmentVariable = "%USERPROFILE%";
         constexpr std::string_view s_LocalAppDataEnvironmentVariable = "%LOCALAPPDATA%";
+        constexpr std::string_view s_WindowsApps_Base = "Microsoft\\WindowsApps"sv;
 
         static std::optional<std::string> s_runtimePathStateName;
         static wil::srwlock s_runtimePathStateNameLock;
@@ -472,6 +473,7 @@ namespace AppInstaller::Runtime
             result = GetPathDetailsForPackagedContext(PathName::LocalState, forDisplay);
             result.Path /= s_CheckpointsDirectory;
             break;
+        // case PathName::CLIExecutable:
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -562,6 +564,7 @@ namespace AppInstaller::Runtime
             result = GetPathDetailsForUnpackagedContext(PathName::LocalState, forDisplay);
             result.Path /= s_CheckpointsDirectory;
             break;
+        // case PathName::CLIExecutable:
         default:
             THROW_HR(E_UNEXPECTED);
         }

@@ -2632,10 +2632,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Failed to initiate a reboot.</value>
   </data>
   <data name="ResumeLimitExceeded" xml:space="preserve">
-    <value>Resume operation exceeds the allowable limit of {0} resume(s). To manually resume, run the command: </value>
-    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of the number of allowed resumes.</comment>
+    <value>Resume operation exceeds the allowable limit of {0} resume(s). To manually resume, run the command `{1}`.</value>
+    <comment>{Locked="{0}", "{1}"} {0} is a placeholder that is replaced by an integer number of the number of allowed resumes. {1} is a placeholder for the command to run to perform a manual resume.</comment>
   </data>
   <data name="IgnoreResumeLimitArgumentDescription" xml:space="preserve">
-    <value>Ignore the max limit of resuming a saved state</value>
+    <value>Ignore the limit on resuming a saved state</value>
   </data>
 </root>

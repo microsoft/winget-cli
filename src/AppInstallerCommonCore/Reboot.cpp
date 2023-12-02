@@ -5,6 +5,7 @@
 #include "AppInstallerStrings.h"
 #include "Public/winget/Reboot.h"
 #include "Public/winget/Registry.h"
+#include <AppInstallerRuntime.h>
 #include <Windows.h>
 
 using namespace AppInstaller::Registry;
@@ -71,7 +72,7 @@ namespace AppInstaller::Reboot
         return ExitWindowsEx(EWX_RESTARTAPPS, SHTDN_REASON_MINOR_INSTALLATION);
     }
 
-    bool RegisterApplicationForReboot(const std::string& commandLineArgs)
+    bool RegisterRestartForWER(const std::string& commandLineArgs)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_RegisterForRestartResult_TestHook_Override)
@@ -81,7 +82,6 @@ namespace AppInstaller::Reboot
 #endif
 
         HRESULT result = RegisterApplicationRestart(AppInstaller::Utility::ConvertToUTF16(commandLineArgs).c_str(), 0 /* Always restart process */);
-        AICLI_LOG(CLI, Info, << "Register for restart with command line args: " << commandLineArgs);
 
         if (FAILED(result))
         {
@@ -90,11 +90,12 @@ namespace AppInstaller::Reboot
         }
         else
         {
+            AICLI_LOG(CLI, Info, << "Register for restart with command line args: " << commandLineArgs);
             return true;
         }
     }
 
-    bool UnregisterApplicationForReboot()
+    bool UnregisterRestartForWER()
     {
         HRESULT result = UnregisterApplicationRestart();
         AICLI_LOG(CLI, Info, << "Application unregistered for restart.");
@@ -110,15 +111,15 @@ namespace AppInstaller::Reboot
         }
     }
 
-    void WriteToRunOnceRegistry(const std::string& commandLine, bool isAdmin)
+    void WriteToRunOnceRegistry(const std::string& commandLine)
     {
         THROW_HR_IF(E_UNEXPECTED, commandLine.size() > MAX_PATH);
 
-        HKEY root = isAdmin ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
+        HKEY root = AppInstaller::Runtime::IsRunningAsAdmin() ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
         std::wstring subKey = std::wstring{ s_RunOnceRegistry };
         Key key = Key::OpenIfExists(root, subKey, 0, KEY_ALL_ACCESS);
 
-        if (key == NULL)
+        if (!key)
         {
             key = Key::Create(root, subKey);
         }

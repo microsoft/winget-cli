@@ -6,12 +6,12 @@ namespace AppInstaller::Reboot
 {
     bool InitiateReboot();
 
-    // Registers the application to be restarted by Windows Error Reporting in case of an unexpected shutdown.
-    bool RegisterApplicationForReboot(const std::string& commandLineArgs);
+    // Registers the application to be restarted by Windows Error Reporting (WER) in case of an unexpected shutdown.
+    bool RegisterRestartForWER(const std::string& commandLineArgs);
 
-    // Unregisters the application from being restarted by Windows Error Reporting.
-    bool UnregisterApplicationForReboot();
+    // Unregisters the application from being restarted by Windows Error Reporting (WER).
+    bool UnregisterRestartForWER();
 
     // Runs a program when a user logs on.
-    void WriteToRunOnceRegistry(const std::string& commandLine, bool isAdmin);
+    void WriteToRunOnceRegistry(const std::string& commandLine);
 }
