@@ -221,10 +221,11 @@ class WinGetSources
         foreach ($packageCatalogReference in $packageCatalogReferences)
         {
             $source = @{
-                Arg = $packageCatalogReference.Info.Argument
-                Identifier = $packageCatalogReference.Info.Id
-                Name = $packageCatalogReference.Info.Name
-                Type = $packageCatalogReference.Info.Type
+                $packageCatalogReference.Name = @{
+                    Identifier = $packageCatalogReference.Id
+                    Arg = $packageCatalogReference.Argument
+                    Type = $packageCatalogReference.Type
+                }
             }
             $wingetSources.Add($source)
         }
@@ -240,46 +241,39 @@ class WinGetSources
     [bool] Test()
     {
         $currentSources = $this.Get().Sources
+        $currentState = [Ensure]::Present
 
-        # If this is a full match and the counts are different give up.
-        if (($this.Action -eq [WinGetAction]::Full) -and ($this.Sources.Count -ne $currentSources.Count))
+        # If this is a full match and the counts are different return false. This only applies if we want to ensure the full source is present.
+        if (($this.Action -eq [WinGetAction]::Full) -and ($this.Sources.Count -ne $currentSources.Count) -and ($this.Ensure -eq [Ensure]::Present))
         {
             return $false
         }
 
-        # There's no need to differentiate between Partial and Full anymore.
-        foreach ($source in $this.Sources)
+        foreach ($sourceName in $this.Sources.Keys)
         {
-            # Require Name and Arg.
-            if ((-not $source.ContainsKey("Name")) -or [string]::IsNullOrWhiteSpace($source.Name))
+            #Check if the source name exists, if it doesn't, then return false.
+            $result = $currentSources.Keys | Where-Object { $_ -eq $sourceName }
+            if ($null -eq $result)
             {
-                # TODO: Localize.
-                throw "Invalid source input. Name is required."
-            }
-
-            if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
-            {
-                # TODO: Localize.
-                throw "Invalid source input. Arg is required."
+                $currentState = [Ensure]::Absent
             }
 
             # Type has a default value.
-            $sourceType = "Microsoft.PreIndexed.Package"
+            $source = $this.Sources.$($sourceName)
+            $sourceType = "Microsoft.PreIndexed.Package" # default source type
             if ($source.ContainsKey("Type") -and (-not([string]::IsNullOrWhiteSpace($source.Type))))
             {
                 $sourceType = $source.Type
             }
 
-            $result = $currentSources | Where-Object { $_.Name -eq $source.Name -and $_.Arg -eq $source.Arg -and $_.Type -eq $sourceType }
-
-            # Source not found.
-            if ($null -eq $result)
+            $existingSource = $currentSources.$($sourceName)
+            if ($source.Arg -ne $existingSource.Arg -or $sourceType -ne $existingSource.Type)
             {
-                return $false
+                $currentState = [Ensure]::Absent
             }
         }
 
-        return $true
+        return $currentState -eq $this.Ensure
     }
 
     # Sets the desired properties.
@@ -290,40 +284,37 @@ class WinGetSources
         Assert-WinGetCommand "Reset-WinGetSource"
         Assert-WinGetCommand "Remove-WinGetSource"
 
-        foreach ($source in $this.Sources)
+        if (-not $this.Test())
         {
-            $sourceType = "Microsoft.PreIndexed.Package"
-
-            # Require Name and Arg.
-            if ((-not $source.ContainsKey("Name")) -or [string]::IsNullOrWhiteSpace($source.Name))
+            foreach ($sourceName in $this.Sources.Keys)
             {
-                # TODO: Localize.
-                throw "Invalid source input. Name is required."
-            }
-
-            if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
-            {
-                # TODO: Localize.
-                throw "Invalid source input. Arg is required."
-            }
-
-            if ($source.ContainsKey("Type") -and (-not([string]::IsNullOrWhiteSpace($source.Type))))
-            {
-                $sourceType = $source.Type
-            }
-
-            if ($this.Ensure -eq [Ensure]::Present)
-            {
-                Add-WinGetSource -Name $source.Name -Argument $source.Argument -Type $sourceType
-
-                if ($this.Reset)
+                $sourceType = "Microsoft.PreIndexed.Package"
+                $source = $this.Sources.$($sourceName)
+    
+                if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
                 {
-                    Reset-WinGetSource -Name $source.Name
+                    # TODO: Localize.
+                    throw "Invalid source input. Arg is required."
                 }
-            }
-            else
-            {
-                Remove-WinGetSource -Name $source.Name
+    
+                if ($source.ContainsKey("Type") -and (-not([string]::IsNullOrWhiteSpace($source.Type))))
+                {
+                    $sourceType = $source.Type
+                }
+    
+                if ($this.Ensure -eq [Ensure]::Present)
+                {
+                    Add-WinGetSource -Name $sourceName -Argument $source.Arg -Type $sourceType
+    
+                    if ($this.Reset)
+                    {
+                        Reset-WinGetSource -Name $sourceName
+                    }
+                }
+                else
+                {
+                    Remove-WinGetSource -Name $sourceName
+                }
             }
         }
     }

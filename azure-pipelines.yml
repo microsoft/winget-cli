@@ -278,6 +278,17 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
+    displayName: 'Copy test scripts to artifacts'
+    inputs:
+      Contents: |
+          $(Build.SourcesDirectory)\src\PowerShell\scripts\Execute-WinGetTests.ps1
+          $(Build.SourcesDirectory)\src\PowerShell\tests\**
+          $(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1
+      TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
+      flattenFolders: true
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\net6.0'
@@ -454,6 +465,13 @@ jobs:
       SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\PowerShell\Microsoft.WinGet.DSC'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.DSC'
 
   - task: PowerShell@2
     displayName: Install Tests Dependencies

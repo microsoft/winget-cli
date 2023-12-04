@@ -7,9 +7,23 @@
    The tests require the localhost web server to be running and serving the test data.
    'Invoke-Pester' should be called in an admin PowerShell window.
 #>
+[CmdletBinding()]
+param(
+    # Whether to use production or developement targets.
+    [switch]$TargetProduction
+)
 
 BeforeAll {
-    $settingsFilePath = (ConvertFrom-Json (wingetdev.exe settings export)).userSettingsFile
+    if ($TargetProduction)
+    {
+        $wingetExeName = "winget.exe"
+    }
+    else
+    {
+        $wingetExeName = "wingetdev.exe"
+    }
+    
+    $settingsFilePath = (ConvertFrom-Json (& $wingetExeName settings export)).userSettingsFile
 
     $deviceGroupPolicyRoot = "HKLM:\Software\Policies\Microsoft\Windows"
     $wingetPolicyKeyName = "AppInstaller"
@@ -40,12 +54,13 @@ BeforeAll {
             $testSource = Get-WinGetSource | Where-Object -Property 'Name' -eq 'TestSource'
             if ($null -ne $testSource)
             {
+                # Source Remove requires admin privileges
                 Remove-WinGetSource -Name 'TestSource'
             }
         }
         catch {
             # Non-admin
-            Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
+            Start-Process -FilePath $wingetExeName -ArgumentList "source remove TestSource"
         }
     }
 

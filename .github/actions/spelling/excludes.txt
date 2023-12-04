@@ -73,6 +73,7 @@
 ^NOTICE
 ^src/AppInstallerCLICore/Commands/ExperimentalCommand\.cpp$
 ^src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstaller.msi$
+^src/AppInstallerCLIE2ETests/TestData/Configuration/Empty.yml$
 ^src/AppInstallerCLITests/TestData/InputARPData.txt$
 ^src/AppInstallerCLITests/TestData/InputNames.txt$
 ^src/AppInstallerCLITests/TestData/InputPublishers.txt$

@@ -11,13 +11,16 @@
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Manifest;
 
-std::ostream& operator<<(std::ostream& out, const AppInstaller::Manifest::ManifestInstaller& installer)
+namespace AppInstaller::Manifest
 {
-    return out << '[' <<
-        AppInstaller::Utility::ToString(installer.Arch) << ',' <<
-        AppInstaller::Manifest::InstallerTypeToString(installer.EffectiveInstallerType()) << ',' <<
-        AppInstaller::Manifest::ScopeToString(installer.Scope) << ',' <<
-        installer.Locale << ']';
+    std::ostream& operator<<(std::ostream& out, const AppInstaller::Manifest::ManifestInstaller& installer)
+    {
+        return out << '[' <<
+            AppInstaller::Utility::ToString(installer.Arch) << ',' <<
+            AppInstaller::Manifest::InstallerTypeToString(installer.EffectiveInstallerType()) << ',' <<
+            AppInstaller::Manifest::ScopeToString(installer.Scope) << ',' <<
+            installer.Locale << ']';
+    }
 }
 
 namespace AppInstaller::CLI::Workflow

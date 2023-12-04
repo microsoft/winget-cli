@@ -52,7 +52,7 @@
 
   <!-- This project doesn't reference it directly, but if I don't add it here it will fail with NETSDK1130 *.winmd cannot be referenced. -->
   <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
   </ItemGroup>
 
   <ItemGroup>

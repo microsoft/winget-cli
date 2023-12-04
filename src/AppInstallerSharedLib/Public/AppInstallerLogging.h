@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
+#include <AppInstallerLanguageUtilities.h>
 #include <chrono>
 #include <filesystem>
 #include <memory>
@@ -173,9 +173,18 @@ namespace AppInstaller::Logging
             return out;
         }
 
+        // Enums
+        template <typename T>
+        friend std::enable_if_t<std::is_enum_v<std::decay_t<T>>, AppInstaller::Logging::LoggingStream&>
+            operator<<(AppInstaller::Logging::LoggingStream& out, T t)
+        {
+            out.m_out << ToIntegral(t);
+            return out;
+        }
+
         // Everything else.
         template <typename T>
-        friend std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::filesystem::path>, AppInstaller::Logging::LoggingStream&>
+        friend std::enable_if_t<!std::disjunction_v<std::is_same<std::decay_t<T>, std::filesystem::path>, std::is_enum<std::decay_t<T>>>, AppInstaller::Logging::LoggingStream&>
             operator<<(AppInstaller::Logging::LoggingStream& out, T&& t)
         {
             out.m_out << std::forward<T>(t);
@@ -189,5 +198,8 @@ namespace AppInstaller::Logging
     };
 }
 
-std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time);
-std::ostream& operator<<(std::ostream& out, const GUID& guid);
+namespace std
+{
+    std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time);
+    std::ostream& operator<<(std::ostream& out, const GUID& guid);
+}
