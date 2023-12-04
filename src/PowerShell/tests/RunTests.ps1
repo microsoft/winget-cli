@@ -69,5 +69,12 @@ if ($PSEdition -eq "Core")
     $configConfig.Run.Container = New-PesterContainer -Path "$PSScriptRoot\Microsoft.WinGet.Configuration.Tests.ps1" -Data @{ ConfigurationTestDataPath = $ConfigurationTestDataPath }
 
     Invoke-Pester -Configuration $configConfig
-}
 
+    $dscConfig = New-PesterConfiguration
+    $dscConfig.TestResult.OutputFormat = "NUnitXML"
+    $dscConfig.TestResult.OutputPath = "$outputPath\Tests-WinGetDSC.XML"
+    $dscConfig.TestResult.Enabled = $true
+    $dscConfig.Run.Container = New-PesterContainer -Path "$PSScriptRoot\Microsoft.WinGet.DSC.Tests.ps1"
+
+    Invoke-Pester -Configuration $dscConfig
+}

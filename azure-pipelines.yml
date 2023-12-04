@@ -466,6 +466,13 @@ jobs:
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
+  - task: CopyFiles@2
+    displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\PowerShell\Microsoft.WinGet.DSC'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.DSC'
+
   - task: PowerShell@2
     displayName: Install Tests Dependencies
     inputs:
