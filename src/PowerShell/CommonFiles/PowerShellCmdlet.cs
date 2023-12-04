@@ -10,6 +10,7 @@ namespace Microsoft.WinGet.Common.Command
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Management.Automation;
+    using System.Runtime.ExceptionServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.WinGet.Resources;
@@ -41,7 +42,7 @@ namespace Microsoft.WinGet.Common.Command
         private int progressActivityId = 0;
         private ConcurrentDictionary<int, ProgressRecordType> progressRecords = new ();
         private Action? pwshThreadAction = null;
-        private Exception? pwshThreadActionException = null;
+        private ExceptionDispatchInfo? pwshThreadEdi = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PowerShellCmdlet"/> class.
@@ -250,7 +251,6 @@ namespace Microsoft.WinGet.Common.Command
             this.WaitForOurTurn();
 
             this.pwshThreadAction = action;
-            this.pwshThreadActionException = null;
             this.pwshThreadActionReady.Set();
             this.WaitMainThreadActionCompletion();
         }
@@ -287,7 +287,7 @@ namespace Microsoft.WinGet.Common.Command
                         {
                             // Make sure we don't throw in the PowerShell thread, this way
                             // we'll get a more meaningful stack by Get-Error.
-                            this.pwshThreadActionException = e;
+                            this.pwshThreadEdi = ExceptionDispatchInfo.Capture(e);
                         }
 
                         this.pwshThreadAction = null;
@@ -323,7 +323,7 @@ namespace Microsoft.WinGet.Common.Command
                 AggregateException? ae = runningTask.Exception! as AggregateException;
                 if (ae != null && ae.InnerExceptions.Count == 1)
                 {
-                    throw ae.InnerExceptions[0];
+                    ExceptionDispatchInfo.Capture(ae.InnerExceptions[0]).Throw();
                 }
 
                 throw runningTask.Exception!;
@@ -596,9 +596,9 @@ namespace Microsoft.WinGet.Common.Command
                 this.pwshThreadActionCompleted.WaitHandle,
             });
 
-            if (this.pwshThreadActionException != null)
+            if (this.pwshThreadEdi != null)
             {
-                throw new AggregateException(this.pwshThreadActionException.Message, this.pwshThreadActionException);
+                this.pwshThreadEdi.Throw();
             }
 
             this.semaphore.Release();
