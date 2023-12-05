@@ -55,7 +55,6 @@ Addition of `InstallerRepair` property to InstallerSwitch
   -  The `InstallerRepair' switch when using the remote installer source for repair.
 
 ## Potential Issues
-- Repair for Nullsoft, Inno, Portables installer types are not supported in the initial implementation.
 - For Burn/Exe installer types 
   - the repair command will not work if the installer does not have a custom repair switch specified in the YAML manifest file.
   - the repair command will not work if the installed Burn/Exe installer type doesn't correlated to the remote installer type that has a custom repair switch specified in the YAML manifest file.
