@@ -487,6 +487,7 @@ namespace AppInstaller::Runtime
                 result.Path /= s_WinGetDev_Exe;
             }
             result.Create = false;
+            mayBeInProfilePath = true;
             break;
         default:
             THROW_HR(E_UNEXPECTED);
