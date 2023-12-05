@@ -111,7 +111,7 @@ namespace AppInstaller::Reboot
         }
     }
 
-    void WriteToRunOnceRegistry(const std::string& commandLine)
+    void WriteToRunOnceRegistry(const std::string& resumeId, const std::string& commandLine)
     {
         THROW_HR_IF(E_UNEXPECTED, commandLine.size() > MAX_PATH);
 
@@ -124,7 +124,7 @@ namespace AppInstaller::Reboot
             key = Key::Create(root, subKey);
         }
 
-        key.SetValue(L"WingetResume", Utility::ConvertToUTF16(commandLine), REG_SZ);
+        key.SetValue(Utility::ConvertToUTF16("WingetResume-" + resumeId), Utility::ConvertToUTF16(commandLine), REG_SZ);
         AICLI_LOG(CLI, Info, << "Set RunOnce registry with value: " << commandLine);
     }
 }

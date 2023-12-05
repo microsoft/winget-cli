@@ -13,5 +13,5 @@ namespace AppInstaller::Reboot
     bool UnregisterRestartForWER();
 
     // Runs a program when a user logs on.
-    void WriteToRunOnceRegistry(const std::string& commandLine);
+    void WriteToRunOnceRegistry(const std::string& resumeId, const std::string& commandLine);
 }

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ResumeFlow.h"
 #include "winget/Reboot.h"
+#include <AppInstallerRuntime.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -26,14 +27,12 @@ namespace AppInstaller::CLI::Workflow
 
         if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterResume))
         {
-            int argc = 0;
-            wil::unique_hlocal_ptr<LPWSTR> argv{ CommandLineToArgvW(GetCommandLineW(), &argc) };
-            THROW_LAST_ERROR_IF_NULL(argv);
+            auto executablePath = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::CLIExecutable);
 
             // RunOnce registry value must start with the full path of the executable.
-            std::string commandLine = Utility::ConvertToUTF8(argv.get()[0]) + " resume -g " + context.GetResumeId();
-
-            Reboot::WriteToRunOnceRegistry(commandLine);
+            const auto& resumeId = context.GetResumeId();
+            std::string commandLine = executablePath.u8string() + " resume -g " + resumeId;
+            Reboot::WriteToRunOnceRegistry(resumeId, commandLine);
         }
     }
 }
