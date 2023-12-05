@@ -37,10 +37,8 @@ namespace Microsoft.WinGet.Resolver
 #if !POWERSHELL_WINDOWS
             AssemblyLoadContext.Default.Resolving += WinGetAssemblyLoadContext.ResolvingHandler;
 #else
-            // We could create a custom domain and handle the serialization boundaries
-            // to avoid dependency conflicts but PowerShell doesn't recommended because its complications.
-            // If we really need to the structure is already there we just need to
-            // handle the serialization boundaries.
+            // If we really need to avoid dependency conflicts, we could create a custom domain and handle the serialization boundaries.
+            // PowerShell doesn't recommended because its complications.
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.AssemblyResolve += WinGetAppDomain.Handler;
 #endif
