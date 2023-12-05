@@ -572,17 +572,17 @@ namespace AppInstaller::Runtime
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
+        case PathName::CLIExecutable:
             result.Path = GetBinaryDirectoryPath();
             result.Create = false;
+            if (path == PathName::CLIExecutable)
+            {
+                result.Path /= s_WinGet_Exe;
+            }
             break;
         case PathName::CheckpointsLocation:
             result = GetPathDetailsForUnpackagedContext(PathName::LocalState, forDisplay);
             result.Path /= s_CheckpointsDirectory;
-            break;
-        case PathName::CLIExecutable:
-            result.Path = GetBinaryDirectoryPath();
-            result.Path /= s_WinGet_Exe;
-            result.Create = false;
             break;
         default:
             THROW_HR(E_UNEXPECTED);
