@@ -51,8 +51,8 @@ Addition of `InstallerRepair` property to InstallerSwitch
 ## Supported Repair Scenarios
 - Repair for installed applications of Msi, Wix, Msix and MSStore installer types.
 - Repair for the application using the custom repair switch specified in the YAML manifest file for Burn/Exe installer types.
-  -  The ‘ModifyRepair’ switch when using the ModifyPath ARP entry for repair.
-  -  The `InstallerRepair' switch when using the remote installer source for repair.
+  -  The `ModifyRepair` switch when using the ModifyPath ARP entry for repair.
+  -  The `InstallerRepair` switch when using the remote installer source for repair.
 
 ## Potential Issues
 - For Burn/Exe installer types 
