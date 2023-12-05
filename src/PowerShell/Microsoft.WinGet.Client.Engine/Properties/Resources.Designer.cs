@@ -70,11 +70,29 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Completed.
+        /// </summary>
+        internal static string Completed {
+            get {
+                return ResourceManager.GetString("Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Debug parameter not supported.
         /// </summary>
         internal static string DebugNotSupported {
             get {
                 return ResourceManager.GetString("DebugNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Downloading.
+        /// </summary>
+        internal static string DownloadingMessage {
+            get {
+                return ResourceManager.GetString("DownloadingMessage", resourceCulture);
             }
         }
         
@@ -241,6 +259,15 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find asset {0}.
+        /// </summary>
+        internal static string ReleaseAssetNotFound {
+            get {
+                return ResourceManager.GetString("ReleaseAssetNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Try running with -AllUsers in administrator mode..
         /// </summary>
         internal static string RepairAllUsersHelpMessage {
@@ -291,6 +318,15 @@ namespace Microsoft.WinGet.Resources {
         internal static string SingleThreadedApartmentNotSupportedMessage {
             get {
                 return ResourceManager.GetString("SingleThreadedApartmentNotSupportedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uninstalling.
+        /// </summary>
+        internal static string Uninstalling {
+            get {
+                return ResourceManager.GetString("Uninstalling", resourceCulture);
             }
         }
         

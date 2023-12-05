@@ -10,6 +10,7 @@ namespace Microsoft.WinGet.Common.Command
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Management.Automation;
+    using System.Runtime.ExceptionServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.WinGet.Resources;
@@ -30,13 +31,18 @@ namespace Microsoft.WinGet.Common.Command
         private static readonly string[] WriteInformationTags = new string[] { "PSHOST" };
 
         private readonly PSCmdlet psCmdlet;
-        private readonly Thread originalThread;
+        private readonly Thread pwshThread;
 
         private readonly CancellationTokenSource source = new ();
-        private BlockingCollection<QueuedStream> queuedStreams = new ();
+        private readonly SemaphoreSlim semaphore = new (1, 1);
+        private readonly ManualResetEventSlim pwshThreadActionReady = new (false);
+        private readonly ManualResetEventSlim pwshThreadActionCompleted = new (false);
 
+        private BlockingCollection<QueuedStream> queuedStreams = new ();
         private int progressActivityId = 0;
         private ConcurrentDictionary<int, ProgressRecordType> progressRecords = new ();
+        private Action? pwshThreadAction = null;
+        private ExceptionDispatchInfo? pwshThreadEdi = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PowerShellCmdlet"/> class.
@@ -57,7 +63,7 @@ namespace Microsoft.WinGet.Common.Command
             this.ValidatePolicies(policies);
 
             this.psCmdlet = psCmdlet;
-            this.originalThread = Thread.CurrentThread;
+            this.pwshThread = Thread.CurrentThread;
         }
 
         /// <summary>
@@ -81,7 +87,7 @@ namespace Microsoft.WinGet.Common.Command
             throw new NotImplementedException();
 #else
             // This must be called in the main thread.
-            if (this.originalThread != Thread.CurrentThread)
+            if (this.pwshThread != Thread.CurrentThread)
             {
                 throw new InvalidOperationException();
             }
@@ -134,7 +140,7 @@ namespace Microsoft.WinGet.Common.Command
         internal Task<TResult> RunOnMTA<TResult>(Func<Task<TResult>> func)
         {
             // This must be called in the main thread.
-            if (this.originalThread != Thread.CurrentThread)
+            if (this.pwshThread != Thread.CurrentThread)
             {
                 throw new InvalidOperationException();
             }
@@ -186,7 +192,7 @@ namespace Microsoft.WinGet.Common.Command
         internal TResult RunOnMTA<TResult>(Func<TResult> func)
         {
             // This must be called in the main thread.
-            if (this.originalThread != Thread.CurrentThread)
+            if (this.pwshThread != Thread.CurrentThread)
             {
                 throw new InvalidOperationException();
             }
@@ -230,6 +236,26 @@ namespace Microsoft.WinGet.Common.Command
         }
 
         /// <summary>
+        /// Executes an action in the main thread.
+        /// Blocks until call is executed.
+        /// </summary>
+        /// <param name="action">Action to perform.</param>
+        internal void ExecuteInPowerShellThread(Action action)
+        {
+            if (this.pwshThread == Thread.CurrentThread)
+            {
+                action();
+                return;
+            }
+
+            this.WaitForOurTurn();
+
+            this.pwshThreadAction = action;
+            this.pwshThreadActionReady.Set();
+            this.WaitMainThreadActionCompletion();
+        }
+
+        /// <summary>
         /// Waits for the task to be completed. This MUST be called from the main thread.
         /// </summary>
         /// <param name="runningTask">Task to wait for.</param>
@@ -239,14 +265,54 @@ namespace Microsoft.WinGet.Common.Command
             writeCmdlet ??= this;
 
             // This must be called in the main thread.
-            if (this.originalThread != Thread.CurrentThread)
+            if (this.pwshThread != Thread.CurrentThread)
             {
                 throw new InvalidOperationException();
             }
 
             do
             {
-                this.ConsumeAndWriteStreams(writeCmdlet);
+                if (this.pwshThreadActionReady.IsSet)
+                {
+                    // Someone needs the main thread.
+                    this.pwshThreadActionReady.Reset();
+
+                    if (this.pwshThreadAction != null)
+                    {
+                        try
+                        {
+                            this.pwshThreadAction();
+                        }
+                        catch (Exception e)
+                        {
+                            // Make sure we don't throw in the PowerShell thread, this way
+                            // we'll get a more meaningful stack by Get-Error.
+                            this.pwshThreadEdi = ExceptionDispatchInfo.Capture(e);
+                        }
+
+                        this.pwshThreadAction = null;
+                    }
+
+                    // Done.
+                    this.pwshThreadActionCompleted.Set();
+                }
+
+                // Take from the blocking collection.
+                if (!this.queuedStreams.IsCompleted && this.queuedStreams.Count > 0)
+                {
+                    try
+                    {
+                        var queuedOutput = this.queuedStreams.Take();
+                        if (queuedOutput != null)
+                        {
+                            this.CmdletWrite(queuedOutput.Type, queuedOutput.Data, writeCmdlet);
+                        }
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // An InvalidOperationException means that Take() was called on a completed collection.
+                    }
+                }
             }
             while (!(runningTask.IsCompleted && this.queuedStreams.IsCompleted));
 
@@ -254,6 +320,12 @@ namespace Microsoft.WinGet.Common.Command
             {
                 // If IsFaulted is true, the task's Status is equal to Faulted,
                 // and its Exception property will be non-null.
+                AggregateException? ae = runningTask.Exception! as AggregateException;
+                if (ae != null && ae.InnerExceptions.Count == 1)
+                {
+                    ExceptionDispatchInfo.Capture(ae.InnerExceptions[0]).Throw();
+                }
+
                 throw runningTask.Exception!;
             }
         }
@@ -269,15 +341,17 @@ namespace Microsoft.WinGet.Common.Command
         {
             if (type == StreamType.Progress)
             {
-                // Keep track of all progress activity.
                 ProgressRecord progressRecord = (ProgressRecord)data;
-                if (!this.progressRecords.TryAdd(progressRecord.ActivityId, progressRecord.RecordType))
+                if (progressRecord.RecordType == ProgressRecordType.Completed)
                 {
-                    _ = this.progressRecords.TryUpdate(progressRecord.ActivityId, progressRecord.RecordType, ProgressRecordType.Completed);
+                    throw new NotSupportedException("Use CompleteProgress");
                 }
+
+                // Keep track of all progress activity.
+                _ = this.progressRecords.TryAdd(progressRecord.ActivityId, progressRecord.RecordType);
             }
 
-            if (this.originalThread == Thread.CurrentThread)
+            if (this.pwshThread == Thread.CurrentThread)
             {
                 this.CmdletWrite(type, data, this);
                 return;
@@ -311,26 +385,49 @@ namespace Microsoft.WinGet.Common.Command
         /// <param name="activityId">Activity id.</param>
         /// <param name="activity">The activity in progress.</param>
         /// <param name="status">The status of the activity.</param>
-        internal void CompleteProgress(int activityId, string activity, string status)
+        /// <param name="force">Force write complete progress.</param>
+        internal void CompleteProgress(int activityId, string activity, string status, bool force = false)
         {
             var record = new ProgressRecord(activityId, activity, status)
             {
                 RecordType = ProgressRecordType.Completed,
                 PercentComplete = 100,
             };
-            this.Write(StreamType.Progress, record);
+
+            if (!this.progressRecords.TryAdd(activityId, record.RecordType))
+            {
+                _ = this.progressRecords.TryUpdate(activityId, record.RecordType, ProgressRecordType.Processing);
+            }
+
+            if (this.pwshThread == Thread.CurrentThread)
+            {
+                this.CmdletWrite(StreamType.Progress, record, this);
+            }
+            else
+            {
+                // You should only use force if you know the cmdlet that is completing this progress is a sync cmdlet that
+                // is running in an async context. A sync cmdlet is anything that doesn't start with Start-*
+                if (force)
+                {
+                    this.ExecuteInPowerShellThread(() => this.CmdletWrite(StreamType.Progress, record, this));
+                }
+                else
+                {
+                    this.queuedStreams.Add(new QueuedStream(StreamType.Progress, record));
+                }
+            }
         }
 
         /// <summary>
         /// Writes to PowerShell streams.
         /// This method must be called in the original thread.
-        /// WARNING: You must only call this when the task is completed or in Wait.
+        /// WARNING: You must only call this when the task is completed.
         /// </summary>
         /// <param name="writeCmdlet">The cmdlet that can write to PowerShell.</param>
         internal void ConsumeAndWriteStreams(PowerShellCmdlet writeCmdlet)
         {
             // This must be called in the main thread.
-            if (this.originalThread != Thread.CurrentThread)
+            if (this.pwshThread != Thread.CurrentThread)
             {
                 throw new InvalidOperationException();
             }
@@ -399,7 +496,7 @@ namespace Microsoft.WinGet.Common.Command
         internal bool ShouldProcess(string target)
         {
             // If not on the main thread just continue.
-            if (this.originalThread != Thread.CurrentThread)
+            if (this.pwshThread != Thread.CurrentThread)
             {
                 return true;
             }
@@ -430,7 +527,7 @@ namespace Microsoft.WinGet.Common.Command
                 case StreamType.Progress:
                     // If the activity is already completed don't write progress.
                     var progressRecord = (ProgressRecord)data;
-                    if (this.progressRecords[progressRecord.ActivityId] == ProgressRecordType.Processing)
+                    if (this.progressRecords[progressRecord.ActivityId] == progressRecord.RecordType)
                     {
                         writeCmdlet.psCmdlet.WriteProgress(progressRecord);
                     }
@@ -483,6 +580,28 @@ namespace Microsoft.WinGet.Common.Command
             {
                 throw new NotSupportedException($"Invalid policies {string.Join(",", policies)}");
             }
+        }
+
+        private void WaitForOurTurn()
+        {
+            this.semaphore.Wait(this.GetCancellationToken());
+            this.pwshThreadActionCompleted.Reset();
+        }
+
+        private void WaitMainThreadActionCompletion()
+        {
+            WaitHandle.WaitAny(new[]
+            {
+                this.GetCancellationToken().WaitHandle,
+                this.pwshThreadActionCompleted.WaitHandle,
+            });
+
+            if (this.pwshThreadEdi != null)
+            {
+                this.pwshThreadEdi.Throw();
+            }
+
+            this.semaphore.Release();
         }
 
         private class QueuedStream
