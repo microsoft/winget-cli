@@ -45,7 +45,7 @@ Addition of `InstallerRepair` property to InstallerSwitch
 -  With the `InstallerRepair` switch, the installer that matches the remote source is downloaded and then repaired by using ShellExecute to call the repair switch on the downloaded installer.
 
 ## Manifest Validation
-- `ModifyRepair` and `InstallerRepair` switches are only valid for Burn/Exe installer types.
+- `ModifyRepair` and `InstallerRepair` switches are only valid for Burn/Exe and Msi/WiX installer types.
 - `ModifyRepair` and `InstallerRepair` switches are mutually exclusive.
 
 ## Supported Repair Scenarios
@@ -67,6 +67,7 @@ Addition of `InstallerRepair` property to InstallerSwitch
 - Repair for Burn/Exe installer types without custom repair switch. The possible options are:
    - Download matching installer , uninstall & Install or 
    - Download matching installer & re Install to overwrite existing files.
+- Repair for Msi/WiX installer type with custom repair switch.
 
 ## Resources
 - https://learn.microsoft.com/en-us/windows/msix/desktop/managing-your-msix-reset-and-repair
