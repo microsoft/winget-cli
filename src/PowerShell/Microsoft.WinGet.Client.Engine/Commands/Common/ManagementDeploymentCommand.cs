@@ -10,11 +10,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using System.Collections.Generic;
     using System.Management.Automation;
     using System.Runtime.InteropServices;
+    using System.Threading.Tasks;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// This is the base class for all of the commands in this module that use the COM APIs.
@@ -41,7 +41,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         }
 
         /// <summary>
-        /// Executes the cmdlet. All cmdlets that uses the COM APIs MUST use this method.
+        /// Executes the cmdlet. All cmdlets that uses the COM APIs and don't call async functions MUST use this method.
         /// The inproc COM API may deadlock on an STA thread.
         /// </summary>
         /// <typeparam name="TResult">The type of result of the cmdlet.</typeparam>
@@ -55,6 +55,24 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
 
             return func();
+        }
+
+        /// <summary>
+        /// Executes the cmdlet in a different thread and waits for results.
+        /// </summary>
+        /// <typeparam name="TResult">The type of result of the cmdlet.</typeparam>
+        /// <param name="func">Cmdlet function.</param>
+        /// <returns>The result of the cmdlet.</returns>
+        protected TResult Execute<TResult>(Func<Task<TResult>> func)
+        {
+            var runningTask = this.RunOnMTA(
+                async () =>
+                {
+                    return await func();
+                });
+
+            this.Wait(runningTask);
+            return runningTask.Result;
         }
 
         /// <summary>

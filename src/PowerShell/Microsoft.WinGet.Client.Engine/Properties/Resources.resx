@@ -227,4 +227,17 @@
   <data name="DebugNotSupported" xml:space="preserve">
     <value>Debug parameter not supported</value>
   </data>
+  <data name="DownloadingMessage" xml:space="preserve">
+    <value>Downloading</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Uninstalling" xml:space="preserve">
+    <value>Uninstalling</value>
+  </data>
+  <data name="ReleaseAssetNotFound" xml:space="preserve">
+    <value>Cannot find asset {0}</value>
+    <comment>{Locked="{0}"} {0} - The asset name</comment>
+  </data>
 </root>

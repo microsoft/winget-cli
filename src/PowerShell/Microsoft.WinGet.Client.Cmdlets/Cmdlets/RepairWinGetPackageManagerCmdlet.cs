@@ -21,6 +21,8 @@ namespace Microsoft.WinGet.Client.Commands
     [OutputType(typeof(int))]
     public class RepairWinGetPackageManagerCmdlet : WinGetPackageManagerCmdlet
     {
+        private WinGetPackageManagerCommand command = null;
+
         /// <summary>
         /// Gets or sets a value indicating whether to repair for all users. Requires admin.
         /// </summary>
@@ -28,19 +30,36 @@ namespace Microsoft.WinGet.Client.Commands
         public SwitchParameter AllUsers { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to force application shutdown.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter Force { get; set; }
+
+        /// <summary>
         /// Attempts to repair winget.
         /// TODO: consider WhatIf and Confirm options.
         /// </summary>
         protected override void ProcessRecord()
         {
-            var command = new WinGetPackageManagerCommand(this);
+            this.command = new WinGetPackageManagerCommand(this);
             if (this.ParameterSetName == Constants.IntegrityLatestSet)
             {
-                command.RepairUsingLatest(this.IncludePreRelease.ToBool(), this.AllUsers.ToBool());
+                this.command.RepairUsingLatest(this.IncludePreRelease.ToBool(), this.AllUsers.ToBool(), this.Force.ToBool());
             }
             else
             {
-                command.Repair(this.Version, this.AllUsers.ToBool());
+                this.command.Repair(this.Version, this.AllUsers.ToBool(), this.Force.ToBool());
+            }
+        }
+
+        /// <summary>
+        /// Interrupts currently running code within the command.
+        /// </summary>
+        protected override void StopProcessing()
+        {
+            if (this.command != null)
+            {
+                this.command.Cancel();
             }
         }
     }

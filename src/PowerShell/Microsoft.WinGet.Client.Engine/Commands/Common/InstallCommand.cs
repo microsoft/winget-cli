@@ -104,52 +104,5 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
             return options;
         }
-
-        /// <summary>
-        /// Registers callbacks on an asynchronous operation and waits for the results.
-        /// </summary>
-        /// <param name="operation">The asynchronous operation.</param>
-        /// <param name="activity">A <see cref="string" /> instance.</param>
-        /// <returns>A <see cref="InstallResult" /> instance.</returns>
-        protected InstallResult RegisterCallbacksAndWait(
-            IAsyncOperationWithProgress<InstallResult, InstallProgress> operation,
-            string activity)
-        {
-            var activityId = this.GetNewProgressActivityId();
-            WriteProgressAdapter adapter = new (this);
-            operation.Progress = (context, progress) =>
-            {
-                ProgressRecord record = new (activityId, activity, progress.State.ToString())
-                {
-                    RecordType = ProgressRecordType.Processing,
-                };
-
-                if (progress.State == PackageInstallProgressState.Downloading && progress.BytesRequired != 0)
-                {
-                    record.StatusDescription = $"{progress.BytesDownloaded / 1000000.0f:0.0} MB / {progress.BytesRequired / 1000000.0f:0.0} MB";
-                    record.PercentComplete = (int)(progress.DownloadProgress * 100);
-                }
-                else if (progress.State == PackageInstallProgressState.Installing)
-                {
-                    record.PercentComplete = (int)(progress.InstallationProgress * 100);
-                }
-
-                adapter.WriteProgress(record);
-            };
-            operation.Completed = (context, status) =>
-            {
-                adapter.WriteProgress(new ProgressRecord(activityId, activity, status.ToString())
-                {
-                    RecordType = ProgressRecordType.Completed,
-                });
-                adapter.Completed = true;
-            };
-            System.Console.CancelKeyPress += (sender, e) =>
-            {
-                operation.Cancel();
-            };
-            adapter.Wait();
-            return operation.GetResults();
-        }
     }
 }

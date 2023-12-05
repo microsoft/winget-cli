@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using System;
     using System.Collections.Generic;
     using System.Management.Automation;
+    using System.Threading.Tasks;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
@@ -39,9 +40,16 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="preRelease">Use prerelease version on GitHub.</param>
         public void AssertUsingLatest(bool preRelease)
         {
-            var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
-            string expectedVersion = gitHubClient.GetLatestVersionTagName(preRelease);
-            this.Assert(expectedVersion);
+            var runningTask = this.RunOnMTA(
+                async () =>
+                {
+                    var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                    string expectedVersion = await gitHubClient.GetLatestReleaseTagNameAsync(preRelease);
+                    this.Assert(expectedVersion);
+                    return true;
+                });
+
+            this.Wait(runningTask);
         }
 
         /// <summary>
@@ -58,11 +66,20 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         /// <param name="preRelease">Use prerelease version on GitHub.</param>
         /// <param name="allUsers">Install for all users. Requires admin.</param>
-        public void RepairUsingLatest(bool preRelease, bool allUsers)
+        /// <param name="force">Force application shutdown.</param>
+        public void RepairUsingLatest(bool preRelease, bool allUsers, bool force)
         {
-            var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
-            string expectedVersion = gitHubClient.GetLatestVersionTagName(preRelease);
-            this.Repair(expectedVersion, allUsers);
+            this.ValidateWhenAllUsers(allUsers);
+            var runningTask = this.RunOnMTA(
+                async () =>
+                {
+                    var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                    string expectedVersion = await gitHubClient.GetLatestReleaseTagNameAsync(preRelease);
+                    await this.RepairStateMachineAsync(expectedVersion, allUsers, force);
+                    return true;
+                });
+
+            this.Wait(runningTask);
         }
 
         /// <summary>
@@ -70,31 +87,29 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         /// <param name="expectedVersion">The expected version, if any.</param>
         /// <param name="allUsers">Install for all users. Requires admin.</param>
-        public void Repair(string expectedVersion, bool allUsers)
+        /// <param name="force">Force application shutdown.</param>
+        public void Repair(string expectedVersion, bool allUsers, bool force)
         {
-            if (allUsers)
-            {
-                if (Utilities.ExecutingAsSystem)
+            this.ValidateWhenAllUsers(allUsers);
+            var runningTask = this.RunOnMTA(
+                async () =>
                 {
-                    throw new NotSupportedException();
-                }
-
-                if (!Utilities.ExecutingAsAdministrator)
-                {
-                    throw new WinGetRepairException(Resources.RepairAllUsersMessage);
-                }
-            }
-
-            this.RepairStateMachine(expectedVersion, allUsers);
+                    await this.RepairStateMachineAsync(expectedVersion, allUsers, force);
+                    return true;
+                });
+            this.Wait(runningTask);
         }
 
-        private void RepairStateMachine(string expectedVersion, bool allUsers)
+        private async Task RepairStateMachineAsync(string expectedVersion, bool allUsers, bool force)
         {
             var seenCategories = new HashSet<IntegrityCategory>();
+            var cancellationToken = this.GetCancellationToken();
 
             var currentCategory = IntegrityCategory.Unknown;
             while (currentCategory != IntegrityCategory.Installed)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     WinGetIntegrity.AssertWinGet(this, expectedVersion);
@@ -117,7 +132,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     switch (currentCategory)
                     {
                         case IntegrityCategory.UnexpectedVersion:
-                            this.InstallDifferentVersion(new WinGetVersion(expectedVersion), allUsers);
+                            await this.InstallDifferentVersionAsync(new WinGetVersion(expectedVersion), allUsers, force);
                             break;
                         case IntegrityCategory.NotInPath:
                             this.RepairEnvPath();
@@ -128,13 +143,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                         case IntegrityCategory.AppInstallerNotInstalled:
                         case IntegrityCategory.AppInstallerNotSupported:
                         case IntegrityCategory.Failure:
-                            this.Install(expectedVersion, allUsers);
+                            await this.InstallAsync(expectedVersion, allUsers, force);
                             break;
                         case IntegrityCategory.AppInstallerNoLicense:
                             // This requires -AllUsers in admin mode.
                             if (allUsers && Utilities.ExecutingAsAdministrator)
                             {
-                                this.Install(expectedVersion, allUsers);
+                                await this.InstallAsync(expectedVersion, allUsers, force);
                             }
                             else
                             {
@@ -152,7 +167,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
         }
 
-        private void InstallDifferentVersion(WinGetVersion toInstallVersion, bool allUsers)
+        private async Task InstallDifferentVersionAsync(WinGetVersion toInstallVersion, bool allUsers, bool force)
         {
             var installedVersion = WinGetVersion.InstalledWinGetVersion;
             bool isDowngrade = installedVersion.CompareAsDeployment(toInstallVersion) > 0;
@@ -164,10 +179,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 StreamType.Verbose,
                 message);
             var appxModule = new AppxModuleHelper(this);
-            appxModule.InstallFromGitHubRelease(toInstallVersion.TagVersion, allUsers, isDowngrade);
+            await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion.TagVersion, allUsers, isDowngrade, force);
         }
 
-        private void Install(string toInstallVersion, bool allUsers)
+        private async Task InstallAsync(string toInstallVersion, bool allUsers, bool force)
         {
             // If we are here and toInstallVersion is empty, it means that they just ran Repair-WinGetPackageManager.
             // When there is not version specified, we don't want to assume an empty version means latest, but in
@@ -175,11 +190,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             if (string.IsNullOrEmpty(toInstallVersion))
             {
                 var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
-                toInstallVersion = gitHubClient.GetLatestVersionTagName(false);
+                toInstallVersion = await gitHubClient.GetLatestReleaseTagNameAsync(false);
             }
 
             var appxModule = new AppxModuleHelper(this);
-            appxModule.InstallFromGitHubRelease(toInstallVersion, allUsers, false);
+            await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion, allUsers, false, force);
         }
 
         private void Register()
@@ -200,6 +215,22 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.SetVariable(EnvPath, newPwshPathEnv);
 
             this.Write(StreamType.Verbose, $"PATH environment variable updated");
+        }
+
+        private void ValidateWhenAllUsers(bool allUsers)
+        {
+            if (allUsers)
+            {
+                if (Utilities.ExecutingAsSystem)
+                {
+                    throw new NotSupportedException();
+                }
+
+                if (!Utilities.ExecutingAsAdministrator)
+                {
+                    throw new WinGetRepairException(Resources.RepairAllUsersMessage);
+                }
+            }
         }
     }
 }
