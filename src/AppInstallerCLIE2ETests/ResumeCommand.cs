@@ -68,23 +68,45 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Verifies that a checkpoint record persists after a failed install.
+        /// Test install a package that returns REBOOT_REQUIRED_TO_FINISH and verify that the checkpoint database is properly cleaned up.
         /// </summary>
         [Test]
-        public void ResumeRecordPreserved()
+        public void InstallRequiresRebootToFinish()
+        {
+            var checkpointsDir = TestCommon.GetCheckpointsDirectory();
+            int initialCheckpointsCount = Directory.Exists(checkpointsDir) ? Directory.GetDirectories(checkpointsDir).Length : 0;
+
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"TestRebootRequired --custom \"/ExitCode 9\" -l {installDir}");
+
+            // REBOOT_REQUIRED_TO_FINISH is treated as a success.
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Restart your PC to finish installation."));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
+
+            int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
+
+            // Checkpoint database should be cleaned up since resume is not needed to complete installation.
+            Assert.AreEqual(initialCheckpointsCount, actualCheckpointsCount);
+        }
+
+        /// <summary>
+        /// Test install a package that returns REBOOT_REQUIRED_FOR_INSTALL and verify that resume command can be called successfully.
+        /// </summary>
+        [Test]
+        public void InstallRequiresRebootForInstall()
         {
             var checkpointsDir = TestCommon.GetCheckpointsDirectory();
 
             int initialCheckpointsCount = Directory.Exists(checkpointsDir) ? Directory.GetDirectories(checkpointsDir).Length : 0;
 
-            // TODO: Refine test case to more accurately reflect usage once resume is fully implemented.
-            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInvalidRelativePath");
-            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"TestRebootRequired --custom \"/ExitCode 10\" -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Your PC will restart to finish installation."));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
 
             int actualCheckpointsCount = Directory.GetDirectories(checkpointsDir).Length;
-
-            // One new checkpoint record should be created after running the install command.
             Assert.AreEqual(initialCheckpointsCount + 1, actualCheckpointsCount);
 
             var checkpointsDirectoryInfo = new DirectoryInfo(checkpointsDir);
@@ -95,8 +117,9 @@ namespace AppInstallerCLIE2ETests
 
             // Resume output should be the same as the install result.
             var resumeResult = TestCommon.RunAICLICommand("resume", $"-g {checkpoint.Name}");
-            Assert.AreNotEqual(Constants.ErrorCode.S_OK, resumeResult.ExitCode);
-            Assert.True(resumeResult.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL, resumeResult.ExitCode);
+            Assert.True(resumeResult.StdOut.Contains("Your PC will restart to finish installation."));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
     }
 }

@@ -73,6 +73,7 @@ namespace AppInstaller
     namespace Reboot
     {
         void TestHook_SetInitiateRebootResult_Override(bool* status);
+        void TestHook_SetRegisterForRestartResult_Override(bool* status);
     }
 }
 
@@ -194,5 +195,21 @@ namespace TestHook
         }
 
     private:
+    };
+
+    struct SetRegisterForRestartResult_Override
+    {
+        SetRegisterForRestartResult_Override(bool status) : m_status(status)
+        {
+            AppInstaller::Reboot::TestHook_SetRegisterForRestartResult_Override(&m_status);
+        }
+
+        ~SetRegisterForRestartResult_Override()
+        {
+            AppInstaller::Reboot::TestHook_SetRegisterForRestartResult_Override(nullptr);
+        }
+
+    private:
+        bool m_status;
     };
 }

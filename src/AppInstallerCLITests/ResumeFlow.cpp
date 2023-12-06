@@ -9,6 +9,7 @@
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
 #include <CheckpointManager.h>
+#include <Workflows/ShellExecuteInstallerHandler.h>
 
 using namespace std::string_literals;
 using namespace AppInstaller::CLI;
@@ -154,7 +155,6 @@ TEST_CASE("ResumeFlow_InstallSuccess", "[Resume]")
     REQUIRE(checkpointFiles.size() == 0);
 }
 
-// TODO: This test will need to be updated once saving the resume state is restricted to certain HRs.
 TEST_CASE("ResumeFlow_InstallFailure", "[Resume]")
 {
     TestCommon::TempDirectory tempCheckpointRecordDirectory("TempCheckpointRecordDirectory", false);
@@ -183,15 +183,97 @@ TEST_CASE("ResumeFlow_InstallFailure", "[Resume]")
         REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
     }
 
-    // Only one checkpoint file should be created.
-    std::vector<std::filesystem::path> checkpointFiles;
-    for (const auto& entry : std::filesystem::directory_iterator(tempCheckpointRecordDirectoryPath))
+    // Checkpoint file should be cleaned up if the hr is not reboot related.
+    REQUIRE(std::filesystem::is_empty(tempCheckpointRecordDirectoryPath));
+}
+
+
+TEST_CASE("ResumeFlow_WriteToRunOnceRegistry", "[Reboot][Resume][windowsFeature]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
     {
-        checkpointFiles.emplace_back(entry.path());
+        WARN("Test requires admin privilege. Skipped.");
+        return;
     }
 
-    REQUIRE(checkpointFiles.size() == 1);
+    TestCommon::TempDirectory tempCheckpointRecordDirectory("TempCheckpointRecordDirectory", false);
 
-    std::filesystem::path checkpointRecordPath = checkpointFiles[0];
-    REQUIRE(std::filesystem::exists(checkpointRecordPath));
+    const auto& tempCheckpointRecordDirectoryPath = tempCheckpointRecordDirectory.GetPath();
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointRecordDirectoryPath);
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFResume>(true);
+    testSettings.Set<Setting::EFReboot>(true);
+    testSettings.Set<Setting::EFWindowsFeature>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideOpenDependencySource(context);
+    OverrideRegisterStartupAfterReboot(context);
+
+    // Override with reboot required HRESULT.
+    auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(ERROR_SUCCESS);
+    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
+    TestHook::SetRegisterForRestartResult_Override registerForRestartResultOverride(false);
+    TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
+
+    const auto& testManifestPath = TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string();
+    context.Args.AddArg(Execution::Args::Type::Manifest, testManifestPath);
+    context.Args.AddArg(Execution::Args::Type::AllowReboot);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL);
+}
+
+TEST_CASE("ResumeFlow_ResumeLimitExceeded", "[Resume]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    TestCommon::TempDirectory tempCheckpointsLocationDir("TempCheckpointsLocationDir", true);
+
+    const auto& tempCheckpointRecordDirectoryPath = tempCheckpointsLocationDir.GetPath();
+    TestHook_SetPathOverride(PathName::CheckpointsLocation, tempCheckpointRecordDirectoryPath);
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFResume>(true);
+    testSettings.Set<Setting::MaxResumes>(1);
+
+    std::filesystem::path testResumeId = L"testResumeId";
+    std::filesystem::path tempResumeDir = tempCheckpointRecordDirectoryPath / testResumeId;
+    std::filesystem::path tempCheckpointDatabasePath = tempResumeDir / L"checkpoints.db";
+    std::filesystem::create_directory(tempResumeDir);
+
+    {
+        std::shared_ptr<CheckpointDatabase> database = CheckpointDatabase::CreateNew(tempCheckpointDatabasePath.u8string(), {1, 0});
+        std::string_view testCheckpointName = "testCheckpoint"sv;
+
+        CheckpointDatabase::IdType checkpointId = database->AddCheckpoint(testCheckpointName);
+        database->SetDataValue(checkpointId, AutomaticCheckpointData::Command, {}, { "install" });
+        database->SetDataValue(checkpointId, AutomaticCheckpointData::ClientVersion, {}, { GetClientVersion()});
+        database->SetDataValue(checkpointId, AutomaticCheckpointData::ResumeCount, {}, {"1"});
+    }
+
+    {
+        std::ostringstream resumeOutput;
+        TestContext resumeContext{ resumeOutput, std::cin };
+        auto previousThreadGlobals = resumeContext.SetForCurrentThread();
+        resumeContext.Args.AddArg(Execution::Args::Type::ResumeId, testResumeId.u8string());
+
+        ResumeCommand resume({});
+        resume.Execute(resumeContext);
+        INFO(resumeOutput.str());
+        REQUIRE(resumeContext.IsTerminated());
+        REQUIRE(resumeContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED);
+
+        REQUIRE(resumeOutput.str().find(Resource::LocString(Resource::String::ResumeLimitExceeded('1')).get()) != std::string::npos);
+        REQUIRE(resumeOutput.str().find("winget resume -g " + testResumeId.u8string() + " --ignore-resume-limit") != std::string::npos);
+    }
 }

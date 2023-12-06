@@ -34,7 +34,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         static bool HasDataField(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type, std::string_view name);
 
         // Removes the context data by checkpoint id.
-        static void RemoveData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData);
+        static void RemoveDataType(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData);
 
         // Gets a single data value for a context data.
         static std::string GetDataValue(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int type);
