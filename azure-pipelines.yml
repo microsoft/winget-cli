@@ -370,6 +370,18 @@ jobs:
       flattenFolders: true
 
   - task: CopyFiles@2
+    displayName: 'Copy native binaries for Microsoft.WinGet.Client'
+    inputs:
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll
+          Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
+          WindowsPackageManager\WindowsPackageManager.dll
+          UndockedRegFreeWinRT\winrtact.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net48\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
     displayName: 'Copy native binaries for Microsoft.WinGet.Configuration'
     inputs:
       SourceFolder: $(buildOutDir)

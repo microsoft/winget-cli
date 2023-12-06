@@ -1,9 +1,10 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="CustomAssemblyLoadContext.cs" company="Microsoft Corporation">
+// <copyright file="WinGetAssemblyLoadContext.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
-namespace Microsoft.WinGet.Configuration.Acl
+#if !POWERSHELL_WINDOWS
+namespace Microsoft.WinGet.Resolver
 {
     using System;
     using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace Microsoft.WinGet.Configuration.Acl
     /// This helps us load our dependencies without carrying about apps importing this module.
     /// All dependencies except the Engine dll needs to be under a Dependencies directory.
     /// </summary>
-    internal class CustomAssemblyLoadContext : AssemblyLoadContext
+    internal class WinGetAssemblyLoadContext : AssemblyLoadContext
     {
         // The assemblies must be loaded in the default context.
         // Loading WinRT.Runtime.dll in an ALC when is already loaded in the default context
@@ -28,31 +29,29 @@ namespace Microsoft.WinGet.Configuration.Acl
             @"WinRT.Runtime.dll",
         };
 
-        private static readonly string SharedDependencyPath = Path.Combine(
-            Path.GetDirectoryName(typeof(CustomAssemblyLoadContext).Assembly.Location),
-            "SharedDependencies");
+        private static readonly string SharedDependencyPath;
+        private static readonly string SharedArchDependencyPath;
+        private static readonly string DirectDependencyPath;
 
-        private static readonly string DirectDependencyPath = Path.Combine(
-            Path.GetDirectoryName(typeof(CustomAssemblyLoadContext).Assembly.Location),
-            "DirectDependencies");
+        private static readonly WinGetAssemblyLoadContext WinGetAcl = new ();
 
-        private static readonly IEnumerable<Architecture> ValidArchs = new Architecture[] { Architecture.X86, Architecture.X64, Architecture.Arm64 };
+        static WinGetAssemblyLoadContext()
+        {
+            var self = typeof(WinGetAssemblyLoadContext).Assembly;
+            SharedDependencyPath = Path.Combine(
+                Path.GetDirectoryName(self.Location),
+                "SharedDependencies");
+            SharedArchDependencyPath = Path.Combine(
+                SharedDependencyPath,
+                RuntimeInformation.ProcessArchitecture.ToString().ToLower());
+            DirectDependencyPath = Path.Combine(
+                Path.GetDirectoryName(self.Location),
+                "DirectDependencies");
+        }
 
-        private static readonly CustomAssemblyLoadContext WinGetAcl = new ();
-
-        private readonly string sharedArchDependencyPath;
-
-        private CustomAssemblyLoadContext()
+        private WinGetAssemblyLoadContext()
             : base("WinGetAssemblyLoadContext", isCollectible: false)
         {
-            var arch = RuntimeInformation.ProcessArchitecture;
-
-            if (!ValidArchs.Contains(arch))
-            {
-                throw new NotSupportedException(arch.ToString());
-            }
-
-            this.sharedArchDependencyPath = Path.Combine(SharedDependencyPath, arch.ToString().ToLower());
         }
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace Microsoft.WinGet.Configuration.Acl
                 }
             }
 
-            string path = $"{Path.Combine(DirectDependencyPath, assemblyName.Name)}.dll";
+            string path = Path.Combine(DirectDependencyPath, name);
             if (File.Exists(path))
             {
                 return WinGetAcl.LoadFromAssemblyName(assemblyName);
@@ -91,19 +90,19 @@ namespace Microsoft.WinGet.Configuration.Acl
                 return null;
             }
 
-            string path = $"{Path.Combine(SharedDependencyPath, assemblyName.Name)}.dll";
+            string path = Path.Combine(SharedDependencyPath, name);
             if (File.Exists(path))
             {
                 return this.LoadFromAssemblyPath(path);
             }
 
-            path = $"{Path.Combine(this.sharedArchDependencyPath, assemblyName.Name)}.dll";
+            path = Path.Combine(SharedArchDependencyPath, name);
             if (File.Exists(path))
             {
                 return this.LoadFromAssemblyPath(path);
             }
 
-            path = $"{Path.Combine(DirectDependencyPath, assemblyName.Name)}.dll";
+            path = Path.Combine(DirectDependencyPath, name);
             if (File.Exists(path))
             {
                 return this.LoadFromAssemblyPath(path);
@@ -115,7 +114,7 @@ namespace Microsoft.WinGet.Configuration.Acl
         /// <inheritdoc/>
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
-            string path = Path.Combine(SharedDependencyPath, unmanagedDllName);
+            string path = Path.Combine(SharedArchDependencyPath, unmanagedDllName);
             if (File.Exists(path))
             {
                 return this.LoadUnmanagedDllFromPath(path);
@@ -125,3 +124,4 @@ namespace Microsoft.WinGet.Configuration.Acl
         }
     }
 }
+#endif
