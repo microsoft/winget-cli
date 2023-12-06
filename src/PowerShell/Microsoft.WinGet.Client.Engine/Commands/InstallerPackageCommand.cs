@@ -94,6 +94,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageFieldMatchOption,
             string psPackageInstallMode)
         {
+            CatalogPackage? catalogPackage = null;
+
             var result = this.Execute(
                 async () => await this.GetPackageAndExecuteAsync(
                     CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs,
@@ -109,12 +111,14 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
                         options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
 
+                        catalogPackage = package;
                         return await this.InstallPackageAsync(package, options);
                     }));
 
             if (result != null)
             {
-                this.Write(StreamType.Object, new PSInstallResult(result));
+
+                this.Write(StreamType.Object, new PSInstallResult(result, catalogPackage));
             }
         }
 
@@ -129,6 +133,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageFieldMatchOption,
             string psPackageInstallMode)
         {
+            CatalogPackage? catalogPackage = null;
+
             var result = this.Execute(
                 async () => await this.GetPackageAndExecuteAsync(
                     CompositeSearchBehavior.LocalCatalogs,
@@ -137,12 +143,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     {
                         InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
                         options.AllowUpgradeToUnknownVersion = includeUnknown;
+                        catalogPackage = package;
                         return await this.UpgradePackageAsync(package, options);
                     }));
 
             if (result != null)
             {
-                this.Write(StreamType.Object, new PSInstallResult(result));
+                this.Write(StreamType.Object, new PSInstallResult(result, catalogPackage));
             }
         }
 

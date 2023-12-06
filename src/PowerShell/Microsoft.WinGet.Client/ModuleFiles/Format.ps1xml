@@ -95,6 +95,15 @@
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
+            <Label>Id</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Source</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>InstallerErrorCode</Label>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -113,6 +122,15 @@
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.Id</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Source</ScriptBlock>
+              </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>$_.InstallerErrorCode</ScriptBlock>
               </TableColumnItem>
@@ -141,6 +159,15 @@
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
+            <Label>Id</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Source</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>UninstallerErrorCode</Label>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -159,6 +186,15 @@
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.Id</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Source</ScriptBlock>
+              </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>$_.UninstallerErrorCode</ScriptBlock>
               </TableColumnItem>
