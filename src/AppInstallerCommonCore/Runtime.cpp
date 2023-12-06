@@ -478,14 +478,12 @@ namespace AppInstaller::Runtime
         case PathName::CLIExecutable:
             result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
             result.Path /= s_WindowsApps_Base;
-            if (IsReleaseBuild())
-            {
-                result.Path /= s_WinGet_Exe;
-            }
-            else
-            {
-                result.Path /= s_WinGetDev_Exe;
-            }
+            result.Path /= GetPackageFamilyName();
+#if USE_PROD_CLSIDS
+            result.Path /= s_WinGet_Exe;
+#else
+            result.Path /= s_WinGetDev_Exe;
+#endif
             result.Create = false;
             mayBeInProfilePath = true;
             break;
