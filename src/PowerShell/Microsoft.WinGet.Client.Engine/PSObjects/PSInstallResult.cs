@@ -35,7 +35,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.catalogPackage != null ? this.catalogPackage.Id : string.Empty;
+                return this.catalogPackage?.Id ?? string.Empty;
             }
         }
 
@@ -46,7 +46,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.catalogPackage != null ? this.catalogPackage.Name : string.Empty;
+                return this.catalogPackage?.Name ?? string.Empty;
             }
         }
 
@@ -57,7 +57,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.catalogPackage != null ? this.catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name : string.Empty;
+                return this.catalogPackage?.DefaultInstallVersion.PackageCatalog.Info.Name ?? string.Empty;
             }
         }
 
