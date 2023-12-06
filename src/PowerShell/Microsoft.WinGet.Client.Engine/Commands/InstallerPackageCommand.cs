@@ -117,7 +117,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
             if (result != null)
             {
-
                 this.Write(StreamType.Object, new PSInstallResult(result, catalogPackage));
             }
         }
