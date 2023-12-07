@@ -56,7 +56,6 @@ namespace AppInstaller::Logging
         Core = 0x20,
         Test = 0x40,
         Config = 0x80,
-        // Put special channel semantics at the end to preserve the bitspace.
         None = 0,
         All = 0xFFFFFFFF,
         Defaults = All & ~SQL,
