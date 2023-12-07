@@ -576,3 +576,34 @@ TEST_CASE("SettingsMaxResumes", "[settings]")
         REQUIRE(userSettingTest.Get<Setting::MaxResumes>() == 5);
     }
 }
+
+TEST_CASE("LoggingChannels", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("No channels")
+    {
+        std::string_view json = R"({ "logging": { "channels": [] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == 0);
+    }
+    SECTION("Default")
+    {
+        std::string_view json = R"({ "logging": { "channels": ["default"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == DiagnosticLogger::ConvertChannelToBitmask(Channel::Defaults));
+    }
+    SECTION("Multiple")
+    {
+        std::string_view json = R"({ "logging": { "channels": ["core","Repo","YAML"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() ==
+            (DiagnosticLogger::ConvertChannelToBitmask(Channel::Core) | DiagnosticLogger::ConvertChannelToBitmask(Channel::Repo) | DiagnosticLogger::ConvertChannelToBitmask(Channel::YAML)));
+    }
+}

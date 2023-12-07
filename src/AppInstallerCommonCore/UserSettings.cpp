@@ -435,6 +435,18 @@ namespace AppInstaller::Settings
             }
             return {};
         }
+
+        WINGET_VALIDATE_SIGNATURE(LoggingChannelPreference)
+        {
+            uint64_t result = 0;
+
+            for (auto const& entry : value)
+            {
+                result |= Logging::DiagnosticLogger::ConvertChannelToBitmask(GetChannelFromName(entry));
+            }
+
+            return result;
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

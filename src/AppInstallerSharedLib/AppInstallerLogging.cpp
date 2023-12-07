@@ -4,32 +4,12 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDateTime.h"
+#include "Public/AppInstallerLanguageUtilities.h"
 #include "Public/winget/SharedThreadGlobals.h"
 
 namespace AppInstaller::Logging
 {
-    namespace
-    {
-        template <typename E>
-        std::underlying_type_t<E> AsNum(E e)
-        {
-            return static_cast<std::underlying_type_t<E>>(e);
-        }
-
-        uint64_t ConvertChannelToBitmask(Channel channel)
-        {
-            if (channel == Channel::All)
-            {
-                return std::numeric_limits<uint64_t>::max();
-            }
-            else
-            {
-                return (1ull << AsNum(channel));
-            }
-        }
-    }
-
-    char const* GetChannelName(Channel channel)
+    std::string_view GetChannelName(Channel channel)
     {
         switch(channel)
         {
@@ -43,6 +23,54 @@ namespace AppInstaller::Logging
         case Channel::Config: return "CONF";
         default:              return "NONE";
         }
+    }
+
+    Channel GetChannelFromName(std::string_view channel)
+    {
+        std::string lowerChannel = Utility::ToLower(channel);
+
+        if (lowerChannel == "fail")
+        {
+            return Channel::Fail;
+        }
+        else if (lowerChannel == "cli")
+        {
+            return Channel::CLI;
+        }
+        else if (lowerChannel == "sql")
+        {
+            return Channel::SQL;
+        }
+        else if (lowerChannel == "repo")
+        {
+            return Channel::Repo;
+        }
+        else if (lowerChannel == "yaml")
+        {
+            return Channel::YAML;
+        }
+        else if (lowerChannel == "core")
+        {
+            return Channel::Core;
+        }
+        else if (lowerChannel == "test")
+        {
+            return Channel::Test;
+        }
+        else if (lowerChannel == "conf" || lowerChannel == "config")
+        {
+            return Channel::Config;
+        }
+        else if (lowerChannel == "default" || lowerChannel == "defaults")
+        {
+            return Channel::Defaults;
+        }
+        else if (lowerChannel == "all")
+        {
+            return Channel::All;
+        }
+
+        return Channel::None;
     }
 
     size_t GetMaxChannelNameLength() { return 4; }
@@ -97,6 +125,31 @@ namespace AppInstaller::Logging
         m_enabledChannels &= ~ConvertChannelToBitmask(channel);
     }
 
+    uint64_t DiagnosticLogger::ConvertChannelToBitmask(Channel channel)
+    {
+        if (channel == Channel::All)
+        {
+            return std::numeric_limits<uint64_t>::max();
+        }
+        else if (channel == Channel::Defaults)
+        {
+            return ConvertChannelToBitmask(Channel::All) & ~ConvertChannelToBitmask(Channel::SQL);
+        }
+        else if (channel == Channel::None)
+        {
+            return 0;
+        }
+        else
+        {
+            return (1ull << ToIntegral(channel));
+        }
+    }
+
+    void DiagnosticLogger::EnableChannelsByBitmask(uint64_t mask)
+    {
+        m_enabledChannels = mask;
+    }
+
     void DiagnosticLogger::SetLevel(Level level)
     {
         m_enabledLevel = level;
@@ -111,7 +164,7 @@ namespace AppInstaller::Logging
     {
         return (!m_loggers.empty() &&
                 (m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
-                (AsNum(level) >= AsNum(m_enabledLevel)));
+                (ToIntegral(level) >= ToIntegral(m_enabledLevel)));
     }
 
     void DiagnosticLogger::Write(Channel channel, Level level, std::string_view message)

@@ -41,16 +41,26 @@
       "type": "object",
       "properties": {
         "level": {
-          "description": "Preferred logging level",
-          "type": "string",
-          "enum": [
-            "verbose",
-            "info",
-            "warning",
-            "error",
-            "critical"
-          ]
-        }
+            "description": "Preferred logging level",
+            "type": "string",
+            "enum": [
+                "verbose",
+                "info",
+                "warning",
+                "error",
+                "critical"
+            ]
+        },
+        "channels": {
+          "description": "The logging channels to enable",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "minItems": 0,
+          "maxItems": 20
+        },
       }
     },
     "InstallPrefReq": {

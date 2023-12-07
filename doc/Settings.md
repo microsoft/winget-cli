@@ -194,14 +194,31 @@ If set to true, the `telemetry.disable` setting will prevent any event from bein
 
 ## Logging
 
-The `logging` settings control the level of detail in log files. `--verbose-logs` will override this setting and always creates a verbose log.
-Defaults to `info` if value is not set or is invalid
+The `logging` settings control the level of detail in log files.
 
 ### level
 
+ `--verbose-logs` will override this setting and always creates a verbose log.
+Defaults to `info` if value is not set or is invalid.
+
 ```json
     "logging": {
-        "level": ["verbose", "info", "warning", "error", "critical"]
+        "level": "verbose" | "info" | "warning" | "error" | "critical"
+    },
+```
+
+### channels
+
+The valid values in this array are defined in the function `GetChannelFromName` in the [logging code](../src/AppInstallerSharedLib/AppInstallerLogging.cpp).  These align with the ***channel identifier*** found in the log files.  For example, ***`CORE`*** in:
+```
+2023-12-06 19:17:07.988 [CORE] WinGet, version [1.7.0-preview], activity [{24A91EA8-46BE-47A1-B65C-CEBCE90B8675}]
+```
+
+In addition, there are special values that cover multiple channels.  `default` is the default set of channels, while `all` is all of the channels.  Invalid values are ignored.
+
+```json
+    "logging": {
+        "channels": ["default"]
     },
 ```
 

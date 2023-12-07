@@ -56,11 +56,17 @@ namespace AppInstaller::Logging
         Core,
         Test,
         Config,
+        // Put special channel semantics at the end to preserve the bitspace.
+        None,
+        Defaults,
         All,
     };
 
     // Gets the channel's name as a string.
-    char const* GetChannelName(Channel channel);
+    std::string_view GetChannelName(Channel channel);
+
+    // Gets the channel from it's name.
+    Channel GetChannelFromName(std::string_view channel);
 
     // Gets the maximum channel name length in characters.
     size_t GetMaxChannelNameLength();
@@ -131,6 +137,12 @@ namespace AppInstaller::Logging
 
         // Disables the given channel.
         void DisableChannel(Channel channel);
+
+        // Converts the channel to its mask representation.
+        static uint64_t ConvertChannelToBitmask(Channel channel);
+
+        // Enables the channels per the given mask.
+        void EnableChannelsByBitmask(uint64_t mask);
 
         // Sets the enabled level.
         // All levels higher than this level will be enabled.
