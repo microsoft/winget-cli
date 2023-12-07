@@ -217,8 +217,8 @@ namespace AppInstaller::CLI::Workflow
 
                 if (arch1 > arch2)
                 {
-                    // A match with the system architecture is strong, while another "emulated" architecture is weak.
-                    return (first.Arch == Utility::GetSystemArchitecture() ? details::ComparisonResult::StrongPositive : details::ComparisonResult::WeakPositive);
+                    // A match with the primary architecture is strong
+                    return (first.Arch == GetStrongArchitectureMatch() ? details::ComparisonResult::StrongPositive : details::ComparisonResult::WeakPositive);
                 }
 
                 return details::ComparisonResult::Negative;
@@ -244,6 +244,13 @@ namespace AppInstaller::CLI::Workflow
                     installer.UnsupportedOSArchitectures.end(),
                     Utility::GetSystemArchitecture());
                 return unsupportedItr != installer.UnsupportedOSArchitectures.end();
+            }
+
+            Utility::Architecture GetStrongArchitectureMatch()
+            {
+                // If we have a preferential order, treat the first entry as strong.
+                // Otherwise, treat the system architecture as strong (which is always first in the default order).
+                return m_allowedArchitectures.empty() ? Utility::GetSystemArchitecture() : m_allowedArchitectures.front();
             }
 
             std::vector<Utility::Architecture> m_allowedArchitectures;
@@ -849,6 +856,14 @@ namespace AppInstaller::CLI::Workflow
         for (auto comparator : m_comparators)
         {
             details::ComparisonResult forwardCompare = comparator->IsFirstBetter(first, second);
+            details::ComparisonResult reverseCompare = comparator->IsFirstBetter(second, first);
+
+            // Should not happen, but if it does it points at a serious bug that should be fixed.
+            if (forwardCompare != details::ComparisonResult::Negative && reverseCompare != details::ComparisonResult::Negative)
+            {
+                AICLI_LOG(CLI, Error, << "Installer " << first << " and " << second << " are both better than each other?");
+                THROW_HR(E_UNEXPECTED);
+            }
 
             if (forwardCompare == details::ComparisonResult::StrongPositive)
             {
@@ -856,9 +871,7 @@ namespace AppInstaller::CLI::Workflow
                 return true;
             }
 
-            details::ComparisonResult backwardCompare = comparator->IsFirstBetter(second, first);
-
-            if (backwardCompare == details::ComparisonResult::StrongPositive)
+            if (reverseCompare == details::ComparisonResult::StrongPositive)
             {
                 // Second is better by this comparator, don't allow a lower priority one to override that.
                 AICLI_LOG(CLI, Verbose, << "Installer " << second << " is better [strong] than " << first << " due to: " << comparator->Name());
@@ -873,18 +886,11 @@ namespace AppInstaller::CLI::Workflow
                     firstWeakComparator = comparator->Name();
                     firstWeakComparatorResult = true;
                 }
-                else if (backwardCompare == details::ComparisonResult::WeakPositive)
+                else if (reverseCompare == details::ComparisonResult::WeakPositive)
                 {
                     firstWeakComparator = comparator->Name();
                     firstWeakComparatorResult = false;
                 }
-            }
-
-            // Should not happen, but if it does it points at a serious bug that should be fixed.
-            if (forwardCompare == details::ComparisonResult::WeakPositive && backwardCompare == details::ComparisonResult::WeakPositive)
-            {
-                AICLI_LOG(CLI, Error, << "Installer " << first << " and " << second << " are both weakly better than each other?");
-                THROW_HR(E_UNEXPECTED);
             }
         }
 
