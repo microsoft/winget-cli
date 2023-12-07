@@ -581,6 +581,14 @@ TEST_CASE("LoggingChannels", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();
 
+    SECTION("Not provided")
+    {
+        std::string_view json = R"({ })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == DiagnosticLogger::ConvertChannelToBitmask(Channel::Defaults));
+    }
     SECTION("No channels")
     {
         std::string_view json = R"({ "logging": { "channels": [] } })";
@@ -605,5 +613,14 @@ TEST_CASE("LoggingChannels", "[settings]")
 
         REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() ==
             (DiagnosticLogger::ConvertChannelToBitmask(Channel::Core) | DiagnosticLogger::ConvertChannelToBitmask(Channel::Repo) | DiagnosticLogger::ConvertChannelToBitmask(Channel::YAML)));
+    }
+    SECTION("Some invalid")
+    {
+        std::string_view json = R"({ "logging": { "channels": ["cli","sql","INVALID"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() ==
+            (DiagnosticLogger::ConvertChannelToBitmask(Channel::CLI) | DiagnosticLogger::ConvertChannelToBitmask(Channel::SQL)));
     }
 }

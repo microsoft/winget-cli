@@ -64,7 +64,6 @@ namespace AppInstaller::CLI
         Execution::Context context{ std::cout, std::cin };
         auto previousThreadGlobals = context.SetForCurrentThread();
 
-        // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannelsByBitmask(Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
         Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
         Logging::FileLogger::Add();
