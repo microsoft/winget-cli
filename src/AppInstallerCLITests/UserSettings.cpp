@@ -587,7 +587,7 @@ TEST_CASE("LoggingChannels", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == DiagnosticLogger::ConvertChannelToBitmask(Channel::Defaults));
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == Channel::Defaults);
     }
     SECTION("No channels")
     {
@@ -595,7 +595,7 @@ TEST_CASE("LoggingChannels", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == 0);
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == Channel::None);
     }
     SECTION("Default")
     {
@@ -603,7 +603,7 @@ TEST_CASE("LoggingChannels", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == DiagnosticLogger::ConvertChannelToBitmask(Channel::Defaults));
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == Channel::Defaults);
     }
     SECTION("Multiple")
     {
@@ -611,8 +611,7 @@ TEST_CASE("LoggingChannels", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() ==
-            (DiagnosticLogger::ConvertChannelToBitmask(Channel::Core) | DiagnosticLogger::ConvertChannelToBitmask(Channel::Repo) | DiagnosticLogger::ConvertChannelToBitmask(Channel::YAML)));
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == (Channel::Core | Channel::Repo | Channel::YAML));
     }
     SECTION("Some invalid")
     {
@@ -620,7 +619,6 @@ TEST_CASE("LoggingChannels", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() ==
-            (DiagnosticLogger::ConvertChannelToBitmask(Channel::CLI) | DiagnosticLogger::ConvertChannelToBitmask(Channel::SQL)));
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == (Channel::CLI | Channel::SQL));
     }
 }

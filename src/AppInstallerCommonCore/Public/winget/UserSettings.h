@@ -188,7 +188,7 @@ namespace AppInstaller::Settings
 #endif
         // Logging
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingChannelPreference, std::vector<std::string>, uint64_t, Logging::DiagnosticLogger::ConvertChannelToBitmask(Logging::Channel::Defaults), ".logging.channels"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingChannelPreference, std::vector<std::string>, Logging::Channel, Logging::Channel::Defaults, ".logging.channels"sv);
         // Interactivity
         SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
         

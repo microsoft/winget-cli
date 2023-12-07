@@ -438,11 +438,11 @@ namespace AppInstaller::Settings
 
         WINGET_VALIDATE_SIGNATURE(LoggingChannelPreference)
         {
-            uint64_t result = 0;
+            Logging::Channel result = Logging::Channel::None;
 
             for (auto const& entry : value)
             {
-                result |= Logging::DiagnosticLogger::ConvertChannelToBitmask(GetChannelFromName(entry));
+                result |= GetChannelFromName(entry);
             }
 
             return result;

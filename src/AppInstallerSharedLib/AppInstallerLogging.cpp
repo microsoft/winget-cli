@@ -4,7 +4,6 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDateTime.h"
-#include "Public/AppInstallerLanguageUtilities.h"
 #include "Public/winget/SharedThreadGlobals.h"
 
 namespace AppInstaller::Logging
@@ -117,37 +116,12 @@ namespace AppInstaller::Logging
 
     void DiagnosticLogger::EnableChannel(Channel channel)
     {
-        m_enabledChannels |= ConvertChannelToBitmask(channel);
+        WI_SetAllFlags(m_enabledChannels, channel);
     }
 
     void DiagnosticLogger::DisableChannel(Channel channel)
     {
-        m_enabledChannels &= ~ConvertChannelToBitmask(channel);
-    }
-
-    uint64_t DiagnosticLogger::ConvertChannelToBitmask(Channel channel)
-    {
-        if (channel == Channel::All)
-        {
-            return std::numeric_limits<uint64_t>::max();
-        }
-        else if (channel == Channel::Defaults)
-        {
-            return ConvertChannelToBitmask(Channel::All) & ~ConvertChannelToBitmask(Channel::SQL);
-        }
-        else if (channel == Channel::None)
-        {
-            return 0;
-        }
-        else
-        {
-            return (1ull << ToIntegral(channel));
-        }
-    }
-
-    void DiagnosticLogger::EnableChannelsByBitmask(uint64_t mask)
-    {
-        m_enabledChannels = mask;
+        WI_ClearAllFlags(m_enabledChannels, channel);
     }
 
     void DiagnosticLogger::SetLevel(Level level)
@@ -163,7 +137,7 @@ namespace AppInstaller::Logging
     bool DiagnosticLogger::IsEnabled(Channel channel, Level level) const
     {
         return (!m_loggers.empty() &&
-                (m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
+                WI_IsAnyFlagSet(m_enabledChannels, channel) &&
                 (ToIntegral(level) >= ToIntegral(m_enabledLevel)));
     }
 

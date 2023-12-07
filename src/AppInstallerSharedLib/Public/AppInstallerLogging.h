@@ -48,19 +48,21 @@ namespace AppInstaller::Logging
     // Channels enable large groups of logs to be enabled or disabled together.
     enum class Channel : uint32_t
     {
-        Fail,
-        CLI,
-        SQL,
-        Repo,
-        YAML,
-        Core,
-        Test,
-        Config,
+        Fail = 0x1,
+        CLI = 0x2,
+        SQL = 0x4,
+        Repo = 0x8,
+        YAML = 0x10,
+        Core = 0x20,
+        Test = 0x40,
+        Config = 0x80,
         // Put special channel semantics at the end to preserve the bitspace.
-        None,
-        Defaults,
-        All,
+        None = 0,
+        All = 0xFFFFFFFF,
+        Defaults = All & ~SQL,
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(Channel);
 
     // Gets the channel's name as a string.
     std::string_view GetChannelName(Channel channel);
@@ -138,12 +140,6 @@ namespace AppInstaller::Logging
         // Disables the given channel.
         void DisableChannel(Channel channel);
 
-        // Converts the channel to its mask representation.
-        static uint64_t ConvertChannelToBitmask(Channel channel);
-
-        // Enables the channels per the given mask.
-        void EnableChannelsByBitmask(uint64_t mask);
-
         // Sets the enabled level.
         // All levels higher than this level will be enabled.
         // For example; SetLevel(Verbose) will enable all logs.
@@ -165,7 +161,7 @@ namespace AppInstaller::Logging
     private:
 
         std::vector<std::unique_ptr<ILogger>> m_loggers;
-        uint64_t m_enabledChannels = 0;
+        Channel m_enabledChannels = Channel::None;
         Level m_enabledLevel = Level::Info;
     };
 
