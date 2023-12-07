@@ -210,17 +210,18 @@ namespace AppInstaller::CLI::Workflow
                 return result;
             }
 
-            bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
+            details::ComparisonResult IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
                 auto arch1 = CheckAllowedArchitecture(first.Arch);
                 auto arch2 = CheckAllowedArchitecture(second.Arch);
 
                 if (arch1 > arch2)
                 {
-                    return true;
+                    // A match with the system architecture is strong, while another "emulated" architecture is weak.
+                    return (first.Arch == Utility::GetSystemArchitecture() ? details::ComparisonResult::StrongPositive : details::ComparisonResult::WeakPositive);
                 }
 
-                return false;
+                return details::ComparisonResult::Negative;
             }
 
         private:
@@ -313,11 +314,11 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
+            details::ComparisonResult IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
                 if (m_preference.empty())
                 {
-                    return false;
+                    return details::ComparisonResult::Negative;
                 }
 
                 for (Manifest::InstallerTypeEnum installerTypePreference : m_preference)
@@ -332,15 +333,16 @@ namespace AppInstaller::CLI::Workflow
 
                     if (isFirstInstallerTypePreferred && isSecondInstallerTypePreferred)
                     {
-                        return false;
+                        return details::ComparisonResult::Negative;
                     }
                     else if (isFirstInstallerTypePreferred != isSecondInstallerTypePreferred)
                     {
-                        return isFirstInstallerTypePreferred;
+                        // Treating this as a weak positive because one can use requirements to guarantee the installer type if necessary.
+                        return (isFirstInstallerTypePreferred ? details::ComparisonResult::WeakPositive : details::ComparisonResult::Negative);
                     }
                 }
 
-                return false;
+                return details::ComparisonResult::Negative;
             }
 
         private:
@@ -414,9 +416,17 @@ namespace AppInstaller::CLI::Workflow
                 return result;
             }
 
-            bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
+            details::ComparisonResult IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
-                return (first.EffectiveInstallerType() == m_installedType && second.EffectiveInstallerType() != m_installedType);
+                if (first.EffectiveInstallerType() == m_installedType && second.EffectiveInstallerType() != m_installedType)
+                {
+                    // Installed type matching is intended to be sticky, so make this a strong match.
+                    return details::ComparisonResult::StrongPositive;
+                }
+                else
+                {
+                    return details::ComparisonResult::Negative;
+                }
             }
 
         private:
@@ -540,9 +550,15 @@ namespace AppInstaller::CLI::Workflow
                 return result;
             }
 
-            bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
+            details::ComparisonResult IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
-                return m_preference != Manifest::ScopeEnum::Unknown && (first.Scope == m_preference && second.Scope != m_preference);
+                if (m_preference != Manifest::ScopeEnum::Unknown && first.Scope == m_preference && second.Scope != m_preference)
+                {
+                    // When the second input is unknown, this is a weak result. If it is not (and therefore the opposite of the preference), this is strong.
+                    return (second.Scope == Manifest::ScopeEnum::Unknown ? details::ComparisonResult::WeakPositive : details::ComparisonResult::StrongPositive);
+                }
+
+                return details::ComparisonResult::Negative;
             }
 
         private:
@@ -669,11 +685,11 @@ namespace AppInstaller::CLI::Workflow
                 return result;
             }
 
-            bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
+            details::ComparisonResult IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
                 if (m_preference.empty())
                 {
-                    return false;
+                    return details::ComparisonResult::Negative;
                 }
 
                 for (auto const& preferredLocale : m_preference)
@@ -683,13 +699,14 @@ namespace AppInstaller::CLI::Workflow
 
                     if (firstScore >= Locale::MinimumDistanceScoreAsCompatibleMatch || secondScore >= Locale::MinimumDistanceScoreAsCompatibleMatch)
                     {
-                        return firstScore > secondScore;
+                        // This could probably be enriched to always check all locales and determine strong/weak based off of the MinimumDistanceScoreAsCompatibleMatch.
+                        return (firstScore > secondScore ? details::ComparisonResult::StrongPositive : details::ComparisonResult::Negative);
                     }
                 }
 
                 // At this point, the installer locale matches no preference.
                 // if first is unknown and second is no match for sure, we might prefer unknown one.
-                return first.Locale.empty() && !second.Locale.empty();
+                return (first.Locale.empty() && !second.Locale.empty() ? details::ComparisonResult::WeakPositive : details::ComparisonResult::Negative);
             }
 
         private:
@@ -774,7 +791,7 @@ namespace AppInstaller::CLI::Workflow
 
     InstallerAndInapplicabilities ManifestComparator::GetPreferredInstaller(const Manifest::Manifest& manifest)
     {
-        AICLI_LOG(CLI, Info, << "Starting installer selection.");
+        AICLI_LOG(CLI, Verbose, << "Starting installer selection.");
 
         const Manifest::ManifestInstaller* result = nullptr;
         std::vector<InapplicabilityFlags> inapplicabilitiesInstallers;
@@ -813,7 +830,7 @@ namespace AppInstaller::CLI::Workflow
             auto inapplicability = filter->IsApplicable(installer);
             if (inapplicability != InapplicabilityFlags::None)
             {
-                AICLI_LOG(CLI, Info, << "Installer " << installer << " not applicable: " << filter->ExplainInapplicable(installer));
+                AICLI_LOG(CLI, Verbose, << "Installer " << installer << " not applicable: " << filter->ExplainInapplicable(installer));
                 WI_SetAllFlags(inapplicabilityResult, inapplicability);
             }
         }
@@ -825,19 +842,65 @@ namespace AppInstaller::CLI::Workflow
         const Manifest::ManifestInstaller& first,
         const Manifest::ManifestInstaller& second)
     {
+        // The priority will still be used as a tie-break between weak results.
+        std::optional<std::string_view> firstWeakComparator;
+        bool firstWeakComparatorResult = false;
+
         for (auto comparator : m_comparators)
         {
-            if (comparator->IsFirstBetter(first, second))
+            details::ComparisonResult forwardCompare = comparator->IsFirstBetter(first, second);
+
+            if (forwardCompare == details::ComparisonResult::StrongPositive)
             {
-                AICLI_LOG(CLI, Verbose, << "Installer " << first << " is better than " << second << " due to: " << comparator->Name());
+                AICLI_LOG(CLI, Verbose, << "Installer " << first << " is better [strong] than " << second << " due to: " << comparator->Name());
                 return true;
             }
-            else if (comparator->IsFirstBetter(second, first))
+
+            details::ComparisonResult backwardCompare = comparator->IsFirstBetter(second, first);
+
+            if (backwardCompare == details::ComparisonResult::StrongPositive)
             {
                 // Second is better by this comparator, don't allow a lower priority one to override that.
-                AICLI_LOG(CLI, Verbose, << "Installer " << second << " is better than " << first << " due to: " << comparator->Name());
+                AICLI_LOG(CLI, Verbose, << "Installer " << second << " is better [strong] than " << first << " due to: " << comparator->Name());
                 return false;
             }
+
+            // Save the first weak result that we get
+            if (!firstWeakComparator)
+            {
+                if (forwardCompare == details::ComparisonResult::WeakPositive)
+                {
+                    firstWeakComparator = comparator->Name();
+                    firstWeakComparatorResult = true;
+                }
+                else if (backwardCompare == details::ComparisonResult::WeakPositive)
+                {
+                    firstWeakComparator = comparator->Name();
+                    firstWeakComparatorResult = false;
+                }
+            }
+
+            // Should not happen, but if it does it points at a serious bug that should be fixed.
+            if (forwardCompare == details::ComparisonResult::WeakPositive && backwardCompare == details::ComparisonResult::WeakPositive)
+            {
+                AICLI_LOG(CLI, Error, << "Installer " << first << " and " << second << " are both weakly better than each other?");
+                THROW_HR(E_UNEXPECTED);
+            }
+        }
+
+        // If we found a weak result (and no strong result because we made it here), return it.
+        if (firstWeakComparator)
+        {
+            if (firstWeakComparatorResult)
+            {
+                AICLI_LOG(CLI, Verbose, << "Installer " << first << " is better [weak] than " << second << " due to: " << *firstWeakComparator);
+            }
+            else
+            {
+                AICLI_LOG(CLI, Verbose, << "Installer " << second << " is better [weak] than " << first << " due to: " << *firstWeakComparator);
+            }
+
+            return firstWeakComparatorResult;
         }
 
         // Equal, and thus not better
