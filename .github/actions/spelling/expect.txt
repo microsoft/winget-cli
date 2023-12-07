@@ -40,6 +40,7 @@ BEFACEF
 BFirst
 bght
 BITMAPINFOHEADER
+bitspace
 bkup
 blargle
 blockedbypolicy
