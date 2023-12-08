@@ -15,14 +15,14 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     public sealed class PSInstallResult
     {
         private readonly InstallResult installResult;
-        private readonly CatalogPackage? catalogPackage;
+        private readonly CatalogPackage catalogPackage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PSInstallResult"/> class.
         /// </summary>
         /// <param name="installResult">The install result COM object.</param>
         /// <param name="catalogPackage">The catalog package COM object.</param>
-        internal PSInstallResult(InstallResult installResult, CatalogPackage? catalogPackage)
+        internal PSInstallResult(InstallResult installResult, CatalogPackage catalogPackage)
         {
             this.installResult = installResult;
             this.catalogPackage = catalogPackage;
@@ -35,7 +35,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.catalogPackage?.Id ?? string.Empty;
+                return this.catalogPackage.Id;
             }
         }
 
@@ -46,7 +46,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.catalogPackage?.Name ?? string.Empty;
+                return this.catalogPackage.Name;
             }
         }
 
@@ -57,7 +57,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.catalogPackage?.DefaultInstallVersion.PackageCatalog.Info.Name ?? string.Empty;
+                return this.catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
             }
         }
 

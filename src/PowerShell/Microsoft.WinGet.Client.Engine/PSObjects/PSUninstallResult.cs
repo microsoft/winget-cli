@@ -7,7 +7,6 @@
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System;
-    using System.Management.Automation;
     using Microsoft.Management.Deployment;
 
     /// <summary>
@@ -15,15 +14,15 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     /// </summary>
     public sealed class PSUninstallResult
     {
-        private readonly Management.Deployment.UninstallResult uninstallResult;
-        private readonly CatalogPackage? catalogPackage;
+        private readonly UninstallResult uninstallResult;
+        private readonly CatalogPackage catalogPackage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PSUninstallResult"/> class.
         /// </summary>
         /// <param name="uninstallResult">The uninstall result COM object.</param>
         /// <param name="catalogPackage">The catalog package COM object.</param>
-        internal PSUninstallResult(Management.Deployment.UninstallResult uninstallResult, CatalogPackage? catalogPackage)
+        internal PSUninstallResult(UninstallResult uninstallResult, CatalogPackage catalogPackage)
         {
             this.uninstallResult = uninstallResult;
             this.catalogPackage = catalogPackage;
@@ -36,7 +35,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.catalogPackage?.Id ?? string.Empty;
+                return this.catalogPackage.Id;
             }
         }
 
@@ -47,7 +46,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.catalogPackage?.Name ?? string.Empty;
+                return this.catalogPackage.Name;
             }
         }
 
@@ -58,7 +57,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
             get
             {
-                return this.catalogPackage?.DefaultInstallVersion.PackageCatalog.Info.Name ?? string.Empty;
+                return this.catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
             }
         }
 

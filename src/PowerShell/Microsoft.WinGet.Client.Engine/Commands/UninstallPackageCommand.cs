@@ -72,8 +72,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageFieldMatchOption,
             bool force)
         {
-            CatalogPackage? catalogPackage = null;
-
             var result = this.Execute(
                 async () => await this.GetPackageAndExecuteAsync(
                     CompositeSearchBehavior.LocalCatalogs,
@@ -81,13 +79,12 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     async (package, version) =>
                     {
                         UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);
-                        catalogPackage = package;
                         return await this.UninstallPackageAsync(package, options);
                     }));
 
             if (result != null)
             {
-                this.Write(StreamType.Object, new PSUninstallResult(result, catalogPackage));
+                this.Write(StreamType.Object, new PSUninstallResult(result.Item1, result.Item2));
             }
         }
 
