@@ -576,3 +576,49 @@ TEST_CASE("SettingsMaxResumes", "[settings]")
         REQUIRE(userSettingTest.Get<Setting::MaxResumes>() == 5);
     }
 }
+
+TEST_CASE("LoggingChannels", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Not provided")
+    {
+        std::string_view json = R"({ })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == Channel::Defaults);
+    }
+    SECTION("No channels")
+    {
+        std::string_view json = R"({ "logging": { "channels": [] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == Channel::None);
+    }
+    SECTION("Default")
+    {
+        std::string_view json = R"({ "logging": { "channels": ["default"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == Channel::Defaults);
+    }
+    SECTION("Multiple")
+    {
+        std::string_view json = R"({ "logging": { "channels": ["core","Repo","YAML"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == (Channel::Core | Channel::Repo | Channel::YAML));
+    }
+    SECTION("Some invalid")
+    {
+        std::string_view json = R"({ "logging": { "channels": ["cli","sql","INVALID"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == (Channel::CLI | Channel::SQL));
+    }
+}
