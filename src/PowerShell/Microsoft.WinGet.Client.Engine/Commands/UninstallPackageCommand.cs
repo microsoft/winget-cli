@@ -84,7 +84,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
             if (result != null)
             {
-                this.Write(StreamType.Object, new PSUninstallResult(result));
+                this.Write(StreamType.Object, new PSUninstallResult(result.Item1, result.Item2));
             }
         }
 

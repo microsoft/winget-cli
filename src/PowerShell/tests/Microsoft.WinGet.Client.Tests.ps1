@@ -216,6 +216,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -225,6 +228,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         $result = Install-WinGetPackage -Name TestPortableExe -Version '2.0.0.0' -MatchOption Equals
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
+        $result.Name | Should -Be "TestPortableExe"
+        $result.Source | Should -Be "TestSource"
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -234,6 +240,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         $result = Update-WinGetPackage -Id AppInstallerTest.TestExeInstaller
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -243,6 +252,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         $result = Update-WinGetPackage -Name TestPortableExe
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
+        $result.Name | Should -Be "TestPortableExe"
+        $result.Source | Should -Be "TestSource"
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -252,6 +264,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
         $result.UninstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -261,6 +276,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
         $result = Uninstall-WinGetPackage -Name TestPortableExe
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
+        $result.Name | Should -Be "TestPortableExe"
+        $result.Source | Should -Be "TestSource"
         $result.UninstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -292,6 +310,9 @@ Describe 'Get-WinGetPackage' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'

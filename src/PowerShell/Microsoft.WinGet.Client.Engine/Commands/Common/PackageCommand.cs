@@ -57,7 +57,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <param name="match">The match option.</param>
         /// <param name="callback">The method to call after retrieving the package and version to operate upon.</param>
         /// <returns>Result of the callback.</returns>
-        protected async Task<TResult?> GetPackageAndExecuteAsync<TResult>(
+        protected async Task<Tuple<TResult, CatalogPackage>?> GetPackageAndExecuteAsync<TResult>(
             CompositeSearchBehavior behavior,
             PackageFieldMatchOption match,
             Func<CatalogPackage, PackageVersionId?, Task<TResult>> callback)
@@ -67,7 +67,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             PackageVersionId? version = this.GetPackageVersionId(package);
             if (this.ShouldProcess(package.ToString(version)))
             {
-                return await callback(package, version);
+                var result = await callback(package, version);
+                return new Tuple<TResult, CatalogPackage>(result, package);
             }
 
             return null;

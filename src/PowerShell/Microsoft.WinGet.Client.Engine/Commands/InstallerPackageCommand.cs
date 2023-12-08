@@ -108,13 +108,12 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                         }
 
                         options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
-
                         return await this.InstallPackageAsync(package, options);
                     }));
 
             if (result != null)
             {
-                this.Write(StreamType.Object, new PSInstallResult(result));
+                this.Write(StreamType.Object, new PSInstallResult(result.Item1, result.Item2));
             }
         }
 
@@ -142,7 +141,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
             if (result != null)
             {
-                this.Write(StreamType.Object, new PSInstallResult(result));
+                this.Write(StreamType.Object, new PSInstallResult(result.Item1, result.Item2));
             }
         }
 
