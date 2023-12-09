@@ -11,7 +11,7 @@ issue id: 148
 
 ## Abstract
 
-This specification outlines the design and implementation of a repair feature for the Windows Package Manager.The repair feature aims to provide a convenient and reliable way for users to fix any issues that may arise with their installed applications, such as corrupted files, missing dependencies, or broken registry entries.The initial implementation will support repair for main installer types, such as Msi, Wix, Msix and MSStore installer types, which have native repair capabilities from their respective frameworks. Additionally, other installer types such as Burn/Exe that can specify a custom repair switch in their YAML manifest files can also use the repair feature.The document also outlines the future plans for extending the repair feature to other installer types (Nullsoft, Inno, Portables) that do not have a standard repair mechanism.
+This specification outlines the design and implementation of a repair feature for the Windows Package Manager.The repair feature aims to provide a convenient and reliable way for users to fix any issues that may arise with their installed applications, such as corrupted files, missing dependencies, or broken registry entries.The initial implementation will support repair for main installer types, such as Msi, Wix, Msix and MSStore installer types, which have native repair capabilities from their respective frameworks. Additionally, other installer types such as Burn/Exe/Nullsoft/Inno that can specify a custom repair switch in their YAML manifest files can also use the repair feature.The document also outlines the future plans for extending the repair feature to other installer types Portables that do not have a standard repair mechanism.
 
 ## Inspiration
 
@@ -30,44 +30,54 @@ will initiate the repair of the specified package. The command will display an e
   - MSStore : The repair command will make an MSStore API  [StartProductInstallAsync](https://learn.microsoft.com/en-us/uwp/api/windows.applicationmodel.store.preview.installcontrol.appinstallmanager.startproductinstallasync?view=winrt-22621) call to repair the application with 'Repair' property of AppInstallOption set to true.
 
 ### Repair Feature for Installer Types that require Custom Repair Switch
-  -  Burn/Exe : The custom switch for repair in the YAML manifest file will be used to perform the repair. The repair command will run the installer with the custom switch to fix the application. To have enough flexibility, different options are possible depending on the installer source used for repair. 
-   - Installed Source: If the YAML manifest file has the 'ModifyRepair' switch, the repair command will use the modify command in the ARP 'ModifyPath' registry key with the repair switch through a ShellExecute call.
-   - Remote Source: If the YAML manifest file has the 'InstallerRepair' switch, the repair command will get the matching installer from the remote source and use the repair switch on the downloaded installer through a ShellExecute call.
-      > If neither switch is specified, the repair command will display an error message.
+  - Burn, Exe, Nullsoft & Inno : The custom switch for repair in the YAML manifest file will be used to perform the repair. The repair command will run the installer with the custom switch to repair the application. To have enough flexibility, different options are possible depending on the installer source used for repair. 
+   - Installed Source: 
+     - If the YAML manifest file specifies the `Repair` switch and `Modify` as the `RepairType`, the repair command will use the modify command in the ARP `ModifyPath` registry key, along with the repair switch, through a ShellExecute call, as long as `NoModify` and `NoRepair` ARP registry flags are not set to 1.
+     - If the YAML manifest file specifies the `Repair` switch and `Uninstaller` as the RepairType, the repair command will use the uninstall command in the ARP `UninstallString` registry key, along with the repair switch, through a ShellExecute call, as long as `NoRepair` APR registry flag is not set to 1.
+   - Remote Source: If the YAML manifest file specifies the `Repair` switch and `Installer` valure for the RepairType, the repair command will obtain the matching installer from the remote source and use the repair switch on the downloaded installer through a ShellExecute call..
 
-> Note: The initial implementation will not support repair for Nullsoft, Inno, Portables installer types. Based on feedback from the community, we may add the repair feature for these installer types in a future release.
+> If neither switch is specified, the repair command will display an error message.
+
+> Note: The initial implementation will not support repair for Portables installer type. Based on feedback from the community, we may add the repair feature for these installer type in a future release.
 
 ## Manifest Changes
-Addition of `ModifyRepair` property to InstallerSwitch
-- The `ModifyRepair` property is used to define the custom repair option that works with ModifyPath ARP entry for those installer types that have ModifyPath ARP entry and allow repair through Modify flow.
+Addition of `Repair` property to InstallerSwitch
+- The `Repair` property is used to set the custom repair option that works with `RepairType` field that controls the different repair behavior.
 
-Addition of `InstallerRepair` property to InstallerSwitch
--  With the `InstallerRepair` switch, the installer that matches the remote source is downloaded and then repaired by using ShellExecute to call the repair switch on the downloaded installer.
+Addition of `RepairType` enumerable property to InstallerSwitch
+- With the `RepairType` switch, we can adjust the repair behavior by choosing the installer source (Installed/local or remote) and making sure that the proper ARP registry entries are applied to identify the local installer type when carrying out a repair operation using a local installer source. 
+- The permitted initial values for the `RepairType` switch include:
+   - Performing a repair using a Installed/Local Installer Source:
+    - `Modify`: if this option is specified, the repair switch will be applied to the `ModifyPath` ARP command entry, as long as `NoModify` and `NoRepair` ARP registry flags are not set to 1.
+    - `Uninstaller` : if this option is specified, the repair switch will be applied to the `UninstallString` ARP command entry, as long as `NoRepair` APR registry flag is note set to 1.
+   - Performing a repair using a Remote Installer Source:
+    - `Installer` : If this option is specified, the repair switch will be applied to the appropriate installer obtained from the remote installer source.
 
 ## Manifest Validation
-- `ModifyRepair` and `InstallerRepair` switches are only valid for Burn/Exe and Msi/WiX installer types.
-- `ModifyRepair` and `InstallerRepair` switches are mutually exclusive.
+-  Specifying `Repair` switch without `RepairType` switch will result in an error.
+ - Specifying `RepairType` switch without `Repair` switch will result in an error.
+ - `Repair` switch can't be empty when specified.
+ - `RepairType` switch can't be empty when specified.
+
 
 ## Supported Repair Scenarios
 - Repair for installed applications of Msi, Wix, Msix and MSStore installer types.
-- Repair for the application using the custom repair switch specified in the YAML manifest file for Burn/Exe installer types.
-  -  The `ModifyRepair` switch when using the ModifyPath ARP entry for repair.
-  -  The `InstallerRepair` switch when using the remote installer source for repair.
+- Repair for the application using the custom repair switch specified in the YAML manifest file for Burn/Exe/Nullsoft/Inno/Wix/Msi installer types.
+  -  The appropriate repair behavior is determined by the combination of the `Repair` switch and the `RepairType` value in the YAML manifest..
 
 ## Potential Issues
-- For Burn/Exe installer types 
+- For Burn/Exe/Nullsoft/Inno installer types 
   - the repair command will not work if the installer does not have a custom repair switch specified in the YAML manifest file.
-  - the repair command will not work if the installed Burn/Exe installer type doesn't correlated to the remote installer type that has a custom repair switch specified in the YAML manifest file.
+  - the repair command will not work if the installed Burn/Exe/Nullsoft/inno installer type doesn't correlate to the remote installer type that has a custom repair switch specified in the YAML manifest file.
 
 ## Future considerations
 
-- Repair for Nullsoft, Inno, Portables installer types. The possible options are:
-   - Download matching installer , uninstall & Install or 
+- Repair for Portables installer types. The possible options are:
+   - Download matching installer , uninstall & Install OR
    - Download matching installer & re Install to overwrite existing files.
-- Repair for Burn/Exe installer types without custom repair switch. The possible options are:
-   - Download matching installer , uninstall & Install or 
+- Repair for Burn/Exe/Nullsoft/Inno installer types without custom repair switch. The possible options are:
+   - Download matching installer , uninstall & Install OR 
    - Download matching installer & re Install to overwrite existing files.
-- Repair for Msi/WiX installer type with custom repair switch.
 
 ## Resources
 - https://learn.microsoft.com/en-us/windows/msix/desktop/managing-your-msix-reset-and-repair
