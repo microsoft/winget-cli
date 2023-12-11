@@ -270,6 +270,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
         WINGET_VALIDATE_PASS_THROUGH(NetworkWingetAlternateSourceURL)
+        WINGET_VALIDATE_PASS_THROUGH(MaxResumes)
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
@@ -433,6 +434,18 @@ namespace AppInstaller::Settings
                 return Level::Crit;
             }
             return {};
+        }
+
+        WINGET_VALIDATE_SIGNATURE(LoggingChannelPreference)
+        {
+            Logging::Channel result = Logging::Channel::None;
+
+            for (auto const& entry : value)
+            {
+                result |= GetChannelFromName(entry);
+            }
+
+            return result;
         }
     }
 

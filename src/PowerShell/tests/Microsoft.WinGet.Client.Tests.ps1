@@ -7,9 +7,23 @@
    The tests require the localhost web server to be running and serving the test data.
    'Invoke-Pester' should be called in an admin PowerShell window.
 #>
+[CmdletBinding()]
+param(
+    # Whether to use production or developement targets.
+    [switch]$TargetProduction
+)
 
 BeforeAll {
-    $settingsFilePath = (ConvertFrom-Json (wingetdev.exe settings export)).userSettingsFile
+    if ($TargetProduction)
+    {
+        $wingetExeName = "winget.exe"
+    }
+    else
+    {
+        $wingetExeName = "wingetdev.exe"
+    }
+    
+    $settingsFilePath = (ConvertFrom-Json (& $wingetExeName settings export)).userSettingsFile
 
     $deviceGroupPolicyRoot = "HKLM:\Software\Policies\Microsoft\Windows"
     $wingetPolicyKeyName = "AppInstaller"
@@ -32,18 +46,21 @@ BeforeAll {
         }
     }
 
+    # This is a workaround to an issue where the server takes longer than expected to terminate when
+    # running from PowerShell. This can cause other E2E tests to fail when attempting to reset the test source.
     function RemoveTestSource {
-        if ($PSEdition -eq "Core")
-        {
-            try {
-                Get-WinGetSource -Name 'TestSource'
+        try {
+            # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
+            $testSource = Get-WinGetSource | Where-Object -Property 'Name' -eq 'TestSource'
+            if ($null -ne $testSource)
+            {
+                # Source Remove requires admin privileges
+                Remove-WinGetSource -Name 'TestSource'
             }
-            catch {
-                # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
-                # This is a workaround to an issue where the server takes longer than expected to terminate when
-                # running from PowerShell. This can cause other E2E tests to fail when attempting to reset the test source.
-                Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
-            }
+        }
+        catch {
+            # Non-admin
+            Start-Process -FilePath $wingetExeName -ArgumentList "source remove TestSource"
         }
     }
 
@@ -111,7 +128,7 @@ Describe 'Get-WinGetVersion' {
     }
 }
 
-Describe 'Get|Add|Reset-WinGetSource' -Skip:($PSEdition -eq "Desktop") {
+Describe 'Get|Add|Reset-WinGetSource' {
 
     BeforeAll {
         AddTestSource
@@ -136,7 +153,7 @@ Describe 'Get|Add|Reset-WinGetSource' -Skip:($PSEdition -eq "Desktop") {
     }
 }
 
-Describe 'Find-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
+Describe 'Find-WinGetPackage' {
 
     BeforeAll {
         AddTestSource
@@ -189,7 +206,7 @@ Describe 'Find-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
     }
 }
 
-Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
+Describe 'Install|Update|Uninstall-WinGetPackage' {
 
     BeforeAll {
         AddTestSource
@@ -199,6 +216,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -208,6 +228,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop
         $result = Install-WinGetPackage -Name TestPortableExe -Version '2.0.0.0' -MatchOption Equals
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
+        $result.Name | Should -Be "TestPortableExe"
+        $result.Source | Should -Be "TestSource"
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -217,6 +240,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop
         $result = Update-WinGetPackage -Id AppInstallerTest.TestExeInstaller
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -226,6 +252,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop
         $result = Update-WinGetPackage -Name TestPortableExe
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
+        $result.Name | Should -Be "TestPortableExe"
+        $result.Source | Should -Be "TestSource"
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -235,6 +264,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop
         $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
         $result.UninstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -244,6 +276,9 @@ Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop
         $result = Uninstall-WinGetPackage -Name TestPortableExe
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestPortableExe"
+        $result.Name | Should -Be "TestPortableExe"
+        $result.Source | Should -Be "TestSource"
         $result.UninstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -265,7 +300,7 @@ Describe 'Install|Update|Uninstall-WinGetPackage' -Skip:($PSEdition -eq "Desktop
    }
 }
 
-Describe 'Get-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
+Describe 'Get-WinGetPackage' {
 
     BeforeAll {
         AddTestSource
@@ -275,6 +310,9 @@ Describe 'Get-WinGetPackage' -Skip:($PSEdition -eq "Desktop") {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
 
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -644,18 +682,6 @@ Describe 'WindowsPackageManagerServer' -Skip:($PSEdition -eq "Desktop") {
         # From the ones we got, at least one exited
         WaitForWindowsPackageManagerServer
         $wingetProcess | Where-Object { $_.HasExited -eq $true } | Should -Not -BeNullOrEmpty
-    }
-}
-
-Describe 'WindowsPowerShell not supported' -Skip:($PSEdition -eq "Core") {
-
-    It 'Throw not supported' {
-        { Find-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
-        { Get-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
-        { Install-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
-        { Uninstall-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
-        { Update-WinGetPackage -Id "Fake.Id" } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
-        { Get-WinGetSource } | Should -Throw "This cmdlet is not supported in Windows PowerShell."
     }
 }
 

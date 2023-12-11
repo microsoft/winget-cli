@@ -23,14 +23,14 @@ namespace AppInstaller::CLI::Workflow
         std::vector<Execution::Data> m_contextData;
     };
 
-    // Initiates a reboot if applicable. This task always executes even if context terminates.
+    // Registers the resume command to execute upon reboot if applicable. This task always executes even if context terminates.
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    struct InitiateRebootIfApplicable : public WorkflowTask
+    struct RegisterStartupAfterReboot : public WorkflowTask
     {
-        InitiateRebootIfApplicable() : WorkflowTask("InitiateRebootIfApplicable", /* executeAlways */true) {}
+        RegisterStartupAfterReboot() : WorkflowTask("RegisterStartupAfterReboot", /* executeAlways*/ true) {}
 
-        void operator()(Execution::Context& context) const override;
+        void operator()(Execution::Context & context) const override;
     };
 }

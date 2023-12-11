@@ -112,6 +112,7 @@ namespace AppInstaller::CLI::Execution
 
             // Resume Command
             ResumeId,
+            IgnoreResumeLimit,
 
             // Configuration
             ConfigurationFile,

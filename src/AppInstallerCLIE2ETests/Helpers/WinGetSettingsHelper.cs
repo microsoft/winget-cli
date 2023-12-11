@@ -44,6 +44,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                         { "directMSI", false },
                         { "windowsFeature", false },
                         { "resume", false },
+                        { "reboot", false },
                     }
                 },
                 {
@@ -210,6 +211,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             ConfigureFeature("directMSI", status);
             ConfigureFeature("windowsFeature", status);
             ConfigureFeature("resume", status);
+            ConfigureFeature("reboot", status);
         }
 
         private static JObject GetJsonSettingsObject(string objectName)

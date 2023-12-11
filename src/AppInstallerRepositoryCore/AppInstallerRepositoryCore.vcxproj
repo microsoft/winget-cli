@@ -221,7 +221,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -247,7 +247,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
       <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</SDLCheck>
@@ -263,7 +263,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -300,7 +300,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">$(ProjectDir);$(ProjectDir)\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

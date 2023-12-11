@@ -16,6 +16,9 @@ The **show** command only shows metadata that was submitted with the application
 
 `winget show [[-q] <query>] [<options>]`
 
+The following command aliases are available: \
+`view`
+
 ![show command](images/show.png)
 
 ## Arguments
@@ -24,8 +27,7 @@ The following arguments are available.
 
 | Argument  | Description |
 |--------------|-------------|
-| **-q,--query** |  The query used to search for an application. |
-| **-?, --help** |  Gets additional help on this command. |
+| **-q, --query** |  The query used to search for an application. |
 
 ## Options
 
@@ -41,6 +43,17 @@ The following options are available.
 | **-s,--source** |   Find the application using the specified [source](source.md). |
 | **-e,--exact**     | Find the application using exact match. |
 | **--versions**    | Show available versions of the application. |
+| **--scope** | Select install scope (user or machine). |
+| **-a, --architecture** | Select the architecture. |
+| **--installer-type** | Select the installer type. |
+| **--locale** | Locale to use (BCP47 format). |
+| **--header** | Optional Windows-Package-Manager REST source HTTP header. |
+| **--accept-source-agreements** | Accept all source agreements during source operations. |
+| **-?, --help** | Gets additional help on this command. |
+| **--wait** | Prompts the user to press any key before exiting. |
+| **--logs, --open-logs** | Open the default logs location. |
+| **--verbose, --verbose-logs** | Enables verbose logging for winget. |
+| **--disable-interactivity** | Disable interactive prompts. |
 
 ## Multiple selections
 

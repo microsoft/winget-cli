@@ -31,6 +31,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\CommonFiles\WinGetAssemblyLoadContext.cs" Link="WinGetAssemblyLoadContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
@@ -66,14 +70,9 @@
     <PowerShellModuleRuntimesDir>$(PowerShellModuleOutputDirectory)\$(TargetFramework)</PowerShellModuleRuntimesDir>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+  <PropertyGroup>
     <PowerShellModuleSharedDependencies>$(PowerShellModuleRuntimesDir)\SharedDependencies</PowerShellModuleSharedDependencies>
     <PowerShellModuleDirectDependencies>$(PowerShellModuleRuntimesDir)\DirectDependencies</PowerShellModuleDirectDependencies>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
-    <PowerShellModuleSharedDependencies>$(PowerShellModuleRuntimesDir)</PowerShellModuleSharedDependencies>
-    <PowerShellModuleDirectDependencies>$(PowerShellModuleRuntimesDir)</PowerShellModuleDirectDependencies>
   </PropertyGroup>
 
   <!-- psd1 and ps1xml-->

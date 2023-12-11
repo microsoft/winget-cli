@@ -50,6 +50,29 @@
             "error",
             "critical"
           ]
+        },
+        "channels": {
+          "description": "The logging channels to enable",
+          "type": "array",
+          "items": {
+            "uniqueItems": "true",
+            "type": "string",
+            "enum": [
+              "fail",
+              "cli",
+              "sql",
+              "repo",
+              "yaml",
+              "core",
+              "test",
+              "config",
+              "default",
+              "all"
+            ],
+            "maxLength": 20
+          },
+          "minItems": 0,
+          "maxItems": 20
         }
       }
     },
@@ -148,6 +171,12 @@
           "description": "Default install location to use for packages that require it when not specified",
           "type": "string",
           "maxLength": "32767"
+        },
+        "maxResumes": {
+          "description": "The maximum number of resumes allowed for a single resume id. This is to prevent continuous reboots if an install that requires a reboot is not properly detected.",
+          "type": "integer",
+          "default": 3,
+          "minimum": 1
         }
       }
     },

@@ -82,6 +82,8 @@ namespace AppInstaller::Checkpoints
                 automaticCheckpoint.SetMany(AutomaticCheckpointData::Arguments, argument, values);
             }
         }
+
+        automaticCheckpoint.Set(AutomaticCheckpointData::ResumeCount, {}, std::to_string(0));
     }
 
     void LoadCommandArgsFromAutomaticCheckpoint(CLI::Execution::Context& context, Checkpoint<AutomaticCheckpointData>& automaticCheckpoint)

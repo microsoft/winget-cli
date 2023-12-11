@@ -90,12 +90,14 @@ namespace AppInstaller::Settings
         DisableInstallNotes,
         PortablePackageUserRoot,
         PortablePackageMachineRoot,
+        MaxResumes,
         // Network
         NetworkDownloader,
         NetworkDOProgressTimeoutInSeconds,
         NetworkWingetAlternateSourceURL,
         // Logging
         LoggingLevelPreference,
+        LoggingChannelPreference,
         // Uninstall behavior
         UninstallPurgePortablePackage,
         // Download behavior
@@ -169,6 +171,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageMachineRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallDefaultRoot, std::string, std::filesystem::path, {}, ".installBehavior.defaultInstallRoot"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::MaxResumes, uint32_t, int, 3, ".installBehavior.maxResumes"sv);
         // Uninstall behavior
         SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);
         // Download behavior
@@ -185,6 +188,7 @@ namespace AppInstaller::Settings
 #endif
         // Logging
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::LoggingChannelPreference, std::vector<std::string>, Logging::Channel, Logging::Channel::Defaults, ".logging.channels"sv);
         // Interactivity
         SETTINGMAPPING_SPECIALIZATION(Setting::InteractivityDisable, bool, bool, false, ".interactivity.disable"sv);
         

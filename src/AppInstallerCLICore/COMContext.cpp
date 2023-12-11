@@ -77,8 +77,8 @@ namespace AppInstaller::CLI::Execution
 
     void COMContext::SetLoggers()
     {
-        Logging::Log().SetLevel(Logging::Level::Info);
-        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().EnableChannel(Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
+        Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
 
         // TODO: Log to file for COM API calls only when debugging in visual studio
         Logging::FileLogger::Add(s_comLogFileNamePrefix);

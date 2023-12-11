@@ -7,7 +7,6 @@
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System;
-    using System.Management.Automation;
     using Microsoft.Management.Deployment;
 
     /// <summary>
@@ -15,15 +14,51 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     /// </summary>
     public sealed class PSUninstallResult
     {
-        private readonly Management.Deployment.UninstallResult uninstallResult;
+        private readonly UninstallResult uninstallResult;
+        private readonly CatalogPackage catalogPackage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PSUninstallResult"/> class.
         /// </summary>
         /// <param name="uninstallResult">The uninstall result COM object.</param>
-        internal PSUninstallResult(Management.Deployment.UninstallResult uninstallResult)
+        /// <param name="catalogPackage">The catalog package COM object.</param>
+        internal PSUninstallResult(UninstallResult uninstallResult, CatalogPackage catalogPackage)
         {
             this.uninstallResult = uninstallResult;
+            this.catalogPackage = catalogPackage;
+        }
+
+        /// <summary>
+        /// Gets the id of the uninstalled package.
+        /// </summary>
+        public string Id
+        {
+            get
+            {
+                return this.catalogPackage.Id;
+            }
+        }
+
+        /// <summary>
+        /// Gets the name of the uninstalled package.
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+                return this.catalogPackage.Name;
+            }
+        }
+
+        /// <summary>
+        /// Gets the source name of the uninstalled package.
+        /// </summary>
+        public string Source
+        {
+            get
+            {
+                return this.catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
+            }
         }
 
         /// <summary>

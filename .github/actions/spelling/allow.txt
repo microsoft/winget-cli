@@ -189,6 +189,7 @@ nonexistentsetting
 norestart
 normalizednameandpublisher
 normalizedpackagenameandpublisher
+notcontains
 NTSTATUS
 nullsoft
 nunit

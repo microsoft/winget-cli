@@ -32,7 +32,10 @@ param (
     $BuildRoot = "",
 
     [switch]
-    $SkipImportModule
+    $SkipImportModule,
+
+    [switch]
+    $Clean
 )
 
 class WinGetModule
@@ -161,6 +164,11 @@ if ($BuildRoot -eq "")
     $BuildRoot = "$PSScriptRoot\..\..";
 }
 
+if ($Clean -and (Test-Path $moduleRootOutput))
+{
+    Remove-Item $moduleRootOutput -Recurse
+}
+
 # Modules, they should be in dependency order so that when importing we don't pick up the release modules.
 $local:modules = @()
 if ($moduleToConfigure.HasFlag([ModuleType]::Client))
@@ -176,6 +184,7 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Client))
         "UndockedRegFreeWinRT\winrtact.dll"
     )
     $module.AddArchSpecificFiles($additionalFiles, "net6.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
+    $module.AddArchSpecificFiles($additionalFiles, "net48\SharedDependencies", $BuildRoot, $Configuration)
     $modules += $module
 }
 
@@ -196,11 +205,11 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Configuration))
     $additionalFiles = @(
         "Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll"
     )
-    $module.AddArchSpecificFiles($additionalFiles, "net6.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
+    $module.AddArchSpecificFiles($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $additionalFiles = @(
         "Microsoft.Management.Configuration.Projection\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Projection.dll"
     )
-    $module.AddAnyCpuSpecificFilesToArch($additionalFiles, "net6.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
+    $module.AddAnyCpuSpecificFilesToArch($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $modules += $module
 }
 
