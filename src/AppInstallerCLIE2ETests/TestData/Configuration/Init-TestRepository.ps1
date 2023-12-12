@@ -57,7 +57,7 @@ Write-Progress -Activity $Local:progressActivity
 $Local:allItems | ForEach-Object -Process {
     $Local:modulePath = $_.FullName
     Write-Verbose "Publishing $Local:modulePath"
-    Publish-Module -Path $Local:modulePath -Repository $RepositoryName
+    Publish-Module -Path $Local:modulePath -Repository $RepositoryName -Force
     $Local:modulesPublished += 1
     Write-Progress -Activity $Local:progressActivity -PercentComplete (($Local:modulesPublished * 100) / $Local:allItems.Count)
 }

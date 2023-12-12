@@ -185,6 +185,8 @@ namespace AppInstaller::CLI
         // Resume command
         case Execution::Args::Type::ResumeId:
             return { type, "resume-id"_liv, 'g', ArgTypeCategory::None };
+        case Execution::Args::Type::IgnoreResumeLimit:
+            return { type, "ignore-resume-limit"_liv, ArgTypeCategory::None };
 
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:
@@ -365,6 +367,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::ResumeIdArgumentDescription, ArgumentType::Standard, true };
         case Args::Type::AllowReboot:
             return Argument{ type, Resource::String::AllowRebootArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Reboot };
+        case Args::Type::IgnoreResumeLimit:
+            return Argument{ type, Resource::String::IgnoreResumeLimitArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Resume };
         default:
             THROW_HR(E_UNEXPECTED);
         }

@@ -39,6 +39,9 @@ namespace AppInstaller
     namespace Repository::Microsoft
     {
         void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath);
+
+        using GetARPKeyFunc = std::function<Registry::Key(Manifest::ScopeEnum, Utility::Architecture)>;
+        void SetGetARPKeyOverride(GetARPKeyFunc value);
     }
 
     namespace Logging
@@ -70,6 +73,7 @@ namespace AppInstaller
     namespace Reboot
     {
         void TestHook_SetInitiateRebootResult_Override(bool* status);
+        void TestHook_SetRegisterForRestartResult_Override(bool* status);
     }
 }
 
@@ -172,6 +176,37 @@ namespace TestHook
         ~SetInitiateRebootResult_Override()
         {
             AppInstaller::Reboot::TestHook_SetInitiateRebootResult_Override(nullptr);
+        }
+
+    private:
+        bool m_status;
+    };
+
+    struct SetGetARPKey_Override
+    {
+        SetGetARPKey_Override(std::function<AppInstaller::Registry::Key(AppInstaller::Manifest::ScopeEnum, AppInstaller::Utility::Architecture)> function)
+        {
+            AppInstaller::Repository::Microsoft::SetGetARPKeyOverride(function);
+        }
+
+        ~SetGetARPKey_Override()
+        {
+            AppInstaller::Repository::Microsoft::SetGetARPKeyOverride({});
+        }
+
+    private:
+    };
+
+    struct SetRegisterForRestartResult_Override
+    {
+        SetRegisterForRestartResult_Override(bool status) : m_status(status)
+        {
+            AppInstaller::Reboot::TestHook_SetRegisterForRestartResult_Override(&m_status);
+        }
+
+        ~SetRegisterForRestartResult_Override()
+        {
+            AppInstaller::Reboot::TestHook_SetRegisterForRestartResult_Override(nullptr);
         }
 
     private:

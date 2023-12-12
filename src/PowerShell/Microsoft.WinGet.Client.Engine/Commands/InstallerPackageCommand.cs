@@ -7,11 +7,13 @@
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
     using System.Management.Automation;
+    using System.Threading.Tasks;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Common.Command;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Installs or updates a package from the pipeline or from a configured source.
@@ -22,7 +24,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Initializes a new instance of the <see cref="InstallerPackageCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">Caller cmdlet.</param>
-        /// <param name="psInstallMode">Install mode to use.</param>
         /// <param name="override">Override arguments to be passed on to the installer.</param>
         /// <param name="custom">Additional arguments.</param>
         /// <param name="location">Installation location.</param>
@@ -39,7 +40,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="query">Match against any field of a package.</param>
         public InstallerPackageCommand(
             PSCmdlet psCmdlet,
-            string psInstallMode,
             string @override,
             string custom,
             string location,
@@ -94,23 +94,27 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageFieldMatchOption,
             string psPackageInstallMode)
         {
-            this.GetPackageAndExecute(
-                CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs,
-                PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
-                (package, version) =>
-                {
-                    InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
-                    if (psProcessorArchitecture != "Default")
+            var result = this.Execute(
+                async () => await this.GetPackageAndExecuteAsync(
+                    CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                    async (package, version) =>
                     {
-                        options.AllowedArchitectures.Clear();
-                        options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
-                    }
+                        InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
+                        if (psProcessorArchitecture != "Default")
+                        {
+                            options.AllowedArchitectures.Clear();
+                            options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
+                        }
 
-                    options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
+                        options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
+                        return await this.InstallPackageAsync(package, options);
+                    }));
 
-                    InstallResult result = this.InstallPackage(package, options);
-                    this.PsCmdlet.WriteObject(new PSInstallResult(result));
-                });
+            if (result != null)
+            {
+                this.Write(StreamType.Object, new PSInstallResult(result.Item1, result.Item2));
+            }
         }
 
         /// <summary>
@@ -124,39 +128,43 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageFieldMatchOption,
             string psPackageInstallMode)
         {
-            this.GetPackageAndExecute(
-                CompositeSearchBehavior.LocalCatalogs,
-                PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
-                (package, version) =>
-                {
-                    InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
-                    options.AllowUpgradeToUnknownVersion = includeUnknown;
+            var result = this.Execute(
+                async () => await this.GetPackageAndExecuteAsync(
+                    CompositeSearchBehavior.LocalCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                    async (package, version) =>
+                    {
+                        InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
+                        options.AllowUpgradeToUnknownVersion = includeUnknown;
+                        return await this.UpgradePackageAsync(package, options);
+                    }));
 
-                    InstallResult result = this.UpgradePackage(package, options);
-                    this.PsCmdlet.WriteObject(new PSInstallResult(result));
-                });
+            if (result != null)
+            {
+                this.Write(StreamType.Object, new PSInstallResult(result.Item1, result.Item2));
+            }
         }
 
-        private InstallResult InstallPackage(
+        private async Task<InstallResult> InstallPackageAsync(
             CatalogPackage package,
             InstallOptions options)
         {
-            var operation = PackageManagerWrapper.Instance.InstallPackageAsync(package, options);
-            return this.RegisterCallbacksAndWait(operation, string.Format(
-                Resources.ProgressRecordActivityInstalling,
-                package.Name));
+            var installOperation = new InstallOperationWithProgress(
+                this,
+                string.Format(Resources.ProgressRecordActivityInstalling, package.Name));
+            return await installOperation.ExecuteAsync(
+                    () => PackageManagerWrapper.Instance.InstallPackageAsync(package, options));
         }
 
-        private InstallResult UpgradePackage(
+        private async Task<InstallResult> UpgradePackageAsync(
             CatalogPackage package,
             InstallOptions options)
         {
-            var operation = PackageManagerWrapper.Instance.UpgradePackageAsync(package, options);
-            return this.RegisterCallbacksAndWait(
-                operation,
-                string.Format(
-                    Resources.ProgressRecordActivityUpdating,
-                    package.Name));
+            var installOperation = new InstallOperationWithProgress(
+                this,
+                string.Format(Resources.ProgressRecordActivityUpdating, package.Name));
+            return await installOperation.ExecuteAsync(
+                    () => PackageManagerWrapper.Instance.UpgradePackageAsync(package, options));
         }
     }
 }

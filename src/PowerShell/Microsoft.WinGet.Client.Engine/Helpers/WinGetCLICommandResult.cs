@@ -21,7 +21,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="exitCode">Exit code.</param>
         /// <param name="stdOut">Standard output.</param>
         /// <param name="stdErr">Standard error.</param>
-        public WinGetCLICommandResult(string command, string parameters, int exitCode, string stdOut, string stdErr)
+        public WinGetCLICommandResult(string command, string? parameters, int exitCode, string stdOut, string stdErr)
         {
             this.Command = command;
             this.Parameters = parameters;
@@ -38,7 +38,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <summary>
         /// Gets the parameters.
         /// </summary>
-        public string Parameters { get; private set; }
+        public string? Parameters { get; private set; }
 
         /// <summary>
         /// Gets the exit code.

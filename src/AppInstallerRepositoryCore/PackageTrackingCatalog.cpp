@@ -273,12 +273,7 @@ namespace AppInstaller::Repository
 
             for (const auto& version : versions)
             {
-                auto manifestId = index.GetManifestIdByKey(match.first, version.GetVersion().ToString(), version.GetChannel().ToString());
-
-                if (manifestId)
-                {
-                    index.RemoveManifestById(manifestId.value());
-                }
+                index.RemoveManifestById(version.ManifestId);
             }
         }
     }

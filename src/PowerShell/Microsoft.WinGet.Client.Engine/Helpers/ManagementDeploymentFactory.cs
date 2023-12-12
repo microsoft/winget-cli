@@ -8,9 +8,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Common;
@@ -43,19 +40,19 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Guid DownloadOptionsClsid = Guid.Parse("8EF324ED-367C-4880-83E5-BB2ABD0B72F6");
 #endif
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type PackageManagerType = Type.GetTypeFromCLSID(PackageManagerClsid);
+        private static readonly Type? PackageManagerType = Type.GetTypeFromCLSID(PackageManagerClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type FindPackagesOptionsType = Type.GetTypeFromCLSID(FindPackagesOptionsClsid);
+        private static readonly Type? FindPackagesOptionsType = Type.GetTypeFromCLSID(FindPackagesOptionsClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type CreateCompositePackageCatalogOptionsType = Type.GetTypeFromCLSID(CreateCompositePackageCatalogOptionsClsid);
+        private static readonly Type? CreateCompositePackageCatalogOptionsType = Type.GetTypeFromCLSID(CreateCompositePackageCatalogOptionsClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type InstallOptionsType = Type.GetTypeFromCLSID(InstallOptionsClsid);
+        private static readonly Type? InstallOptionsType = Type.GetTypeFromCLSID(InstallOptionsClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type UninstallOptionsType = Type.GetTypeFromCLSID(UninstallOptionsClsid);
+        private static readonly Type? UninstallOptionsType = Type.GetTypeFromCLSID(UninstallOptionsClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type PackageMatchFilterType = Type.GetTypeFromCLSID(PackageMatchFilterClsid);
+        private static readonly Type? PackageMatchFilterType = Type.GetTypeFromCLSID(PackageMatchFilterClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static readonly Type DownloadOptionsType = Type.GetTypeFromCLSID(DownloadOptionsClsid);
+        private static readonly Type? DownloadOptionsType = Type.GetTypeFromCLSID(DownloadOptionsClsid);
 
         private static readonly Guid PackageManagerIid = Guid.Parse("B375E3B9-F2E0-5C93-87A7-B67497F7E593");
         private static readonly Guid FindPackagesOptionsIid = Guid.Parse("A5270EDD-7DA7-57A3-BACE-F2593553561F");
@@ -157,37 +154,28 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
-        private static T Create<T>(Type type, in Guid iid)
+        private static T Create<T>(Type? type, in Guid iid)
             where T : new()
         {
-            if (Utilities.UsesInProcWinget)
+            if (type == null)
             {
-                var arch = RuntimeInformation.ProcessArchitecture;
-                if (!ValidArchs.Contains(arch))
-                {
-                    throw new NotSupportedException(arch.ToString());
-                }
-
-                string executingAssemblyLocation = Assembly.GetExecutingAssembly().Location;
-                string executingAssemblyDirectory = Path.Combine(Path.GetDirectoryName(executingAssemblyLocation), arch.ToString().ToLower());
-
-                SetDllDirectoryW(executingAssemblyDirectory);
-
-                try
-                {
-                    return new T();
-                }
-                finally
-                {
-                    SetDllDirectoryW(null);
-                }
+                throw new ArgumentNullException(iid.ToString());
             }
 
-            object instance = null;
+            if (Utilities.UsesInProcWinget)
+            {
+                // This doesn't work on Windows PowerShell
+                // If we want to support it, we need something that loads the
+                // Microsoft.Management.Deployment.dll for .NET framework as CsWinRT
+                // does for .NET Core
+                return new T();
+            }
+
+            object? instance = null;
 
             if (Utilities.ExecutingAsAdministrator)
             {
-                int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, 0, out instance);
+                int hr = WinRTHelpers.ManualActivation(type.GUID, iid, 0, out instance);
 
                 if (hr < 0)
                 {
@@ -206,6 +194,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 instance = Activator.CreateInstance(type);
             }
 
+            if (instance == null)
+            {
+                throw new ArgumentNullException();
+            }
+
 #if NET
             IntPtr pointer = Marshal.GetIUnknownForObject(instance);
             return MarshalInterface<T>.FromAbi(pointer);
@@ -213,16 +206,5 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             return (T)instance;
 #endif
         }
-
-        [DllImport("winrtact.dll", EntryPoint = "WinGetServerManualActivation_CreateInstance", ExactSpelling = true, PreserveSig = true)]
-        private static extern int WinGetServerManualActivation_CreateInstance(
-            [In, MarshalAs(UnmanagedType.LPStruct)] Guid clsid,
-            [In, MarshalAs(UnmanagedType.LPStruct)] Guid iid,
-            uint flags,
-            [Out, MarshalAs(UnmanagedType.IUnknown)] out object instance);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetDllDirectoryW([MarshalAs(UnmanagedType.LPWStr)] string directory);
     }
 }

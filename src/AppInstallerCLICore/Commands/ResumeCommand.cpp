@@ -54,6 +54,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Execution::Args::Type::ResumeId),
+            Argument::ForType(Execution::Args::Type::IgnoreResumeLimit),
         };
     }
 
@@ -97,6 +98,19 @@ namespace AppInstaller::CLI
         {
             context.Reporter.Error() << Resource::String::ClientVersionMismatchError(Utility::LocIndView{ checkpointClientVersion }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH);
+        }
+
+        const auto& resumeCountString = automaticCheckpoint.Get(AutomaticCheckpointData::ResumeCount, {});
+        int resumeCount = std::stoi(resumeCountString);
+        if (!context.Args.Contains(Execution::Args::Type::IgnoreResumeLimit) && resumeCount >= Settings::User().Get<Settings::Setting::MaxResumes>())
+        {
+            std::string manualResumeString = "winget resume -g " + std::string{ resumeId } + " --ignore-resume-limit";
+            context.Reporter.Error() << Resource::String::ResumeLimitExceeded(Utility::LocIndView{ resumeCountString }) << Utility::LocIndView{ manualResumeString } << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED);
+        }
+        else
+        {
+            automaticCheckpoint.Update(AutomaticCheckpointData::ResumeCount, {}, std::to_string(resumeCount + 1));
         }
 
         const auto& checkpointCommand = automaticCheckpoint.Get(AutomaticCheckpointData::Command, {});

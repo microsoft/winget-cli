@@ -16,6 +16,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Common.Command;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
@@ -27,16 +28,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         private const string SchemaKey = "$schema";
         private const string SchemaValue = "https://aka.ms/winget-settings.schema.json";
 
-        private static readonly string WinGetSettingsFilePath;
-
-        static UserSettingsCommand()
-        {
-            var wingetCliWrapper = new WingetCLIWrapper();
-            var settingsResult = wingetCliWrapper.RunCommand("settings", "export");
-
-            // Read the user settings file property.
-            WinGetSettingsFilePath = (string)Utilities.ConvertToHashtable(settingsResult.StdOut)["userSettingsFile"];
-        }
+        private static string? winGetSettingsFilePath;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserSettingsCommand"/> class.
@@ -45,6 +37,18 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public UserSettingsCommand(PSCmdlet psCmdlet)
             : base(psCmdlet)
         {
+            // Doing it in the static constructor will show the user running in system context:
+            // The type initializer for 'Microsoft.WinGet.Client.Engine.Commands.UserSettingsCommand' threw an exception.
+            // Here would be "The specified method is not supported."
+            if (winGetSettingsFilePath == null)
+            {
+                var wingetCliWrapper = new WingetCLIWrapper();
+                var settingsResult = wingetCliWrapper.RunCommand("settings", "export");
+
+                // Read the user settings file property.
+                var userSettingsFile = Utilities.ConvertToHashtable(settingsResult.StdOut)["userSettingsFile"] ?? throw new ArgumentNullException("userSettingsFile");
+                winGetSettingsFilePath = (string)userSettingsFile;
+            }
         }
 
         /// <summary>
@@ -52,7 +56,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         public void Get()
         {
-            this.PsCmdlet.WriteObject(this.GetLocalSettingsAsHashtable());
+            this.Write(StreamType.Object, this.GetLocalSettingsAsHashtable());
         }
 
         /// <summary>
@@ -62,7 +66,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="ignoreNotSet">Ignore comparing settings that are not part of the input.</param>
         public void Test(Hashtable userSettings, bool ignoreNotSet)
         {
-            this.PsCmdlet.WriteObject(this.CompareUserSettings(userSettings, ignoreNotSet));
+            this.Write(StreamType.Object, this.CompareUserSettings(userSettings, ignoreNotSet));
         }
 
         /// <summary>
@@ -100,10 +104,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             // Write settings.
             var settingsJson = orderedSettings.ToString(Formatting.Indented);
             File.WriteAllText(
-                WinGetSettingsFilePath,
+                winGetSettingsFilePath!,
                 settingsJson);
 
-            this.PsCmdlet.WriteObject(Utilities.ConvertToHashtable(settingsJson));
+            this.Write(StreamType.Object, Utilities.ConvertToHashtable(settingsJson));
         }
 
         private static JObject HashtableToJObject(Hashtable hashtable)
@@ -113,8 +117,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
         private Hashtable GetLocalSettingsAsHashtable()
         {
-            var content = File.Exists(WinGetSettingsFilePath) ?
-                File.ReadAllText(WinGetSettingsFilePath) :
+            var content = File.Exists(winGetSettingsFilePath) ?
+                File.ReadAllText(winGetSettingsFilePath) :
                 string.Empty;
 
             return Utilities.ConvertToHashtable(content);
@@ -124,13 +128,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         {
             try
             {
-                return File.Exists(WinGetSettingsFilePath) ?
-                    JObject.Parse(File.ReadAllText(WinGetSettingsFilePath)) :
+                return File.Exists(winGetSettingsFilePath) ?
+                    JObject.Parse(File.ReadAllText(winGetSettingsFilePath)) :
                     new JObject();
             }
             catch (JsonReaderException e)
             {
-                this.PsCmdlet.WriteDebug(e.Message);
+                this.Write(StreamType.Verbose, e.Message);
                 throw new UserSettingsReadException(e);
             }
         }
@@ -162,7 +166,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
             catch (Exception e)
             {
-                this.PsCmdlet.WriteDebug(e.Message);
+                this.Write(StreamType.Verbose, e.Message);
                 return false;
             }
         }
@@ -175,27 +179,34 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="json">Main json.</param>
         /// <param name="otherJson">otherJson.</param>
         /// <returns>True is otherJson partially contains json.</returns>
-        private bool PartialDeepEquals(JToken json, JToken otherJson)
+        private bool PartialDeepEquals(JToken json, JToken? otherJson)
         {
             if (JToken.DeepEquals(json, otherJson))
             {
                 return true;
             }
 
+            if (otherJson == null)
+            {
+                return false;
+            }
+
             // If they are a JValue (string, integer, date, etc) or they are a JArray and DeepEquals fails then not equal.
             if ((json is JValue && otherJson is JValue) ||
                 (json is JArray && otherJson is JArray))
             {
-                this.PsCmdlet.WriteDebug($"'{json.ToString(Newtonsoft.Json.Formatting.None)}' != " +
-                    $"'{otherJson.ToString(Newtonsoft.Json.Formatting.None)}'");
+                this.Write(
+                    StreamType.Verbose,
+                    $"'{json.ToString(Formatting.None)}' != '{otherJson.ToString(Formatting.None)}'");
                 return false;
             }
 
             // If its not the same type then don't bother.
             if (json.Type != otherJson.Type)
             {
-                this.PsCmdlet.WriteDebug($"Mismatch types '{json.ToString(Newtonsoft.Json.Formatting.None)}' " +
-                    $"'{otherJson.ToString(Newtonsoft.Json.Formatting.None)}'");
+                this.Write(
+                    StreamType.Verbose,
+                    $"Mismatch types '{json.ToString(Formatting.None)}' '{otherJson.ToString(Formatting.None)}'");
                 return false;
             }
 
@@ -211,7 +222,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     // If the property is not there then give up.
                     if (!otherJObject.ContainsKey(property.Name))
                     {
-                        this.PsCmdlet.WriteDebug($"{property.Name} not found.");
+                        this.Write(StreamType.Verbose, $"{property.Name} not found.");
                         return false;
                     }
 

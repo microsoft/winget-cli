@@ -82,6 +82,7 @@ namespace AppInstallerCLIE2ETests
         public const string PortableExePackageId = "AppInstallerTest.TestPortableExe";
         public const string PortableExeWithCommandPackageId = "AppInstallerTest.TestPortableExeWithCommand";
 
+        public const string ExeInstalledDefaultProductCode = "{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
         public const string MsiInstallerProductCode = "{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         public const string MsixInstallerName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
         public const string MsixInstallerPackageFamilyName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe";
@@ -270,7 +271,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_NO_NETWORK = unchecked((int)0x8A150107);
             public const int ERROR_INSTALL_CONTACT_SUPPORT = unchecked((int)0x8A150108);
             public const int ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH = unchecked((int)0x8A150109);
-            public const int ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL = unchecked((int)0x8A15010A);
+            public const int ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL = unchecked((int)0x8A15010A);
             public const int ERROR_INSTALL_REBOOT_INITIATED = unchecked((int)0x8A15010B);
             public const int ERROR_INSTALL_CANCELLED_BY_USER = unchecked((int)0x8A15010C);
             public const int ERROR_INSTALL_ALREADY_INSTALLED = unchecked((int)0x8A15010D);

@@ -123,9 +123,11 @@ jobs:
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: CopyFiles@2
-    displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
+    displayName: 'Copy Symbols to artifacts folder'
     inputs:
-      Contents: '$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb'
+      Contents: |
+          $(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb
+          $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.pdb
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
@@ -276,6 +278,17 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
+    displayName: 'Copy test scripts to artifacts'
+    inputs:
+      Contents: |
+          $(Build.SourcesDirectory)\src\PowerShell\scripts\Execute-WinGetTests.ps1
+          $(Build.SourcesDirectory)\src\PowerShell\tests\**
+          $(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1
+      TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
+      flattenFolders: true
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\net6.0'
@@ -306,7 +319,7 @@ jobs:
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
       diagnosticsEnabled: true
-    condition: succeededOrFailed()
+    condition: and(succeededOrFailed(), eq(variables.buildPlatform, 'x86'))
 
   - task: PowerShell@2
     displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
@@ -354,6 +367,18 @@ jobs:
           WindowsPackageManager\WindowsPackageManager.dll
           UndockedRegFreeWinRT\winrtact.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net6.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy native binaries for Microsoft.WinGet.Client'
+    inputs:
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll
+          Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
+          WindowsPackageManager\WindowsPackageManager.dll
+          UndockedRegFreeWinRT\winrtact.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net48\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
 
   - task: CopyFiles@2
@@ -452,6 +477,13 @@ jobs:
       SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\PowerShell\Microsoft.WinGet.DSC'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.DSC'
 
   - task: PowerShell@2
     displayName: Install Tests Dependencies

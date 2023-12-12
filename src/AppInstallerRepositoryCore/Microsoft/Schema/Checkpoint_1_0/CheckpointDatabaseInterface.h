@@ -19,5 +19,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         std::vector<std::string> GetCheckpointDataFields(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType) override;
         void SetCheckpointDataValues(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType, std::string_view name, const std::vector<std::string>& values) override;
         std::optional<std::vector<std::string>> GetCheckpointDataFieldValues(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType, std::string_view name) override;
+        void RemoveCheckpointDataType(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType) override;
     };
 }

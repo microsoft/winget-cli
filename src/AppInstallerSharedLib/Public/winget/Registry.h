@@ -282,6 +282,7 @@ namespace AppInstaller::Registry
         ValueList Values() const;
 
         operator bool() const { return m_key.operator bool(); }
+        operator HKEY() const { return m_key.get(); }
 
         // Open a Key; will return an empty Key if the subkey does not exist.
         static Key OpenIfExists(HKEY key, std::string_view subKey = {}, DWORD options = 0, REGSAM access = KEY_READ);

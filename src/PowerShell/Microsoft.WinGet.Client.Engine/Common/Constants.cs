@@ -35,6 +35,11 @@ namespace Microsoft.WinGet.Client.Engine.Common
         public const string PathEnvVar = "PATH";
 
         /// <summary>
+        /// One MB.
+        /// </summary>
+        public const int OneMB = 1024 * 1024;
+
+        /// <summary>
         /// Repository owners.
         /// </summary>
         public class RepositoryOwner

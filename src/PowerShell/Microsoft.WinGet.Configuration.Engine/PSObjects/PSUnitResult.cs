@@ -8,7 +8,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
 {
     using Microsoft.Management.Configuration;
     using Microsoft.WinGet.Configuration.Engine.Exceptions;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Unit result.

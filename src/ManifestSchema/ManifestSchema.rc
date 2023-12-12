@@ -100,3 +100,9 @@ IDX_MANIFEST_SCHEMA_V1_6_VERSION            MANIFESTSCHEMA_RESOURCE_TYPE    "..\
 IDX_MANIFEST_SCHEMA_V1_6_INSTALLER          MANIFESTSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\manifests\\v1.6.0\\manifest.installer.1.6.0.json"
 IDX_MANIFEST_SCHEMA_V1_6_DEFAULTLOCALE      MANIFESTSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\manifests\\v1.6.0\\manifest.defaultLocale.1.6.0.json"
 IDX_MANIFEST_SCHEMA_V1_6_LOCALE             MANIFESTSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\manifests\\v1.6.0\\manifest.locale.1.6.0.json"
+
+IDX_MANIFEST_SCHEMA_V1_7_SINGLETON          MANIFESTSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\manifests\\v1.7.0\\manifest.singleton.1.7.0.json"
+IDX_MANIFEST_SCHEMA_V1_7_VERSION            MANIFESTSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\manifests\\v1.7.0\\manifest.version.1.7.0.json"
+IDX_MANIFEST_SCHEMA_V1_7_INSTALLER          MANIFESTSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\manifests\\v1.7.0\\manifest.installer.1.7.0.json"
+IDX_MANIFEST_SCHEMA_V1_7_DEFAULTLOCALE      MANIFESTSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\manifests\\v1.7.0\\manifest.defaultLocale.1.7.0.json"
+IDX_MANIFEST_SCHEMA_V1_7_LOCALE             MANIFESTSCHEMA_RESOURCE_TYPE    "..\\..\\schemas\\JSON\\manifests\\v1.7.0\\manifest.locale.1.7.0.json"

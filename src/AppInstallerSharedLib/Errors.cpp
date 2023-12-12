@@ -87,6 +87,7 @@ namespace AppInstaller
 
         constexpr const WinGetHResultData s_wingetHResultData[] =
         {
+            // Changes to any of these errors require the corresponding resource string in winget.resw to be updated.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR, "Internal Error"),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, "Invalid command line arguments"),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_COMMAND_FAILED, "Executing command failed"),
@@ -212,7 +213,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK, "This application requires internet connectivity. Connect to a network then try again."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT, "This application encountered an error during installation. Contact support."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH, "Restart your PC to finish installation."),
-            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL, "Installation failed. Restart your PC then try again."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL, "Installation failed. Restart your PC then try again."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED, "Your PC will restart to finish installation."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER, "You cancelled the installation."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_ALREADY_INSTALLED, "Another version of this application is already installed."),

@@ -26,21 +26,23 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="content">Optional content. If not null or empty, creates file and writes to it.</param>
         /// <param name="cleanup">Deletes file at disposing time. Default true.</param>
         public TempFile(
-            string fileName = null,
+            string? fileName = null,
             bool deleteIfExists = true,
-            string content = null,
+            string? content = null,
             bool cleanup = true)
         {
             if (fileName is null)
             {
                 this.FileName = Path.GetRandomFileName();
+                this.FullPath = Path.Combine(Path.GetTempPath(), this.FileName);
             }
             else
             {
                 this.FileName = fileName;
+                var randomDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+                Directory.CreateDirectory(randomDir);
+                this.FullPath = Path.Combine(randomDir, this.FileName);
             }
-
-            this.FullPath = Path.Combine(Path.GetTempPath(), this.FileName);
 
             if (deleteIfExists && File.Exists(this.FullPath))
             {
@@ -78,7 +80,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Creates the file.
         /// </summary>
         /// <param name="content">Content.</param>
-        public void CreateFile(string content = null)
+        public void CreateFile(string? content = null)
         {
             if (content is null)
             {

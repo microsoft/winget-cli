@@ -29,19 +29,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj" />
   </ItemGroup>
 
-  <Target Name="PwshFiles" AfterTargets="AfterBuild" >
+  <Target Name="PwshFiles" AfterTargets="AfterBuild">
     <ItemGroup>
       <RefFiles Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\ref\**\*.*" />
       <WinModuleFiles Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\Modules\**\*.*" />
       <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
-      <RefFiles Condition="!Exists(@(RefFiles))" Include="$(OutputPath)..\Microsoft.Management.Configuration.Processor\ref\**\*.*"/>
+      <RefFiles Condition="!Exists(@(RefFiles))" Include="$(OutputPath)..\Microsoft.Management.Configuration.Processor\ref\**\*.*" />
       <WinModuleFiles Condition="!Exists(@(WinModuleFiles))" Include="$(OutputPath)..\Microsoft.Management.Configuration.Processor\Modules\**\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(RefFiles)" DestinationFolder="$(OutputPath)\ref\" />

@@ -51,6 +51,8 @@ namespace AppInstaller::Runtime
         UserProfileDownloads,
         // The location where checkpoints are stored.
         CheckpointsLocation,
+        // The location of the CLI executable file.
+        CLIExecutable,
         // Always one more than the last path; for being able to iterate paths in tests.
         Max
     };

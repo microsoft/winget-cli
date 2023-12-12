@@ -11,7 +11,7 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Extensions;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Raised when search criteria for installing or updating a package is too vague.

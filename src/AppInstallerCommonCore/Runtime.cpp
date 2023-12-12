@@ -41,6 +41,9 @@ namespace AppInstaller::Runtime
 
         constexpr std::string_view s_UserProfileEnvironmentVariable = "%USERPROFILE%";
         constexpr std::string_view s_LocalAppDataEnvironmentVariable = "%LOCALAPPDATA%";
+        constexpr std::string_view s_WindowsApps_Base = "Microsoft\\WindowsApps"sv;
+        constexpr std::string_view s_WinGetDev_Exe = "wingetdev.exe";
+        constexpr std::string_view s_WinGet_Exe = "winget.exe";
 
         static std::optional<std::string> s_runtimePathStateName;
         static wil::srwlock s_runtimePathStateNameLock;
@@ -472,6 +475,18 @@ namespace AppInstaller::Runtime
             result = GetPathDetailsForPackagedContext(PathName::LocalState, forDisplay);
             result.Path /= s_CheckpointsDirectory;
             break;
+        case PathName::CLIExecutable:
+            result.Path = GetKnownFolderPath(FOLDERID_LocalAppData);
+            result.Path /= s_WindowsApps_Base;
+            result.Path /= GetPackageFamilyName();
+#if USE_PROD_CLSIDS
+            result.Path /= s_WinGet_Exe;
+#else
+            result.Path /= s_WinGetDev_Exe;
+#endif
+            result.Create = false;
+            mayBeInProfilePath = true;
+            break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -555,8 +570,13 @@ namespace AppInstaller::Runtime
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
+        case PathName::CLIExecutable:
             result.Path = GetBinaryDirectoryPath();
             result.Create = false;
+            if (path == PathName::CLIExecutable)
+            {
+                result.Path /= s_WinGet_Exe;
+            }
             break;
         case PathName::CheckpointsLocation:
             result = GetPathDetailsForUnpackagedContext(PathName::LocalState, forDisplay);

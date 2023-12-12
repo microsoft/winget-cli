@@ -16,6 +16,7 @@
 #include "WorkflowBase.h"
 #include "DependenciesFlow.h"
 #include "PromptFlow.h"
+#include "SourceFlow.h"
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDeployment.h>
 #include <AppInstallerSynchronization.h>
@@ -131,7 +132,7 @@ namespace AppInstaller::CLI::Workflow
                 case ExpectedReturnCodeEnum::RebootRequiredToFinish:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH, Resource::String::InstallFlowReturnCodeRebootRequiredToFinish);
                 case ExpectedReturnCodeEnum::RebootRequiredForInstall:
-                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL, Resource::String::InstallFlowReturnCodeRebootRequiredForInstall);
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL, Resource::String::InstallFlowReturnCodeRebootRequiredForInstall);
                 case ExpectedReturnCodeEnum::RebootInitiated:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED, Resource::String::InstallFlowReturnCodeRebootInitiated);
                 case ExpectedReturnCodeEnum::CancelledByUser:
@@ -483,8 +484,8 @@ namespace AppInstaller::CLI::Workflow
                     context.Reporter.Warn() << returnCode.Message << std::endl;
                     terminationHR = S_OK;
                     break;
-                case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
-                    // REBOOT_REQUIRED_TO_INSTALL is treated as an error since installation has not yet completed.
+                case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL:
+                    // REBOOT_REQUIRED_FOR_INSTALL is treated as an error since installation has not yet completed.
                     context.SetFlags(ContextFlag::RebootRequired);
                     // TODO: Add separate workflow to handle restart registration for resume.
                     context.SetFlags(ContextFlag::RegisterResume);
@@ -553,6 +554,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
             Workflow::RecordInstall <<
+            Workflow::ForceInstalledCacheUpdate <<
             Workflow::RemoveInstaller <<
             Workflow::DisplayInstallationNotes;
     }
@@ -597,7 +599,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::InstallDependencies <<
             Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller <<
-            Workflow::InitiateRebootIfApplicable();
+            Workflow::RegisterStartupAfterReboot();
     }
 
     void EnsureSupportForInstall(Execution::Context& context)

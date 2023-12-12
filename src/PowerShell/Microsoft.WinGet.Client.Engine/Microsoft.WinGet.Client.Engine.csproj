@@ -18,6 +18,7 @@
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
     <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.Engine.xml</DocumentationFile>
     <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(UseProdCLSIDs)' == 'true'">
@@ -33,6 +34,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\CommonFiles\PowerShellCmdlet.cs" Link="PowerShellCmdlet.cs" />
+    <Compile Include="..\CommonFiles\StreamType.cs" Link="StreamType.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Octokit" Version="4.0.3" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
@@ -42,8 +48,9 @@
     <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" Condition="'$(TargetFramework)' == '$(CoreFramework)'"/>
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" Condition="'$(TargetFramework)' == '$(DesktopFramework)'"/>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" Condition="'$(TargetFramework)' == '$(DesktopFramework)'"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -84,21 +91,6 @@
     <RuntimeIdentifier>win10</RuntimeIdentifier>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-
   <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
     <DefineConstants>$(DefineConstants);POWERSHELL_WINDOWS</DefineConstants>
   </PropertyGroup>
@@ -115,6 +107,7 @@
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.WinGet.Resources</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
 

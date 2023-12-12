@@ -199,7 +199,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         }
     }
 
-    void CheckpointDataTable::RemoveData(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData)
+    void CheckpointDataTable::RemoveDataType(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int contextData)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.DeleteFrom(s_CheckpointDataTable_Table_Name).Where(s_CheckpointDataTable_CheckpointId_Column).Equals(checkpointId)

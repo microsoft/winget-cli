@@ -2449,7 +2449,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH" xml:space="preserve">
     <value>Restart your PC to finish installation.</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL" xml:space="preserve">
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL" xml:space="preserve">
     <value>Installation failed. Restart your PC then try again.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED" xml:space="preserve">
@@ -2630,6 +2630,13 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="FailedToInitiateReboot" xml:space="preserve">
     <value>Failed to initiate a reboot.</value>
+  </data>
+  <data name="ResumeLimitExceeded" xml:space="preserve">
+    <value>Resume operation exceeds the allowable limit of {0} resume(s). To manually resume, run the command `{1}`.</value>
+    <comment>{Locked="{0}", "{1}"} {0} is a placeholder that is replaced by an integer number of the number of allowed resumes. {1} is a placeholder for the command to run to perform a manual resume.</comment>
+  </data>
+  <data name="IgnoreResumeLimitArgumentDescription" xml:space="preserve">
+    <value>Ignore the limit on resuming a saved state</value>
   </data>
   <data name="UriSchemeNotSupported" xml:space="preserve">
     <value>Uri scheme not supported: {0}</value>

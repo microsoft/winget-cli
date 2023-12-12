@@ -317,6 +317,28 @@ namespace AppInstaller::SQLite
         Statement m_release;
     };
 
+    // A SQLite backup operation.
+    struct Backup
+    {
+        // Creates a backup.
+        static Backup Create(Connection& destination, const std::string& destinationName, Connection& source, const std::string& sourceName);
+
+        Backup(const Backup&) = delete;
+        Backup& operator=(const Backup&) = delete;
+
+        Backup(Backup&&) = default;
+        Backup& operator=(Backup&&) = default;
+
+        // Performs some or all of the backup.
+        // Returns true if the backup is completed, false if not.
+        bool Step(int pages = -1);
+
+    private:
+        Backup(Connection& destination, const std::string& destinationName, Connection& source, const std::string& sourceName);
+
+        wil::unique_any<sqlite3_backup*, decltype(sqlite3_backup_finish), sqlite3_backup_finish> m_backup;
+    };
+
     // The escape character used in the EscapeStringForLike function.
     extern std::string_view EscapeCharForLike;
 

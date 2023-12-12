@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
     using System.Text;
     using Microsoft.Management.Configuration;
     using Microsoft.WinGet.Configuration.Engine.Extensions;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Resources;
     using Windows.Foundation.Collections;
 
     /// <summary>

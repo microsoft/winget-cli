@@ -7,7 +7,6 @@
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System;
-    using System.Management.Automation;
     using Microsoft.Management.Deployment;
 
     /// <summary>
@@ -16,14 +15,50 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     public sealed class PSInstallResult
     {
         private readonly InstallResult installResult;
+        private readonly CatalogPackage catalogPackage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PSInstallResult"/> class.
         /// </summary>
         /// <param name="installResult">The install result COM object.</param>
-        internal PSInstallResult(InstallResult installResult)
+        /// <param name="catalogPackage">The catalog package COM object.</param>
+        internal PSInstallResult(InstallResult installResult, CatalogPackage catalogPackage)
         {
             this.installResult = installResult;
+            this.catalogPackage = catalogPackage;
+        }
+
+        /// <summary>
+        /// Gets the id of the installed package.
+        /// </summary>
+        public string Id
+        {
+            get
+            {
+                return this.catalogPackage.Id;
+            }
+        }
+
+        /// <summary>
+        /// Gets the name of the installed package.
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+                return this.catalogPackage.Name;
+            }
+        }
+
+        /// <summary>
+        /// Gets the source name of the installed package.
+        /// </summary>
+        public string Source
+        {
+            get
+            {
+                return this.catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
+            }
         }
 
         /// <summary>

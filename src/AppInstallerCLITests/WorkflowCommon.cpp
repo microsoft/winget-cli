@@ -709,4 +709,11 @@ namespace TestCommon
         {
         } });
     }
+
+    void OverrideRegisterStartupAfterReboot(TestContext& context)
+    {
+        context.Override({ "RegisterStartupAfterReboot", [](TestContext&)
+        {
+        } });
+    }
 }

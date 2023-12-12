@@ -218,6 +218,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(HelpLinkPreamble);
         WINGET_DEFINE_RESOURCE_STRINGID(IdArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreLocalArchiveMalwareScanArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IgnoreResumeLimitArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreWarningsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandReportDependencies);
@@ -425,6 +426,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeIdArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeIdNotFoundError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeLimitExceeded);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeStateDataNotFoundError);
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);

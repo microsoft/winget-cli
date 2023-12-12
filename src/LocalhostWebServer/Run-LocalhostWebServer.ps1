@@ -27,7 +27,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$CertPath,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter()]
     [string]$CertPassword,
 
     [Parameter()]
@@ -49,6 +49,8 @@ if (-not [System.String]::IsNullOrEmpty($sourceCert))
     & certutil.exe -addstore -f "TRUSTEDPEOPLE" $sourceCert
 }
 
-cd $BuildRoot
+Push-Location $BuildRoot
 
 Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson TestDataPath=$TestDataPath"
+
+Pop-Location

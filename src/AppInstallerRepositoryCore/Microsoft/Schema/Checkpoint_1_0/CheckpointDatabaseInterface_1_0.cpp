@@ -74,4 +74,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     {
         return CheckpointDataTable::GetDataValuesByFieldName(connection, checkpointId, dataType, name);
     }
+
+    void CheckpointDatabaseInterface::RemoveCheckpointDataType(SQLite::Connection& connection, SQLite::rowid_t checkpointId, int dataType)
+    {
+        CheckpointDataTable::RemoveDataType(connection, checkpointId, dataType);
+    }
 }

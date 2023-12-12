@@ -1252,7 +1252,7 @@ TEST_CASE("InstallFlow_InstallWithReboot", "[InstallFlow][workflow][reboot]")
 
         REQUIRE(context.IsTerminated());
         REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-        REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
         REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
     }
 }

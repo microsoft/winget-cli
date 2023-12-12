@@ -50,11 +50,17 @@ namespace AppInstaller::Repository::Microsoft
         // Sets the value(s) for a data type and field.
         void SetDataValue(IdType checkpointId, int dataType, const std::string& field, const std::vector<std::string>& values);
 
+        // Updates the value(s) for a data type and field.
+        void UpdateDataValue(IdType checkpointId, int dataType, const std::string& field, const std::vector<std::string>& values);
+
         // Gets a single value for a data type field.
         std::string GetDataFieldSingleValue(IdType checkpointId, int dataType, const std::string& field);
 
         // Gets multiple values for a data type field.
         std::vector<std::string> GetDataFieldMultiValue(IdType checkpointId, int dataType, const std::string& field);
+
+        // Removes the value(s) for a data type.
+        void RemoveDataType(IdType checkpointId, int dataType);
 
     private:
         // Constructor used to open an existing index.
