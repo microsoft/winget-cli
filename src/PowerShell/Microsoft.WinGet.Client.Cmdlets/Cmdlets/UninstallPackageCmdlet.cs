@@ -11,7 +11,6 @@ namespace Microsoft.WinGet.Client.Commands
     using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Engine.Commands;
     using Microsoft.WinGet.Client.Engine.PSObjects;
-    using Microsoft.WinGet.Client.PSObjects;
 
     /// <summary>
     /// Uninstalls a package from the local system.
@@ -52,8 +51,9 @@ namespace Microsoft.WinGet.Client.Commands
                         this.Name,
                         this.Moniker,
                         this.Source,
-                        this.Query);
-            this.command.Uninstall(this.Mode.ToString(), this.MatchOption.ToString(), this.Force.ToBool());
+                        this.Query,
+                        this.MatchOption);
+            this.command.Uninstall(this.Mode, this.Force.ToBool());
         }
 
         /// <summary>

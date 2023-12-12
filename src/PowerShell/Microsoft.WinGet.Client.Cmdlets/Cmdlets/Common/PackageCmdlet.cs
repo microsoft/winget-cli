@@ -22,7 +22,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
         public PackageCmdlet()
         {
             // The default match option for single package operations.
-            this.MatchOption = PSObjects.PSPackageFieldMatchOption.EqualsCaseInsensitive;
+            this.MatchOption = PSPackageFieldMatchOption.EqualsCaseInsensitive;
         }
 
         /// <summary>

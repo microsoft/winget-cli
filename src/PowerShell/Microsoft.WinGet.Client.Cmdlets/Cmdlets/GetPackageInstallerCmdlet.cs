@@ -7,7 +7,6 @@
 namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Engine.Commands;
     using Microsoft.WinGet.Client.Engine.PSObjects;
@@ -17,20 +16,21 @@ namespace Microsoft.WinGet.Client.Commands
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.PackageInstaller)]
     [OutputType(typeof(PSDownloadResult))]
-    public sealed class GetPackageInstallerCmdlet : PackageCmdlet
+    public sealed class GetPackageInstallerCmdlet : PackageInstallerCmdlet
     {
         private DownloadCommand command = null;
+
+        /// <summary>
+        /// Gets or sets the directory where the installer will be downloaded to.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public string DownloadDirectory { get; set; }
 
         /// <summary>
         /// Installs a package from the pipeline or from a configured source.
         /// </summary>
         protected override void ProcessRecord()
         {
-            // DownloadDirectory
-            // SKip Dependencies
-            // Installer-Type (Do this for update and install)
-            // Architecture
-            // Locale
             this.command = new DownloadCommand(
                         this,
                         this.PSCatalogPackage,
@@ -40,8 +40,15 @@ namespace Microsoft.WinGet.Client.Commands
                         this.Name,
                         this.Moniker,
                         this.Source,
-                        this.Query);
-            this.command.Download(this.MatchOption.ToString());
+                        this.Query,
+                        this.AllowHashMismatch.ToBool(),
+                        this.SkipDependencies.ToBool(),
+                        this.Locale,
+                        this.Scope,
+                        this.Architecture,
+                        this.InstallerType,
+                        this.MatchOption);
+            this.command.Download(this.DownloadDirectory);
         }
 
         /// <summary>

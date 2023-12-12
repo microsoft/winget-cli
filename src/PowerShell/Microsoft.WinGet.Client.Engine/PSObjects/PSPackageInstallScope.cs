@@ -1,34 +1,39 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="PSPackageFieldMatchOption.cs" company="Microsoft Corporation">
+// <copyright file="PSPackageInstallScope.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.PSObjects
+namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     /// <summary>
-    /// This should mimic Microsoft.Management.Deployment.PackageFileMatchOption.
+    /// This must match Microsoft.Management.Deployment.PackageInstallScope.
     /// </summary>
-    public enum PSPackageFieldMatchOption
+    public enum PSPackageInstallScope
     {
         /// <summary>
-        /// Equals.
+        /// Any.
         /// </summary>
-        Equals,
+        Any,
 
         /// <summary>
-        /// EqualsCaseInsensitive.
+        /// User.
         /// </summary>
-        EqualsCaseInsensitive,
+        User,
 
         /// <summary>
-        /// StartsWithCaseInsensitive.
+        /// System.
         /// </summary>
-        StartsWithCaseInsensitive,
+        System,
 
         /// <summary>
-        /// ContainsCaseInsensitive
+        /// User or unknown.
         /// </summary>
-        ContainsCaseInsensitive,
+        UserOrUnknown,
+
+        /// <summary>
+        /// System or unknown.
+        /// </summary>
+        SystemOrUnknown,
     }
 }

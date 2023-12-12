@@ -85,10 +85,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <param name="value">The query value.</param>
         protected override void SetQueryInFindPackagesOptions(
             ref FindPackagesOptions options,
-            string match,
+            PackageFieldMatchOption match,
             string? value)
         {
-            var matchOption = PSEnumHelpers.ToPackageFieldMatchOption(match);
+            var matchOption = match;
             foreach (PackageMatchField field in new PackageMatchField[] { PackageMatchField.Id, PackageMatchField.Name, PackageMatchField.Moniker })
             {
                 var selector = ManagementDeploymentFactory.Instance.CreatePackageMatchFilter();

@@ -32,6 +32,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="moniker">Moniker of package.</param>
         /// <param name="source">Source to search. If null, all are searched.</param>
         /// <param name="query">Match against any field of a package.</param>
+        /// <param name="matchOption">Package field match behavior.</param>
         public UninstallPackageCommand(
             PSCmdlet psCmdlet,
             PSCatalogPackage psCatalogPackage,
@@ -41,7 +42,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string name,
             string moniker,
             string source,
-            string[] query)
+            string[] query,
+            PSPackageFieldMatchOption matchOption)
             : base(psCmdlet)
         {
             // PackageCommand.
@@ -59,23 +61,20 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
+            this.MatchOption = matchOption;
         }
 
         /// <summary>
         /// Process uninstall package.
         /// </summary>
         /// <param name="psPackageUninstallMode">PSPackageUninstallMode.</param>
-        /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
         /// <param name="force">Force.</param>
-        public void Uninstall(
-            string psPackageUninstallMode,
-            string psPackageFieldMatchOption,
-            bool force)
+        public void Uninstall(PSPackageUninstallMode psPackageUninstallMode, bool force)
         {
             var result = this.Execute(
                 async () => await this.GetPackageAndExecuteAsync(
                     CompositeSearchBehavior.LocalCatalogs,
-                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                    PSEnumHelpers.ToPackageFieldMatchOption(this.MatchOption),
                     async (package, version) =>
                     {
                         UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);

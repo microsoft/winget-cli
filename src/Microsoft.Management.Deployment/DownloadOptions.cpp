@@ -98,5 +98,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_correlationData = value;
     }
+    hstring DownloadOptions::LogOutputPath()
+    {
+        return hstring(m_logOutputPath);
+    }
+    void DownloadOptions::LogOutputPath(hstring const& value)
+    {
+        m_logOutputPath = value;
+    }
     CoCreatableMicrosoftManagementDeploymentClass(DownloadOptions);
 }

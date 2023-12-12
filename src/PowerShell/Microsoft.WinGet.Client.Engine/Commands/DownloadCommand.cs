@@ -18,7 +18,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     /// <summary>
     /// Downloads a package installer.
     /// </summary>
-    public sealed class DownloadCommand : PackageCommand
+    public sealed class DownloadCommand : PackageInstallerCommand
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DownloadCommand"/> class.
@@ -32,6 +32,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="moniker">Moniker of package.</param>
         /// <param name="source">Source to search. If null, all are searched.</param>
         /// <param name="query">Match against any field of a package.</param>
+        /// <param name="allowHashMismatch">To skip the installer hash validation check.</param>
+        /// <param name="skipDependencies">To skip package dependencies.</param>
+        /// <param name="locale">Package locale.</param>
+        /// <param name="scope">Package installer scope.</param>
+        /// <param name="architecture">Package installer architecture.</param>
+        /// <param name="installerType">Package installer type.</param>
+        /// <param name="matchOption">Package field match option.</param>
         public DownloadCommand(
             PSCmdlet psCmdlet,
             PSCatalogPackage psCatalogPackage,
@@ -41,7 +48,14 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string name,
             string moniker,
             string source,
-            string[] query)
+            string[] query,
+            bool allowHashMismatch,
+            bool skipDependencies,
+            string locale,
+            PSPackageInstallScope scope,
+            PSProcessorArchitecture architecture,
+            PSPackageInstallerType installerType,
+            PSPackageFieldMatchOption matchOption)
             : base(psCmdlet)
         {
             // PackageCommand.
@@ -59,21 +73,47 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
+            this.MatchOption = matchOption;
+
+            // PackageInstallerCommand.
+            this.AllowHashMismatch = allowHashMismatch;
+            this.SkipDependencies = skipDependencies;
+            this.Locale = locale;
+            this.Scope = scope;
+            this.Architecture = architecture;
         }
 
         /// <summary>
         /// Process download package.
         /// </summary>
-        /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
-        public void Download(string psPackageFieldMatchOption)
+        /// <param name="downloadDirectory">The target directory where the installer will be downloaded to.</param>
+        public void Download(string downloadDirectory)
         {
             var result = this.Execute(
                 async () => await this.GetPackageAndExecuteAsync(
                     CompositeSearchBehavior.LocalCatalogs,
-                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                    PSEnumHelpers.ToPackageFieldMatchOption(this.MatchOption),
                     async (package, version) =>
                     {
                         DownloadOptions options = this.GetDownloadOptions(version);
+
+                        if (!string.IsNullOrEmpty(downloadDirectory))
+                        {
+                            options.DownloadDirectory = downloadDirectory;
+                        }
+
+                        if (!string.IsNullOrEmpty(this.Locale))
+                        {
+                            options.Locale = this.Locale;
+                        }
+
+                        options.AllowHashMismatch = this.AllowHashMismatch;
+                        options.SkipDependencies = this.SkipDependencies;
+
+                        options.Architecture = PSEnumHelpers.ToProcessorArchitecture(this.Architecture);
+                        options.InstallerType = PSEnumHelpers.ToPackageInstallerType(this.InstallerType);
+                        options.Scope = PSEnumHelpers.ToPackageInstallScope(this.Scope);
+
                         return await this.DownloadPackageAsync(package, options);
                     }));
 

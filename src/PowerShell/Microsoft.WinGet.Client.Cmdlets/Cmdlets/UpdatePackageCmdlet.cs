@@ -49,8 +49,15 @@ namespace Microsoft.WinGet.Client.Commands
                         this.Name,
                         this.Moniker,
                         this.Source,
-                        this.Query);
-            command.Update(this.IncludeUnknown.ToBool(), this.MatchOption.ToString(), this.Mode.ToString());
+                        this.Query,
+                        this.SkipDependencies,
+                        this.Locale,
+                        this.Scope,
+                        this.Architecture,
+                        this.InstallerType,
+                        this.MatchOption,
+                        this.Mode);
+            command.Update(this.IncludeUnknown.ToBool());
         }
     }
 }

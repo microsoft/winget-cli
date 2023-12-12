@@ -15,6 +15,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using Microsoft.WinGet.Client.Engine.Attributes;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
     /// This is the base class for all commands that might need to search for a package. It contains an initial
@@ -53,6 +54,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// Gets or sets the name of the source to search for packages. If null, then all sources are searched.
         /// </summary>
         protected string? Source { get; set; }
+
+        /// <summary>
+        /// Gets or sets the field matching behavior.
+        /// </summary>
+        protected PSPackageFieldMatchOption MatchOption { get; set; } = PSPackageFieldMatchOption.ContainsCaseInsensitive;
 
         /// <summary>
         /// Gets or sets how to match against package fields.
@@ -99,13 +105,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <param name="value">The query value.</param>
         protected virtual void SetQueryInFindPackagesOptions(
             ref FindPackagesOptions options,
-            string match,
+            PackageFieldMatchOption match,
             string? value)
         {
             var selector = ManagementDeploymentFactory.Instance.CreatePackageMatchFilter();
             selector.Field = PackageMatchField.CatalogDefault;
             selector.Value = value ?? string.Empty;
-            selector.Option = PSEnumHelpers.ToPackageFieldMatchOption(match);
+            selector.Option = match;
             options.Selectors.Add(selector);
         }
 
@@ -170,7 +176,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         private FindPackagesOptions GetFindPackagesOptions(uint limit, PackageFieldMatchOption match)
         {
             var options = ManagementDeploymentFactory.Instance.CreateFindPackagesOptions();
-            this.SetQueryInFindPackagesOptions(ref options, match.ToString(), this.QueryAsJoinedString);
+            this.SetQueryInFindPackagesOptions(ref options, match, this.QueryAsJoinedString);
             this.AddAttributedFiltersToFindPackagesOptions(ref options, match);
             options.ResultLimit = limit;
             return options;

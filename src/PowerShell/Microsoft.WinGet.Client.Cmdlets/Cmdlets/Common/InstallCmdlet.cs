@@ -8,13 +8,13 @@ namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System.IO;
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.PSObjects;
+    using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
     /// This is the base class for all commands that parse a FindPackagesOptions result
     /// from the provided parameters i.e., the "install" and "upgrade" commands.
     /// </summary>
-    public abstract class InstallCmdlet : PackageCmdlet
+    public abstract class InstallCmdlet : PackageInstallerCmdlet
     {
         private string location;
 
@@ -50,12 +50,6 @@ namespace Microsoft.WinGet.Client.Commands.Common
                     : this.SessionState.Path.CurrentFileSystemLocation + @"\" + value;
             }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to skip the installer hash validation check.
-        /// </summary>
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter AllowHashMismatch { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to continue upon non security related failures.
