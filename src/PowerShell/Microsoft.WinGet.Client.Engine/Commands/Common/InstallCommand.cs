@@ -9,7 +9,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Windows.Foundation;
 
     /// <summary>
     /// This is the base class for all commands that parse a <see cref="FindPackagesOptions" /> result

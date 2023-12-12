@@ -80,6 +80,7 @@ CmdletsToExport = @(
     'Get-WinGetVersion'
     'Find-WinGetPackage'
     'Get-WinGetPackage'
+    'Get-WinGetPackageInstaller'
     'Get-WinGetSource'
     'Install-WinGetPackage'
     'Uninstall-WinGetPackage'
