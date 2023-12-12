@@ -20,8 +20,34 @@ The motivation for creating a repair feature in the Windows Package Manager is t
 ## Solution Design
 
 ### Repair Command Syntax
-`winget repair <package>`
+`winget repair [[-q] <query>...] [<options>]`
 will initiate the repair of the specified package. The command will display an error message if the application is not installed. The command will attempt to repair the application if it is installed. The command will display a success message if the repair succeeds. The command will display an error message if the repair fails.
+
+#### Arguments
+| Argument | Description |
+|-------------|-------------|  
+| **-q,--query**  |  The query used to search for an app. |
+
+
+#### Optional Arguments
+
+| Option | Description |
+|--------|-------------|
+| **-m, --manifest** | Must be followed by the path to the manifest (YAML) file.You can use the manifest to run the repair experience from a [local manifest file](#local-repair).|
+| **--id** | Limits the repair to the specified ID of the application.|
+| **--name** | Limits the repair to the specified name of the application.|
+| **--moniker** | Limits the repair to the specified moniker of the application.|
+| **-v --version** | Limits the repair to the specified version of the application.If not specified, the repair will be applied to the latest version of the application.|
+| **--architectures** | Select the architecture |
+| **-s --source** | Limits the serach to specified source(s).Must be followed by the source name.|
+| **-o, --log** | Directs the logging to a log file. You must provide a path to a file that you have the write rights to. |
+| **-i --interactive** | Runs the repair in interactive mode.|
+| **-h --silent** | Runs the repair in silent mode.|
+| **-?, --help** | Get additional help on this command. |
+| **--accept-source-agreements** | Accept all source agreements during source operations |
+| **--logs, --open-logs** | Open the default logs location. |
+| **--locale** | Sets the locale.|
+
 
 ### Repair Feature for different Installer Types with Native Repair Capabilities
   - Msi, Wix : The repair command will use the built-in repair features of the MSI installer type. It will run the msiexec command with the default [repair options](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/msiexec#repair-options) to repair the application using a ShellExecute call or by invoking [MsiReinstallProduct](https://learn.microsoft.com/en-us/windows/win32/api/msi/nf-msi-msireinstallproductw) API call with `REINSTALLMODE` mode property set.
