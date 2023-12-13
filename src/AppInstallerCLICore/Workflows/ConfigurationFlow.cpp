@@ -940,8 +940,7 @@ namespace AppInstaller::CLI::Workflow
         // Fill out the information about the set based on it coming from a file.
         if (isRemote)
         {
-            // TODO: Suggestions welcome on what values to pass in.
-            result.Name(argPathWide);
+            result.Name(Utility::GetFileNameFromURI(argPath).wstring());
             result.Origin(argPathWide);
             // Do not set path. This means ${WinGetConfigRoot} not supported in remote configs.
         }

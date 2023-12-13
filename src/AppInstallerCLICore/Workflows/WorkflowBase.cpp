@@ -1106,10 +1106,15 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (...) {}
 
-        if (pathAsUri && !pathAsUri.Suspicious())
+        if (pathAsUri)
         {
+            if (pathAsUri.Suspicious())
+            {
+                context.Reporter.Error() << Resource::String::UriNotWellFormed(Utility::LocIndView{ path }) << std::endl;
+                AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+            }
             // SchemeName() always returns lower case
-            if (L"file" == pathAsUri.SchemeName() && !Utility::CaseInsensitiveStartsWith(path, "file:"))
+            else if (L"file" == pathAsUri.SchemeName() && !Utility::CaseInsensitiveStartsWith(path, "file:"))
             {
                 // Uri constructor is smart enough to parse an absolute local file path to file uri.
                 // In this case, we should continue with VerifyFile.

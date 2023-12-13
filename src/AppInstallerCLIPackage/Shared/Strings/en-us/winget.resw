@@ -2642,6 +2642,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Uri scheme not supported: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the provided uri is not supported. {0} is a placeholder replaced by the provided uri.</comment>
   </data>
+  <data name="UriNotWellFormed" xml:space="preserve">
+    <value>Uri not well formed: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the provided uri is not well formed. {0} is a placeholder replaced by the provided uri.</comment>
+  </data>
   <data name="WinGetResourceUnitEmptyContent" xml:space="preserve">
     <value>Failed to parse {0} configuration unit settings content or settings content is empty.</value>
     <comment>{Locked="{0}"} {0} is a placeholder replaced by the input winget configure resource unit type.</comment>
