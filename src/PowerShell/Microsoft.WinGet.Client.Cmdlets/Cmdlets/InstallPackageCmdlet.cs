@@ -46,15 +46,9 @@ namespace Microsoft.WinGet.Client.Commands
                         this.Moniker,
                         this.Source,
                         this.Query,
-                        this.SkipDependencies.ToBool(),
-                        this.Locale,
-                        this.Scope,
-                        this.Architecture,
-                        this.InstallerType,
-                        this.MatchOption,
-                        this.Mode);
+                        this.SkipDependencies.ToBool());
 
-            this.command.Install();
+            this.command.Install(this.MatchOption.ToString(), this.Scope.ToString(), this.Architecture.ToString(), this.Mode.ToString(), this.InstallerType.ToString());
         }
 
         /// <summary>

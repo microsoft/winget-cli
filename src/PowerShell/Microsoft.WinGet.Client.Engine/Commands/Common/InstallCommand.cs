@@ -9,13 +9,12 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
     /// This is the base class for all commands that parse a <see cref="FindPackagesOptions" /> result
     /// from the provided parameters i.e., the "install" and "upgrade" commands.
     /// </summary>
-    public abstract class InstallCommand : PackageInstallerCommand
+    public abstract class InstallCommand : PackageCommand
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="InstallCommand"/> class.
@@ -25,6 +24,16 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             : base(psCmdlet)
         {
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to skip the installer hash validation check.
+        /// </summary>
+        protected bool AllowHashMismatch { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to skip dependencies.
+        /// </summary>
+        protected bool SkipDependencies { get; set; }
 
         /// <summary>
         /// Gets or sets the override arguments to be passed on to the installer.
@@ -54,7 +63,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <summary>
         /// Gets or sets the install mode.
         /// </summary>
-        protected PSPackageInstallMode PackageInstallMode { get; set; } = PSPackageInstallMode.Default;
+        protected string? PackageInstallMode { get; set; }
 
         /// <summary>
         /// Gets the install options from the configured parameters.
@@ -65,7 +74,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <param name="version">The <see cref="PackageVersionId" /> to install.</param>
         /// <param name="mode">Package install mode as string.</param>
         /// <returns>An <see cref="InstallOptions" /> instance.</returns>
-        protected virtual InstallOptions GetInstallOptions(PackageVersionId? version, PSPackageInstallMode mode)
+        protected virtual InstallOptions GetInstallOptions(PackageVersionId? version, string mode)
         {
             InstallOptions options = ManagementDeploymentFactory.Instance.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch;

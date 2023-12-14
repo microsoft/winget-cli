@@ -8,7 +8,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System;
     using Microsoft.Management.Deployment;
-    using Microsoft.WinGet.Client.Engine.PSObjects;
     using Windows.System;
 
     /// <summary>
@@ -17,109 +16,109 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     internal static class PSEnumHelpers
     {
         /// <summary>
-        /// Converts PSPackageInstallMode to PackageInstallMode.
+        /// Converts PSPackageInstallMode string value to PackageInstallMode.
         /// </summary>
-        /// <param name="value">PSPackageInstallMode.</param>
+        /// <param name="value">PSPackageInstallMode to string value.</param>
         /// <returns>PackageInstallMode.</returns>
-        public static PackageInstallMode ToPackageInstallMode(PSPackageInstallMode value)
+        public static PackageInstallMode ToPackageInstallMode(string value)
         {
             return value switch
             {
-                PSPackageInstallMode.Default => PackageInstallMode.Default,
-                PSPackageInstallMode.Silent => PackageInstallMode.Silent,
-                PSPackageInstallMode.Interactive => PackageInstallMode.Interactive,
+                "Default" => PackageInstallMode.Default,
+                "Silent" => PackageInstallMode.Silent,
+                "Interactive" => PackageInstallMode.Interactive,
                 _ => throw new InvalidOperationException(),
             };
         }
 
         /// <summary>
-        /// Converts PSPackageInstallScope to PackageInstallScope.
+        /// Converts PSPackageInstallScope string value to PackageInstallScope.
         /// </summary>
-        /// <param name="value">PSPackageInstallScope.</param>
+        /// <param name="value">PSPackageInstallScope to string value.</param>
         /// <returns>PackageInstallScope.</returns>
-        public static PackageInstallScope ToPackageInstallScope(PSPackageInstallScope value)
+        public static PackageInstallScope ToPackageInstallScope(string value)
         {
             return value switch
             {
-                PSPackageInstallScope.Any => PackageInstallScope.Any,
-                PSPackageInstallScope.User => PackageInstallScope.User,
-                PSPackageInstallScope.System => PackageInstallScope.System,
-                PSPackageInstallScope.UserOrUnknown => PackageInstallScope.UserOrUnknown,
-                PSPackageInstallScope.SystemOrUnknown => PackageInstallScope.SystemOrUnknown,
+                "Any" => PackageInstallScope.Any,
+                "User" => PackageInstallScope.User,
+                "System" => PackageInstallScope.System,
+                "UserOrUnknown" => PackageInstallScope.UserOrUnknown,
+                "SystemOrUnknown" => PackageInstallScope.SystemOrUnknown,
                 _ => throw new InvalidOperationException(),
             };
         }
 
         /// <summary>
-        /// Converts PSProcessorArchitecture to ProcessorArchitecture.
+        /// Converts PSProcessorArchitecture string value to ProcessorArchitecture.
         /// </summary>
-        /// <param name="value">PSProcessorArchitecture.</param>
+        /// <param name="value">PSProcessorArchitecture to string value.</param>
         /// <returns>ProcessorArchitecture.</returns>
-        public static ProcessorArchitecture ToProcessorArchitecture(PSProcessorArchitecture value)
+        public static ProcessorArchitecture ToProcessorArchitecture(string value)
         {
             return value switch
             {
-                PSProcessorArchitecture.X86 => ProcessorArchitecture.X86,
-                PSProcessorArchitecture.Arm => ProcessorArchitecture.Arm,
-                PSProcessorArchitecture.X64 => ProcessorArchitecture.X64,
-                PSProcessorArchitecture.Arm64 => ProcessorArchitecture.Arm64,
+                "X86" => ProcessorArchitecture.X86,
+                "Arm" => ProcessorArchitecture.Arm,
+                "X64" => ProcessorArchitecture.X64,
+                "Arm64" => ProcessorArchitecture.Arm64,
                 _ => throw new InvalidOperationException(),
             };
         }
 
         /// <summary>
-        /// Converts PSPackageUninstallMode to PackageUninstallMode.
+        /// Converts PSPackageUninstallMode string value to PackageUninstallMode.
         /// </summary>
         /// <param name="value">PSPackageUninstallMode string value.</param>
         /// <returns>PackageUninstallMode.</returns>
-        public static PackageUninstallMode ToPackageUninstallMode(PSPackageUninstallMode value)
+        public static PackageUninstallMode ToPackageUninstallMode(string value)
         {
             return value switch
             {
-                PSPackageUninstallMode.Default => PackageUninstallMode.Default,
-                PSPackageUninstallMode.Silent => PackageUninstallMode.Silent,
-                PSPackageUninstallMode.Interactive => PackageUninstallMode.Interactive,
+                "Default" => PackageUninstallMode.Default,
+                "Silent" => PackageUninstallMode.Silent,
+                "Interactive" => PackageUninstallMode.Interactive,
                 _ => throw new InvalidOperationException(),
             };
         }
 
         /// <summary>
-        /// Converts PSPackageFieldMatchOption to PackageFieldMatchOption.
+        /// Converts PSPackageFieldMatchOption string value to PackageFieldMatchOption.
         /// </summary>
-        /// <param name="value">PSPackageFieldMatchOption.</param>
+        /// <param name="value">PSPackageFieldMatchOption string value.</param>
         /// <returns>PackageFieldMatchOption.</returns>
-        public static PackageFieldMatchOption ToPackageFieldMatchOption(PSPackageFieldMatchOption value)
+        public static PackageFieldMatchOption ToPackageFieldMatchOption(string value)
         {
             return value switch
             {
-                PSPackageFieldMatchOption.Equals => PackageFieldMatchOption.Equals,
-                PSPackageFieldMatchOption.EqualsCaseInsensitive => PackageFieldMatchOption.EqualsCaseInsensitive,
-                PSPackageFieldMatchOption.StartsWithCaseInsensitive => PackageFieldMatchOption.StartsWithCaseInsensitive,
-                PSPackageFieldMatchOption.ContainsCaseInsensitive => PackageFieldMatchOption.ContainsCaseInsensitive,
+                "Equals" => PackageFieldMatchOption.Equals,
+                "EqualsCaseInsensitive" => PackageFieldMatchOption.EqualsCaseInsensitive,
+                "StartsWithCaseInsensitive" => PackageFieldMatchOption.StartsWithCaseInsensitive,
+                "ContainsCaseInsensitive" => PackageFieldMatchOption.ContainsCaseInsensitive,
                 _ => throw new InvalidOperationException(),
             };
         }
 
         /// <summary>
-        /// Converts PSPackageInstallerType to PackageInstallerType.
+        /// Converts PSPackageInstallerType string value to PackageInstallerType.
         /// </summary>
-        /// <param name="value">PSPackageInstallerType.</param>
+        /// <param name="value">PSPackageInstallerType string value.</param>
         /// <returns>PackageInstallerType.</returns>
-        public static PackageInstallerType ToPackageInstallerType(PSPackageInstallerType value)
+        public static PackageInstallerType ToPackageInstallerType(string value)
         {
             return value switch
             {
-                PSPackageInstallerType.Unknown => PackageInstallerType.Unknown,
-                PSPackageInstallerType.Inno => PackageInstallerType.Inno,
-                PSPackageInstallerType.Wix => PackageInstallerType.Wix,
-                PSPackageInstallerType.Msi => PackageInstallerType.Msi,
-                PSPackageInstallerType.Nullsoft => PackageInstallerType.Nullsoft,
-                PSPackageInstallerType.Zip => PackageInstallerType.Zip,
-                PSPackageInstallerType.Msix => PackageInstallerType.Msix,
-                PSPackageInstallerType.Exe => PackageInstallerType.Exe,
-                PSPackageInstallerType.Burn => PackageInstallerType.Burn,
-                PSPackageInstallerType.MSStore => PackageInstallerType.MSStore,
-                PSPackageInstallerType.Portable => PackageInstallerType.Portable,
+                "Unknown" => PackageInstallerType.Unknown,
+                "Inno" => PackageInstallerType.Inno,
+                "Wix" => PackageInstallerType.Wix,
+                "Msi" => PackageInstallerType.Msi,
+                "Nullsoft" => PackageInstallerType.Nullsoft,
+                "Zip" => PackageInstallerType.Zip,
+                "Msix" => PackageInstallerType.Msix,
+                "Exe" => PackageInstallerType.Exe,
+                "Burn" => PackageInstallerType.Burn,
+                "MSStore" => PackageInstallerType.MSStore,
+                "Portable" => PackageInstallerType.Portable,
                 _ => throw new InvalidOperationException(),
             };
         }

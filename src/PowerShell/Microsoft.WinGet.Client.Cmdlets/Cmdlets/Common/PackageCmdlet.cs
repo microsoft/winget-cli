@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Client.PSObjects;
 
     /// <summary>
     /// This is the base class for commands which operate on a specific package and version i.e.,

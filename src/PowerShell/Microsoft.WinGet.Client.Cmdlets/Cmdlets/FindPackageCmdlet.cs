@@ -35,7 +35,7 @@ namespace Microsoft.WinGet.Client.Commands
                 this.Command,
                 this.Count);
 
-            command.Find(this.MatchOption);
+            command.Find(this.MatchOption.ToString());
         }
     }
 }

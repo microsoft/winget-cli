@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Engine.PSObjects
+namespace Microsoft.WinGet.Client.PSObjects
 {
     /// <summary>
     /// The installer type of the package.
@@ -12,9 +12,9 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     public enum PSPackageInstallerType
     {
         /// <summary>
-        /// Unknown.
+        /// Let winget decide.
         /// </summary>
-        Unknown,
+        Default,
 
         /// <summary>
         /// Inno,

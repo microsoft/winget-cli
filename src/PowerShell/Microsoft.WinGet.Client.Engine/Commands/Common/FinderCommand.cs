@@ -15,7 +15,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using Microsoft.WinGet.Client.Engine.Attributes;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
     /// This is the base class for all commands that might need to search for a package. It contains an initial
@@ -54,11 +53,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// Gets or sets the name of the source to search for packages. If null, then all sources are searched.
         /// </summary>
         protected string? Source { get; set; }
-
-        /// <summary>
-        /// Gets or sets the field matching behavior.
-        /// </summary>
-        protected PSPackageFieldMatchOption MatchOption { get; set; } = PSPackageFieldMatchOption.ContainsCaseInsensitive;
 
         /// <summary>
         /// Gets or sets how to match against package fields.

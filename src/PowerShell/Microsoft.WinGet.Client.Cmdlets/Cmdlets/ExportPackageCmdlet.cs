@@ -16,7 +16,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.PackageInstaller)]
     [OutputType(typeof(PSDownloadResult))]
-    public sealed class GetPackageInstallerCmdlet : PackageInstallerCmdlet
+    public sealed class ExportPackageCmdlet : PackageInstallerCmdlet
     {
         private DownloadCommand command = null;
 
@@ -43,12 +43,8 @@ namespace Microsoft.WinGet.Client.Commands
                         this.Query,
                         this.AllowHashMismatch.ToBool(),
                         this.SkipDependencies.ToBool(),
-                        this.Locale,
-                        this.Scope,
-                        this.Architecture,
-                        this.InstallerType,
-                        this.MatchOption);
-            this.command.Download(this.DownloadDirectory);
+                        this.Locale);
+            this.command.Download(this.DownloadDirectory, this.MatchOption.ToString(), this.Scope.ToString(), this.Architecture.ToString(), this.InstallerType.ToString());
         }
 
         /// <summary>

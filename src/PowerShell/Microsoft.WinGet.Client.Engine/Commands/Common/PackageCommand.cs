@@ -45,6 +45,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         protected string? Version { get; set; }
 
         /// <summary>
+        /// Gets or sets the locale to install.
+        /// </summary>
+        protected string? Locale { get; set; }
+
+        /// <summary>
         /// Gets or sets the path to the logging file.
         /// </summary>
         protected string? Log { get; set; }

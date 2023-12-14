@@ -8,7 +8,7 @@ namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
-    using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Client.PSObjects;
 
     /// <summary>
     /// This is the base class for all commands that distinguish installers for a given package.
@@ -32,7 +32,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// Gets or sets the installer type to be downloaded.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        public PSPackageInstallerType InstallerType { get; set; } = PSPackageInstallerType.Unknown;
+        public PSPackageInstallerType InstallerType { get; set; } = PSPackageInstallerType.Default;
 
         /// <summary>
         /// Gets or sets the locale of the installer to be downloaded.

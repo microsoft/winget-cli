@@ -59,7 +59,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Process find package command.
         /// </summary>
         /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
-        public void Find(PSPackageFieldMatchOption psPackageFieldMatchOption)
+        public void Find(string psPackageFieldMatchOption)
         {
             var results = this.Execute(
                 () => this.FindPackages(
@@ -76,7 +76,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Process get package command.
         /// </summary>
         /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
-        public void Get(PSPackageFieldMatchOption psPackageFieldMatchOption)
+        public void Get(string psPackageFieldMatchOption)
         {
             var results = this.Execute(
                 () => this.FindPackages(
