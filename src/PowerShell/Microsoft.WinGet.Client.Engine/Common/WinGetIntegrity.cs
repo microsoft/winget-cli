@@ -135,7 +135,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 }
             }
 
-            // Not under %LOCALAPPDATA%\\Microsoft\\WindowsApps\PFM\
+            // Not under %LOCALAPPDATA%\\Microsoft\\WindowsApps\PFN\
 
             // Check OS version
             if (!IsSupportedOSVersion())

@@ -17,6 +17,24 @@ namespace AppInstallerCLIE2ETests
         private const string Command = "configure validate";
 
         /// <summary>
+        /// Set up.
+        /// </summary>
+        [OneTimeSetUp]
+        public void BaseSetup()
+        {
+            TestCommon.SetupTestSource(false);
+        }
+
+        /// <summary>
+        /// Tear down.
+        /// </summary>
+        [OneTimeTearDown]
+        public void BaseTeardown()
+        {
+            TestCommon.TearDownTestSource();
+        }
+
+        /// <summary>
         /// The configuration file is empty.
         /// </summary>
         [Test]
@@ -190,6 +208,94 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoSettings.yml"), timeOut: 120000);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Validation found no issues."));
+        }
+
+        /// <summary>
+        /// No issues detected (yet) from https configuration file.
+        /// </summary>
+        [Test]
+        public void NoIssuesDetected_HttpsConfigurationFile()
+        {
+            var result = TestCommon.RunAICLICommand(Command, $"{Constants.TestSourceUrl}/TestData/Configuration/PSGallery_NoSettings.yml", timeOut: 120000);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Validation found no issues."));
+        }
+
+        /// <summary>
+        /// No issues detected from WinGet resource units.
+        /// </summary>
+        [Test]
+        public void NoIssuesDetected_WinGetDscResource()
+        {
+            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_Good.yml"), timeOut: 120000);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Validation found no issues."));
+        }
+
+        /// <summary>
+        /// No issues detected from WinGet resource units.
+        /// </summary>
+        [Test]
+        public void ValidateWinGetDscResource_DependencySourceMissing()
+        {
+            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_DependencySourceMissing.yml"), timeOut: 120000);
+            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
+            Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package depends on a third-party source not previously configured. Package Id: AppInstallerTest.TestExeInstaller; Source: TestSource"));
+        }
+
+        /// <summary>
+        /// No issues detected from WinGet resource units.
+        /// </summary>
+        [Test]
+        public void ValidateWinGetDscResource_PackageNotFound()
+        {
+            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_PackageNotFound.yml"), timeOut: 120000);
+            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
+            Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package cannot be validated. Package not found. Package Id: AppInstallerTest.DoesNotExist"));
+        }
+
+        /// <summary>
+        /// No issues detected from WinGet resource units.
+        /// </summary>
+        [Test]
+        public void ValidateWinGetDscResource_PackageVersionNotFound()
+        {
+            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_PackageVersionNotFound.yml"), timeOut: 120000);
+            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
+            Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package cannot be validated. Package version not found. Package Id: AppInstallerTest.TestExeInstaller; Version 101.0.101.0"));
+        }
+
+        /// <summary>
+        /// No issues detected from WinGet resource units.
+        /// </summary>
+        [Test]
+        public void ValidateWinGetDscResource_SourceOpenFailed()
+        {
+            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_SourceOpenFailed.yml"), timeOut: 120000);
+            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
+            Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package cannot be validated. Source open failed. Package Id: AppInstallerTest.TestExeInstaller; Source: TestSourceV2"));
+        }
+
+        /// <summary>
+        /// No issues detected from WinGet resource units.
+        /// </summary>
+        [Test]
+        public void ValidateWinGetDscResource_VersionSpecifiedWithOnlyOneVersionAvailable()
+        {
+            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_VersionSpecifiedWithOnlyOneVersionAvailable.yml"), timeOut: 120000);
+            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
+            Assert.True(result.StdOut.Contains("WinGetPackage configuration unit package specified with a specific version while only one package version is available. Package Id: AppInstallerTest.TestValidManifest; Version: 1.0.0.0"));
+        }
+
+        /// <summary>
+        /// No issues detected from WinGet resource units.
+        /// </summary>
+        [Test]
+        public void ValidateWinGetDscResource_VersionSpecifiedWithUseLatest()
+        {
+            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\WinGetDscResourceValidate_VersionSpecifiedWithUseLatest.yml"), timeOut: 120000);
+            Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
+            Assert.True(result.StdOut.Contains("WinGetPackage declares both UseLatest and Version. Package Id: AppInstallerTest.TestExeInstaller"));
         }
     }
 }

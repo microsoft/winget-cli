@@ -222,7 +222,7 @@ jobs:
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
 
   - template: templates/e2e-test.template.yml
     parameters:

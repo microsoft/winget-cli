@@ -4,10 +4,13 @@
 #include "ConfigurationFlow.h"
 #include "PromptFlow.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
+#include <AppInstallerStrings.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winget/SelfManagement.h>
 #include "ConfigurationCommon.h"
+#include "ConfigurationWingetDscModuleUnitValidation.h"
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -772,10 +775,52 @@ namespace AppInstaller::CLI::Workflow
             bool m_isFirstProgress = true;
         };
 
-        std::filesystem::path GetConfigurationFilePath(Execution::Context& context)
+        std::string GetNormalizedIdentifier(const winrt::hstring& identifier)
         {
-            std::filesystem::path argPath = Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationFile));
-            return std::filesystem::weakly_canonical(argPath);
+            return Utility::FoldCase(Utility::NormalizedString{ identifier });
+        }
+
+        // Get unit validation order. Make sure dependency units are before units depending on them.
+        std::vector<uint32_t> GetConfigurationSetUnitValidationOrder(winrt::Windows::Foundation::Collections::IVectorView<ConfigurationUnit> units)
+        {
+            // Create id to index map for easier processing.
+            std::map<std::string, uint32_t> idToUnitIndex;
+            for (uint32_t i = 0; i < units.Size(); ++i)
+            {
+                auto id = GetNormalizedIdentifier(units.GetAt(i).Identifier());
+                if (!id.empty())
+                {
+                    idToUnitIndex.emplace(std::move(id), i);
+                }
+            }
+
+            // We do not need to worry about duplicate id, missing dependency or loops
+            // since dependency integrity is already validated in earlier semantic checks.
+
+            std::vector<uint32_t> validationOrder;
+
+            std::function<void(const ConfigurationUnit&, uint32_t)> addUnitToValidationOrder =
+                [&](const ConfigurationUnit& unit, uint32_t index)
+                {
+                    if (std::find(validationOrder.begin(), validationOrder.end(), index) == validationOrder.end())
+                    {
+                        for (auto const& dependencyId : unit.Dependencies())
+                        {
+                            auto dependencyIndex = idToUnitIndex.find(GetNormalizedIdentifier(dependencyId))->second;
+                            addUnitToValidationOrder(units.GetAt(dependencyIndex), dependencyIndex);
+                        }
+                        validationOrder.emplace_back(index);
+                    }
+                };
+
+            for (uint32_t i = 0; i < units.Size(); ++i)
+            {
+                addUnitToValidationOrder(units.GetAt(i), i);
+            }
+
+            THROW_HR_IF(E_UNEXPECTED, units.Size() != validationOrder.size());
+
+            return validationOrder;
         }
     }
 
@@ -811,10 +856,32 @@ namespace AppInstaller::CLI::Workflow
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationReadingConfigFile());
 
-        std::filesystem::path absolutePath = GetConfigurationFilePath(context);
-
+        std::string argPath{ context.Args.GetArg(Args::Type::ConfigurationFile) };
+        std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
+        bool isRemote = Utility::IsUrlRemote(argPath);
+        std::filesystem::path absolutePath;
         Streams::IInputStream inputStream = nullptr;
+
+        if (isRemote)
         {
+            std::ostringstream stringStream;
+            ProgressCallback emptyCallback;
+            Utility::DownloadToStream(argPath, stringStream, Utility::DownloadType::ConfigurationFile, emptyCallback);
+
+            auto strContent = stringStream.str();
+            std::vector<BYTE> byteContent{ strContent.begin(), strContent.end() };
+
+            Streams::InMemoryRandomAccessStream memoryStream;
+            Streams::DataWriter streamWriter{ memoryStream };
+            streamWriter.WriteBytes(byteContent);
+            streamWriter.StoreAsync().get();
+            streamWriter.DetachStream();
+            memoryStream.Seek(0);
+            inputStream = memoryStream;
+        }
+        else
+        {
+            absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });
             auto openAction = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read);
             auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
             inputStream = openAction.get();
@@ -831,7 +898,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))
         {
-            AICLI_LOG(Config, Error, << "Failed to open configuration set at " << absolutePath.u8string() << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
+            AICLI_LOG(Config, Error, << "Failed to open configuration set at " << (isRemote ? argPath : absolutePath.u8string()) << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
 
             switch (openResult.ResultCode())
             {
@@ -871,10 +938,19 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Fill out the information about the set based on it coming from a file.
-        // TODO: Consider how to properly determine a good value for name and origin.
-        result.Name(absolutePath.filename().wstring());
-        result.Origin(absolutePath.parent_path().wstring());
-        result.Path(absolutePath.wstring());
+        if (isRemote)
+        {
+            result.Name(Utility::GetFileNameFromURI(argPath).wstring());
+            result.Origin(argPathWide);
+            // Do not set path. This means ${WinGetConfigRoot} not supported in remote configs.
+        }
+        else
+        {
+            // TODO: Consider how to properly determine a good value for name and origin.
+            result.Name(absolutePath.filename().wstring());
+            result.Origin(absolutePath.parent_path().wstring());
+            result.Path(absolutePath.wstring());
+        }
 
         context.Get<Data::ConfigurationContext>().Set(result);
     }
@@ -1303,6 +1379,36 @@ namespace AppInstaller::CLI::Workflow
         }
 
         if (foundIssue)
+        {
+            // Indicate that it was not a total success
+            AICLI_TERMINATE_CONTEXT(S_FALSE);
+        }
+    }
+
+    void ValidateConfigurationSetUnitContents(Execution::Context& context)
+    {
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+        auto units = configContext.Set().Units();
+        auto validationOrder = GetConfigurationSetUnitValidationOrder(units.GetView());
+
+        Configuration::WingetDscModuleUnitValidator wingetUnitValidator;
+
+        bool foundIssues = false;
+        for (const auto index : validationOrder)
+        {
+            const ConfigurationUnit& unit = units.GetAt(index);
+            auto moduleName = Utility::ConvertToUTF8(unit.Details().ModuleName());
+            if (Utility::CaseInsensitiveEquals(wingetUnitValidator.ModuleName(), moduleName))
+            {
+                bool result = wingetUnitValidator.ValidateConfigurationSetUnit(context, unit);
+                if (!result)
+                {
+                    foundIssues = true;
+                }
+            }
+        }
+
+        if (foundIssues)
         {
             // Indicate that it was not a total success
             AICLI_TERMINATE_CONTEXT(S_FALSE);
