@@ -80,7 +80,6 @@ CmdletsToExport = @(
     'Get-WinGetVersion'
     'Find-WinGetPackage'
     'Get-WinGetPackage'
-    'Get-WinGetPackageInstaller'
     'Get-WinGetSource'
     'Install-WinGetPackage'
     'Uninstall-WinGetPackage'
@@ -96,6 +95,7 @@ CmdletsToExport = @(
     'Add-WinGetSource'
     'Remove-WinGetSource'
     'Reset-WinGetSource'
+    'Export-WinGetPackage'
 )
 
 # Variables to export from this module

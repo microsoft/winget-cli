@@ -118,6 +118,11 @@ BeforeAll {
             }
         }
     }
+
+    function GetRandomTestDirectory()
+    {
+        return Join-Path -Path $env:Temp -ChildPath "WingetPwshTest-$(New-Guid)"
+    }
 }
 
 Describe 'Get-WinGetVersion' {
@@ -348,6 +353,74 @@ Describe 'Get-WinGetPackage' {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller 
         } 
    }
+}
+
+Describe 'Export-WinGetPackage' {
+
+    BeforeAll {
+        AddTestSource
+    }
+
+    It 'Download by Id' {
+        $downloadDirectory = GetRandomTestDirectory
+        $result = Export-WinGetPackage -Id AppInstaller.TestExeInstaller -Version '1.0.0.0' -DownloadDirectory $downloadDirectory
+        
+        $result | Should -Not -BeNullOrEmpty
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
+        $result.Status | Should -Be 'Ok'
+
+        # Download directory should be created and have exactly two files (installer and manifest file).
+        Test-Path -Path $downloadDirectory | Should -Be $true
+        (Get-ChildItem -Path $FolderPath -Force | Measure-Object).Count | Should -Be 2
+    }
+
+    It 'Download by Locale' {
+        $downloadDirectory = GetRandomTestDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestMultipleInstallers -Locale 'zh-CN' -DownloadDirectory $downloadDirectory
+
+        $result | Should -Not -BeNullOrEmpty
+        $result.Id | Should -Be "AppInstallerTest.TestMultipleInstallers"
+        $result.Name | Should -Be "TestMultipleInstallers"
+        $result.Source | Should -Be "TestSource"
+        $result.Status | Should -Be 'Ok'
+
+        Test-Path -Path $downloadDirectory | Should -Be $true
+        (Get-ChildItem -Path $FolderPath -Force | Measure-Object).Count | Should -Be 2
+    }
+
+    It 'Download by InstallerType' {
+        $downloadDirectory = GetRandomTestDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestMultipleInstallers -InstallerType 'msi' -DownloadDirectory $downloadDirectory
+
+        $result | Should -Not -BeNullOrEmpty
+        $result.Id | Should -Be "AppInstallerTest.TestMultipleInstallers"
+        $result.Name | Should -Be "TestMultipleInstallers"
+        $result.Source | Should -Be "TestSource"
+        $result.Status | Should -Be 'Ok'
+
+        Test-Path -Path $downloadDirectory | Should -Be $true
+        (Get-ChildItem -Path $FolderPath -Force | Measure-Object).Count | Should -Be 2
+    }
+
+    It 'Download by InstallerType that does not exist' {
+        $downloadDirectory = GetRandomTestDirectory
+        $result = Export-WinGetPackage -Id AppInstaller.TestExeInstaller -Version '1.0.0.0' -InstallerType 'zip' -DownloadDirectory $downloadDirectory
+
+        $result | Should -Not -BeNullOrEmpty
+        $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
+        $result.Name | Should -Be "TestExeInstaller"
+        $result.Source | Should -Be "TestSource"
+        $result.Status | Should -Be 'NoApplicableInstallers'
+        $result.ExtendedErrorCode | Should -Not -BeNullOrEmpty       
+    }
+
+    AfterEach {
+        if (Test-Path $downloadDirectory) {
+            Remove-Item $downloadDirectory -Force
+        }
+    }
 }
 
 Describe 'Get-WinGetUserSettings' {
