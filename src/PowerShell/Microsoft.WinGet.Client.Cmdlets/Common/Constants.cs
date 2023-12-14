@@ -81,11 +81,6 @@ namespace Microsoft.WinGet.Client.Common
             /// The noun to get the winget settings.
             /// </summary>
             public const string Settings = "WinGetSettings";
-
-            /// <summary>
-            /// The noun for a winget package installer.
-            /// </summary>
-            public const string PackageInstaller = "WinGetPackageInstaller";
         }
     }
 }

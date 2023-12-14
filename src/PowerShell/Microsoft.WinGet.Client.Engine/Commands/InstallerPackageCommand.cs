@@ -64,6 +64,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Location = location;
             this.Force = force;
             this.Header = header;
+            this.AllowHashMismatch = allowHashMismatch;
+            this.SkipDependencies = skipDependencies;
+            this.Log = log;
 
             // PackageCommand.
             if (psCatalogPackage != null)
@@ -72,7 +75,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
 
             this.Version = version;
-            this.Log = log;
 
             // FinderCommand
             this.Id = id;
@@ -80,10 +82,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
-
-            // PackageInstallerCommand.
-            this.AllowHashMismatch = allowHashMismatch;
-            this.SkipDependencies = skipDependencies;
         }
 
         /// <summary>

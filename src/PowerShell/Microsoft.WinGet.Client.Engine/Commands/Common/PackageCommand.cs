@@ -18,7 +18,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
     /// <summary>
     /// This is the base class for commands which operate on a specific package and version i.e.,
-    /// the "install", "uninstall", "download, and "upgrade" commands.
+    /// the "install", "uninstall", "download", and "upgrade" commands.
     /// </summary>
     public abstract class PackageCommand : FinderCommand
     {
@@ -83,13 +83,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             string match,
             string? value)
         {
-            var matchOption = match;
+            var matchOption = PSEnumHelpers.ToPackageFieldMatchOption(match);
             foreach (PackageMatchField field in new PackageMatchField[] { PackageMatchField.Id, PackageMatchField.Name, PackageMatchField.Moniker })
             {
                 var selector = ManagementDeploymentFactory.Instance.CreatePackageMatchFilter();
                 selector.Field = field;
                 selector.Value = value ?? string.Empty;
-                selector.Option = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
+                selector.Option = matchOption;
                 options.Selectors.Add(selector);
             }
         }

@@ -48,14 +48,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string locale)
             : base(psCmdlet)
         {
-            // PackageCommand.
+            // PackageCommand
             if (psCatalogPackage != null)
             {
                 this.CatalogPackage = psCatalogPackage;
             }
 
             this.Version = version;
-            this.Locale = locale;
 
             // FinderCommand
             this.Id = id;
@@ -64,8 +63,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Source = source;
             this.Query = query;
 
+            // DownloadCommand
             this.AllowHashMismatch = allowHashMismatch;
             this.SkipDependencies = skipDependencies;
+            this.Locale = locale;
         }
 
         /// <summary>

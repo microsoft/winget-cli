@@ -51,7 +51,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
 
             this.Version = version;
-            this.Log = log;
 
             // FinderCommand
             this.Id = id;
@@ -59,6 +58,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
+
+            // UninstallPackageCommand
+            this.Log = log;
         }
 
         /// <summary>
