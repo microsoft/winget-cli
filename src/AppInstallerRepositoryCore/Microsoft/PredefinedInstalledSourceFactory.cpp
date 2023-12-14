@@ -74,7 +74,7 @@ namespace AppInstaller::Repository::Microsoft
             else
             {
                 // TODO: Consider if Optional packages should also be enumerated
-                packages = packageManager.FindPackagesForUserWithPackageTypes({}, PackageTypes::Main);
+                packages = packageManager.FindPackagesForUserWithPackageTypes({}, PackageTypes::Main | PackageTypes::Framework);
             }
 
             // Reuse the same manifest object, as we will be setting the same values every time.
@@ -157,11 +157,24 @@ namespace AppInstaller::Repository::Microsoft
 
                 manifest.Installers[0].PackageFamilyName = familyName;
 
-                // Use the full name as a unique key for the path
-                auto manifestId = index.AddManifest(manifest, std::filesystem::path{ packageId.FullName().c_str() });
+                try
+                {
+                    // Use the full name as a unique key for the path
+                    auto manifestId = index.AddManifest(manifest, std::filesystem::path{ packageId.FullName().c_str() });
 
-                index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType, 
-                    Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msix));
+                    index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType,
+                        Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msix));
+                }
+                catch (const wil::ResultException& resultException)
+                {
+                    if (HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS) == resultException.GetErrorCode() && package.IsFramework())
+                    {
+                        // There may be multiple packages with same package family name for framework packages.
+                        continue;
+                    }
+
+                    throw;
+                }
             }
         }
 
