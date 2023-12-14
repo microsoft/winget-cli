@@ -49,21 +49,36 @@ TEST_CASE("VerifyInstallerTrustLevelAndUpdateInstallerFileMotw", "[DownloadInsta
     context.Add<Data::InstallerPath>(testInstallerPath);
     auto packageVersion = std::make_shared<TestPackageVersion>(Manifest{});
     auto testSource = std::make_shared<TestSource>();
-    testSource->Details.TrustLevel = SourceTrustLevel::Trusted;
     packageVersion->Source = testSource;
     context.Add<Data::PackageVersion>(packageVersion);
     ManifestInstaller installer;
     installer.Url = "http://NotTrusted.com";
     context.Add<Data::Installer>(std::move(installer));
 
+    // Hash matches + Trusted source = Trusted MotW
+    testSource->Details.TrustLevel = SourceTrustLevel::Trusted;
     context << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
     REQUIRE(WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerTrusted));
     VerifyMotw(testInstallerPath, 2);
+    RemoveMotwIfApplicable(testInstallerPath);
 
+    // Hash matches + untrusted source = Internet MotW
     testSource->Details.TrustLevel = SourceTrustLevel::None;
     context.ClearFlags(ContextFlag::InstallerTrusted);
     context << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
-    REQUIRE_FALSE(WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerTrusted));
+    REQUIRE(WI_IsFlagClear(context.GetFlags(), ContextFlag::InstallerTrusted));
+    VerifyMotw(testInstallerPath, 3);
+    RemoveMotwIfApplicable(testInstallerPath);
+
+    // Hash mismatch = Internet MotW
+    GroupPolicyTestOverride policies;
+    policies.SetState(TogglePolicy::Policy::HashOverride, PolicyState::Enabled);
+    context.Args.AddArg(Args::Type::HashOverride); // allow hash mismatch
+    context.ClearFlags(ContextFlag::InstallerHashMatched);
+    context.Add<Data::HashPair>({ { 0 }, { 1 } }); // set hash to mismatch
+    context.Add<Data::Manifest>({}); // manifest is used to report mismatch
+    context << VerifyInstallerHash << UpdateInstallerFileMotwIfApplicable;
+    REQUIRE(WI_AreAllFlagsClear(context.GetFlags(), ContextFlag::InstallerHashMatched | ContextFlag::InstallerTrusted));
     VerifyMotw(testInstallerPath, 3);
 
     INFO(updateMotwOutput.str());
