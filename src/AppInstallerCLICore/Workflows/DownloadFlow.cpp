@@ -458,11 +458,11 @@ namespace AppInstaller::CLI::Workflow
     {
         if (context.Contains(Execution::Data::InstallerPath))
         {
-            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted))
+            if (WI_AreAllFlagsSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted | Execution::ContextFlag::InstallerHashMatched))
             {
                 Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
             }
-            else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched))
+            else
             {
                 const auto& installer = context.Get<Execution::Data::Installer>();
                 HRESULT hr = Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url, URLZONE_INTERNET);
