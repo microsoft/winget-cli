@@ -108,21 +108,18 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     async (package, version) =>
                     {
                         InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
-                        if (psProcessorArchitecture != "Default")
+                        if (PSEnumHelpers.IsDefaultEnum(psProcessorArchitecture))
                         {
                             options.AllowedArchitectures.Clear();
                             options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
                         }
 
-                        options.AllowHashMismatch = this.AllowHashMismatch;
-                        options.SkipDependencies = this.SkipDependencies;
-
-                        options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
-
-                        if (psPackageInstallerType != "Default")
+                        if (PSEnumHelpers.IsDefaultEnum(psPackageInstallerType))
                         {
                             options.InstallerType = PSEnumHelpers.ToPackageInstallerType(psPackageInstallerType);
                         }
+
+                        options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
 
                         return await this.InstallPackageAsync(package, options);
                     }));
@@ -159,14 +156,19 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                         InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
                         options.AllowUpgradeToUnknownVersion = includeUnknown;
 
-                        if (psProcessorArchitecture != "Default")
+                        if (PSEnumHelpers.IsDefaultEnum(psProcessorArchitecture))
                         {
                             options.AllowedArchitectures.Clear();
                             options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
                         }
 
+                        if (PSEnumHelpers.IsDefaultEnum(psPackageInstallerType))
+                        {
+                            options.InstallerType = PSEnumHelpers.ToPackageInstallerType(psPackageInstallerType);
+                        }
+
                         options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
-                        options.InstallerType = PSEnumHelpers.ToPackageInstallerType(psPackageInstallerType);
+
                         return await this.UpgradePackageAsync(package, options);
                     }));
 

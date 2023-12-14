@@ -51,6 +51,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         protected string? Location { get; set; }
 
         /// <summary>
+        /// Gets or sets the path to the logging file.
+        /// </summary>
+        protected string? Log { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether to continue upon non security related failures.
         /// </summary>
         protected bool Force { get; set; }
@@ -59,11 +64,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// Gets or sets the optional HTTP Header to pass on to the REST Source.
         /// </summary>
         protected string? Header { get; set; }
-
-        /// <summary>
-        /// Gets or sets the install mode.
-        /// </summary>
-        protected string? PackageInstallMode { get; set; }
 
         /// <summary>
         /// Gets the install options from the configured parameters.
@@ -78,6 +78,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         {
             InstallOptions options = ManagementDeploymentFactory.Instance.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch;
+            options.SkipDependencies = this.SkipDependencies;
             options.Force = this.Force;
             options.PackageInstallMode = PSEnumHelpers.ToPackageInstallMode(mode);
             if (version != null)

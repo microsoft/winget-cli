@@ -85,7 +85,6 @@ namespace Microsoft.WinGet.Resolver
         protected override Assembly Load(AssemblyName assemblyName)
         {
             string name = $"{assemblyName.Name}.dll";
-
             if (DefaultContextAssemblies.Any(a => a.Equals(name, StringComparison.OrdinalIgnoreCase)))
             {
                 return null;

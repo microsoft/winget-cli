@@ -9,7 +9,6 @@ namespace Microsoft.WinGet.Client.Commands.Common
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Engine.PSObjects;
-    using Microsoft.WinGet.Client.PSObjects;
 
     /// <summary>
     /// This is the base class for commands which operate on a specific package and version i.e.,
@@ -23,7 +22,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
         public PackageCmdlet()
         {
             // The default match option for single package operations.
-            this.MatchOption = PSPackageFieldMatchOption.EqualsCaseInsensitive;
+            this.MatchOption = PSObjects.PSPackageFieldMatchOption.EqualsCaseInsensitive;
         }
 
         /// <summary>
@@ -43,11 +42,5 @@ namespace Microsoft.WinGet.Client.Commands.Common
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public string Version { get; set; }
-
-        /// <summary>
-        /// Gets or sets the path to the logging file.
-        /// </summary>
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        public string Log { get; set; }
     }
 }

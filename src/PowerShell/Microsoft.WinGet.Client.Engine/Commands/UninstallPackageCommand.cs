@@ -62,6 +62,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         }
 
         /// <summary>
+        /// Gets or sets the path to the logging file.
+        /// </summary>
+        private string? Log { get; set; }
+
+        /// <summary>
         /// Process uninstall package.
         /// </summary>
         /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>

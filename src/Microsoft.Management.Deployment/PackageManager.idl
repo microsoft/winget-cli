@@ -999,12 +999,6 @@ namespace Microsoft.Management.Deployment
         /// Used by a caller to correlate the download with a caller's data.
         /// The string must be JSON encoded.
         String CorrelationData;
-
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 9)]
-        {
-            /// Directs the logging to a log file. If provided, the installer must have write access to the file 
-            String LogOutputPath;
-        }
     }
 
     /// IMPLEMENTATION NOTE: Documentation from AppInstaller::Manifest::Documentation

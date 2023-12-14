@@ -39,6 +39,12 @@ namespace Microsoft.WinGet.Client.Commands
         public SwitchParameter Force { get; set; }
 
         /// <summary>
+        /// Gets or sets the path to the logging file.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public string Log { get; set; }
+
+        /// <summary>
         /// Uninstalls a package from the local system.
         /// </summary>
         protected override void ProcessRecord()

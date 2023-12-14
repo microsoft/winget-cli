@@ -26,7 +26,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="psCmdlet">Caller cmdlet.</param>
         /// <param name="psCatalogPackage">PSCatalogPackage.</param>
         /// <param name="version">Version to install.</param>
-        /// <param name="log">Logging file location.</param>
         /// <param name="id">Package identifier.</param>
         /// <param name="name">Name of package.</param>
         /// <param name="moniker">Moniker of package.</param>
@@ -39,7 +38,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             PSCmdlet psCmdlet,
             PSCatalogPackage psCatalogPackage,
             string version,
-            string log,
             string id,
             string name,
             string moniker,
@@ -57,7 +55,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
 
             this.Version = version;
-            this.Log = log;
             this.Locale = locale;
 
             // FinderCommand
@@ -80,6 +77,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Gets or sets a value indicating whether to skip dependencies.
         /// </summary>
         private bool SkipDependencies { get; set; }
+
+        /// <summary>
+        /// Gets or sets the locale to install.
+        /// </summary>
+        private string? Locale { get; set; }
 
         /// <summary>
         /// Process download package.
@@ -109,22 +111,14 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                             options.DownloadDirectory = downloadDirectory;
                         }
 
-                        options.AllowHashMismatch = this.AllowHashMismatch;
-                        options.SkipDependencies = this.SkipDependencies;
-
-                        if (psProcessorArchitecture != "Default")
+                        if (PSEnumHelpers.IsDefaultEnum(psProcessorArchitecture))
                         {
                             options.Architecture = PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture);
                         }
 
-                        if (psPackageInstallerType != "Default")
+                        if (PSEnumHelpers.IsDefaultEnum(psPackageInstallerType))
                         {
                             options.InstallerType = PSEnumHelpers.ToPackageInstallerType(psPackageInstallerType);
-                        }
-
-                        if (!string.IsNullOrEmpty(this.Locale))
-                        {
-                            options.Locale = this.Locale;
                         }
 
                         options.Scope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
@@ -142,11 +136,18 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         {
             var options = ManagementDeploymentFactory.Instance.CreateDownloadOptions();
 
-            // TODO: Add support for specifying log output.
             if (version != null)
             {
                 options.PackageVersionId = version;
             }
+
+            if (this.Locale != null)
+            {
+                options.Locale = this.Locale;
+            }
+
+            options.AllowHashMismatch = this.AllowHashMismatch;
+            options.SkipDependencies = this.SkipDependencies;
 
             return options;
         }

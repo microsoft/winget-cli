@@ -16,6 +16,16 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     internal static class PSEnumHelpers
     {
         /// <summary>
+        /// Checks if the provided enum string value matches the 'Default' value for PS Enums.
+        /// </summary>
+        /// <param name="value">Enum string value.</param>
+        /// <returns>Boolean value.</returns>
+        public static bool IsDefaultEnum(string value)
+        {
+            return string.Equals(value, "Default", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
         /// Converts PSPackageInstallMode string value to PackageInstallMode.
         /// </summary>
         /// <param name="value">PSPackageInstallMode to string value.</param>

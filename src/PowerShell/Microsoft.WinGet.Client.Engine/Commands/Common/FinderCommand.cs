@@ -99,13 +99,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <param name="value">The query value.</param>
         protected virtual void SetQueryInFindPackagesOptions(
             ref FindPackagesOptions options,
-            PackageFieldMatchOption match,
+            string match,
             string? value)
         {
             var selector = ManagementDeploymentFactory.Instance.CreatePackageMatchFilter();
             selector.Field = PackageMatchField.CatalogDefault;
             selector.Value = value ?? string.Empty;
-            selector.Option = match;
+            selector.Option = PSEnumHelpers.ToPackageFieldMatchOption(match);
             options.Selectors.Add(selector);
         }
 
@@ -170,7 +170,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         private FindPackagesOptions GetFindPackagesOptions(uint limit, PackageFieldMatchOption match)
         {
             var options = ManagementDeploymentFactory.Instance.CreateFindPackagesOptions();
-            this.SetQueryInFindPackagesOptions(ref options, match, this.QueryAsJoinedString);
+            this.SetQueryInFindPackagesOptions(ref options, match.ToString(), this.QueryAsJoinedString);
             this.AddAttributedFiltersToFindPackagesOptions(ref options, match);
             options.ResultLimit = limit;
             return options;

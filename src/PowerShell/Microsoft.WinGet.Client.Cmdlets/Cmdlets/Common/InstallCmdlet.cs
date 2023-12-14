@@ -52,6 +52,12 @@ namespace Microsoft.WinGet.Client.Commands.Common
         }
 
         /// <summary>
+        /// Gets or sets the path to the logging file.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public string Log { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether to continue upon non security related failures.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]

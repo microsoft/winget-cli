@@ -35,7 +35,6 @@ namespace Microsoft.WinGet.Client.Commands
                         this,
                         this.PSCatalogPackage,
                         this.Version,
-                        this.Log,
                         this.Id,
                         this.Name,
                         this.Moniker,
