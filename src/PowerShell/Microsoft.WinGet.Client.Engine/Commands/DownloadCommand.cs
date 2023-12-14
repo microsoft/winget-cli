@@ -78,6 +78,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             // PackageInstallerCommand.
             this.AllowHashMismatch = allowHashMismatch;
             this.SkipDependencies = skipDependencies;
+            this.InstallerType = installerType;
             this.Locale = locale;
             this.Scope = scope;
             this.Architecture = architecture;
