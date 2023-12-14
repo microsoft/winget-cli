@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="PackageInstallerCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="InstallerSelectionCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -11,10 +11,10 @@ namespace Microsoft.WinGet.Client.Commands
     using Microsoft.WinGet.Client.PSObjects;
 
     /// <summary>
-    /// This is the base class for all commands that distinguish installers for a given package.
+    /// This is the base class for all commands that select and installer from a given package.
     /// Contains shared arguments for the install, update, and download commands.
     /// </summary>
-    public abstract class PackageInstallerCmdlet : PackageCmdlet
+    public abstract class InstallerSelectionCmdlet : PackageCmdlet
     {
         /// <summary>
         /// Gets or sets a value indicating whether to skip the installer hash validation check.

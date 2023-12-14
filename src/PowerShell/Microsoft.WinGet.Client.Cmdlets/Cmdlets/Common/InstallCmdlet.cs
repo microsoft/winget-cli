@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     /// This is the base class for all commands that parse a FindPackagesOptions result
     /// from the provided parameters i.e., the "install" and "upgrade" commands.
     /// </summary>
-    public abstract class InstallCmdlet : PackageInstallerCmdlet
+    public abstract class InstallCmdlet : InstallerSelectionCmdlet
     {
         private string location;
 

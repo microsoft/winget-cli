@@ -16,7 +16,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// </summary>
     [Cmdlet(VerbsData.Export, Constants.WinGetNouns.Package)]
     [OutputType(typeof(PSDownloadResult))]
-    public sealed class ExportPackageCmdlet : PackageInstallerCmdlet
+    public sealed class ExportPackageCmdlet : InstallerSelectionCmdlet
     {
         private DownloadCommand command = null;
 
