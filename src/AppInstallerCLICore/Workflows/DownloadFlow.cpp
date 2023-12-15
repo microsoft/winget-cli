@@ -456,14 +456,20 @@ namespace AppInstaller::CLI::Workflow
 
     void UpdateInstallerFileMotwIfApplicable(Execution::Context& context)
     {
+        // An initial MotW is always set to URLZONE_INTERNET at the time the file is downloaded.
+        // This function may change that to URLZONE_TRUSTED if appropriate
         if (context.Contains(Execution::Data::InstallerPath))
         {
             if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted))
             {
+                // We know the installer already went through multiple scans and we can trust it.
                 Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
             }
             else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched))
             {
+                // IAttachmentExecute performs some additional scans before setting MotW, for example invoking anti-virus.
+                // A policy can be set to always mark files from a given domain as trusted, so only do this
+                // on installers with the right hash to prevent trusting unknown installers.
                 const auto& installer = context.Get<Execution::Data::Installer>();
                 HRESULT hr = Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url, URLZONE_INTERNET);
 
