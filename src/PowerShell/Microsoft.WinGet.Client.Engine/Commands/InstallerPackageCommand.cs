@@ -106,13 +106,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                     async (package, version) =>
                     {
                         InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
-                        if (PSEnumHelpers.IsDefaultEnum(psProcessorArchitecture))
+                        if (!PSEnumHelpers.IsDefaultEnum(psProcessorArchitecture))
                         {
                             options.AllowedArchitectures.Clear();
                             options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
                         }
 
-                        if (PSEnumHelpers.IsDefaultEnum(psPackageInstallerType))
+                        if (!PSEnumHelpers.IsDefaultEnum(psPackageInstallerType))
                         {
                             options.InstallerType = PSEnumHelpers.ToPackageInstallerType(psPackageInstallerType);
                         }
@@ -154,13 +154,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                         InstallOptions options = this.GetInstallOptions(version, psPackageInstallMode);
                         options.AllowUpgradeToUnknownVersion = includeUnknown;
 
-                        if (PSEnumHelpers.IsDefaultEnum(psProcessorArchitecture))
+                        if (!PSEnumHelpers.IsDefaultEnum(psProcessorArchitecture))
                         {
                             options.AllowedArchitectures.Clear();
                             options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
                         }
 
-                        if (PSEnumHelpers.IsDefaultEnum(psPackageInstallerType))
+                        if (!PSEnumHelpers.IsDefaultEnum(psPackageInstallerType))
                         {
                             options.InstallerType = PSEnumHelpers.ToPackageInstallerType(psPackageInstallerType);
                         }

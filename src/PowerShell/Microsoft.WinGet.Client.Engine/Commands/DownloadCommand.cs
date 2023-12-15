@@ -112,12 +112,12 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                             options.DownloadDirectory = downloadDirectory;
                         }
 
-                        if (PSEnumHelpers.IsDefaultEnum(psProcessorArchitecture))
+                        if (!PSEnumHelpers.IsDefaultEnum(psProcessorArchitecture))
                         {
                             options.Architecture = PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture);
                         }
 
-                        if (PSEnumHelpers.IsDefaultEnum(psPackageInstallerType))
+                        if (!PSEnumHelpers.IsDefaultEnum(psPackageInstallerType))
                         {
                             options.InstallerType = PSEnumHelpers.ToPackageInstallerType(psPackageInstallerType);
                         }

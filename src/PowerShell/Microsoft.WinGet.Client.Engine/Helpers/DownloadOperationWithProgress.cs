@@ -34,7 +34,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             {
                 RecordType = ProgressRecordType.Processing,
             };
-            record.StatusDescription = Resources.Uninstalling;
+            record.StatusDescription = Resources.DownloadingMessage;
             record.PercentComplete = (int)(progress.DownloadProgress * 100);
             this.PwshCmdlet.Write(StreamType.Progress, record);
         }
