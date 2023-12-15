@@ -157,11 +157,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             CatalogPackage package,
             DownloadOptions options)
         {
-            var progressOperation = new DownloadOperationWithProgress(
-                this,
-                string.Format(Resources.ProgressRecordActivityDownloading, package.Name));
+            var activity = string.Format(Resources.ProgressRecordActivityDownloading, package.Name);
+            var progressOperation = new DownloadOperationWithProgress(this, activity);
             return await progressOperation.ExecuteAsync(
-                    () => PackageManagerWrapper.Instance.DownloadPackageAsync(package, options));
+                () => PackageManagerWrapper.Instance.DownloadPackageAsync(package, options));
         }
     }
 }
