@@ -14,7 +14,11 @@ namespace Microsoft.WinGet.Client.Commands
     /// <summary>
     /// Downloads a package installer from the pipeline or from a configured source.
     /// </summary>
-    [Cmdlet(VerbsData.Export, Constants.WinGetNouns.Package)]
+    [Cmdlet(
+        VerbsData.Export,
+        Constants.WinGetNouns.Package,
+        DefaultParameterSetName = Constants.FoundSet,
+        SupportsShouldProcess = true)]
     [OutputType(typeof(PSDownloadResult))]
     public sealed class ExportPackageCmdlet : InstallerSelectionCmdlet
     {

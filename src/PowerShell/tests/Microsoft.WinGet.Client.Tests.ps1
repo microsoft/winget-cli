@@ -362,8 +362,8 @@ Describe 'Export-WinGetPackage' {
     }
 
     It 'Download by Id' {
-        $downloadDirectory = GetRandomTestDirectory
-        $result = Export-WinGetPackage -Id AppInstaller.TestExeInstaller -Version '1.0.0.0' -DownloadDirectory $downloadDirectory
+        $testDirectory = GetRandomTestDirectory
+        $result = Export-WinGetPackage -Id AppInstaller.TestExeInstaller -Version '1.0.0.0' -DownloadDirectory $testDirectory
         
         $result | Should -Not -BeNullOrEmpty
         $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
@@ -372,13 +372,13 @@ Describe 'Export-WinGetPackage' {
         $result.Status | Should -Be 'Ok'
 
         # Download directory should be created and have exactly two files (installer and manifest file).
-        Test-Path -Path $downloadDirectory | Should -Be $true
-        (Get-ChildItem -Path $FolderPath -Force | Measure-Object).Count | Should -Be 2
+        Test-Path -Path $testDirectory | Should -Be $true
+        (Get-ChildItem -Path $testDirectory -Force | Measure-Object).Count | Should -Be 2
     }
 
     It 'Download by Locale' {
-        $downloadDirectory = GetRandomTestDirectory
-        $result = Export-WinGetPackage -Id AppInstallerTest.TestMultipleInstallers -Locale 'zh-CN' -DownloadDirectory $downloadDirectory
+        $testDirectory = GetRandomTestDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestMultipleInstallers -Locale 'zh-CN' -DownloadDirectory $testDirectory
 
         $result | Should -Not -BeNullOrEmpty
         $result.Id | Should -Be "AppInstallerTest.TestMultipleInstallers"
@@ -386,13 +386,13 @@ Describe 'Export-WinGetPackage' {
         $result.Source | Should -Be "TestSource"
         $result.Status | Should -Be 'Ok'
 
-        Test-Path -Path $downloadDirectory | Should -Be $true
-        (Get-ChildItem -Path $FolderPath -Force | Measure-Object).Count | Should -Be 2
+        Test-Path -Path $testDirectory | Should -Be $true
+        (Get-ChildItem -Path $testDirectory -Force | Measure-Object).Count | Should -Be 2
     }
 
     It 'Download by InstallerType' {
-        $downloadDirectory = GetRandomTestDirectory
-        $result = Export-WinGetPackage -Id AppInstallerTest.TestMultipleInstallers -InstallerType 'msi' -DownloadDirectory $downloadDirectory
+        $testDirectory = GetRandomTestDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestMultipleInstallers -InstallerType 'msi' -DownloadDirectory $testDirectory
 
         $result | Should -Not -BeNullOrEmpty
         $result.Id | Should -Be "AppInstallerTest.TestMultipleInstallers"
@@ -400,25 +400,26 @@ Describe 'Export-WinGetPackage' {
         $result.Source | Should -Be "TestSource"
         $result.Status | Should -Be 'Ok'
 
-        Test-Path -Path $downloadDirectory | Should -Be $true
-        (Get-ChildItem -Path $FolderPath -Force | Measure-Object).Count | Should -Be 2
+        Test-Path -Path $testDirectory | Should -Be $true
+        (Get-ChildItem -Path $testDirectory -Force | Measure-Object).Count | Should -Be 2
     }
 
     It 'Download by InstallerType that does not exist' {
-        $downloadDirectory = GetRandomTestDirectory
-        $result = Export-WinGetPackage -Id AppInstaller.TestExeInstaller -Version '1.0.0.0' -InstallerType 'zip' -DownloadDirectory $downloadDirectory
+        $testDirectory = GetRandomTestDirectory
+        $result = Export-WinGetPackage -Id AppInstaller.TestExeInstaller -Version '1.0.0.0' -InstallerType 'zip' -DownloadDirectory $testDirectory
 
         $result | Should -Not -BeNullOrEmpty
         $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
         $result.Name | Should -Be "TestExeInstaller"
         $result.Source | Should -Be "TestSource"
         $result.Status | Should -Be 'NoApplicableInstallers'
-        $result.ExtendedErrorCode | Should -Not -BeNullOrEmpty       
+        $result.ExtendedErrorCode | Should -Not -BeNullOrEmpty
+        Test-Path -Path $testDirectory | Should -Be $false
     }
 
     AfterEach {
-        if (Test-Path $downloadDirectory) {
-            Remove-Item $downloadDirectory -Force
+        if (Test-Path $testDirectory) {
+            Remove-Item $testDirectory -Force -Confirm
         }
     }
 }
