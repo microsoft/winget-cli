@@ -11,7 +11,7 @@ namespace Microsoft.WinGet.Client.Commands
     using Microsoft.WinGet.Client.PSObjects;
 
     /// <summary>
-    /// This is the base class for all commands that select and installer from a given package.
+    /// This is the base class for all commands that select an installer from a given package.
     /// Contains shared arguments for the install, update, and download commands.
     /// </summary>
     public abstract class InstallerSelectionCmdlet : PackageCmdlet
