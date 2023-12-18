@@ -363,7 +363,7 @@ Describe 'Export-WinGetPackage' {
 
     It 'Download by Id' {
         $testDirectory = GetRandomTestDirectory
-        $result = Export-WinGetPackage -Id AppInstaller.TestExeInstaller -Version '1.0.0.0' -DownloadDirectory $testDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0' -DownloadDirectory $testDirectory
         
         $result | Should -Not -BeNullOrEmpty
         $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
@@ -406,7 +406,7 @@ Describe 'Export-WinGetPackage' {
 
     It 'Download by InstallerType that does not exist' {
         $testDirectory = GetRandomTestDirectory
-        $result = Export-WinGetPackage -Id AppInstaller.TestExeInstaller -Version '1.0.0.0' -InstallerType 'zip' -DownloadDirectory $testDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0' -InstallerType 'zip' -DownloadDirectory $testDirectory
 
         $result | Should -Not -BeNullOrEmpty
         $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
