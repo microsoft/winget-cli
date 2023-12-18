@@ -39,7 +39,7 @@ will initiate the repair of the specified package. The command will display an e
 | **--moniker** | Limits the repair to the specified moniker of the application.|
 | **-v --version** | Limits the repair to the specified version of the application.If not specified, the repair will be applied to the latest version of the application.|
 | **--architectures** | Select the architecture |
-| **-s --source** | Limits the serach to specified source(s).Must be followed by the source name.|
+| **-s --source** | Limits the search to specified source(s).Must be followed by the source name.|
 | **-o, --log** | Directs the logging to a log file. You must provide a path to a file that you have the write rights to. |
 | **-i --interactive** | Runs the repair in interactive mode.|
 | **-h --silent** | Runs the repair in silent mode.|
