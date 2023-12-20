@@ -962,6 +962,26 @@ namespace AppInstaller::Manifest
         }
     }
 
+    RepairBehaviorEnum ConvertToRepairBehaviorEnum(const std::string& in)
+    {
+        RepairBehaviorEnum result = RepairBehaviorEnum::Unknown;
+
+        if (Utility::CaseInsensitiveEquals(in, "install"))
+        {
+            result = RepairBehaviorEnum::Install;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "uninstall"))
+        {
+            result = RepairBehaviorEnum::Uninstall;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "modify"))
+        {
+            result = RepairBehaviorEnum::Modify;
+        }
+
+        return result;
+    }
+
     std::map<DWORD, ExpectedReturnCodeEnum> GetDefaultKnownReturnCodes(InstallerTypeEnum installerType)
     {
         switch (installerType)

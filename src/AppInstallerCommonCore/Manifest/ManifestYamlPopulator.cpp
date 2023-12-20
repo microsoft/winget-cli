@@ -329,6 +329,14 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_6.begin(), fields_v1_6.end(), std::inserter(result, result.end()));
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_7 =
+                {
+                    { "RepairBehavior", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->RepairBehavior = ConvertToRepairBehaviorEnum(value.as<std::string>()); return {}; } },
+                };
+            }
         }
 
         return result;
@@ -358,6 +366,11 @@ namespace AppInstaller::Manifest
         {
             result.emplace_back("Upgrade", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
         }
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
+        {
+            result.emplace_back("Repair", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Repair] = value.as<std::string>(); return{}; });
+        };
 
         return result;
     }

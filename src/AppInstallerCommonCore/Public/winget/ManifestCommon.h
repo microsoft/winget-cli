@@ -112,6 +112,15 @@ namespace AppInstaller::Manifest
         Log,
         InstallLocation,
         Update,
+        Repair,
+    };
+
+    enum class RepairBehaviorEnum
+    {
+        Unknown,
+        Modify,
+        Install,
+        Uninstall,
     };
 
     enum class ScopeEnum
@@ -369,6 +378,8 @@ namespace AppInstaller::Manifest
     IconThemeEnum ConvertToIconThemeEnum(std::string_view in);
 
     IconResolutionEnum ConvertToIconResolutionEnum(std::string_view in);
+
+    RepairBehaviorEnum ConvertToRepairBehaviorEnum(const std::string& in);
 
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
