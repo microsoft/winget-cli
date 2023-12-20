@@ -306,8 +306,8 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. [UpgradeBehavior]" },
         { "Manifest-Bad-InvalidLocale.yaml", "The locale value is not a well formed bcp47 language tag." },
         { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." },
-        { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", true },
-        { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", false, GetTestManifestValidateOption(false, true) },
+        { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers. [Agreement]", true },
+        { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers. [Agreement]", false, GetTestManifestValidateOption(false, true) },
         { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. [PackageVersion]" },
         { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. [DisplayVersion]" },
     };
