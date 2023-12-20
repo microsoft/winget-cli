@@ -69,6 +69,50 @@ namespace {
 
 namespace AppInstaller::CLI::Workflow
 {
+    void ShowAgreementsInfo(Execution::Context& context)
+    {
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        auto info = context.Reporter.Info();
+
+        ShowSingleLineField(info, Resource::String::ShowLabelVersion, manifest.Version);
+        ShowSingleLineField(info, Resource::String::ShowLabelPublisher, manifest.CurrentLocalization.Get<Manifest::Localization::Publisher>());
+        ShowSingleLineField(info, Resource::String::ShowLabelPublisherUrl, manifest.CurrentLocalization.Get<Manifest::Localization::PublisherUrl>());
+        ShowSingleLineField(info, Resource::String::ShowLabelPublisherSupportUrl, manifest.CurrentLocalization.Get<Manifest::Localization::PublisherSupportUrl>());
+        ShowSingleLineField(info, Resource::String::ShowLabelAuthor, manifest.CurrentLocalization.Get<Manifest::Localization::Author>());
+        ShowSingleLineField(info, Resource::String::ShowLabelPackageUrl, manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>());
+        ShowSingleLineField(info, Resource::String::ShowLabelLicense, manifest.CurrentLocalization.Get<Manifest::Localization::License>());
+        ShowSingleLineField(info, Resource::String::ShowLabelLicenseUrl, manifest.CurrentLocalization.Get<Manifest::Localization::LicenseUrl>());
+        ShowSingleLineField(info, Resource::String::ShowLabelPrivacyUrl, manifest.CurrentLocalization.Get<Manifest::Localization::PrivacyUrl>());
+        ShowSingleLineField(info, Resource::String::ShowLabelCopyright, manifest.CurrentLocalization.Get<Manifest::Localization::Copyright>());
+        ShowSingleLineField(info, Resource::String::ShowLabelCopyrightUrl, manifest.CurrentLocalization.Get<Manifest::Localization::CopyrightUrl>());
+        ShowSingleLineField(info, Resource::String::ShowLabelPurchaseUrl, manifest.CurrentLocalization.Get<Manifest::Localization::PurchaseUrl>());
+
+        const auto& agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
+        if (!agreements.empty())
+        {
+            context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
+            for (const auto& agreement : agreements)
+            {
+                if (!agreement.Label.empty())
+                {
+                    info << "  "_liv << Execution::ManifestInfoEmphasis << agreement.Label << ": "_liv;
+                }
+
+                if (!agreement.AgreementText.empty())
+                {
+                    info << agreement.AgreementText << std::endl;
+                }
+
+                if (!agreement.AgreementUrl.empty())
+                {
+                    info << agreement.AgreementUrl << std::endl;
+                }
+            }
+
+            info << std::endl;
+        }
+    }
+
     void ShowManifestInfo(Execution::Context& context)
     {
         context << ShowPackageInfo << ShowInstallerInfo;
@@ -126,7 +170,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (!agreement.Label.empty())
                 {
-                    info << Execution::ManifestInfoEmphasis << agreement.Label << ": "_liv;
+                    info << "  "_liv << Execution::ManifestInfoEmphasis << agreement.Label << ": "_liv;
                 }
 
                 if (!agreement.AgreementText.empty())
