@@ -336,6 +336,8 @@ namespace AppInstaller::Manifest
                 {
                     { "RepairBehavior", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->RepairBehavior = ConvertToRepairBehaviorEnum(value.as<std::string>()); return {}; } },
                 };
+
+                std::move(fields_v1_7.begin(), fields_v1_7.end(), std::inserter(result, result.end()));
             }
         }
 
