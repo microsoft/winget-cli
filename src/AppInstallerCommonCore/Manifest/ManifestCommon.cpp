@@ -966,13 +966,13 @@ namespace AppInstaller::Manifest
     {
         RepairBehaviorEnum result = RepairBehaviorEnum::Unknown;
 
-        if (Utility::CaseInsensitiveEquals(in, "install"))
+        if (Utility::CaseInsensitiveEquals(in, "installer"))
         {
-            result = RepairBehaviorEnum::Install;
+            result = RepairBehaviorEnum::Installer;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "uninstall"))
+        else if (Utility::CaseInsensitiveEquals(in, "uninstaller"))
         {
-            result = RepairBehaviorEnum::Uninstall;
+            result = RepairBehaviorEnum::Uninstaller;
         }
         else if (Utility::CaseInsensitiveEquals(in, "modify"))
         {

@@ -119,8 +119,8 @@ namespace AppInstaller::Manifest
     {
         Unknown,
         Modify,
-        Install,
-        Uninstall,
+        Installer,
+        Uninstaller,
     };
 
     enum class ScopeEnum
