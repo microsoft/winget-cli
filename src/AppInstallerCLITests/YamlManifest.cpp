@@ -527,6 +527,12 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         {
             REQUIRE(manifest.DefaultInstallerInfo.DownloadCommandProhibited);
         }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+        {
+            REQUIRE(manifest.DefaultInstallerInfo.RepairBehavior == RepairBehaviorEnum::Modify);
+            REQUIRE(defaultSwitches.at(InstallerSwitchType::Repair) == "/repair");
+        }
     }
 
     if (isSingleton || isExported)
@@ -708,6 +714,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
                 REQUIRE(installer2.DownloadCommandProhibited);
                 REQUIRE(installer2.UpdateBehavior == UpdateBehaviorEnum::Deny);
             }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+            {
+                REQUIRE(installer2.RepairBehavior == RepairBehaviorEnum::Uninstaller);
+            }
         }
 
         // Localization
@@ -792,7 +803,7 @@ TEST_CASE("ValidateV1_1GoodManifestAndVerifyContents", "[ManifestValidation]")
     TempDirectory singletonDirectory{ "SingletonManifest" };
     CopyTestDataFilesToFolder({ "ManifestV1_1-Singleton.yaml" }, singletonDirectory);
     Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
-    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{s_ManifestVersionV1_1});
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_1 });
 
     TempDirectory multiFileDirectory{ "MultiFileManifest" };
     CopyTestDataFilesToFolder({
@@ -1469,7 +1480,7 @@ TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
 {
     Manifest manifestNoArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-NoArpVersionDeclared.yaml"));
     REQUIRE(manifestNoArp.GetArpVersionRange().IsEmpty());
-    
+
     Manifest manifestSingleArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-SingleArpVersionDeclared.yaml"));
     auto arpRangeSingleArp = manifestSingleArp.GetArpVersionRange();
     REQUIRE(arpRangeSingleArp.GetMinVersion().ToString() == "11.0");
