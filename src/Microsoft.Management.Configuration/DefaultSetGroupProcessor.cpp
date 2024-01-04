@@ -148,7 +148,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplySettingsResult> DefaultSetGroupProcessor::ApplyGroupSettingsAsync()
+    Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult> DefaultSetGroupProcessor::ApplyGroupSettingsAsync()
     {
         //// Previous implementation...
         //ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_threadGlobals.GetTelemetryLogger(), m_factory.CreateSetProcessor(configurationSet), std::move(progress) };

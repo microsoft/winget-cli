@@ -14,6 +14,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(const IApplySettingsResult& result);
+        void Initialize(const IApplyGroupMemberSettingsResult& unitResult);
 
         void Unit(ConfigurationUnit value);
         void State(ConfigurationUnitState value);

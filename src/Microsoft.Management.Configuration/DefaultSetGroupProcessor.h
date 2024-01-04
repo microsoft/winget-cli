@@ -19,7 +19,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         Windows::Foundation::IAsyncOperationWithProgress<ITestGroupSettingsResult, ITestSettingsResult> TestGroupSettingsAsync();
 
-        Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplySettingsResult> ApplyGroupSettingsAsync();
+        Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult> ApplyGroupSettingsAsync();
 
     private:
         void ThrowIf(bool cancellation);

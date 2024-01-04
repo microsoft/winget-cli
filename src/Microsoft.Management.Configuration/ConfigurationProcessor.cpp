@@ -460,41 +460,79 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationSetResult>>();
+
+        // Build out the unit results and a map to find them quickly
+        using UnitResultType = decltype(make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>());
+        std::map<guid, UnitResultType> unitResultMap;
+
+        std::function<void(const winrt::Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>&)> createUnitResults =
+            [&](const winrt::Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& units)
+            {
+                for (const Configuration::ConfigurationUnit& unit : units)
+                {
+                    // Add to result
+                    UnitResultType applyUnitResult = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>();
+                    applyUnitResult->Unit(unit);
+                    result->UnitResultsVector().Append(*applyUnitResult);
+
+                    // Add to map
+                    unitResultMap.emplace(unit.InstanceIdentifier(), applyUnitResult);
+
+                    // Handle members if present
+                    if (unit.IsGroup())
+                    {
+                        createUnitResults(unit.Units());
+                    }
+                }
+            };
+
+        createUnitResults(configurationSet.Units());
+
         progress.Result(*result);
 
         try
         {
             auto applyOperation = groupProcessor.ApplyGroupSettingsAsync();
 
-            // Cancel the inner operation if we are cancelled
-            progress.Callback([applyOperation]() { applyOperation.Cancel(); });
-
             // Forward unit result progress to caller
-            applyOperation.Progress([&](const auto&, const IApplySettingsResult& unitResult)
+            applyOperation.Progress([&](const auto&, const IApplyGroupMemberSettingsResult& unitResult)
                 {
-                    UNREFERENCED_PARAMETER(unitResult);
+                    // Update overall result
+                    auto itr = unitResultMap.find(unitResult.Unit().InstanceIdentifier());
+                    if (itr != unitResultMap.end())
+                    {
+                        itr->second->Initialize(unitResult);
+                    }
+
+                    // Create progress object
                     auto applyResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSetChangeData>>();
-                    //applyResult->Initialize(unitResult);
+                    applyResult->Initialize(unitResult);
                     progress.Progress(*applyResult);
                 });
+
+            // Cancel the inner operation if we are cancelled
+            progress.Callback([applyOperation]() { applyOperation.Cancel(); });
 
             IApplyGroupSettingsResult applyResult = applyOperation.get();
 
             // Place all results from the processor into our result
-            for (const IApplySettingsResult& unitResult : applyResult.UnitResults())
+            for (const IApplyGroupMemberSettingsResult& unitResult : applyResult.UnitResults())
             {
-                UNREFERENCED_PARAMETER(unitResult);
-                auto applyUnitResult = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>();
-                //applyUnitResult->Initialize(unitResult);
+                // Update overall result
+                auto itr = unitResultMap.find(unitResult.Unit().InstanceIdentifier());
+                if (itr == unitResultMap.end())
+                {
+                    continue;
+                }
+
+                itr->second->Initialize(unitResult);
 
                 m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(
                     configurationSet.InstanceIdentifier(),
-                    applyUnitResult->Unit(),
+                    itr->second->Unit(),
                     ConfigurationUnitIntent::Apply,
                     TelemetryTraceLogger::ApplyAction,
-                    applyUnitResult->ResultInformation());
-
-                //result->AppendUnitResult(*applyUnitResult);
+                    itr->second->ResultInformation());
             }
 
             m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(configurationSet), *result);
@@ -543,9 +581,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             auto testOperation = groupProcessor.TestGroupSettingsAsync();
 
-            // Cancel the inner operation if we are cancelled
-            progress.Callback([testOperation]() { testOperation.Cancel(); });
-
             // Forward unit result progress to caller
             testOperation.Progress([&](const auto&, const ITestSettingsResult& unitResult)
                 {
@@ -553,6 +588,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     testResult->Initialize(unitResult);
                     progress.Progress(*testResult);
                 });
+
+            // Cancel the inner operation if we are cancelled
+            progress.Callback([testOperation]() { testOperation.Cancel(); });
 
             ITestGroupSettingsResult testResult = testOperation.get();
 

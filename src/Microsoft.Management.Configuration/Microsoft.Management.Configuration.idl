@@ -505,6 +505,27 @@ namespace Microsoft.Management.Configuration
         IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit);
     }
 
+    // The result of applying an individual unit settings with an IConfigurationGroupProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IApplyGroupMemberSettingsResult
+    {
+        // The configuration unit.
+        ConfigurationUnit Unit{ get; };
+
+        // The state of the unit.
+        // Properties other than `Unit` are not valid unless this value is `Completed`.
+        ConfigurationUnitState UnitState{ get; };
+
+        // Will be true if the configuration unit was in the desired state (Test returns true) prior to the apply action.
+        Boolean PreviouslyInDesiredState{ get; };
+
+        // Indicates whether a reboot is required after the settings were applied.
+        Boolean RebootRequired{ get; };
+
+        // The result of applying the configuration unit.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
     // The result of applying the settings with an IConfigurationGroupProcessor.
     [contract(Microsoft.Management.Configuration.Contract, 2)]
     interface IApplyGroupSettingsResult
@@ -519,7 +540,7 @@ namespace Microsoft.Management.Configuration
         IConfigurationUnitResultInformation ResultInformation{ get; };
 
         // Results for each configuration unit in the group.
-        Windows.Foundation.Collections.IVector<IApplySettingsResult> UnitResults{ get; };
+        Windows.Foundation.Collections.IVector<IApplyGroupMemberSettingsResult> UnitResults{ get; };
     }
 
     // The result of testing the settings with an IConfigurationGroupProcessor.
@@ -555,7 +576,7 @@ namespace Microsoft.Management.Configuration
 
         // Applies the state described in the configuration unit group.
         // Progress is expected for every descendant unit and finally the group unit itself.
-        Windows.Foundation.IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplySettingsResult> ApplyGroupSettingsAsync();
+        Windows.Foundation.IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult> ApplyGroupSettingsAsync();
     }
 
     // The level of the diagnostic information.
