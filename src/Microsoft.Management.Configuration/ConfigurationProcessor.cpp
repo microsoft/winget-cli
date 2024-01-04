@@ -8,7 +8,7 @@
 #include "ConfigurationSetParser.h"
 #include "DiagnosticInformationInstance.h"
 #include "ApplyConfigurationSetResult.h"
-#include "ConfigurationSetApplyProcessor.h"
+#include "ApplyConfigurationUnitResult.h"
 #include "TestConfigurationSetResult.h"
 #include "TestConfigurationUnitResult.h"
 #include "ConfigurationUnitResultInformation.h"
@@ -492,6 +492,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
+            // TODO: Send pending when blocked by another configuration run
+            try
+            {
+                progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::InProgress));
+            }
+            CATCH_LOG();
+
             auto applyOperation = groupProcessor.ApplyGroupSettingsAsync();
 
             // Forward unit result progress to caller
@@ -534,6 +541,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     TelemetryTraceLogger::ApplyAction,
                     itr->second->ResultInformation());
             }
+
+            try
+            {
+                progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::Completed));
+            }
+            CATCH_LOG();
 
             m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(configurationSet), *result);
             return *result;

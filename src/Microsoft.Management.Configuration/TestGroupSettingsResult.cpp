@@ -8,7 +8,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     TestGroupSettingsResult::TestGroupSettingsResult() :
         m_resultInformation(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>()),
-        m_unitResults(winrt::single_threaded_vector<ITestSettingsResult>())
+        m_unitResults(winrt::multi_threaded_vector<ITestSettingsResult>())
     {}
 
     void TestGroupSettingsResult::Group(const Windows::Foundation::IInspectable& value)

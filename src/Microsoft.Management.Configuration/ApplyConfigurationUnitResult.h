@@ -6,7 +6,7 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ApplyConfigurationUnitResult : ApplyConfigurationUnitResultT<ApplyConfigurationUnitResult>
+    struct ApplyConfigurationUnitResult : ApplyConfigurationUnitResultT<ApplyConfigurationUnitResult, IApplyGroupMemberSettingsResult>
     {
         using ConfigurationUnit = Configuration::ConfigurationUnit;
 

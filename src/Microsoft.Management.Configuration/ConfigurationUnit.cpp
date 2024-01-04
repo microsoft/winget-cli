@@ -36,7 +36,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             std::vector<hstring> temp{ value.Size() };
             value.GetMany(0, temp);
-            return winrt::single_threaded_vector<hstring>(std::move(temp));
+            return winrt::multi_threaded_vector<hstring>(std::move(temp));
         }
     }
 
@@ -100,7 +100,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationUnit::Dependencies(std::vector<hstring>&& value)
     {
-        m_dependencies = winrt::single_threaded_vector<hstring>(std::move(value));
+        m_dependencies = winrt::multi_threaded_vector<hstring>(std::move(value));
     }
 
     Windows::Foundation::Collections::ValueSet ConfigurationUnit::Metadata()
@@ -182,7 +182,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             if (!m_units)
             {
-                m_units = winrt::single_threaded_vector<Configuration::ConfigurationUnit>();
+                m_units = winrt::multi_threaded_vector<Configuration::ConfigurationUnit>();
             }
         }
     }
@@ -208,7 +208,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationUnit::Units(std::vector<Configuration::ConfigurationUnit>&& value)
     {
-        m_units = winrt::single_threaded_vector<Configuration::ConfigurationUnit>(std::move(value));
+        m_units = winrt::multi_threaded_vector<Configuration::ConfigurationUnit>(std::move(value));
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationUnit::SetLifetimeWatcher(IUnknown* watcher)

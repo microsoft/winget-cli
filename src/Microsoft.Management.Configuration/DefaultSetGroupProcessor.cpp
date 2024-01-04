@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DefaultSetGroupProcessor.h"
+#include "ConfigurationSetApplyProcessor.h"
 #include "ExceptionResultHelpers.h"
 #include "TestGroupSettingsResult.h"
 #include "TestSettingsResult.h"
@@ -136,7 +137,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
                 result->AppendUnitResult(settingsResult);
 
-                progress(settingsResult);
+                try
+                {
+                    progress(settingsResult);
+                }
+                CATCH_LOG();
             }
 
             co_return *result;
@@ -150,12 +155,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult> DefaultSetGroupProcessor::ApplyGroupSettingsAsync()
     {
-        //// Previous implementation...
-        //ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_threadGlobals.GetTelemetryLogger(), m_factory.CreateSetProcessor(configurationSet), std::move(progress) };
-        //applyProcessor.Process();
+        auto strongThis = get_strong();
+        co_await resume_background();
 
-        //return applyProcessor.Result();
-        THROW_HR(E_NOTIMPL);
+        ConfigurationSetApplyProcessor applyProcessor{ m_set, m_setProcessor, { co_await winrt::get_progress_token(), co_await winrt::get_cancellation_token() } };
+        applyProcessor.Process(m_consistencyCheckOnly);
+
+        co_return applyProcessor.Result();
     }
 
     void DefaultSetGroupProcessor::ThrowIf(bool cancellation)

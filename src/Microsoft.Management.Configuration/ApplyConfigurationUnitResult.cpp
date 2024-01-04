@@ -19,7 +19,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_unit = unitResult.Unit();
         THROW_HR_IF(E_POINTER, !m_unit);
         m_resultInformation = unitResult.ResultInformation();
-        m_state = unitResult.UnitState();
+        m_state = unitResult.State();
         m_previouslyInDesiredState = unitResult.PreviouslyInDesiredState();
         m_rebootRequired = unitResult.RebootRequired();
     }

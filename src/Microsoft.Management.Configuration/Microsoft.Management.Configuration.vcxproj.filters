@@ -99,6 +99,9 @@
     <ClCompile Include="TestSettingsResult.cpp">
       <Filter>Internals</Filter>
     </ClCompile>
+    <ClCompile Include="ApplyGroupSettingsResult.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -207,6 +210,9 @@
     <ClInclude Include="TestSettingsResult.h">
       <Filter>Internals</Filter>
     </ClInclude>
+    <ClInclude Include="ApplyGroupSettingsResult.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Microsoft.Management.Configuration.idl" />
@@ -232,5 +238,8 @@
     <Filter Include="Telemetry">
       <UniqueIdentifier>{5a02f1a5-14f3-4a28-8bed-212f3e6b1a00}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

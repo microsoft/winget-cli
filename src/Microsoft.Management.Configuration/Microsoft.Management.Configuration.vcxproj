@@ -198,6 +198,7 @@
   <ItemGroup>
     <ClInclude Include="ApplyConfigurationSetResult.h" />
     <ClInclude Include="ApplyConfigurationUnitResult.h" />
+    <ClInclude Include="ApplyGroupSettingsResult.h" />
     <ClInclude Include="ArgumentValidation.h" />
     <ClInclude Include="ConfigThreadGlobals.h" />
     <ClInclude Include="ConfigurationChangeData.h" />
@@ -236,6 +237,7 @@
   <ItemGroup>
     <ClCompile Include="ApplyConfigurationSetResult.cpp" />
     <ClCompile Include="ApplyConfigurationUnitResult.cpp" />
+    <ClCompile Include="ApplyGroupSettingsResult.cpp" />
     <ClCompile Include="ArgumentValidation.cpp" />
     <ClCompile Include="ConfigThreadGlobals.cpp" />
     <ClCompile Include="ConfigurationChangeData.cpp" />
