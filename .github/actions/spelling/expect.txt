@@ -35,6 +35,7 @@ ATL
 AUrl
 Authenticode
 azurewebsites
+Azure-Pipelines-1ESPT-ExDShared
 bcp
 BEFACEF
 BFirst
