@@ -38,6 +38,7 @@ AUrl
 Authenticode
 azcopy
 azurewebsites
+Azure-Pipelines-1ESPT-ExDShared
 bcp
 BEFACEF
 BFirst
