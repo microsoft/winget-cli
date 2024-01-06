@@ -523,6 +523,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             IApplyGroupSettingsResult applyResult = applyOperation.get();
 
             // Place all results from the processor into our result
+            if (applyResult.ResultInformation())
+            {
+                result->ResultCode(applyResult.ResultInformation().ResultCode());
+            }
+
             for (const IApplyGroupMemberSettingsResult& unitResult : applyResult.UnitResults())
             {
                 // Update overall result
