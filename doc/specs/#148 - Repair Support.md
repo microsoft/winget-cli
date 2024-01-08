@@ -58,9 +58,9 @@ will initiate the repair of the specified package. The command will display an e
 ### Repair Feature for Installer Types that require Custom Repair Switch
   - Burn, Exe, Nullsoft & Inno : The custom switch for repair in the YAML manifest file will be used to perform the repair. The repair command will run the installer with the custom switch to repair the application. To have enough flexibility, different options are possible depending on the installer source used for repair. 
    - Installed Source: 
-     - If the YAML manifest file specifies the `Repair` switch and `Modify` as the `RepairType`, the repair command will use the modify command in the ARP `ModifyPath` registry key, along with the repair switch, through a ShellExecute call, as long as `NoModify` and `NoRepair` ARP registry flags are not set to 1.
-     - If the YAML manifest file specifies the `Repair` switch and `Uninstaller` as the RepairType, the repair command will use the uninstall command in the ARP `UninstallString` registry key, along with the repair switch, through a ShellExecute call, as long as `NoRepair` APR registry flag is not set to 1.
-   - Remote Source: If the YAML manifest file specifies the `Repair` switch and `Installer` valure for the RepairType, the repair command will obtain the matching installer from the remote source and use the repair switch on the downloaded installer through a ShellExecute call..
+     - If the YAML manifest file specifies the `Repair` switch and `Modify` as the `RepairBehavior`, the repair command will use the modify command in the ARP `ModifyPath` registry key, along with the repair switch, through a ShellExecute call, as long as `NoModify` and `NoRepair` ARP registry flags are not set to 1.
+     - If the YAML manifest file specifies the `Repair` switch and `Uninstaller` as the RepairBehavior, the repair command will use the uninstall command in the ARP `UninstallString` registry key, along with the repair switch, through a ShellExecute call, as long as `NoRepair` APR registry flag is not set to 1.
+   - Remote Source: If the YAML manifest file specifies the `Repair` switch and `Installer` valure for the RepairBehavior, the repair command will obtain the matching installer from the remote source and use the repair switch on the downloaded installer through a ShellExecute call..
 
 > If neither switch is specified, the repair command will display an error message.
 
@@ -68,11 +68,11 @@ will initiate the repair of the specified package. The command will display an e
 
 ## Manifest Changes
 Addition of `Repair` property to InstallerSwitch
-- The `Repair` property is used to set the custom repair option that works with `RepairType` field that controls the different repair behavior.
+- The `Repair` property is used to set the custom repair option that works with `RepairBehavior` field that controls the different repair behavior.
 
-Addition of `RepairType` enumerable property to InstallerSwitch
-- With the `RepairType` switch, we can adjust the repair behavior by choosing the installer source (Installed/local or remote) and making sure that the proper ARP registry entries are applied to identify the local installer type when carrying out a repair operation using a local installer source. 
-- The permitted initial values for the `RepairType` switch include:
+Addition of `RepairBehavior` enumerable property to Installer Object
+- With the `RepairBehavior` switch, we can adjust the repair behavior by choosing the installer source (Installed/local or remote) and making sure that the proper ARP registry entries are applied to identify the local installer type when carrying out a repair operation using a local installer source. 
+- The permitted initial values for the `RepairBehavior` switch include:
    - Performing a repair using a Installed/Local Installer Source:
     - `Modify`: if this option is specified, the repair switch will be applied to the `ModifyPath` ARP command entry, as long as `NoModify` and `NoRepair` ARP registry flags are not set to 1.
     - `Uninstaller` : if this option is specified, the repair switch will be applied to the `UninstallString` ARP command entry, as long as `NoRepair` APR registry flag is note set to 1.
@@ -80,16 +80,16 @@ Addition of `RepairType` enumerable property to InstallerSwitch
     - `Installer` : If this option is specified, the repair switch will be applied to the appropriate installer obtained from the remote installer source.
 
 ## Manifest Validation
--  Specifying `Repair` switch without `RepairType` switch will result in an error.
- - Specifying `RepairType` switch without `Repair` switch will result in an error.
+-  Specifying `Repair` switch without `RepairBehavior` switch will result in an error.
+ - Specifying `RepairBehavior` switch without `Repair` switch will result in an error.
  - `Repair` switch can't be empty when specified.
- - `RepairType` switch can't be empty when specified.
+ - `RepairBehavior` switch can't be empty when specified.
 
 
 ## Supported Repair Scenarios
 - Repair for installed applications of Msi, Wix, Msix and MSStore installer types.
 - Repair for the application using the custom repair switch specified in the YAML manifest file for Burn/Exe/Nullsoft/Inno/Wix/Msi installer types.
-  -  The appropriate repair behavior is determined by the combination of the `Repair` switch and the `RepairType` value in the YAML manifest..
+  -  The appropriate repair behavior is determined by the combination of the `Repair` switch and the `RepairBehavior` value in the YAML manifest.
 
 ## Potential Issues
 - For Burn/Exe/Nullsoft/Inno installer types 
