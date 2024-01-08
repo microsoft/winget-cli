@@ -24,7 +24,6 @@ InstallerSuccessCodes:
   - 1
   - 0x80070005
 UpgradeBehavior: uninstallPrevious
-RepairBehavior: modify
 Commands:
   - makemsix
   - makeappx
@@ -163,6 +162,8 @@ Installers:
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
     InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
     ProductCode: "{Bar}"
+    InstallerSwitches:
+      Repair: /r
     UpgradeBehavior: deny
     RepairBehavior: uninstaller
   - Architecture: x86
@@ -194,5 +195,12 @@ Installers:
         FileType: other
         InvocationParameter: "/arg2"
         DisplayName: "DisplayName2"
+  - Architecture: x64
+    InstallerType: burn
+    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
+    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    ProductCode: "{Bar}"
+    UpgradeBehavior: deny
+    RepairBehavior: modify
 ManifestType: installer
 ManifestVersion: 1.7.0

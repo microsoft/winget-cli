@@ -530,8 +530,10 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
 
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
         {
-            REQUIRE(manifest.DefaultInstallerInfo.RepairBehavior == RepairBehaviorEnum::Modify);
-            REQUIRE(defaultSwitches.at(InstallerSwitchType::Repair) == "/repair");
+            if (!isSingleton)
+            {
+                REQUIRE(defaultSwitches.at(InstallerSwitchType::Repair) == "/repair");
+            }
         }
     }
 
@@ -541,7 +543,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     }
     else
     {
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+        {
+            REQUIRE(manifest.Installers.size() == 5);
+        }
+        else if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             REQUIRE(manifest.Installers.size() == 4);
         }
@@ -718,6 +724,16 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
             {
                 REQUIRE(installer2.RepairBehavior == RepairBehaviorEnum::Uninstaller);
+                REQUIRE(installer2.Switches.at(InstallerSwitchType::Repair) == "/r");
+
+                ManifestInstaller installer5 = manifest.Installers.at(4);
+                REQUIRE(installer5.BaseInstallerType == InstallerTypeEnum::Burn);
+                REQUIRE(installer5.Arch == Architecture::X64);
+                REQUIRE(installer5.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+                REQUIRE(installer5.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                REQUIRE(installer5.ProductCode == "{Bar}");
+                REQUIRE(installer5.Switches.at(InstallerSwitchType::Repair) == "/repair");
+                REQUIRE(installer5.RepairBehavior == RepairBehaviorEnum::Modify);
             }
         }
 
