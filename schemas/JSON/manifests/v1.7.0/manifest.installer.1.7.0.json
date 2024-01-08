@@ -832,9 +832,6 @@
     "DownloadCommandProhibited": {
       "$ref": "#/definitions/DownloadCommandProhibited"
     },
-    "RepairBehavior": {
-      "$ref": "#/definitions/RepairBehavior"
-    },
     "Installers": {
       "type": "array",
       "items": {
