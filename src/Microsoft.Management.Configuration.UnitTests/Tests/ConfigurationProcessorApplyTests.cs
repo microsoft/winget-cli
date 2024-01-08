@@ -455,6 +455,97 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.Precondition);
         }
 
+        /// <summary>
+        /// Apply a set that was parsed with schema 0.3.
+        /// </summary>
+        [Fact]
+        public void ApplySet_Parsed_0_3()
+        {
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            OpenConfigurationSetResult openResult = processor.OpenConfigurationSet(this.CreateStream(@"
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+resources:
+  - name: Name
+    type: Module/Resource
+    properties:
+      c: 3
+      d: '4'
+  - name: Name2
+    type: Module/Resource2
+    properties:
+      l: '10'
+"));
+
+            Assert.Null(openResult.ResultCode);
+            Assert.NotNull(openResult.Set);
+            Assert.Equal(string.Empty, openResult.Field);
+            Assert.Equal(string.Empty, openResult.Value);
+            Assert.Equal(0U, openResult.Line);
+            Assert.Equal(0U, openResult.Column);
+
+            ConfigurationSet configurationSet = openResult.Set;
+            int unitCount = configurationSet.Units.Count;
+
+            TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
+
+            TestConfigurationUnitProcessor[] unitProcessors = new TestConfigurationUnitProcessor[unitCount];
+            for (int i = 0; i < unitCount; ++i)
+            {
+                unitProcessors[i] = setProcessor.CreateTestProcessor(configurationSet.Units[i]);
+                if (i == 0)
+                {
+                    unitProcessors[i].TestSettingsDelegateWithUnit = (ConfigurationUnit unit) => new TestSettingsResultInstance(unit) { TestResult = ConfigurationTestResult.Negative };
+                }
+                else
+                {
+                    unitProcessors[i].TestSettingsDelegateWithUnit = (ConfigurationUnit unit) => new TestSettingsResultInstance(unit) { TestResult = ConfigurationTestResult.Positive };
+                }
+            }
+
+            ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
+            Assert.NotNull(result);
+            Assert.Null(result.ResultCode);
+            Assert.Equal(unitCount, result.UnitResults.Count);
+
+            for (int i = 0; i < unitCount; ++i)
+            {
+                var unitResult = result.UnitResults[i];
+                Assert.NotNull(unitResult);
+
+                if (i == 0)
+                {
+                    Assert.False(unitResult.PreviouslyInDesiredState);
+                }
+                else
+                {
+                    Assert.True(unitResult.PreviouslyInDesiredState);
+                }
+
+                Assert.False(unitResult.RebootRequired);
+                Assert.NotNull(unitResult.ResultInformation);
+                Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+            }
+
+            for (int i = 0; i < unitCount; ++i)
+            {
+                Assert.Equal(1, unitProcessors[i].TestSettingsCalls);
+                Assert.Equal(0, unitProcessors[i].GetSettingsCalls);
+                if (i == 0)
+                {
+                    Assert.Equal(1, unitProcessors[i].ApplySettingsCalls);
+                }
+                else
+                {
+                    Assert.Equal(0, unitProcessors[i].ApplySettingsCalls);
+                }
+            }
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.None);
+        }
+
         private struct ExpectedConfigurationChangeData
         {
             public ConfigurationSetChangeEventType Change;

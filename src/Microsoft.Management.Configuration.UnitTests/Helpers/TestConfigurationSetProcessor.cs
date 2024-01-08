@@ -14,15 +14,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// </summary>
     internal class TestConfigurationSetProcessor : IConfigurationSetProcessor
     {
-        private ConfigurationSet? set;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TestConfigurationSetProcessor"/> class.
         /// </summary>
         /// <param name="set">The set that this processor is for.</param>
         internal TestConfigurationSetProcessor(ConfigurationSet? set)
         {
-            this.set = set;
+            this.Set = set;
         }
 
         /// <summary>
@@ -42,6 +40,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// </summary>
         internal Dictionary<ConfigurationUnit, Exception> Exceptions { get; set; } =
             new Dictionary<ConfigurationUnit, Exception>();
+
+        /// <summary>
+        /// Gets the ConfigurationSet that this processor targets.
+        /// </summary>
+        protected ConfigurationSet? Set { get; private set; }
 
         /// <summary>
         /// Creates a new unit processor for the given unit.

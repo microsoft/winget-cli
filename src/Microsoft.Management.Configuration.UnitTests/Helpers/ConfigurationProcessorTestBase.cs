@@ -145,6 +145,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 
         private static void SummaryCountByIntent(int[] counts, int[] runs, int[] failures, ConfigurationUnitIntent intent, IConfigurationUnitResultInformation resultInformation)
         {
+            if (intent == ConfigurationUnitIntent.Unknown)
+            {
+                intent = ConfigurationUnitIntent.Apply;
+            }
+
             int index = (int)intent;
 
             counts[index]++;
