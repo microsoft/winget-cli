@@ -1,15 +1,14 @@
-﻿// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="ManifestDocumentation.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.Models.V1
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-
+    /// <summary>
+    /// Manifest documentation.
+    /// </summary>
     public class ManifestDocumentation
     {
         /// <summary>
@@ -21,6 +20,5 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets the document url.
         /// </summary>
         public string DocumentUrl { get; set; }
-
     }
 }
