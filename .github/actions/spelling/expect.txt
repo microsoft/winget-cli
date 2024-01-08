@@ -79,6 +79,7 @@ count'th
 countof
 countryregion
 CPIL
+craigloewen
 createmanifestmetadata
 cswinrt
 ctc
@@ -184,6 +185,7 @@ isable
 IServer
 ishelp
 ISQ
+issuetitle
 ISVs
 itr
 IWin
@@ -387,6 +389,8 @@ SHGDN
 SHOWNORMAL
 Sideload
 SIGNATUREHASH
+similarissues
+similaritytolerance
 Sku
 SMTO
 sortof
