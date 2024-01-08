@@ -15,7 +15,7 @@ namespace Microsoft.WinGetUtil.Api
     /// <summary>
     /// Wrapper class for SQLite index operations.
     /// </summary>
-    public class WinGetSQLiteIndex : IWinGetSQLiteIndex
+    public sealed class WinGetSQLiteIndex : IWinGetSQLiteIndex
     {
         private readonly IntPtr indexHandle;
 
@@ -128,7 +128,7 @@ namespace Microsoft.WinGetUtil.Api
         {
             if (disposing)
             {
-                if (this.indexHandle != null)
+                if (this.indexHandle != IntPtr.Zero)
                 {
                     WinGetSQLiteIndexClose(this.indexHandle);
                 }

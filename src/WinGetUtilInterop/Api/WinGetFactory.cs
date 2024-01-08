@@ -110,6 +110,37 @@ namespace Microsoft.WinGetUtil.Api
         }
 
         /// <summary>
+        /// Begins the installer metadata collection process.
+        /// </summary>
+        /// <param name="input">input.</param>
+        /// <param name="logFilePath">Log file path.</param>
+        /// <param name="options">An enum of type <see cref="WinGetBeginInstallerMetadataCollectionOptions"/>.</param>
+        /// <param name="outputFilePath">Metadata output file path.</param>
+        /// <returns>IWinGetInstallerMetadata with the handle to the installer metadata collection.</returns>
+        public IWinGetInstallerMetadata BeginInstallerMetadataCollection(
+            string input,
+            string logFilePath,
+            WinGetBeginInstallerMetadataCollectionOptions options,
+            string outputFilePath)
+        {
+            try
+            {
+                IntPtr collectionHandle = IntPtr.Zero;
+                WinGetBeginInstallerMetadataCollection(
+                    input,
+                    logFilePath,
+                    options,
+                    out collectionHandle);
+
+                return new WinGetInstallerMetadata(collectionHandle, outputFilePath);
+            }
+            catch (Exception e)
+            {
+                throw new WinGetInstallerMetadataException(e);
+            }
+        }
+
+        /// <summary>
         /// Creates a new index file at filePath with the given version.
         /// </summary>
         /// <param name="filePath">File path to create index.</param>
@@ -155,5 +186,23 @@ namespace Microsoft.WinGetUtil.Api
             [MarshalAs(UnmanagedType.BStr)] out string failureMessage,
             string mergedManifestPath,
             WinGetCreateManifestOption option);
+
+        /// <summary>
+        /// Begins the installer metadata collection process. By default, inputJSON is expected to be a JSON string.
+        /// See the WinGetBeginInstallerMetadataCollectionOptions for more options.
+        /// logFilePath optionally specifies where to write the log file for the collection operation.
+        /// The collectionHandle is owned by the caller and must be passed to WinGetCompleteInstallerMetadataCollection to free it.
+        /// </summary>
+        /// <param name="inputJSON">Input Json.</param>
+        /// <param name="logFilePath">Log file path.</param>
+        /// <param name="options">An enum of type <see cref="WinGetBeginInstallerMetadataCollectionOptions"/>.</param>
+        /// <param name="collectionHandle">Collection handle.</param>
+        /// <returns>Metadata Collection handle.</returns>
+        [DllImport(Constants.DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        private static extern IntPtr WinGetBeginInstallerMetadataCollection(
+            string inputJSON,
+            string logFilePath,
+            WinGetBeginInstallerMetadataCollectionOptions options,
+            out IntPtr collectionHandle);
     }
 }

@@ -1,8 +1,8 @@
-﻿// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="V1ManifestReadTest.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.UnitTests.ManifestUnitTest
 {
@@ -55,7 +55,7 @@ namespace Microsoft.WinGetUtil.UnitTests.ManifestUnitTest
 
             Manifest v160manifest = Manifest.CreateManifestFromPath(
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V160ManifestMerged));
-            
+
             this.ValidateManifestFields(v160manifest, TestManifestVersion.V160);
         }
 

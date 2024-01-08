@@ -155,4 +155,43 @@ namespace Microsoft.WinGetUtil.Common
         /// </summary>
         InternalError = 0x1000,
     }
+
+    /// <summary>
+    ///  Option flags for WinGetBeginInstallerMetadataCollection.
+    /// </summary>
+    [Flags]
+    public enum WinGetBeginInstallerMetadataCollectionOptions
+    {
+        /// <summary>
+        /// None.
+        /// </summary>
+        WinGetBeginInstallerMetadataCollectionOption_None = 0,
+
+        /// <summary>
+        /// The inputJSON is a local file path, not a JSON string.
+        /// </summary>
+        WinGetBeginInstallerMetadataCollectionOption_InputIsFilePath = 0x1,
+
+        /// <summary>
+        ///  The inputJSON is a remote URI, not a JSON string.
+        /// </summary>
+        WinGetBeginInstallerMetadataCollectionOption_InputIsURI = 0x2,
+    }
+
+    /// <summary>
+    /// Option flags for WinGetCompleteInstallerMetadataCollection.
+    /// </summary>
+    [Flags]
+    public enum WinGetCompleteInstallerMetadataCollectionOptions
+    {
+        /// <summary>
+        /// Metadata collectio option none.
+        /// </summary>
+        WinGetCompleteInstallerMetadataCollectionOption_None = 0,
+
+        /// <summary>
+        /// Complete will simply free the collection handle without doing any additional work.
+        /// </summary>
+        WinGetCompleteInstallerMetadataCollectionOption_Abandon = 0x1,
+    }
 }

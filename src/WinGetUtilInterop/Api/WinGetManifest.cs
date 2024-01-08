@@ -72,7 +72,7 @@ namespace Microsoft.WinGetUtil.Api
         {
             if (disposing)
             {
-                if (this.manifestHandle != null)
+                if (this.manifestHandle != IntPtr.Zero)
                 {
                     WinGetCloseManifest(this.manifestHandle);
                 }

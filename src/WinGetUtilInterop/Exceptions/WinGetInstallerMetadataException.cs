@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="WinGetLoggingException.cs" company="Microsoft Corporation">
+// <copyright file="WinGetInstallerMetadataException.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -9,41 +9,41 @@ namespace Microsoft.WinGetUtil.Exceptions
     using System;
 
     /// <summary>
-    /// Exception for logging operations.
+    /// Exception for installer metadata operations.
     /// </summary>
-    public class WinGetLoggingException : Exception
+    public class WinGetInstallerMetadataException : Exception
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="WinGetLoggingException"/> class.
+        /// Initializes a new instance of the <see cref="WinGetInstallerMetadataException"/> class.
         /// </summary>
-        public WinGetLoggingException()
+        public WinGetInstallerMetadataException()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WinGetLoggingException"/> class.
+        /// Initializes a new instance of the <see cref="WinGetInstallerMetadataException"/> class.
         /// </summary>
         /// <param name="message">Message.</param>
-        public WinGetLoggingException(string message)
+        public WinGetInstallerMetadataException(string message)
             : base(message)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WinGetLoggingException"/> class.
+        /// Initializes a new instance of the <see cref="WinGetInstallerMetadataException"/> class.
         /// </summary>
         /// <param name="inner">Inner exception.</param>
-        public WinGetLoggingException(Exception inner)
+        public WinGetInstallerMetadataException(Exception inner)
             : base(string.Empty, inner)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WinGetLoggingException"/> class.
+        /// Initializes a new instance of the <see cref="WinGetInstallerMetadataException"/> class.
         /// </summary>
         /// <param name="message">Message.</param>
         /// <param name="inner">Inner exception.</param>
-        public WinGetLoggingException(string message, Exception inner)
+        public WinGetInstallerMetadataException(string message, Exception inner)
             : base(message, inner)
         {
         }

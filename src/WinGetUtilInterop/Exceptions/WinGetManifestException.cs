@@ -9,7 +9,7 @@ namespace Microsoft.WinGetUtil.Exceptions
     using System;
 
     /// <summary>
-    /// Exception for index operations.
+    /// Exception for manifest operations.
     /// </summary>
     public class WinGetManifestException : Exception
     {
