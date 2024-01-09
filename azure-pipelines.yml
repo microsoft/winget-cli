@@ -297,6 +297,14 @@ jobs:
       OverWrite: true
     condition: succeededOrFailed()
 
+  - task: CopyFiles@2
+    displayName: 'Copy WinGetUtil to WinGetUtilInterop.UnitTests folder'
+    inputs:
+      Contents: |
+          $(buildOutDir)\WinGetUtil\WinGetUtil.dll
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
+    condition: succeededOrFailed()
+
   - task: VSTest@2
     displayName: 'Run tests: WinGetUtilInterop.UnitTests'
     inputs:
