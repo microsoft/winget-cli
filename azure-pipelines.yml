@@ -303,6 +303,7 @@ jobs:
       Contents: |
           $(buildOutDir)\WinGetUtil\WinGetUtil.dll
       TargetFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
+      flattenFolders: true
     condition: succeededOrFailed()
 
   - task: VSTest@2
