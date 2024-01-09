@@ -39,7 +39,7 @@ namespace Microsoft.WinGetUtil.Api
             }
             catch (Exception e)
             {
-                throw new WinGetDownloaderException(e);
+                throw new WinGetDownloadException(e);
             }
             finally
             {
