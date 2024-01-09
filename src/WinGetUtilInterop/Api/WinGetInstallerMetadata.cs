@@ -75,7 +75,7 @@ namespace Microsoft.WinGetUtil.Api
         /// <param name="collectionHandle">Collection Handle.</param>
         /// <param name="outputFilePath">Metadata output file path.</param>
         /// <param name="options">An enum of type <see cref="WinGetBeginInstallerMetadataCollectionOptions"/>.</param>
-        /// <returns>Metada collection handle.</returns>
+        /// <returns>Metadata collection handle.</returns>
         [DllImport(Constants.DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetCompleteInstallerMetadataCollection(
             IntPtr collectionHandle,

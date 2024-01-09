@@ -12,7 +12,7 @@ namespace Microsoft.WinGetUtil.Interfaces
     public interface IWinGetUtilities
     {
         /// <summary>
-        /// Helper method to pinvoke and download a file from URL.
+        /// Download a file from URL.
         /// </summary>
         /// <param name="url">Installer url.</param>
         /// <param name="filePath">Destination file path.</param>
@@ -22,7 +22,7 @@ namespace Microsoft.WinGetUtil.Interfaces
         string Download(string url, string filePath, bool enableLogging = false, string logFilePath = null);
 
         /// <summary>
-        /// Helper method to pinvoke and compare two versions.
+        /// Compare two version.
         /// </summary>
         /// <param name="version1">Version 1.</param>
         /// <param name="version2">Version 2.</param>

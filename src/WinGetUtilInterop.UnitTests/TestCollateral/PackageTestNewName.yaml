@@ -4,7 +4,7 @@ PackageName: NewName
 Publisher: Test
 PackageUrl: https://test.com
 License: Test.
-LicenseUrl: https://moretest.com
+LicenseUrl: https://test.com
 ShortDescription: A test
 Installers:
 - Architecture: x64

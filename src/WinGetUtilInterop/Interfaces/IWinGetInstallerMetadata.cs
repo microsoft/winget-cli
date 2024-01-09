@@ -9,7 +9,7 @@ namespace Microsoft.WinGetUtil.Interfaces
     using System;
 
     /// <summary>
-    /// Interface for intaller metadata collection.
+    /// Interface for installer metadata collection.
     /// </summary>
     public interface IWinGetInstallerMetadata : IDisposable
     {

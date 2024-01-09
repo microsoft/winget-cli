@@ -124,7 +124,7 @@ namespace Microsoft.WinGetUtil.Common
         // Dependencies validation result.
 
         /// <summary>
-        /// Single Manifest package has depedencies.
+        /// Single Manifest package has dependencies.
         /// </summary>
         SingleManifestPackageHasDependencies = 0x10000,
 
@@ -185,7 +185,7 @@ namespace Microsoft.WinGetUtil.Common
     public enum WinGetCompleteInstallerMetadataCollectionOptions
     {
         /// <summary>
-        /// Metadata collectio option none.
+        /// Metadata collection option none.
         /// </summary>
         WinGetCompleteInstallerMetadataCollectionOption_None = 0,
 
