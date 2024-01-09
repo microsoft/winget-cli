@@ -313,7 +313,7 @@ jobs:
       testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
       searchFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests'
       codeCoverageEnabled: true
-      platform: 'Any CPU'
+      platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
     condition: succeededOrFailed()
   
