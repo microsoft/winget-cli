@@ -129,8 +129,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <returns>A new TestConfigurationSetGroupProcessor for the set.</returns>
         internal TestConfigurationSetGroupProcessor CreateTestGroupProcessor(ConfigurationSet configurationSet)
         {
-            this.Processors[configurationSet] = new TestConfigurationSetGroupProcessor(configurationSet);
-            return this.Processors[configurationSet];
+            TestConfigurationSetGroupProcessor result = new (configurationSet);
+            this.Processors[configurationSet] = result;
+            return result;
         }
     }
 }

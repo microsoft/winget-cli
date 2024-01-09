@@ -1,35 +1,33 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="ApplyGroupSettingsResultInstance.cs" company="Microsoft Corporation">
+// <copyright file="ApplyGroupMemberSettingsResultInstance.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
-    using System.Collections.Generic;
-
     /// <summary>
-    /// Implements IApplyGroupSettingsResult.
+    /// Implements IApplyGroupMemberSettingsResult.
     /// </summary>
-    internal sealed class ApplyGroupSettingsResultInstance : IApplyGroupSettingsResult
+    internal sealed class ApplyGroupMemberSettingsResultInstance : IApplyGroupMemberSettingsResult
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ApplyGroupSettingsResultInstance"/> class.
+        /// Initializes a new instance of the <see cref="ApplyGroupMemberSettingsResultInstance"/> class.
         /// </summary>
-        /// <param name="group">The group for this result.</param>
-        internal ApplyGroupSettingsResultInstance(object? group)
+        /// <param name="unit">The unit for this result.</param>
+        internal ApplyGroupMemberSettingsResultInstance(ConfigurationUnit unit)
         {
-            this.Group = group;
+            this.Unit = unit;
         }
 
         /// <inheritdoc/>
-        public object? Group { get; private init; }
+        public bool PreviouslyInDesiredState { get; internal set; }
 
         /// <inheritdoc/>
         public bool RebootRequired { get; internal set; }
 
         /// <inheritdoc/>
-        public IConfigurationUnitResultInformation? ResultInformation
+        public IConfigurationUnitResultInformation ResultInformation
         {
             get { return this.InternalResult; }
         }
@@ -40,6 +38,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public TestConfigurationUnitResultInformation InternalResult { get; } = new TestConfigurationUnitResultInformation();
 
         /// <inheritdoc/>
-        public IList<IApplyGroupMemberSettingsResult>? UnitResults { get; internal set; }
+        public ConfigurationUnitState State { get; internal set; }
+
+        /// <inheritdoc/>
+        public ConfigurationUnit Unit { get; private init; }
     }
 }

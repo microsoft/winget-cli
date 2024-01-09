@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
@@ -279,6 +280,67 @@ resources:
                     Assert.Equal(ConfigurationTestResult.Positive, unitResult.TestResult);
                 }
 
+                Assert.NotNull(unitResult.ResultInformation);
+                Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+            }
+
+            this.VerifySummaryEvent(configurationSet, result, 0, ConfigurationUnitResultSource.None);
+        }
+
+        /// <summary>
+        /// Test when the set processor is a group processor.
+        /// </summary>
+        [Fact]
+        public void TestSet_SetGroupProcessor()
+        {
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.Metadata[TestConfigurationSetGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+            ConfigurationUnit configurationUnitNegative = this.ConfigurationUnit();
+            configurationUnitNegative.Settings[TestConfigurationSetGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+            ConfigurationUnit configurationUnitPositive = this.ConfigurationUnit();
+            configurationUnitPositive.Settings[TestConfigurationSetGroupProcessor.TestResultSetting] = ConfigurationTestResult.Positive.ToString();
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnitNegative, configurationUnitPositive };
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            TestConfigurationSetGroupProcessor setProcessor = factory.CreateTestGroupProcessor(configurationSet);
+            setProcessor.ShouldWaitOnAsyncEvent = true;
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+            List<TestConfigurationUnitResult> progressValues = new List<TestConfigurationUnitResult>();
+
+            var operation = processor.TestSetAsync(configurationSet);
+            operation.Progress = (Windows.Foundation.IAsyncOperationWithProgress<TestConfigurationSetResult, TestConfigurationUnitResult> op, TestConfigurationUnitResult unitResult) => { progressValues.Add(unitResult); };
+            setProcessor.SignalAsyncEvent();
+
+            operation.AsTask().Wait();
+            TestConfigurationSetResult result = operation.GetResults();
+
+            Assert.NotNull(result);
+            Assert.Equal(ConfigurationTestResult.Negative, result.TestResult);
+            Assert.NotNull(result.UnitResults);
+            Assert.Equal(2, result.UnitResults.Count);
+            Assert.Equal(2, progressValues.Count);
+
+            TestConfigurationUnitResult negativeResult = result.UnitResults.First(x => x.Unit == configurationUnitNegative);
+            TestConfigurationUnitResult negativeProgress = progressValues.First(x => x.Unit == configurationUnitNegative);
+
+            foreach (TestConfigurationUnitResult unitResult in new TestConfigurationUnitResult[] { negativeResult, negativeProgress })
+            {
+                Assert.NotNull(unitResult);
+                Assert.Equal(ConfigurationTestResult.Negative, unitResult.TestResult);
+                Assert.NotNull(unitResult.ResultInformation);
+                Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+            }
+
+            TestConfigurationUnitResult positiveResult = result.UnitResults.First(x => x.Unit == configurationUnitPositive);
+            TestConfigurationUnitResult positiveProgress = progressValues.First(x => x.Unit == configurationUnitPositive);
+
+            foreach (TestConfigurationUnitResult unitResult in new TestConfigurationUnitResult[] { positiveResult, positiveProgress })
+            {
+                Assert.NotNull(unitResult);
+                Assert.Equal(ConfigurationTestResult.Positive, unitResult.TestResult);
                 Assert.NotNull(unitResult.ResultInformation);
                 Assert.Null(unitResult.ResultInformation.ResultCode);
                 Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
