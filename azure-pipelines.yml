@@ -291,10 +291,19 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\net6.0'
+      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net6.0'
       TargetFolder:  '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy WinGetUtil to WinGetUtilInterop.UnitTests folder'
+    inputs:
+      Contents: |
+          $(buildOutDir)\WinGetUtil\WinGetUtil.dll
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
+      flattenFolders: true
     condition: succeededOrFailed()
 
   - task: VSTest@2
@@ -304,7 +313,7 @@ jobs:
       testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
       searchFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests'
       codeCoverageEnabled: true
-      platform: 'Any CPU'
+      platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
     condition: succeededOrFailed()
   
