@@ -70,7 +70,7 @@ namespace AppInstaller::Manifest
 
         UpdateBehaviorEnum UpdateBehavior = UpdateBehaviorEnum::Install;
 
-        RepairBehaviorEnum RepairBehavior = RepairBehaviorEnum::Unknown; // TODO: change to RepairBehaviorEnum::Modify ?
+        RepairBehaviorEnum RepairBehavior = RepairBehaviorEnum::Unknown;
 
         std::vector<string_t> Commands;
 
