@@ -85,7 +85,7 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
         [DisplayTestMethodName]
         public void OpenIndexFileDontExist()
         {
-            // Verify fails with nonexistent file.
+            // Verify fails with non existent file.
             var exception = Assert.Throws<WinGetSQLiteIndexException>(
                 () =>
                 {

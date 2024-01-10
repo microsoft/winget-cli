@@ -1,15 +1,13 @@
-﻿// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="Manifest.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.Models.V1
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using YamlDotNet.Serialization;
     using YamlDotNet.Serialization.NamingConventions;
 
@@ -137,7 +135,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets the release notes in default locale.
         /// </summary>
         public string ReleaseNotes { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the manifest documentation.
         /// </summary>

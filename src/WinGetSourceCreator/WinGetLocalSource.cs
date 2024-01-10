@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace Microsoft.WinGetSourceCreator
@@ -7,7 +7,6 @@ namespace Microsoft.WinGetSourceCreator
     using System.Text.Json.Serialization;
     using System.Text.Json;
     using Microsoft.WinGetUtil.Api;
-    using Microsoft.WinGetUtil.Interfaces;
 
     public class WinGetLocalSource
     {
@@ -67,11 +66,9 @@ namespace Microsoft.WinGetSourceCreator
                 wingetSource.PrepareManifest(localManifest);
             }
 
-            var indexV2File = wingetSource.CreateIndex(localSource.GetIndexName(), 2, 0);
-            _ = wingetSource.CreatePackage(localSource.GetSourceName(2), localSource.AppxManifest, indexV2File, localSource.Signature);
+            var indexFile = wingetSource.CreateIndex(localSource.GetIndexName());
 
-            var indexV1File = wingetSource.CreateIndex(localSource.GetIndexName());
-            _ = wingetSource.CreatePackage(localSource.GetSourceName(1), localSource.AppxManifest, indexV1File, localSource.Signature);
+            _ = wingetSource.CreatePackage(localSource.GetSourceName(), localSource.AppxManifest, indexFile, localSource.Signature);
         }
 
         public WinGetLocalSource(string workingDirectory, Signature? signature)
@@ -113,17 +110,10 @@ namespace Microsoft.WinGetSourceCreator
             }
         }
 
-        public string CreateIndex(string indexName, uint? majorVersion = null, uint? minorVersion = null)
+        public string CreateIndex(string indexName)
         {
             string fullPath = Path.Combine(this.workingDirectory, indexName);
-
-            if (File.Exists(fullPath))
-            {
-                File.Delete(fullPath);
-            }
-
-            WinGetFactory factory = new ();
-            using IWinGetSQLiteIndex indexHelper = majorVersion == null ? factory.SQLiteIndexCreateLatestVersion(fullPath) : factory.SQLiteIndexCreate(fullPath, majorVersion.Value, minorVersion.GetValueOrDefault());
+            using var indexHelper = new WinGetFactory().SQLiteIndexCreateLatestVersion(fullPath);
 
             Queue<string> filesQueue = new(Directory.EnumerateFiles(this.workingDirectory, "*.yaml", SearchOption.AllDirectories));
             while (filesQueue.Count > 0)
@@ -170,7 +160,7 @@ namespace Microsoft.WinGetSourceCreator
             }
 
             string appxManifestFile = Path.Combine(this.workingDirectory, "AppxManifest.xml");
-            File.Copy(inputAppxManifestFile, appxManifestFile, true);
+            File.Copy(inputAppxManifestFile, appxManifestFile);
 
             if (signature != null && signature.Publisher != null)
             {
@@ -180,7 +170,7 @@ namespace Microsoft.WinGetSourceCreator
             string mappingFile = Path.Combine(this.workingDirectory, "MappingFile.txt");
 
             {
-                using StreamWriter outputFile = new(mappingFile, false);
+                using StreamWriter outputFile = new(mappingFile);
                 outputFile.WriteLine("[Files]");
                 outputFile.WriteLine($"\"{indexPath}\" \"Public\\{Path.GetFileName(indexPath)}\"");
                 outputFile.WriteLine($"\"{appxManifestFile}\" \"AppxManifest.xml\"");
