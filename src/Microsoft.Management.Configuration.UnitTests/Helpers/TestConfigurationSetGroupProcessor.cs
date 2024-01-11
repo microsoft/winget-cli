@@ -8,6 +8,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Runtime.InteropServices.WindowsRuntime;
     using System.Threading;
     using System.Threading.Tasks;
@@ -19,11 +20,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// </summary>
     internal class TestConfigurationSetGroupProcessor : TestConfigurationSetProcessor, IConfigurationGroupProcessor
     {
-        /// <summary>
-        /// The Setting key that will be used to set the TestResult of the unit.
-        /// </summary>
-        internal const string TestResultSetting = "TestResult";
-
         /// <summary>
         /// The event that is waited on before actually processing the async operations.
         /// </summary>
@@ -66,20 +62,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 
                 if (this.Set != null)
                 {
-                    foreach (ConfigurationUnit unit in this.Set.Units)
-                    {
-                        ApplyGroupMemberSettingsResultInstance unitResult = new (unit);
-
-                        unitResult.State = ConfigurationUnitState.InProgress;
-                        progress.Report(unitResult);
-
-                        unitResult.PreviouslyInDesiredState = this.GetTestResult(unit) == ConfigurationTestResult.Positive;
-
-                        unitResult.State = ConfigurationUnitState.Completed;
-                        progress.Report(unitResult);
-
-                        result.UnitResults.Add(unitResult);
-                    }
+                    TestConfigurationUnitGroupProcessor.ApplyGroupSettings(this.Set.Units, progress, result);
                 }
 
                 return result;
@@ -101,17 +84,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 
                 if (this.Set != null)
                 {
-                    result.TestResult = this.GetTestResult(this.Set.Metadata);
-
-                    foreach (ConfigurationUnit unit in this.Set.Units)
-                    {
-                        TestSettingsResultInstance unitResult = new (unit);
-
-                        unitResult.TestResult = this.GetTestResult(unit);
-                        progress.Report(unitResult);
-
-                        result.UnitResults.Add(unitResult);
-                    }
+                    result.TestResult = TestConfigurationUnitGroupProcessor.GetTestResult(this.Set.Metadata);
+                    TestConfigurationUnitGroupProcessor.TestGroupSettings(this.Set.Units, progress, result);
                 }
 
                 return result;
@@ -136,25 +110,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
                 cancellationToken.Register(() => this.asyncWaitEvent.Set());
                 this.asyncWaitEvent.WaitOne();
             }
-        }
-
-        private ConfigurationTestResult GetTestResult(ConfigurationUnit unit)
-        {
-            return this.GetTestResult(unit.Settings);
-        }
-
-        private ConfigurationTestResult GetTestResult(ValueSet values)
-        {
-            if (values.ContainsKey(TestResultSetting))
-            {
-                string? valueString = values[TestResultSetting]?.ToString();
-                if (valueString != null)
-                {
-                    return Enum.Parse<ConfigurationTestResult>(valueString);
-                }
-            }
-
-            return ConfigurationTestResult.Negative;
         }
     }
 }

@@ -546,6 +546,255 @@ resources:
             this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.None);
         }
 
+        /// <summary>
+        /// Test when the set processor is a group processor.
+        /// </summary>
+        [Fact]
+        public void ApplySet_SetGroupProcessor()
+        {
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+
+            ConfigurationUnit configurationUnitNegative = this.ConfigurationUnit();
+            configurationUnitNegative.Settings[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+            ConfigurationUnit configurationUnitPositive = this.ConfigurationUnit();
+            configurationUnitPositive.Settings[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Positive.ToString();
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnitNegative, configurationUnitPositive };
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            TestConfigurationSetGroupProcessor setProcessor = factory.CreateTestGroupProcessor(configurationSet);
+            setProcessor.ShouldWaitOnAsyncEvent = true;
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+            List<ConfigurationSetChangeData> progressValues = new List<ConfigurationSetChangeData>();
+
+            var operation = processor.ApplySetAsync(configurationSet, ApplyConfigurationSetFlags.None);
+            operation.Progress = (Windows.Foundation.IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> op, ConfigurationSetChangeData unitResult) => { progressValues.Add(unitResult); };
+            setProcessor.SignalAsyncEvent();
+
+            operation.AsTask().Wait();
+            ApplyConfigurationSetResult result = operation.GetResults();
+
+            Assert.NotNull(result);
+            Assert.Null(result.ResultCode);
+            Assert.NotNull(result.UnitResults);
+            Assert.Equal(configurationSet.Units.Count, result.UnitResults.Count);
+            Assert.True((configurationSet.Units.Count * 2) + 2 >= progressValues.Count);
+
+            Assert.True(progressValues.Where(x => x.Change == ConfigurationSetChangeEventType.SetStateChanged).Count() <= 2);
+            Assert.Single(progressValues.Where(x => x.SetState == ConfigurationSetState.Completed));
+
+            ApplyConfigurationUnitResult negativeResult = result.UnitResults.First(x => x.Unit == configurationUnitNegative);
+
+            Assert.NotNull(negativeResult);
+            Assert.NotNull(negativeResult.ResultInformation);
+            Assert.Null(negativeResult.ResultInformation.ResultCode);
+            Assert.Equal(ConfigurationUnitResultSource.None, negativeResult.ResultInformation.ResultSource);
+            Assert.Equal(ConfigurationUnitState.Completed, negativeResult.State);
+            Assert.False(negativeResult.PreviouslyInDesiredState);
+
+            IEnumerable<ConfigurationSetChangeData> negativeProgress = progressValues.Where(x => x.Unit == configurationUnitNegative);
+            Assert.Equal(2, negativeProgress.Count());
+
+            foreach (ConfigurationSetChangeData change in negativeProgress)
+            {
+                Assert.Equal(ConfigurationSetChangeEventType.UnitStateChanged, change.Change);
+                Assert.Equal(ConfigurationSetState.InProgress, change.SetState);
+                Assert.NotNull(change.ResultInformation);
+                Assert.Null(change.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, change.ResultInformation.ResultSource);
+            }
+
+            Assert.Single(negativeProgress.Where(x => x.UnitState == ConfigurationUnitState.InProgress));
+            Assert.Single(negativeProgress.Where(x => x.UnitState == ConfigurationUnitState.Completed));
+
+            ApplyConfigurationUnitResult positiveResult = result.UnitResults.First(x => x.Unit == configurationUnitPositive);
+
+            Assert.NotNull(positiveResult);
+            Assert.NotNull(positiveResult.ResultInformation);
+            Assert.Null(positiveResult.ResultInformation.ResultCode);
+            Assert.Equal(ConfigurationUnitResultSource.None, positiveResult.ResultInformation.ResultSource);
+            Assert.Equal(ConfigurationUnitState.Completed, positiveResult.State);
+            Assert.True(positiveResult.PreviouslyInDesiredState);
+
+            IEnumerable<ConfigurationSetChangeData> positiveProgress = progressValues.Where(x => x.Unit == configurationUnitPositive);
+            Assert.Equal(2, positiveProgress.Count());
+
+            foreach (ConfigurationSetChangeData change in positiveProgress)
+            {
+                Assert.Equal(ConfigurationSetChangeEventType.UnitStateChanged, change.Change);
+                Assert.Equal(ConfigurationSetState.InProgress, change.SetState);
+                Assert.NotNull(change.ResultInformation);
+                Assert.Null(change.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, change.ResultInformation.ResultSource);
+            }
+
+            Assert.Single(positiveProgress.Where(x => x.UnitState == ConfigurationUnitState.InProgress));
+            Assert.Single(positiveProgress.Where(x => x.UnitState == ConfigurationUnitState.Completed));
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.None);
+        }
+
+        /// <summary>
+        /// Test when the set processor is a group processor and contains a unit that is also a group.
+        /// </summary>
+        [Fact]
+        public void ApplySet_SetGroupProcessor_WithGroupUnit()
+        {
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.Metadata[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+
+            ConfigurationUnit configurationUnit = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitGroup = this.ConfigurationUnit();
+
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnit, configurationUnitGroup };
+
+            ConfigurationUnit configurationUnitGroupMember = this.ConfigurationUnit();
+            configurationUnitGroup.IsGroup = true;
+            configurationUnitGroup.Units = new ConfigurationUnit[] { configurationUnitGroupMember };
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            TestConfigurationSetGroupProcessor setProcessor = factory.CreateTestGroupProcessor(configurationSet);
+            setProcessor.ShouldWaitOnAsyncEvent = true;
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+            List<ConfigurationSetChangeData> progressValues = new List<ConfigurationSetChangeData>();
+
+            var operation = processor.ApplySetAsync(configurationSet, ApplyConfigurationSetFlags.None);
+            operation.Progress = (Windows.Foundation.IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> op, ConfigurationSetChangeData unitResult) => { progressValues.Add(unitResult); };
+            setProcessor.SignalAsyncEvent();
+
+            operation.AsTask().Wait();
+            ApplyConfigurationSetResult result = operation.GetResults();
+
+            Assert.NotNull(result);
+            Assert.Null(result.ResultCode);
+            Assert.NotNull(result.UnitResults);
+            Assert.Equal(3, result.UnitResults.Count);
+            Assert.True(progressValues.Count <= 2 + (3 * 2));
+
+            Assert.True(progressValues.Where(x => x.Change == ConfigurationSetChangeEventType.SetStateChanged).Count() <= 2);
+            Assert.Single(progressValues.Where(x => x.SetState == ConfigurationSetState.Completed));
+
+            foreach (ConfigurationUnit unit in new ConfigurationUnit[] { configurationUnit, configurationUnitGroup, configurationUnitGroupMember })
+            {
+                ApplyConfigurationUnitResult unitResult = result.UnitResults.First(x => x.Unit == unit);
+
+                Assert.NotNull(unitResult);
+                Assert.NotNull(unitResult.ResultInformation);
+                Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+                Assert.Equal(ConfigurationUnitState.Completed, unitResult.State);
+                Assert.True(unitResult.PreviouslyInDesiredState);
+
+                IEnumerable<ConfigurationSetChangeData> unitProgress = progressValues.Where(x => x.Unit == unit);
+                Assert.Equal(2, unitProgress.Count());
+
+                foreach (ConfigurationSetChangeData change in unitProgress)
+                {
+                    Assert.Equal(ConfigurationSetChangeEventType.UnitStateChanged, change.Change);
+                    Assert.Equal(ConfigurationSetState.InProgress, change.SetState);
+                    Assert.NotNull(change.ResultInformation);
+                    Assert.Null(change.ResultInformation.ResultCode);
+                    Assert.Equal(ConfigurationUnitResultSource.None, change.ResultInformation.ResultSource);
+                }
+
+                Assert.Single(unitProgress.Where(x => x.UnitState == ConfigurationUnitState.InProgress));
+                Assert.Single(unitProgress.Where(x => x.UnitState == ConfigurationUnitState.Completed));
+            }
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.None);
+        }
+
+        /// <summary>
+        /// Test when the standard set processor is used and there is a group unit.
+        /// </summary>
+        [Fact]
+        public void ApplySet_UnitGroupProcessor_WithGroupUnit()
+        {
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.Metadata[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+
+            ConfigurationUnit configurationUnit = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitGroup = this.ConfigurationUnit();
+
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnit, configurationUnitGroup };
+
+            ConfigurationUnit configurationUnitGroupMember = this.ConfigurationUnit();
+            configurationUnitGroup.IsGroup = true;
+            configurationUnitGroup.Units = new ConfigurationUnit[] { configurationUnitGroupMember };
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
+            setProcessor.CreateTestProcessor(configurationUnit);
+            setProcessor.CreateTestGroupProcessor(configurationUnitGroup);
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
+
+            Assert.NotNull(result);
+            Assert.Null(result.ResultCode);
+            Assert.NotNull(result.UnitResults);
+            Assert.Equal(3, result.UnitResults.Count);
+
+            foreach (ConfigurationUnit unit in new ConfigurationUnit[] { configurationUnit, configurationUnitGroup, configurationUnitGroupMember })
+            {
+                ApplyConfigurationUnitResult unitResult = result.UnitResults.First(x => x.Unit == unit);
+
+                Assert.NotNull(unitResult);
+                Assert.NotNull(unitResult.ResultInformation);
+                Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+                Assert.Equal(ConfigurationUnitState.Completed, unitResult.State);
+                Assert.True(unitResult.PreviouslyInDesiredState);
+            }
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.None);
+        }
+
+        /// <summary>
+        /// Test when the standard set processor is used and there is a non-group unit that still exposes a group processor.
+        /// </summary>
+        [Fact]
+        public void ApplySet_UnitGroupProcessor_WithNonGroupUnit()
+        {
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.Metadata[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+
+            ConfigurationUnit configurationUnit = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitGroup = this.ConfigurationUnit();
+
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnit, configurationUnitGroup };
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
+            setProcessor.CreateTestProcessor(configurationUnit);
+            setProcessor.CreateTestGroupProcessor(configurationUnitGroup);
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
+
+            Assert.NotNull(result);
+            Assert.Null(result.ResultCode);
+            Assert.NotNull(result.UnitResults);
+            Assert.Equal(2, result.UnitResults.Count);
+
+            foreach (ConfigurationUnit unit in new ConfigurationUnit[] { configurationUnit, configurationUnitGroup })
+            {
+                ApplyConfigurationUnitResult unitResult = result.UnitResults.First(x => x.Unit == unit);
+
+                Assert.NotNull(unitResult);
+                Assert.NotNull(unitResult.ResultInformation);
+                Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+                Assert.Equal(ConfigurationUnitState.Completed, unitResult.State);
+                Assert.True(unitResult.PreviouslyInDesiredState);
+            }
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.None);
+        }
+
         private struct ExpectedConfigurationChangeData
         {
             public ConfigurationSetChangeEventType Change;

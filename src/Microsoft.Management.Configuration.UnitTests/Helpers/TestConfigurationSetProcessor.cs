@@ -99,6 +99,18 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         }
 
         /// <summary>
+        /// Creates a new test group processor for the given unit.
+        /// </summary>
+        /// <param name="unit">The unit.</param>
+        /// <returns>A new TestConfigurationUnitGroupProcessor for the unit.</returns>
+        internal TestConfigurationUnitGroupProcessor CreateTestGroupProcessor(ConfigurationUnit unit)
+        {
+            TestConfigurationUnitGroupProcessor result = new (unit);
+            this.Processors[unit] = result;
+            return result;
+        }
+
+        /// <summary>
         /// Creates a new test processor that supports GetAllSettings for the given unit.
         /// </summary>
         /// <param name="unit">The unit.</param>

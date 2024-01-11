@@ -295,11 +295,11 @@ resources:
         public void TestSet_SetGroupProcessor()
         {
             ConfigurationSet configurationSet = this.ConfigurationSet();
-            configurationSet.Metadata[TestConfigurationSetGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+            configurationSet.Metadata[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
             ConfigurationUnit configurationUnitNegative = this.ConfigurationUnit();
-            configurationUnitNegative.Settings[TestConfigurationSetGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+            configurationUnitNegative.Settings[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
             ConfigurationUnit configurationUnitPositive = this.ConfigurationUnit();
-            configurationUnitPositive.Settings[TestConfigurationSetGroupProcessor.TestResultSetting] = ConfigurationTestResult.Positive.ToString();
+            configurationUnitPositive.Settings[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Positive.ToString();
             configurationSet.Units = new ConfigurationUnit[] { configurationUnitNegative, configurationUnitPositive };
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
@@ -339,6 +339,149 @@ resources:
 
             foreach (TestConfigurationUnitResult unitResult in new TestConfigurationUnitResult[] { positiveResult, positiveProgress })
             {
+                Assert.NotNull(unitResult);
+                Assert.Equal(ConfigurationTestResult.Positive, unitResult.TestResult);
+                Assert.NotNull(unitResult.ResultInformation);
+                Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+            }
+
+            this.VerifySummaryEvent(configurationSet, result, 0, ConfigurationUnitResultSource.None);
+        }
+
+        /// <summary>
+        /// Test when the set processor is a group processor and contains a unit that is also a group.
+        /// </summary>
+        [Fact]
+        public void TestSet_SetGroupProcessor_WithGroupUnit()
+        {
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.Metadata[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+
+            ConfigurationUnit configurationUnit = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitGroup = this.ConfigurationUnit();
+
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnit, configurationUnitGroup };
+
+            ConfigurationUnit configurationUnitGroupMember = this.ConfigurationUnit();
+            configurationUnitGroup.IsGroup = true;
+            configurationUnitGroup.Units = new ConfigurationUnit[] { configurationUnitGroupMember };
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            TestConfigurationSetGroupProcessor setProcessor = factory.CreateTestGroupProcessor(configurationSet);
+            setProcessor.ShouldWaitOnAsyncEvent = true;
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+            List<TestConfigurationUnitResult> progressValues = new List<TestConfigurationUnitResult>();
+
+            var operation = processor.TestSetAsync(configurationSet);
+            operation.Progress = (Windows.Foundation.IAsyncOperationWithProgress<TestConfigurationSetResult, TestConfigurationUnitResult> op, TestConfigurationUnitResult unitResult) => { progressValues.Add(unitResult); };
+            setProcessor.SignalAsyncEvent();
+
+            operation.AsTask().Wait();
+            TestConfigurationSetResult result = operation.GetResults();
+
+            Assert.NotNull(result);
+            Assert.Equal(ConfigurationTestResult.Positive, result.TestResult);
+            Assert.NotNull(result.UnitResults);
+            Assert.Equal(3, result.UnitResults.Count);
+            Assert.Equal(3, progressValues.Count);
+
+            foreach (ConfigurationUnit unit in new ConfigurationUnit[] { configurationUnit, configurationUnitGroup, configurationUnitGroupMember })
+            {
+                foreach (IReadOnlyList<TestConfigurationUnitResult> unitResults in new IReadOnlyList<TestConfigurationUnitResult>[] { result.UnitResults, progressValues })
+                {
+                    TestConfigurationUnitResult unitResult = unitResults.First(x => x.Unit == unit);
+
+                    Assert.NotNull(unitResult);
+                    Assert.Equal(ConfigurationTestResult.Positive, unitResult.TestResult);
+                    Assert.NotNull(unitResult.ResultInformation);
+                    Assert.Null(unitResult.ResultInformation.ResultCode);
+                    Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+                }
+            }
+
+            this.VerifySummaryEvent(configurationSet, result, 0, ConfigurationUnitResultSource.None);
+        }
+
+        /// <summary>
+        /// Test when the standard set processor is used and there is a group unit.
+        /// </summary>
+        [Fact]
+        public void TestSet_UnitGroupProcessor_WithGroupUnit()
+        {
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.Metadata[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+
+            ConfigurationUnit configurationUnit = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitGroup = this.ConfigurationUnit();
+
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnit, configurationUnitGroup };
+
+            ConfigurationUnit configurationUnitGroupMember = this.ConfigurationUnit();
+            configurationUnitGroup.IsGroup = true;
+            configurationUnitGroup.Units = new ConfigurationUnit[] { configurationUnitGroupMember };
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
+            setProcessor.CreateTestProcessor(configurationUnit);
+            setProcessor.CreateTestGroupProcessor(configurationUnitGroup);
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            TestConfigurationSetResult result = processor.TestSet(configurationSet);
+
+            Assert.NotNull(result);
+            Assert.Equal(ConfigurationTestResult.Positive, result.TestResult);
+            Assert.NotNull(result.UnitResults);
+            Assert.Equal(3, result.UnitResults.Count);
+
+            foreach (ConfigurationUnit unit in new ConfigurationUnit[] { configurationUnit, configurationUnitGroup, configurationUnitGroupMember })
+            {
+                TestConfigurationUnitResult unitResult = result.UnitResults.First(x => x.Unit == unit);
+
+                Assert.NotNull(unitResult);
+                Assert.Equal(ConfigurationTestResult.Positive, unitResult.TestResult);
+                Assert.NotNull(unitResult.ResultInformation);
+                Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+            }
+
+            this.VerifySummaryEvent(configurationSet, result, 0, ConfigurationUnitResultSource.None);
+        }
+
+        /// <summary>
+        /// Test when the standard set processor is used and there is a non-group unit that still exposes a group processor.
+        /// </summary>
+        [Fact]
+        public void TestSet_UnitGroupProcessor_WithNonGroupUnit()
+        {
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.Metadata[TestConfigurationUnitGroupProcessor.TestResultSetting] = ConfigurationTestResult.Negative.ToString();
+
+            ConfigurationUnit configurationUnit = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitGroup = this.ConfigurationUnit();
+
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnit, configurationUnitGroup };
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
+            setProcessor.CreateTestProcessor(configurationUnit);
+            setProcessor.CreateTestGroupProcessor(configurationUnitGroup);
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            TestConfigurationSetResult result = processor.TestSet(configurationSet);
+
+            Assert.NotNull(result);
+            Assert.Equal(ConfigurationTestResult.Positive, result.TestResult);
+            Assert.NotNull(result.UnitResults);
+            Assert.Equal(2, result.UnitResults.Count);
+
+            foreach (ConfigurationUnit unit in new ConfigurationUnit[] { configurationUnit, configurationUnitGroup })
+            {
+                TestConfigurationUnitResult unitResult = result.UnitResults.First(x => x.Unit == unit);
+
                 Assert.NotNull(unitResult);
                 Assert.Equal(ConfigurationTestResult.Positive, unitResult.TestResult);
                 Assert.NotNull(unitResult.ResultInformation);

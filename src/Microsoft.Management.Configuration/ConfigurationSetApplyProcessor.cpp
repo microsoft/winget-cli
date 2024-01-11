@@ -437,14 +437,23 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     IApplyGroupSettingsResult groupResult = applyOperation.get();
 
                     // Put all of the group's unit results in our unit results
+                    bool groupPreviouslyInDesiredState = true;
+
                     for (const auto& groupUnitResult : groupResult.UnitResults())
                     {
                         m_result->UnitResults().Append(groupUnitResult);
+                        groupPreviouslyInDesiredState = groupPreviouslyInDesiredState && groupUnitResult.PreviouslyInDesiredState();
                     }
 
                     // Copy the group result into the existing unit result for the group
-                    unitInfo.Result->RebootRequired(groupResult.RebootRequired());
+                    unitInfo.Result->PreviouslyInDesiredState(groupPreviouslyInDesiredState);
                     unitInfo.ResultInformation->Initialize(groupResult.ResultInformation());
+
+                    if (SUCCEEDED(unitInfo.ResultInformation->ResultCode()))
+                    {
+                        unitInfo.Result->RebootRequired(groupResult.RebootRequired());
+                        result = true;
+                    }
                 }
                 else
                 {
