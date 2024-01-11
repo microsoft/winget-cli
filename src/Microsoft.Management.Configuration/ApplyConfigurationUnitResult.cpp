@@ -3,22 +3,26 @@
 #include "pch.h"
 #include "ApplyConfigurationUnitResult.h"
 #include "ApplyConfigurationUnitResult.g.cpp"
-#include "ConfigurationUnitResultInformation.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    ApplyConfigurationUnitResult::ApplyConfigurationUnitResult() :
+        m_resultInformation(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>())
+    {
+    }
+
     void ApplyConfigurationUnitResult::Initialize(const IApplySettingsResult& result)
     {
         m_unit = result.Unit();
         THROW_HR_IF(E_POINTER, !m_unit);
-        m_resultInformation = result.ResultInformation();
+        m_resultInformation->Initialize(result.ResultInformation());
     }
 
     void ApplyConfigurationUnitResult::Initialize(const IApplyGroupMemberSettingsResult& unitResult)
     {
         m_unit = unitResult.Unit();
         THROW_HR_IF(E_POINTER, !m_unit);
-        m_resultInformation = unitResult.ResultInformation();
+        m_resultInformation->Initialize(unitResult.ResultInformation());
         m_state = unitResult.State();
         m_previouslyInDesiredState = unitResult.PreviouslyInDesiredState();
         m_rebootRequired = unitResult.RebootRequired();
@@ -66,11 +70,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     IConfigurationUnitResultInformation ApplyConfigurationUnitResult::ResultInformation()
     {
-        return m_resultInformation;
+        return *m_resultInformation;
     }
 
-    void ApplyConfigurationUnitResult::ResultInformation(IConfigurationUnitResultInformation value)
+    void ApplyConfigurationUnitResult::ResultInformation(const Configuration::IConfigurationUnitResultInformation& value)
     {
-        m_resultInformation = std::move(value);
+        m_resultInformation->Initialize(value);
     }
 }

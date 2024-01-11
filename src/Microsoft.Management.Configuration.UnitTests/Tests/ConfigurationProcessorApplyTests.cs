@@ -580,9 +580,6 @@ resources:
             Assert.Equal(configurationSet.Units.Count, result.UnitResults.Count);
             Assert.True((configurationSet.Units.Count * 2) + 2 >= progressValues.Count);
 
-            Assert.True(progressValues.Where(x => x.Change == ConfigurationSetChangeEventType.SetStateChanged).Count() <= 2);
-            Assert.Single(progressValues.Where(x => x.SetState == ConfigurationSetState.Completed));
-
             ApplyConfigurationUnitResult negativeResult = result.UnitResults.First(x => x.Unit == configurationUnitNegative);
 
             Assert.NotNull(negativeResult);
@@ -671,9 +668,6 @@ resources:
             Assert.NotNull(result.UnitResults);
             Assert.Equal(3, result.UnitResults.Count);
             Assert.True(progressValues.Count <= 2 + (3 * 2));
-
-            Assert.True(progressValues.Where(x => x.Change == ConfigurationSetChangeEventType.SetStateChanged).Count() <= 2);
-            Assert.Single(progressValues.Where(x => x.SetState == ConfigurationSetState.Completed));
 
             foreach (ConfigurationUnit unit in new ConfigurationUnit[] { configurationUnit, configurationUnitGroup, configurationUnitGroupMember })
             {

@@ -195,7 +195,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             if (this.ShouldWaitOnAsyncEvent)
             {
                 cancellationToken.Register(() => this.asyncWaitEvent.Set());
-                this.asyncWaitEvent.WaitOne();
+                if (!this.asyncWaitEvent.WaitOne(10000))
+                {
+                    throw new TimeoutException();
+                }
             }
         }
     }
