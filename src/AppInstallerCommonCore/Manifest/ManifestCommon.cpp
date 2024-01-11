@@ -962,19 +962,20 @@ namespace AppInstaller::Manifest
         }
     }
 
-    RepairBehaviorEnum ConvertToRepairBehaviorEnum(const std::string& in)
+    RepairBehaviorEnum ConvertToRepairBehaviorEnum(std::string_view in)
     {
+        std::string inStrLower = Utility::ToLower(in);
         RepairBehaviorEnum result = RepairBehaviorEnum::Unknown;
 
-        if (Utility::CaseInsensitiveEquals(in, "installer"))
+        if (inStrLower == "installer")
         {
             result = RepairBehaviorEnum::Installer;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "uninstaller"))
+        else if (inStrLower == "uninstaller")
         {
             result = RepairBehaviorEnum::Uninstaller;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "modify"))
+        else if (inStrLower == "modify")
         {
             result = RepairBehaviorEnum::Modify;
         }

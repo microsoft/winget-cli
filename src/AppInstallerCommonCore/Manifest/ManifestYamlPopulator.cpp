@@ -367,12 +367,12 @@ namespace AppInstaller::Manifest
         else if (manifestVersion.Major() == 1)
         {
             result.emplace_back("Upgrade", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
-        }
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
-        {
-            result.emplace_back("Repair", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Repair] = value.as<std::string>(); return{}; });
-        };
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
+            {
+                result.emplace_back("Repair", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Repair] = value.as<std::string>(); return{}; });
+            };
+        }
 
         return result;
     }
