@@ -846,3 +846,17 @@ TEST_CASE("ManifestComparator_InstallerType", "[manifest_comparator]")
         RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType, InapplicabilityFlags::InstallerType });
     }
 }
+
+TEST_CASE("ManifestComparator_MachineArchitecture_Strong_Scope_Weak", "[manifest_comparator]")
+{
+    Manifest manifest;
+    ManifestInstaller system = AddInstaller(manifest, GetSystemArchitecture(), InstallerTypeEnum::Msi, ScopeEnum::Unknown, "", "");
+    ManifestInstaller user = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "");
+
+    ManifestComparatorTestContext context;
+
+    ManifestComparator mc(context, {});
+    auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+    RequireInstaller(result, system);
+}

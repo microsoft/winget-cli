@@ -320,6 +320,22 @@ namespace AppInstaller::CLI::Workflow
         Execution::Args::Type m_arg;
     };
 
+    // Ensures the local file exists and is not a directory. Or it's a Uri. Default only https is supported at the moment.
+    // Required Args: the one given
+    // Inputs: None
+    // Outputs: None
+    struct VerifyFileOrUri : public WorkflowTask
+    {
+        VerifyFileOrUri(Execution::Args::Type arg, std::vector<std::wstring> supportedSchemes = { L"https" }) :
+            WorkflowTask("VerifyFileOrUri"), m_arg(arg), m_supportedSchemes(std::move(supportedSchemes)) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::Args::Type m_arg;
+        std::vector<std::wstring> m_supportedSchemes;
+    };
+
     // Opens the manifest file provided on the command line.
     // Required Args: Manifest
     // Inputs: None

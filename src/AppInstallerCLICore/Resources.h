@@ -583,6 +583,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeRequireExplicitCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionExplanation);
+        WINGET_DEFINE_RESOURCE_STRINGID(UriNotWellFormed);
+        WINGET_DEFINE_RESOURCE_STRINGID(UriSchemeNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(Usage);
         WINGET_DEFINE_RESOURCE_STRINGID(UserSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandLongDescription);
@@ -603,6 +605,21 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsPackageManager);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsPackageManagerPreview);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsStoreTerms);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitBothPackageVersionAndUseLatest);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitDependencySourceNotConfigured);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitDependencySourceNotDeclaredAsDependency);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitEmptyContent);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitFailedToValidatePackage);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitFailedToValidatePackageMultipleFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitFailedToValidatePackageNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitFailedToValidatePackageSourceOpenFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitFailedToValidatePackageVersionNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitKnownSourceConfliction);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitMissingRecommendedArg);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitMissingRequiredArg);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitPackageVersionSpecifiedWithOnlyOnePackageVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitThirdPartySourceAssertion);
+        WINGET_DEFINE_RESOURCE_STRINGID(WinGetResourceUnitThirdPartySourceAssertionForPackage);
         WINGET_DEFINE_RESOURCE_STRINGID(WordArgumentDescription);
     };
 

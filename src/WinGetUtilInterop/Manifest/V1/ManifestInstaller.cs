@@ -1,12 +1,11 @@
-﻿// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="ManifestInstaller.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.Models.V1
 {
-    using System;
     using System.Collections.Generic;
     using YamlDotNet.Serialization;
 
@@ -256,9 +255,9 @@ namespace Microsoft.WinGetUtil.Models.V1
                    (this.InstallerLocale == other.InstallerLocale) &&
                    (this.Scope == other.Scope) &&
                    (this.InstallerType == other.InstallerType) &&
-                   (this.Switches == other.Switches) && 
+                   (this.Switches == other.Switches) &&
                    (this.InstallationMetadata == other.InstallationMetadata) &&
-                   (this.NestedInstallerType == other.NestedInstallerType) && 
+                   (this.NestedInstallerType == other.NestedInstallerType) &&
                    (this.NestedInstallerFiles == other.NestedInstallerFiles) &&
                    (this.DisplayInstallWarnings == other.DisplayInstallWarnings);
     }

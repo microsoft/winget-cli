@@ -1,13 +1,12 @@
-﻿// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="InstallerSwitches.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.Models.Preview
 {
     using System;
-    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Class that contains different types of installer switches like Default, Silent and Verbose.
