@@ -576,6 +576,8 @@ namespace AppInstaller::Manifest
             return "InstallLocation"sv;
         case InstallerSwitchType::Update:
             return "Upgrade"sv;
+        case InstallerSwitchType::Repair:
+            return "Repair"sv;
         }
 
         return "Unknown"sv;
@@ -647,6 +649,21 @@ namespace AppInstaller::Manifest
             return "uninstallPrevious"sv;
         case UpdateBehaviorEnum::Deny:
             return "deny"sv;
+        }
+
+        return "unknown"sv;
+    }
+
+    std::string_view RepairBehaviorToString(RepairBehaviorEnum repairBehavior)
+    {
+        switch (repairBehavior)
+        {
+        case AppInstaller::Manifest::RepairBehaviorEnum::Modify:
+            return "modify"sv;
+        case AppInstaller::Manifest::RepairBehaviorEnum::Installer:
+            return "installer"sv;
+        case AppInstaller::Manifest::RepairBehaviorEnum::Uninstaller:
+            return "uninstaller"sv;
         }
 
         return "unknown"sv;

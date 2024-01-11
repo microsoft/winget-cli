@@ -393,6 +393,8 @@ namespace AppInstaller::Manifest
 
     std::string_view UpdateBehaviorToString(UpdateBehaviorEnum updateBehavior);
 
+    std::string_view RepairBehaviorToString(RepairBehaviorEnum repairBehavior);
+
     std::string_view PlatformToString(PlatformEnum platform);
 
     std::string_view ScopeToString(ScopeEnum scope);
