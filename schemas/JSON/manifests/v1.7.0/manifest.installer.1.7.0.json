@@ -584,8 +584,8 @@
       "description": "Details about the installation. Used for deeper installation detection."
     },
     "DownloadCommandProhibited": {
-        "type": [ "boolean", "null" ],
-        "description": "Indicates whether the installer is prohibited from being downloaded for offline installation."
+      "type": [ "boolean", "null" ],
+      "description": "Indicates whether the installer is prohibited from being downloaded for offline installation."
     },
     "RepairBehavior": { 
       "type": [ "string", "null" ],
@@ -831,6 +831,9 @@
     },
     "DownloadCommandProhibited": {
       "$ref": "#/definitions/DownloadCommandProhibited"
+    },
+    "RepairBehavior": {
+      "$ref": "#/definitions/RepairBehavior"
     },
     "Installers": {
       "type": "array",
