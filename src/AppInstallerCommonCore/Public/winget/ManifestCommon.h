@@ -379,7 +379,7 @@ namespace AppInstaller::Manifest
 
     IconResolutionEnum ConvertToIconResolutionEnum(std::string_view in);
 
-    RepairBehaviorEnum ConvertToRepairBehaviorEnum(const std::string& in);
+    RepairBehaviorEnum ConvertToRepairBehaviorEnum(std::string_view in);
 
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
