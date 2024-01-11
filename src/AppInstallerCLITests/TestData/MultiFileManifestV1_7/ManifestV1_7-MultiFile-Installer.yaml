@@ -24,6 +24,7 @@ InstallerSuccessCodes:
   - 1
   - 0x80070005
 UpgradeBehavior: uninstallPrevious
+RepairBehavior: modify
 Commands:
   - makemsix
   - makeappx
@@ -110,6 +111,7 @@ Installers:
       Log: /l=<LOGPATH>
       InstallLocation: /d=<INSTALLPATH>
       Upgrade: /u
+      Repair: /r
     UpgradeBehavior: install
     Commands:
       - makemsixPreview

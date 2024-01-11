@@ -530,10 +530,8 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
 
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
         {
-            if (!isSingleton)
-            {
-                REQUIRE(defaultSwitches.at(InstallerSwitchType::Repair) == "/repair");
-            }
+            REQUIRE(defaultSwitches.at(InstallerSwitchType::Repair) == "/repair");
+            REQUIRE(manifest.DefaultInstallerInfo.RepairBehavior == RepairBehaviorEnum::Modify);
         }
     }
 
@@ -641,6 +639,12 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
     {
         REQUIRE_FALSE(installer1.DownloadCommandProhibited);
+    }
+
+    if (manifestVer >= ManifestVer { s_ManifestVersionV1_7})
+    {
+        REQUIRE(installer1.Switches.at(InstallerSwitchType::Repair) == "/r");
+        REQUIRE(installer1.RepairBehavior == RepairBehaviorEnum::Modify);
     }
 
     if (!isSingleton)
