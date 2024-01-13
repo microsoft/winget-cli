@@ -13,7 +13,8 @@ namespace AppInstaller::Manifest
             const YAML::Node& rootNode,
             Manifest& manifest,
             const ManifestVer& manifestVersion,
-            ManifestValidateOption validateOption);
+            ManifestValidateOption validateOption,
+            const std::optional<YAML::Node>& shadowNode);
 
     private:
 
@@ -107,6 +108,7 @@ namespace AppInstaller::Manifest
             const YAML::Node& rootNode,
             Manifest& manifest,
             const ManifestVer& manifestVersion,
-            ManifestValidateOption validateOption);
+            ManifestValidateOption validateOption,
+            const std::optional<YAML::Node>& shadowNode);
     };
 }

@@ -468,7 +468,7 @@ namespace AppInstaller::Manifest
             if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_5 })
             {
                 std::vector<FieldProcessInfo> fields_v1_5 =
-                {
+                { 
                     { "Icons", [this](const YAML::Node& value)->ValidationErrors { return ProcessIconsNode(value); }, true },
                 };
 
@@ -931,7 +931,8 @@ namespace AppInstaller::Manifest
         const YAML::Node& rootNode,
         Manifest& manifest,
         const ManifestVer& manifestVersion,
-        ManifestValidateOption validateOption)
+        ManifestValidateOption validateOption,
+        const std::optional<YAML::Node>& shadowNode)
     {
         m_validateOption = validateOption;
         m_isMergedManifest = !rootNode["ManifestType"sv].IsNull() && rootNode["ManifestType"sv].as<std::string>() == "merged";
@@ -1058,6 +1059,11 @@ namespace AppInstaller::Manifest
             }
         }
 
+        if (shadowNode.has_value())
+        {
+            // TODO: think.
+        }
+
         return resultErrors;
     }
 
@@ -1065,9 +1071,10 @@ namespace AppInstaller::Manifest
         const YAML::Node& rootNode,
         Manifest& manifest,
         const ManifestVer& manifestVersion,
-        ManifestValidateOption validateOption)
+        ManifestValidateOption validateOption,
+        const std::optional<YAML::Node>& shadowNode)
     {
         ManifestYamlPopulator manifestPopulator;
-        return manifestPopulator.PopulateManifestInternal(rootNode, manifest, manifestVersion, validateOption);
+        return manifestPopulator.PopulateManifestInternal(rootNode, manifest, manifestVersion, validateOption, shadowNode);
     }
 }
