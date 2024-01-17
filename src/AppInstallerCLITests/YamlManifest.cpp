@@ -527,6 +527,12 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         {
             REQUIRE(manifest.DefaultInstallerInfo.DownloadCommandProhibited);
         }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+        {
+            REQUIRE(defaultSwitches.at(InstallerSwitchType::Repair) == "/repair");
+            REQUIRE(manifest.DefaultInstallerInfo.RepairBehavior == RepairBehaviorEnum::Modify);
+        }
     }
 
     if (isSingleton || isExported)
@@ -535,7 +541,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     }
     else
     {
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+        {
+            REQUIRE(manifest.Installers.size() == 5);
+        }
+        else if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             REQUIRE(manifest.Installers.size() == 4);
         }
@@ -631,6 +641,12 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE_FALSE(installer1.DownloadCommandProhibited);
     }
 
+    if (manifestVer >= ManifestVer { s_ManifestVersionV1_7})
+    {
+        REQUIRE(installer1.Switches.at(InstallerSwitchType::Repair) == "/r");
+        REQUIRE(installer1.RepairBehavior == RepairBehaviorEnum::Modify);
+    }
+
     if (!isSingleton)
     {
         if (!isExported)
@@ -707,6 +723,21 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             {
                 REQUIRE(installer2.DownloadCommandProhibited);
                 REQUIRE(installer2.UpdateBehavior == UpdateBehaviorEnum::Deny);
+            }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+            {
+                REQUIRE(installer2.RepairBehavior == RepairBehaviorEnum::Uninstaller);
+                REQUIRE(installer2.Switches.at(InstallerSwitchType::Repair) == "/r");
+
+                ManifestInstaller installer5 = manifest.Installers.at(4);
+                REQUIRE(installer5.BaseInstallerType == InstallerTypeEnum::Burn);
+                REQUIRE(installer5.Arch == Architecture::X64);
+                REQUIRE(installer5.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+                REQUIRE(installer5.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                REQUIRE(installer5.ProductCode == "{Bar}");
+                REQUIRE(installer5.Switches.at(InstallerSwitchType::Repair) == "/repair");
+                REQUIRE(installer5.RepairBehavior == RepairBehaviorEnum::Modify);
             }
         }
 
@@ -792,7 +823,7 @@ TEST_CASE("ValidateV1_1GoodManifestAndVerifyContents", "[ManifestValidation]")
     TempDirectory singletonDirectory{ "SingletonManifest" };
     CopyTestDataFilesToFolder({ "ManifestV1_1-Singleton.yaml" }, singletonDirectory);
     Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
-    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{s_ManifestVersionV1_1});
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_1 });
 
     TempDirectory multiFileDirectory{ "MultiFileManifest" };
     CopyTestDataFilesToFolder({
@@ -1119,6 +1150,37 @@ TEST_CASE("WriteV1_6SingletonManifestAndVerifyContents", "[ManifestCreation]")
     REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
     Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
     VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_6 }, true);
+}
+
+TEST_CASE("WriteV1_7SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_7-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_7 }, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_7-MultiFile-Version.yaml",
+        "ManifestV1_7-MultiFile-Installer.yaml",
+        "ManifestV1_7-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_7-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory);
+    TempDirectory exportedMultiFileDirectory{ "exportedMultiFile" };
+    std::filesystem::path generatedMultiFileManifestPath = exportedMultiFileDirectory.GetPath() / "testMultiFileManifest.yaml";
+    YamlWriter::OutputYamlFile(multiFileManifest, multiFileManifest.Installers[0], generatedMultiFileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
+    Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
+    VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_7 }, true);
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)
@@ -1469,7 +1531,7 @@ TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
 {
     Manifest manifestNoArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-NoArpVersionDeclared.yaml"));
     REQUIRE(manifestNoArp.GetArpVersionRange().IsEmpty());
-    
+
     Manifest manifestSingleArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-SingleArpVersionDeclared.yaml"));
     auto arpRangeSingleArp = manifestSingleArp.GetArpVersionRange();
     REQUIRE(arpRangeSingleArp.GetMinVersion().ToString() == "11.0");
