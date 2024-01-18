@@ -2303,6 +2303,106 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetShadowRootFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result;
+
+        if (manifestVersion.Major() == 1)
+        {
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_5 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_5 =
+                {
+                    {
+                        {
+                            "Localization",
+                            [this, manifestVersion](const YAML::Node& value, std::any& any)->ValidationErrors
+                            {
+                                THROW_HR_IF(E_INVALIDARG, !value.IsSequence());
+
+                                ValidationErrors resultErrors;
+                                auto shadowLocalizationFields = GetShadowLocalizationFieldProcessInfo(manifestVersion, false);
+                                Manifest* manifest = std::any_cast<Manifest*>(any);
+
+                                for (auto const& entry : value.Sequence())
+                                {
+                                    ManifestLocalization localization;
+                                    std::any any = &localization;
+                                    auto errors = ValidateAndProcessFields(entry, shadowLocalizationFields, any);
+                                    std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+                                    manifest->Localizations.emplace_back(std::move(std::move(localization)));
+                                }
+
+                                return resultErrors;
+                            }
+                        }
+                    },
+                };
+
+                std::move(fields_v1_5.begin(), fields_v1_5.end(), std::inserter(result, result.end()));
+            }
+        }
+
+        auto rootLocalizationFields = GetShadowLocalizationFieldProcessInfo(manifestVersion, true);
+        std::move(rootLocalizationFields.begin(), rootLocalizationFields.end(), std::inserter(result, result.end()));
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetShadowLocalizationFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields)
+    {
+        std::vector<FieldProcessInfo> result;
+
+        if (manifestVersion.Major() == 1)
+        {
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_5 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_5 =
+                {
+                    {
+                        "PackageLocale",
+                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
+                        {
+                            ManifestLocalization* localization;
+                            if (forRootFields)
+                            {
+                                Manifest* manifest = std::any_cast<Manifest*>(any);
+                                localization = &(manifest->DefaultLocalization);
+                            }
+                            else
+                            {
+                                localization = std::any_cast<ManifestLocalization*>(any);
+                            }
+
+                            localization->Locale = value.as<std::string>();
+                            return {};
+                        }
+                    },
+                    {
+                        "Icons",
+                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
+                        {
+                            ManifestLocalization* localization;
+                            if (forRootFields)
+                            {
+                                Manifest* manifest = std::any_cast<Manifest*>(any);
+                                localization = &(manifest->DefaultLocalization);
+                            }
+                            else
+                            {
+                                localization = std::any_cast<ManifestLocalization*>(any);
+                            }
+
+                            return ProcessIconsNode(value, localization);
+                        }
+                    },
+                };
+
+                std::move(fields_v1_5.begin(), fields_v1_5.end(), std::inserter(result, result.end()));
+            }
+        }
+
+        return result;
+    }
+
     ValidationErrors ManifestYamlPopulator::ValidateAndProcessFields(
         const YAML::Node& rootNode,
         const std::vector<FieldProcessInfo>& fieldInfos,
@@ -2701,9 +2801,19 @@ namespace AppInstaller::Manifest
 
         if (shadowNode.has_value())
         {
-            //ShadowIconFieldInfos;
-            //ShadowLocalizationFieldInfos;
-            // TODO: think.
+            auto shadowRoot = shadowNode.value();
+
+            Manifest shadowManifest;
+            auto shadowRootLocalizationFields = GetShadowLocalizationFieldProcessInfo(manifestVersion, true);
+            std::any anyShadowManifest = &shadowManifest;
+            auto errors = ValidateAndProcessFields(shadowRoot, shadowRootLocalizationFields, anyShadowManifest);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            
+            // TODO: merge
+            if (!manifest.DefaultLocalization.Contains(Localization::Icons))
+            {
+
+            }
         }
 
         return resultErrors;

@@ -48,10 +48,6 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> InstallationMetadataFieldInfos;
         std::vector<FieldProcessInfo> InstallationMetadataFilesFieldInfos;
 
-        // Shadow manifest
-        std::vector<FieldProcessInfo> ShadowIconFieldInfos;
-        std::vector<FieldProcessInfo> ShadowLocalizationFieldInfos;
-
         // Cache of Installers node and Localization node
         YAML::Node const* m_p_installersNode = nullptr;
         YAML::Node const* m_p_localizationsNode = nullptr;
@@ -71,6 +67,10 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> GetNestedInstallerFileFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetInstallationMetadataFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetInstallationMetadataFilesFieldProcessInfo(const ManifestVer& manifestVersion);
+
+        // Shadow
+        std::vector<FieldProcessInfo> GetShadowRootFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetShadowLocalizationFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields);
 
         // This method takes YAML root node and list of manifest field info.
         // Yaml lib does not support case insensitive search and it allows duplicate keys. If duplicate keys exist,
