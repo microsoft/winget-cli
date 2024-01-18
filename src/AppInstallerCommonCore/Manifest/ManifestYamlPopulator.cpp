@@ -1116,6 +1116,34 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_6.begin(), fields_v1_6.end(), std::inserter(result, result.end()));
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_7 =
+                {
+                    {
+                        "RepairBehavior",
+                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
+                        {
+                            ManifestInstaller* installer;
+                            if (forRootFields)
+                            {
+                                Manifest* manifest = std::any_cast<Manifest*>(any);
+                                installer = &(manifest->DefaultInstallerInfo);
+                            }
+                            else
+                            {
+                                installer = std::any_cast<ManifestInstaller*>(any);
+                            }
+
+                            installer->RepairBehavior = ConvertToRepairBehaviorEnum(value.as<std::string>());
+                            return {};
+                        }
+                    },
+                };
+
+                std::move(fields_v1_7.begin(), fields_v1_7.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -1213,6 +1241,18 @@ namespace AppInstaller::Manifest
                     (*switches)[InstallerSwitchType::Update] = value.as<std::string>();
                     return{};
                 });
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
+            {
+                result.emplace_back(
+                    "Repair",
+                    [](const YAML::Node& value, std::any& any)->ValidationErrors
+                    {
+                        auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
+                        (*switches)[InstallerSwitchType::Repair] = value.as<std::string>();
+                        return{};
+                    });
+            };
         }
 
         return result;
