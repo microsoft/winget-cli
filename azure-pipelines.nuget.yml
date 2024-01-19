@@ -28,7 +28,7 @@ extends:
     - ES365AIMigrationTooling
 
     stages:
-    - stage: stage
+    - stage: Build_Publish
       jobs:
       - job: "Build"
         timeoutInMinutes: 120
@@ -44,9 +44,9 @@ extends:
           artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
         templateContext:
           outputs:
-          - output: buildArtifact
+          - output: pipelineArtifact
             displayName: 'Publish Pipeline Artifacts'
-            PathtoPublish: '$(artifactsDir)'
+            targetPath: '$(artifactsDir)'
         steps:
         - script: echo $(version)
 
