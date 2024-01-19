@@ -1,4 +1,3 @@
-1ESPT
 abcd
 ABORTIFHUNG
 accepteula
@@ -99,6 +98,7 @@ diskfull
 DISMAPI
 dnld
 Dobbeleer
+DShared
 dsc
 DUPLICATEALIAS
 dustojnikhummer
@@ -116,13 +116,13 @@ epth
 EQU
 ERRORONEXIT
 ESource
+ESPT
 ESRB
 ests
 etest
 etl
 execustom
 EXEHASH
-ExDShared
 experimentalfeatures
 FECAFEB
 fedorapeople
