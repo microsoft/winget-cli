@@ -1,3 +1,4 @@
+1ESPT
 abcd
 ABORTIFHUNG
 accepteula
@@ -121,6 +122,7 @@ etest
 etl
 execustom
 EXEHASH
+ExDShared
 experimentalfeatures
 FECAFEB
 fedorapeople
