@@ -139,6 +139,7 @@ extends:
               src\WinGetUtilInterop\build\Microsoft.WindowsPackageManager.Utils.targets
               schemas\JSON\manifests\**
             TargetFolder: '$(artifactsDir)'
+
       - job: "Nuget"
         timeoutInMinutes: 60
         dependsOn: 'Build'
