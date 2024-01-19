@@ -75,9 +75,8 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> ValidateAndProcessFields(
             const YAML::Node& rootNode,
             const std::vector<FieldProcessInfo>& fieldInfos,
-            std::any& any);
+            std::any any);
 
-        void ProcessDependenciesNode(DependencyType type, const YAML::Node& rootNode, DependencyList* dependencyList);
         std::vector<ValidationError> ProcessPackageDependenciesNode(const YAML::Node& rootNode, DependencyList* dependencyList);
         std::vector<ValidationError> ProcessAgreementsNode(const YAML::Node& agreementsNode, ManifestLocalization* localization);
         std::vector<ValidationError> ProcessMarketsNode(const YAML::Node& marketsNode, AppInstaller::Manifest::ManifestInstaller* installer);

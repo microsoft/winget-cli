@@ -11,6 +11,45 @@ namespace AppInstaller::Manifest
 
     namespace
     {
+        template <typename Ptr>
+        Ptr* any_ptr(std::any& any) { return std::any_cast<Ptr*>(any); }
+
+        ManifestInstaller* GetManifestInstallerPtrFromManifest(std::any& any)
+        {
+            Manifest* manifest = std::any_cast<Manifest*>(any);
+            return &(manifest->DefaultInstallerInfo);
+        }
+
+        ManifestLocalization* GetManifestLocalizationPtrFromManifest(std::any& any)
+        {
+            Manifest* manifest = std::any_cast<Manifest*>(any);
+            return &(manifest->DefaultLocalization);
+        }
+
+        ManifestInstaller* GetManifestInstallerPtr(std::any& any)
+        {
+            try
+            {
+                return std::any_cast<ManifestInstaller*>(any);
+            }
+            catch (const std::bad_any_cast&)
+            {
+                return GetManifestInstallerPtrFromManifest(any);
+            }
+        }
+
+        ManifestLocalization* GetManifestLocalizationPtr(std::any& any)
+        {
+            try
+            {
+                return std::any_cast<ManifestLocalization*>(any);
+            }
+            catch (const std::bad_any_cast&)
+            {
+                return GetManifestLocalizationPtrFromManifest(any);
+            }
+        }
+
         // Only used in preview manifest
         std::vector<Manifest::string_t> SplitMultiValueField(const std::string& input)
         {
@@ -130,6 +169,15 @@ namespace AppInstaller::Manifest
 
             return result;
         }
+
+        void ProcessDependenciesNode(DependencyType type, const YAML::Node& node, DependencyList* dependencyList)
+        {
+            const auto& ids = ProcessStringSequenceNode(node);
+            for (auto id : ids)
+            {
+                dependencyList->Add(Dependency(type, id));
+            }
+        }
     }
 
     std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetRootFieldProcessInfo(const ManifestVer& manifestVersion)
@@ -140,14 +188,7 @@ namespace AppInstaller::Manifest
             { "ManifestVersion", [](const YAML::Node&, std::any&)->ValidationErrors { /* ManifestVersion already populated. Field listed here for duplicate and PascalCase check */ return {}; } },
             { "Installers", [this](const YAML::Node& value, std::any&)->ValidationErrors { m_p_installersNode = &value; return {}; } },
             { "Localization", [this](const YAML::Node& value, std::any&)->ValidationErrors { m_p_localizationsNode = &value; return {}; } },
-            {
-                "Channel",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    Manifest* manifest = std::any_cast<Manifest*>(any);
-                    manifest->Channel = Utility::Trim(value.as<std::string>());
-                    return {};
-                }
+            { "Channel", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Manifest>(any)->Channel = Utility::Trim(value.as<std::string>()); return {}; }
             },
         };
 
@@ -156,33 +197,9 @@ namespace AppInstaller::Manifest
         {
             std::vector<FieldProcessInfo> previewRootFields
             {
-                {
-                    "Id",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Manifest* manifest = std::any_cast<Manifest*>(any);
-                        manifest->Id = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "Version",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Manifest* manifest = std::any_cast<Manifest*>(any);
-                        manifest->Version = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "AppMoniker",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Manifest* manifest = std::any_cast<Manifest*>(any);
-                        manifest->Moniker = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
+                { "Id", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Manifest>(any)->Id = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Version", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Manifest>(any)->Version = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "AppMoniker", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Manifest>(any)->Moniker = Utility::Trim(value.as<std::string>()); return {}; } },
             };
 
             std::move(previewRootFields.begin(), previewRootFields.end(), std::inserter(result, result.end()));
@@ -194,33 +211,9 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> v1RootFields
                 {
-                    {
-                        "PackageIdentifier",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            manifest->Id = Utility::Trim(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "PackageVersion",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            manifest->Version = Utility::Trim(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Moniker",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            manifest->Moniker = Utility::Trim(value.as<std::string>());
-                            return {};
-                        }
-                    },
+                    { "PackageIdentifier", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Manifest>(any)->Id = Utility::Trim(value.as<std::string>()); return {}; } },
+                    { "PackageVersion", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Manifest>(any)->Version = Utility::Trim(value.as<std::string>()); return {}; } },
+                    { "Moniker", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Manifest>(any)->Moniker = Utility::Trim(value.as<std::string>()); return {}; } },
                     { "ManifestType", [](const YAML::Node&, std::any&)->ValidationErrors { /* ManifestType already checked. Field listed here for duplicate and PascalCase check */ return {}; } },
                 };
 
@@ -243,63 +236,9 @@ namespace AppInstaller::Manifest
         // Common fields across versions
         std::vector<FieldProcessInfo> result =
         {
-            {
-                "InstallerType",
-                [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    ManifestInstaller* installer;
-                    if (forRootFields)
-                    {
-                        Manifest* manifest = std::any_cast<Manifest*>(any);
-                        installer = &(manifest->DefaultInstallerInfo);
-                    }
-                    else
-                    {
-                        installer = std::any_cast<ManifestInstaller*>(any);
-                    }
-
-                    installer->BaseInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>());
-                    return {};
-                }
-            },
-            {
-                "PackageFamilyName",
-                [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    ManifestInstaller* installer;
-                    if (forRootFields)
-                    {
-                        Manifest* manifest = std::any_cast<Manifest*>(any);
-                        installer = &(manifest->DefaultInstallerInfo);
-                    }
-                    else
-                    {
-                        installer = std::any_cast<ManifestInstaller*>(any);
-                    }
-
-                    installer->PackageFamilyName = value.as<std::string>();
-                    return {};
-                }
-            },
-            {
-                "ProductCode",
-                [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    ManifestInstaller* installer;
-                    if (forRootFields)
-                    {
-                        Manifest* manifest = std::any_cast<Manifest*>(any);
-                        installer = &(manifest->DefaultInstallerInfo);
-                    }
-                    else
-                    {
-                        installer = std::any_cast<ManifestInstaller*>(any);
-                    }
-
-                    installer->ProductCode = value.as<std::string>();
-                    return {};
-                }
-            },
+            { "InstallerType", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->BaseInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
+            { "PackageFamilyName", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->PackageFamilyName = value.as<std::string>(); return {}; } },
+            { "ProductCode", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->ProductCode = value.as<std::string>(); return {}; } },
         };
 
         // Additional version specific fields
@@ -308,44 +247,8 @@ namespace AppInstaller::Manifest
             // Root level and Localization node level
             std::vector<FieldProcessInfo> previewCommonFields =
             {
-                {
-                    "UpdateBehavior",
-                    [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        ManifestInstaller* installer;
-                        if (forRootFields)
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            installer = &(manifest->DefaultInstallerInfo);
-                        }
-                        else
-                        {
-                            installer = std::any_cast<ManifestInstaller*>(any);
-                        }
-
-                        installer->UpdateBehavior = ConvertToUpdateBehaviorEnum(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "Switches",
-                    [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        ManifestInstaller* installer;
-                        if (forRootFields)
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            installer = &(manifest->DefaultInstallerInfo);
-                        }
-                        else
-                        {
-                            installer = std::any_cast<ManifestInstaller*>(any);
-                        }
-
-                        std::any anySwitches = &(installer->Switches);
-                        return ValidateAndProcessFields(value, SwitchesFieldInfos, anySwitches);
-                    }
-                },
+                { "UpdateBehavior", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->UpdateBehavior = ConvertToUpdateBehaviorEnum(value.as<std::string>()); return {}; } },
+                { "Switches", [this](const YAML::Node& value, std::any& any)->ValidationErrors { std::any anySwitches = &(GetManifestInstallerPtr(any)->Switches); return ValidateAndProcessFields(value, SwitchesFieldInfos, anySwitches); } },
             };
 
             std::move(previewCommonFields.begin(), previewCommonFields.end(), std::inserter(result, result.end()));
@@ -355,72 +258,17 @@ namespace AppInstaller::Manifest
                 // Installer node only
                 std::vector<FieldProcessInfo> installerOnlyFields =
                 {
-                    {
-                        "Arch",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                            installer->Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Url",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                            installer->Url = value.as<std::string>();
-                            return {};
-                        }
-                    },
-                    {
-                        "Sha256",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                            installer->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "SignatureSha256",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                            installer->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Language",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                            installer->Locale = value.as<std::string>();
-                            return {};
-                        }
-                    },
-                    {
-                        "Scope",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                            installer->Scope = ConvertToScopeEnum(value.as<std::string>());
-                            return {};
-                        }
-                    },
+                    { "Arch", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>()); return {}; } },
+                    { "Url", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->Url = value.as<std::string>(); return {}; } },
+                    { "Sha256", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
+                    { "SignatureSha256", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
+                    { "Language", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->Locale = value.as<std::string>(); return {}; } },
+                    { "Scope", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->Scope = ConvertToScopeEnum(value.as<std::string>()); return {}; } },
                 };
 
                 if (manifestVersion.HasExtension(s_MSStoreExtension))
                 {
-                    installerOnlyFields.emplace_back(
-                        "ProductId",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                            installer->ProductId = value.as<std::string>();
-                            return {};
-                        });
+                    installerOnlyFields.emplace_back("ProductId", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->ProductId = value.as<std::string>(); return {}; });
                 }
 
                 std::move(installerOnlyFields.begin(), installerOnlyFields.end(), std::inserter(result, result.end()));
@@ -430,46 +278,10 @@ namespace AppInstaller::Manifest
                 // Root node only
                 std::vector<FieldProcessInfo> rootOnlyFields =
                 {
-                    {
-                        "MinOSVersion",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            ManifestInstaller* installer = &(manifest->DefaultInstallerInfo);
-                            installer->MinOSVersion = value.as<std::string>();
-                            return {};
-                        }
-                    },
-                    {
-                        "Commands",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            ManifestInstaller* installer = &(manifest->DefaultInstallerInfo);
-                            installer->Commands = SplitMultiValueField(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Protocols",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            ManifestInstaller* installer = &(manifest->DefaultInstallerInfo);
-                            installer->Protocols = SplitMultiValueField(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "FileExtensions",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            ManifestInstaller* installer = &(manifest->DefaultInstallerInfo);
-                            installer->FileExtensions = SplitMultiValueField(value.as<std::string>());
-                            return {};
-                        }
-                    },
+                    { "MinOSVersion", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtrFromManifest(any)->MinOSVersion = value.as<std::string>(); return {}; } },
+                    { "Commands", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtrFromManifest(any)->Commands = SplitMultiValueField(value.as<std::string>()); return {}; } },
+                    { "Protocols", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtrFromManifest(any)->Protocols = SplitMultiValueField(value.as<std::string>()); return {}; } },
+                    { "FileExtensions", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtrFromManifest(any)->FileExtensions = SplitMultiValueField(value.as<std::string>()); return {}; } },
                 };
 
                 std::move(rootOnlyFields.begin(), rootOnlyFields.end(), std::inserter(result, result.end()));
@@ -483,272 +295,20 @@ namespace AppInstaller::Manifest
                 // Root level and Installer node level
                 std::vector<FieldProcessInfo> v1CommonFields =
                 {
-                    {
-                        "InstallerLocale",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->Locale = value.as<std::string>();
-                            return {};
-                        }
-                    },
-                    {
-                        "Platform",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->Platform = ProcessPlatformSequenceNode(value);
-                            return {};
-                        }
-                    },
-                    {
-                        "MinimumOSVersion",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->MinOSVersion = value.as<std::string>();
-                            return {};
-                        }
-                    },
-                    {
-                        "Scope",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->Scope = ConvertToScopeEnum(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "InstallModes",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->InstallModes = ProcessInstallModeSequenceNode(value);
-                            return {};
-                        }
-                    },
-                    {
-                        "InstallerSwitches",
-                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            std::any anySwitches = &(installer->Switches);
-                            return ValidateAndProcessFields(value, SwitchesFieldInfos, anySwitches);
-                        }
-                    },
-                    {
-                        "InstallerSuccessCodes",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->InstallerSuccessCodes = ProcessInstallerSuccessCodeSequenceNode(value);
-                            return {};
-                        }
-                    },
-                    {
-                        "UpgradeBehavior",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->UpdateBehavior = ConvertToUpdateBehaviorEnum(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Commands",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->Commands = ProcessStringSequenceNode(value);
-                            return {};
-                        }
-                    },
-                    {
-                        "Protocols",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->Protocols = ProcessStringSequenceNode(value);
-                            return {};
-                        }
-                    },
-                    {
-                        "FileExtensions",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->FileExtensions = ProcessStringSequenceNode(value);
-                            return {};
-                        }
-                    },
-                    {
-                        "Dependencies",
-                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            std::any anyDependencyList = &(installer->Dependencies);
-                            return ValidateAndProcessFields(value, DependenciesFieldInfos, anyDependencyList);
-                        }
-                    },
-                    {
-                        "Capabilities",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->Capabilities = ProcessStringSequenceNode(value);
-                            return {};
-                        }
-                    },
-                    {
-                        "RestrictedCapabilities",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->RestrictedCapabilities = ProcessStringSequenceNode(value);
-                            return {};
-                        }
-                    },
+                    { "InstallerLocale", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->Locale = value.as<std::string>(); return {}; } },
+                    { "Platform", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->Platform = ProcessPlatformSequenceNode(value); return {}; } },
+                    { "MinimumOSVersion", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->MinOSVersion = value.as<std::string>(); return {}; } },
+                    { "Scope", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->Scope = ConvertToScopeEnum(value.as<std::string>()); return {}; } },
+                    { "InstallModes", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->InstallModes = ProcessInstallModeSequenceNode(value); return {}; } },
+                    { "InstallerSwitches", [this](const YAML::Node& value, std::any& any)->ValidationErrors { std::any anySwitches = &(GetManifestInstallerPtr(any)->Switches); return ValidateAndProcessFields(value, SwitchesFieldInfos, anySwitches); } },
+                    { "InstallerSuccessCodes", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->InstallerSuccessCodes = ProcessInstallerSuccessCodeSequenceNode(value); return {}; } },
+                    { "UpgradeBehavior", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->UpdateBehavior = ConvertToUpdateBehaviorEnum(value.as<std::string>()); return {}; } },
+                    { "Commands", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->Commands = ProcessStringSequenceNode(value); return {}; } },
+                    { "Protocols", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->Protocols = ProcessStringSequenceNode(value); return {}; } },
+                    { "FileExtensions", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->FileExtensions = ProcessStringSequenceNode(value); return {}; } },
+                    { "Dependencies", [this](const YAML::Node& value, std::any& any)->ValidationErrors { std::any anyDependencyList = &(GetManifestInstallerPtr(any)->Dependencies); return ValidateAndProcessFields(value, DependenciesFieldInfos, anyDependencyList); } },
+                    { "Capabilities", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->Capabilities = ProcessStringSequenceNode(value); return {}; } },
+                    { "RestrictedCapabilities", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->RestrictedCapabilities = ProcessStringSequenceNode(value); return {}; } },
                 };
 
                 std::move(v1CommonFields.begin(), v1CommonFields.end(), std::inserter(result, result.end()));
@@ -758,42 +318,10 @@ namespace AppInstaller::Manifest
                     // Installer level only fields
                     std::vector<FieldProcessInfo> v1InstallerFields =
                     {
-                        {
-                            "Architecture",
-                            [](const YAML::Node& value, std::any& any)->ValidationErrors
-                            {
-                                ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                                installer->Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>());
-                                return {};
-                            }
-                        },
-                        {
-                            "InstallerUrl",
-                            [](const YAML::Node& value, std::any& any)->ValidationErrors
-                            {
-                                ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                                installer->Url = value.as<std::string>();
-                                return {};
-                            }
-                        },
-                        {
-                            "InstallerSha256",
-                            [](const YAML::Node& value, std::any& any)->ValidationErrors
-                            {
-                                ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                                installer->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>());
-                                return {};
-                            }
-                        },
-                        {
-                            "SignatureSha256",
-                            [](const YAML::Node& value, std::any& any)->ValidationErrors
-                            {
-                                ManifestInstaller* installer = std::any_cast<ManifestInstaller*>(any);
-                                installer->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>());
-                                return {};
-                            }
-                        },
+                        { "Architecture", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->Arch = Utility::ConvertToArchitectureEnum(value.as<std::string>()); return {}; } },
+                        { "InstallerUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->Url = value.as<std::string>(); return {}; } },
+                        { "InstallerSha256", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
+                        { "SignatureSha256", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestInstaller>(any)->SignatureSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
                     };
 
                     std::move(v1InstallerFields.begin(), v1InstallerFields.end(), std::inserter(result, result.end()));
@@ -804,174 +332,15 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_1 =
                 {
-                    {
-                        "InstallerAbortsTerminal",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->InstallerAbortsTerminal = value.as<bool>();
-                            return {};
-                        }
-                    },
-                    {
-                        "InstallLocationRequired",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->InstallLocationRequired = value.as<bool>();
-                            return {};
-                        }
-                    },
-                    {
-                        "RequireExplicitUpgrade",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->RequireExplicitUpgrade = value.as<bool>();
-                            return {};
-                        }
-                    },
-                    {
-                        "ReleaseDate",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->ReleaseDate = Utility::Trim(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "UnsupportedOSArchitectures",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->UnsupportedOSArchitectures = ProcessArchitectureSequenceNode(value);
-                            return {};
-                        }
-                    },
-                    {
-                        "ElevationRequirement",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->ElevationRequirement = ConvertToElevationRequirementEnum(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Markets",
-                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            return ProcessMarketsNode(value, installer);
-                        }
-                    },
-                    {
-                        "AppsAndFeaturesEntries",
-                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            return ProcessAppsAndFeaturesEntriesNode(value, installer);
-                        }
-                    },
-                    {
-                        "ExpectedReturnCodes",
-                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            return ProcessExpectedReturnCodesNode(value, installer);
-                        }
-                    },
+                    { "InstallerAbortsTerminal", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->InstallerAbortsTerminal = value.as<bool>(); return {}; } },
+                    { "InstallLocationRequired", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->InstallLocationRequired = value.as<bool>(); return {}; } },
+                    { "RequireExplicitUpgrade", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->RequireExplicitUpgrade = value.as<bool>(); return {}; } },
+                    { "ReleaseDate", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->ReleaseDate = Utility::Trim(value.as<std::string>()); return {}; } },
+                    { "UnsupportedOSArchitectures", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->UnsupportedOSArchitectures = ProcessArchitectureSequenceNode(value); return {}; } },
+                    { "ElevationRequirement", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->ElevationRequirement = ConvertToElevationRequirementEnum(value.as<std::string>()); return {}; } },
+                    { "Markets", [this](const YAML::Node& value, std::any& any)->ValidationErrors { return ProcessMarketsNode(value, GetManifestInstallerPtr(any)); } },
+                    { "AppsAndFeaturesEntries", [this](const YAML::Node& value, std::any& any)->ValidationErrors { return ProcessAppsAndFeaturesEntriesNode(value, GetManifestInstallerPtr(any)); } },
+                    { "ExpectedReturnCodes", [this](const YAML::Node& value, std::any& any)->ValidationErrors { return ProcessExpectedReturnCodesNode(value, GetManifestInstallerPtr(any)); } },
                 };
 
                 std::move(fields_v1_1.begin(), fields_v1_1.end(), std::inserter(result, result.end()));
@@ -981,44 +350,8 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_2 =
                 {
-                    {
-                        "UnsupportedArguments",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->UnsupportedArguments = ProcessUnsupportedArgumentsSequenceNode(value);
-                            return {};
-                        }
-                    },
-                    {
-                        "DisplayInstallWarnings",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->DisplayInstallWarnings = value.as<bool>();
-                            return {};
-                        }
-                    },
+                    { "UnsupportedArguments", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->UnsupportedArguments = ProcessUnsupportedArgumentsSequenceNode(value); return {}; } },
+                    { "DisplayInstallWarnings", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->DisplayInstallWarnings = value.as<bool>(); return {}; } },
                 };
 
                 std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
@@ -1028,62 +361,9 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_4 =
                 {
-                    {
-                        "NestedInstallerType",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->NestedInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "NestedInstallerFiles",
-                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            return ProcessNestedInstallerFilesNode(value, installer);
-                        }
-                    },
-                    {
-                        "InstallationMetadata",
-                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            std::any anyInstallationMetadata = &(installer->InstallationMetadata);
-                            return ValidateAndProcessFields(value, InstallationMetadataFieldInfos, anyInstallationMetadata);
-                        }
-                    },
+                    { "NestedInstallerType", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->NestedInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
+                    { "NestedInstallerFiles", [this](const YAML::Node& value, std::any& any)->ValidationErrors { return ProcessNestedInstallerFilesNode(value, GetManifestInstallerPtr(any)); } },
+                    { "InstallationMetadata", [this](const YAML::Node& value, std::any& any)->ValidationErrors { std::any installerMetadata = &(GetManifestInstallerPtr(any)->InstallationMetadata); return ValidateAndProcessFields(value, InstallationMetadataFieldInfos, installerMetadata); } },
                 };
 
                 std::move(fields_v1_4.begin(), fields_v1_4.end(), std::inserter(result, result.end()));
@@ -1093,25 +373,7 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_6 =
                 {
-                    {
-                        "DownloadCommandProhibited",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->DownloadCommandProhibited = value.as<bool>();
-                            return {};
-                        },
-                        true },
+                    { "DownloadCommandProhibited", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->DownloadCommandProhibited = value.as<bool>(); return {}; }, true },
                 };
 
                 std::move(fields_v1_6.begin(), fields_v1_6.end(), std::inserter(result, result.end()));
@@ -1121,25 +383,7 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_7 =
                 {
-                    {
-                        "RepairBehavior",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestInstaller* installer;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                installer = &(manifest->DefaultInstallerInfo);
-                            }
-                            else
-                            {
-                                installer = std::any_cast<ManifestInstaller*>(any);
-                            }
-
-                            installer->RepairBehavior = ConvertToRepairBehaviorEnum(value.as<std::string>());
-                            return {};
-                        }
-                    },
+                    { "RepairBehavior", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestInstallerPtr(any)->RepairBehavior = ConvertToRepairBehaviorEnum(value.as<std::string>()); return {}; } },
                 };
 
                 std::move(fields_v1_7.begin(), fields_v1_7.end(), std::inserter(result, result.end()));
@@ -1154,104 +398,28 @@ namespace AppInstaller::Manifest
         // Common fields across versions
         std::vector<FieldProcessInfo> result =
         {
-            {
-                "Custom",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
-                    (*switches)[InstallerSwitchType::Custom] = value.as<std::string>();
-                    return{};
-                }
-            },
-            {
-                "Silent",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
-                    (*switches)[InstallerSwitchType::Silent] = value.as<std::string>();
-                    return{};
-                }
-            },
-            {
-                "SilentWithProgress",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
-                    (*switches)[InstallerSwitchType::SilentWithProgress] = value.as<std::string>();
-                    return{};
-                }
-            },
-            {
-                "Interactive",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
-                    (*switches)[InstallerSwitchType::Interactive] = value.as<std::string>();
-                    return{};
-                }
-            },
-            {
-                "Log",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
-                    (*switches)[InstallerSwitchType::Log] = value.as<std::string>();
-                    return{};
-                }
-            },
-            {
-                "InstallLocation",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
-                    (*switches)[InstallerSwitchType::InstallLocation] = value.as<std::string>();
-                    return{};
-                }
-            },
+            { "Custom", [](const YAML::Node& value, std::any& any)->ValidationErrors { (*any_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(any))[InstallerSwitchType::Custom] = value.as<std::string>(); return{}; } },
+            { "Silent", [](const YAML::Node& value, std::any& any)->ValidationErrors { (*any_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(any))[InstallerSwitchType::Silent] = value.as<std::string>(); return{}; } },
+            { "SilentWithProgress", [](const YAML::Node& value, std::any& any)->ValidationErrors { (*any_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(any))[InstallerSwitchType::SilentWithProgress] = value.as<std::string>(); return{}; } },
+            { "Interactive", [](const YAML::Node& value, std::any& any)->ValidationErrors { (*any_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(any))[InstallerSwitchType::Interactive] = value.as<std::string>(); return{}; } },
+            { "Log", [](const YAML::Node& value, std::any& any)->ValidationErrors { (*any_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(any))[InstallerSwitchType::Log] = value.as<std::string>(); return{}; } },
+            { "InstallLocation", [](const YAML::Node& value, std::any& any)->ValidationErrors { (*any_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(any))[InstallerSwitchType::InstallLocation] = value.as<std::string>(); return{}; } },
         };
 
         // Additional version specific fields
         if (manifestVersion.Major() == 0)
         {
             // Language only exists in preview manifests. Though we don't use it in our code yet, keep it here to be consistent with schema.
-            result.emplace_back(
-                "Language",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
-                    (*switches)[InstallerSwitchType::Language] = value.as<std::string>();
-                    return{};
-                });
-            result.emplace_back(
-                "Update",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
-                    (*switches)[InstallerSwitchType::Update] = value.as<std::string>();
-                    return{};
-                });
+            result.emplace_back("Language", [](const YAML::Node& value, std::any& any)->ValidationErrors { (*any_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(any))[InstallerSwitchType::Language] = value.as<std::string>(); return{}; });
+            result.emplace_back("Update", [](const YAML::Node& value, std::any& any)->ValidationErrors { (*any_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(any))[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
         }
         else if (manifestVersion.Major() == 1)
         {
-            result.emplace_back(
-                "Upgrade",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
-                    (*switches)[InstallerSwitchType::Update] = value.as<std::string>();
-                    return{};
-                });
+            result.emplace_back("Upgrade", [](const YAML::Node& value, std::any& any)->ValidationErrors { (*any_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(any))[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
 
             if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
             {
-                result.emplace_back(
-                    "Repair",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        auto switches = std::any_cast<std::map<InstallerSwitchType, Utility::NormalizedString>*>(any);
-                        (*switches)[InstallerSwitchType::Repair] = value.as<std::string>();
-                        return{};
-                    });
+                result.emplace_back("Repair", [](const YAML::Node& value, std::any& any)->ValidationErrors { (*any_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(any))[InstallerSwitchType::Repair] = value.as<std::string>(); return{}; });
             };
         }
 
@@ -1264,34 +432,13 @@ namespace AppInstaller::Manifest
 
         if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
         {
-            result.emplace_back(
-                "InstallerReturnCode",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    ExpectedReturnCode* expectedReturnCode = std::any_cast<ExpectedReturnCode*>(any);
-                    expectedReturnCode->InstallerReturnCode = static_cast<int>(value.as<int>());
-                    return {};
-                });
-            result.emplace_back(
-                "ReturnResponse",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    ExpectedReturnCode* expectedReturnCode = std::any_cast<ExpectedReturnCode*>(any);
-                    expectedReturnCode->ReturnResponse = ConvertToExpectedReturnCodeEnum(value.as<std::string>());
-                    return {};
-                });
+            result.emplace_back("InstallerReturnCode", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ExpectedReturnCode>(any)->InstallerReturnCode = static_cast<int>(value.as<int>()); return {}; });
+            result.emplace_back("ReturnResponse", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ExpectedReturnCode>(any)->ReturnResponse = ConvertToExpectedReturnCodeEnum(value.as<std::string>()); return {}; });
         }
 
         if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
         {
-            result.emplace_back(
-                "ReturnResponseUrl",
-                [](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    ExpectedReturnCode* expectedReturnCode = std::any_cast<ExpectedReturnCode*>(any);
-                    expectedReturnCode->ReturnResponseUrl = value.as<std::string>();
-                    return {};
-                });
+            result.emplace_back("ReturnResponseUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ExpectedReturnCode>(any)->ReturnResponseUrl = value.as<std::string>(); return {}; });
         }
 
         return result;
@@ -1302,136 +449,31 @@ namespace AppInstaller::Manifest
         // Common fields across versions
         std::vector<FieldProcessInfo> result =
         {
-            {
-                "Description",
-                [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    ManifestLocalization* localization;
-                    if (forRootFields)
-                    {
-                        Manifest* manifest = std::any_cast<Manifest*>(any);
-                        localization = &(manifest->DefaultLocalization);
-                    }
-                    else
-                    {
-                        localization = std::any_cast<ManifestLocalization*>(any);
-                    }
-
-                    localization->Add<Localization::Description>(Utility::Trim(value.as<std::string>()));
-                    return {};
-                }
-            },
-            {
-                "LicenseUrl",
-                [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    ManifestLocalization* localization;
-                    if (forRootFields)
-                    {
-                        Manifest* manifest = std::any_cast<Manifest*>(any);
-                        localization = &(manifest->DefaultLocalization);
-                    }
-                    else
-                    {
-                        localization = std::any_cast<ManifestLocalization*>(any);
-                    }
-
-                    localization->Add<Localization::LicenseUrl>(value.as<std::string>());
-                    return {};
-                }
-            },
+            { "Description", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::Description>(Utility::Trim(value.as<std::string>())); return {}; } },
+            { "LicenseUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::LicenseUrl>(value.as<std::string>()); return {}; } },
         };
 
         // Additional version specific fields
         if (manifestVersion.Major() == 0)
         {
             // Root level and Localization node level
-            result.emplace_back(
-                "Homepage",
-                [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                {
-                    ManifestLocalization* localization;
-                    if (forRootFields)
-                    {
-                        Manifest* manifest = std::any_cast<Manifest*>(any);
-                        localization = &(manifest->DefaultLocalization);
-                    }
-                    else
-                    {
-                        localization = std::any_cast<ManifestLocalization*>(any);
-                    }
-
-                    localization->Add<Localization::PackageUrl>(value.as<std::string>());
-                    return {};
-                });
+            result.emplace_back("Homepage", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::PackageUrl>(value.as<std::string>()); return {}; });
 
             if (!forRootFields)
             {
                 // Localization node only
-                result.emplace_back(
-                    "Language",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        ManifestLocalization* localization = std::any_cast<ManifestLocalization*>(any);
-                        localization->Locale = value.as<std::string>();
-                        return {};
-                    });
+                result.emplace_back("Language", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<ManifestLocalization>(any)->Locale = value.as<std::string>(); return {}; });
             }
             else
             {
                 // Root node only
                 std::vector<FieldProcessInfo> rootOnlyFields =
                 {
-                    {
-                        "Name",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            ManifestLocalization* localization = &(manifest->DefaultLocalization);
-                            localization->Add<Localization::PackageName>(Utility::Trim(value.as<std::string>()));
-                            return {};
-                        }
-                    },
-                    {
-                        "Publisher",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            ManifestLocalization* localization = &(manifest->DefaultLocalization);
-                            localization->Add<Localization::Publisher>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Author",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            ManifestLocalization* localization = &(manifest->DefaultLocalization);
-                            localization->Add<Localization::Author>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "License",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            ManifestLocalization* localization = &(manifest->DefaultLocalization);
-                            localization->Add<Localization::License>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Tags",
-                        [](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            Manifest* manifest = std::any_cast<Manifest*>(any);
-                            ManifestLocalization* localization = &(manifest->DefaultLocalization);
-                            localization->Add<Localization::Tags>(SplitMultiValueField(value.as<std::string>()));
-                            return {};
-                        }
-                    },
+                    { "Name", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtrFromManifest(any)->Add<Localization::PackageName>(Utility::Trim(value.as<std::string>())); return {}; } },
+                    { "Publisher", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtrFromManifest(any)->Add<Localization::Publisher>(value.as<std::string>()); return {}; } },
+                    { "Author", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtrFromManifest(any)->Add<Localization::Author>(value.as<std::string>()); return {}; } },
+                    { "License", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtrFromManifest(any)->Add<Localization::License>(value.as<std::string>()); return {}; } },
+                    { "Tags", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtrFromManifest(any)->Add<Localization::Tags>(SplitMultiValueField(value.as<std::string>())); return {}; } },
                 };
 
                 std::move(rootOnlyFields.begin(), rootOnlyFields.end(), std::inserter(result, result.end()));
@@ -1445,253 +487,19 @@ namespace AppInstaller::Manifest
                 // Root level and Localization node level
                 std::vector<FieldProcessInfo> v1CommonFields =
                 {
-                    {
-                        "PackageLocale",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Locale = value.as<std::string>();
-                            return {};
-                        }
-                    },
-                    {
-                        "Publisher",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::Publisher>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "PublisherUrl",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::PublisherUrl>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "PublisherSupportUrl",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::PublisherSupportUrl>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "PrivacyUrl",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::PrivacyUrl>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Author",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::Author>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "PackageName",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::PackageName>(Utility::Trim(value.as<std::string>()));
-                            return {};
-                        }
-                    },
-                    {
-                        "PackageUrl",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::PackageUrl>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "License",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::License>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Copyright",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::Copyright>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "CopyrightUrl",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::CopyrightUrl>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "ShortDescription",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::ShortDescription>(Utility::Trim(value.as<std::string>()));
-                            return {};
-                        }
-                    },
-                    {
-                        "Tags",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::Tags>(ProcessStringSequenceNode(value));
-                            return {};
-                        }
-                    },
+                    { "PackageLocale", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Locale = value.as<std::string>(); return {}; } },
+                    { "Publisher", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::Publisher>(value.as<std::string>()); return {}; } },
+                    { "PublisherUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::PublisherUrl>(value.as<std::string>()); return {}; } },
+                    { "PublisherSupportUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::PublisherSupportUrl>(value.as<std::string>()); return {}; } },
+                    { "PrivacyUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::PrivacyUrl>(value.as<std::string>()); return {}; } },
+                    { "Author", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::Author>(value.as<std::string>()); return {}; } },
+                    { "PackageName", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::PackageName>(Utility::Trim(value.as<std::string>())); return {}; } },
+                    { "PackageUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::PackageUrl>(value.as<std::string>()); return {}; } },
+                    { "License", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::License>(value.as<std::string>()); return {}; } },
+                    { "Copyright", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::Copyright>(value.as<std::string>()); return {}; } },
+                    { "CopyrightUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors{ GetManifestLocalizationPtr(any)->Add<Localization::CopyrightUrl>(value.as<std::string>()); return {}; } },
+                    { "ShortDescription", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::ShortDescription>(Utility::Trim(value.as<std::string>())); return {}; } },
+                    { "Tags", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::Tags>(ProcessStringSequenceNode(value)); return {}; } },
                 };
 
                 std::move(v1CommonFields.begin(), v1CommonFields.end(), std::inserter(result, result.end()));
@@ -1701,62 +509,9 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_1 =
                 {
-                    {
-                        "Agreements",
-                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            return ProcessAgreementsNode(value, localization);
-                        }
-                    },
-                    {
-                        "ReleaseNotes",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::ReleaseNotes>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "ReleaseNotesUrl",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::ReleaseNotesUrl>(value.as<std::string>());
-                            return {};
-                        }
-                    },
+                    { "Agreements", [this](const YAML::Node& value, std::any& any)->ValidationErrors { return ProcessAgreementsNode(value, GetManifestLocalizationPtr(any)); } },
+                    { "ReleaseNotes", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::ReleaseNotes>(value.as<std::string>()); return {}; } },
+                    { "ReleaseNotesUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::ReleaseNotesUrl>(value.as<std::string>()); return {}; } },
                 };
 
                 std::move(fields_v1_1.begin(), fields_v1_1.end(), std::inserter(result, result.end()));
@@ -1766,62 +521,9 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_2 =
                 {
-                    {
-                        "PurchaseUrl",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::PurchaseUrl>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "InstallationNotes",
-                        [forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            localization->Add<Localization::InstallationNotes>(value.as<std::string>());
-                            return {};
-                        }
-                    },
-                    {
-                        "Documentations",
-                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            return ProcessDocumentationsNode(value, localization);
-                        }
-                    },
+                    { "PurchaseUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::PurchaseUrl>(value.as<std::string>()); return {}; } },
+                    { "InstallationNotes", [](const YAML::Node& value, std::any& any)->ValidationErrors { GetManifestLocalizationPtr(any)->Add<Localization::InstallationNotes>(value.as<std::string>()); return {}; } },
+                    { "Documentations", [this](const YAML::Node& value, std::any& any)->ValidationErrors { return ProcessDocumentationsNode(value, GetManifestLocalizationPtr(any)); } },
                 };
 
                 std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
@@ -1831,25 +533,7 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_5 =
                 {
-                    {
-                        "Icons",
-                        [this, forRootFields](const YAML::Node& value, std::any& any)->ValidationErrors
-                        {
-                            ManifestLocalization* localization;
-                            if (forRootFields)
-                            {
-                                Manifest* manifest = std::any_cast<Manifest*>(any);
-                                localization = &(manifest->DefaultLocalization);
-                            }
-                            else
-                            {
-                                localization = std::any_cast<ManifestLocalization*>(any);
-                            }
-
-                            return ProcessIconsNode(value, localization);
-                        },
-                        true
-                    },
+                    { "Icons", [this](const YAML::Node& value, std::any& any)->ValidationErrors { return ProcessIconsNode(value, GetManifestLocalizationPtr(any)); }, true },
                 };
 
                 std::move(fields_v1_5.begin(), fields_v1_5.end(), std::inserter(result, result.end()));
@@ -1867,55 +551,14 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                {
-                    "WindowsFeatures",
-                    [this](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        DependencyList* dependencyList = std::any_cast<DependencyList*>(any);
-                        ProcessDependenciesNode(DependencyType::WindowsFeature, value, dependencyList);
-                        return {};
-                    }
-                },
-                {
-                    "WindowsLibraries",
-                    [this](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        DependencyList* dependencyList = std::any_cast<DependencyList*>(any);
-                        ProcessDependenciesNode(DependencyType::WindowsLibrary, value, dependencyList);
-                        return {};
-                    }
-                },
-                {
-                    "PackageDependencies",
-                    [this](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        DependencyList* dependencyList = std::any_cast<DependencyList*>(any);
-                        ProcessPackageDependenciesNode(value, dependencyList);
-                        return {};
-                    }
-                },
-                {
-                    "ExternalDependencies",
-                    [this](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        DependencyList* dependencyList = std::any_cast<DependencyList*>(any);
-                        ProcessDependenciesNode(DependencyType::External, value, dependencyList);
-                        return {};
-                    }
-                },
+                { "WindowsFeatures", [](const YAML::Node& value, std::any& any)->ValidationErrors { ProcessDependenciesNode(DependencyType::WindowsFeature, value, any_ptr<DependencyList>(any)); return {}; } },
+                { "WindowsLibraries", [](const YAML::Node& value, std::any& any)->ValidationErrors { ProcessDependenciesNode(DependencyType::WindowsLibrary, value, any_ptr<DependencyList>(any)); return {}; } },
+                { "PackageDependencies", [this](const YAML::Node& value, std::any& any)->ValidationErrors { ProcessPackageDependenciesNode(value, any_ptr<DependencyList>(any)); return {}; } },
+                { "ExternalDependencies", [](const YAML::Node& value, std::any& any)->ValidationErrors { ProcessDependenciesNode(DependencyType::External, value, any_ptr<DependencyList>(any)); return {}; } },
             };
         }
 
         return result;
-    }
-
-    void ManifestYamlPopulator::ProcessDependenciesNode(DependencyType type, const YAML::Node& node, DependencyList* dependencyList)
-    {
-        const auto& ids = ProcessStringSequenceNode(node);
-        for (auto id : ids)
-        {
-            dependencyList->Add(Dependency(type, id));
-        }
     }
 
     std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetPackageDependenciesFieldProcessInfo(const ManifestVer& manifestVersion)
@@ -1926,24 +569,8 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                {
-                    "PackageIdentifier",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Dependency* packageDependency = std::any_cast<Dependency*>(any);
-                        packageDependency->SetId(Utility::Trim(value.as<std::string>()));
-                        return {};
-                    }
-                },
-                {
-                    "MinimumVersion",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Dependency* packageDependency = std::any_cast<Dependency*>(any);
-                        packageDependency->MinVersion = Utility::Version(Utility::Trim(value.as<std::string>()));
-                        return {};
-                    }
-                },
+                { "PackageIdentifier", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Dependency>(any)->SetId(Utility::Trim(value.as<std::string>())); return {}; } },
+                { "MinimumVersion", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Dependency>(any)->MinVersion = Utility::Version(Utility::Trim(value.as<std::string>())); return {}; } },
             };
         }
 
@@ -1958,33 +585,9 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                {
-                    "AgreementLabel",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Agreement* agreement = std::any_cast<Agreement*>(any);
-                        agreement->Label = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "Agreement",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Agreement* agreement = std::any_cast<Agreement*>(any);
-                        agreement->AgreementText = Utility::Trim(value.as<std::string>());
-                        return {};
-                    },
-                    true },
-                {
-                    "AgreementUrl",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Agreement* agreement = std::any_cast<Agreement*>(any);
-                        agreement->AgreementUrl = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
+                { "AgreementLabel", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Agreement>(any)->Label = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Agreement", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Agreement>(any)->AgreementText = Utility::Trim(value.as<std::string>()); return {}; }, true },
+                { "AgreementUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Agreement>(any)->AgreementUrl = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -1999,24 +602,8 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                {
-                    "AllowedMarkets",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        MarketsInfo* markets = std::any_cast<MarketsInfo*>(any);
-                        markets->AllowedMarkets = ProcessStringSequenceNode(value);
-                        return {};
-                    }
-                },
-                {
-                    "ExcludedMarkets",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        MarketsInfo* markets = std::any_cast<MarketsInfo*>(any);
-                        markets->ExcludedMarkets = ProcessStringSequenceNode(value);
-                        return {};
-                    }
-                },
+                { "AllowedMarkets", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<MarketsInfo>(any)->AllowedMarkets = ProcessStringSequenceNode(value); return {}; } },
+                { "ExcludedMarkets", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<MarketsInfo>(any)->ExcludedMarkets = ProcessStringSequenceNode(value); return {}; } },
             };
         }
 
@@ -2031,60 +618,12 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                {
-                    "DisplayName",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        AppsAndFeaturesEntry* appsAndFeaturesEntry = std::any_cast<AppsAndFeaturesEntry*>(any);
-                        appsAndFeaturesEntry->DisplayName = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "Publisher",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        AppsAndFeaturesEntry* appsAndFeaturesEntry = std::any_cast<AppsAndFeaturesEntry*>(any);
-                        appsAndFeaturesEntry->Publisher = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "DisplayVersion",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        AppsAndFeaturesEntry* appsAndFeaturesEntry = std::any_cast<AppsAndFeaturesEntry*>(any);
-                        appsAndFeaturesEntry->DisplayVersion = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "ProductCode",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        AppsAndFeaturesEntry* appsAndFeaturesEntry = std::any_cast<AppsAndFeaturesEntry*>(any);
-                        appsAndFeaturesEntry->ProductCode = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "UpgradeCode",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        AppsAndFeaturesEntry* appsAndFeaturesEntry = std::any_cast<AppsAndFeaturesEntry*>(any);
-                        appsAndFeaturesEntry->UpgradeCode = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "InstallerType",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        AppsAndFeaturesEntry* appsAndFeaturesEntry = std::any_cast<AppsAndFeaturesEntry*>(any);
-                        appsAndFeaturesEntry->InstallerType = ConvertToInstallerTypeEnum(value.as<std::string>());
-                        return {};
-                    }
-                },
+                { "DisplayName", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<AppsAndFeaturesEntry>(any)->DisplayName = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Publisher", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<AppsAndFeaturesEntry>(any)->Publisher = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "DisplayVersion", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<AppsAndFeaturesEntry>(any)->DisplayVersion = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "ProductCode", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<AppsAndFeaturesEntry>(any)->ProductCode = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "UpgradeCode", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<AppsAndFeaturesEntry>(any)->UpgradeCode = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "InstallerType", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<AppsAndFeaturesEntry>(any)->InstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -2099,24 +638,8 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                {
-                    "DocumentLabel",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Documentation* documentation = std::any_cast<Documentation*>(any);
-                        documentation->DocumentLabel = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "DocumentUrl",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Documentation* documentation = std::any_cast<Documentation*>(any);
-                        documentation->DocumentUrl = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
+                { "DocumentLabel", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Documentation>(any)->DocumentLabel = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "DocumentUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Documentation>(any)->DocumentUrl = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -2131,50 +654,11 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                {
-                    "IconUrl",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Icon* icon = std::any_cast<Icon*>(any);
-                        icon->Url = Utility::Trim(value.as<std::string>()); return {};
-                    }
-                },
-                {
-                    "IconFileType",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Icon* icon = std::any_cast<Icon*>(any);
-                        icon->FileType = ConvertToIconFileTypeEnum(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "IconResolution",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Icon* icon = std::any_cast<Icon*>(any);
-                        icon->Resolution = ConvertToIconResolutionEnum(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "IconTheme",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Icon* icon = std::any_cast<Icon*>(any);
-                        icon->Theme = ConvertToIconThemeEnum(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "IconSha256",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        Icon* icon = std::any_cast<Icon*>(any);
-                        icon->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>());
-                        return {};
-                    }
-                },
+                { "IconUrl", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Icon>(any)->Url = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "IconFileType", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Icon>(any)->FileType = ConvertToIconFileTypeEnum(value.as<std::string>()); return {}; } },
+                { "IconResolution", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Icon>(any)->Resolution = ConvertToIconResolutionEnum(value.as<std::string>()); return {}; } },
+                { "IconTheme", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Icon>(any)->Theme = ConvertToIconThemeEnum(value.as<std::string>()); return {}; } },
+                { "IconSha256", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<Icon>(any)->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -2189,24 +673,8 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                {
-                    "RelativeFilePath",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        NestedInstallerFile* nestedInstallerFile = std::any_cast<NestedInstallerFile*>(any);
-                        nestedInstallerFile->RelativeFilePath = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "PortableCommandAlias",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        NestedInstallerFile* nestedInstallerFile = std::any_cast<NestedInstallerFile*>(any);
-                        nestedInstallerFile->PortableCommandAlias = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
+                { "RelativeFilePath", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<NestedInstallerFile>(any)->RelativeFilePath = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "PortableCommandAlias", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<NestedInstallerFile>(any)->PortableCommandAlias = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -2221,23 +689,8 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                {
-                    "DefaultInstallLocation",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        InstallationMetadataInfo* installationMetadata = std::any_cast<InstallationMetadataInfo*>(any);
-                        installationMetadata->DefaultInstallLocation = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "Files",
-                    [this](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        InstallationMetadataInfo* installationMetadata = std::any_cast<InstallationMetadataInfo*>(any);
-                        return ProcessInstallationMetadataFilesNode(value, installationMetadata);
-                    }
-                },
+                { "DefaultInstallLocation", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<InstallationMetadataInfo>(any)->DefaultInstallLocation = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Files", [this](const YAML::Node& value, std::any& any)->ValidationErrors { InstallationMetadataInfo* installationMetadata = std::any_cast<InstallationMetadataInfo*>(any); return ProcessInstallationMetadataFilesNode(value, installationMetadata); } },
             };
         }
 
@@ -2252,51 +705,11 @@ namespace AppInstaller::Manifest
         {
             result =
             {
-                {
-                    "RelativeFilePath",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        InstalledFile* installedFile = std::any_cast<InstalledFile*>(any);
-                        installedFile->RelativeFilePath = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "FileSha256",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        InstalledFile* installedFile = std::any_cast<InstalledFile*>(any);
-                        installedFile->FileSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "FileType",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        InstalledFile* installedFile = std::any_cast<InstalledFile*>(any);
-                        installedFile->FileType = ConvertToInstalledFileTypeEnum(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "InvocationParameter",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        InstalledFile* installedFile = std::any_cast<InstalledFile*>(any);
-                        installedFile->InvocationParameter = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
-                {
-                    "DisplayName",
-                    [](const YAML::Node& value, std::any& any)->ValidationErrors
-                    {
-                        InstalledFile* installedFile = std::any_cast<InstalledFile*>(any);
-                        installedFile->DisplayName = Utility::Trim(value.as<std::string>());
-                        return {};
-                    }
-                },
+                { "RelativeFilePath", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<InstalledFile>(any)->RelativeFilePath = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "FileSha256", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<InstalledFile>(any)->FileSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
+                { "FileType", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<InstalledFile>(any)->FileType = ConvertToInstalledFileTypeEnum(value.as<std::string>()); return {}; } },
+                { "InvocationParameter", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<InstalledFile>(any)->InvocationParameter = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "DisplayName", [](const YAML::Node& value, std::any& any)->ValidationErrors { any_ptr<InstalledFile>(any)->DisplayName = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -2306,7 +719,7 @@ namespace AppInstaller::Manifest
     ValidationErrors ManifestYamlPopulator::ValidateAndProcessFields(
         const YAML::Node& rootNode,
         const std::vector<FieldProcessInfo>& fieldInfos,
-        std::any& any)
+        std::any any)
     {
         ValidationErrors resultErrors;
 
@@ -2387,8 +800,7 @@ namespace AppInstaller::Manifest
         for (auto const& entry : rootNode.Sequence())
         {
             Dependency packageDependency = Dependency(DependencyType::Package);
-            std::any any = &packageDependency;
-            auto errors = ValidateAndProcessFields(entry, PackageDependenciesFieldInfos, any);
+            auto errors = ValidateAndProcessFields(entry, PackageDependenciesFieldInfos, std::any(&packageDependency));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             dependencyList->Add(std::move(packageDependency));
         }
@@ -2406,8 +818,7 @@ namespace AppInstaller::Manifest
         for (auto const& entry : agreementsNode.Sequence())
         {
             Agreement agreement;
-            std::any any = &agreement;
-            auto errors = ValidateAndProcessFields(entry, AgreementFieldInfos, any);
+            auto errors = ValidateAndProcessFields(entry, AgreementFieldInfos, std::any(&agreement));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             agreements.emplace_back(std::move(agreement));
         }
@@ -2423,8 +834,7 @@ namespace AppInstaller::Manifest
     std::vector<ValidationError> ManifestYamlPopulator::ProcessMarketsNode(const YAML::Node& marketsNode, ManifestInstaller* installer)
     {
         MarketsInfo markets;
-        std::any any = &markets;
-        auto errors = ValidateAndProcessFields(marketsNode, MarketsFieldInfos, any);
+        auto errors = ValidateAndProcessFields(marketsNode, MarketsFieldInfos, std::any(&markets));
         installer->Markets = markets;
         return errors;
     }
@@ -2439,8 +849,7 @@ namespace AppInstaller::Manifest
         for (auto const& entry : appsAndFeaturesEntriesNode.Sequence())
         {
             AppsAndFeaturesEntry appsAndFeaturesEntry;
-            std::any any = &appsAndFeaturesEntry;
-            auto errors = ValidateAndProcessFields(entry, AppsAndFeaturesEntryFieldInfos, any);
+            auto errors = ValidateAndProcessFields(entry, AppsAndFeaturesEntryFieldInfos, std::any(&appsAndFeaturesEntry));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             appsAndFeaturesEntries.emplace_back(std::move(appsAndFeaturesEntry));
         }
@@ -2460,8 +869,7 @@ namespace AppInstaller::Manifest
         for (auto const& entry : returnCodesNode.Sequence())
         {
             ExpectedReturnCode returnCode;
-            std::any any = &returnCode;
-            auto errors = ValidateAndProcessFields(entry, ExpectedReturnCodesFieldInfos, any);
+            auto errors = ValidateAndProcessFields(entry, ExpectedReturnCodesFieldInfos, std::any(&returnCode));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             if (!returnCodes.insert({ returnCode.InstallerReturnCode, {returnCode.ReturnResponse, returnCode.ReturnResponseUrl} }).second)
             {
@@ -2484,8 +892,7 @@ namespace AppInstaller::Manifest
         for (auto const& entry : documentationsNode.Sequence())
         {
             Documentation documentation;
-            std::any any = &documentation;
-            auto errors = ValidateAndProcessFields(entry, DocumentationFieldInfos, any);
+            auto errors = ValidateAndProcessFields(entry, DocumentationFieldInfos, std::any(&documentation));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             documentations.emplace_back(std::move(documentation));
         }
@@ -2508,8 +915,7 @@ namespace AppInstaller::Manifest
         for (auto const& entry : iconsNode.Sequence())
         {
             Icon icon;
-            std::any any = &icon;
-            auto errors = ValidateAndProcessFields(entry, IconFieldInfos, any);
+            auto errors = ValidateAndProcessFields(entry, IconFieldInfos, std::any(&icon));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             icons.emplace_back(std::move(icon));
         }
@@ -2532,8 +938,7 @@ namespace AppInstaller::Manifest
         for (auto const& entry : nestedInstallerFilesNode.Sequence())
         {
             NestedInstallerFile nestedInstallerFile;
-            std::any any = &nestedInstallerFile;
-            auto errors = ValidateAndProcessFields(entry, NestedInstallerFileFieldInfos, any);
+            auto errors = ValidateAndProcessFields(entry, NestedInstallerFileFieldInfos, std::any(&nestedInstallerFile));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             nestedInstallerFiles.emplace_back(std::move(nestedInstallerFile));
         }
@@ -2556,8 +961,7 @@ namespace AppInstaller::Manifest
         for (auto const& entry : installedFilesNode.Sequence())
         {
             InstalledFile installedFile;
-            std::any any = &installedFile;
-            auto errors = ValidateAndProcessFields(entry, InstallationMetadataFilesFieldInfos, any);
+            auto errors = ValidateAndProcessFields(entry, InstallationMetadataFilesFieldInfos, std::any(&installedFile));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
             installedFiles.emplace_back(std::move(installedFile));
         }
@@ -2599,8 +1003,7 @@ namespace AppInstaller::Manifest
         InstallationMetadataFieldInfos = GetInstallationMetadataFieldProcessInfo(manifestVersion);
         InstallationMetadataFilesFieldInfos = GetInstallationMetadataFilesFieldProcessInfo(manifestVersion);
 
-        std::any anyManifest = &manifest;
-        resultErrors = ValidateAndProcessFields(rootNode, RootFieldInfos, anyManifest);
+        resultErrors = ValidateAndProcessFields(rootNode, RootFieldInfos, std::any(&manifest));
 
         if (!m_p_installersNode)
         {
@@ -2622,8 +1025,7 @@ namespace AppInstaller::Manifest
             installer.NestedInstallerType = InstallerTypeEnum::Unknown;
             installer.NestedInstallerFiles.clear();
 
-            std::any anyInstaller = &installer;
-            auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos, anyInstaller);
+            auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos, std::any(&installer));
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
             // Copy in system reference strings from the root if not set in the installer and appropriate
@@ -2691,8 +1093,7 @@ namespace AppInstaller::Manifest
             for (auto const& entry : m_p_localizationsNode->Sequence())
             {
                 ManifestLocalization localization;
-                std::any any = &localization;
-                auto errors = ValidateAndProcessFields(entry, LocalizationFieldInfos, any);
+                auto errors = ValidateAndProcessFields(entry, LocalizationFieldInfos, std::any(&localization));
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
                 manifest.Localizations.emplace_back(std::move(std::move(localization)));
             }
