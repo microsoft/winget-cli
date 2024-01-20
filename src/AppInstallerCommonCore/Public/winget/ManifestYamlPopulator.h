@@ -70,7 +70,7 @@ namespace AppInstaller::Manifest
 
         // Shadow
         std::vector<FieldProcessInfo> GetShadowRootFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetShadowLocalizationFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields);
+        std::vector<FieldProcessInfo> GetShadowLocalizationFieldProcessInfo(const ManifestVer& manifestVersion);
 
         // This method takes YAML root node and list of manifest field info.
         // Yaml lib does not support case insensitive search and it allows duplicate keys. If duplicate keys exist,
@@ -79,9 +79,8 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> ValidateAndProcessFields(
             const YAML::Node& rootNode,
             const std::vector<FieldProcessInfo>& fieldInfos,
-            std::any& any);
+            std::any any);
 
-        void ProcessDependenciesNode(DependencyType type, const YAML::Node& rootNode, DependencyList* dependencyList);
         std::vector<ValidationError> ProcessPackageDependenciesNode(const YAML::Node& rootNode, DependencyList* dependencyList);
         std::vector<ValidationError> ProcessAgreementsNode(const YAML::Node& agreementsNode, ManifestLocalization* localization);
         std::vector<ValidationError> ProcessMarketsNode(const YAML::Node& marketsNode, AppInstaller::Manifest::ManifestInstaller* installer);
@@ -91,6 +90,7 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> ProcessIconsNode(const YAML::Node& iconsNode, ManifestLocalization* localization);
         std::vector<ValidationError> ProcessNestedInstallerFilesNode(const YAML::Node& nestedInstallerFilesNode, AppInstaller::Manifest::ManifestInstaller* installer);
         std::vector<ValidationError> ProcessInstallationMetadataFilesNode(const YAML::Node& installedFilesNode, InstallationMetadataInfo* installationMetadata);
+        std::vector<ValidationError> ProcessShadowLocalizationNode(const YAML::Node& localizationNode, Manifest* manifest);
 
         std::vector<ValidationError> PopulateManifestInternal(
             const YAML::Node& rootNode,

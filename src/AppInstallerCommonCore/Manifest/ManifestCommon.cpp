@@ -300,6 +300,10 @@ namespace AppInstaller::Manifest
         {
             return ManifestTypeEnum::Merged;
         }
+        else if (in == "shadow")
+        {
+            return ManifestTypeEnum::Shadow;
+        }
         else
         {
             THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), "Unsupported ManifestType: %hs", in.c_str());

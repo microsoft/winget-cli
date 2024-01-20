@@ -437,7 +437,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     if (manifestVer >= ManifestVer{ s_ManifestVersionV1_5 })
     {
         REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().size() == 1);
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Url == "https://testIcon");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Url == "https://testIcon-en-US");
         REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Ico);
         REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Custom);
         REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Default);
@@ -782,7 +782,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_5 })
         {
             REQUIRE(localization1.Get<Localization::Icons>().size() == 1);
-            REQUIRE(localization1.Get<Localization::Icons>().at(0).Url == "https://localeTestIcon");
+            REQUIRE(localization1.Get<Localization::Icons>().at(0).Url == "https://localeTestIcon-en-GB");
             REQUIRE(localization1.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Png);
             REQUIRE(localization1.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square32);
             REQUIRE(localization1.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Light);
@@ -1541,6 +1541,55 @@ TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
     auto arpRangeMultiArp = manifestMultiArp.GetArpVersionRange();
     REQUIRE(arpRangeMultiArp.GetMinVersion().ToString() == "12.0");
     REQUIRE(arpRangeMultiArp.GetMaxVersion().ToString() == "13.0");
+}
+
+TEST_CASE("ShadowManifest", "[ShadowManifest]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    validateOption.ErrorOnVerifiedPublisherFields = false;
+    validateOption.AllowShadowManifest = true;
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-MultiFile-Installer.yaml",
+        "ManifestV1_5-Shadow-DefaultLocale.yaml",
+        "ManifestV1_5-Shadow-Locale.yaml",
+        "ManifestV1_5-Shadow-Locale2.yaml",
+        "ManifestV1_5-Shadow-Shadow.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    // VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_7 });
+
+    // Read from merged manifest should have the same content as multi file manifest
+    // Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    // VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_7 });
+}
+
+TEST_CASE("ShadowManifest_NotVerifiedPublisher", "[ShadowManifest]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    validateOption.AllowShadowManifest = true;
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-MultiFile-Installer.yaml",
+        "ManifestV1_5-Shadow-DefaultLocale.yaml",
+        "ManifestV1_5-Shadow-Locale.yaml",
+        "ManifestV1_5-Shadow-Locale2.yaml",
+        "ManifestV1_5-Shadow-Shadow.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    // VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_7 });
+
+    // Read from merged manifest should have the same content as multi file manifest
+    // Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    // VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_7 });
 }
 
 TEST_CASE("YamlParserTypes", "[YAML]")

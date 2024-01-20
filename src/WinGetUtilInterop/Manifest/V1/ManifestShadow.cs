@@ -41,6 +41,11 @@ namespace Microsoft.WinGetUtil.Manifest.V1
         public string ManifestVersion { get; set; }
 
         /// <summary>
+        /// Gets or sets the default locale.
+        /// </summary>
+        public string PackageLocale { get; set; }
+
+        /// <summary>
         /// Gets or sets the manifest icons information.
         /// </summary>
         public List<ManifestIcon> Icons { get; set; }

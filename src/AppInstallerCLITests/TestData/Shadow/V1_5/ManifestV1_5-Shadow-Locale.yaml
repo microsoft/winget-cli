@@ -1,0 +1,6 @@
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.7.32
+PackageLocale: en-GB
+Description: en-GB
+ManifestType: locale
+ManifestVersion: 1.5.0

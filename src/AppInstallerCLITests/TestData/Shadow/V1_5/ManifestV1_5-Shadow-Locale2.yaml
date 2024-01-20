@@ -1,0 +1,12 @@
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.7.32
+PackageLocale: es-MX
+Description: es-MX
+ManifestType: locale
+ManifestVersion: 1.5.0
+Icons:
+  - IconUrl: https://localeTestIcon-es-MX
+    IconFileType: png
+    IconResolution: 32x32
+    IconTheme: light
+    IconSha256: 3333333333333333333333333333333333333333333333333333333333333333
