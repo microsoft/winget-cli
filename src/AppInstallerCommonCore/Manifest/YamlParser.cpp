@@ -247,8 +247,8 @@ namespace AppInstaller::Manifest::YamlParser
                         {
                             if (!validateOption.AllowShadowManifest)
                             {
-                                // TODO
-                                // errors.emplace_back(ManifestError::ShadowManifestNotAllowed);
+                                errors.emplace_back(ValidationError::MessageContextValueWithFile(
+                                    ManifestError::ShadowManifestNotAllowed, "ManifestType", manifestTypeStr, entry.FileName));
                             }
                             else if (isShadowManifestFound)
                             {

@@ -957,5 +957,8 @@
     <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow.yaml">
       <Filter>TestData\Shadow\V1_5</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow2.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
