@@ -14,7 +14,7 @@ using namespace AppInstaller::Utility;
 using namespace AppInstaller::Repository::Rest;
 using namespace AppInstaller::Repository::Rest::Schema;
 
-const utility::string_t TestRestUri = L"http://restsource.net";
+const std::string TestRestUri = "http://restsource.net";
 
 TEST_CASE("GetLatestCommonVersion", "[RestSource]")
 {
@@ -47,11 +47,11 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     IRestClient::Information info{ "TestId", { "1.0.0" } };
 
     Version version{ "1.0.0" };
-    REQUIRE(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), {}, info, version)->GetVersion() == version);
+    REQUIRE(RestClient::GetSupportedInterface(TestRestUri, {}, info, version)->GetVersion() == version);
 
     // Update this test to next version so that we don't forget to add to supported versions before rest e2e tests are available.
-    Version invalid{ "1.7.0" };
-    REQUIRE_THROWS(RestClient::GetSupportedInterface(utility::conversions::to_utf8string(TestRestUri), {}, info, invalid));
+    Version invalid{ "1.8.0" };
+    REQUIRE_THROWS(RestClient::GetSupportedInterface(TestRestUri, {}, info, invalid));
 }
 
 TEST_CASE("GetInformation_Success", "[RestSource]")
@@ -87,7 +87,7 @@ TEST_CASE("GetInformation_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    IRestClient::Information information = RestClient::GetInformation(TestRestUri, {}, std::move(helper));
+    IRestClient::Information information = RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper));
     REQUIRE(information.SourceIdentifier == "Source123");
     REQUIRE(information.ServerSupportedVersions.size() == 2);
     REQUIRE(information.ServerSupportedVersions.at(0) == "1.0.0");
@@ -127,7 +127,7 @@ TEST_CASE("GetInformation_Fail_AgreementsWithoutIdentifier", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
 TEST_CASE("RestClientCreate_UnsupportedVersion", "[RestSource]")
@@ -157,7 +157,7 @@ TEST_CASE("RestClientCreate_1.0_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string(TestRestUri), {}, {}, std::move(helper));
+    RestClient client = RestClient::Create(TestRestUri, {}, {}, std::move(helper));
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }
 
@@ -194,7 +194,7 @@ TEST_CASE("RestClientCreate_1.1_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string(TestRestUri), {}, {}, std::move(helper));
+    RestClient client = RestClient::Create(TestRestUri, {}, {}, std::move(helper));
     REQUIRE(client.GetSourceIdentifier() == "Source123");
     auto information = client.GetSourceInformation();
     REQUIRE(information.SourceAgreementsIdentifier == "agreementV1");

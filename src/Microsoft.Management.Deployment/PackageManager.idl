@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(9)]
+    [contractversion(10)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -698,6 +698,57 @@ namespace Microsoft.Management.Deployment
         FindPackagesResult FindPackages(FindPackagesOptions options);
     }
 
+    /// Authentication behavior
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+    enum AuthenticationBehavior
+    {
+        /// Always use interactive authentication flow on first authentication request, following requests may use cached result.
+        Interactive,
+        /// Try silent authentication flow first. If failed, use interactive authentication flow.
+        SilentPreferred,
+        /// Only use silent authentication flow. If failed, fail the authentication.
+        Silent,
+    };
+
+    /// Authentication related arguments
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+    runtimeclass AuthenticationArguments
+    {
+        /// Choice of authentication flow behavior.
+        AuthenticationBehavior AuthenticationBehavior;
+        /// Optional. The authentication account to use for authentication.
+        String AuthenticationAccount;
+    }
+
+    /// Authentication method
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+    enum AuthenticationType
+    {
+        Unknown,
+        None,
+        MicrosoftEntraId,
+    };
+
+    /// Microsoft Entra Id related authentication info.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+    runtimeclass MicrosoftEntraIdAuthenticationInfo
+    {
+        /// The resource identifier or resource uri.
+        String Resource { get; };
+        /// Requested scope. May be empty.
+        String Scope { get; };
+    }
+
+    /// Authentication info.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+    runtimeclass AuthenticationInfo
+    {
+        /// The authentication type.
+        AuthenticationType AuthenticationType { get; };
+        /// Microsoft Entra Id related authentication info.
+        MicrosoftEntraIdAuthenticationInfo MicrosoftEntraIdAuthenticationInfo { get; };
+    }
+
     /// Status of the Connect call
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum ConnectResultStatus
@@ -715,7 +766,7 @@ namespace Microsoft.Management.Deployment
     runtimeclass ConnectResult
     {
         /// Error codes
-        ConnectResultStatus Status{ get; };
+        ConnectResultStatus Status { get; };
 
         PackageCatalog PackageCatalog { get; };
     }
@@ -758,9 +809,16 @@ namespace Microsoft.Management.Deployment
 
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 9)]
         {
-            // When set to true, the opened catalog will only provide the information regarding packages installed from this catalog.
-            // In this mode, no external resources should be required.
+            /// When set to true, the opened catalog will only provide the information regarding packages installed from this catalog.
+            /// In this mode, no external resources should be required.
             Boolean InstalledPackageInformationOnly;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+        {
+
+            /// Authentication arguments used in authentication flow during package catalog operations if applicable.
+            AuthenticationArguments AuthenticationArguments;
         }
     }
 

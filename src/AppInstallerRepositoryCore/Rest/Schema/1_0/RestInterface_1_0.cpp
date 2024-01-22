@@ -73,7 +73,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     {
         SearchResult results;
         utility::string_t continuationToken;
-        std::unordered_map<utility::string_t, utility::string_t> searchHeaders = m_requiredRestApiHeaders;
+        HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;
         do
         {
             if (!continuationToken.empty())
@@ -208,8 +208,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         std::vector<Manifest::Manifest> results;
         utility::string_t continuationToken;
-        std::unordered_map<utility::string_t, utility::string_t> searchHeaders = m_requiredRestApiHeaders;
-        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), m_requiredRestApiHeaders);
+        HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;
+        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), searchHeaders);
 
         if (!jsonObject)
         {

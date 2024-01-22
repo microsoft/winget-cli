@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Rest/Schema/1_5/Interface.h"
+#include "Rest/Schema/1_6/Interface.h"
 
-namespace AppInstaller::Repository::Rest::Schema::V1_6
+namespace AppInstaller::Repository::Rest::Schema::V1_7
 {
     // Interface to this schema version exposed through IRestClient.
-    struct Interface : public V1_5::Interface
+    struct Interface : public V1_6::Interface
     {
         Interface(const std::string& restApi, IRestClient::Information information, const HttpClientHelper::HttpRequestHeaders& additionalHeaders = {}, const HttpClientHelper& httpClientHelper = {});
 
@@ -17,5 +17,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_6
         Interface& operator=(Interface&&) = default;
 
         Utility::Version GetVersion() const override;
+
+    protected:
+        std::unique_ptr<Authentication::Authenticator> m_authenticator;
     };
 }

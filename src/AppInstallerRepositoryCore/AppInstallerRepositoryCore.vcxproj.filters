@@ -94,6 +94,9 @@
     <Filter Include="Microsoft\Schema\Checkpoint_1_0">
       <UniqueIdentifier>{a3f9c7ed-f487-40d6-9ee7-e9a052e55c29}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_7">
+      <UniqueIdentifier>{f42acfce-4fc0-435b-a9a2-bf5528aecbcc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -393,6 +396,9 @@
     <ClInclude Include="SourceUpdateChecks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Rest\Schema\1_7\Interface.h">
+      <Filter>Rest\Schema\1_7</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -616,6 +622,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinningIndexInterface_1_0.cpp">
       <Filter>Microsoft\Schema\Pinning_1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_7\RestInterface_1_7.cpp">
+      <Filter>Rest\Schema\1_7</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

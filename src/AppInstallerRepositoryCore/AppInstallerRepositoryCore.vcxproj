@@ -430,6 +430,7 @@
     <ClInclude Include="Rest\Schema\1_5\Json\ManifestDeserializer.h" />
     <ClInclude Include="Rest\Schema\1_6\Interface.h" />
     <ClInclude Include="Rest\Schema\1_6\Json\ManifestDeserializer.h" />
+    <ClInclude Include="Rest\Schema\1_7\Interface.h" />
     <ClInclude Include="Rest\Schema\CommonRestConstants.h" />
     <ClInclude Include="Rest\Schema\HttpClientHelper.h" />
     <ClInclude Include="Rest\Schema\InformationResponseDeserializer.h" />
@@ -511,6 +512,7 @@
     <ClCompile Include="Rest\Schema\1_5\RestInterface_1_5.cpp" />
     <ClCompile Include="Rest\Schema\1_6\Json\ManifestDeserializer_1_6.cpp" />
     <ClCompile Include="Rest\Schema\1_6\RestInterface_1_6.cpp" />
+    <ClCompile Include="Rest\Schema\1_7\RestInterface_1_7.cpp" />
     <ClCompile Include="Rest\Schema\HttpClientHelper.cpp" />
     <ClCompile Include="Rest\Schema\InformationResponseDeserializer.cpp" />
     <ClCompile Include="Rest\Schema\RestHelper.cpp" />

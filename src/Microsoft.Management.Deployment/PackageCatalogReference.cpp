@@ -136,7 +136,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             else
             {
-                if (!m_acceptSourceAgreements && SourceAgreements().Size() != 0)
+                if (!AcceptSourceAgreements() && SourceAgreements().Size() != 0)
                 {
                     return GetConnectSourceAgreementsNotAcceptedErrorResult();
                 }
@@ -224,7 +224,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_acceptSourceAgreements;
     }
-    
+
     void PackageCatalogReference::PackageCatalogBackgroundUpdateInterval(winrt::Windows::Foundation::TimeSpan const& value)
     {
         if (IsComposite())

@@ -5,6 +5,7 @@
 #include <winget/PackageTrackingCatalog.h>
 #include <AppInstallerProgress.h>
 #include <winget/Certificates.h>
+#include <winget/Authentication.h>
 
 #include <chrono>
 #include <filesystem>
@@ -235,11 +236,14 @@ namespace AppInstaller::Repository
         // Returns true if the origin type can contain available packages.
         bool ContainsAvailablePackages() const;
 
-        // Set custom header.
+        // Set custom header. Must be set before Open to have effect.
         bool SetCustomHeader(std::optional<std::string> header);
 
-        // Set caller.
+        // Set caller. Must be set before Open to have effect.
         void SetCaller(std::string caller);
+
+        // Set authentication arguments. Must be set before Open to have effect.
+        void SetAuthenticationArguments(Authentication::AuthenticationArguments args);
 
         // Set background update check interval.
         void SetBackgroundUpdateInterval(TimeSpan interval);

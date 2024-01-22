@@ -29,9 +29,9 @@ namespace AppInstaller::Repository::Rest
 
         static std::optional<AppInstaller::Utility::Version> GetLatestCommonVersion(const std::vector<std::string>& serverSupportedVersions, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
 
-        static Schema::IRestClient::Information GetInformation(const utility::string_t& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const Schema::HttpClientHelper& httpClientHelper);
+        static Schema::IRestClient::Information GetInformation(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Schema::HttpClientHelper& helper = {});
 
-        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const Schema::IRestClient::Information& information, const AppInstaller::Utility::Version& version);
+        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const Schema::HttpClientHelper::HttpRequestHeaders& additionalHeaders, const Schema::IRestClient::Information& information, const AppInstaller::Utility::Version& version);
 
         static RestClient Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Schema::HttpClientHelper& helper = {});
     private:

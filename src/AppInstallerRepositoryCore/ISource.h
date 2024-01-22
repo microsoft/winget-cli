@@ -86,6 +86,9 @@ namespace AppInstaller::Repository
         // Set caller.
         virtual void SetCaller(std::string) {}
 
+        // Set authentication arguments.
+        virtual void SetAuthenticationArguments(Authentication::AuthenticationArguments) {}
+
         // Determine if the source needs to be updated before being opened.
         virtual bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>&) { return false; }
 
