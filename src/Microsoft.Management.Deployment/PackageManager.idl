@@ -714,6 +714,8 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
     runtimeclass AuthenticationArguments
     {
+        AuthenticationArguments();
+
         /// Choice of authentication flow behavior.
         AuthenticationBehavior AuthenticationBehavior;
         /// Optional. The authentication account to use for authentication.
@@ -819,6 +821,9 @@ namespace Microsoft.Management.Deployment
 
             /// Authentication arguments used in authentication flow during package catalog operations if applicable.
             AuthenticationArguments AuthenticationArguments;
+
+            /// Authentication info for the package catalog.
+            AuthenticationInfo AuthenticationInfo { get; };
         }
     }
 
@@ -1327,5 +1332,11 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<Icon>;
         interface Windows.Foundation.Collections.IVector<CatalogPackageMetadata>;
         interface Windows.Foundation.Collections.IVectorView<CatalogPackageMetadata>;
+        interface Windows.Foundation.Collections.IVector<AuthenticationArguments>;
+        interface Windows.Foundation.Collections.IVectorView<AuthenticationArguments>;
+        interface Windows.Foundation.Collections.IVector<MicrosoftEntraIdAuthenticationInfo>;
+        interface Windows.Foundation.Collections.IVectorView<MicrosoftEntraIdAuthenticationInfo>;
+        interface Windows.Foundation.Collections.IVector<AuthenticationInfo>;
+        interface Windows.Foundation.Collections.IVectorView<AuthenticationInfo>;
     }
 }

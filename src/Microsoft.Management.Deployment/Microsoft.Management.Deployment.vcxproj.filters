@@ -35,6 +35,7 @@
     <ClCompile Include="PackageManagerSettings.cpp" />
     <ClCompile Include="PackageInstallerInfo.cpp" />
     <ClCompile Include="PackageInstallerInstalledStatus.cpp" />
+    <ClCompile Include="AuthenticationArguments.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -75,6 +76,7 @@
     <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="AuthenticationArguments.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />
@@ -88,5 +90,8 @@
     <Filter Include="Public">
       <UniqueIdentifier>{9c3907ed-84d9-4485-9b15-04c50717f0ab}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,23 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#pragma once
+#include "AuthenticationArguments.g.h"
+
+namespace winrt::Microsoft::Management::Deployment::implementation
+{
+    struct AuthenticationArguments : AuthenticationArgumentsT<AuthenticationArguments>
+    {
+        AuthenticationArguments() = default;
+
+        winrt::Microsoft::Management::Deployment::AuthenticationBehavior AuthenticationBehavior();
+        void AuthenticationBehavior(winrt::Microsoft::Management::Deployment::AuthenticationBehavior const& value);
+        hstring AuthenticationAccount();
+        void AuthenticationAccount(hstring const& value);
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+    private:
+        winrt::Microsoft::Management::Deployment::AuthenticationBehavior m_authenticationBehavior = winrt::Microsoft::Management::Deployment::AuthenticationBehavior::Silent;
+        std::wstring m_authenticationAccount = L"";
+#endif
+    };
+}

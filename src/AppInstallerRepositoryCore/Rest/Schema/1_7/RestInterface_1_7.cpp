@@ -13,13 +13,14 @@ namespace AppInstaller::Repository::Rest::Schema::V1_7
         const std::string& restApi,
         IRestClient::Information information,
         const HttpClientHelper::HttpRequestHeaders& additionalHeaders,
-        const HttpClientHelper& httpClientHelper) : V1_6::Interface(restApi, std::move(information), additionalHeaders, httpClientHelper)
+        Authentication::AuthenticationArguments authArgs,
+        const HttpClientHelper& httpClientHelper) : V1_6::Interface(restApi, std::move(information), additionalHeaders, httpClientHelper), m_authArgs(std::move(authArgs))
     {
         m_requiredRestApiHeaders[JSON::GetUtilityString(ContractVersion)] = JSON::GetUtilityString(Version_1_7_0.ToString());
 
         if (m_information.Authentication.Type == Authentication::AuthenticationType::MicrosoftEntraId)
         {
-            m_authenticator = std::make_unique<Authentication::Authenticator>();
+            m_authenticator = std::make_unique<Authentication::Authenticator>(m_information.Authentication, m_authArgs);
         }
         else if (m_information.Authentication.Type == Authentication::AuthenticationType::Unknown)
         {
@@ -31,5 +32,17 @@ namespace AppInstaller::Repository::Rest::Schema::V1_7
     Utility::Version Interface::GetVersion() const
     {
         return Version_1_7_0;
+    }
+
+    HttpClientHelper::HttpRequestHeaders Interface::GetAuthHeaders() const
+    {
+        HttpClientHelper::HttpRequestHeaders result;
+
+        if (m_information.Authentication.Type == Authentication::AuthenticationType::MicrosoftEntraId)
+        {
+            result.insert_or_assign(web::http::header_names::authorization, JSON::GetUtilityString(m_authenticator->AuthenticateForToken()));
+        }
+
+        return result;
     }
 }

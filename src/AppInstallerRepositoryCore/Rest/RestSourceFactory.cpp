@@ -50,7 +50,7 @@ namespace AppInstaller::Repository::Rest
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 Initialize();
-                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
+                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_caller, m_authArgs, m_httpClientHelper);
                 return std::make_shared<RestSource>(m_details, m_information, std::move(restClient));
             }
 

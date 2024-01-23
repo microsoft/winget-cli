@@ -147,6 +147,7 @@ namespace AppInstaller::Repository::Rest
         const std::string& api,
         const HttpClientHelper::HttpRequestHeaders& additionalHeaders,
         const IRestClient::Information& information,
+        const Authentication::AuthenticationArguments& authArgs,
         const Version& version)
     {
         if (version == Version_1_0_0)
@@ -171,13 +172,13 @@ namespace AppInstaller::Repository::Rest
         }
         else if (version == Version_1_7_0)
         {
-            return std::make_unique<Schema::V1_7::Interface>(api, information, additionalHeaders);
+            return std::make_unique<Schema::V1_7::Interface>(api, information, additionalHeaders, authArgs);
         }
 
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
     }
 
-    RestClient RestClient::Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const HttpClientHelper& helper)
+    RestClient RestClient::Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Authentication::AuthenticationArguments& authArgs, const HttpClientHelper& helper)
     {
         utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
@@ -188,7 +189,7 @@ namespace AppInstaller::Repository::Rest
         std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information.ServerSupportedVersions, WingetSupportedContracts);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !latestCommonVersion);
 
-        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), headers, information, latestCommonVersion.value());
+        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), headers, information, authArgs, latestCommonVersion.value());
         return RestClient{ std::move(supportedInterface), information.SourceIdentifier };
     }
 }

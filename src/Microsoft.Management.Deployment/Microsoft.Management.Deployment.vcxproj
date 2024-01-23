@@ -183,6 +183,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AuthenticationArguments.h" />
     <ClInclude Include="CatalogPackage.h" />
     <ClInclude Include="CheckInstalledStatusResult.h" />
     <ClInclude Include="ConnectResult.h" />
@@ -219,6 +220,7 @@
     <ClInclude Include="UninstallResult.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AuthenticationArguments.cpp" />
     <ClCompile Include="CatalogPackage.cpp" />
     <ClCompile Include="CheckInstalledStatusResult.cpp" />
     <ClCompile Include="ComClsids.cpp" />

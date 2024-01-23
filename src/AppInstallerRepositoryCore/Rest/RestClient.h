@@ -31,9 +31,9 @@ namespace AppInstaller::Repository::Rest
 
         static Schema::IRestClient::Information GetInformation(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Schema::HttpClientHelper& helper = {});
 
-        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const Schema::HttpClientHelper::HttpRequestHeaders& additionalHeaders, const Schema::IRestClient::Information& information, const AppInstaller::Utility::Version& version);
+        static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const Schema::HttpClientHelper::HttpRequestHeaders& additionalHeaders, const Schema::IRestClient::Information& information, const Authentication::AuthenticationArguments& authArgs, const AppInstaller::Utility::Version& version);
 
-        static RestClient Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Schema::HttpClientHelper& helper = {});
+        static RestClient Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Authentication::AuthenticationArguments& authArgs = {}, const Schema::HttpClientHelper& helper = {});
     private:
         RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier);
 

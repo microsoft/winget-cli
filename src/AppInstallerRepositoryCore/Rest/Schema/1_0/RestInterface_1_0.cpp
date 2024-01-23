@@ -82,7 +82,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 searchHeaders.insert_or_assign(AppInstaller::JSON::GetUtilityString(ContinuationToken), continuationToken);
             }
 
-            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders);
+            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders, GetAuthHeaders());
 
             utility::string_t ct;
             if (jsonObject)
@@ -209,7 +209,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         std::vector<Manifest::Manifest> results;
         utility::string_t continuationToken;
         HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;
-        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), searchHeaders);
+        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), searchHeaders, GetAuthHeaders());
 
         if (!jsonObject)
         {
@@ -265,5 +265,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     {
         JSON::ManifestJSONParser manifestParser{ GetVersion() };
         return manifestParser.Deserialize(manifestsResponseObject);
+    }
+
+    HttpClientHelper::HttpRequestHeaders Interface::GetAuthHeaders() const
+    {
+        return {};
     }
 }

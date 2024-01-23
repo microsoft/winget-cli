@@ -62,8 +62,10 @@ namespace AppInstaller::Authentication
 
     struct Authenticator
     {
-        Authenticator(AuthenticationInfo info);
+        Authenticator(AuthenticationInfo info, AuthenticationArguments args);
 
-        std::string AuthenticateForToken(AuthenticationArguments args);
+        std::string AuthenticateForToken();
     };
+
+    std::string CreateBearerToken(std::string rawToken);
 }

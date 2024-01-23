@@ -27,6 +27,7 @@ CoCreatableClassWrlCreatorMapInclude(InstallOptions);
 CoCreatableClassWrlCreatorMapInclude(UninstallOptions);
 CoCreatableClassWrlCreatorMapInclude(DownloadOptions);
 CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);
+CoCreatableClassWrlCreatorMapInclude(AuthenticationArguments);
 CoCreatableClassWrlCreatorMapInclude(PackageManagerSettings);
 
 // Shim for configuration static functions

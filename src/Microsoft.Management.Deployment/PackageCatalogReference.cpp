@@ -253,4 +253,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         m_installedPackageInformationOnly = value;
     }
+    winrt::Microsoft::Management::Deployment::AuthenticationArguments PackageCatalogReference::AuthenticationArguments()
+    {
+        return m_authenticationArguments;
+    }
+    void PackageCatalogReference::AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value)
+    {
+        if (IsComposite())
+        {
+            throw winrt::hresult_illegal_state_change();
+        }
+
+        m_authenticationArguments = value;
+    }
+    winrt::Microsoft::Management::Deployment::AuthenticationInfo PackageCatalogReference::AuthenticationInfo()
+    {
+        return nullptr;
+    }
 }
