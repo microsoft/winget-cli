@@ -2,11 +2,8 @@ trigger: none
 
 parameters:
 - name: version
-  displayName: Version to stamp on binaries and Nuget package. It should be in the form of "major.minor", for example, "1.0"
+  displayName: Version to stamp on binaries and nuget package. Should be in form of "major.minor", for example "1.0"
   type: string
-
-pool:
-  vmImage: "windows-latest"
 
 variables:
   solution: "src/AppInstallerCLI.sln"
@@ -50,10 +47,9 @@ extends:
           artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
         templateContext:
           outputs:
-          - output: pipelineArtifact
+          - output: buildArtifacts
             displayName: 'Publish Pipeline Artifacts'
             targetPath: '$(artifactsDir)'
-            artifactName: 'Build.$(buildPlatform)$(buildConfiguration)'
         steps:
         - script: echo $(version)
 
@@ -157,14 +153,13 @@ extends:
             targetPath: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
             artifactName: $(packageName)
             publishLocation: Container
-            sbomBuildDropPath: '$(Build.ArtifactStagingDirectory)'
-          - output: nuget
-            displayName: 'Push WingetUtil nuget package to nuget.org'
-            packageParentPath: '$(Build.ArtifactStagingDirectory)'
-            nuGetFeedType: external
-            includeNugetOrg: true
-            packagesToPush: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
-            publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"
+          # - output: nuget
+          #   displayName: 'Push WingetUtil nuget package to nuget.org'
+          #   packageParentPath: '$(Build.ArtifactStagingDirectory)'
+          #   nuGetFeedType: external
+          #   includeNugetOrg: true
+          #   packagesToPush: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
+          #   publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"
         steps:
         - checkout: none
 
