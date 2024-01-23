@@ -3,7 +3,12 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{6CB84692-5994-407D-B9BD-9216AF77FE83}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
     <RootNamespace>AppInstallerTestExeInstaller</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
+    <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
+    <WindowsSDKDesktopARM64Support>true</WindowsSDKDesktopARM64Support>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">
@@ -42,24 +47,115 @@
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
+      <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalOptions>%(AdditionalOptions) /permissive- /bigobj /Zi</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</TreatWarningAsError>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</TreatWarningAsError>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatWarningAsError>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</ControlFlowGuard>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</ControlFlowGuard>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ControlFlowGuard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdcpp17</LanguageStandard>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ControlFlowGuard>
     </ClCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</TreatWarningAsError>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</TreatWarningAsError>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningAsError>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatWarningAsError>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp17</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp17</LanguageStandard>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Guard</ControlFlowGuard>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Guard</ControlFlowGuard>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Guard</ControlFlowGuard>
+      <ControlFlowGuard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Guard</ControlFlowGuard>
+    </ClCompile>
     <Link>
-      <AdditionalDependencies>Advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
