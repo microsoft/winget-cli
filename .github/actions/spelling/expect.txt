@@ -69,6 +69,7 @@ cinq
 CLASSNOTREG
 CLIE
 CLOSEAPP
+cloudai
 cloudapp
 clsctx
 clsid
@@ -156,6 +157,7 @@ fundraiser
 fuzzer
 fzanollo
 gcpi
+gdnsuppress
 GESMBH
 getwinget
 GHS
