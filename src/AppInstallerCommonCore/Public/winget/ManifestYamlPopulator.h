@@ -7,6 +7,9 @@
 
 namespace AppInstaller::Manifest
 {
+    // Add here new manifest pointer types.
+    using VariantManifestPtr = std::variant<Agreement*, AppsAndFeaturesEntry*, Dependency*, DependencyList*, Documentation*, ExpectedReturnCode*, Icon*, InstallationMetadataInfo*, InstalledFile*, Manifest*, ManifestInstaller*, ManifestLocalization*, MarketsInfo*, NestedInstallerFile*, std::map<InstallerSwitchType, Utility::NormalizedString>*>;
+
     struct ManifestYamlPopulator
     {
         static std::vector<ValidationError> PopulateManifest(
@@ -23,11 +26,11 @@ namespace AppInstaller::Manifest
         // Struct mapping a manifest field to its population logic
         struct FieldProcessInfo
         {
-            FieldProcessInfo(std::string name, std::function<std::vector<ValidationError>(const YAML::Node&, std::any&)> func, bool requireVerifiedPublisher = false) :
+            FieldProcessInfo(std::string name, std::function<std::vector<ValidationError>(const YAML::Node&, const VariantManifestPtr& v)> func, bool requireVerifiedPublisher = false) :
                 Name(std::move(name)), ProcessFunc(func), RequireVerifiedPublisher(requireVerifiedPublisher) {}
 
             std::string Name;
-            std::function<std::vector<ValidationError>(const YAML::Node&, std::any& any)> ProcessFunc;
+            std::function<std::vector<ValidationError>(const YAML::Node&, const VariantManifestPtr& v)> ProcessFunc;
             bool RequireVerifiedPublisher = false;
         };
 
@@ -75,7 +78,7 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> ValidateAndProcessFields(
             const YAML::Node& rootNode,
             const std::vector<FieldProcessInfo>& fieldInfos,
-            std::any any);
+            const VariantManifestPtr& v);
 
         std::vector<ValidationError> ProcessPackageDependenciesNode(const YAML::Node& rootNode, DependencyList* dependencyList);
         std::vector<ValidationError> ProcessAgreementsNode(const YAML::Node& agreementsNode, ManifestLocalization* localization);
