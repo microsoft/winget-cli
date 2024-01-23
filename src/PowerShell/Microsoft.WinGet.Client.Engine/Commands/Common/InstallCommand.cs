@@ -27,24 +27,19 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         }
 
         /// <summary>
-        /// Gets or sets the mode to manipulate the package with.
-        /// </summary>
-        protected PackageInstallMode Mode { get; set; } = PackageInstallMode.Default;
-
-        /// <summary>
         /// Gets or sets the override arguments to be passed on to the installer.
         /// </summary>
-        protected string Override { get; set; }
+        protected string? Override { get; set; }
 
         /// <summary>
         /// Gets or sets the arguments to be passed on to the installer in addition to the defaults.
         /// </summary>
-        protected string Custom { get; set; }
+        protected string? Custom { get; set; }
 
         /// <summary>
         /// Gets or sets the installation location.
         /// </summary>
-        protected string Location { get; set; }
+        protected string? Location { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to skip the installer hash validation check.
@@ -59,19 +54,23 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <summary>
         /// Gets or sets the optional HTTP Header to pass on to the REST Source.
         /// </summary>
-        protected string Header { get; set; }
+        protected string? Header { get; set; }
 
         /// <summary>
         /// Gets the install options from the configured parameters.
+        /// DO NOT pass PackageInstallMode WinRT enum type in this method.
+        /// That will cause the type to attempt to be loaded in the construction
+        /// of this method and throw a different exception for Windows PowerShell.
         /// </summary>
         /// <param name="version">The <see cref="PackageVersionId" /> to install.</param>
+        /// <param name="mode">Package install mode as string.</param>
         /// <returns>An <see cref="InstallOptions" /> instance.</returns>
-        protected virtual InstallOptions GetInstallOptions(PackageVersionId version)
+        protected virtual InstallOptions GetInstallOptions(PackageVersionId? version, string mode)
         {
-            InstallOptions options = ComObjectFactory.Value.CreateInstallOptions();
+            InstallOptions options = ManagementDeploymentFactory.Instance.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch;
             options.Force = this.Force;
-            options.PackageInstallMode = this.Mode;
+            options.PackageInstallMode = PSEnumHelpers.ToPackageInstallMode(mode);
             if (version != null)
             {
                 options.PackageVersionId = version;
@@ -104,52 +103,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
 
             return options;
-        }
-
-        /// <summary>
-        /// Registers callbacks on an asynchronous operation and waits for the results.
-        /// </summary>
-        /// <param name="operation">The asynchronous operation.</param>
-        /// <param name="activity">A <see cref="string" /> instance.</param>
-        /// <returns>A <see cref="InstallResult" /> instance.</returns>
-        protected InstallResult RegisterCallbacksAndWait(
-            IAsyncOperationWithProgress<InstallResult, InstallProgress> operation,
-            string activity)
-        {
-            WriteProgressAdapter adapter = new (this.PsCmdlet);
-            operation.Progress = (context, progress) =>
-            {
-                ProgressRecord record = new (1, activity, progress.State.ToString())
-                {
-                    RecordType = ProgressRecordType.Processing,
-                };
-
-                if (progress.State == PackageInstallProgressState.Downloading && progress.BytesRequired != 0)
-                {
-                    record.StatusDescription = $"{progress.BytesDownloaded / 1000000.0f:0.0} MB / {progress.BytesRequired / 1000000.0f:0.0} MB";
-                    record.PercentComplete = (int)(progress.DownloadProgress * 100);
-                }
-                else if (progress.State == PackageInstallProgressState.Installing)
-                {
-                    record.PercentComplete = (int)(progress.InstallationProgress * 100);
-                }
-
-                adapter.WriteProgress(record);
-            };
-            operation.Completed = (context, status) =>
-            {
-                adapter.WriteProgress(new ProgressRecord(1, activity, status.ToString())
-                {
-                    RecordType = ProgressRecordType.Completed,
-                });
-                adapter.Completed = true;
-            };
-            System.Console.CancelKeyPress += (sender, e) =>
-            {
-                operation.Cancel();
-            };
-            adapter.Wait();
-            return operation.GetResults();
         }
     }
 }

@@ -24,6 +24,8 @@ namespace Microsoft.WinGet.Client.Commands
     [OutputType(typeof(PSInstallResult))]
     public sealed class InstallPackageCmdlet : InstallCmdlet
     {
+        private InstallerPackageCommand command = null;
+
         /// <summary>
         /// Gets or sets the scope to install the application under.
         /// </summary>
@@ -41,25 +43,34 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            var command = new InstallerPackageCommand(
-                this,
-                this.Mode.ToString(),
-                this.Override,
-                this.Custom,
-                this.Location,
-                this.AllowHashMismatch.ToBool(),
-                this.Force.ToBool(),
-                this.Header,
-                this.PSCatalogPackage,
-                this.Version,
-                this.Log,
-                this.Id,
-                this.Name,
-                this.Moniker,
-                this.Source,
-                this.Query,
-                this.MatchOption.ToString());
-            command.Install(this.Scope.ToString(), this.Architecture.ToString());
+            this.command = new InstallerPackageCommand(
+                        this,
+                        this.Override,
+                        this.Custom,
+                        this.Location,
+                        this.AllowHashMismatch.ToBool(),
+                        this.Force.ToBool(),
+                        this.Header,
+                        this.PSCatalogPackage,
+                        this.Version,
+                        this.Log,
+                        this.Id,
+                        this.Name,
+                        this.Moniker,
+                        this.Source,
+                        this.Query);
+            this.command.Install(this.Scope.ToString(), this.Architecture.ToString(), this.MatchOption.ToString(), this.Mode.ToString());
+        }
+
+        /// <summary>
+        /// Interrupts currently running code within the command.
+        /// </summary>
+        protected override void StopProcessing()
+        {
+            if (this.command != null)
+            {
+                this.command.Cancel();
+            }
         }
     }
 }

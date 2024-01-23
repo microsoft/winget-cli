@@ -9,7 +9,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
     using System;
     using System.Text;
     using Microsoft.Management.Configuration;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Exception thrown when failed to open a configuration set.
@@ -21,7 +21,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
         /// </summary>
         /// <param name="openResult">Open Result.</param>
         /// <param name="configurationFile">Configuration file.</param>
-        public OpenConfigurationSetException(OpenConfigurationSetResult openResult, string configurationFile)
+        internal OpenConfigurationSetException(OpenConfigurationSetResult openResult, string configurationFile)
             : base(GetMessage(openResult, configurationFile))
         {
         }
@@ -29,32 +29,32 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
         private static string GetMessage(OpenConfigurationSetResult openResult, string configurationFile)
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"Failed to open configuration set at {configurationFile} with error 0x{openResult.ResultCode.HResult:X}");
+            sb.Append($"Failed to open configuration set at {configurationFile} with error 0x{openResult.ResultCode.HResult:X} ");
 
             switch (openResult.ResultCode.HResult)
             {
                 case ErrorCodes.WingetConfigErrorInvalidFieldType:
-                    sb.AppendLine(string.Format(Resources.ConfigurationFieldInvalidType, openResult.Field));
+                    sb.Append(string.Format(Resources.ConfigurationFieldInvalidType, openResult.Field));
                     break;
                 case ErrorCodes.WingetConfigErrorInvalidFieldValue:
-                    sb.AppendLine(string.Format(Resources.ConfigurationFieldInvalidValue, openResult.Field, openResult.Value));
+                    sb.Append(string.Format(Resources.ConfigurationFieldInvalidValue, openResult.Field, openResult.Value));
                     break;
                 case ErrorCodes.WingetConfigErrorMissingField:
-                    sb.AppendLine(string.Format(Resources.ConfigurationFieldMissing, openResult.Field));
+                    sb.Append(string.Format(Resources.ConfigurationFieldMissing, openResult.Field));
                     break;
                 case ErrorCodes.WingetConfigErrorUnknownConfigurationFileVersion:
-                    sb.AppendLine(string.Format(Resources.ConfigurationFileVersionUnknown, openResult.Value));
+                    sb.Append(string.Format(Resources.ConfigurationFileVersionUnknown, openResult.Value));
                     break;
                 case ErrorCodes.WingetConfigErrorInvalidConfigurationFile:
                 case ErrorCodes.WingetConfigErrorInvalidYaml:
                 default:
-                    sb.AppendLine(Resources.ConfigurationFileInvalid);
+                    sb.Append(Resources.ConfigurationFileInvalid);
                     break;
             }
 
             if (openResult.Line != 0)
             {
-                sb.AppendLine(string.Format(Resources.SeeLineAndColumn, openResult.Line, openResult.Column));
+                sb.Append($" {string.Format(Resources.SeeLineAndColumn, openResult.Line, openResult.Column)}");
             }
 
             return sb.ToString();

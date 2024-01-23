@@ -6,13 +6,14 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
-    using System;
     using System.Management.Automation;
+    using System.Threading.Tasks;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Common.Command;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Uninstalls a package from the local system.
@@ -31,7 +32,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="moniker">Moniker of package.</param>
         /// <param name="source">Source to search. If null, all are searched.</param>
         /// <param name="query">Match against any field of a package.</param>
-        /// <param name="matchOption">Match option.</param>
         public UninstallPackageCommand(
             PSCmdlet psCmdlet,
             PSCatalogPackage psCatalogPackage,
@@ -41,17 +41,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string name,
             string moniker,
             string source,
-            string[] query,
-            string matchOption)
+            string[] query)
             : base(psCmdlet)
         {
-#if POWERSHELL_WINDOWS
-            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
-#else
             // PackageCommand.
             if (psCatalogPackage != null)
             {
-                this.CatalogPackage = psCatalogPackage.CatalogPackageCOM;
+                this.CatalogPackage = psCatalogPackage;
             }
 
             this.Version = version;
@@ -63,33 +59,41 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
-            this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
-#endif
         }
 
         /// <summary>
         /// Process uninstall package.
         /// </summary>
         /// <param name="psPackageUninstallMode">PSPackageUninstallMode.</param>
+        /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
         /// <param name="force">Force.</param>
         public void Uninstall(
             string psPackageUninstallMode,
+            string psPackageFieldMatchOption,
             bool force)
         {
-            this.GetPackageAndExecute(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
+            var result = this.Execute(
+                async () => await this.GetPackageAndExecuteAsync(
+                    CompositeSearchBehavior.LocalCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption),
+                    async (package, version) =>
+                    {
+                        UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);
+                        return await this.UninstallPackageAsync(package, options);
+                    }));
+
+            if (result != null)
             {
-                UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);
-                UninstallResult result = this.UninstallPackage(package, options);
-                this.PsCmdlet.WriteObject(new PSUninstallResult(result));
-            });
+                this.Write(StreamType.Object, new PSUninstallResult(result.Item1, result.Item2));
+            }
         }
 
         private UninstallOptions GetUninstallOptions(
-            PackageVersionId version,
+            PackageVersionId? version,
             PackageUninstallMode packageUninstallMode,
             bool force)
         {
-            var options = ComObjectFactory.Value.CreateUninstallOptions();
+            var options = ManagementDeploymentFactory.Instance.CreateUninstallOptions();
             options.Force = force;
             if (this.Log != null)
             {
@@ -106,37 +110,15 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             return options;
         }
 
-        private UninstallResult UninstallPackage(
+        private async Task<UninstallResult> UninstallPackageAsync(
             CatalogPackage package,
             UninstallOptions options)
         {
-            string activity = string.Format(
-                Resources.ProgressRecordActivityUninstalling,
-                package.Name);
-
-            var operation = PackageManager.Value.UninstallPackageAsync(package, options);
-            WriteProgressAdapter adapter = new (this.PsCmdlet);
-            operation.Progress = (context, progress) =>
-            {
-                adapter.WriteProgress(new ProgressRecord(1, activity, progress.State.ToString())
-                {
-                    RecordType = ProgressRecordType.Processing,
-                });
-            };
-            operation.Completed = (context, status) =>
-            {
-                adapter.WriteProgress(new ProgressRecord(1, activity, status.ToString())
-                {
-                    RecordType = ProgressRecordType.Completed,
-                });
-                adapter.Completed = true;
-            };
-            Console.CancelKeyPress += (sender, e) =>
-            {
-                operation.Cancel();
-            };
-            adapter.Wait();
-            return operation.GetResults();
+            var progressOperation = new UninstallOperationWithProgress(
+                this,
+                string.Format(Resources.ProgressRecordActivityUninstalling, package.Name));
+            return await progressOperation.ExecuteAsync(
+                    () => PackageManagerWrapper.Instance.UninstallPackageAsync(package, options));
         }
     }
 }

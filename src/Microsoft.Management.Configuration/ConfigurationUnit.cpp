@@ -31,6 +31,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             return result;
         }
+
+        Windows::Foundation::Collections::IVector<hstring> Clone(const Windows::Foundation::Collections::IVector<hstring>& value)
+        {
+            std::vector<hstring> temp{ value.Size() };
+            value.GetMany(0, temp);
+            return winrt::single_threaded_vector<hstring>(std::move(temp));
+        }
     }
 
     ConfigurationUnit::ConfigurationUnit()
@@ -38,23 +45,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         GUID instanceIdentifier;
         THROW_IF_FAILED(CoCreateGuid(&instanceIdentifier));
         m_instanceIdentifier = instanceIdentifier;
-        m_schemaVersion = ConfigurationSetParser::LatestVersion();
     }
 
     ConfigurationUnit::ConfigurationUnit(const guid& instanceIdentifier) :
-        m_instanceIdentifier(instanceIdentifier), m_mutableFlag(false)
+        m_instanceIdentifier(instanceIdentifier)
     {
     }
 
-    hstring ConfigurationUnit::UnitName()
+    hstring ConfigurationUnit::Type()
     {
-        return m_unitName;
+        return m_type;
     }
 
-    void ConfigurationUnit::UnitName(const hstring& value)
+    void ConfigurationUnit::Type(const hstring& value)
     {
-        m_mutableFlag.RequireMutable();
-        m_unitName = value;
+        m_type = value;
     }
 
     guid ConfigurationUnit::InstanceIdentifier()
@@ -69,7 +74,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationUnit::Identifier(const hstring& value)
     {
-        m_mutableFlag.RequireMutable();
         m_identifier = value;
     }
 
@@ -80,22 +84,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationUnit::Intent(ConfigurationUnitIntent value)
     {
-        m_mutableFlag.RequireMutable();
         m_intent = value;
     }
 
-    Windows::Foundation::Collections::IVectorView<hstring> ConfigurationUnit::Dependencies()
+    Windows::Foundation::Collections::IVector<hstring> ConfigurationUnit::Dependencies()
     {
-        return m_dependencies.GetView();
+        return m_dependencies;
     }
 
-    void ConfigurationUnit::Dependencies(const Windows::Foundation::Collections::IVectorView<hstring>& value)
+    void ConfigurationUnit::Dependencies(const Windows::Foundation::Collections::IVector<hstring>& value)
     {
-        m_mutableFlag.RequireMutable();
-
-        std::vector<hstring> temp{ value.Size() };
-        value.GetMany(0, temp);
-        m_dependencies = winrt::single_threaded_vector<hstring>(std::move(temp));
+        THROW_HR_IF(E_POINTER, !value);
+        m_dependencies = value;
     }
 
     void ConfigurationUnit::Dependencies(std::vector<hstring>&& value)
@@ -103,14 +103,26 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_dependencies = winrt::single_threaded_vector<hstring>(std::move(value));
     }
 
-    Windows::Foundation::Collections::ValueSet ConfigurationUnit::Directives()
+    Windows::Foundation::Collections::ValueSet ConfigurationUnit::Metadata()
     {
-        return m_directives;
+        return m_metadata;
+    }
+
+    void ConfigurationUnit::Metadata(const Windows::Foundation::Collections::ValueSet& value)
+    {
+        THROW_HR_IF(E_POINTER, !value);
+        m_metadata = value;
     }
 
     Windows::Foundation::Collections::ValueSet ConfigurationUnit::Settings()
     {
         return m_settings;
+    }
+
+    void ConfigurationUnit::Settings(const Windows::Foundation::Collections::ValueSet& value)
+    {
+        THROW_HR_IF(E_POINTER, !value);
+        m_settings = value;
     }
 
     IConfigurationUnitProcessorDetails ConfigurationUnit::Details()
@@ -133,44 +145,74 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return nullptr;
     }
 
-    bool ConfigurationUnit::ShouldApply()
+    bool ConfigurationUnit::IsActive()
     {
-        return m_shouldApply;
+        return m_isActive;
     }
 
-    void ConfigurationUnit::ShouldApply(bool value)
+    void ConfigurationUnit::IsActive(bool value)
     {
-        m_shouldApply = value;
-    }
-
-    hstring ConfigurationUnit::SchemaVersion()
-    {
-        return m_schemaVersion;
-    }
-
-    void ConfigurationUnit::SchemaVersion(const hstring& value)
-    {
-        THROW_HR_IF(E_INVALIDARG, !ConfigurationSetParser::IsRecognizedSchemaVersion(value));
-        m_schemaVersion = value;
-    }
-
-    HRESULT STDMETHODCALLTYPE ConfigurationUnit::SetLifetimeWatcher(IUnknown* watcher)
-    {
-        return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
+        m_isActive = value;
     }
 
     Configuration::ConfigurationUnit ConfigurationUnit::Copy()
     {
         auto result = make_self<wil::details::module_count_wrapper<ConfigurationUnit>>();
 
-        result->m_unitName = m_unitName;
+        result->m_type = m_type;
         result->m_intent = m_intent;
-        result->Dependencies(m_dependencies.GetView());
-        result->m_directives = Clone(m_directives);
+        result->m_dependencies = Clone(m_dependencies);
+        result->m_metadata = Clone(m_metadata);
         result->m_settings = Clone(m_settings);
         result->m_details = m_details;
-        result->m_schemaVersion = m_schemaVersion;
 
         return *result;
+    }
+
+    bool ConfigurationUnit::IsGroup()
+    {
+        return m_isGroup;
+    }
+
+    void ConfigurationUnit::IsGroup(bool value)
+    {
+        m_isGroup = value;
+
+        if (value)
+        {
+            if (!m_units)
+            {
+                m_units = winrt::single_threaded_vector<Configuration::ConfigurationUnit>();
+            }
+        }
+    }
+
+    Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit> ConfigurationUnit::Units()
+    {
+        return m_units;
+    }
+
+    void ConfigurationUnit::Units(const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& value)
+    {
+        if (m_isGroup)
+        {
+            THROW_HR_IF(E_POINTER, !value);
+        }
+        else if (value)
+        {
+            m_isGroup = true;
+        }
+
+        m_units = value;
+    }
+
+    void ConfigurationUnit::Units(std::vector<Configuration::ConfigurationUnit>&& value)
+    {
+        m_units = winrt::single_threaded_vector<Configuration::ConfigurationUnit>(std::move(value));
+    }
+
+    HRESULT STDMETHODCALLTYPE ConfigurationUnit::SetLifetimeWatcher(IUnknown* watcher)
+    {
+        return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
     }
 }

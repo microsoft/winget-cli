@@ -6,7 +6,6 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -21,17 +20,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         internal TestConfigurationUnitProcessor(ConfigurationUnit unit)
         {
             this.Unit = unit;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TestConfigurationUnitProcessor"/> class.
-        /// </summary>
-        /// <param name="unit">The unit.</param>
-        /// <param name="directivesOverlay">The directives overlay.</param>
-        internal TestConfigurationUnitProcessor(ConfigurationUnit unit, IReadOnlyDictionary<string, object> directivesOverlay)
-        {
-            this.Unit = unit;
-            this.DirectivesOverlay = directivesOverlay;
         }
 
         /// <summary>
@@ -51,6 +39,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// </summary>
         /// <returns>The result.</returns>
         internal delegate ITestSettingsResult TestSettingsDelegateType();
+
+        /// <summary>
+        /// The delegate for TestSettings that passes the unit in.
+        /// </summary>
+        /// <param name="unit">The unit.</param>
+        /// <returns>The result.</returns>
+        internal delegate ITestSettingsResult TestSettingsDelegateWithUnitType(ConfigurationUnit unit);
 
         /// <summary>
         /// Gets or sets the directives overlay.
@@ -88,6 +83,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         internal TestSettingsDelegateType? TestSettingsDelegate { get; set; }
 
         /// <summary>
+        /// Gets or sets the delegate object for TestSettings that takes in the unit.
+        /// </summary>
+        internal TestSettingsDelegateWithUnitType? TestSettingsDelegateWithUnit { get; set; }
+
+        /// <summary>
         /// Gets the number of times TestSettings is called.
         /// </summary>
         internal int TestSettingsCalls { get; private set; } = 0;
@@ -105,7 +105,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             }
             else
             {
-                return new ApplySettingsResultInstance();
+                return new ApplySettingsResultInstance(this.Unit);
             }
         }
 
@@ -122,7 +122,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             }
             else
             {
-                return new GetSettingsResultInstance();
+                return new GetSettingsResultInstance(this.Unit);
             }
         }
 
@@ -133,13 +133,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public ITestSettingsResult TestSettings()
         {
             ++this.TestSettingsCalls;
-            if (this.TestSettingsDelegate != null)
+            if (this.TestSettingsDelegateWithUnit != null)
+            {
+                return this.TestSettingsDelegateWithUnit(this.Unit);
+            }
+            else if (this.TestSettingsDelegate != null)
             {
                 return this.TestSettingsDelegate();
             }
             else
             {
-                return new TestSettingsResultInstance { TestResult = ConfigurationTestResult.Positive };
+                return new TestSettingsResultInstance(this.Unit) { TestResult = ConfigurationTestResult.Positive };
             }
         }
     }

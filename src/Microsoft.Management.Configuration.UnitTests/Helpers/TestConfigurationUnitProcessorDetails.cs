@@ -60,7 +60,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 
         public Uri? UnitIconUri { get; internal set; }
 
-        public string? UnitName { get; internal set; }
+        public string? UnitType { get; internal set; }
 
         public string? Version { get; internal set; }
 

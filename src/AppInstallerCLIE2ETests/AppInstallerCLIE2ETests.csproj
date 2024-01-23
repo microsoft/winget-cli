@@ -25,7 +25,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Microsoft.Msix.Utils" Version="2.1.1" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
@@ -50,23 +50,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="testdata\configuration\DependencyCycle.yml" />
-    <None Remove="testdata\configuration\DuplicateIdentifiers.yml" />
-    <None Remove="testdata\configuration\Empty.yml" />
-    <None Remove="testdata\configuration\MissingDependency.yml" />
-    <None Remove="testdata\configuration\ModuleMismatch.yml" />
-    <None Remove="testdata\configuration\modules\NoVersion.yml" />
-    <None Remove="testdata\configuration\NoResourceName.yml" />
-    <None Remove="testdata\configuration\NotConfig.yml" />
-    <None Remove="TestData\Configuration\PSGallery_NoSettings.yml" />
-    <None Remove="testdata\configuration\ResourceNotFound.yml" />
-    <None Remove="testdata\configuration\ResourcesNotASequence.yml" />
-    <None Remove="testdata\configuration\UnitNotAMap.yml" />
-    <None Remove="testdata\configuration\UnknownVersion.yml" />
-    <None Remove="TestData\localsource.json" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <None Remove="TestData\Configuration\ShowDetails_TestRepo_0_3.yml" />
+    <None Remove="TestData\Configuration\WithParameters_0_3.yml" />
     <Content Include="..\..\doc\admx\DesktopAppInstaller.admx" Link="TestData\DesktopAppInstaller.admx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

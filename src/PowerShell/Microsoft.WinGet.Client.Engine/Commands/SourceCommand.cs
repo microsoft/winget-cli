@@ -6,16 +6,15 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
-    using System;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
-    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// Wrapper for source cmdlets.
     /// </summary>
-    public sealed class SourceCommand : ClientCommand
+    public sealed class SourceCommand : ManagementDeploymentCommand
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SourceCommand"/> class.
@@ -25,9 +24,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         public SourceCommand(PSCmdlet psCmdlet)
             : base(psCmdlet)
         {
-#if POWERSHELL_WINDOWS
-            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
-#endif
         }
 
         /// <summary>
@@ -36,10 +32,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="name">Optional name.</param>
         public void Get(string name)
         {
-            var results = GetPackageCatalogReferences(name);
+            var results = this.Execute(
+                () => this.GetPackageCatalogReferences(name));
             for (var i = 0; i < results.Count; i++)
             {
-                this.PsCmdlet.WriteObject(new PSSourceResult(results[i]));
+                this.Write(StreamType.Object, new PSSourceResult(results[i]));
             }
         }
     }

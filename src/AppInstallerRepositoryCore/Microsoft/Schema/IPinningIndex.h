@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
-#include "Microsoft/Schema/Version.h"
+#include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteVersion.h>
 #include "winget/Pin.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema
@@ -12,7 +12,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual ~IPinningIndex() = default;
 
         // Gets the schema version that this index interface is built for.
-        virtual Schema::Version GetVersion() const = 0;
+        virtual SQLite::Version GetVersion() const = 0;
 
         // Creates all of the version dependent tables within the database.
         virtual void CreateTables(SQLite::Connection& connection) = 0;

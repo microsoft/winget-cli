@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(7)]
+    [contractversion(9)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -749,6 +749,19 @@ namespace Microsoft.Management.Deployment
 
             Boolean AcceptSourceAgreements;
         }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 8)]
+        {
+            /// Time interval for package catalog to check for an update. Setting to zero will disable the check for update.
+            Windows.Foundation.TimeSpan PackageCatalogBackgroundUpdateInterval;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 9)]
+        {
+            // When set to true, the opened catalog will only provide the information regarding packages installed from this catalog.
+            // In this mode, no external resources should be required.
+            Boolean InstalledPackageInformationOnly;
+        }
     }
 
     /// Catalogs with PackageCatalogOrigin Predefined
@@ -889,6 +902,9 @@ namespace Microsoft.Management.Deployment
         {
             // Skip installing the dependencies for the package.
             Boolean SkipDependencies;
+
+            /// The package installer type.
+            PackageInstallerType InstallerType;
         }
     }
 

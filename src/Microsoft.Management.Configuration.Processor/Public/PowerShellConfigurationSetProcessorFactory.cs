@@ -8,6 +8,7 @@ namespace Microsoft.Management.Configuration.Processor
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Management.Automation;
     using System.Text;
     using Microsoft.Management.Configuration;
@@ -53,15 +54,31 @@ namespace Microsoft.Management.Configuration.Processor
         public PowerShellConfigurationProcessorPolicy Policy { get; set; } = PowerShellConfigurationProcessorPolicy.Default;
 
         /// <summary>
+        /// Gets or sets the module scope.
+        /// </summary>
+        public PowerShellConfigurationProcessorLocation Location { get; set; } = PowerShellConfigurationProcessorLocation.Default;
+
+        /// <summary>
+        /// Gets or sets the install module path. Only used for Scope = Custom.
+        /// </summary>
+        public string? CustomLocation { get; set; }
+
+        /// <summary>
         /// Gets the configuration unit processor details for the given unit.
         /// </summary>
         /// <param name="set">Configuration Set.</param>
         /// <returns>Configuration set processor.</returns>
-        public IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet set)
+        public IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet? set)
         {
             try
             {
-                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating set processor for `{set.Name}`...");
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating set processor for `{set?.Name ?? "<null>"}`...");
+
+                if (set != null && (set.Parameters.Count > 0 || set.Variables.Count > 0))
+                {
+                    this.OnDiagnostics(DiagnosticLevel.Error, $"  Parameters/variables are not yet supported.");
+                    throw new NotImplementedException();
+                }
 
                 var envFactory = new ProcessorEnvironmentFactory(this.ProcessorType);
                 var processorEnvironment = envFactory.CreateEnvironment(
@@ -71,6 +88,29 @@ namespace Microsoft.Management.Configuration.Processor
                 if (this.AdditionalModulePaths is not null)
                 {
                     processorEnvironment.PrependPSModulePaths(this.AdditionalModulePaths);
+                }
+
+                // Always add the winget path.
+                var wingetModulePath = GetWinGetModulePath();
+                processorEnvironment.PrependPSModulePath(wingetModulePath);
+                if (this.Location == PowerShellConfigurationProcessorLocation.WinGetModulePath)
+                {
+                    this.OnDiagnostics(DiagnosticLevel.Verbose, "Using winget module path");
+                    processorEnvironment.SetLocation(PowerShellConfigurationProcessorLocation.Custom, wingetModulePath);
+                }
+                else if (this.Location == PowerShellConfigurationProcessorLocation.Custom)
+                {
+                    if (string.IsNullOrEmpty(this.CustomLocation))
+                    {
+                        throw new ArgumentNullException(nameof(this.CustomLocation));
+                    }
+
+                    processorEnvironment.SetLocation(this.Location, this.CustomLocation);
+                    processorEnvironment.PrependPSModulePath(this.CustomLocation);
+                }
+                else
+                {
+                    processorEnvironment.SetLocation(this.Location, null);
                 }
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"  Effective module path:\n{processorEnvironment.GetVariable<string>(Variables.PSModulePath)}");
@@ -86,6 +126,17 @@ namespace Microsoft.Management.Configuration.Processor
                 this.OnDiagnostics(DiagnosticLevel.Error, ex.ToString());
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Gets the winget module path.
+        /// </summary>
+        /// <returns>The winget module path.</returns>
+        internal static string GetWinGetModulePath()
+        {
+            return Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    @"Microsoft\WinGet\Configuration\Modules");
         }
 
         /// <summary>

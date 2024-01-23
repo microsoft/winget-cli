@@ -25,7 +25,7 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 {
-    Schema::Version Interface::GetVersion() const
+    SQLite::Version Interface::GetVersion() const
     {
         return { 1, 1 };
     }
@@ -51,10 +51,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
             { V1_0::PathPartTable::ValueName(), false, WI_IsFlagClear(options, CreateOptions::SupportPathless) }
             });
 
-        V1_0::TagsTable::Create(connection);
-        V1_0::CommandsTable::Create(connection);
-        PackageFamilyNameTable::Create(connection);
-        ProductCodeTable::Create(connection);
+        V1_0::TagsTable::Create(connection, GetOneToManyTableSchema());
+        V1_0::CommandsTable::Create(connection, GetOneToManyTableSchema());
+        PackageFamilyNameTable::Create(connection, GetOneToManyTableSchema());
+        ProductCodeTable::Create(connection, GetOneToManyTableSchema());
 
         savepoint.Commit();
     }
@@ -196,6 +196,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         V1_0::Interface::PerformQuerySearch(resultsTable, query);
     }
 
+    V1_0::OneToManyTableSchema Interface::GetOneToManyTableSchema() const
+    {
+        return V1_0::OneToManyTableSchema::Version_1_1;
+    }
+
     ISQLiteIndex::SearchResult Interface::SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const
     {
         // Update any system reference strings to be folded
@@ -239,10 +244,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
             V1_0::PathPartTable::ValueName(),
             });
 
-        V1_0::TagsTable::PrepareForPackaging(connection, false);
-        V1_0::CommandsTable::PrepareForPackaging(connection, false);
-        PackageFamilyNameTable::PrepareForPackaging(connection, true, true);
-        ProductCodeTable::PrepareForPackaging(connection, true, true);
+        V1_0::TagsTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), false, false);
+        V1_0::CommandsTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), false, false);
+        PackageFamilyNameTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), true, true);
+        ProductCodeTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), true, true);
 
         savepoint.Commit();
 

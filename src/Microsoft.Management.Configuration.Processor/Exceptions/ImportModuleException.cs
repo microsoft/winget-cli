@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.Exceptions
 {
     using System;
+    using System.Management.Automation;
 
     /// <summary>
     /// Import-Module threw an exception.
@@ -17,11 +18,11 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// Initializes a new instance of the <see cref="ImportModuleException"/> class.
         /// </summary>
         /// <param name="moduleName">Module name.</param>
-        /// <param name="inner">Inner exception.</param>
-        public ImportModuleException(string? moduleName, Exception inner)
-            : base($"Could not import module: {moduleName?.ToString() ?? "<no module>"}", inner)
+        /// <param name="pwshEx">Inner exception.</param>
+        public ImportModuleException(string? moduleName, Exception pwshEx)
+            : base($"Could not import module: {moduleName?.ToString() ?? "<no module>"}", pwshEx)
         {
-            this.HResult = ErrorCodes.WinGetConfigUnitImportModule;
+            this.HResult = this.GetHResult(pwshEx);
             this.ModuleName = moduleName;
         }
 
@@ -29,5 +30,22 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// Gets the module name.
         /// </summary>
         public string? ModuleName { get; }
+
+        private int GetHResult(Exception pwshEx)
+        {
+            if (pwshEx.InnerException is not null)
+            {
+                var scriptEx = pwshEx.InnerException as ScriptRequiresException;
+                if (scriptEx is not null)
+                {
+                    if (scriptEx.ErrorRecord.CategoryInfo.Category == ErrorCategory.PermissionDenied)
+                    {
+                        return ErrorCodes.WinGetConfigUnitImportModuleAdmin;
+                    }
+                }
+            }
+
+            return ErrorCodes.WinGetConfigUnitImportModule;
+        }
     }
 }

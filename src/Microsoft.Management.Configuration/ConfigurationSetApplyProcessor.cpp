@@ -32,7 +32,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             m_progress(std::move(progress))
     {
         // Create a copy of the set of configuration units
-        auto unitsView = configurationSet.ConfigurationUnits();
+        auto unitsView = configurationSet.Units();
         std::vector<ConfigurationUnit> unitsToProcess{ unitsView.Size() };
         unitsView.GetMany(0, unitsToProcess);
 
@@ -366,7 +366,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Once we get this far, consider the unit processed even if we fail to create the actual processor.
         unitInfo.Processed = true;
 
-        if (!unitInfo.Unit.ShouldApply())
+        if (!unitInfo.Unit.IsActive())
         {
             // If the unit is requested to be skipped, we mark it with a failure to prevent any dependency from running.
             // But we return true from this function to indicate a successful "processing".
@@ -381,7 +381,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            unitProcessor = m_setProcessor.CreateUnitProcessor(unitInfo.Unit, {});
+            unitProcessor = m_setProcessor.CreateUnitProcessor(unitInfo.Unit);
         }
         catch (...)
         {

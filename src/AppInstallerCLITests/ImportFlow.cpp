@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "TestHooks.h"
 #include "WorkflowCommon.h"
 #include <Commands/ImportCommand.h>
+#include <winget/Settings.h>
 #include <Workflows/ImportExportFlow.h>
+#include <Workflows/ShellExecuteInstallerHandler.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
@@ -237,9 +240,6 @@ TEST_CASE("ImportFlow_Dependencies", "[ImportFlow][workflow][dependencies]")
     OverrideForMSIX(context);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::ImportFile, TestDataFile("ImportFile-Good-Dependencies.json").GetPath().string());
-
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
     ImportCommand importCommand({});
     importCommand.Execute(context);

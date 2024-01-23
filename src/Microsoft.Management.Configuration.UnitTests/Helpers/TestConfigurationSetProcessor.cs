@@ -47,9 +47,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Creates a new unit processor for the given unit.
         /// </summary>
         /// <param name="unit">The unit.</param>
-        /// <param name="directivesOverlay">Directives to override those in the unit.</param>
         /// <returns>The configuration unit processor.</returns>
-        public IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit, IReadOnlyDictionary<string, object> directivesOverlay)
+        public IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit)
         {
             if (this.Exceptions.ContainsKey(unit))
             {
@@ -58,7 +57,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 
             if (!this.Processors.ContainsKey(unit))
             {
-                this.Processors.Add(unit, new TestConfigurationUnitProcessor(unit, directivesOverlay));
+                this.Processors.Add(unit, new TestConfigurationUnitProcessor(unit));
             }
 
             return this.Processors[unit];
@@ -94,6 +93,18 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         {
             this.Processors[unit] = new TestConfigurationUnitProcessor(unit);
             return this.Processors[unit];
+        }
+
+        /// <summary>
+        /// Creates a new test processor that supports GetAllSettings for the given unit.
+        /// </summary>
+        /// <param name="unit">The unit.</param>
+        /// <returns>The configuration unit processor.</returns>
+        internal TestGetAllSettingsConfigurationUnitProcessor CreateGetAllSettingsTestProcessor(ConfigurationUnit unit)
+        {
+            var processor = new TestGetAllSettingsConfigurationUnitProcessor(unit);
+            this.Processors[unit] = processor;
+            return processor;
         }
 
         /// <summary>

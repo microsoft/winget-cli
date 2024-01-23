@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
     using System.Management.Automation;
     using System.Security.Principal;
     using System.Threading;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Resources;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
@@ -110,7 +110,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
         public static void AddWindowsAppToPath()
         {
             var scope = EnvironmentVariableTarget.User;
-            string envPathValue = Environment.GetEnvironmentVariable(Constants.PathEnvVar, scope);
+            string? envPathValue = Environment.GetEnvironmentVariable(Constants.PathEnvVar, scope);
             if (string.IsNullOrEmpty(envPathValue) || !envPathValue.Contains(Utilities.LocalDataWindowsAppPath))
             {
                 Environment.SetEnvironmentVariable(
@@ -185,9 +185,9 @@ namespace Microsoft.WinGet.Client.Engine.Common
             return result;
         }
 
-        private static ICollection<object> PopulateHashTableFromJArray(JArray list)
+        private static ICollection<object?> PopulateHashTableFromJArray(JArray list)
         {
-            var result = new object[list.Count];
+            var result = new object?[list.Count];
 
             for (var index = 0; index < list.Count; index++)
             {

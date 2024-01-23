@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Configuration.Engine.Resources {
+namespace Microsoft.WinGet.Resources {
     using System;
     
     
@@ -66,6 +66,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         internal static string ConfigurationAcceptWarningArgumentDescription {
             get {
                 return ResourceManager.GetString("ConfigurationAcceptWarningArgumentDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to `-ModulePath AllUsers` require administrator privileges to execute..
+        /// </summary>
+        internal static string ConfigurationAllUsersElevated {
+            get {
+                return ResourceManager.GetString("ConfigurationAllUsersElevated", resourceCulture);
             }
         }
         
@@ -228,6 +237,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         internal static string ConfigurationModuleNameOnly {
             get {
                 return ResourceManager.GetString("ConfigurationModuleNameOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to `-ModulePath` value must be `CurrentUser`, `AllUsers`, `Default` or an absolute path..
+        /// </summary>
+        internal static string ConfigurationModulePathArgError {
+            get {
+                return ResourceManager.GetString("ConfigurationModulePathArgError", resourceCulture);
             }
         }
         
@@ -486,9 +504,18 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Have you reviewed the configuration and would you like to proceed applying it to the system?.
         /// </summary>
-        internal static string ConfigurationWarningPrompt {
+        internal static string ConfigurationWarningPromptApply {
             get {
-                return ResourceManager.GetString("ConfigurationWarningPrompt", resourceCulture);
+                return ResourceManager.GetString("ConfigurationWarningPromptApply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Have you reviewed the configuration and would you like to proceed verifying it against the system?.
+        /// </summary>
+        internal static string ConfigurationWarningPromptTest {
+            get {
+                return ResourceManager.GetString("ConfigurationWarningPromptTest", resourceCulture);
             }
         }
         
@@ -525,6 +552,24 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         internal static string SeeLineAndColumn {
             get {
                 return ResourceManager.GetString("SeeLineAndColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loading the module for the configuration unit failed because it requires administrator privileges to run..
+        /// </summary>
+        internal static string WinGetConfigUnitImportModuleAdmin {
+            get {
+                return ResourceManager.GetString("WinGetConfigUnitImportModuleAdmin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A unit contains a setting that requires the config root..
+        /// </summary>
+        internal static string WinGetConfigUnitSettingConfigRoot {
+            get {
+                return ResourceManager.GetString("WinGetConfigUnitSettingConfigRoot", resourceCulture);
             }
         }
     }

@@ -52,9 +52,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotEqual(Guid.Empty, testSet.InstanceIdentifier);
             Assert.Equal(ConfigurationSetState.Unknown, testSet.State);
 
-            Assert.Empty(testSet.ConfigurationUnits);
-            testSet.ConfigurationUnits = new ConfigurationUnit[] { this.ConfigurationUnit() };
-            Assert.Equal(1, testSet.ConfigurationUnits.Count);
+            Assert.Empty(testSet.Units);
+            testSet.Units = new ConfigurationUnit[] { this.ConfigurationUnit() };
+            Assert.Equal(1, testSet.Units.Count);
 
             Assert.NotEqual(string.Empty, testSet.SchemaVersion);
         }
@@ -71,8 +71,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             ConfigurationUnit testUnit = this.ConfigurationUnit();
 
-            testUnit.UnitName = testName;
-            Assert.Equal(testName, testUnit.UnitName);
+            testUnit.Type = testName;
+            Assert.Equal(testName, testUnit.Type);
             testUnit.Identifier = testIdentifier;
             Assert.Equal(testIdentifier, testUnit.Identifier);
 
@@ -86,7 +86,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             testUnit.Dependencies = new string[] { "dependency1", "dependency2" };
             Assert.Equal(2, testUnit.Dependencies.Count);
 
-            Assert.Empty(testUnit.Directives);
+            Assert.Empty(testUnit.Metadata);
             Assert.Empty(testUnit.Settings);
             Assert.Null(testUnit.Details);
 
@@ -94,9 +94,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             Assert.Null(testUnit.ResultInformation);
 
-            Assert.True(testUnit.ShouldApply);
-            testUnit.ShouldApply = false;
-            Assert.False(testUnit.ShouldApply);
+            Assert.True(testUnit.IsActive);
+            testUnit.IsActive = false;
+            Assert.False(testUnit.IsActive);
         }
 
         /// <summary>

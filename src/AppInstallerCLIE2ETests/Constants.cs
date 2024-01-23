@@ -66,6 +66,8 @@ namespace AppInstallerCLIE2ETests
         public const string WinGetUtil = "WinGetUtil";
         public const string E2ETestLogsPathPackaged = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
         public const string E2ETestLogsPathUnpackaged = @"WinGet\defaultState";
+        public const string CheckpointDirectoryPackaged = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\Checkpoints";
+        public const string CheckpointDirectoryUnpackaged = @"Microsoft\WinGet\State\defaultState\Checkpoints";
 
         // Installer filename
         public const string TestCommandExe = "testCommand.exe";
@@ -80,6 +82,7 @@ namespace AppInstallerCLIE2ETests
         public const string PortableExePackageId = "AppInstallerTest.TestPortableExe";
         public const string PortableExeWithCommandPackageId = "AppInstallerTest.TestPortableExeWithCommand";
 
+        public const string ExeInstalledDefaultProductCode = "{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}";
         public const string MsiInstallerProductCode = "{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         public const string MsixInstallerName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
         public const string MsixInstallerPackageFamilyName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe";
@@ -117,6 +120,7 @@ namespace AppInstallerCLIE2ETests
         public const string PortablePackageUserRoot = "portablePackageUserRoot";
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
         public const string InstallBehaviorScope = "scope";
+        public const string InstallerTypes = "installerTypes";
 
         // Configuration
         public const string PSGalleryName = "PSGallery";
@@ -137,6 +141,7 @@ namespace AppInstallerCLIE2ETests
             public const int S_FALSE = 1;
             public const int ERROR_FILE_NOT_FOUND = unchecked((int)0x80070002);
             public const int ERROR_PATH_NOT_FOUND = unchecked((int)0x80070003);
+            public const int E_INVALIDARG = unchecked((int)0x80070057);
             public const int ERROR_NO_RANGES_PROCESSED = unchecked((int)0x80070138);
             public const int OPC_E_ZIP_MISSING_END_OF_CENTRAL_DIRECTORY = unchecked((int)0x8051100F);
             public const int ERROR_OLD_WIN_VERSION = unchecked((int)0x8007047E);
@@ -251,6 +256,11 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_APPTERMINATION_RECEIVED = unchecked((int)0x8A15006A);
             public const int ERROR_DOWNLOAD_DEPENDENCIES = unchecked((int)0x8A15006B);
             public const int ERROR_DOWNLOAD_COMMAND_PROHIBITED = unchecked((int)0x8A15006C);
+            public const int ERROR_SERVICE_UNAVAILABLE = unchecked((int)0x8A15006D);
+            public const int ERROR_RESUME_ID_NOT_FOUND = unchecked((int)0x8A15006E);
+            public const int ERROR_CLIENT_VERSION_MISMATCH = unchecked((int)0x8A15006F);
+            public const int ERROR_INVALID_RESUME_STATE = unchecked((int)0x8A150070);
+            public const int ERROR_CANNOT_OPEN_CHECKPOINT_INDEX = unchecked((int)0x8A150071);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);
@@ -261,7 +271,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_NO_NETWORK = unchecked((int)0x8A150107);
             public const int ERROR_INSTALL_CONTACT_SUPPORT = unchecked((int)0x8A150108);
             public const int ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH = unchecked((int)0x8A150109);
-            public const int ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL = unchecked((int)0x8A15010A);
+            public const int ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL = unchecked((int)0x8A15010A);
             public const int ERROR_INSTALL_REBOOT_INITIATED = unchecked((int)0x8A15010B);
             public const int ERROR_INSTALL_CANCELLED_BY_USER = unchecked((int)0x8A15010C);
             public const int ERROR_INSTALL_ALREADY_INSTALLED = unchecked((int)0x8A15010D);
@@ -271,6 +281,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_PACKAGE_IN_USE_BY_APPLICATION = unchecked((int)0x8A150111);
             public const int ERROR_INSTALL_INVALID_PARAMETER = unchecked((int)0x8A150112);
             public const int ERROR_INSTALL_SYSTEM_NOT_SUPPORTED = unchecked((int)0x8A150113);
+            public const int APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED = unchecked((int)0x8A150114);
 
             public const int INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND = unchecked((int)0x8A150201);
             public const int INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE = unchecked((int)0x0A150202);
@@ -307,6 +318,7 @@ namespace AppInstallerCLIE2ETests
             public const int CONFIG_ERROR_UNIT_IMPORT_MODULE = unchecked((int)0x8A15C108);
             public const int CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT = unchecked((int)0x8A15C109);
             public const int CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT = unchecked((int)0x8A15C110);
+            public const int CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN = unchecked((int)0x8A15C111);
         }
 
 #pragma warning restore SA1310 // Field names should not contain underscore

@@ -11,7 +11,6 @@
 #include <AppInstallerRuntime.h>
 #include <winget/UserSettings.h>
 #include <winget/Filesystem.h>
-#include <winget/WindowsFeature.h>
 #include <winget/IconExtraction.h>
 
 #ifdef AICLI_DISABLE_TEST_HOOKS
@@ -40,6 +39,9 @@ namespace AppInstaller
     namespace Repository::Microsoft
     {
         void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath);
+
+        using GetARPKeyFunc = std::function<Registry::Key(Manifest::ScopeEnum, Utility::Architecture)>;
+        void SetGetARPKeyOverride(GetARPKeyFunc value);
     }
 
     namespace Logging
@@ -62,14 +64,16 @@ namespace AppInstaller
         void TestHook_SetScanArchiveResult_Override(bool* status);
     }
 
-    namespace WindowsFeature
+    namespace CLI::Workflow
     {
-        void TestHook_MockDismHelper_Override(bool status);
-        void TestHook_SetEnableWindowsFeatureResult_Override(HRESULT* result);
-        void TestHook_SetIsWindowsFeatureEnabledResult_Override(bool* status);
-        void TestHook_SetDoesWindowsFeatureExistResult_Override(bool* status);
-        void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(Utility::LocIndString* displayName);
-        void TestHook_SetWindowsFeatureGetRestartStatusResult_Override(AppInstaller::WindowsFeature::DismRestartType* restartType);
+        void TestHook_SetEnableWindowsFeatureResult_Override(std::optional<DWORD>&& result);
+        void TestHook_SetDoesWindowsFeatureExistResult_Override(std::optional<DWORD>&& result);
+    }
+
+    namespace Reboot
+    {
+        void TestHook_SetInitiateRebootResult_Override(bool* status);
+        void TestHook_SetRegisterForRestartResult_Override(bool* status);
     }
 }
 
@@ -120,99 +124,6 @@ namespace TestHook
         }
     };
 
-    struct MockDismHelper_Override
-    {
-        MockDismHelper_Override()
-        {
-            AppInstaller::WindowsFeature::TestHook_MockDismHelper_Override(true);
-        }
-
-        ~MockDismHelper_Override()
-        {
-            AppInstaller::WindowsFeature::TestHook_MockDismHelper_Override(false);
-        }
-    };
-
-    struct SetEnableWindowsFeatureResult_Override
-    {
-        SetEnableWindowsFeatureResult_Override(HRESULT result) : m_result(result)
-        {
-            AppInstaller::WindowsFeature::TestHook_SetEnableWindowsFeatureResult_Override(&m_result);
-        }
-
-        ~SetEnableWindowsFeatureResult_Override()
-        {
-            AppInstaller::WindowsFeature::TestHook_SetEnableWindowsFeatureResult_Override(nullptr);
-        }
-
-    private:
-        HRESULT m_result;
-    };
-
-    struct SetIsWindowsFeatureEnabledResult_Override
-    {
-        SetIsWindowsFeatureEnabledResult_Override(bool status) : m_status(status)
-        {
-            AppInstaller::WindowsFeature::TestHook_SetIsWindowsFeatureEnabledResult_Override(&m_status);
-        }
-
-        ~SetIsWindowsFeatureEnabledResult_Override()
-        {
-            AppInstaller::WindowsFeature::TestHook_SetIsWindowsFeatureEnabledResult_Override(nullptr);
-        }
-
-    private:
-        bool m_status;
-    };
-
-    struct SetDoesWindowsFeatureExistResult_Override
-    {
-        SetDoesWindowsFeatureExistResult_Override(bool status) : m_status(status)
-        {
-            AppInstaller::WindowsFeature::TestHook_SetDoesWindowsFeatureExistResult_Override(&m_status);
-        }
-
-        ~SetDoesWindowsFeatureExistResult_Override()
-        {
-            AppInstaller::WindowsFeature::TestHook_SetDoesWindowsFeatureExistResult_Override(nullptr);
-        }
-
-    private:
-        bool m_status;
-    };
-
-    struct SetWindowsFeatureGetDisplayNameResult_Override
-    {
-        SetWindowsFeatureGetDisplayNameResult_Override(AppInstaller::Utility::LocIndString displayName) : m_displayName(displayName)
-        {
-            AppInstaller::WindowsFeature::TestHook_SetWindowsFeatureGetDisplayNameResult_Override(&m_displayName);
-        }
-
-        ~SetWindowsFeatureGetDisplayNameResult_Override()
-        {
-            AppInstaller::WindowsFeature::TestHook_SetWindowsFeatureGetDisplayNameResult_Override(nullptr);
-        }
-
-    private:
-        AppInstaller::Utility::LocIndString m_displayName;
-    };
-
-    struct SetWindowsFeatureGetRestartStatusResult_Override
-    {
-        SetWindowsFeatureGetRestartStatusResult_Override(AppInstaller::WindowsFeature::DismRestartType restartType) : m_restartType(restartType)
-        {
-            AppInstaller::WindowsFeature::TestHook_SetWindowsFeatureGetRestartStatusResult_Override(&m_restartType);
-        }
-
-        ~SetWindowsFeatureGetRestartStatusResult_Override()
-        {
-            AppInstaller::WindowsFeature::TestHook_SetWindowsFeatureGetRestartStatusResult_Override(nullptr);
-        }
-
-    private:
-        AppInstaller::WindowsFeature::DismRestartType m_restartType;
-    };
-
     struct SetExtractIconFromArpEntryResult_Override
     {
         SetExtractIconFromArpEntryResult_Override(std::vector<AppInstaller::Repository::ExtractedIconInfo> extractedIcons) : m_extractedIcons(std::move(extractedIcons))
@@ -227,5 +138,78 @@ namespace TestHook
 
     private:
         std::vector<AppInstaller::Repository::ExtractedIconInfo> m_extractedIcons;
+    };
+
+    struct SetEnableWindowsFeatureResult_Override
+    {
+        SetEnableWindowsFeatureResult_Override(DWORD result)
+        {
+            AppInstaller::CLI::Workflow::TestHook_SetEnableWindowsFeatureResult_Override(result);
+        }
+
+        ~SetEnableWindowsFeatureResult_Override()
+        {
+            AppInstaller::CLI::Workflow::TestHook_SetEnableWindowsFeatureResult_Override({});
+        }
+    };
+
+    struct SetDoesWindowsFeatureExistResult_Override
+    {
+        SetDoesWindowsFeatureExistResult_Override(DWORD result)
+        {
+            AppInstaller::CLI::Workflow::TestHook_SetDoesWindowsFeatureExistResult_Override(result);
+        }
+
+        ~SetDoesWindowsFeatureExistResult_Override()
+        {
+            AppInstaller::CLI::Workflow::TestHook_SetDoesWindowsFeatureExistResult_Override({});
+        }
+    };
+
+    struct SetInitiateRebootResult_Override
+    {
+        SetInitiateRebootResult_Override(bool status) : m_status(status)
+        {
+            AppInstaller::Reboot::TestHook_SetInitiateRebootResult_Override(&m_status);
+        }
+
+        ~SetInitiateRebootResult_Override()
+        {
+            AppInstaller::Reboot::TestHook_SetInitiateRebootResult_Override(nullptr);
+        }
+
+    private:
+        bool m_status;
+    };
+
+    struct SetGetARPKey_Override
+    {
+        SetGetARPKey_Override(std::function<AppInstaller::Registry::Key(AppInstaller::Manifest::ScopeEnum, AppInstaller::Utility::Architecture)> function)
+        {
+            AppInstaller::Repository::Microsoft::SetGetARPKeyOverride(function);
+        }
+
+        ~SetGetARPKey_Override()
+        {
+            AppInstaller::Repository::Microsoft::SetGetARPKeyOverride({});
+        }
+
+    private:
+    };
+
+    struct SetRegisterForRestartResult_Override
+    {
+        SetRegisterForRestartResult_Override(bool status) : m_status(status)
+        {
+            AppInstaller::Reboot::TestHook_SetRegisterForRestartResult_Override(&m_status);
+        }
+
+        ~SetRegisterForRestartResult_Override()
+        {
+            AppInstaller::Reboot::TestHook_SetRegisterForRestartResult_Override(nullptr);
+        }
+
+    private:
+        bool m_status;
     };
 }

@@ -6,3 +6,4 @@
 #include <winrt/Windows.Foundation.Collections.h>
 
 #include <mutex>
+#include <random>

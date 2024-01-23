@@ -1,17 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerErrors.h>
 #include <AppInstallerProgress.h>
+
+#include <winrt/Windows.Web.Http.h>
 
 #include <urlmon.h>
 #include <wrl/client.h>
 
+#include <chrono>
 #include <filesystem>
+#include <map>
 #include <optional>
 #include <ostream>
 #include <string>
 #include <string_view>
 #include <vector>
+
+using namespace std::chrono_literals;
 
 namespace AppInstaller::Utility
 {
@@ -24,6 +31,7 @@ namespace AppInstaller::Utility
         WinGetUtil,
         Installer,
         InstallerMetadataCollectionInput,
+        ConfigurationFile,
     };
 
     // Extra metadata about a download for use by certain downloaders (Delivery Optimization for instance).
@@ -31,6 +39,17 @@ namespace AppInstaller::Utility
     {
         std::string DisplayName;
         std::string ContentId;
+    };
+
+    // An exception that indicates that a remote service is too busy/unavailable and may contain data on when to try again.
+    struct ServiceUnavailableException : public wil::ResultException
+    {
+        ServiceUnavailableException(std::chrono::seconds retryAfter = 0s) : wil::ResultException(APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE), m_retryAfter(retryAfter) {}
+
+        std::chrono::seconds RetryAfter() const { return m_retryAfter; }
+
+    private:
+        std::chrono::seconds m_retryAfter;
     };
 
     // Downloads a file from the given URL and places it in the given location.
@@ -59,6 +78,9 @@ namespace AppInstaller::Utility
         bool computeHash = false,
         std::optional<DownloadInfo> info = {});
 
+    // Gets the headers for the given URL.
+    std::map<std::string, std::string> GetHeaders(std::string_view url);
+
     // Determines if the given url is a remote location.
     bool IsUrlRemote(std::string_view url);
 
@@ -79,4 +101,10 @@ namespace AppInstaller::Utility
 
     // Function to read-only create a stream from a uri string (url address or file system path)
     Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr);
+
+    // Gets the retry after value in terms of a delay in seconds.
+    std::chrono::seconds GetRetryAfter(const std::wstring& retryAfter);
+
+    // Gets the retry after value in terms of a delay in seconds.
+    std::chrono::seconds GetRetryAfter(const winrt::Windows::Web::Http::HttpResponseMessage& response);
 }

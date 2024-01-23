@@ -7,7 +7,7 @@
 namespace Microsoft.WinGet.Configuration.Engine.PSObjects
 {
     using System.Threading.Tasks;
-    using Microsoft.WinGet.Configuration.Engine.Commands;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// This is a wrapper object for asynchronous task for this module.
@@ -18,33 +18,24 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="PSConfigurationJob"/> class.
         /// </summary>
-        /// <param name="configTask">The configuration task.</param>
+        /// <param name="applyConfigTask">The apply configuration task.</param>
         /// <param name="startCommand">The start command.</param>
         internal PSConfigurationJob(
-            Task<PSConfigurationSet> configTask,
-            AsyncCommand startCommand)
+            Task<PSApplyConfigurationSetResult> applyConfigTask,
+            PowerShellCmdlet startCommand)
         {
-            this.ConfigurationTask = configTask;
+            this.ApplyConfigurationTask = applyConfigTask;
             this.StartCommand = startCommand;
         }
 
         /// <summary>
         /// Gets the running configuration task.
         /// </summary>
-        internal Task<PSConfigurationSet> ConfigurationTask { get; private set; }
+        internal Task<PSApplyConfigurationSetResult> ApplyConfigurationTask { get; private set; }
 
         /// <summary>
         /// Gets the command that started async operation.
         /// </summary>
-        internal AsyncCommand StartCommand { get; private set; }
-
-        /// <summary>
-        /// Gets the status of the configuration task.
-        /// </summary>
-        /// <returns>The task status.</returns>
-        public string GetStatus()
-        {
-            return this.ConfigurationTask.Status.ToString();
-        }
+        internal PowerShellCmdlet StartCommand { get; private set; }
     }
 }

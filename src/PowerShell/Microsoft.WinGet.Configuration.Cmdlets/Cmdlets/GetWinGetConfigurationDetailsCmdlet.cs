@@ -18,10 +18,13 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     [Cmdlet(VerbsCommon.Get, "WinGetConfigurationDetails")]
     public sealed class GetWinGetConfigurationDetailsCmdlet : PSCmdlet
     {
+        private ConfigurationCommand runningCommand = null;
+
         /// <summary>
         /// Gets or sets the configuration set.
         /// </summary>
         [Parameter(
+            Position = 0,
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
@@ -32,8 +35,19 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void ProcessRecord()
         {
-            var configCommand = new ConfigurationCommand(this);
-            configCommand.GetDetails(this.Set);
+            this.runningCommand = new ConfigurationCommand(this);
+            this.runningCommand.GetDetails(this.Set);
+        }
+
+        /// <summary>
+        /// Interrupts currently running code within the command.
+        /// </summary>
+        protected override void StopProcessing()
+        {
+            if (this.runningCommand != null)
+            {
+                this.runningCommand.Cancel();
+            }
         }
     }
 }

@@ -37,7 +37,7 @@ namespace AppInstaller::Repository
             if (!std::filesystem::exists(trackingDB))
             {
                 std::filesystem::create_directories(trackingDB.parent_path());
-                return SQLiteIndex::CreateNew(trackingDB.u8string(), Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
+                return SQLiteIndex::CreateNew(trackingDB.u8string(), SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
             }
             else
             {
@@ -273,12 +273,7 @@ namespace AppInstaller::Repository
 
             for (const auto& version : versions)
             {
-                auto manifestId = index.GetManifestIdByKey(match.first, version.GetVersion().ToString(), version.GetChannel().ToString());
-
-                if (manifestId)
-                {
-                    index.RemoveManifestById(manifestId.value());
-                }
+                index.RemoveManifestById(version.ManifestId);
             }
         }
     }

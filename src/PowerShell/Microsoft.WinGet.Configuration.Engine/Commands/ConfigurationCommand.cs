@@ -7,16 +7,20 @@
 namespace Microsoft.WinGet.Configuration.Engine.Commands
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Management.Automation;
     using System.Threading.Tasks;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.PowerShell;
+    using Microsoft.WinGet.Common.Command;
     using Microsoft.WinGet.Configuration.Engine.Exceptions;
     using Microsoft.WinGet.Configuration.Engine.Helpers;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Resources;
+    using Microsoft.WinGet.SharedLib.PolicySettings;
     using Windows.Storage;
     using Windows.Storage.Streams;
     using WinRT;
@@ -24,14 +28,14 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     /// <summary>
     /// Class that deals configuration commands.
     /// </summary>
-    public sealed class ConfigurationCommand : AsyncCommand
+    public sealed class ConfigurationCommand : PowerShellCmdlet
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
         public ConfigurationCommand(PSCmdlet psCmdlet)
-            : base(psCmdlet)
+            : base(psCmdlet, new HashSet<Policy> { Policy.WinGet, Policy.Configuration, Policy.WinGetCommandLineInterfaces })
         {
         }
 
@@ -40,15 +44,17 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
         /// <param name="hasAccepted">Has already accepted.</param>
+        /// <param name="isApply">If prompt is for apply.</param>
         /// <returns>If accepted.</returns>
-        public static bool ConfirmConfigurationProcessing(PSCmdlet psCmdlet, bool hasAccepted)
+        public static bool ConfirmConfigurationProcessing(PSCmdlet psCmdlet, bool hasAccepted, bool isApply)
         {
             bool result = false;
             if (!hasAccepted)
             {
+                var prompt = isApply ? Resources.ConfigurationWarningPromptApply : Resources.ConfigurationWarningPromptTest;
                 bool yesToAll = false;
                 bool noToAll = false;
-                result = psCmdlet.ShouldContinue(Resources.ConfigurationWarningPrompt, Resources.ConfigurationWarning, true, ref yesToAll, ref noToAll);
+                result = psCmdlet.ShouldContinue(prompt, Resources.ConfigurationWarning, true, ref yesToAll, ref noToAll);
 
                 if (yesToAll)
                 {
@@ -74,24 +80,23 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Open a configuration set.
         /// </summary>
         /// <param name="configFile">Configuration file path.</param>
+        /// <param name="modulePath">The module path to use.</param>
         /// <param name="executionPolicy">Execution policy.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
-        public void Get(string configFile, ExecutionPolicy executionPolicy, bool canUseTelemetry)
+        public void Get(
+            string configFile,
+            string modulePath,
+            ExecutionPolicy executionPolicy,
+            bool canUseTelemetry)
         {
-            configFile = this.VerifyFile(configFile);
+            var openParams = new OpenConfigurationParameters(
+                this, configFile, modulePath, executionPolicy, canUseTelemetry);
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
                 async () =>
                 {
-                    try
-                    {
-                        return await this.OpenConfigurationSetAsync(configFile, executionPolicy, canUseTelemetry);
-                    }
-                    finally
-                    {
-                        this.Complete();
-                    }
+                    return await this.OpenConfigurationSetAsync(openParams);
                 });
 
             this.Wait(runningTask);
@@ -110,8 +115,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             {
                 if (!psConfigurationSet.CanProcess())
                 {
-                    // TODO: better exception or just write info and return null.
-                    throw new Exception("Someone is using me!!!");
+                    throw new InvalidOperationException();
                 }
 
                 var runningTask = this.RunOnMTA<PSConfigurationSet>(
@@ -119,11 +123,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 {
                     try
                     {
-                        psConfigurationSet = await this.GetSetDetailsAsync(psConfigurationSet);
+                        psConfigurationSet = await this.GetSetDetailsAsync(psConfigurationSet, false);
                     }
                     finally
                     {
-                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
 
@@ -147,16 +150,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="psConfigurationSet">PSConfigurationSet.</param>
         public void StartApply(PSConfigurationSet psConfigurationSet)
         {
-            if (psConfigurationSet.Set.State == ConfigurationSetState.Completed)
+            // if (psConfigurationSet.Set.State == ConfigurationSetState.Completed)
+            if (psConfigurationSet.ApplyCompleted)
             {
                 this.Write(StreamType.Warning, "Processing this set is completed");
-                return;
+                throw new InvalidOperationException();
             }
 
             if (!psConfigurationSet.CanProcess())
             {
-                // TODO: better exception or just write info and return null.
-                throw new Exception("Someone is using me!!!");
+                throw new InvalidOperationException();
             }
 
             var configurationJob = this.StartApplyInternal(psConfigurationSet);
@@ -175,24 +178,24 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="psConfigurationJob">The configuration job.</param>
         public void Continue(PSConfigurationJob psConfigurationJob)
         {
-            if (psConfigurationJob.ConfigurationTask.IsCompleted)
+            if (psConfigurationJob.ApplyConfigurationTask.IsCompleted)
             {
                 // It is safe to print all output.
                 psConfigurationJob.StartCommand.ConsumeAndWriteStreams(this);
 
                 this.Write(StreamType.Verbose, "The task was completed before waiting");
-                if (psConfigurationJob.ConfigurationTask.IsCompletedSuccessfully)
+                if (psConfigurationJob.ApplyConfigurationTask.IsCompletedSuccessfully)
                 {
                     this.Write(StreamType.Verbose, "Completed successfully");
-                    this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
+                    this.Write(StreamType.Object, psConfigurationJob.ApplyConfigurationTask.Result);
                     return;
                 }
-                else if (psConfigurationJob.ConfigurationTask.IsFaulted)
+                else if (psConfigurationJob.ApplyConfigurationTask.IsFaulted)
                 {
                     this.Write(StreamType.Verbose, "Completed faulted before waiting");
 
                     // Maybe just write error?
-                    throw psConfigurationJob.ConfigurationTask.Exception!;
+                    throw psConfigurationJob.ApplyConfigurationTask.Exception!;
                 }
             }
 
@@ -200,69 +203,121 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
-        /// Verifies file exists and return the full path, if not already.
+        /// Test configuration.
         /// </summary>
-        /// <param name="filePath">File path.</param>
-        /// <returns>Full path.</returns>
-        private string VerifyFile(string filePath)
+        /// <param name="psConfigurationSet">PSConfigurationSet.</param>
+        public void Test(PSConfigurationSet psConfigurationSet)
         {
-            if (!Path.IsPathRooted(filePath))
+            psConfigurationSet.PsProcessor.UpdateDiagnosticCmdlet(this);
+
+            if (!psConfigurationSet.CanProcess())
             {
-                filePath = Path.GetFullPath(
-                    Path.Combine(
-                        this.PsCmdlet.SessionState.Path.CurrentFileSystemLocation.Path,
-                        filePath));
+                throw new InvalidOperationException();
             }
 
-            if (!File.Exists(filePath))
+            var runningTask = this.RunOnMTA<PSTestConfigurationSetResult>(
+                async () =>
+                {
+                    try
+                    {
+                        return await this.TestConfigurationAsync(psConfigurationSet);
+                    }
+                    finally
+                    {
+                        psConfigurationSet.DoneProcessing();
+                    }
+                });
+
+            this.Wait(runningTask);
+            this.Write(StreamType.Object, runningTask.Result);
+        }
+
+        /// <summary>
+        /// Validates configuration.
+        /// </summary>
+        /// <param name="psConfigurationSet">PSConfigurationSet.</param>
+        public void Validate(PSConfigurationSet psConfigurationSet)
+        {
+            psConfigurationSet.PsProcessor.UpdateDiagnosticCmdlet(this);
+
+            if (!psConfigurationSet.CanProcess())
             {
-                throw new FileNotFoundException(filePath);
+                throw new InvalidOperationException();
             }
 
-            return filePath;
+            var runningTask = this.RunOnMTA<PSValidateConfigurationSetResult>(
+                async () =>
+                {
+                    try
+                    {
+                        var setResult = await this.ApplyConfigurationAsync(psConfigurationSet, ApplyConfigurationSetFlags.PerformConsistencyCheckOnly);
+                        return new PSValidateConfigurationSetResult(setResult);
+                    }
+                    finally
+                    {
+                        psConfigurationSet.DoneProcessing();
+                    }
+                });
+
+            this.Wait(runningTask);
+            this.Write(StreamType.Object, runningTask.Result);
+        }
+
+        /// <summary>
+        /// Cancels a configuration job.
+        /// </summary>
+        /// <param name="psConfigurationJob">PSConfiguration job.</param>
+        public void Cancel(PSConfigurationJob psConfigurationJob)
+        {
+            psConfigurationJob.StartCommand.Cancel();
         }
 
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
         {
             // Signal the command that it can write to streams and wait for task.
             this.Write(StreamType.Verbose, "Waiting for task to complete");
-            psConfigurationJob.StartCommand.Wait(psConfigurationJob.ConfigurationTask, this);
-            this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
+            psConfigurationJob.StartCommand.Wait(psConfigurationJob.ApplyConfigurationTask, this);
+            this.Write(StreamType.Object, psConfigurationJob.ApplyConfigurationTask.Result);
         }
 
-        private PSConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy, bool canUseTelemetry)
+        private IConfigurationSetProcessorFactory CreateFactory(OpenConfigurationParameters openParams)
         {
-            this.Write(StreamType.Information, Resources.ConfigurationInitializing);
-
             var factory = new PowerShellConfigurationSetProcessorFactory();
 
             var properties = factory.As<IPowerShellConfigurationProcessorFactoryProperties>();
-            properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
+            properties.Policy = openParams.Policy;
             properties.ProcessorType = PowerShellConfigurationProcessorType.Default;
+            properties.Location = openParams.Location;
+            if (properties.Location == PowerShellConfigurationProcessorLocation.Custom)
+            {
+                properties.CustomLocation = openParams.CustomLocation;
+            }
 
-            return new PSConfigurationProcessor(factory, this, canUseTelemetry);
+            return factory;
         }
 
-        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(string configFile, ExecutionPolicy executionPolicy, bool canUseTelemetry)
+        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(OpenConfigurationParameters openParams)
         {
-            var psProcessor = this.CreateConfigurationProcessor(executionPolicy, canUseTelemetry);
+            this.Write(StreamType.Verbose, Resources.ConfigurationInitializing);
 
-            this.Write(StreamType.Information, Resources.ConfigurationReadingConfigFile);
-            var stream = await FileRandomAccessStream.OpenAsync(configFile, FileAccessMode.Read);
+            var psProcessor = new PSConfigurationProcessor(this.CreateFactory(openParams), this, openParams.CanUseTelemetry);
+
+            this.Write(StreamType.Verbose, Resources.ConfigurationReadingConfigFile);
+            var stream = await FileRandomAccessStream.OpenAsync(openParams.ConfigFile, FileAccessMode.Read);
 
             OpenConfigurationSetResult openResult = await psProcessor.Processor.OpenConfigurationSetAsync(stream);
             if (openResult.ResultCode != null)
             {
-                throw new OpenConfigurationSetException(openResult, configFile);
+                throw new OpenConfigurationSetException(openResult, openParams.ConfigFile);
             }
 
             var set = openResult.Set;
 
             // This should match winget's OpenConfigurationSet or OpenConfigurationSetAsync
             // should be modify to take the full path and handle it.
-            set.Name = Path.GetFileName(configFile);
-            set.Origin = Path.GetDirectoryName(configFile);
-            set.Path = configFile;
+            set.Name = Path.GetFileName(openParams.ConfigFile);
+            set.Origin = Path.GetDirectoryName(openParams.ConfigFile);
+            set.Path = openParams.ConfigFile;
 
             return new PSConfigurationSet(psProcessor, set);
         }
@@ -271,31 +326,30 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             psConfigurationSet.PsProcessor.UpdateDiagnosticCmdlet(this);
 
-            var runningTask = this.RunOnMTA<PSConfigurationSet>(
+            var runningTask = this.RunOnMTA<PSApplyConfigurationSetResult>(
                 async () =>
                 {
                     try
                     {
-                        psConfigurationSet = await this.ApplyConfigurationAsync(psConfigurationSet);
+                        var setResult = await this.ApplyConfigurationAsync(psConfigurationSet, ApplyConfigurationSetFlags.None);
+                        psConfigurationSet.ApplyCompleted = true;
+                        return new PSApplyConfigurationSetResult(setResult);
                     }
                     finally
                     {
-                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
-
-                    return psConfigurationSet;
                 });
 
             return new PSConfigurationJob(runningTask, this);
         }
 
-        private async Task<PSConfigurationSet> ApplyConfigurationAsync(PSConfigurationSet psConfigurationSet)
+        private async Task<ApplyConfigurationSetResult> ApplyConfigurationAsync(PSConfigurationSet psConfigurationSet, ApplyConfigurationSetFlags flags)
         {
             if (!psConfigurationSet.HasDetails)
             {
                 this.Write(StreamType.Verbose, "Getting details for configuration set");
-                await this.GetSetDetailsAsync(psConfigurationSet);
+                await this.GetSetDetailsAsync(psConfigurationSet, true);
             }
 
             var processor = psConfigurationSet.PsProcessor.Processor;
@@ -307,29 +361,63 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 Resources.ConfigurationApply,
                 Resources.OperationInProgress,
                 Resources.OperationCompleted,
-                set.ConfigurationUnits.Count);
+                set.Units.Count);
 
-            var applyTask = processor.ApplySetAsync(set, ApplyConfigurationSetFlags.None);
+            var applyTask = processor.ApplySetAsync(set, flags);
             applyTask.Progress = applyProgressOutput.Progress;
 
             try
             {
-                var result = await applyTask;
-                applyProgressOutput.HandleUnreportedProgress(result);
+                var result = await applyTask.AsTask(this.GetCancellationToken());
+                applyProgressOutput.HandleProgress(result);
+                return result;
             }
             finally
             {
                 applyProgressOutput.CompleteProgress();
             }
-
-            return psConfigurationSet;
         }
 
-        private async Task<PSConfigurationSet> GetSetDetailsAsync(PSConfigurationSet psConfigurationSet)
+        private async Task<PSTestConfigurationSetResult> TestConfigurationAsync(PSConfigurationSet psConfigurationSet)
+        {
+            if (!psConfigurationSet.HasDetails)
+            {
+                this.Write(StreamType.Verbose, "Getting details for configuration set");
+                await this.GetSetDetailsAsync(psConfigurationSet, true);
+            }
+
+            var processor = psConfigurationSet.PsProcessor.Processor;
+            var set = psConfigurationSet.Set;
+
+            var testProgressOutput = new TestConfigurationSetProgressOutput(
+                this,
+                this.GetNewProgressActivityId(),
+                Resources.ConfigurationAssert,
+                Resources.OperationInProgress,
+                Resources.OperationCompleted,
+                set.Units.Count);
+
+            var testTask = processor.TestSetAsync(set);
+            testTask.Progress = testProgressOutput.Progress;
+
+            try
+            {
+                var result = await testTask.AsTask(this.GetCancellationToken());
+                testProgressOutput.HandleProgress(result);
+
+                return new PSTestConfigurationSetResult(result);
+            }
+            finally
+            {
+                testProgressOutput.CompleteProgress();
+            }
+        }
+
+        private async Task<PSConfigurationSet> GetSetDetailsAsync(PSConfigurationSet psConfigurationSet, bool warnOnError)
         {
             var processor = psConfigurationSet.PsProcessor.Processor;
             var set = psConfigurationSet.Set;
-            var totalUnitsCount = set.ConfigurationUnits.Count;
+            var totalUnitsCount = set.Units.Count;
 
             if (totalUnitsCount == 0)
             {
@@ -337,75 +425,54 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 return psConfigurationSet;
             }
 
-            var detailsProgressOutput = new GetConfigurationSetDetailsProgressOutput(
-                this,
-                this.GetNewProgressActivityId(),
-                Resources.ConfigurationGettingDetails,
-                Resources.OperationInProgress,
-                Resources.OperationCompleted,
-                totalUnitsCount);
-
-            var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailFlags.ReadOnly);
-            detailsTask.Progress = detailsProgressOutput.Progress;
-
             try
             {
-                var result = await detailsTask;
-                detailsProgressOutput.HandleUnits(result.UnitResults);
+                var detailsProgressOutput = new GetConfigurationSetDetailsProgressOutput(
+                    this,
+                    this.GetNewProgressActivityId(),
+                    Resources.ConfigurationGettingDetails,
+                    Resources.OperationInProgress,
+                    Resources.OperationCompleted,
+                    totalUnitsCount);
+
+                var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailFlags.ReadOnly);
+                detailsTask.Progress = detailsProgressOutput.Progress;
+
+                try
+                {
+                    var result = await detailsTask.AsTask(this.GetCancellationToken());
+                    detailsProgressOutput.HandleProgress(result);
+
+                    if (result.UnitResults.Where(u => u.ResultInformation.ResultCode != null).Any())
+                    {
+                        throw new GetDetailsException(result.UnitResults);
+                    }
+
+                    if (detailsProgressOutput.UnitsShown == 0)
+                    {
+                        throw new GetDetailsException();
+                    }
+
+                    psConfigurationSet.HasDetails = true;
+                }
+                finally
+                {
+                    detailsProgressOutput.CompleteProgress();
+                }
             }
             catch (Exception e)
             {
-                this.WriteError(
-                    ErrorRecordErrorId.ConfigurationDetailsError,
-                    e);
-            }
-            finally
-            {
-                detailsProgressOutput.CompleteProgress();
-            }
-
-            if (detailsProgressOutput.UnitsShown == 0)
-            {
-                this.Write(StreamType.Warning, Resources.ConfigurationFailedToGetDetails);
-                foreach (var unit in set.ConfigurationUnits)
+                if (warnOnError)
                 {
-                    var information = new ConfigurationUnitInformation(unit);
-                    this.Write(StreamType.Information, information.GetHeader());
-                    this.Write(StreamType.Information, information.GetInformation());
+                    this.Write(StreamType.Warning, e.Message);
                 }
-            }
-            else
-            {
-                psConfigurationSet.HasDetails = true;
+                else
+                {
+                    throw;
+                }
             }
 
             return psConfigurationSet;
-        }
-
-        private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
-        {
-            if (resultInformation.ResultCode != null)
-            {
-                string errorMessage = $"Failed to get unit details for {unit.UnitName} 0x{resultInformation.ResultCode.HResult:X}" +
-                    $"{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'";
-                this.WriteError(
-                    ErrorRecordErrorId.ConfigurationDetailsError,
-                    errorMessage,
-                    resultInformation.ResultCode);
-            }
-        }
-
-        private PowerShellConfigurationProcessorPolicy GetConfigurationProcessorPolicy(ExecutionPolicy policy)
-        {
-            return policy switch
-            {
-                ExecutionPolicy.Unrestricted => PowerShellConfigurationProcessorPolicy.Unrestricted,
-                ExecutionPolicy.RemoteSigned => PowerShellConfigurationProcessorPolicy.RemoteSigned,
-                ExecutionPolicy.AllSigned => PowerShellConfigurationProcessorPolicy.AllSigned,
-                ExecutionPolicy.Restricted => PowerShellConfigurationProcessorPolicy.Restricted,
-                ExecutionPolicy.Bypass => PowerShellConfigurationProcessorPolicy.Bypass,
-                _ => throw new InvalidOperationException(),
-            };
         }
     }
 }

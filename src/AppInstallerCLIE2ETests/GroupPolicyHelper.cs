@@ -114,6 +114,11 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableAllowedSources { get; private set; } = new GroupPolicyHelper("EnableAllowedSources", "AllowedSources");
 
         /// <summary>
+        /// Gets the Enable Windows Package Manager Configuration Interfaces policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableConfiguration { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManagerConfiguration");
+
+        /// <summary>
         /// Gets the Enable auto update interval policy.
         /// </summary>
         public static GroupPolicyHelper SourceAutoUpdateInterval { get; private set; } = new GroupPolicyHelper("SourceAutoUpdateInterval", "SourceAutoUpdateInterval");
@@ -132,6 +137,7 @@ namespace AppInstallerCLIE2ETests
             EnableAllowedSources,
             SourceAutoUpdateInterval,
             EnableWinGetCommandLineInterfaces,
+            EnableConfiguration,
         };
 
         /// <summary>

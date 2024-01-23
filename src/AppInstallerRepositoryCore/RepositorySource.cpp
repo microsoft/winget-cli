@@ -11,6 +11,7 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
 #include "PackageTrackingCatalogSourceFactory.h"
+#include "SourceUpdateChecks.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include "Microsoft/ConfigurableTestSourceFactory.h"
@@ -34,47 +35,106 @@ namespace AppInstaller::Repository
             return ISourceFactory::GetForType(details.Type)->Create(details);
         }
 
-        template <typename MemberFunc>
-        bool AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
+        std::chrono::milliseconds GetMillisecondsToWait(std::chrono::seconds retryAfter, size_t randomMultiplier = 1)
         {
-            bool result = false;
+            if (retryAfter != 0s)
+            {
+                return std::chrono::duration_cast<std::chrono::milliseconds>(retryAfter);
+            }
+            else
+            {
+                // Add a bit of randomness to the retry wait time
+                std::default_random_engine randomEngine(std::random_device{}());
+                std::uniform_int_distribution<long long> distribution(2000, 10000);
+
+                return std::chrono::milliseconds(distribution(randomEngine) * randomMultiplier);
+            }
+        }
+
+        struct AddOrUpdateResult
+        {
+            bool UpdateChecked = false;
+            bool MetadataWritten = false;
+        };
+
+        template <typename MemberFunc>
+        AddOrUpdateResult AddOrUpdateFromDetails(SourceDetails& details, MemberFunc member, IProgressCallback& progress)
+        {
+            AddOrUpdateResult result;
+
             auto factory = ISourceFactory::GetForType(details.Type);
+
+            // If we are instructed to wait longer than this, just fail rather than retrying.
+            constexpr std::chrono::seconds maximumWaitTimeAllowed = 60s;
+            std::chrono::seconds waitSecondsForRetry = 0s;
 
             // Attempt; if it fails, wait a short time and retry.
             try
             {
-                result = (factory.get()->*member)(details, progress);
-                if (result)
+                result.UpdateChecked = (factory.get()->*member)(details, progress);
+                if (result.UpdateChecked)
                 {
                     details.LastUpdateTime = std::chrono::system_clock::now();
+                    result.MetadataWritten = true;
                 }
                 return result;
             }
+            catch (const Utility::ServiceUnavailableException& sue)
+            {
+                waitSecondsForRetry = sue.RetryAfter();
+
+                // Do not retry if the server tell us to wait more than the max time allowed.
+                if (waitSecondsForRetry > maximumWaitTimeAllowed)
+                {
+                    details.DoNotUpdateBefore = std::chrono::system_clock::now() + waitSecondsForRetry;
+                    AICLI_LOG(Repo, Info, << "Source `" << details.Name << "` unavailable first try, setting DoNotUpdateBefore to " << details.DoNotUpdateBefore);
+                    result.MetadataWritten = true;
+                    return result;
+                }
+            }
             CATCH_LOG();
 
-            AICLI_LOG(Repo, Info, << "Source add/update failed, waiting a bit and retrying: " << details.Name);
-            std::this_thread::sleep_for(2s);
+            std::chrono::milliseconds millisecondsToWait = GetMillisecondsToWait(waitSecondsForRetry);
 
-            // If this one fails, maybe the problem is persistent.
-            result = (factory.get()->*member)(details, progress);
-            if (result)
+            AICLI_LOG(Repo, Info, << "Source add/update failed, waiting " << millisecondsToWait.count() << " milliseconds and retrying: " << details.Name);
+
+            if (!ProgressCallback::Wait(progress, millisecondsToWait))
             {
-                details.LastUpdateTime = std::chrono::system_clock::now();
+                AICLI_LOG(Repo, Info, << "Source second try cancelled.");
+                return {};
             }
+
+            try
+            {
+                // If this one fails, maybe the problem is persistent.
+                result.UpdateChecked = (factory.get()->*member)(details, progress);
+                if (result.UpdateChecked)
+                {
+                    details.LastUpdateTime = std::chrono::system_clock::now();
+                    result.MetadataWritten = true;
+                }
+            }
+            catch (const Utility::ServiceUnavailableException& sue)
+            {
+                details.DoNotUpdateBefore = std::chrono::system_clock::now() + GetMillisecondsToWait(sue.RetryAfter(), 3);
+                AICLI_LOG(Repo, Info, << "Source `" << details.Name << "` unavailable second try, setting DoNotUpdateBefore to " << details.DoNotUpdateBefore);
+                result.MetadataWritten = true;
+            }
+
             return result;
         }
 
-        bool AddSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        AddOrUpdateResult AddSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
             return AddOrUpdateFromDetails(details, &ISourceFactory::Add, progress);
         }
 
-        bool UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        AddOrUpdateResult UpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
             return AddOrUpdateFromDetails(details, &ISourceFactory::Update, progress);
         }
 
-        bool BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
+        AddOrUpdateResult BackgroundUpdateSourceFromDetails(SourceDetails& details, IProgressCallback& progress)
         {
             return AddOrUpdateFromDetails(details, &ISourceFactory::BackgroundUpdate, progress);
         }
@@ -91,34 +151,6 @@ namespace AppInstaller::Repository
             return (origin == SourceOrigin::Default || origin == SourceOrigin::GroupPolicy || origin == SourceOrigin::User);
         }
 
-        // Determines whether (and logs why) a source should be updated before it is opened.
-        bool ShouldUpdateBeforeOpen(const SourceDetails& details)
-        {
-            if (!ContainsAvailablePackagesInternal(details.Origin))
-            {
-                return false;
-            }
-
-            constexpr static auto s_ZeroMins = 0min;
-            auto autoUpdateTime = User().Get<Setting::AutoUpdateTimeInMinutes>();
-
-            // A value of zero means no auto update, to get update the source run `winget update`
-            if (autoUpdateTime != s_ZeroMins)
-            {
-                auto autoUpdateTimeMins = std::chrono::minutes(autoUpdateTime);
-                auto timeSinceLastUpdate = std::chrono::system_clock::now() - details.LastUpdateTime;
-                if (timeSinceLastUpdate > autoUpdateTimeMins)
-                {
-                    AICLI_LOG(Repo, Info, << "Source past auto update time [" <<
-                        std::chrono::duration_cast<std::chrono::minutes>(autoUpdateTimeMins).count() << " mins]; it has been at least " <<
-                        std::chrono::duration_cast<std::chrono::minutes>(timeSinceLastUpdate).count() << " mins");
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         SourceDetails GetPredefinedSourceDetails(PredefinedSource source)
         {
             SourceDetails details;
@@ -129,6 +161,10 @@ namespace AppInstaller::Repository
             case PredefinedSource::Installed:
                 details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
+                return details;
+            case PredefinedSource::InstalledForceCacheUpdate:
+                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::NoneWithForcedCacheUpdate);
                 return details;
             case PredefinedSource::InstalledUser:
                 details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
@@ -189,6 +225,53 @@ namespace AppInstaller::Repository
         private:
             SourceDetails m_details;
             std::exception_ptr m_exception;
+        };
+
+        // A wrapper that doesn't actually forward the search requests.
+        struct TrackingOnlySourceWrapper : public ISource
+        {
+            TrackingOnlySourceWrapper(std::shared_ptr<ISourceReference> wrapped) : m_wrapped(std::move(wrapped))
+            {
+                m_identifier = m_wrapped->GetIdentifier();
+            }
+
+            const std::string& GetIdentifier() const override { return m_identifier; }
+
+            SourceDetails& GetDetails() const override { return m_wrapped->GetDetails(); }
+
+            SourceInformation GetInformation() const override { return m_wrapped->GetInformation(); }
+
+            SearchResult Search(const SearchRequest&) const override { return {}; }
+
+            void* CastTo(ISourceType) override { return nullptr; }
+
+        private:
+            std::shared_ptr<ISourceReference> m_wrapped;
+            std::string m_identifier;
+        };
+
+        // A wrapper to create another wrapper.
+        struct TrackingOnlyReferenceWrapper : public ISourceReference
+        {
+            TrackingOnlyReferenceWrapper(std::shared_ptr<ISourceReference> wrapped) : m_wrapped(std::move(wrapped)) {}
+
+            std::string GetIdentifier() override { return m_wrapped->GetIdentifier(); }
+
+            SourceDetails& GetDetails() override { return m_wrapped->GetDetails(); }
+
+            SourceInformation GetInformation() override { return m_wrapped->GetInformation(); }
+
+            bool SetCustomHeader(std::optional<std::string>) override { return false; }
+
+            void SetCaller(std::string caller) override { m_wrapped->SetCaller(std::move(caller)); }
+
+            std::shared_ptr<ISource> Open(IProgressCallback&) override
+            {
+                return std::make_shared<TrackingOnlySourceWrapper>(m_wrapped);
+            }
+
+        private:
+            std::shared_ptr<ISourceReference> m_wrapped;
         };
     }
 
@@ -273,7 +356,16 @@ namespace AppInstaller::Repository
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !IsWellKnownSourceEnabled(source));
 
-        SourceDetails details = GetWellKnownSourceDetailsInternal(source);
+        auto details = GetWellKnownSourceDetailsInternal(source);
+
+        // Populate metadata
+        SourceList sourceList;
+        auto sourceDetailsWithMetadata = sourceList.GetSource(details.Name);
+        if (sourceDetailsWithMetadata)
+        {
+            sourceDetailsWithMetadata->CopyMetadataFieldsTo(details);
+        }
+
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
@@ -429,6 +521,12 @@ namespace AppInstaller::Repository
         }
     }
 
+    bool Source::QueryFeatureFlag(SourceFeatureFlag flag) const
+    {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
+        return m_source->QueryFeatureFlag(flag);
+    }
+
     bool Source::ContainsAvailablePackages() const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), IsComposite());
@@ -447,6 +545,23 @@ namespace AppInstaller::Repository
         {
             sourceReference->SetCaller(caller);
         }
+    }
+
+    void Source::SetBackgroundUpdateInterval(TimeSpan interval)
+    {
+        m_backgroundUpdateInterval = interval;
+    }
+
+    void Source::InstalledPackageInformationOnly(bool value)
+    {
+        m_installedPackageInformationOnly = value;
+    }
+
+    bool Source::IsWellKnownSource(WellKnownSource wellKnownSource)
+    {
+        SourceDetails details = GetDetails();
+        auto wellKnown = CheckForWellKnownSourceMatch(details.Name, details.Arg, details.Type);
+        return wellKnown && wellKnown.value() == wellKnownSource;
     }
 
     SearchResult Source::Search(const SearchRequest& request) const
@@ -528,51 +643,72 @@ namespace AppInstaller::Repository
 
         if (!m_source)
         {
+            std::vector<std::shared_ptr<ISourceReference>>* sourceReferencesToOpen = nullptr;
+            std::vector<std::shared_ptr<ISourceReference>> sourceReferencesForTrackingOnly;
             std::unique_ptr<SourceList> sourceList;
 
-            // Check for updates before opening.
-            for (auto& sourceReference : m_sourceReferences)
+            if (m_installedPackageInformationOnly)
             {
-                auto& details = sourceReference->GetDetails();
-                if (ShouldUpdateBeforeOpen(details))
+                sourceReferencesToOpen = &sourceReferencesForTrackingOnly;
+
+                // Create a wrapper for each reference
+                for (auto& sourceReference : m_sourceReferences)
                 {
-                    try
+                    sourceReferencesForTrackingOnly.emplace_back(std::make_shared<TrackingOnlyReferenceWrapper>(sourceReference));
+                }
+            }
+            else
+            {
+                // Check for updates before opening.
+                for (auto& sourceReference : m_sourceReferences)
+                {
+                    if (ShouldUpdateBeforeOpen(sourceReference.get(), m_backgroundUpdateInterval))
                     {
-                        // TODO: Consider adding a context callback to indicate we are doing the same action
-                        // to avoid the progress bar fill up multiple times.
-                        if (BackgroundUpdateSourceFromDetails(details, progress))
+                        auto& details = sourceReference->GetDetails();
+
+                        try
                         {
-                            if (sourceList == nullptr)
+                            // TODO: Consider adding a context callback to indicate we are doing the same action
+                            // to avoid the progress bar fill up multiple times.
+                            AddOrUpdateResult updateResult = BackgroundUpdateSourceFromDetails(details, progress);
+
+                            if (updateResult.MetadataWritten)
                             {
-                                sourceList = std::make_unique<SourceList>();
+                                if (sourceList == nullptr)
+                                {
+                                    sourceList = std::make_unique<SourceList>();
+                                }
+
+                                auto detailsInternal = sourceList->GetSource(details.Name);
+                                detailsInternal->CopyMetadataFieldsFrom(details);
+                                sourceList->SaveMetadata(*detailsInternal);
                             }
 
-                            auto detailsInternal = sourceList->GetSource(details.Name);
-                            detailsInternal->LastUpdateTime = details.LastUpdateTime;
-                            sourceList->SaveMetadata(*detailsInternal);
+                            if (!updateResult.UpdateChecked)
+                            {
+                                AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
+                                result.emplace_back(details);
+                            }
                         }
-                        else
+                        catch (...)
                         {
-                            AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
+                            LOG_CAUGHT_EXCEPTION();
+                            AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
                             result.emplace_back(details);
                         }
                     }
-                    catch (...)
-                    {
-                        LOG_CAUGHT_EXCEPTION();
-                        AICLI_LOG(Repo, Warning, << "Failed to update source: " << details.Name);
-                        result.emplace_back(details);
-                    }
                 }
+
+                sourceReferencesToOpen = &m_sourceReferences;
             }
 
-            if (m_sourceReferences.size() > 1)
+            if (sourceReferencesToOpen->size() > 1)
             {
                 AICLI_LOG(Repo, Info, << "Multiple sources available, creating aggregated source.");
                 auto aggregatedSource = std::make_shared<CompositeSource>("*DefaultSource");
                 std::vector<std::shared_ptr<OpenExceptionProxy>> openExceptionProxies;
 
-                for (auto& sourceReference : m_sourceReferences)
+                for (auto& sourceReference : *sourceReferencesToOpen)
                 {
                     AICLI_LOG(Repo, Info, << "Adding to aggregated source: " << sourceReference->GetDetails().Name);
 
@@ -602,7 +738,7 @@ namespace AppInstaller::Repository
             }
             else
             {
-                m_source = m_sourceReferences[0]->Open(progress);
+                m_source = (*sourceReferencesToOpen)[0]->Open(progress);
             }
         }
 
@@ -645,7 +781,7 @@ namespace AppInstaller::Repository
             sourceDetails.Origin = SourceOrigin::User;
         }
 
-        bool result = AddSourceFromDetails(sourceDetails, progress);
+        bool result = AddSourceFromDetails(sourceDetails, progress).UpdateChecked;
         if (result)
         {
             sourceList.AddSource(sourceDetails);
@@ -675,13 +811,16 @@ namespace AppInstaller::Repository
             {
                 // TODO: Consider adding a context callback to indicate we are doing the same action
                 // to avoid the progress bar fill up multiple times.
-                if (UpdateSourceFromDetails(details, progress))
+                AddOrUpdateResult updateResult = UpdateSourceFromDetails(details, progress);
+
+                if (updateResult.MetadataWritten)
                 {
                     auto detailsInternal = sourceList.GetSource(details.Name);
-                    detailsInternal->LastUpdateTime = details.LastUpdateTime;
+                    detailsInternal->CopyMetadataFieldsFrom(details);
                     sourceList.SaveMetadata(*detailsInternal);
                 }
-                else
+
+                if (!updateResult.UpdateChecked)
                 {
                     AICLI_LOG(Repo, Error, << "Failed to update source: " << details.Name);
                     result.emplace_back(details);

@@ -150,7 +150,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
     {
     }
 
-    Schema::Version Interface::GetVersion() const
+    SQLite::Version Interface::GetVersion() const
     {
         return { 1, 2 };
     }
@@ -165,8 +165,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         // This will mean that one can match cross locale name and publisher, but the chance that this
         // leads to a confusion between packages is very small. More likely would be intentional attempts
         // to confuse the correlation, which could be fairly easily carried out even with linked values.
-        NormalizedPackageNameTable::Create(connection);
-        NormalizedPackagePublisherTable::Create(connection);
+        NormalizedPackageNameTable::Create(connection, GetOneToManyTableSchema());
+        NormalizedPackagePublisherTable::Create(connection, GetOneToManyTableSchema());
 
         savepoint.Commit();
     }
@@ -320,8 +320,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 
         V1_1::Interface::PrepareForPackaging(connection, false);
 
-        NormalizedPackageNameTable::PrepareForPackaging(connection, true, true);
-        NormalizedPackagePublisherTable::PrepareForPackaging(connection, true, true);
+        NormalizedPackageNameTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), true, true);
+        NormalizedPackagePublisherTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), true, true);
 
         savepoint.Commit();
 

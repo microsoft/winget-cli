@@ -23,14 +23,14 @@ namespace Microsoft.Management.Configuration.Processor.Set
     /// </summary>
     internal sealed class ConfigurationSetProcessor : IConfigurationSetProcessor
     {
-        private readonly ConfigurationSet configurationSet;
+        private readonly ConfigurationSet? configurationSet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationSetProcessor"/> class.
         /// </summary>
         /// <param name="processorEnvironment">The processor environment.</param>
         /// <param name="configurationSet">Configuration set.</param>
-        public ConfigurationSetProcessor(IProcessorEnvironment processorEnvironment, ConfigurationSet configurationSet)
+        public ConfigurationSetProcessor(IProcessorEnvironment processorEnvironment, ConfigurationSet? configurationSet)
         {
             this.ProcessorEnvironment = processorEnvironment;
             this.configurationSet = configurationSet;
@@ -50,20 +50,19 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// Creates a configuration unit processor for the given unit.
         /// </summary>
         /// <param name="unit">Configuration unit.</param>
-        /// <param name="directivesOverlay">Allows for the ConfigurationProcessor to alter behavior without needing to change the unit itself.</param>
         /// <returns>A configuration unit processor.</returns>
         public IConfigurationUnitProcessor CreateUnitProcessor(
-            ConfigurationUnit unit,
-            IReadOnlyDictionary<string, object>? directivesOverlay)
+            ConfigurationUnit unit)
         {
             try
             {
-                var configurationUnitInternal = new ConfigurationUnitInternal(unit, this.configurationSet.Path, directivesOverlay);
-                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating unit processor for: {configurationUnitInternal.ToIdentifyingString()}...");
+                var configurationUnitInternal = new ConfigurationUnitInternal(unit, this.configurationSet?.Path) { UnitTypeIsResourceName = IsUnitTypeResourceName(this.configurationSet?.SchemaVersion) };
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating unit processor for: {configurationUnitInternal.QualifiedName}...");
 
                 var dscResourceInfo = this.PrepareUnitForProcessing(configurationUnitInternal);
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, "... done creating unit processor.");
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Using unit from location: {dscResourceInfo.Path}");
                 return new ConfigurationUnitProcessor(
                     this.ProcessorEnvironment,
                     new ConfigurationUnitAndResource(configurationUnitInternal, dscResourceInfo))
@@ -88,8 +87,8 @@ namespace Microsoft.Management.Configuration.Processor.Set
         {
             try
             {
-                var unitInternal = new ConfigurationUnitInternal(unit, this.configurationSet.Path);
-                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Getting unit details [{detailFlags}] for: {unitInternal.ToIdentifyingString()}");
+                var unitInternal = new ConfigurationUnitInternal(unit, this.configurationSet?.Path);
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Getting unit details [{detailFlags}] for: {unitInternal.QualifiedName}");
 
                 // (Local | Download | Load) will all work off of local files, so if any one is an option just use the local module info if found.
                 DscResourceInfoInternal? dscResourceInfo = null;
@@ -161,7 +160,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                     {
                         // Well, this is awkward.
                         throw new InstallDscResourceException(
-                            unit.UnitName,
+                            unitInternal.ResourceName,
                             PowerShellHelpers.CreateModuleSpecification(foundModuleInfo.Name, foundModuleInfo.Version));
                     }
 
@@ -175,6 +174,11 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 this.OnDiagnostics(DiagnosticLevel.Error, ex.ToString());
                 throw;
             }
+        }
+
+        private static bool IsUnitTypeResourceName(string? schemaVersion)
+        {
+            return schemaVersion != null && schemaVersion == "0.1";
         }
 
         /// <summary>
@@ -194,7 +198,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 foundModule = this.ProcessorEnvironment.FindModule(unitInternal);
                 if (foundModule != null)
                 {
-                    resourceName = unitInternal.Unit.UnitName;
+                    resourceName = unitInternal.ResourceName;
                 }
             }
             else
@@ -237,7 +241,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
                 if (findUnitModuleResult is null)
                 {
-                    throw new FindDscResourceNotFoundException(unitInternal.Unit.UnitName, unitInternal.Module);
+                    throw new FindDscResourceNotFoundException(unitInternal.ResourceName, unitInternal.Module);
                 }
 
                 this.ProcessorEnvironment.InstallModule(findUnitModuleResult.Value.Module);
@@ -246,7 +250,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
                 if (dscResourceInfo is null)
                 {
-                    throw new InstallDscResourceException(unitInternal.Unit.UnitName, unitInternal.Module);
+                    throw new InstallDscResourceException(unitInternal.ResourceName, unitInternal.Module);
                 }
             }
 

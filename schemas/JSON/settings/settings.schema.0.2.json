@@ -50,6 +50,29 @@
             "error",
             "critical"
           ]
+        },
+        "channels": {
+          "description": "The logging channels to enable",
+          "type": "array",
+          "items": {
+            "uniqueItems": "true",
+            "type": "string",
+            "enum": [
+              "fail",
+              "cli",
+              "sql",
+              "repo",
+              "yaml",
+              "core",
+              "test",
+              "config",
+              "default",
+              "all"
+            ],
+            "maxLength": 20
+          },
+          "minItems": 0,
+          "maxItems": 20
         }
       }
     },
@@ -93,6 +116,28 @@
             "minItems": 1,
             "maxItems": 4
           }
+        },
+        "installerTypes": {
+          "description": "The installerType(s) to use for a package install",
+          "type": "array",
+          "items": {
+            "uniqueItems": "true",
+            "type": "string",
+            "enum": [
+              "inno",
+              "wix",
+              "msi",
+              "nullsoft",
+              "zip",
+              "msix",
+              "exe",
+              "burn",
+              "msstore",
+              "portable"
+            ],
+            "minItems": 1,
+            "maxItems": 9
+          }
         }
       }
     },
@@ -126,6 +171,12 @@
           "description": "Default install location to use for packages that require it when not specified",
           "type": "string",
           "maxLength": "32767"
+        },
+        "maxResumes": {
+          "description": "The maximum number of resumes allowed for a single resume id. This is to prevent continuous reboots if an install that requires a reboot is not properly detected.",
+          "type": "integer",
+          "default": 3,
+          "minimum": 1
         }
       }
     },
@@ -210,11 +261,6 @@
           "type": "boolean",
           "default": false
         },
-        "dependencies": {
-          "description": "Support for package dependencies",
-          "type": "boolean",
-          "default": false
-        },
         "directMSI": {
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
           "type": "boolean",
@@ -225,8 +271,13 @@
           "type": "boolean",
           "default": false
         },
-        "download": {
-          "description": "Enable support for the download command",
+        "windowsFeature": {
+          "description": "Enable support for enabling Windows Feature(s)",
+          "type": "boolean",
+          "default": false
+        },
+        "reboot": {
+          "description": "Enable support for initiating a reboot",
           "type": "boolean",
           "default": false
         }

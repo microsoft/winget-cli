@@ -120,6 +120,7 @@ ms.localizationpriority: medium
 | 0x8A15006A | -1978335126 | APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED | Application shutdown signal received |
 | 0x8A15006B | -1978335125 | APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES | Failed to download package dependencies. |
 | 0x8A15006C | -1978335124 | APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED | Failed to download package. Download for offline installation is prohibited. |
+| 0x8A15006D | -1978335123 | APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE | A required service is busy or unavailable. Try again later. |
 
 
 ## Install errors.
@@ -146,6 +147,7 @@ Installation failed. Restart your PC then try again. |
 | 0x8A150111 | -1978334959 | APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE_BY_APPLICATION | Application is currently in use by another application. |
 | 0x8A150112 | -1978334958 | APPINSTALLER_CLI_ERROR_INSTALL_INVALID_PARAMETER | Invalid parameter. |
 | 0x8A150113 | -1978334957 | APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED | Package not supported by the system. |
+| 0x8A150114 | -1978334956 | APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED | The installer does not support upgrading an existing package. |
 
 ## Check for package installed status
 
@@ -191,3 +193,5 @@ Installation failed. Restart your PC then try again. |
 | 0x8A15C107 | -1978285817 | WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT | The module for the configuration unit is available in multiple locations with the same version. |
 | 0x8A15C108 | -1978285816 | WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE | Loading the module for the configuration unit failed. |
 | 0x8A15C109 | -1978285815 | WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT | The configuration unit returned an unexpected result during execution. |
+| 0x8A15C110 | -1978285814 | WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT | A unit contains a setting that requires the config root. |
+| 0x8A15C111 | -1978285813 | WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN | Loading the module for the configuration unit failed because it requires administrator privileges to run. |

@@ -10,7 +10,6 @@
 #include <string>
 #include <string_view>
 
-
 namespace AppInstaller::CLI::Execution
 {
     struct Context;
@@ -50,7 +49,7 @@ namespace AppInstaller::CLI::Workflow
         using Func = void (*)(Execution::Context&);
 
         WorkflowTask(Func f) : m_isFunc(true), m_func(f) {}
-        WorkflowTask(std::string_view name) : m_name(name) {}
+        WorkflowTask(std::string_view name, bool executeAlways = false) : m_name(name), m_executeAlways(executeAlways) {}
 
         virtual ~WorkflowTask() = default;
 
@@ -65,11 +64,15 @@ namespace AppInstaller::CLI::Workflow
         virtual void operator()(Execution::Context& context) const;
 
         const std::string& GetName() const { return m_name; }
+        bool IsFunction() const { return m_isFunc; }
+        Func Function() const { return m_func; }
+        bool ExecuteAlways() const { return m_executeAlways; }
 
     private:
         bool m_isFunc = false;
         Func m_func = nullptr;
         std::string m_name;
+        bool m_executeAlways = false;
     };
 
     // Helper to determine installed source to use based on context input.
@@ -315,6 +318,22 @@ namespace AppInstaller::CLI::Workflow
 
     private:
         Execution::Args::Type m_arg;
+    };
+
+    // Ensures the local file exists and is not a directory. Or it's a Uri. Default only https is supported at the moment.
+    // Required Args: the one given
+    // Inputs: None
+    // Outputs: None
+    struct VerifyFileOrUri : public WorkflowTask
+    {
+        VerifyFileOrUri(Execution::Args::Type arg, std::vector<std::wstring> supportedSchemes = { L"https" }) :
+            WorkflowTask("VerifyFileOrUri"), m_arg(arg), m_supportedSchemes(std::move(supportedSchemes)) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::Args::Type m_arg;
+        std::vector<std::wstring> m_supportedSchemes;
     };
 
     // Opens the manifest file provided on the command line.

@@ -13,6 +13,20 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// </summary>
     internal sealed class ApplySettingsResultInstance : IApplySettingsResult
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ApplySettingsResultInstance"/> class.
+        /// </summary>
+        /// <param name="unit">The configuration unit that the result is for.</param>
+        public ApplySettingsResultInstance(ConfigurationUnit unit)
+        {
+            this.Unit = unit;
+        }
+
+        /// <summary>
+        /// Gets the configuration unit that the result is for.
+        /// </summary>
+        public ConfigurationUnit Unit { get; private set; }
+
         /// <inheritdoc/>
         public IConfigurationUnitResultInformation ResultInformation
         {

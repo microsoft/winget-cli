@@ -99,9 +99,6 @@
     <ClInclude Include="Public\winget\ManifestYamlWriter.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\Registry.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\NameNormalization.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -118,9 +115,6 @@
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ManifestCommon.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\GroupPolicy.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\Locale.h">
@@ -156,17 +150,8 @@
     <ClInclude Include="Public\winget\PortableFileEntry.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\JsonUtil.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\ManagedFile.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\MsixManifest.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\Certificates.h">
-      <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\FolderFileWatcher.h">
       <Filter>Public\winget</Filter>
@@ -186,13 +171,13 @@
     <ClInclude Include="Public\winget\Pin.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\WindowsFeature.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\SelfManagement.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\MSStore.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Reboot.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
@@ -239,9 +224,6 @@
     <ClCompile Include="ExtensionCatalog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JsonUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -260,9 +242,6 @@
     <ClCompile Include="Manifest\YamlWriter.cpp">
       <Filter>Manifest</Filter>
     </ClCompile>
-    <ClCompile Include="Registry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NameNormalization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -280,9 +259,6 @@
     </ClCompile>
     <ClCompile Include="Manifest\Manifest.cpp">
       <Filter>Manifest</Filter>
-    </ClCompile>
-    <ClCompile Include="GroupPolicy.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Locale.cpp">
       <Filter>Source Files</Filter>
@@ -314,13 +290,7 @@
     <ClCompile Include="PortableARPEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ManagedFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MsixManifest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Certificates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">
@@ -344,13 +314,13 @@
     <ClCompile Include="Pin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WindowsFeature.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SelfManagement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MSStore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Reboot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

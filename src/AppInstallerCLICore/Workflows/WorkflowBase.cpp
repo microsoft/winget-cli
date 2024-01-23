@@ -16,6 +16,7 @@ using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Pinning;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
+using namespace winrt::Windows::Foundation;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -1093,6 +1094,49 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void VerifyFileOrUri::operator()(Execution::Context& context) const
+    {
+        auto path = context.Args.GetArg(m_arg);
+
+        // try uri first
+        Uri pathAsUri = nullptr;
+        try
+        {
+            pathAsUri = Uri{ Utility::ConvertToUTF16(path) };
+        }
+        catch (...) {}
+
+        if (pathAsUri)
+        {
+            if (pathAsUri.Suspicious())
+            {
+                context.Reporter.Error() << Resource::String::UriNotWellFormed(Utility::LocIndView{ path }) << std::endl;
+                AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+            }
+            // SchemeName() always returns lower case
+            else if (L"file" == pathAsUri.SchemeName() && !Utility::CaseInsensitiveStartsWith(path, "file:"))
+            {
+                // Uri constructor is smart enough to parse an absolute local file path to file uri.
+                // In this case, we should continue with VerifyFile.
+                context << VerifyFile(m_arg);
+            }
+            else if (std::find(m_supportedSchemes.begin(), m_supportedSchemes.end(), pathAsUri.SchemeName()) != m_supportedSchemes.end())
+            {
+                // Scheme supported.
+                return;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::UriSchemeNotSupported(Utility::LocIndView{ path }) << std::endl;
+                AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+            }
+        }
+        else
+        {
+            context << VerifyFile(m_arg);
+        }
+    }
+
     void GetManifestFromArg(Execution::Context& context)
     {
         Logging::Telemetry().LogIsManifestLocal(true);
@@ -1275,7 +1319,7 @@ AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::
 
 AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, const AppInstaller::CLI::Workflow::WorkflowTask& task)
 {
-    if (!context.IsTerminated())
+    if (!context.IsTerminated() || task.ExecuteAlways())
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (context.ShouldExecuteWorkflowTask(task))

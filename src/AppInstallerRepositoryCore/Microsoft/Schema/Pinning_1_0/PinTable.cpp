@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PinTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 #include "Microsoft/Schema/IPinningIndex.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0

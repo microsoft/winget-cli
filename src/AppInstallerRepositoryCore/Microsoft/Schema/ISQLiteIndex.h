@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
-#include "Microsoft/Schema/Version.h"
+#include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteVersion.h>
 #include "ISource.h"
 #include <AppInstallerVersions.h>
 #include <winget/Manifest.h>
@@ -14,9 +14,6 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
-    // Forward declarations
-    struct Version;
-
     // The common interface used to interact with all schema versions of the index.
     struct ISQLiteIndex
     {
@@ -36,7 +33,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Version 1.0
 
         // Gets the schema version that this index interface is built for.
-        virtual Schema::Version GetVersion() const = 0;
+        virtual SQLite::Version GetVersion() const = 0;
 
         // Options for creating the index.
         enum class CreateOptions
@@ -47,6 +44,15 @@ namespace AppInstaller::Repository::Microsoft::Schema
             SupportPathless = 0x1,
             // Disable support for dependencies
             DisableDependenciesSupport = 0x2,
+        };
+
+        // Contains both the object representation of the version key and the rows.
+        struct VersionKey
+        {
+            Utility::VersionAndChannel VersionAndChannel;
+            SQLite::rowid_t ManifestId;
+
+            bool operator<(const VersionKey& other) const { return VersionAndChannel < other.VersionAndChannel; }
         };
 
         // Creates all of the version dependent tables within the database.
@@ -92,7 +98,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual std::optional<SQLite::rowid_t> GetManifestIdByManifest(const SQLite::Connection& connection, const Manifest::Manifest& manifest) const = 0;
 
         // Gets all versions and channels for the given id.
-        virtual std::vector<Utility::VersionAndChannel> GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const = 0;
+        virtual std::vector<VersionKey> GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const = 0;
 
         // Version 1.1
 

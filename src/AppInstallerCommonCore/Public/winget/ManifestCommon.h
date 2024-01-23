@@ -40,6 +40,9 @@ namespace AppInstaller::Manifest
     // V1.6 manifest version
     constexpr std::string_view s_ManifestVersionV1_6 = "1.6.0"sv;
 
+    // V1.7 manifest version
+    constexpr std::string_view s_ManifestVersionV1_7 = "1.7.0"sv;
+
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
 
@@ -96,6 +99,7 @@ namespace AppInstaller::Manifest
         Unknown,
         Install,
         UninstallPrevious,
+        Deny,
     };
 
     enum class InstallerSwitchType
@@ -108,6 +112,15 @@ namespace AppInstaller::Manifest
         Log,
         InstallLocation,
         Update,
+        Repair,
+    };
+
+    enum class RepairBehaviorEnum
+    {
+        Unknown,
+        Modify,
+        Installer,
+        Uninstaller,
     };
 
     enum class ScopeEnum
@@ -366,6 +379,8 @@ namespace AppInstaller::Manifest
 
     IconResolutionEnum ConvertToIconResolutionEnum(std::string_view in);
 
+    RepairBehaviorEnum ConvertToRepairBehaviorEnum(std::string_view in);
+
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
     std::string_view InstallerSwitchTypeToString(InstallerSwitchType installerSwitchType);
@@ -377,6 +392,8 @@ namespace AppInstaller::Manifest
     std::string_view UnsupportedArgumentToString(UnsupportedArgumentEnum unsupportedArgument);
 
     std::string_view UpdateBehaviorToString(UpdateBehaviorEnum updateBehavior);
+
+    std::string_view RepairBehaviorToString(RepairBehaviorEnum repairBehavior);
 
     std::string_view PlatformToString(PlatformEnum platform);
 

@@ -7,11 +7,17 @@
 namespace AppInstallerCLIE2ETests.Helpers
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
+    using System.Management.Automation;
     using System.Reflection;
+    using System.Security.Principal;
+    using System.Text;
     using System.Threading;
     using AppInstallerCLIE2ETests;
+    using AppInstallerCLIE2ETests.PowerShell;
     using Microsoft.Management.Deployment;
     using Microsoft.Win32;
     using NUnit.Framework;
@@ -43,14 +49,71 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// The type of location.
+        /// </summary>
+        public enum TestModuleLocation
+        {
+            /// <summary>
+            /// Current user.
+            /// </summary>
+            CurrentUser,
+
+            /// <summary>
+            /// All users.
+            /// </summary>
+            AllUsers,
+
+            /// <summary>
+            /// Winget module path.
+            /// </summary>
+            WinGetModulePath,
+
+            /// <summary>
+            /// Custom.
+            /// </summary>
+            Custom,
+
+            /// <summary>
+            /// Default winget configure.
+            /// </summary>
+            Default,
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the current assembly is executing in an administrative context.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only API")]
+        public static bool ExecutingAsAdministrator
+        {
+            get
+            {
+                WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                WindowsPrincipal principal = new (identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the test is running in the CI build.
+        /// </summary>
+        public static bool IsCIEnvironment
+        {
+            get
+            {
+                return Environment.GetEnvironmentVariable("BUILD_BUILDNUMBER") != null;
+            }
+        }
+
+        /// <summary>
         /// Run winget command.
         /// </summary>
         /// <param name="command">Command to run.</param>
         /// <param name="parameters">Parameters.</param>
         /// <param name="stdIn">Optional std in.</param>
         /// <param name="timeOut">Optional timeout.</param>
+        /// <param name="throwOnTimeout">Throw on timeout.</param>
         /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000)
+        public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000, bool throwOnTimeout = true)
         {
             string inputMsg =
                     "AICLI path: " + TestSetup.Parameters.AICLIPath +
@@ -59,160 +122,9 @@ namespace AppInstallerCLIE2ETests.Helpers
                     (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
                     " Timeout: " + timeOut;
 
-            TestContext.Out.WriteLine($"Starting command run. {inputMsg} InvokeCommandInDesktopPackage: {TestSetup.Parameters.InvokeCommandInDesktopPackage}");
+            TestContext.Out.WriteLine($"Starting command run. {inputMsg}");
 
-            if (TestSetup.Parameters.InvokeCommandInDesktopPackage)
-            {
-                return RunAICLICommandViaInvokeCommandInDesktopPackage(command, parameters, stdIn, timeOut);
-            }
-            else
-            {
-                return RunAICLICommandViaDirectProcess(command, parameters, stdIn, timeOut);
-            }
-        }
-
-        /// <summary>
-        /// Run winget command via direct process.
-        /// </summary>
-        /// <param name="command">Command to run.</param>
-        /// <param name="parameters">Parameters.</param>
-        /// <param name="stdIn">Optional std in.</param>
-        /// <param name="timeOut">Optional timeout.</param>
-        /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn = null, int timeOut = 60000)
-        {
-            RunCommandResult result = new ();
-            Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(TestSetup.Parameters.AICLIPath, command + ' ' + parameters);
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.RedirectStandardError = true;
-
-            if (!string.IsNullOrEmpty(stdIn))
-            {
-                p.StartInfo.RedirectStandardInput = true;
-            }
-
-            p.Start();
-
-            if (!string.IsNullOrEmpty(stdIn))
-            {
-                p.StandardInput.Write(stdIn);
-            }
-
-            if (p.WaitForExit(timeOut))
-            {
-                result.ExitCode = p.ExitCode;
-                result.StdOut = p.StandardOutput.ReadToEnd();
-                result.StdErr = p.StandardError.ReadToEnd();
-
-                TestContext.Out.WriteLine("Command run completed with exit code: " + result.ExitCode);
-
-                if (!string.IsNullOrEmpty(result.StdErr))
-                {
-                    TestContext.Error.WriteLine("Command run error. Error: " + result.StdErr);
-                }
-
-                if (TestSetup.Parameters.VerboseLogging && !string.IsNullOrEmpty(result.StdOut))
-                {
-                    TestContext.Out.WriteLine("Command run output. Output: " + result.StdOut);
-                }
-            }
-            else
-            {
-                throw new TimeoutException($"Direct winget command run timed out: {command} {parameters}");
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// This method is used when the test is run in an OS that does not support AppExecutionAlias. E,g, our build machine.
-        /// There is not any existing API that'll activate a packaged app and wait for result, and not possible to capture the stdIn and stdOut.
-        /// This method tries to call Invoke-CommandInDesktopPackage PS command to make test executable run in packaged context.
-        /// Since Invoke-CommandInDesktopPackage just launches the executable and return, we use cmd pipe to get execution results.
-        /// The final constructed command will look like:
-        ///   Invoke-CommandInDesktopPackage ...... -Command cmd.exe -Args '-c [cmd command]'
-        ///   where [cmd command] will look like: "echo stdIn | appinst.exe args > stdout.txt 2> stderr.txt &amp;amp; echo %ERRORLEVEL% > exitcode.txt"
-        /// Then this method will read the piped result and return as RunCommandResult.
-        /// </summary>
-        /// <param name="command">Command to run.</param>
-        /// <param name="parameters">Parameters.</param>
-        /// <param name="stdIn">Optional std in.</param>
-        /// <param name="timeOut">Optional timeout.</param>
-        /// <param name="throwOnTimeout">Throw on timeout.</param>
-        /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000, bool throwOnTimeout = true)
-        {
-            string cmdCommandPiped = string.Empty;
-            if (!string.IsNullOrEmpty(stdIn))
-            {
-                cmdCommandPiped += $"echo {stdIn} | ";
-            }
-
-            string workDirectory = GetRandomTestDir();
-            string tempBatchFile = Path.Combine(workDirectory, "Batch.cmd");
-            string exitCodeFile = Path.Combine(workDirectory, "ExitCode.txt");
-            string stdOutFile = Path.Combine(workDirectory, "StdOut.txt");
-            string stdErrFile = Path.Combine(workDirectory, "StdErr.txt");
-
-            // First change the codepage so that the rest of the batch file works
-            cmdCommandPiped += $"chcp 65001\n{TestSetup.Parameters.AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile}\necho %ERRORLEVEL% > {exitCodeFile}";
-            File.WriteAllText(tempBatchFile, cmdCommandPiped, new System.Text.UTF8Encoding(false));
-
-            string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{tempBatchFile}\"'";
-
-            var psInvokeResult = RunCommandWithResult("powershell", psCommand);
-
-            if (psInvokeResult.ExitCode != 0)
-            {
-                // PS invocation failed, return result and no need to check piped output.
-                return psInvokeResult;
-            }
-
-            // The PS command just launches the app and immediately returns, we'll have to wait for up to the timeOut specified here
-            int waitedTime = 0;
-            while (!File.Exists(exitCodeFile) && waitedTime <= timeOut)
-            {
-                Thread.Sleep(1000);
-                waitedTime += 1000;
-            }
-
-            if (waitedTime >= timeOut && throwOnTimeout)
-            {
-                throw new TimeoutException($"Packaged winget command run timed out: {command} {parameters}");
-            }
-
-            RunCommandResult result = new ();
-
-            // Sometimes the files are still in use; allow for this with a wait and retry loop.
-            for (int retryCount = 0; retryCount < 4; ++retryCount)
-            {
-                bool success = false;
-
-                try
-                {
-                    result.ExitCode = File.Exists(exitCodeFile) ? int.Parse(File.ReadAllText(exitCodeFile).Trim()) : unchecked((int)0x80004005);
-                    result.StdOut = File.Exists(stdOutFile) ? File.ReadAllText(stdOutFile) : string.Empty;
-                    result.StdErr = File.Exists(stdErrFile) ? File.ReadAllText(stdErrFile) : string.Empty;
-                    success = true;
-                }
-                catch (Exception e)
-                {
-                    TestContext.Out.WriteLine("Failed to access files: " + e.Message);
-                }
-
-                if (success)
-                {
-                    break;
-                }
-                else
-                {
-                    Thread.Sleep(250);
-                }
-            }
-
-            return result;
+            return RunAICLICommandViaDirectProcess(command, parameters, stdIn, timeOut, throwOnTimeout);
         }
 
         /// <summary>
@@ -278,18 +190,6 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Run PowerShell Core command with result.
-        /// </summary>
-        /// <param name="cmdlet">Cmdlet to run.</param>
-        /// <param name="args">Args.</param>
-        /// <param name="timeOut">Optional timeout.</param>
-        /// <returns>Command result.</returns>
-        public static RunCommandResult RunPowerShellCoreCommandWithResult(string cmdlet, string args, int timeOut = 60000)
-        {
-            return RunCommandWithResult("pwsh.exe", $"-Command ipmo {TestSetup.Parameters.PowerShellModuleManifestPath}; {cmdlet} {args}", timeOut);
         }
 
         /// <summary>
@@ -429,6 +329,22 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Gets the checkpoints directory based on whether the command is invoked in desktop package or not.
+        /// </summary>
+        /// <returns>The default checkpoints directory.</returns>
+        public static string GetCheckpointsDirectory()
+        {
+            if (TestSetup.Parameters.PackagedContext)
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), Constants.CheckpointDirectoryPackaged);
+            }
+            else
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), Constants.CheckpointDirectoryUnpackaged);
+            }
+        }
+
+        /// <summary>
         /// Verify portable package.
         /// </summary>
         /// <param name="installDir">Install dir.</param>
@@ -445,8 +361,11 @@ namespace AppInstallerCLIE2ETests.Helpers
             bool shouldExist,
             Scope scope = Scope.User)
         {
+            // When portables are installed, if the exe path is inside a directory it will not be aliased
+            // if the exe path is at the root level, it will be aliased. Therefore, if either exist, the exe exists
             string exePath = Path.Combine(installDir, filename);
-            bool exeExists = File.Exists(exePath);
+            string exeAliasedPath = Path.Combine(installDir, commandAlias);
+            bool exeExists = File.Exists(exePath) || File.Exists(exeAliasedPath);
 
             string symlinkDirectory = GetPortableSymlinkDirectory(scope);
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
@@ -809,24 +728,90 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="moduleName">The module.</param>
         /// <param name="present">Whether the module is present or not.</param>
         /// <param name="repository">The repository to get the module from if needed.</param>
-        public static void EnsureModuleState(string moduleName, bool present, string repository = null)
+        /// <param name="location">The location to install the module.</param>
+        public static void EnsureModuleState(string moduleName, bool present, string repository = null, TestCommon.TestModuleLocation location = TestModuleLocation.CurrentUser)
         {
-            var result = RunCommandWithResult("pwsh", $"-Command \"Get-Module {moduleName} -ListAvailable\"");
-            bool isPresent = !string.IsNullOrWhiteSpace(result.StdOut);
+            string wingetModulePath = TestCommon.GetExpectedModulePath(TestModuleLocation.WinGetModulePath);
+            string customPath = TestCommon.GetExpectedModulePath(TestModuleLocation.Custom);
 
-            if (isPresent && !present)
+            ICollection<PSModuleInfo> e2eModule;
+            bool isPresent = false;
             {
-                RunCommand("pwsh", $"-Command \"Uninstall-Module {moduleName}\"");
+                using var pwsh = new PowerShellHost();
+                pwsh.AddModulePath($"{wingetModulePath};{customPath}");
+
+                e2eModule = pwsh.PowerShell.AddCommand("Get-Module").AddParameter("Name", moduleName).AddParameter("ListAvailable").Invoke<PSModuleInfo>();
+                isPresent = e2eModule.Any();
             }
-            else if (!isPresent && present)
+
+            if (isPresent)
             {
-                if (string.IsNullOrEmpty(repository))
+                // If the module was saved in a different location we can't Uninstall-Module.
+                foreach (var module in e2eModule)
                 {
-                    RunCommand("pwsh", $"-Command \"Install-Module {moduleName} -Force\"");
+                    var moduleBase = module.Path;
+                    while (Path.GetFileName(moduleBase) != moduleName)
+                    {
+                        moduleBase = Path.GetDirectoryName(moduleBase);
+                    }
+
+                    if (!present)
+                    {
+                        Directory.Delete(moduleBase, true);
+                    }
+                    else
+                    {
+                        // Must be present in the right location.
+                        var expectedLocation = TestCommon.GetExpectedModulePath(location);
+                        if (!moduleBase.StartsWith(expectedLocation))
+                        {
+                            Directory.Delete(moduleBase, true);
+                            isPresent = false;
+                        }
+                    }
+                }
+            }
+
+            if (!isPresent && present)
+            {
+                if (location == TestModuleLocation.CurrentUser ||
+                    location == TestModuleLocation.AllUsers)
+                {
+                    using var pwsh = new PowerShellHost();
+                    pwsh.AddModulePath($"{wingetModulePath};{customPath}");
+                    pwsh.PowerShell.AddCommand("Install-Module").AddParameter("Name", moduleName).AddParameter("Force");
+
+                    if (!string.IsNullOrEmpty(repository))
+                    {
+                        pwsh.PowerShell.AddParameter("Repository", repository);
+                    }
+
+                    if (location == TestModuleLocation.AllUsers)
+                    {
+                        pwsh.PowerShell.AddParameter("Scope", "AllUsers");
+                    }
+
+                    _ = pwsh.PowerShell.Invoke();
                 }
                 else
                 {
-                    RunCommand("pwsh", $"-Command \"Install-Module {moduleName} -Repository {repository} -Force\"");
+                    string path = customPath;
+                    if (location == TestModuleLocation.WinGetModulePath ||
+                        location == TestModuleLocation.Default)
+                    {
+                        path = wingetModulePath;
+                    }
+
+                    using var pwsh = new PowerShellHost();
+                    pwsh.AddModulePath($"{wingetModulePath};{customPath}");
+                    pwsh.PowerShell.AddCommand("Save-Module").AddParameter("Name", moduleName).AddParameter("Path", path).AddParameter("Force");
+
+                    if (!string.IsNullOrEmpty(repository))
+                    {
+                        pwsh.PowerShell.AddParameter("Repository", repository);
+                    }
+
+                    _ = pwsh.PowerShell.Invoke();
                 }
             }
         }
@@ -897,6 +882,109 @@ namespace AppInstallerCLIE2ETests.Helpers
                 string temppath = Path.Combine(destDirName, subdir.Name);
                 CopyDirectory(subdir.FullName, temppath);
             }
+        }
+
+        /// <summary>
+        /// Gets the expected module path.
+        /// </summary>
+        /// <param name="location">Location.</param>
+        /// <returns>The expected path of the module.</returns>
+        public static string GetExpectedModulePath(TestModuleLocation location)
+        {
+            switch (location)
+            {
+                case TestModuleLocation.CurrentUser:
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"PowerShell\Modules");
+                case TestModuleLocation.AllUsers:
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"PowerShell\Modules");
+                case TestModuleLocation.WinGetModulePath:
+                case TestModuleLocation.Default:
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Microsoft\WinGet\Configuration\Modules");
+                case TestModuleLocation.Custom:
+                    return Path.Combine(Path.GetTempPath(), "E2ECustomModules");
+                default:
+                    throw new ArgumentException(location.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Run winget command via direct process.
+        /// </summary>
+        /// <param name="command">Command to run.</param>
+        /// <param name="parameters">Parameters.</param>
+        /// <param name="stdIn">Optional std in.</param>
+        /// <param name="timeOut">Optional timeout.</param>
+        /// <param name="throwOnTimeout">Throw on timeout.</param>
+        /// <returns>The result of the command.</returns>
+        private static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn, int timeOut, bool throwOnTimeout)
+        {
+            RunCommandResult result = new ();
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo(TestSetup.Parameters.AICLIPath, command + ' ' + parameters);
+            p.StartInfo.UseShellExecute = false;
+
+            p.StartInfo.RedirectStandardOutput = true;
+            StringBuilder outputData = new ();
+            p.OutputDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    outputData.AppendLine(args.Data);
+                }
+            };
+
+            p.StartInfo.RedirectStandardError = true;
+            StringBuilder errorData = new ();
+            p.ErrorDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    errorData.AppendLine(args.Data);
+                }
+            };
+
+            if (!string.IsNullOrEmpty(stdIn))
+            {
+                p.StartInfo.RedirectStandardInput = true;
+            }
+
+            p.Start();
+            p.BeginOutputReadLine();
+            p.BeginErrorReadLine();
+
+            if (!string.IsNullOrEmpty(stdIn))
+            {
+                p.StandardInput.Write(stdIn);
+            }
+
+            if (p.WaitForExit(timeOut))
+            {
+                // According to documentation, this extra call will ensure that the redirected streams
+                // have finished reading all of the data.
+                p.WaitForExit();
+
+                result.ExitCode = p.ExitCode;
+                result.StdOut = outputData.ToString();
+                result.StdErr = errorData.ToString();
+
+                TestContext.Out.WriteLine("Command run completed with exit code: " + result.ExitCode);
+
+                if (!string.IsNullOrEmpty(result.StdErr))
+                {
+                    TestContext.Error.WriteLine("Command run error. Error: " + result.StdErr);
+                }
+
+                if (TestSetup.Parameters.VerboseLogging && !string.IsNullOrEmpty(result.StdOut))
+                {
+                    TestContext.Out.WriteLine("Command run output. Output: " + result.StdOut);
+                }
+            }
+            else if (throwOnTimeout)
+            {
+                throw new TimeoutException($"Direct winget command run timed out: {command} {parameters}");
+            }
+
+            return result;
         }
 
         /// <summary>

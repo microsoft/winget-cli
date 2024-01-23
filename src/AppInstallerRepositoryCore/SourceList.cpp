@@ -28,12 +28,12 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
         constexpr std::string_view s_MetadataYaml_Source_Name = "Name"sv;
         constexpr std::string_view s_MetadataYaml_Source_LastUpdate = "LastUpdate"sv;
+        constexpr std::string_view s_MetadataYaml_Source_DoNotUpdateBefore = "DoNotUpdateBefore"sv;
         constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementsIdentifier = "AcceptedAgreementsIdentifier"sv;
         constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementFields = "AcceptedAgreementFields"sv;
 
         constexpr std::string_view s_Source_WingetCommunityDefault_Name = "winget"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://cdn.winget.microsoft.com/cache"sv;
-        constexpr std::string_view s_Source_WingetCommunityDefault_AlternateArg = "https://winget.azureedge.net/cache"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
 
@@ -43,7 +43,6 @@ namespace AppInstaller::Repository
 
         constexpr std::string_view s_Source_DesktopFrameworks_Name = "microsoft.builtin.desktop.frameworks"sv;
         constexpr std::string_view s_Source_DesktopFrameworks_Arg = "https://cdn.winget.microsoft.com/platform"sv;
-        constexpr std::string_view s_Source_DesktopFrameworks_AlternateArg = "https://winget.azureedge.net/platform"sv;
         constexpr std::string_view s_Source_DesktopFrameworks_Data = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
         constexpr std::string_view s_Source_DesktopFrameworks_Identifier = "Microsoft.Winget.Platform.Source_8wekyb3d8bbwe"sv;
 
@@ -205,9 +204,24 @@ namespace AppInstaller::Repository
 
     void SourceDetailsInternal::CopyMetadataFieldsTo(SourceDetailsInternal& target)
     {
-        target.LastUpdateTime = LastUpdateTime;
+        if (LastUpdateTime > target.LastUpdateTime)
+        {
+            target.LastUpdateTime = LastUpdateTime;
+        }
+
+        if (DoNotUpdateBefore > target.DoNotUpdateBefore)
+        {
+            target.DoNotUpdateBefore = DoNotUpdateBefore;
+        }
+
         target.AcceptedAgreementFields = AcceptedAgreementFields;
         target.AcceptedAgreementsIdentifier = AcceptedAgreementsIdentifier;
+    }
+
+    void SourceDetailsInternal::CopyMetadataFieldsFrom(const SourceDetails& source)
+    {
+        LastUpdateTime = source.LastUpdateTime;
+        DoNotUpdateBefore = source.DoNotUpdateBefore;
     }
 
     std::string_view GetWellKnownSourceName(WellKnownSource source)
@@ -286,10 +300,6 @@ namespace AppInstaller::Repository
             details.Name = s_Source_WingetCommunityDefault_Name;
             details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
             details.Arg = s_Source_WingetCommunityDefault_Arg;
-            if (Settings::User().Get<Settings::Setting::NetworkWingetAlternateSourceURL>())
-            {
-                details.AlternateArg = s_Source_WingetCommunityDefault_AlternateArg;
-            }
             details.Data = s_Source_WingetCommunityDefault_Data;
             details.Identifier = s_Source_WingetCommunityDefault_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
@@ -312,19 +322,19 @@ namespace AppInstaller::Repository
 
                 PinningChain chain;
                 auto chainElement = chain.Root();
-                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1).SetPinning(PinningVerificationType::PublicKey);
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::PublicKey);
                 chainElement = chainElement.Next();
-                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
                 chainElement = chainElement.Next();
-                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
 
                 PinningChain chain2;
                 auto chainElement2 = chain2.Root();
-                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2).SetPinning(PinningVerificationType::PublicKey);
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::PublicKey);
                 chainElement2 = chainElement2.Next();
-                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
                 chainElement2 = chainElement2.Next();
-                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
 
                 details.CertificatePinningConfiguration = PinningConfiguration("Microsoft Store Source");
                 details.CertificatePinningConfiguration.AddChain(std::move(chain));
@@ -340,7 +350,6 @@ namespace AppInstaller::Repository
             details.Name = s_Source_DesktopFrameworks_Name;
             details.Type = Microsoft::PreIndexedPackageSourceFactory::Type();
             details.Arg = s_Source_DesktopFrameworks_Arg;
-            details.AlternateArg = s_Source_DesktopFrameworks_AlternateArg;
             details.Data = s_Source_DesktopFrameworks_Data;
             details.Identifier = s_Source_DesktopFrameworks_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin;
@@ -710,9 +719,17 @@ namespace AppInstaller::Repository
                 details.Origin = SourceOrigin::Metadata;
                 std::string_view name = m_metadataStream.GetName();
                 if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_Name, details.Name)) { return false; }
+
                 int64_t lastUpdateInEpoch{};
                 if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_LastUpdate, lastUpdateInEpoch)) { return false; }
                 details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(lastUpdateInEpoch);
+
+                int64_t doNotUpdateBeforeInEpoch{};
+                if (TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_DoNotUpdateBefore, doNotUpdateBeforeInEpoch, false))
+                {
+                    details.DoNotUpdateBefore = Utility::ConvertUnixEpochToSystemClock(doNotUpdateBeforeInEpoch);
+                }
+
                 TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementsIdentifier, details.AcceptedAgreementsIdentifier, false);
                 TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementFields, details.AcceptedAgreementFields, false);
                 return true;
@@ -731,6 +748,7 @@ namespace AppInstaller::Repository
             out << YAML::BeginMap;
             out << YAML::Key << s_MetadataYaml_Source_Name << YAML::Value << details.Name;
             out << YAML::Key << s_MetadataYaml_Source_LastUpdate << YAML::Value << Utility::ConvertSystemClockToUnixEpoch(details.LastUpdateTime);
+            out << YAML::Key << s_MetadataYaml_Source_DoNotUpdateBefore << YAML::Value << Utility::ConvertSystemClockToUnixEpoch(details.DoNotUpdateBefore);
             out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementsIdentifier << YAML::Value << details.AcceptedAgreementsIdentifier;
             out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementFields << YAML::Value << details.AcceptedAgreementFields;
             out << YAML::EndMap;

@@ -17,6 +17,9 @@
 
 namespace AppInstaller::Repository
 {
+    // The interval is of 100 nano seconds precision.This is used by file date period and the Windows::Foundation::TimeSpan exposed in COM api.
+    using TimeSpan = std::chrono::duration<int64_t, std::ratio_multiply<std::ratio<100>, std::nano>>;
+
     struct ISourceReference;
     struct ISource;
 
@@ -65,6 +68,9 @@ namespace AppInstaller::Repository
         ARP,
         MSIX,
         Installing,
+        // Same as `Installed`, but creating the source reference for this is sufficient to cause the cache to be updated
+        // on next Open of any `Installed` or `InstalledForceCacheUpdate`.
+        InstalledForceCacheUpdate,
     };
 
     // A well known source.
@@ -116,6 +122,9 @@ namespace AppInstaller::Repository
         // The last time that this source was updated.
         std::chrono::system_clock::time_point LastUpdateTime = {};
 
+        // Stores the earliest time that a background update should be attempted.
+        std::chrono::system_clock::time_point DoNotUpdateBefore = {};
+
         // Whether the source supports InstalledSource correlation.
         bool SupportInstalledSearchCorrelation = true;
 
@@ -160,6 +169,15 @@ namespace AppInstaller::Repository
 
         // Required query parameters in get manifest request.
         std::vector<std::string> RequiredQueryParameters;
+    };
+
+    // Allows calling code to inquire about specific features of an ISource implementation.
+    // The default state of any new flag is false.
+    enum class SourceFeatureFlag
+    {
+        // If true, the manifests for this source may contain more data than is available from just the
+        // version information found from a search.
+        ManifestMayContainAdditionalSystemReferenceStrings,
     };
 
     // Represents a source which would be interacted from outside of repository lib.
@@ -210,6 +228,10 @@ namespace AppInstaller::Repository
         // Get the source's information.
         SourceInformation GetInformation() const;
 
+        // Query the value of the given feature flag.
+        // The default state of any new flag is false.
+        bool QueryFeatureFlag(SourceFeatureFlag flag) const;
+
         // Returns true if the origin type can contain available packages.
         bool ContainsAvailablePackages() const;
 
@@ -218,6 +240,16 @@ namespace AppInstaller::Repository
 
         // Set caller.
         void SetCaller(std::string caller);
+
+        // Set background update check interval.
+        void SetBackgroundUpdateInterval(TimeSpan interval);
+
+        // Indicates that we are only interested in the PackageTrackingCatalog for the source.
+        // Must be set before Open to have effect, and will prevent the underlying source from being updated or opened.
+        void InstalledPackageInformationOnly(bool value);
+
+        // Determines if this source refers to the given well known source.
+        bool IsWellKnownSource(WellKnownSource wellKnownSource);
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;
@@ -280,6 +312,8 @@ namespace AppInstaller::Repository
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
         bool m_isComposite = false;
+        std::optional<TimeSpan> m_backgroundUpdateInterval;
+        bool m_installedPackageInformationOnly = false;
         mutable PackageTrackingCatalog m_trackingCatalog;
     };
 }

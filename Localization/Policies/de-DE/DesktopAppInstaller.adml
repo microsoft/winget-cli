@@ -95,6 +95,14 @@ Wenn Sie diese Richtlinie deaktivieren, können keine zusätzlichen Quellen für
 Wenn Sie diese Einstellung aktivieren, können Benutzer Pakete von Websites installieren, die dieses Protokoll verwenden.
 
 Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, können Benutzer keine Pakete von Websites installieren, die dieses Protokoll verwenden.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Aktivieren der Windows-Paketmanager-Befehlszeilenschnittstellen</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Diese Richtlinie legt fest, ob ein Benutzer eine Aktion mit dem Windows-Paketmanager über eine Befehlszeilenschnittstelle (WinGet CLI oder WinGet PowerShell) durchführen kann.
+
+        Wenn Sie diese Richtlinie deaktivieren, können Benutzer die Windows-Paketverwaltungs-CLI und PowerShell-Cmdlets nicht ausführen.
+
+        Wenn Sie diese Richtlinie aktivieren oder nicht konfigurieren, können Benutzer die Windows Package Manager CLI-Befehle und PowerShell-Cmdlets ausführen. (Vorausgesetzt, die Richtlinie "App-Installationsprogramm aktivieren" ist nicht deaktiviert).
+
+        Diese Richtlinie hat keinen Einfluss auf die Richtlinie "App-Installationsprogramm aktivieren".</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

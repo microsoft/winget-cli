@@ -7,7 +7,6 @@
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System.Linq;
-    using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Exceptions;
 
@@ -61,11 +60,11 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         /// <summary>
         /// Gets the source name of the catalog package.
         /// </summary>
-        public string Source
+        public string? Source
         {
             get
             {
-                return this.CatalogPackageCOM.DefaultInstallVersion.PackageCatalog.Info.Name;
+                return this.CatalogPackageCOM.DefaultInstallVersion?.PackageCatalog.Info.Name;
             }
         }
 
@@ -114,7 +113,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         public PSPackageVersionInfo GetPackageVersionInfo(string version)
         {
             // get specific version that matches
-            PackageVersionId packageVersionId = this.AvailablePackageVersionIds.FirstOrDefault(x => x.Version == version);
+            PackageVersionId? packageVersionId = this.AvailablePackageVersionIds.FirstOrDefault(x => x.Version == version);
             if (packageVersionId != null)
             {
                 return new PSPackageVersionInfo(this.CatalogPackageCOM.GetPackageVersionInfo(packageVersionId));

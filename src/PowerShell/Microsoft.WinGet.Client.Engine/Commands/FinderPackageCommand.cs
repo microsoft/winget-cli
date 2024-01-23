@@ -6,14 +6,12 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
-    using System;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
-    using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Microsoft.WinGet.Common.Command;
 
     /// <summary>
     /// Searches configured sources for packages.
@@ -29,7 +27,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="moniker">Moniker of package.</param>
         /// <param name="source">Source to search. If null, all are searched.</param>
         /// <param name="query">Match against any field of a package.</param>
-        /// <param name="matchOption">Match option.</param>
         /// <param name="tag">Tag of the package.</param>
         /// <param name="command">Command of the package.</param>
         /// <param name="count">Max results to return.</param>
@@ -40,51 +37,54 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string moniker,
             string source,
             string[] query,
-            string matchOption,
             string tag,
             string command,
             uint count)
             : base(psCmdlet)
         {
-#if POWERSHELL_WINDOWS
-            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
-#else
             // FinderCommand
             this.Id = id;
             this.Name = name;
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
-            this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
 
             // FinderExtendedCommand
             this.Tag = tag;
             this.Command = command;
             this.Count = count;
-#endif
         }
 
         /// <summary>
         /// Process find package command.
         /// </summary>
-        public void Find()
+        /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
+        public void Find(string psPackageFieldMatchOption)
         {
-            var results = this.FindPackages(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs);
+            var results = this.Execute(
+                () => this.FindPackages(
+                    CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption)));
+
             for (var i = 0; i < results.Count; i++)
             {
-                this.PsCmdlet.WriteObject(new PSFoundCatalogPackage(results[i].CatalogPackage));
+                this.Write(StreamType.Object, new PSFoundCatalogPackage(results[i].CatalogPackage));
             }
         }
 
         /// <summary>
         /// Process get package command.
         /// </summary>
-        public void Get()
+        /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
+        public void Get(string psPackageFieldMatchOption)
         {
-            var results = this.FindPackages(CompositeSearchBehavior.LocalCatalogs);
+            var results = this.Execute(
+                () => this.FindPackages(
+                    CompositeSearchBehavior.LocalCatalogs,
+                    PSEnumHelpers.ToPackageFieldMatchOption(psPackageFieldMatchOption)));
             for (var i = 0; i < results.Count; i++)
             {
-                this.PsCmdlet.WriteObject(new PSInstalledCatalogPackage(results[i].CatalogPackage));
+                this.Write(StreamType.Object, new PSInstalledCatalogPackage(results[i].CatalogPackage));
             }
         }
     }

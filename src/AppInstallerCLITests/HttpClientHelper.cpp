@@ -24,7 +24,7 @@ TEST_CASE("ExtractJsonResponse_UnsupportedMimeType", "[RestSource][RestSearch]")
 TEST_CASE("ValidateAndExtractResponse_ServiceUnavailable", "[RestSource]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::ServiceUnavailable) };
-    REQUIRE_THROWS_HR(helper.HandleGet(L"https://testUri"), MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, web::http::status_codes::ServiceUnavailable));
+    REQUIRE_THROWS_HR(helper.HandleGet(L"https://testUri"), APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE);
 }
 
 TEST_CASE("ValidateAndExtractResponse_NotFound", "[RestSource]")
@@ -65,11 +65,11 @@ TEST_CASE("HttpClientHelper_PinningConfiguration", "[RestSource]")
     // Create the Store chain config
     PinningChain chain;
     auto chainElement = chain.Root();
-    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2).SetPinning(PinningVerificationType::PublicKey);
+    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::PublicKey);
     chainElement = chainElement.Next();
-    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
     chainElement = chainElement.Next();
-    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
 
     PinningConfiguration config;
     config.AddChain(chain);

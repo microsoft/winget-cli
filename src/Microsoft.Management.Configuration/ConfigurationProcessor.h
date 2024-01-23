@@ -24,6 +24,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using TestConfigurationSetResult = Configuration::TestConfigurationSetResult;
         using TestConfigurationUnitResult = Configuration::TestConfigurationUnitResult;
         using GetConfigurationUnitSettingsResult = Configuration::GetConfigurationUnitSettingsResult;
+        using GetAllConfigurationUnitSettingsResult = Configuration::GetAllConfigurationUnitSettingsResult;
         using GetConfigurationSetDetailsResult = Configuration::GetConfigurationSetDetailsResult;
         using GetConfigurationUnitDetailsResult = Configuration::GetConfigurationUnitDetailsResult;
 
@@ -79,6 +80,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         GetConfigurationUnitSettingsResult GetUnitSettings(const ConfigurationUnit& unit);
         Windows::Foundation::IAsyncOperation<GetConfigurationUnitSettingsResult> GetUnitSettingsAsync(const ConfigurationUnit& unit);
 
+        GetAllConfigurationUnitSettingsResult GetAllUnitSettings(const ConfigurationUnit& unit);
+        Windows::Foundation::IAsyncOperation<GetAllConfigurationUnitSettingsResult> GetAllUnitSettingsAsync(const ConfigurationUnit& unit);
+
         HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
@@ -89,6 +93,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Sends diagnostics objects to the event.
         void SendDiagnostics(const IDiagnosticInformation& information);
+
+        // Temporary entry point to enable experimental schema support.
+        void SetSupportsSchema03(bool value);
 
     private:
         GetConfigurationSetDetailsResult GetSetDetailsImpl(
@@ -109,6 +116,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         GetConfigurationUnitSettingsResult GetUnitSettingsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
 
+        GetAllConfigurationUnitSettingsResult GetAllUnitSettingsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
+
         void SendDiagnosticsImpl(const IDiagnosticInformation& information);
 
         IConfigurationSetProcessorFactory m_factory = nullptr;
@@ -119,6 +128,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
         std::recursive_mutex m_diagnosticsMutex;
         bool m_isHandlingDiagnostics = false;
+        // Temporary value to enable experimental schema support.
+        bool m_supportSchema03 = true;
 #endif
     };
 }

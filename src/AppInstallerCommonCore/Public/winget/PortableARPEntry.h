@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Registry.h"
+#include <winget/Registry.h>
 #include "Manifest.h"
 
 namespace AppInstaller::Registry::Portable

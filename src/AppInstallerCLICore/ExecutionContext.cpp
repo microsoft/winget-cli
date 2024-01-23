@@ -1,10 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "ExecutionContext.h"
-#include "COMContext.h"
+#include "AppInstallerRuntime.h"
 #include "Argument.h"
+#include "COMContext.h"
+#include "Command.h"
+#include "ExecutionContext.h"
+#include "Public/winget/Checkpoint.h"
+#include "winget/Reboot.h"
 #include "winget/UserSettings.h"
+
+using namespace AppInstaller::Checkpoints;
 
 namespace AppInstaller::CLI::Execution
 {
@@ -62,12 +68,31 @@ namespace AppInstaller::CLI::Execution
         private:
             SignalTerminationHandler()
             {
-                // Create message only window.
-                m_messageQueueReady.create();
-                m_windowThread = std::thread(&SignalTerminationHandler::CreateWindowAndStartMessageLoop, this);
-                if (!m_messageQueueReady.wait(100))
+                if (Runtime::IsRunningAsAdmin() && Runtime::IsRunningInPackagedContext())
                 {
-                    AICLI_LOG(CLI, Warning, << "Timeout creating winget window");
+                    m_catalog = winrt::Windows::ApplicationModel::PackageCatalog::OpenForCurrentPackage();
+                    m_updatingEvent = m_catalog.PackageUpdating(
+                        winrt::auto_revoke, [this](winrt::Windows::ApplicationModel::PackageCatalog, winrt::Windows::ApplicationModel::PackageUpdatingEventArgs args)
+                        {
+                            // There are 3 events being hit with 0%, 1% and 38%
+                            // Typically the window message is received between the first two.
+                            constexpr double minProgress = 0;
+                            auto progress = args.Progress();
+                            if (progress > minProgress)
+                            {
+                                SignalTerminationHandler::Instance().StartAppShutdown();
+                            }
+                        });
+                }
+                else
+                {
+                    // Create message only window.
+                    m_messageQueueReady.create();
+                    m_windowThread = std::thread(&SignalTerminationHandler::CreateWindowAndStartMessageLoop, this);
+                    if (!m_messageQueueReady.wait(100))
+                    {
+                        AICLI_LOG(CLI, Warning, << "Timeout creating winget window");
+                    }
                 }
 
                 // Set up ctrl-c handler.
@@ -231,6 +256,8 @@ namespace AppInstaller::CLI::Execution
             wil::unique_event m_messageQueueReady;
             wil::unique_hwnd m_windowHandle;
             std::thread m_windowThread;
+            winrt::Windows::ApplicationModel::PackageCatalog m_catalog = nullptr;
+            decltype(winrt::Windows::ApplicationModel::PackageCatalog{ nullptr }.PackageUpdating(winrt::auto_revoke, nullptr)) m_updatingEvent;
         };
 
         void SetSignalTerminationHandlerContext(bool add, Context* context)
@@ -246,14 +273,42 @@ namespace AppInstaller::CLI::Execution
                 SignalTerminationHandler::Instance().RemoveContext(context);
             }
         }
+
+        bool ShouldRemoveCheckpointDatabase(HRESULT hr)
+        {
+            switch (hr)
+            {
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL:
+            case APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED:
+            case APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH:
+                return false;
+            default:
+                return true;
+            }
+        }
     }
 
     Context::~Context()
     {
+        if (Settings::ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Resume))
+        {
+            if (m_checkpointManager && (!IsTerminated() || ShouldRemoveCheckpointDatabase(GetTerminationHR())))
+            {
+                m_checkpointManager->CleanUpDatabase();
+                AppInstaller::Reboot::UnregisterRestartForWER();
+            }
+        }
+
         if (m_disableSignalTerminationHandlerOnExit)
         {
             EnableSignalTerminationHandler(false);
         }
+    }
+
+    Context Context::CreateEmptyContext()
+    {
+        AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
+        return Context(Reporter, threadGlobals);
     }
 
     std::unique_ptr<Context> Context::CreateSubContext()
@@ -407,4 +462,37 @@ namespace AppInstaller::CLI::Execution
         return SignalTerminationHandler::Instance().WaitForAppShutdownEvent();
     }
 #endif
+
+    std::string Context::GetResumeId()
+    {
+        return m_checkpointManager->GetResumeId();
+    }
+
+    std::optional<Checkpoint<AutomaticCheckpointData>> Context::LoadCheckpoint(const std::string& resumeId)
+    {
+        m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>(resumeId);
+        return m_checkpointManager->GetAutomaticCheckpoint();
+    }
+
+    std::vector<AppInstaller::Checkpoints::Checkpoint<Execution::Data>> Context::GetCheckpoints()
+    {
+        return m_checkpointManager->GetCheckpoints();
+    }
+
+    void Context::Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData)
+    {
+        UNREFERENCED_PARAMETER(checkpointName);
+        UNREFERENCED_PARAMETER(contextData);
+
+        if (!m_checkpointManager)
+        {
+            m_checkpointManager = std::make_unique<AppInstaller::Checkpoints::CheckpointManager>();
+            m_checkpointManager->CreateAutomaticCheckpoint(*this);
+
+            // Register for restart only when we first call checkpoint to support restarting from an unexpected shutdown.
+            AppInstaller::Reboot::RegisterRestartForWER("resume -g " + GetResumeId());
+        }
+
+        // TODO: Capture context data for checkpoint.
+    }
 }

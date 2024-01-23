@@ -57,8 +57,10 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::InstallLocation), // -l
             Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::InstallArchitecture), // -a
+            Argument::ForType(Args::Type::InstallerType),
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AllowReboot),
             Argument::ForType(Args::Type::SkipDependencies),
             Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
@@ -198,13 +200,15 @@ namespace AppInstaller::CLI
             }
             else
             {
+                bool skipDependencies = Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies);
                 context <<
                     Workflow::GetMultiSearchRequests <<
                     Workflow::SearchSubContextsForSingle(OperationType::Upgrade) <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
                     Workflow::ProcessMultiplePackages(
                         Resource::String::PackageRequiresDependencies,
-                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED,
+                        {}, true, skipDependencies);
             }
         }
     }

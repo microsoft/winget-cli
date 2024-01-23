@@ -66,6 +66,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view DisplayName = "DisplayName"sv;
         constexpr std::string_view MinimumOSVersion = "MinimumOSVersion"sv;
         constexpr std::string_view DownloadCommandProhibited = "DownloadCommandProhibited"sv;
+        constexpr std::string_view RepairBehavior = "RepairBehavior"sv;
 
         // Installer switches
         constexpr std::string_view InstallerSwitches = "InstallerSwitches"sv;
@@ -76,6 +77,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view Log = "Log"sv;
         constexpr std::string_view Upgrade = "Upgrade"sv;
         constexpr std::string_view Custom = "Custom"sv;
+        constexpr std::string_view Repair = "Repair"sv;
 
         constexpr std::string_view InstallerSuccessCodes = "InstallerSuccessCodes"sv;
         constexpr std::string_view UpgradeBehavior = "UpgradeBehavior"sv;
@@ -570,6 +572,7 @@ namespace AppInstaller::Manifest::YamlWriter
             WRITE_PROPERTY_IF_EXISTS(out, MinimumOSVersion, installer.MinOSVersion);
             WRITE_PROPERTY_IF_EXISTS(out, ProductCode, installer.ProductCode);
             WRITE_PROPERTY_IF_EXISTS(out, UpgradeBehavior, UpdateBehaviorToString(installer.UpdateBehavior));
+            WRITE_PROPERTY_IF_EXISTS(out, RepairBehavior, RepairBehaviorToString(installer.RepairBehavior));
 
             ProcessSequence(out, Capabilities, installer.Capabilities);
             ProcessSequence(out, Commands, installer.Commands);

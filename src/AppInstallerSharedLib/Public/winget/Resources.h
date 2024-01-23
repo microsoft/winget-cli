@@ -4,6 +4,7 @@
 #include <winrt/Windows.ApplicationModel.Resources.h>
 
 #include <string>
+#include <optional>
 #include <vector>
 #include "AppInstallerStrings.h"
 
@@ -57,6 +58,7 @@ namespace AppInstaller
             WINGET_DEFINE_RESOURCE_STRINGID(PolicySourceAutoUpdateInterval);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableBypassCertificatePinningForMicrosoftStore);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWindowsPackageManagerCommandLineInterfaces);
+            WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWinGetConfiguration);
 
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldFormat);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldValue);
@@ -64,6 +66,8 @@ namespace AppInstaller
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningLoadedBackupSettings);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningParseError);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningUsingDefault);
+
+            WINGET_DEFINE_RESOURCE_STRINGID(UnknownErrorCode);
         };
     }
 
@@ -93,6 +97,12 @@ namespace AppInstaller
             LocString(LocString&&) = default;
             LocString& operator=(LocString&&) = default;
         };
+    }
+
+    namespace StringResource
+    {
+        // Tries to resolve a string, returning a nullopt if it cannot.
+        std::optional<Resource::LocString> TryResolveString(std::wstring_view resKey);
     }
 
     namespace details

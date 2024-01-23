@@ -295,10 +295,15 @@ namespace AppInstaller::Utility
         {
             Other = end;
         }
+
+        m_foldedOther = Utility::FoldCase(static_cast<std::string_view>(Other));
     }
 
     Version::Part::Part(uint64_t integer, std::string other) :
-        Integer(integer), Other(std::move(other)) {}
+        Integer(integer), Other(std::move(other))
+    {
+        m_foldedOther = Utility::FoldCase(static_cast<std::string_view>(Other));
+    }
 
     bool Version::Part::operator<(const Part& other) const
     {
@@ -320,8 +325,9 @@ namespace AppInstaller::Utility
             // If the other Other is empty and this is not, this is less.
             return true;
         }
-        else if (Other < other.Other)
+        else if (m_foldedOther < other.m_foldedOther)
         {
+            // Compare the folded versions
             return true;
         }
 
@@ -331,7 +337,7 @@ namespace AppInstaller::Utility
 
     bool Version::Part::operator==(const Part& other) const
     {
-        return Integer == other.Integer && Other == other.Other;
+        return Integer == other.Integer && m_foldedOther == other.m_foldedOther;
     }
 
     bool Version::Part::operator!=(const Part& other) const
@@ -396,14 +402,24 @@ namespace AppInstaller::Utility
         Assign(version);
     }
 
+    UInt64Version::UInt64Version(uint16_t major, uint16_t minor, uint16_t build, uint16_t revision)
+    {
+        Assign(major, minor, build, revision);
+    }
+
     void UInt64Version::Assign(UINT64 version)
     {
-        const UINT64 mask16 = (1 << 16) - 1;
-        UINT64 revision = version & mask16;
-        UINT64 build = (version >> 0x10) & mask16;
-        UINT64 minor = (version >> 0x20) & mask16;
-        UINT64 major = (version >> 0x30) & mask16;
+        constexpr UINT64 mask16 = (1 << 16) - 1;
+        uint16_t revision = version & mask16;
+        uint16_t build = (version >> 0x10) & mask16;
+        uint16_t minor = (version >> 0x20) & mask16;
+        uint16_t major = (version >> 0x30) & mask16;
 
+        Assign(major, minor, build, revision);
+    }
+
+    void UInt64Version::Assign(uint16_t major, uint16_t minor, uint16_t build, uint16_t revision)
+    {
         // Construct a string representation of the provided version
         std::stringstream ssVersion;
         ssVersion << major

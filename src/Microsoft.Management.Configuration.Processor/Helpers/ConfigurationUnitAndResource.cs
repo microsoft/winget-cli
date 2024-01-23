@@ -29,7 +29,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             ConfigurationUnitInternal configurationUnitInternal,
             DscResourceInfoInternal dscResourceInfoInternal)
         {
-            if (configurationUnitInternal.Unit.UnitName != dscResourceInfoInternal.Name)
+            if (!configurationUnitInternal.ResourceName.Equals(dscResourceInfoInternal.Name, StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentException();
             }
@@ -49,14 +49,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         public ConfigurationUnit Unit
         {
             get { return this.UnitInternal.Unit; }
-        }
-
-        /// <summary>
-        /// Gets the directives overlay.
-        /// </summary>
-        public IReadOnlyDictionary<string, object>? DirectivesOverlay
-        {
-            get { return this.UnitInternal.DirectivesOverlay; }
         }
 
         /// <summary>

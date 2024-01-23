@@ -182,7 +182,7 @@
     <value>You are responsible for understanding the configuration settings you are choosing to execute. Microsoft is not responsible for the configuration file you have authored or imported. This configuration may change settings in Windows, install software, change software settings (including security settings), and accept user agreements to third-party packages and services on your behalf.  By running this configuration file, you acknowledge that you understand and agree to these resources and settings. Any applications installed are licensed to you by their owners. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages or services.</value>
     <comment>Legal approved. Do not change without approval.</comment>
   </data>
-  <data name="ConfigurationWarningPrompt" xml:space="preserve">
+  <data name="ConfigurationWarningPromptApply" xml:space="preserve">
     <value>Have you reviewed the configuration and would you like to proceed applying it to the system?</value>
     <comment>PM approved.</comment>
   </data>
@@ -297,5 +297,22 @@
   </data>
   <data name="DebugNotSupported" xml:space="preserve">
     <value>Debug parameter not supported</value>
+  </data>
+  <data name="ConfigurationAllUsersElevated" xml:space="preserve">
+    <value>`-ModulePath AllUsers` require administrator privileges to execute.</value>
+    <comment>{Locked="-ModulePath AllUsers"}</comment>
+  </data>
+  <data name="ConfigurationModulePathArgError" xml:space="preserve">
+    <value>`-ModulePath` value must be `CurrentUser`, `AllUsers`, `Default` or an absolute path.</value>
+    <comment>{Locked="{-ModulePath}, {CurrentUser}, {AllUsers}, {Default}}</comment>
+  </data>
+  <data name="ConfigurationWarningPromptTest" xml:space="preserve">
+    <value>Have you reviewed the configuration and would you like to proceed verifying it against the system?</value>
+  </data>
+  <data name="WinGetConfigUnitImportModuleAdmin" xml:space="preserve">
+    <value>Loading the module for the configuration unit failed because it requires administrator privileges to run.</value>
+  </data>
+  <data name="WinGetConfigUnitSettingConfigRoot" xml:space="preserve">
+    <value>A unit contains a setting that requires the config root.</value>
   </data>
 </root>

@@ -12,7 +12,8 @@ namespace Microsoft.WinGet.Client.Engine.Common
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using Microsoft.WinGet.Common.Command;
+    using Microsoft.WinGet.Resources;
 
     /// <summary>
     /// Validates winget runs correctly.
@@ -22,9 +23,9 @@ namespace Microsoft.WinGet.Client.Engine.Common
         /// <summary>
         /// Verifies winget runs correctly. If it doesn't, tries to find the reason why it failed.
         /// </summary>
-        /// <param name="psCmdlet">The calling cmdlet.</param>
+        /// <param name="pwshCmdlet">The calling cmdlet.</param>
         /// <param name="expectedVersion">Expected version.</param>
-        public static void AssertWinGet(PSCmdlet psCmdlet, string expectedVersion)
+        public static void AssertWinGet(PowerShellCmdlet pwshCmdlet, string expectedVersion)
         {
             // In-proc shouldn't have other dependencies and thus should be ok.
             if (Utilities.UsesInProcWinget)
@@ -48,17 +49,17 @@ namespace Microsoft.WinGet.Client.Engine.Common
             }
             catch (Win32Exception e)
             {
-                psCmdlet.WriteDebug($"'winget.exe' Win32Exception {e.Message}");
-                throw new WinGetIntegrityException(GetReason(psCmdlet));
+                pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' Win32Exception {e.Message}");
+                throw new WinGetIntegrityException(GetReason(pwshCmdlet));
             }
             catch (Exception e) when (e is WinGetCLIException || e is WinGetCLITimeoutException)
             {
-                psCmdlet.WriteDebug($"'winget.exe' WinGetCLIException {e.Message}");
+                pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' WinGetCLIException {e.Message}");
                 throw new WinGetIntegrityException(IntegrityCategory.Failure, e);
             }
             catch (Exception e)
             {
-                psCmdlet.WriteDebug($"'winget.exe' Exception {e.Message}");
+                pwshCmdlet.Write(StreamType.Verbose, $"'winget.exe' Exception {e.Message}");
                 throw new WinGetIntegrityException(IntegrityCategory.Unknown, e);
             }
 
@@ -80,27 +81,35 @@ namespace Microsoft.WinGet.Client.Engine.Common
             }
         }
 
-        private static IntegrityCategory GetReason(PSCmdlet psCmdlet)
+        private static IntegrityCategory GetReason(PowerShellCmdlet pwshCmdlet)
         {
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
+            var category = IntegrityCategory.Unknown;
+            pwshCmdlet.ExecuteInPowerShellThread(() =>
+            {
+                // When running winget.exe on PowerShell the message of the Win32Exception will distinguish between
+                // 'The system cannot find the file specified' and 'No applicable app licenses found' but of course
+                // the HRESULT is the same (E_FAIL).
+                // To not compare strings let Powershell handle it. If calling winget throws an
+                // ApplicationFailedException then is most likely that the license is not there.
+                try
+                {
+                    var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+                    ps.AddCommand("winget").Invoke();
+                }
+                catch (ApplicationFailedException e)
+                {
+                    pwshCmdlet.Write(StreamType.Verbose, e.Message);
+                    category = IntegrityCategory.AppInstallerNoLicense;
+                }
+                catch (Exception)
+                {
+                }
+            });
 
-            // When running winget.exe on PowerShell the message of the Win32Exception will distinguish between
-            // 'The system cannot find the file specified' and 'No applicable app licenses found' but of course
-            // the HRESULT is the same (E_FAIL).
-            // To not compare strings let Powershell handle it. If calling winget throws an
-            // ApplicationFailedException then is most likely that the license is not there.
-            try
+            if (category != IntegrityCategory.Unknown)
             {
-                var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
-                ps.AddCommand("winget").Invoke();
-            }
-            catch (ApplicationFailedException e)
-            {
-                psCmdlet.WriteDebug(e.Message);
-                return IntegrityCategory.AppInstallerNoLicense;
-            }
-            catch (Exception)
-            {
+                return category;
             }
 
             // First lets check if the file is there, which means it is installed or someone is taking our place.
@@ -112,7 +121,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 if (File.Exists(wingetAliasPath))
                 {
                     // App execution alias is enabled. Then maybe the path?
-                    string envPath = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
+                    string? envPath = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
                     if (string.IsNullOrEmpty(envPath) ||
                         !envPath.EndsWith(Utilities.LocalDataWindowsAppPath) ||
                         !envPath.Contains($"{Utilities.LocalDataWindowsAppPath};"))
@@ -126,7 +135,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 }
             }
 
-            // Not under %LOCALAPPDATA%\\Microsoft\\WindowsApps\PFM\
+            // Not under %LOCALAPPDATA%\\Microsoft\\WindowsApps\PFN\
 
             // Check OS version
             if (!IsSupportedOSVersion())
@@ -136,8 +145,8 @@ namespace Microsoft.WinGet.Client.Engine.Common
 
             // It could be that AppInstaller package is old or the package is not
             // registered at this point. To know that, call Get-AppxPackage.
-            var appxModule = new AppxModuleHelper(psCmdlet);
-            string version = appxModule.GetAppInstallerPropertyValue("Version");
+            var appxModule = new AppxModuleHelper(pwshCmdlet);
+            string? version = appxModule.GetAppInstallerPropertyValue("Version");
             if (version is null)
             {
                 // This can happen in Windows Sandbox.

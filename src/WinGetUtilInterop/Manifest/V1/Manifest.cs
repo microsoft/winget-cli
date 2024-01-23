@@ -1,15 +1,13 @@
-﻿// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="Manifest.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.Models.V1
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using YamlDotNet.Serialization;
     using YamlDotNet.Serialization.NamingConventions;
 
@@ -139,9 +137,29 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string ReleaseNotes { get; set; }
 
         /// <summary>
+        /// Gets or sets the manifest documentation.
+        /// </summary>
+        public List<ManifestDocumentation> Documentations { get; set; }
+
+        /// <summary>
+        /// Gets or sets the manifest icons information.
+        /// </summary>
+        public List<ManifestIcon> Icons { get; set; }
+
+        /// <summary>
         /// Gets or sets the release notes url in default locale.
         /// </summary>
         public string ReleaseNotesUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the purchase url of the package.
+        /// </summary>
+        public string PurchaseUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the installation notes.
+        /// </summary>
+        public string InstallationNotes { get; set; }
 
         // Installer fields
 
@@ -211,6 +229,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string ProductCode { get; set; }
 
         /// <summary>
+        /// <summary>
         /// Gets or sets the default list of capabilities. For msix only.
         /// </summary>
         public List<string> Capabilities { get; set; }
@@ -235,6 +254,26 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets the default installer markets info.
         /// </summary>
         public InstallerMarkets Markets { get; set; }
+
+        /// <summary>
+        /// Gets or sets the installation metadata.
+        /// </summary>
+        public InstallerInstallationMetadata InstallationMetadata { get; set; }
+
+        /// <summary>
+        /// Gets or sets the nested installer type.
+        /// </summary>
+        public string NestedInstallerType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the nested installer files.
+        /// </summary>
+        public List<InstallerNestedInstallerFile> NestedInstallerFiles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unsupported arguments.
+        /// </summary>
+        public List<string> UnsupportedArguments { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the default installer behavior aborts terminal.
@@ -262,6 +301,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<string> UnsupportedOSArchitectures { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to display install warnings.
+        /// </summary>
+        public bool DisplayInstallWarnings { get; set; }
+
+        /// <summary>
         /// Gets or sets the default list of apps and features entries.
         /// </summary>
         public List<InstallerArpEntry> AppsAndFeaturesEntries { get; set; }
@@ -285,6 +329,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets collection of additional ManifestLocalization.
         /// </summary>
         public List<ManifestLocalization> Localization { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the installer is prohibited from being downloaded for offline installation.
+        /// </summary>
+        public bool DownloadCommandProhibited { get; set; }
 
         /// <summary>
         /// Deserialize a stream reader into a Manifest object.

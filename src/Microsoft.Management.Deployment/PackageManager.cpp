@@ -39,8 +39,23 @@ using namespace ::AppInstaller::CLI::Execution;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    namespace
+    {
+        void LogStartupIfApplicable()
+        {
+            static std::once_flag logStartupOnceFlag;
+            std::call_once(logStartupOnceFlag,
+                [&]()
+                {
+                    ::AppInstaller::Logging::Telemetry().SetCaller(GetCallerName());
+                    ::AppInstaller::Logging::Telemetry().LogStartup(true);
+                });
+        }
+    }
+
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageManager::GetPackageCatalogs()
     {
+        LogStartupIfApplicable();
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageCatalogReference> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalogReference>() };
         std::vector<::AppInstaller::Repository::SourceDetails> sources = ::AppInstaller::Repository::Source::GetCurrentSources();
         for (uint32_t i = 0; i < sources.size(); i++)
@@ -54,8 +69,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return catalogs.GetView();
     }
+
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetPredefinedPackageCatalog(winrt::Microsoft::Management::Deployment::PredefinedPackageCatalog const& predefinedPackageCatalog)
     {
+        LogStartupIfApplicable();
         ::AppInstaller::Repository::Source source;
         switch (predefinedPackageCatalog)
         {
@@ -77,8 +94,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         packageCatalogRef->Initialize(*packageCatalogInfo, source);
         return *packageCatalogRef;
     }
+
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetLocalPackageCatalog(winrt::Microsoft::Management::Deployment::LocalPackageCatalog const& localPackageCatalog)
     {
+        LogStartupIfApplicable();
         ::AppInstaller::Repository::Source source;
         switch (localPackageCatalog)
         {
@@ -97,8 +116,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         packageCatalogRef->Initialize(*packageCatalogInfo, source);
         return *packageCatalogRef;
     }
+
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::GetPackageCatalogByName(hstring const& catalogName)
     {
+        LogStartupIfApplicable();
         std::string name = winrt::to_string(catalogName);
         if (name.empty())
         {
@@ -120,6 +141,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return nullptr;
         }
     }
+
     void AddPackageManifestToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo, ::AppInstaller::CLI::Execution::Context* context)
     {
         winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* packageVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(packageVersionInfo);
@@ -138,14 +160,17 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         context->Add<::AppInstaller::CLI::Execution::Data::Manifest>(std::move(manifest));
         context->Add<::AppInstaller::CLI::Execution::Data::PackageVersion>(std::move(internalPackageVersion));
     }
+
     void AddInstalledVersionToContext(winrt::Microsoft::Management::Deployment::PackageVersionInfo installedVersionInfo, ::AppInstaller::CLI::Execution::Context* context)
     {
         winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo* installedVersionInfoImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageVersionInfo>(installedVersionInfo);
         std::shared_ptr<::AppInstaller::Repository::IPackageVersion> internalInstalledVersion = installedVersionInfoImpl->GetRepositoryPackageVersion();
         context->Add<AppInstaller::CLI::Execution::Data::InstalledPackageVersion>(internalInstalledVersion);
     }
+
     winrt::Microsoft::Management::Deployment::PackageCatalogReference PackageManager::CreateCompositePackageCatalog(winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions const& options)
     {
+        LogStartupIfApplicable();
         if (!options)
         {
             // Can't make a composite source if the options aren't specified.
@@ -384,6 +409,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             else if (options.PackageInstallMode() == PackageInstallMode::Silent)
             {
                 context->Args.AddArg(Execution::Args::Type::Silent);
+            }
+
+            auto installerType = GetManifestInstallerType(options.InstallerType());
+            if (installerType != AppInstaller::Manifest::InstallerTypeEnum::Unknown)
+            {
+                context->Args.AddArg(Execution::Args::Type::InstallerType, AppInstaller::Manifest::InstallerTypeToString(installerType));
             }
 
             if (!options.PreferredInstallLocation().empty())
@@ -987,12 +1018,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::DownloadResult, winrt::Microsoft::Management::Deployment::PackageDownloadProgress> PackageManager::DownloadPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::DownloadOptions options)
     {
-        // TODO: Remove once 'download' experimental feature is stable. Dependencies experimental feature is also required to handle multiple package downloads.
-        if (!AppInstaller::Settings::ExperimentalFeature::IsEnabled(AppInstaller::Settings::ExperimentalFeature::Feature::Download))
-        {
-            THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
-        }
-
         hstring correlationData = (options) ? options.CorrelationData() : L"";
 
         // options and catalog can both be null, package must be set.
@@ -1018,12 +1043,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::DownloadResult, winrt::Microsoft::Management::Deployment::PackageDownloadProgress> PackageManager::GetDownloadProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
     {
-        // TODO: Remove once 'download' experimental feature is stable.
-        if (!AppInstaller::Settings::ExperimentalFeature::IsEnabled(AppInstaller::Settings::ExperimentalFeature::Feature::Download))
-        {
-            THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
-        }
-
         hstring correlationData;
         WINGET_RETURN_DOWNLOAD_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
 

@@ -7,16 +7,32 @@
 namespace Microsoft.WinGet.Configuration.Engine.Helpers
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Host;
+    using System.Security.Principal;
+    using Microsoft.Management.Configuration;
+    using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
     /// <summary>
     /// Helper methods.
     /// </summary>
     internal static class Utilities
     {
+        /// <summary>
+        /// Gets a value indicating whether the current assembly is executing in an administrative context.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only API")]
+        public static bool ExecutingAsAdministrator
+        {
+            get
+            {
+                WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                WindowsPrincipal principal = new (identity);
+                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+        }
+
         /// <summary>
         /// Helper for StreamType.Information. Creates a HostInformationMessage with
         /// the specified information.
@@ -66,6 +82,42 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             }
 
             return lines;
+        }
+
+        /// <summary>
+        /// Converts ConfigurationTestResult string value to PSConfigurationTestResult.
+        /// </summary>
+        /// <param name="value">ConfigurationTestResult value.</param>
+        /// <returns>PSConfigurationTestResult.</returns>
+        public static PSConfigurationTestResult ToPSConfigurationTestResult(ConfigurationTestResult value)
+        {
+            return value switch
+            {
+                ConfigurationTestResult.Unknown => PSConfigurationTestResult.Unknown,
+                ConfigurationTestResult.Positive => PSConfigurationTestResult.Positive,
+                ConfigurationTestResult.Negative => PSConfigurationTestResult.Negative,
+                ConfigurationTestResult.Failed => PSConfigurationTestResult.Failed,
+                ConfigurationTestResult.NotRun => PSConfigurationTestResult.NotRun,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        /// <summary>
+        /// Converts ConfigurationUnitState string value to PSConfigurationUnitState.
+        /// </summary>
+        /// <param name="value">ConfigurationUnitState value.</param>
+        /// <returns>PSConfigurationUnitState.</returns>
+        public static PSConfigurationUnitState ToPSConfigurationUnitState(ConfigurationUnitState value)
+        {
+            return value switch
+            {
+                ConfigurationUnitState.Unknown => PSConfigurationUnitState.Unknown,
+                ConfigurationUnitState.Pending => PSConfigurationUnitState.Pending,
+                ConfigurationUnitState.InProgress => PSConfigurationUnitState.InProgress,
+                ConfigurationUnitState.Completed => PSConfigurationUnitState.Completed,
+                ConfigurationUnitState.Skipped => PSConfigurationUnitState.Skipped,
+                _ => throw new InvalidOperationException(),
+            };
         }
     }
 }

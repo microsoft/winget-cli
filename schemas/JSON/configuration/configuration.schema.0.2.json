@@ -1,7 +1,7 @@
 {
     "$id": "https://aka.ms/schemas/dsc/configuration.schema.0.2.json",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "description": "Description of what these resources does to apply the desired state in the configuration",
+    "description": "Description of what these resources do to apply the desired state in the configuration.",
     "type": "object",
     "properties": {
         "properties": {
@@ -9,11 +9,13 @@
             "properties": {
                 "assertions": {
                     "type": "array",
-                    "items": { "$ref": "#/$defs/resource" }
+                    "items": { "$ref": "#/$defs/resource" },
+                    "description": "The preconditions required to run the configuration."
                 },
                 "resources": {
                     "type": "array",
-                    "items": { "$ref": "#/$defs/resource" }
+                    "items": { "$ref": "#/$defs/resource" },
+                    "description": "A list of resources (software, tools, packages, settings, etc.) to be included in the configuration."
                 },
                 "parameters": {
                     "type": "array",
@@ -25,10 +27,11 @@
                     "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
                     "maxLength": 128,
                     "default": "0.2.0",
-                    "description": "The configuration syntax version"
+                    "description": "The configuration syntax version."
                 }
             },
-            "required": ["configurationVersion"]
+            "required": ["configurationVersion"],
+            "description": "The properties of the configuration."
         }
     },
 
@@ -39,12 +42,12 @@
                 "resource": {
                     "type": "string",
                     "maxLength": 128,
-                    "description": "The name of the resource. Optionally specify module and resource as module/resource"
+                    "description": "The name of the resource. Optionally specify module and resource as module/resource."
                 },
                 "id": {
                     "type": "string",
                     "maxLength": 128,
-                    "description": "The identifier of this item."
+                    "description": "A unique identifier for this resource."
                 },
                 "dependsOn": {
                     "type": [ "array", "null" ],
@@ -72,9 +75,13 @@
                             "description": "Enable using prerelease modules."
                         }
                     },
-                    "additionalProperties": true
+                    "additionalProperties": true,
+                    "description": "Information about the module and/or resource."
                 },
-                "settings": { "type": "object" }
+                "settings": {
+                    "type": "object",
+                    "description": "Parameters as key-value pairs to be passed to the resource."
+                }
             },
             "required": ["resource"]
         }

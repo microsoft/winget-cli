@@ -6,6 +6,7 @@
 #include <winget/UserSettings.h>
 #include <AppInstallerRuntime.h>
 #include <winget/Locale.h>
+#include <winget/Reboot.h>
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility::literals;
@@ -840,7 +841,7 @@ namespace AppInstaller::CLI
 
     void Command::Complete(Execution::Context&, Execution::Args::Type) const
     {
-        // Derived commands must suppy context sensitive argument values.
+        // Derived commands must supply context sensitive argument values.
     }
 
     void Command::Execute(Execution::Context& context) const
@@ -870,19 +871,56 @@ namespace AppInstaller::CLI
             ExecuteInternal(context);
         }
 
-        if (context.Args.Contains(Execution::Args::Type::OpenLogs))
-        {   
-            // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
-            // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
-            ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
-        }
-
-        if (context.Args.Contains(Execution::Args::Type::Wait))
+        // NOTE: Reboot logic will still run even if the context is terminated (not including unhandled exceptions).
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot) &&
+            context.Args.Contains(Execution::Args::Type::AllowReboot) &&
+            WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired))
         {
-            context.Reporter.PromptForEnter();
+            context.Reporter.Warn() << Resource::String::InitiatingReboot << std::endl;
+
+            if (context.Args.Contains(Execution::Args::Type::Wait))
+            {
+                context.Reporter.PromptForEnter();
+            }
+
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterResume))
+            {
+                // RegisterResume context flag assumes we already wrote to the RunOnce registry.
+                // Since we are about to initiate a restart, this is no longer needed as a safety net.
+                Reboot::UnregisterRestartForWER();
+
+                context.ClearFlags(Execution::ContextFlag::RegisterResume);
+            }
+
+            context.ClearFlags(Execution::ContextFlag::RebootRequired);
+
+            if (!Reboot::InitiateReboot())
+            {
+                context.Reporter.Error() << Resource::String::FailedToInitiateReboot << std::endl;
+            }
+        }
+        else
+        {
+            if (context.Args.Contains(Execution::Args::Type::OpenLogs))
+            {
+                // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
+                // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
+                ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::Wait))
+            {
+                context.Reporter.PromptForEnter();
+            }
         }
     }
 
+    void Command::Resume(Execution::Context& context) const
+    {
+        context.Reporter.Error() << Resource::String::CommandDoesNotSupportResumeMessage << std::endl;
+        AICLI_TERMINATE_CONTEXT(E_NOTIMPL);
+    }
+    
     void Command::SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value)
     {
         m_selectCurrentCommandIfUnrecognizedSubcommandFound = value;

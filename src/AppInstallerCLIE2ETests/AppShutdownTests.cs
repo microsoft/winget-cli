@@ -23,12 +23,16 @@ namespace AppInstallerCLIE2ETests
         /// Runs winget test appshutdown and register the application to force a WM_QUERYENDSESSION message.
         /// </summary>
         [Test]
-        [Ignore("This test won't work on Window Server")]
         public void RegisterApplicationTest()
         {
             if (!TestSetup.Parameters.PackagedContext)
             {
                 Assert.Ignore("Not packaged context.");
+            }
+
+            if (!TestCommon.ExecutingAsAdministrator && TestCommon.IsCIEnvironment)
+            {
+                Assert.Ignore("This test won't work on Window Server as non-admin");
             }
 
             if (string.IsNullOrEmpty(TestSetup.Parameters.AICLIPackagePath))
@@ -68,7 +72,7 @@ namespace AppInstallerCLIE2ETests
             // This just waits for the app termination event.
             var testCmdTask = new Task<TestCommon.RunCommandResult>(() =>
             {
-                return TestCommon.RunAICLICommandViaInvokeCommandInDesktopPackage("test", "appshutdown", timeOut: 300000, throwOnTimeout: false);
+                return TestCommon.RunAICLICommand("test", "appshutdown", timeOut: 300000, throwOnTimeout: false);
             });
 
             // Register the app with the updated version.
@@ -90,27 +94,6 @@ namespace AppInstallerCLIE2ETests
             // The ctrl-c command terminates the batch file before the exit code file gets created.
             // Look for the output.
             Assert.True(testCmdTask.Result.StdOut.Contains("Succeeded waiting for app shutdown event"));
-        }
-
-        /// <summary>
-        /// Runs winget test appshutdown --force.
-        /// </summary>
-        [Test]
-        public void RegisterApplicationTest_Force()
-        {
-            if (!TestSetup.Parameters.PackagedContext)
-            {
-                Assert.Ignore("Not packaged context.");
-            }
-
-            if (string.IsNullOrEmpty(TestSetup.Parameters.AICLIPackagePath))
-            {
-                throw new NullReferenceException("AICLIPackagePath");
-            }
-
-            var result = TestCommon.RunAICLICommandViaInvokeCommandInDesktopPackage("test", "appshutdown --force", timeOut: 300000, throwOnTimeout: false);
-            TestContext.Out.Write(result.StdOut);
-            Assert.True(result.StdOut.Contains("Succeeded waiting for app shutdown event"));
         }
     }
 }

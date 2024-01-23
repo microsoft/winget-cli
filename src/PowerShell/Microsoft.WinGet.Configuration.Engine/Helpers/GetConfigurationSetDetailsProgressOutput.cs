@@ -6,26 +6,15 @@
 
 namespace Microsoft.WinGet.Configuration.Engine.Helpers
 {
-    using System;
-    using System.Collections.Generic;
     using Microsoft.Management.Configuration;
-    using Microsoft.WinGet.Configuration.Engine.Commands;
-    using Microsoft.WinGet.Configuration.Engine.Exceptions;
+    using Microsoft.WinGet.Common.Command;
     using Windows.Foundation;
-    using static Microsoft.WinGet.Configuration.Engine.Commands.AsyncCommand;
 
     /// <summary>
     /// Helper to handle progress callback from GetSetDetailsAsync.
     /// </summary>
-    internal class GetConfigurationSetDetailsProgressOutput
+    internal class GetConfigurationSetDetailsProgressOutput : ConfigurationSetProgressOutputBase<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult>
     {
-        private readonly AsyncCommand cmd;
-        private readonly int activityId;
-        private readonly string activity;
-        private readonly string inProgressMessage;
-        private readonly string completeMessage;
-        private readonly int totalUnitsExpected;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="GetConfigurationSetDetailsProgressOutput"/> class.
         /// </summary>
@@ -35,72 +24,31 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// <param name="inProgressMessage">The message in the progress bar.</param>
         /// <param name="completeMessage">The activity complete message.</param>
         /// <param name="totalUnitsExpected">Total of units expected.</param>
-        public GetConfigurationSetDetailsProgressOutput(AsyncCommand cmd, int activityId, string activity, string inProgressMessage, string completeMessage, int totalUnitsExpected)
+        public GetConfigurationSetDetailsProgressOutput(PowerShellCmdlet cmd, int activityId, string activity, string inProgressMessage, string completeMessage, int totalUnitsExpected)
+            : base(cmd, activityId, activity, inProgressMessage, completeMessage, totalUnitsExpected)
         {
-            this.cmd = cmd;
-            this.activityId = activityId;
-            this.activity = activity;
-            this.inProgressMessage = inProgressMessage;
-            this.completeMessage = completeMessage;
-            this.totalUnitsExpected = totalUnitsExpected;
-
-            // Write initial progress record.
-            // For some reason, if this is 0 the progress bar is shown full. Start with 1%
-            this.cmd.WriteProgressWithPercentage(activityId, activity, $"{this.inProgressMessage} 0/{this.totalUnitsExpected}", 1, 100);
         }
 
         /// <summary>
-        /// Gets the number of units shown.
+        /// Gets the units shown.
         /// </summary>
-        internal int UnitsShown { get; private set; } = 0;
-
-        /// <summary>
-        /// Progress callback.
-        /// </summary>
-        /// <param name="operation">Async operation in progress.</param>
-        /// <param name="result">Result.</param>
-        public void Progress(IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> operation, GetConfigurationUnitDetailsResult result)
+        public int UnitsShown
         {
-            this.HandleUnits(operation.GetResults().UnitResults);
+            get { return this.UnitsCompleted.Count; }
         }
 
-        /// <summary>
-        /// Handle units.
-        /// </summary>
-        /// <param name="unitResults">The unit results.</param>
-        public void HandleUnits(IReadOnlyList<GetConfigurationUnitDetailsResult> unitResults)
+        /// <inheritdoc/>
+        public override void Progress(IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> operation, GetConfigurationUnitDetailsResult result)
         {
-            while (this.UnitsShown < unitResults.Count)
+            this.HandleProgress(operation.GetResults());
+        }
+
+        /// <inheritdoc/>
+        public override void HandleProgress(GetConfigurationSetDetailsResult result)
+        {
+            foreach (var unitResult in result.UnitResults)
             {
-                GetConfigurationUnitDetailsResult unitResult = unitResults[this.UnitsShown];
-                this.LogFailedGetConfigurationUnitDetails(unitResult.Unit, unitResult.ResultInformation);
-                var information = new ConfigurationUnitInformation(unitResult.Unit);
-                this.cmd.Write(StreamType.Information, information.GetHeader());
-                this.cmd.Write(StreamType.Information, information.GetInformation());
-
-                ++this.UnitsShown;
-                this.cmd.WriteProgressWithPercentage(this.activityId, this.activity, $"{this.inProgressMessage} {this.UnitsShown}/{this.totalUnitsExpected}", this.UnitsShown, this.totalUnitsExpected);
-            }
-        }
-
-        /// <summary>
-        /// Complete progress.
-        /// </summary>
-        public void CompleteProgress()
-        {
-            this.cmd.CompleteProgress(this.activityId, this.activity, this.completeMessage);
-        }
-
-        private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
-        {
-            if (resultInformation.ResultCode != null)
-            {
-                string errorMessage = $"Failed to get unit details for {unit.UnitName} 0x{resultInformation.ResultCode.HResult:X}" +
-                    $"{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'";
-                this.cmd.WriteError(
-                    ErrorRecordErrorId.ConfigurationDetailsError,
-                    errorMessage,
-                    resultInformation.ResultCode);
+                this.CompleteUnit(unitResult.Unit);
             }
         }
     }

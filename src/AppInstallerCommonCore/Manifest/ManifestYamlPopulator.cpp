@@ -329,6 +329,16 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_6.begin(), fields_v1_6.end(), std::inserter(result, result.end()));
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_7 =
+                {
+                    { "RepairBehavior", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->RepairBehavior = ConvertToRepairBehaviorEnum(value.as<std::string>()); return {}; } },
+                };
+
+                std::move(fields_v1_7.begin(), fields_v1_7.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -357,6 +367,11 @@ namespace AppInstaller::Manifest
         else if (manifestVersion.Major() == 1)
         {
             result.emplace_back("Upgrade", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
+            {
+                result.emplace_back("Repair", [this](const YAML::Node& value)->ValidationErrors { (*m_p_switches)[InstallerSwitchType::Repair] = value.as<std::string>(); return{}; });
+            };
         }
 
         return result;
@@ -445,7 +460,7 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_1 =
                 {
-                    { "Agreements", [this](const YAML::Node& value)->ValidationErrors { return ProcessAgreementsNode(value); }, true },
+                    { "Agreements", [this](const YAML::Node& value)->ValidationErrors { return ProcessAgreementsNode(value); } },
                     { "ReleaseNotes", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::ReleaseNotes>(value.as<std::string>()); return {}; } },
                     { "ReleaseNotesUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_localization->Add<Localization::ReleaseNotesUrl>(value.as<std::string>()); return {}; } },
                 };
@@ -531,7 +546,7 @@ namespace AppInstaller::Manifest
             result =
             {
                 { "AgreementLabel", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->Label = Utility::Trim(value.as<std::string>()); return {}; } },
-                { "Agreement", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementText = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Agreement", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementText = Utility::Trim(value.as<std::string>()); return {}; }, true },
                 { "AgreementUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_agreement->AgreementUrl = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }

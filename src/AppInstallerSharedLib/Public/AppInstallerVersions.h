@@ -93,6 +93,9 @@ namespace AppInstaller::Utility
 
             uint64_t Integer = 0;
             std::string Other;
+
+        private:
+            std::string m_foldedOther;
         };
 
         // Gets the part breakdown for a given version.
@@ -127,12 +130,14 @@ namespace AppInstaller::Utility
     {
         UInt64Version() = default;
         UInt64Version(UINT64 version);
+        UInt64Version(uint16_t major, uint16_t minor, uint16_t build, uint16_t revision);
         UInt64Version(std::string&& version, std::string_view splitChars = DefaultSplitChars);
         UInt64Version(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
             UInt64Version(std::string(version), splitChars) {}
 
         void Assign(std::string version, std::string_view splitChars = DefaultSplitChars) override;
         void Assign(UINT64 version);
+        void Assign(uint16_t major, uint16_t minor, uint16_t build, uint16_t revision);
 
         UINT64 Major() const { return m_parts.size() > 0 ? m_parts[0].Integer : 0; }
         UINT64 Minor() const { return m_parts.size() > 1 ? m_parts[1].Integer : 0; }

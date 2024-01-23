@@ -18,7 +18,7 @@ namespace TestCommon
         using LocIndString = AppInstaller::Utility::LocIndString;
         using MetadataMap = AppInstaller::Repository::IPackageVersion::Metadata;
 
-        TestPackageVersion(const Manifest& manifest, std::weak_ptr<const ISource> source = {});
+        TestPackageVersion(const Manifest& manifest, std::weak_ptr<const ISource> source = {}, bool hideSystemReferenceStrings = false);
         TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata, std::weak_ptr<const ISource> source = {});
 
         template <typename... Args>
@@ -36,6 +36,7 @@ namespace TestCommon
         Manifest VersionManifest;
         MetadataMap Metadata;
         std::weak_ptr<const ISource> Source;
+        bool HideSystemReferenceStrings = false;
 
     protected:
         static void AddIfHasValueAndNotPresent(const AppInstaller::Utility::NormalizedString& value, std::vector<LocIndString>& target, bool folded = false);
@@ -52,7 +53,7 @@ namespace TestCommon
         using MetadataMap = TestPackageVersion::MetadataMap;
 
         // Create a package with only available versions using these manifests.
-        TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source = {});
+        TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source = {}, bool hideSystemReferenceStringsOnVersion = false);
 
         // Create a package with an installed version, metadata, and optionally available versions.
         TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available = {}, std::weak_ptr<const ISource> source = {});
@@ -86,6 +87,9 @@ namespace TestCommon
         const std::string& GetIdentifier() const override;
         AppInstaller::Repository::SourceInformation GetInformation() const override;
 
+        bool QueryFeatureFlag(AppInstaller::Repository::SourceFeatureFlag flag) const override;
+        std::function<bool(AppInstaller::Repository::SourceFeatureFlag)> QueryFeatureFlagFunction;
+
         AppInstaller::Repository::SearchResult Search(const AppInstaller::Repository::SearchRequest& request) const override;
         void* CastTo(AppInstaller::Repository::ISourceType type) override;
 
@@ -110,6 +114,9 @@ namespace TestCommon
         AppInstaller::Repository::SourceDetails& GetDetails() override { return m_details; };
 
         bool SetCustomHeader(std::optional<std::string> header) override { m_header = header; return true; }
+
+        bool ShouldUpdateBeforeOpenResult = false;
+        bool ShouldUpdateBeforeOpen(const std::optional<AppInstaller::Repository::TimeSpan>&) override { return ShouldUpdateBeforeOpenResult; }
 
         std::shared_ptr<AppInstaller::Repository::ISource> Open(AppInstaller::IProgressCallback&) override
         {
@@ -152,6 +159,7 @@ namespace TestCommon
         // Make copies of self when requested.
         operator std::function<std::unique_ptr<AppInstaller::Repository::ISourceFactory>()>();
 
+        bool ShouldUpdateBeforeOpenResult = false;
         OpenFunctor OnOpen;
         OpenFunctorWithCustomHeader OnOpenWithCustomHeader;
         AddFunctor OnAdd;

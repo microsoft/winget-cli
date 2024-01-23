@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ConfigurationSet.g.h"
-#include "MutableFlag.h"
 #include <winget/ILifetimeWatcher.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
@@ -14,12 +13,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         using WinRT_Self = ::winrt::Microsoft::Management::Configuration::ConfigurationSet;
         using ConfigurationUnit = ::winrt::Microsoft::Management::Configuration::ConfigurationUnit;
+        using ConfigurationParameter = ::winrt::Microsoft::Management::Configuration::ConfigurationParameter;
 
         ConfigurationSet();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         ConfigurationSet(const guid& instanceIdentifier);
-        void Initialize(std::vector<Configuration::ConfigurationUnit>&& units);
+        void Units(std::vector<Configuration::ConfigurationUnit>&& units);
+        void Parameters(std::vector<Configuration::ConfigurationParameter>&& value);
 
         bool IsFromHistory() const;
 #endif
@@ -39,8 +40,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         clock::time_point ApplyBegun();
         clock::time_point ApplyEnded();
 
-        Windows::Foundation::Collections::IVectorView<ConfigurationUnit> ConfigurationUnits();
-        void ConfigurationUnits(const Windows::Foundation::Collections::IVectorView<ConfigurationUnit>& value);
+        Windows::Foundation::Collections::IVector<ConfigurationUnit> Units();
+        void Units(const Windows::Foundation::Collections::IVector<ConfigurationUnit>& value);
 
         hstring SchemaVersion();
         void SchemaVersion(const hstring& value);
@@ -52,6 +53,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         void Remove();
 
+        Windows::Foundation::Collections::ValueSet Metadata();
+        void Metadata(const Windows::Foundation::Collections::ValueSet& value);
+
+        Windows::Foundation::Collections::IVector<ConfigurationParameter> Parameters();
+        void Parameters(const Windows::Foundation::Collections::IVector<ConfigurationParameter>& value);
+
+        Windows::Foundation::Collections::ValueSet Variables();
+        void Variables(const Windows::Foundation::Collections::ValueSet& value);
+
+        Windows::Foundation::Uri SchemaUri();
+        void SchemaUri(const Windows::Foundation::Uri& value);
+
         HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
@@ -61,11 +74,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring m_path;
         guid m_instanceIdentifier;
         clock::time_point m_firstApply{};
-        Windows::Foundation::Collections::IVector<ConfigurationUnit> m_configurationUnits{ winrt::single_threaded_vector<ConfigurationUnit>() };
+        Windows::Foundation::Collections::IVector<ConfigurationUnit> m_units{ winrt::single_threaded_vector<ConfigurationUnit>() };
         hstring m_schemaVersion;
         winrt::event<Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>> m_configurationSetChange;
-
-        MutableFlag m_mutableFlag;
+        Windows::Foundation::Collections::ValueSet m_metadata;
+        Windows::Foundation::Collections::IVector<ConfigurationParameter> m_parameters{ winrt::single_threaded_vector<ConfigurationParameter>() };
+        Windows::Foundation::Collections::ValueSet m_variables;
+        Windows::Foundation::Uri m_schemaUri = nullptr;
 #endif
     };
 }

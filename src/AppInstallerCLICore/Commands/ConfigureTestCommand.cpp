@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigureTestCommand.h"
 #include "Workflows/ConfigurationFlow.h"
+#include "ConfigurationCommon.h"
 
 using namespace AppInstaller::CLI::Workflow;
 
@@ -12,6 +13,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::ConfigurationModulePath, Resource::String::ConfigurationModulePath, ArgumentType::Positional },
             Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
         };
     }
@@ -36,12 +38,17 @@ namespace AppInstaller::CLI
     {
         context <<
             VerifyIsFullPackage <<
-            VerifyFile(Execution::Args::Type::ConfigurationFile) <<
+            VerifyFileOrUri(Execution::Args::Type::ConfigurationFile) <<
             CreateConfigurationProcessor <<
             OpenConfigurationSet <<
             ShowConfigurationSet <<
             ShowConfigurationSetConflicts <<
             ConfirmConfigurationProcessing(false) <<
             TestConfigurationSet;
+    }
+
+    void ConfigureTestCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        Configuration::ValidateCommonArguments(execArgs);
     }
 }

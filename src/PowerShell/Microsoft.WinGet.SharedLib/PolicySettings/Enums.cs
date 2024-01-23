@@ -91,6 +91,11 @@ namespace Microsoft.WinGet.SharedLib.PolicySettings
         /// Enabled Command line Interfaces.
         /// </summary>
         WinGetCommandLineInterfaces,
+
+        /// <summary>
+        /// Enabled configuration.
+        /// </summary>
+        Configuration,
     }
 
     /// <summary>

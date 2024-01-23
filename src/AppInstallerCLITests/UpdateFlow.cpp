@@ -7,6 +7,7 @@
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
 #include <winget/PathVariable.h>
+#include <Workflows/ShellExecuteInstallerHandler.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
@@ -623,10 +624,9 @@ TEST_CASE("UpdateFlow_Dependencies", "[UpdateFlow][workflow][dependencies]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_Dependencies }));
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_Dependencies.Query);;
+    OverrideEnableWindowsFeaturesDependencies(context);
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_Dependencies.Query);;
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -1008,5 +1008,51 @@ TEST_CASE("UpdateFlow_UpdateMultiple_NotAllFound", "[UpdateFlow][workflow][Multi
         INFO(updateOutput.str());
 
         REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
+    }
+}
+
+TEST_CASE("UpdateFlow_UpdateWithReboot", "[UpdateFlow][workflow][reboot]")
+{
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFReboot>(true);
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_ExpectedReturnCodes }));
+
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_ExpectedReturnCodes.Query);
+    context.Args.AddArg(Execution::Args::Type::AllowReboot);
+
+    context.Override({ AppInstaller::CLI::Workflow::ShellExecuteInstallImpl, [&](TestContext& context)
+    {
+        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH (not treated as an installer error)
+        context.Add<Data::OperationReturnCode>(9);
+    } });
+
+    SECTION("Reboot success")
+    {
+        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(true);
+
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
+
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE_FALSE(updateOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
+    }
+    SECTION("Reboot failed")
+    {
+        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
+
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
+
+        REQUIRE_FALSE(context.IsTerminated());
+        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
     }
 }

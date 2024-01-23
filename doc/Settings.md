@@ -140,6 +140,18 @@ The `architectures` behavior affects what architectures will be selected when in
     },
 ```
 
+### Installer Types
+
+The `installerTypes` behavior affects what installer types will be selected when installing a package. The matching parameter is `--installer-type`.
+
+```json
+    "installBehavior": {
+        "preferences": {
+            "installerTypes": ["msi", "msix"]
+        }
+    },
+```
+
 ### Default install root
 
 The `defaultInstallRoot` affects the install location when a package requires one. This can be overridden by the `--location` parameter. This setting is only used when a package manifest includes `InstallLocationRequired`, and the actual location is obtained by appending the package ID to the root.
@@ -182,14 +194,31 @@ If set to true, the `telemetry.disable` setting will prevent any event from bein
 
 ## Logging
 
-The `logging` settings control the level of detail in log files. `--verbose-logs` will override this setting and always creates a verbose log.
-Defaults to `info` if value is not set or is invalid
+The `logging` settings control the level of detail in log files.
 
 ### level
 
+ `--verbose-logs` will override this setting and always creates a verbose log.
+Defaults to `info` if value is not set or is invalid.
+
 ```json
     "logging": {
-        "level": ["verbose", "info", "warning", "error", "critical"]
+        "level": "verbose" | "info" | "warning" | "error" | "critical"
+    },
+```
+
+### channels
+
+The valid values in this array are defined in the function `GetChannelFromName` in the [logging code](../src/AppInstallerSharedLib/AppInstallerLogging.cpp).  These align with the ***channel identifier*** found in the log files.  For example, ***`CORE`*** in:
+```
+2023-12-06 19:17:07.988 [CORE] WinGet, version [1.7.0-preview], activity [{24A91EA8-46BE-47A1-B65C-CEBCE90B8675}]
+```
+
+In addition, there are special values that cover multiple channels.  `default` is the default set of channels, while `all` is all of the channels.  Invalid values are ignored.
+
+```json
+    "logging": {
+        "channels": ["default"]
     },
 ```
 
@@ -251,16 +280,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### dependencies
-
-Experimental feature with the aim of managing dependencies, as of now it only shows package dependency information. You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "dependencies": true
-   },
-```
-
 ### configuration
 
 This feature enables the configuration commands. These commands allow configuring the system into a desired state.
@@ -283,13 +302,35 @@ You can enable the feature as shown below.
    },
 ```
 
-### download
+### resume
 
-This feature enables the download command. This command allows users to download the installers of a specified package.
+This feature enables support for some commands to resume.
 You can enable the feature as shown below.
 
 ```json
    "experimentalFeatures": {
-       "download": true
+       "resume": true
+   },
+```
+
+### reboot
+
+This feature enables support for initiating a reboot.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "reboot": true
+   },
+```
+
+### configuration03
+
+This feature enables the configuration schema 0.3.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "configuration03": true
    },
 ```

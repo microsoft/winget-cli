@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
     using System.Text;
     using Microsoft.Management.Configuration;
     using Microsoft.WinGet.Configuration.Engine.Extensions;
-    using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Microsoft.WinGet.Resources;
     using Windows.Foundation.Collections;
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// <param name="unit">Configuration unit.</param>
         public ConfigurationUnitInformation(ConfigurationUnit unit)
         {
-            this.header = this.CreateHeader(unit, unit.Details != null ? unit.Details.UnitName : unit.UnitName);
+            this.header = this.CreateHeader(unit, unit.Details != null ? unit.Details.UnitType : unit.Type);
             this.information = this.CreateInformation(unit);
         }
 
@@ -74,16 +74,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         private string CreateInformation(ConfigurationUnit unit)
         {
             IConfigurationUnitProcessorDetails details = unit.Details;
-            ValueSet directives = unit.Directives;
+            ValueSet metadata = unit.Metadata;
 
             var sb = new StringBuilder();
             if (details != null)
             {
-                this.CreateInformationWithDetails(ref sb, details, directives);
+                this.CreateInformationWithDetails(ref sb, details, metadata);
             }
             else
             {
-                this.CreateInformationWithoutDetails(ref sb, directives);
+                this.CreateInformationWithoutDetails(ref sb, metadata);
             }
 
             // -- Sample output footer --

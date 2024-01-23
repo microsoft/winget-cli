@@ -31,13 +31,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// Gets or sets the filter that is matched against the tags of the package.
         /// </summary>
         [Filter(Field = PackageMatchField.Tag)]
-        protected string Tag { get; set; }
+        protected string? Tag { get; set; }
 
         /// <summary>
         /// Gets or sets the filter that is matched against the commands of the package.
         /// </summary>
         [Filter(Field = PackageMatchField.Command)]
-        protected string Command { get; set; }
+        protected string? Command { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum number of results returned.
@@ -48,10 +48,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// Searches for packages from configured sources.
         /// </summary>
         /// <param name="behavior">A <see cref="CompositeSearchBehavior" /> value.</param>
+        /// <param name="match">The match option.</param>
         /// <returns>A list of <see cref="MatchResult" /> objects.</returns>
-        protected IReadOnlyList<MatchResult> FindPackages(CompositeSearchBehavior behavior)
+        protected IReadOnlyList<MatchResult> FindPackages(CompositeSearchBehavior behavior, PackageFieldMatchOption match)
         {
-            return this.FindPackages(behavior, this.Count);
+            return this.FindPackages(behavior, this.Count, match);
         }
     }
 }

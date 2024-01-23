@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct DownloadCommand final : public Command
     {
-        DownloadCommand(std::string_view parent) : Command("download", {} /* aliases */, parent, Settings::ExperimentalFeature::Feature::Download) {}
+        DownloadCommand(std::string_view parent) : Command("download", {} /* aliases */, parent) {}
 
         std::vector<Argument> GetArguments() const override;
 

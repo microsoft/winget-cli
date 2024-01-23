@@ -13,7 +13,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
     {
     }
 
-    Schema::Version Interface::GetVersion() const
+    SQLite::Version Interface::GetVersion() const
     {
         return { 1, 6 };
     }
@@ -24,7 +24,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
 
         V1_5::Interface::CreateTables(connection, options);
 
-        UpgradeCodeTable::Create(connection);
+        UpgradeCodeTable::Create(connection, GetOneToManyTableSchema());
 
         savepoint.Commit();
     }
@@ -142,7 +142,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
 
         V1_5::Interface::PrepareForPackaging(connection, false);
 
-        UpgradeCodeTable::PrepareForPackaging(connection, true, true);
+        UpgradeCodeTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), true, true);
 
         savepoint.Commit();
 

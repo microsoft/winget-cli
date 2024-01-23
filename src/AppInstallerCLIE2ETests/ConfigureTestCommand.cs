@@ -24,7 +24,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("configuration", true);
             this.DeleteTxtFiles();
         }
 
@@ -78,6 +77,17 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_TEST_FAILED, result.ExitCode);
             Assert.True(result.StdOut.Contains("Some of the configuration units failed while testing their state."));
             Assert.True(result.StdOut.Contains("System is not in the described configuration state."));
+        }
+
+        /// <summary>
+        /// Test from https configuration file.
+        /// </summary>
+        [Test]
+        public void ConfigureTest_HttpsConfigurationFile()
+        {
+            var result = TestCommon.RunAICLICommand(CommandAndAgreements, $"{Constants.TestSourceUrl}/TestData/Configuration/Configure_TestRepo_Location.yml");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("System is in the described configuration state."));
         }
 
         private void DeleteTxtFiles()

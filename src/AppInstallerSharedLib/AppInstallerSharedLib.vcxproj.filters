@@ -18,6 +18,12 @@
     <Filter Include="Public\Telemetry - Do Not Modify">
       <UniqueIdentifier>{3a5b2424-6c80-4edc-85bc-f371f2e93a33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SQLite">
+      <UniqueIdentifier>{d5b3a812-cc25-4826-b380-0488cd0944e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ICU">
+      <UniqueIdentifier>{2403870a-5bb9-461f-8558-877c23ec487b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -83,6 +89,45 @@
     <ClInclude Include="Public\winget\Security.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\Certificates.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\GroupPolicy.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Registry.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\JsonUtil.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\IConfigurationStaticsInternals.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\SQLiteStatementBuilder.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\SQLiteStorageBase.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\SQLiteTempTable.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\SQLiteWrapper.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="ICU\SQLiteICU.h">
+      <Filter>ICU</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\SQLiteVersion.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ManagedFile.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\SQLiteMetadataTable.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -125,6 +170,42 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Security.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Certificates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GroupPolicy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Registry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLiteStatementBuilder.cpp">
+      <Filter>SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLiteStorageBase.cpp">
+      <Filter>SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLiteTempTable.cpp">
+      <Filter>SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLiteWrapper.cpp">
+      <Filter>SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLiteMetadataTable.cpp">
+      <Filter>SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="ICU\SQLiteICU.c">
+      <Filter>ICU</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLiteVersion.cpp">
+      <Filter>SQLite</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagedFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -35,6 +35,10 @@ namespace AppInstaller::Repository
         // Get the source's information after the source is opened.
         virtual SourceInformation GetInformation() const { return {}; };
 
+        // Query the value of the given feature flag.
+        // The default state of any new flag is false.
+        virtual bool QueryFeatureFlag(SourceFeatureFlag) const { return false; }
+
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
 
@@ -81,6 +85,9 @@ namespace AppInstaller::Repository
 
         // Set caller.
         virtual void SetCaller(std::string) {}
+
+        // Determine if the source needs to be updated before being opened.
+        virtual bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>&) { return false; }
 
         // Opens the source. This function should throw upon open failure rather than returning an empty pointer.
         virtual std::shared_ptr<ISource> Open(IProgressCallback& progress) = 0;

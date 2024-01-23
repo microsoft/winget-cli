@@ -6,8 +6,8 @@
 
 namespace Microsoft.WinGet.Configuration.Cmdlets
 {
+    using System;
     using System.Management.Automation;
-    using System.Threading;
     using Microsoft.WinGet.Configuration.Engine.Commands;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
@@ -20,11 +20,13 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     public sealed class InvokeWinGetConfigurationCmdlet : PSCmdlet
     {
         private bool acceptedAgreements = false;
+        private ConfigurationCommand runningCommand = null;
 
         /// <summary>
         /// Gets or sets the configuration set.
         /// </summary>
         [Parameter(
+            Position = 0,
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
@@ -41,7 +43,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void BeginProcessing()
         {
-            this.acceptedAgreements = ConfigurationCommand.ConfirmConfigurationProcessing(this, this.AcceptConfigurationAgreements.ToBool());
+            this.acceptedAgreements = ConfigurationCommand.ConfirmConfigurationProcessing(this, this.AcceptConfigurationAgreements.ToBool(), true);
         }
 
         /// <summary>
@@ -51,8 +53,19 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         {
             if (this.acceptedAgreements)
             {
-                var configCommand = new ConfigurationCommand(this);
-                configCommand.Apply(this.Set);
+                this.runningCommand = new ConfigurationCommand(this);
+                this.runningCommand.Apply(this.Set);
+            }
+        }
+
+        /// <summary>
+        /// Interrupts currently running code within the command.
+        /// </summary>
+        protected override void StopProcessing()
+        {
+            if (this.runningCommand != null)
+            {
+                this.runningCommand.Cancel();
             }
         }
     }
