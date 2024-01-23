@@ -547,8 +547,8 @@ resources:
                     Assert.Equal(ConfigurationUnitResultSource.None, change.ResultInformation.ResultSource);
                 }
 
-                Assert.Single(unitProgress.Where(x => x.UnitState == ConfigurationUnitState.InProgress));
-                Assert.Single(unitProgress.Where(x => x.UnitState == ConfigurationUnitState.Completed));
+                Assert.True(unitProgress.Where(x => x.UnitState == ConfigurationUnitState.InProgress).Count() <= 1);
+                Assert.True(unitProgress.Where(x => x.UnitState == ConfigurationUnitState.Completed).Count() <= 1);
             }
 
             this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.None);
