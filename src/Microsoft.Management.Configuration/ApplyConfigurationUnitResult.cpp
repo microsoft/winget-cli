@@ -77,4 +77,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         m_resultInformation->Initialize(value);
     }
+
+    ApplyConfigurationUnitResult::ResultInformationT ApplyConfigurationUnitResult::ResultInformationInternal()
+    {
+        return m_resultInformation;
+    }
 }

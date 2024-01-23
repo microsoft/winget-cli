@@ -10,6 +10,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     struct ApplyConfigurationUnitResult : ApplyConfigurationUnitResultT<ApplyConfigurationUnitResult, IApplyGroupMemberSettingsResult>
     {
         using ConfigurationUnit = Configuration::ConfigurationUnit;
+        using ResultInformationT = decltype(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>());
 
         ApplyConfigurationUnitResult();
 
@@ -22,6 +23,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void PreviouslyInDesiredState(bool value);
         void RebootRequired(bool value);
         void ResultInformation(const Configuration::IConfigurationUnitResultInformation& value);
+        ResultInformationT ResultInformationInternal();
 #endif
 
         ConfigurationUnit Unit();
@@ -36,7 +38,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::atomic<ConfigurationUnitState> m_state = ConfigurationUnitState::Pending;
         bool m_previouslyInDesiredState = false;
         bool m_rebootRequired = false;
-        decltype(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>()) m_resultInformation;
+        ResultInformationT m_resultInformation;
 #endif
     };
 }

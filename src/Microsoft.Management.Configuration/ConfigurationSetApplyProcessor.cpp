@@ -73,11 +73,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     ConfigurationSetApplyProcessor::UnitInfo::UnitInfo(const Configuration::ConfigurationUnit& unit) :
-        Unit(unit), Result(make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>()),
-        ResultInformation(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>())
+        Unit(unit), Result(make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>())
     {
         Result->Unit(unit);
-        Result->ResultInformation(*ResultInformation);
+        ResultInformation = Result->ResultInformationInternal();
     }
 
     bool ConfigurationSetApplyProcessor::PreProcess()
