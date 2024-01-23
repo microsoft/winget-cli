@@ -47,7 +47,7 @@ extends:
           artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
         templateContext:
           outputs:
-          - output: pipelineArtifact
+          - output: buildArtifacts
             displayName: 'Publish Pipeline Artifacts'
             targetPath: '$(artifactsDir)'
         steps:
