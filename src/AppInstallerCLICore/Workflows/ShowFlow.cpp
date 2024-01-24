@@ -65,6 +65,23 @@ namespace {
             outputStream << "  "_liv << value << std::endl;
         }
     }
+
+    void ShowAgreementItem(Execution::OutputStream outputStream, AppInstaller::Manifest::Agreement agreement) {
+        if (!agreement.Label.empty())
+        {
+            outputStream << "  "_liv << Execution::ManifestInfoEmphasis << agreement.Label << ": "_liv;
+        }
+
+        if (!agreement.AgreementText.empty())
+        {
+            outputStream << agreement.AgreementText << std::endl;
+        }
+
+        if (!agreement.AgreementUrl.empty())
+        {
+            outputStream << agreement.AgreementUrl << std::endl;
+        }
+    }
 }
 
 namespace AppInstaller::CLI::Workflow
@@ -90,26 +107,12 @@ namespace AppInstaller::CLI::Workflow
         const auto& agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
         if (!agreements.empty())
         {
-            context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
             for (const auto& agreement : agreements)
             {
-                if (!agreement.Label.empty())
-                {
-                    info << "  "_liv << Execution::ManifestInfoEmphasis << agreement.Label << ": "_liv;
-                }
-
-                if (!agreement.AgreementText.empty())
-                {
-                    info << agreement.AgreementText << std::endl;
-                }
-
-                if (!agreement.AgreementUrl.empty())
-                {
-                    info << agreement.AgreementUrl << std::endl;
-                }
+                ShowAgreementItem(info, agreement);
             }
 
-            info << std::endl;
         }
     }
 
@@ -165,26 +168,12 @@ namespace AppInstaller::CLI::Workflow
         const auto& agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
         if (!agreements.empty())
         {
-            context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
             for (const auto& agreement : agreements)
             {
-                if (!agreement.Label.empty())
-                {
-                    info << "  "_liv << Execution::ManifestInfoEmphasis << agreement.Label << ": "_liv;
-                }
-
-                if (!agreement.AgreementText.empty())
-                {
-                    info << agreement.AgreementText << std::endl;
-                }
-
-                if (!agreement.AgreementUrl.empty())
-                {
-                    info << agreement.AgreementUrl << std::endl;
-                }
+                ShowAgreementItem(info, agreement);
             }
 
-            info << std::endl;
         }
     }
 
