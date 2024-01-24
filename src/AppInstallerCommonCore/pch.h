@@ -59,7 +59,7 @@
 #include <type_traits>
 #include <unordered_set>
 #include <vector>
-#include <any>
+#include <variant>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6285 6287 6340 6387 6388 26451 26495 28196 )
