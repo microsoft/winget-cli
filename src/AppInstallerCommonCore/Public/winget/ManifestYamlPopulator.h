@@ -7,6 +7,9 @@
 
 namespace AppInstaller::Manifest
 {
+    // Add here new manifest pointer types.
+    using VariantManifestPtr = std::variant<Agreement*, AppsAndFeaturesEntry*, Dependency*, DependencyList*, Documentation*, ExpectedReturnCode*, Icon*, InstallationMetadataInfo*, InstalledFile*, Manifest*, ManifestInstaller*, ManifestLocalization*, MarketsInfo*, NestedInstallerFile*, std::map<InstallerSwitchType, Utility::NormalizedString>*>;
+
     struct ManifestYamlPopulator
     {
         static std::vector<ValidationError> PopulateManifest(
@@ -23,11 +26,11 @@ namespace AppInstaller::Manifest
         // Struct mapping a manifest field to its population logic
         struct FieldProcessInfo
         {
-            FieldProcessInfo(std::string name, std::function<std::vector<ValidationError>(const YAML::Node&)> func, bool requireVerifiedPublisher = false) :
+            FieldProcessInfo(std::string name, std::function<std::vector<ValidationError>(const YAML::Node&, const VariantManifestPtr& v)> func, bool requireVerifiedPublisher = false) :
                 Name(std::move(name)), ProcessFunc(func), RequireVerifiedPublisher(requireVerifiedPublisher) {}
 
             std::string Name;
-            std::function<std::vector<ValidationError>(const YAML::Node&)> ProcessFunc;
+            std::function<std::vector<ValidationError>(const YAML::Node&, const VariantManifestPtr& v)> ProcessFunc;
             bool RequireVerifiedPublisher = false;
         };
 
@@ -47,22 +50,6 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> InstallationMetadataFieldInfos;
         std::vector<FieldProcessInfo> InstallationMetadataFilesFieldInfos;
 
-        // These pointers are referenced in the processing functions in manifest field process info table.
-        AppInstaller::Manifest::Manifest* m_p_manifest = nullptr;
-        AppInstaller::Manifest::ManifestInstaller* m_p_installer = nullptr;
-        std::map<InstallerSwitchType, Utility::NormalizedString>* m_p_switches = nullptr;
-        AppInstaller::Manifest::ExpectedReturnCode* m_p_expectedReturnCode = nullptr;
-        AppInstaller::Manifest::DependencyList* m_p_dependencyList = nullptr;
-        AppInstaller::Manifest::Dependency* m_p_packageDependency = nullptr;
-        AppInstaller::Manifest::ManifestLocalization* m_p_localization = nullptr;
-        AppInstaller::Manifest::Agreement* m_p_agreement = nullptr;
-        AppInstaller::Manifest::MarketsInfo* m_p_markets = nullptr;
-        AppInstaller::Manifest::AppsAndFeaturesEntry* m_p_appsAndFeaturesEntry = nullptr;
-        AppInstaller::Manifest::Documentation* m_p_documentation = nullptr;
-        AppInstaller::Manifest::Icon* m_p_icon = nullptr;
-        AppInstaller::Manifest::NestedInstallerFile* m_p_nestedInstallerFile = nullptr;
-        AppInstaller::Manifest::InstallationMetadataInfo* m_p_installationMetadata = nullptr;
-        AppInstaller::Manifest::InstalledFile* m_p_installedFile = nullptr;
 
         // Cache of Installers node and Localization node
         YAML::Node const* m_p_installersNode = nullptr;
@@ -90,18 +77,18 @@ namespace AppInstaller::Manifest
         // pair ourselves. This also helps with generating aggregated error rather than throwing on first failure.
         std::vector<ValidationError> ValidateAndProcessFields(
             const YAML::Node& rootNode,
-            const std::vector<FieldProcessInfo>& fieldInfos);
+            const std::vector<FieldProcessInfo>& fieldInfos,
+            const VariantManifestPtr& v);
 
-        void ProcessDependenciesNode(DependencyType type, const YAML::Node& rootNode);
-        std::vector<ValidationError> ProcessPackageDependenciesNode(const YAML::Node& rootNode);
-        std::vector<ValidationError> ProcessAgreementsNode(const YAML::Node& agreementsNode);
-        std::vector<ValidationError> ProcessMarketsNode(const YAML::Node& marketsNode);
-        std::vector<ValidationError> ProcessAppsAndFeaturesEntriesNode(const YAML::Node& appsAndFeaturesEntriesNode);
-        std::vector<ValidationError> ProcessExpectedReturnCodesNode(const YAML::Node& returnCodesNode);
-        std::vector<ValidationError> ProcessDocumentationsNode(const YAML::Node& documentationsNode);
-        std::vector<ValidationError> ProcessIconsNode(const YAML::Node& iconsNode);
-        std::vector<ValidationError> ProcessNestedInstallerFilesNode(const YAML::Node& nestedInstallerFilesNode);
-        std::vector<ValidationError> ProcessInstallationMetadataFilesNode(const YAML::Node& installedFilesNode);
+        std::vector<ValidationError> ProcessPackageDependenciesNode(const YAML::Node& rootNode, DependencyList* dependencyList);
+        std::vector<ValidationError> ProcessAgreementsNode(const YAML::Node& agreementsNode, ManifestLocalization* localization);
+        std::vector<ValidationError> ProcessMarketsNode(const YAML::Node& marketsNode, AppInstaller::Manifest::ManifestInstaller* installer);
+        std::vector<ValidationError> ProcessAppsAndFeaturesEntriesNode(const YAML::Node& appsAndFeaturesEntriesNode, AppInstaller::Manifest::ManifestInstaller* installer);
+        std::vector<ValidationError> ProcessExpectedReturnCodesNode(const YAML::Node& returnCodesNode, AppInstaller::Manifest::ManifestInstaller* installer);
+        std::vector<ValidationError> ProcessDocumentationsNode(const YAML::Node& documentationsNode, ManifestLocalization* localization);
+        std::vector<ValidationError> ProcessIconsNode(const YAML::Node& iconsNode, ManifestLocalization* localization);
+        std::vector<ValidationError> ProcessNestedInstallerFilesNode(const YAML::Node& nestedInstallerFilesNode, AppInstaller::Manifest::ManifestInstaller* installer);
+        std::vector<ValidationError> ProcessInstallationMetadataFilesNode(const YAML::Node& installedFilesNode, InstallationMetadataInfo* installationMetadata);
 
         std::vector<ValidationError> PopulateManifestInternal(
             const YAML::Node& rootNode,
