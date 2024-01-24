@@ -66,20 +66,28 @@ namespace {
         }
     }
 
-    void ShowAgreementItem(Execution::OutputStream outputStream, AppInstaller::Manifest::Agreement agreement) {
-        if (!agreement.Label.empty())
-        {
-            outputStream << "  "_liv << Execution::ManifestInfoEmphasis << agreement.Label << ": "_liv;
+    void ShowAgreements(Execution::OutputStream outputStream, std::vector<AppInstaller::Manifest::Agreement> agreements) {
+        if (agreements.empty()) {
+            return;
         }
 
-        if (!agreement.AgreementText.empty())
-        {
-            outputStream << agreement.AgreementText << std::endl;
-        }
+        outputStream << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
+        for (const auto& agreement : agreements) {
 
-        if (!agreement.AgreementUrl.empty())
-        {
-            outputStream << agreement.AgreementUrl << std::endl;
+            if (!agreement.Label.empty())
+            {
+                outputStream << "  "_liv << Execution::ManifestInfoEmphasis << agreement.Label << ": "_liv;
+            }
+
+            if (!agreement.AgreementText.empty())
+            {
+                outputStream << agreement.AgreementText << std::endl;
+            }
+
+            if (!agreement.AgreementUrl.empty())
+            {
+                outputStream << agreement.AgreementUrl << std::endl;
+            }
         }
     }
 }
@@ -103,17 +111,8 @@ namespace AppInstaller::CLI::Workflow
         ShowSingleLineField(info, Resource::String::ShowLabelCopyright, manifest.CurrentLocalization.Get<Manifest::Localization::Copyright>());
         ShowSingleLineField(info, Resource::String::ShowLabelCopyrightUrl, manifest.CurrentLocalization.Get<Manifest::Localization::CopyrightUrl>());
         ShowSingleLineField(info, Resource::String::ShowLabelPurchaseUrl, manifest.CurrentLocalization.Get<Manifest::Localization::PurchaseUrl>());
-
-        const auto& agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
-        if (!agreements.empty())
-        {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
-            for (const auto& agreement : agreements)
-            {
-                ShowAgreementItem(info, agreement);
-            }
-
-        }
+        ShowAgreements(info, manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>());
+        
     }
 
     void ShowManifestInfo(Execution::Context& context)
@@ -165,16 +164,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
         ShowMultiValueField(info, Resource::String::ShowLabelTags, manifest.CurrentLocalization.Get<Manifest::Localization::Tags>());
-        const auto& agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
-        if (!agreements.empty())
-        {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
-            for (const auto& agreement : agreements)
-            {
-                ShowAgreementItem(info, agreement);
-            }
-
-        }
+        ShowAgreements(info, manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>());
     }
 
     void ShowInstallerInfo(Execution::Context& context)
