@@ -5,6 +5,12 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Shows information on an application; this is only the information for package agreements
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: None
+    void ShowAgreementsInfo(Execution::Context& context);
+
     // Shows information on an application.
     // Required Args: None
     // Inputs: Manifest, Installer

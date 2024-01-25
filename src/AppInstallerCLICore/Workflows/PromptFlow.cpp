@@ -178,7 +178,7 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
 
-                context << Workflow::ReportManifestIdentityWithVersion(Resource::String::ReportIdentityForAgreements) << Workflow::ShowPackageInfo;
+                context << Workflow::ReportManifestIdentityWithVersion(Resource::String::ReportIdentityForAgreements) << Workflow::ShowAgreementsInfo;
                 context.Reporter.EmptyLine();
             }
 
