@@ -170,6 +170,9 @@ namespace AppInstaller::Repository
 
         // Required query parameters in get manifest request.
         std::vector<std::string> RequiredQueryParameters;
+
+        // Source authentication info.
+        Authentication::AuthenticationInfo Authentication;
     };
 
     // Allows calling code to inquire about specific features of an ISource implementation.

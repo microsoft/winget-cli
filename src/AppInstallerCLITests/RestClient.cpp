@@ -47,11 +47,11 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     IRestClient::Information info{ "TestId", { "1.0.0" } };
 
     Version version{ "1.0.0" };
-    REQUIRE(RestClient::GetSupportedInterface(TestRestUri, {}, info, version)->GetVersion() == version);
+    REQUIRE(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, version)->GetVersion() == version);
 
     // Update this test to next version so that we don't forget to add to supported versions before rest e2e tests are available.
     Version invalid{ "1.8.0" };
-    REQUIRE_THROWS(RestClient::GetSupportedInterface(TestRestUri, {}, info, invalid));
+    REQUIRE_THROWS(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, invalid));
 }
 
 TEST_CASE("GetInformation_Success", "[RestSource]")

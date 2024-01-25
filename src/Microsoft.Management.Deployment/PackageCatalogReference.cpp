@@ -8,6 +8,7 @@
 #include "PackageCatalog.h"
 #include "SourceAgreement.h"
 #include "ConnectResult.h"
+#include "AuthenticationInfo.h"
 #include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
@@ -102,6 +103,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     copy.SetCaller(callerName);
                     copy.SetBackgroundUpdateInterval(catalog.PackageCatalogBackgroundUpdateInterval());
                     copy.InstalledPackageInformationOnly(catalog.InstalledPackageInformationOnly());
+                    if (catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None &&
+                        catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::Unknown)
+                    {
+                        copy.SetAuthenticationArguments(GetAuthenticationArguments(catalog.AuthenticationArguments()));
+                    }
                     copy.Open(progress);
                     remoteSources.emplace_back(std::move(copy));
                 }
@@ -145,6 +151,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 source.SetCaller(callerName);
                 source.SetBackgroundUpdateInterval(PackageCatalogBackgroundUpdateInterval());
                 source.InstalledPackageInformationOnly(m_installedPackageInformationOnly);
+                if (AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None &&
+                    AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::Unknown)
+                {
+                    source.SetAuthenticationArguments(GetAuthenticationArguments(m_authenticationArguments));
+                }
                 source.Open(progress);
             }
 
@@ -268,6 +279,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Microsoft::Management::Deployment::AuthenticationInfo PackageCatalogReference::AuthenticationInfo()
     {
-        return nullptr;
+        std::call_once(m_authenticationInfoOnceFlag,
+            [&]()
+            {
+                if (!IsComposite())
+                {
+                    auto authenticationInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AuthenticationInfo>>();
+                    authenticationInfo->Initialize(m_sourceReference.GetInformation().Authentication);
+                    m_authenticationInfo = *authenticationInfo;
+                }
+            });
+        return m_authenticationInfo;
     }
 }

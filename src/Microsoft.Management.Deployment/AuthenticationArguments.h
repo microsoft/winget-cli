@@ -11,14 +11,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         AuthenticationArguments() = default;
 
-        winrt::Microsoft::Management::Deployment::AuthenticationBehavior AuthenticationBehavior();
-        void AuthenticationBehavior(winrt::Microsoft::Management::Deployment::AuthenticationBehavior const& value);
+        winrt::Microsoft::Management::Deployment::AuthenticationMode AuthenticationMode();
+        void AuthenticationMode(winrt::Microsoft::Management::Deployment::AuthenticationMode const& value);
         hstring AuthenticationAccount();
         void AuthenticationAccount(hstring const& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        winrt::Microsoft::Management::Deployment::AuthenticationBehavior m_authenticationBehavior = winrt::Microsoft::Management::Deployment::AuthenticationBehavior::Silent;
+        winrt::Microsoft::Management::Deployment::AuthenticationMode m_authenticationMode = winrt::Microsoft::Management::Deployment::AuthenticationMode::Silent;
         std::wstring m_authenticationAccount = L"";
 #endif
     };

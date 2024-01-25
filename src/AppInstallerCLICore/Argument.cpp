@@ -229,12 +229,18 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::DependencySource:
             return { type, "dependency-source"_liv, ArgTypeCategory::ExtendedSource };
         case Execution::Args::Type::CustomHeader:
-            return { type, "header"_liv, ArgTypeCategory::QuerySource };
+            return { type, "header"_liv, ArgTypeCategory::ExtendedSource };
         case Execution::Args::Type::AcceptSourceAgreements:
             return { type, "accept-source-agreements"_liv, ArgTypeCategory::ExtendedSource };
 
         case Execution::Args::Type::ToolVersion:
             return { type, "version"_liv, 'v' };
+
+        // Authentication arguments
+        case Execution::Args::Type::CustomHeader:
+            return { type, "header"_liv, ArgTypeCategory::ExtendedSource };
+        case Execution::Args::Type::CustomHeader:
+            return { type, "header"_liv, ArgTypeCategory::ExtendedSource };
 
         // Used for demonstration purposes
         case Execution::Args::Type::ExperimentalArg:

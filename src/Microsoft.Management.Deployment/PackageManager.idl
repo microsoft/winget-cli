@@ -698,9 +698,9 @@ namespace Microsoft.Management.Deployment
         FindPackagesResult FindPackages(FindPackagesOptions options);
     }
 
-    /// Authentication behavior
+    /// Authentication mode
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
-    enum AuthenticationBehavior
+    enum AuthenticationMode
     {
         /// Always use interactive authentication flow on first authentication request, following requests may use cached result.
         Interactive,
@@ -717,7 +717,7 @@ namespace Microsoft.Management.Deployment
         AuthenticationArguments();
 
         /// Choice of authentication flow behavior.
-        AuthenticationBehavior AuthenticationBehavior;
+        AuthenticationMode AuthenticationMode;
         /// Optional. The authentication account to use for authentication.
         String AuthenticationAccount;
     }

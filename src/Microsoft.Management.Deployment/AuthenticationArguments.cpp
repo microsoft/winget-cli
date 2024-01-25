@@ -13,13 +13,13 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    winrt::Microsoft::Management::Deployment::AuthenticationBehavior AuthenticationArguments::AuthenticationBehavior()
+    winrt::Microsoft::Management::Deployment::AuthenticationMode AuthenticationArguments::AuthenticationMode()
     {
-        return m_authenticationBehavior;
+        return m_authenticationMode;
     }
-    void AuthenticationArguments::AuthenticationBehavior(winrt::Microsoft::Management::Deployment::AuthenticationBehavior const& value)
+    void AuthenticationArguments::AuthenticationMode(winrt::Microsoft::Management::Deployment::AuthenticationMode const& value)
     {
-        m_authenticationBehavior = value;
+        m_authenticationMode = value;
     }
     hstring AuthenticationArguments::AuthenticationAccount()
     {

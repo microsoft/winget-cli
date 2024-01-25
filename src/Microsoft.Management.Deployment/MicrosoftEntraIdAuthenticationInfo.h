@@ -1,23 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "AuthenticationArguments.g.h"
+#include "MicrosoftEntraIdAuthenticationInfo.g.h"
+#include <winget/Authentication.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    struct AuthenticationArguments : AuthenticationArgumentsT<AuthenticationArguments>
+    struct MicrosoftEntraIdAuthenticationInfo : MicrosoftEntraIdAuthenticationInfoT<MicrosoftEntraIdAuthenticationInfo>
     {
-        AuthenticationArguments() = default;
+        MicrosoftEntraIdAuthenticationInfo() = default;
 
-        winrt::Microsoft::Management::Deployment::AuthenticationBehavior AuthenticationBehavior();
-        void AuthenticationBehavior(winrt::Microsoft::Management::Deployment::AuthenticationBehavior const& value);
-        hstring AuthenticationAccount();
-        void AuthenticationAccount(hstring const& value);
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+        void Initialize(::AppInstaller::Authentication::MicrosoftEntraIdAuthenticationInfo authInfo);
+#endif
+
+        hstring Resource();
+        hstring Scope();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        winrt::Microsoft::Management::Deployment::AuthenticationBehavior m_authenticationBehavior = winrt::Microsoft::Management::Deployment::AuthenticationBehavior::Silent;
-        std::wstring m_authenticationAccount = L"";
+        ::AppInstaller::Authentication::MicrosoftEntraIdAuthenticationInfo m_authInfo;
 #endif
     };
 }

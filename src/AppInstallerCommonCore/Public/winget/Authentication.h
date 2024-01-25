@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <string>
+#include <optional>
 
 namespace AppInstaller::Authentication
 {
@@ -13,8 +14,8 @@ namespace AppInstaller::Authentication
         MicrosoftEntraId,
     };
 
-    // The authentication behaviors
-    enum class AuthenticationBehavior
+    // The authentication modes
+    enum class AuthenticationMode
     {
         Unknown,
 
@@ -36,11 +37,6 @@ namespace AppInstaller::Authentication
 
         // Scope is optional
         std::string Scope;
-
-        bool Empty()
-        {
-            return Resource.empty();
-        }
     };
 
     // Authentication info struct used to initialize Authenticator, this is from source information.
@@ -48,13 +44,15 @@ namespace AppInstaller::Authentication
     {
         AuthenticationType Type = AuthenticationType::None;
 
-        MicrosoftEntraIdAuthenticationInfo MicrosoftEntraIdInfo;
+        std::optional<MicrosoftEntraIdAuthenticationInfo> MicrosoftEntraIdInfo;
+
+        bool ValidateIntegrity();
     };
 
     // Authentication arguments struct used to initialize Authenticator, this is from user input.
     struct AuthenticationArguments
     {
-        AuthenticationBehavior Behavior = AuthenticationBehavior::Unknown;
+        AuthenticationMode Mode = AuthenticationMode::Unknown;
 
         // Optional. If set, the value will be used to acuquire the specific account and also be validated with authentication result.
         std::string AuthenticationAccount;

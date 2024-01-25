@@ -1,26 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "AuthenticationArguments.h"
-#include "AuthenticationArguments.g.cpp"
+#include "AuthenticationInfo.h"
+#include "AuthenticationInfo.g.cpp"
+#include "MicrosoftEntraIdAuthenticationInfo.h"
+#include "Converters.h"
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    winrt::Microsoft::Management::Deployment::AuthenticationBehavior AuthenticationArguments::AuthenticationBehavior()
+    void AuthenticationInfo::Initialize(::AppInstaller::Authentication::AuthenticationInfo authenticationInfo)
     {
-        return m_authenticationBehavior;
+        m_authenticationType = GetDeploymentAuthenticationType(authenticationInfo.Type);
+
+        if (authenticationInfo.MicrosoftEntraIdInfo.has_value())
+        {
+            auto microsoftEntraIdAuthenticationInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::MicrosoftEntraIdAuthenticationInfo>>();
+            microsoftEntraIdAuthenticationInfo->Initialize(authenticationInfo.MicrosoftEntraIdInfo.value());
+            m_microsoftEntraIdAuthenticationInfo = *microsoftEntraIdAuthenticationInfo;
+        }
     }
-    void AuthenticationArguments::AuthenticationBehavior(winrt::Microsoft::Management::Deployment::AuthenticationBehavior const& value)
+    winrt::Microsoft::Management::Deployment::AuthenticationType AuthenticationInfo::AuthenticationType()
     {
-        m_authenticationBehavior = value;
+        return m_authenticationType;
     }
-    hstring AuthenticationArguments::AuthenticationAccount()
+    winrt::Microsoft::Management::Deployment::MicrosoftEntraIdAuthenticationInfo AuthenticationInfo::MicrosoftEntraIdAuthenticationInfo()
     {
-        return winrt::hstring(m_authenticationAccount);
-    }
-    void AuthenticationArguments::AuthenticationAccount(hstring const& value)
-    {
-        m_authenticationAccount = value;
+        return m_microsoftEntraIdAuthenticationInfo;
     }
 }

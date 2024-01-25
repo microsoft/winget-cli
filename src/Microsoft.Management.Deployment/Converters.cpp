@@ -441,4 +441,46 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return Microsoft::Management::Deployment::IconTheme::Unknown;
     }
+
+    winrt::Microsoft::Management::Deployment::AuthenticationType GetDeploymentAuthenticationType(::AppInstaller::Authentication::AuthenticationType authType)
+    {
+        switch (authType)
+        {
+        case ::AppInstaller::Authentication::AuthenticationType::None:
+            return Microsoft::Management::Deployment::AuthenticationType::None;
+        case ::AppInstaller::Authentication::AuthenticationType::MicrosoftEntraId:
+            return Microsoft::Management::Deployment::AuthenticationType::MicrosoftEntraId;
+        }
+
+        return Microsoft::Management::Deployment::AuthenticationType::Unknown;
+    }
+
+    ::AppInstaller::Authentication::AuthenticationMode GetAuthenticationMode(winrt::Microsoft::Management::Deployment::AuthenticationMode authMode)
+    {
+        switch (authBehavior)
+        {
+        case winrt::Microsoft::Management::Deployment::AuthenticationMode::Interactive:
+            return ::AppInstaller::Authentication::AuthenticationMode::Interactive;
+        case winrt::Microsoft::Management::Deployment::AuthenticationMode::SilentPreferred:
+            return ::AppInstaller::Authentication::AuthenticationMode::SilentPreferred;
+        case winrt::Microsoft::Management::Deployment::AuthenticationMode::Silent:
+            return ::AppInstaller::Authentication::AuthenticationMode::Silent;
+        }
+
+        return ::AppInstaller::Authentication::AuthenticationMode::Unknown;
+    }
+
+    ::AppInstaller::Authentication::AuthenticationArguments GetAuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments authArgs)
+    {
+        ::AppInstaller::Authentication::AuthenticationArguments result;
+        result.Mode = ::AppInstaller::Authentication::AuthenticationMode::Silent; // default for com invocations.
+
+        if (authArgs)
+        {
+            result.Mode = GetAuthenticationMode(authArgs.AuthenticationMode());
+            result.AuthenticationAccount = ::AppInstaller::Utility::ConvertToUTF8(authArgs.AuthenticationAccount());
+        }
+
+        return result;
+    }
 }

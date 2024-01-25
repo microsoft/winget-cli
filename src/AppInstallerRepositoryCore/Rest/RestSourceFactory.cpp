@@ -75,6 +75,8 @@ namespace AppInstaller::Repository::Rest
                         {
                             m_information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
                         }
+
+                        m_information.Authentication = sourceInformation.Authentication;
                     });
             }
 
