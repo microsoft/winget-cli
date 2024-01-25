@@ -7,7 +7,7 @@
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
     GetConfigurationSetDetailsResult::GetConfigurationSetDetailsResult() :
-        m_unitResults(single_threaded_vector<GetConfigurationUnitDetailsResult>())
+        m_unitResults(multi_threaded_vector<GetConfigurationUnitDetailsResult>())
     {};
 
     const Windows::Foundation::Collections::IVector<GetConfigurationUnitDetailsResult>& GetConfigurationSetDetailsResult::UnitResultsVector()

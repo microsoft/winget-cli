@@ -8,7 +8,7 @@
 #include "ConfigurationSetParser.h"
 #include "DiagnosticInformationInstance.h"
 #include "ApplyConfigurationSetResult.h"
-#include "ConfigurationSetApplyProcessor.h"
+#include "ApplyConfigurationUnitResult.h"
 #include "TestConfigurationSetResult.h"
 #include "TestConfigurationUnitResult.h"
 #include "ConfigurationUnitResultInformation.h"
@@ -18,6 +18,7 @@
 #include "ConfigurationSetChangeData.h"
 #include "GetConfigurationUnitDetailsResult.h"
 #include "GetConfigurationSetDetailsResult.h"
+#include "DefaultSetGroupProcessor.h"
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
@@ -107,12 +108,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 static AttachWilFailureCallback s_callbackAttach;
             }
         };
-
-        // Specifies the set of intents that should execute during a Test request
-        bool ShouldTestDuringTest(ConfigurationUnitIntent intent)
-        {
-            return (intent == ConfigurationUnitIntent::Assert || intent == ConfigurationUnitIntent::Apply);
-        }
     }
 
     ConfigurationProcessor::ConfigurationProcessor()
@@ -450,18 +445,125 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
-        bool consistencyCheckOnly = WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly);
-        IConfigurationSetProcessor setProcessor;
+        IConfigurationGroupProcessor groupProcessor;
 
-        if (!consistencyCheckOnly)
+        if (WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly))
         {
-            setProcessor = m_factory.CreateSetProcessor(configurationSet);
+            // If performing a consistency check, always use the default processor and let it know as well
+            auto defaultGroupProcessor = make_self<wil::details::module_count_wrapper<implementation::DefaultSetGroupProcessor>>();
+            defaultGroupProcessor->Initialize(configurationSet, nullptr, m_threadGlobals, true);
+            groupProcessor = *defaultGroupProcessor;
+        }
+        else
+        {
+            groupProcessor = GetSetGroupProcessor(configurationSet);
         }
 
-        ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_threadGlobals.GetTelemetryLogger(), std::move(setProcessor), std::move(progress) };
-        applyProcessor.Process(consistencyCheckOnly);
+        auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationSetResult>>();
 
-        return applyProcessor.Result();
+        // Build out the unit results and a map to find them quickly
+        using UnitResultType = decltype(make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>());
+        std::map<guid, UnitResultType> unitResultMap;
+
+        std::function<void(const winrt::Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>&)> createUnitResults =
+            [&](const winrt::Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& units)
+            {
+                for (const Configuration::ConfigurationUnit& unit : units)
+                {
+                    // Add to result
+                    UnitResultType applyUnitResult = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>();
+                    applyUnitResult->Unit(unit);
+                    result->UnitResultsVector().Append(*applyUnitResult);
+
+                    // Add to map
+                    unitResultMap.emplace(unit.InstanceIdentifier(), applyUnitResult);
+
+                    // Handle members if present
+                    if (unit.IsGroup())
+                    {
+                        createUnitResults(unit.Units());
+                    }
+                }
+            };
+
+        createUnitResults(configurationSet.Units());
+
+        progress.Result(*result);
+
+        try
+        {
+            // TODO: Send pending when blocked by another configuration run
+            try
+            {
+                progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::InProgress));
+            }
+            CATCH_LOG();
+
+            auto applyOperation = groupProcessor.ApplyGroupSettingsAsync();
+
+            // Forward unit result progress to caller
+            applyOperation.Progress([&](const auto&, const IApplyGroupMemberSettingsResult& unitResult)
+                {
+                    // Update overall result
+                    auto itr = unitResultMap.find(unitResult.Unit().InstanceIdentifier());
+                    if (itr != unitResultMap.end())
+                    {
+                        itr->second->Initialize(unitResult);
+                    }
+
+                    // Create progress object
+                    auto applyResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSetChangeData>>();
+                    applyResult->Initialize(unitResult);
+                    progress.Progress(*applyResult);
+                });
+
+            // Cancel the inner operation if we are cancelled
+            progress.Callback([applyOperation]() { applyOperation.Cancel(); });
+
+            IApplyGroupSettingsResult applyResult = applyOperation.get();
+
+            // Place all results from the processor into our result
+            if (applyResult.ResultInformation())
+            {
+                result->ResultCode(applyResult.ResultInformation().ResultCode());
+            }
+
+            for (const IApplyGroupMemberSettingsResult& unitResult : applyResult.UnitResults())
+            {
+                // Update overall result
+                auto itr = unitResultMap.find(unitResult.Unit().InstanceIdentifier());
+                if (itr == unitResultMap.end())
+                {
+                    continue;
+                }
+
+                itr->second->Initialize(unitResult);
+
+                m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(
+                    configurationSet.InstanceIdentifier(),
+                    itr->second->Unit(),
+                    ConfigurationUnitIntent::Apply,
+                    TelemetryTraceLogger::ApplyAction,
+                    itr->second->ResultInformation());
+            }
+
+            try
+            {
+                progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::Completed));
+            }
+            CATCH_LOG();
+
+            m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(configurationSet), *result);
+            return *result;
+        }
+        catch (...)
+        {
+            m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForApplyException(
+                *winrt::get_self<implementation::ConfigurationSet>(configurationSet),
+                LOG_CAUGHT_EXCEPTION(),
+                *result);
+            throw;
+        }
     }
 
     Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSet(const ConfigurationSet& configurationSet)
@@ -488,73 +590,42 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
-        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(configurationSet);
+        IConfigurationGroupProcessor groupProcessor = GetSetGroupProcessor(configurationSet);
         auto result = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationSetResult>>();
         result->TestResult(ConfigurationTestResult::NotRun);
         progress.Result(*result);
 
         try
         {
-            for (const auto& unit : configurationSet.Units())
+            auto testOperation = groupProcessor.TestGroupSettingsAsync();
+
+            // Forward unit result progress to caller
+            testOperation.Progress([&](const auto&, const ITestSettingsResult& unitResult)
+                {
+                    auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
+                    testResult->Initialize(unitResult);
+                    progress.Progress(*testResult);
+                });
+
+            // Cancel the inner operation if we are cancelled
+            progress.Callback([testOperation]() { testOperation.Cancel(); });
+
+            ITestGroupSettingsResult testResult = testOperation.get();
+
+            // Place all results from the processor into our result
+            for (const ITestSettingsResult& unitResult : testResult.UnitResults())
             {
-                AICLI_LOG(Config, Info, << "Testing configuration unit: " << AppInstaller::Utility::ConvertToUTF8(unit.Type()));
+                auto testUnitResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
+                testUnitResult->Initialize(unitResult);
 
-                auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
-                auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
-                testResult->Initialize(unit, *unitResult);
+                m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(
+                    configurationSet.InstanceIdentifier(),
+                    testUnitResult->Unit(),
+                    ConfigurationUnitIntent::Assert,
+                    TelemetryTraceLogger::TestAction,
+                    testUnitResult->ResultInformation());
 
-                if (ShouldTestDuringTest(unit.Intent()))
-                {
-                    progress.ThrowIfCancelled();
-
-                    IConfigurationUnitProcessor unitProcessor;
-
-                    try
-                    {
-                        // TODO: Directives overlay to prevent running elevated for test
-                        unitProcessor = setProcessor.CreateUnitProcessor(unit);
-                    }
-                    catch (...)
-                    {
-                        ExtractUnitResultInformation(std::current_exception(), unitResult);
-                    }
-
-                    progress.ThrowIfCancelled();
-
-                    if (unitProcessor)
-                    {
-                        try
-                        {
-                            ITestSettingsResult settingsResult = unitProcessor.TestSettings();
-                            testResult->TestResult(settingsResult.TestResult());
-                            testResult->ResultInformation(settingsResult.ResultInformation());
-                        }
-                        catch (...)
-                        {
-                            ExtractUnitResultInformation(std::current_exception(), unitResult);
-                        }
-
-                        m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(
-                            configurationSet.InstanceIdentifier(),
-                            unit,
-                            ConfigurationUnitIntent::Assert,
-                            TelemetryTraceLogger::TestAction,
-                            testResult->ResultInformation());
-                    }
-                }
-                else
-                {
-                    testResult->TestResult(ConfigurationTestResult::NotRun);
-                }
-
-                if (FAILED(unitResult->ResultCode()))
-                {
-                    testResult->TestResult(ConfigurationTestResult::Failed);
-                }
-
-                result->AppendUnitResult(*testResult);
-
-                progress.Progress(*testResult);
+                result->AppendUnitResult(*testUnitResult);
             }
 
             m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForTest(*winrt::get_self<implementation::ConfigurationSet>(configurationSet), *result);
@@ -605,7 +676,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            // TODO: Directives overlay to prevent running elevated for get
             unitProcessor = setProcessor.CreateUnitProcessor(unit);
         }
         catch (...)
@@ -633,7 +703,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         return *result;
     }
-
+    
     Configuration::GetAllConfigurationUnitSettingsResult ConfigurationProcessor::GetAllUnitSettings(const ConfigurationUnit& unit)
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
@@ -704,6 +774,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         return *result;
+    }
+
+    IConfigurationGroupProcessor ConfigurationProcessor::GetSetGroupProcessor(const ConfigurationSet& configurationSet)
+    {
+        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(configurationSet);
+
+        IConfigurationGroupProcessor result = setProcessor.try_as<IConfigurationGroupProcessor>();
+        if (!result)
+        {
+            auto groupProcessor = make_self<wil::details::module_count_wrapper<implementation::DefaultSetGroupProcessor>>();
+            groupProcessor->Initialize(configurationSet, setProcessor, m_threadGlobals);
+            result = *groupProcessor;
+        }
+
+        return result;
     }
 
     HRESULT STDMETHODCALLTYPE ConfigurationProcessor::SetLifetimeWatcher(IUnknown* watcher)

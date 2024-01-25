@@ -3,10 +3,9 @@
 #pragma once
 #include "ConfigurationSet.h"
 #include "ConfigurationUnit.h"
-#include "ApplyConfigurationSetResult.h"
+#include "ApplyGroupSettingsResult.h"
 #include "ApplyConfigurationUnitResult.h"
 #include "ConfigurationUnitResultInformation.h"
-#include "Telemetry/Telemetry.h"
 #include <winget/AsyncTokens.h>
 
 #include <map>
@@ -18,20 +17,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // A helper to better organize the configuration set Apply.
     struct ConfigurationSetApplyProcessor
     {
-        using ApplyConfigurationSetResult = Configuration::ApplyConfigurationSetResult;
         using ConfigurationSet = Configuration::ConfigurationSet;
         using ConfigurationUnit = Configuration::ConfigurationUnit;
         using ConfigurationSetChangeData = Configuration::ConfigurationSetChangeData;
 
-        using result_type = decltype(make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationSetResult>>());
+        using result_type = decltype(make_self<wil::details::module_count_wrapper<implementation::ApplyGroupSettingsResult>>());
+        using progress_type = AppInstaller::WinRT::AsyncProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult>;
 
-        ConfigurationSetApplyProcessor(const ConfigurationSet& configurationSet, const TelemetryTraceLogger& telemetry, IConfigurationSetProcessor&& setProcessor, AppInstaller::WinRT::AsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData>&& progress);
+        ConfigurationSetApplyProcessor(const ConfigurationSet& configurationSet, IConfigurationSetProcessor setProcessor, progress_type&& progress);
 
         // Processes the apply for the configuration set.
         void Process(bool preProcessOnly = false);
 
         // Gets the result object.
-        ApplyConfigurationSetResult Result() const;
+        IApplyGroupSettingsResult Result() const;
 
     private:
         // Contains all of the relevant data for a configuration unit.
@@ -59,6 +58,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Processes the unit; returns true if successful, false if not.
         using ProcessUnitPtr = bool (ConfigurationSetApplyProcessor::*)(UnitInfo&);
 
+        // Return true to process these intents, false to skip them.
+        using IntentFilterPtr = bool (*)(ConfigurationUnitIntent);
+
         // Runs the processing using the given functions.
         bool ProcessInternal(CheckDependencyPtr checkDependencyFunction, ProcessUnitPtr processUnitFunction, bool sendProgress = false);
 
@@ -67,7 +69,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             std::vector<size_t>& unitsToProcess,
             CheckDependencyPtr checkDependencyFunction,
             ProcessUnitPtr processUnitFunction,
-            ConfigurationUnitIntent intent,
+            IntentFilterPtr intentFilter,
             hresult errorForOtherIntents,
             hresult errorForFailures,
             bool sendProgress);
@@ -75,7 +77,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Determines if the given unit has the given intent and all of its dependencies are satisfied
         bool HasIntentAndSatisfiedDependencies(
             const UnitInfo& unitInfo,
-            ConfigurationUnitIntent intent,
+            IntentFilterPtr intentFilter,
             CheckDependencyPtr checkDependencyFunction) const;
 
         // Checks a dependency for preprocessing.
@@ -92,18 +94,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Sends progress
         // TODO: Eventually these functions/call sites will be used for history
-        void SendProgress(ConfigurationSetState state);
         void SendProgress(ConfigurationUnitState state, const UnitInfo& unitInfo);
         void SendProgressIfNotComplete(ConfigurationUnitState state, const UnitInfo& unitInfo);
 
-        // For exception telemetry, get our internal status
-        TelemetryTraceLogger::ProcessingSummaryForIntent GetProcessingSummaryFor(ConfigurationUnitIntent intent) const;
-
         ConfigurationSet m_configurationSet;
         IConfigurationSetProcessor m_setProcessor;
-        const TelemetryTraceLogger& m_telemetry;
         result_type m_result;
-        AppInstaller::WinRT::AsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> m_progress;
+        progress_type m_progress;
         std::vector<UnitInfo> m_unitInfo;
         std::map<std::string, size_t> m_idToUnitInfoIndex;
         hresult m_resultCode;

@@ -121,5 +121,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             this.Processors[configurationSet] = new TestConfigurationSetProcessor(configurationSet);
             return this.Processors[configurationSet];
         }
+
+        /// <summary>
+        /// A convenience function to create a new group processor for the given set and store it in the dictionary for use in the test.
+        /// </summary>
+        /// <param name="configurationSet">The set.</param>
+        /// <returns>A new TestConfigurationSetGroupProcessor for the set.</returns>
+        internal TestConfigurationSetGroupProcessor CreateTestGroupProcessor(ConfigurationSet configurationSet)
+        {
+            TestConfigurationSetGroupProcessor result = new (configurationSet);
+            this.Processors[configurationSet] = result;
+            return result;
+        }
     }
 }

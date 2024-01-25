@@ -115,8 +115,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             AppInstaller::WinRT::AsyncProgress<TestConfigurationSetResult, TestConfigurationUnitResult> progress = {});
 
         GetConfigurationUnitSettingsResult GetUnitSettingsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
-
+        
         GetAllConfigurationUnitSettingsResult GetAllUnitSettingsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
+
+        IConfigurationGroupProcessor GetSetGroupProcessor(const ConfigurationSet& configurationSet);
 
         void SendDiagnosticsImpl(const IDiagnosticInformation& information);
 
