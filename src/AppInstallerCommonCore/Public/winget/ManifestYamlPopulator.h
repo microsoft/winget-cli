@@ -8,10 +8,7 @@
 namespace AppInstaller::Manifest
 {
     // Add here new manifest pointer types.
-    template <typename T>
-    using ManifestPtrAndNode = std::tuple<T*, YAML::Node&>;
-
-    using VariantManifestPtr = std::variant<Agreement*, AppsAndFeaturesEntry*, Dependency*, DependencyList*, Documentation*, ExpectedReturnCode*, Icon*, InstallationMetadataInfo*, InstalledFile*, Manifest*, ManifestInstaller*, ManifestLocalization*, MarketsInfo*, NestedInstallerFile*, std::map<InstallerSwitchType, Utility::NormalizedString>*, ManifestPtrAndNode<ManifestLocalization>*>;
+    using VariantManifestPtr = std::variant<Agreement*, AppsAndFeaturesEntry*, Dependency*, DependencyList*, Documentation*, ExpectedReturnCode*, Icon*, InstallationMetadataInfo*, InstalledFile*, Manifest*, ManifestInstaller*, ManifestLocalization*, MarketsInfo*, NestedInstallerFile*, std::map<InstallerSwitchType, Utility::NormalizedString>*>;
 
     struct ManifestYamlPopulator
     {
