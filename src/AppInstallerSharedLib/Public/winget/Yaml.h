@@ -104,6 +104,10 @@ namespace AppInstaller::YAML
             return m_sequence->emplace_back(std::forward<Args>(args)...);
         }
 
+        // Merges sequence nodes. If both sequence have the specified key with the same value
+        // they will get merged together.
+        void MergeSequenceNode(Node& other, std::string_view key);
+
         // Adds a child node to the mapping.
         template <typename... Args>
         Node& AddMappingNode(Node&& key, Args&&... args)
@@ -111,6 +115,9 @@ namespace AppInstaller::YAML
             Require(Type::Mapping);
             return m_mapping->emplace(std::move(key), Node(std::forward<Args>(args)...))->second;
         }
+
+        // Merge mapping node. If both contain a node with the same key preserve this.
+        void MergeMappingNode(Node& other);
 
         bool IsDefined() const { return m_type != Type::Invalid; }
         bool IsNull() const { return m_type == Type::Invalid || m_type == Type::None || (m_type == Type::Scalar && m_scalar.empty()); }

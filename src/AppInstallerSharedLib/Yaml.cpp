@@ -398,6 +398,70 @@ namespace AppInstaller::YAML
         return {};
     }
 
+    void Node::MergeSequenceNode(Node& other, std::string_view key)
+    {
+        Require(Type::Sequence);
+        other.Require(Type::Sequence);
+
+        auto getKeyValue = [&](const YAML::Node& node, std::string_view key) {
+                auto keyNode = node[key];
+                if (keyNode.IsNull())
+                {
+                    THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
+                }
+                
+                return keyNode.as<std::string>();
+        };
+
+        std::map<std::string, Node> newSequenceMap;
+        for (Node& node : m_sequence.value())
+        {
+            node.Require(Type::Mapping);
+            auto keyValue = getKeyValue(node, key);
+            newSequenceMap.emplace(std::move(keyValue), std::move(node));
+        }
+
+        for (Node& node : other.m_sequence.value())
+        {
+            node.Require(Type::Mapping);
+            auto keyValue = getKeyValue(node, key);
+            if (newSequenceMap.find(keyValue) == newSequenceMap.end())
+            {
+                newSequenceMap.emplace(std::move(keyValue), std::move(node));
+            }
+            else
+            {
+                newSequenceMap[keyValue].MergeMappingNode(node);
+            }
+        }
+
+        m_sequence.reset();
+        std::vector<Node> newSequence;
+        for (const auto& keyValuePair : newSequenceMap)
+        {
+            newSequence.push_back(keyValuePair.second);
+        }
+
+        m_sequence = std::move(newSequence);
+    }
+
+    void Node::MergeMappingNode(Node& other)
+    {
+        Require(Type::Mapping);
+        other.Require(Type::Mapping);
+
+        std::multimap<Node, Node> uniques;
+        for (auto& keyValuePair : other.m_mapping.value())
+        {
+            if (m_mapping->count(keyValuePair.first) == 0)
+            {
+                uniques.emplace(std::move(keyValuePair));
+            }
+        }
+
+        m_mapping->merge(uniques);
+    }
+
     Node Load(std::string_view input)
     {
         Wrapper::Parser parser(input);

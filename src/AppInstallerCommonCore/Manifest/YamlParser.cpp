@@ -463,7 +463,12 @@ namespace AppInstaller::Manifest::YamlParser
 
             // Merge manifests in multi file manifest case
             bool isMultiFile = input.size() > 1;
-            const YAML::Node& manifestDoc = isMultiFile ? MergeMultiFileManifest(input) : input[0].Root;
+            YAML::Node& manifestDoc = input[0].Root;
+            if (isMultiFile)
+            {
+                manifestDoc = MergeMultiFileManifest(input);
+            }
+
             auto shadowNode = isMultiFile ? FindUniqueOptionalDocFromMultiFileManifest(input, ManifestTypeEnum::Shadow) : std::optional<YAML::Node>{};
 
             auto errors = ManifestYamlPopulator::PopulateManifest(manifestDoc, manifest, manifestVersion, validateOption, shadowNode);

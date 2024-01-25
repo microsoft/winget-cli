@@ -306,7 +306,13 @@ extern "C"
             *succeeded = e.IsWarningOnly();
             if (*succeeded)
             {
-                std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath));
+                ManifestValidateOption validateOption;
+                if (WI_IsFlagSet(option, WinGetCreateManifestOption::AllowShadowManifest))
+                {
+                    validateOption.AllowShadowManifest = true;
+                }
+
+                std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath, validateOption));
                 *manifest = static_cast<WINGET_MANIFEST_HANDLE>(result.release());
             }
             if (message)
