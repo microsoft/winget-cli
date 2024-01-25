@@ -138,6 +138,7 @@ namespace AppInstaller::CLI::Execution
             AcceptSourceAgreements, // Accept all source agreements
 
             AuthenticationMode, // Authentication mode
+            AuthenticationAccount, // Authentication account to be used
 
             ToolVersion,
 

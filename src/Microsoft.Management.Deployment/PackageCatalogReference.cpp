@@ -103,8 +103,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     copy.SetCaller(callerName);
                     copy.SetBackgroundUpdateInterval(catalog.PackageCatalogBackgroundUpdateInterval());
                     copy.InstalledPackageInformationOnly(catalog.InstalledPackageInformationOnly());
-                    if (catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None &&
-                        catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::Unknown)
+                    if (catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
                     {
                         copy.SetAuthenticationArguments(GetAuthenticationArguments(catalog.AuthenticationArguments()));
                     }
@@ -151,8 +150,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 source.SetCaller(callerName);
                 source.SetBackgroundUpdateInterval(PackageCatalogBackgroundUpdateInterval());
                 source.InstalledPackageInformationOnly(m_installedPackageInformationOnly);
-                if (AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None &&
-                    AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::Unknown)
+                if (AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
                 {
                     source.SetAuthenticationArguments(GetAuthenticationArguments(m_authenticationArguments));
                 }

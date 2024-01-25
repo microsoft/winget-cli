@@ -399,6 +399,9 @@
     <ClInclude Include="Rest\Schema\1_7\Interface.h">
       <Filter>Rest\Schema\1_7</Filter>
     </ClInclude>
+    <ClInclude Include="Rest\Schema\AuthenticationInfoParser.h">
+      <Filter>Rest\Schema</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -625,6 +628,9 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_7\RestInterface_1_7.cpp">
       <Filter>Rest\Schema\1_7</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\AuthenticationInfoParser.cpp">
+      <Filter>Rest\Schema</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

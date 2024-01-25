@@ -237,10 +237,10 @@ namespace AppInstaller::CLI
             return { type, "version"_liv, 'v' };
 
         // Authentication arguments
-        case Execution::Args::Type::CustomHeader:
-            return { type, "header"_liv, ArgTypeCategory::ExtendedSource };
-        case Execution::Args::Type::CustomHeader:
-            return { type, "header"_liv, ArgTypeCategory::ExtendedSource };
+        case Execution::Args::Type::AuthenticationMode:
+            return { type, "authentication-mode"_liv };
+        case Execution::Args::Type::AuthenticationAccount:
+            return { type, "authentication-account"_liv };
 
         // Used for demonstration purposes
         case Execution::Args::Type::ExperimentalArg:
@@ -347,6 +347,10 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::HeaderArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::AcceptSourceAgreements:
             return Argument{ type, Resource::String::AcceptSourceAgreementsArgumentDescription, ArgumentType::Flag };
+        case Args::Type::AuthenticationMode:
+            return Argument{ type, Resource::String::AuthenticationModeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+        case Args::Type::AuthenticationAccount:
+            return Argument{ type, Resource::String::AuthenticationAccountArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::ExperimentalArg:
             return Argument{ type, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
         case Args::Type::Rename:

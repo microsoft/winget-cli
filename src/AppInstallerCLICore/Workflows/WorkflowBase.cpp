@@ -106,6 +106,7 @@ namespace AppInstaller::CLI::Workflow
                 auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails>
                 {
                     source.SetCaller("winget-cli");
+                    source.SetAuthenticationArguments(GetAuthenticationArguments(context));
                     return source.Open(progress);
                 };
                 auto updateFailures = context.Reporter.ExecuteWithProgress(openFunction, true);
@@ -256,6 +257,27 @@ namespace AppInstaller::CLI::Workflow
         return installedSource;
     }
 
+    Authentication::AuthenticationArguments GetAuthenticationArguments(const Execution::Context& context)
+    {
+        ::AppInstaller::Authentication::AuthenticationArguments authArgs;
+
+        if (context.Args.Contains(Execution::Args::Type::AuthenticationMode))
+        {
+            authArgs.Mode = Authentication::ConvertToAuthenticationMode(context.Args.GetArg(Execution::Args::Type::AuthenticationMode));
+        }
+        else
+        {
+            authArgs.Mode = context.Args.Contains(Execution::Args::Type::DisableInteractivity) ? Authentication::AuthenticationMode::Silent : Authentication::AuthenticationMode::SilentPreferred;
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::AuthenticationAccount))
+        {
+            authArgs.AuthenticationAccount = context.Args.GetArg(Execution::Args::Type::AuthenticationAccount);
+        }
+
+        return authArgs;
+    }
+
     HRESULT HandleException(Execution::Context& context, std::exception_ptr exception)
     {
         try
@@ -384,7 +406,6 @@ namespace AppInstaller::CLI::Workflow
 
             auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails>
             {
-                source.SetCaller("winget-cli");
                 return source.Open(progress);
             };
             context.Reporter.ExecuteWithProgress(openFunction, true);

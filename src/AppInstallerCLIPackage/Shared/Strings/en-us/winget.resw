@@ -875,7 +875,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="InstallScopeDescription" xml:space="preserve">
     <value>Select install scope (user or machine)</value>
-    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+    <comment>{Locked="user","machine"} This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
     <value>The value provided for the `{0}` argument is invalid; valid values are: {1}</value>
@@ -1615,7 +1615,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
     <value>Select installed package scope filter (user or machine)</value>
-    <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
+    <comment>{Locked="user","machine"} This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
   </data>
   <data name="PinAdded" xml:space="preserve">
     <value>Pin added successfully</value>

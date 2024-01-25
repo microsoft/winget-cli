@@ -336,6 +336,7 @@ namespace AppInstaller::CLI::Configuration
                }
                else
                {
+                   source.SetCaller("winget-cli-configuration-validation");
                    ProgressCallback empty;
                    source.Open(empty);
                    Repository::SearchRequest searchRequest;

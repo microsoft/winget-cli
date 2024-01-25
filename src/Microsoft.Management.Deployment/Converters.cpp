@@ -457,7 +457,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     ::AppInstaller::Authentication::AuthenticationMode GetAuthenticationMode(winrt::Microsoft::Management::Deployment::AuthenticationMode authMode)
     {
-        switch (authBehavior)
+        switch (authMode)
         {
         case winrt::Microsoft::Management::Deployment::AuthenticationMode::Interactive:
             return ::AppInstaller::Authentication::AuthenticationMode::Interactive;

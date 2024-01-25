@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <string>
+#include <string_view>
 #include <optional>
 
 namespace AppInstaller::Authentication
@@ -13,6 +14,9 @@ namespace AppInstaller::Authentication
         None,
         MicrosoftEntraId,
     };
+
+    std::string_view AuthenticationTypeToString(AuthenticationType in);
+    AuthenticationType ConvertToAuthenticationType(std::string_view in);
 
     // The authentication modes
     enum class AuthenticationMode
@@ -28,6 +32,9 @@ namespace AppInstaller::Authentication
         // Only do silent flow. If failed, the authentication failed.
         Silent,
     };
+
+    std::string_view AuthenticationModeToString(AuthenticationMode in);
+    AuthenticationMode ConvertToAuthenticationMode(std::string_view in);
 
     // Authentication info for Microsoft Entra Id authentication;
     struct MicrosoftEntraIdAuthenticationInfo
