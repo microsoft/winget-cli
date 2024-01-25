@@ -1674,7 +1674,7 @@ TEST_CASE("ShadowManifest", "[ShadowManifest]")
 
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
-    //VerifyV1ManifestContentCreatedWithShadow(mergedManifest, shadowInfo);
+    VerifyV1ManifestContentCreatedWithShadow(mergedManifest, shadowInfo);
 }
 
 TEST_CASE("ShadowManifest_SkipShadowDefaultLocale", "[ShadowManifest]")
@@ -1702,7 +1702,7 @@ TEST_CASE("ShadowManifest_SkipShadowDefaultLocale", "[ShadowManifest]")
 
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
-    //VerifyV1ManifestContentCreatedWithShadow(mergedManifest, shadowInfo);
+    VerifyV1ManifestContentCreatedWithShadow(mergedManifest, shadowInfo);
 }
 
 TEST_CASE("ShadowManifest_SkipShadowLocalizationLocale", "[ShadowManifest]")
@@ -1730,7 +1730,7 @@ TEST_CASE("ShadowManifest_SkipShadowLocalizationLocale", "[ShadowManifest]")
 
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
-    //VerifyV1ManifestContentCreatedWithShadow(mergedManifest, shadowInfo);
+    VerifyV1ManifestContentCreatedWithShadow(mergedManifest, shadowInfo);
 }
 
 TEST_CASE("ShadowManifest_ShadowNotAllowed", "[ShadowManifest]")
@@ -1817,4 +1817,29 @@ TEST_CASE("YamlParserTypes", "[YAML]")
 
     auto localTag = document["LocalTag"];
     CHECK(localTag.GetTagType() == Node::TagType::Unknown);
+}
+
+TEST_CASE("YamlMergeNode", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Merge.yaml"));
+    auto document2 = Load(TestDataFile("Node-Merge2.yaml"));
+
+    REQUIRE(3 == document["Strawhats"].size());
+    REQUIRE(2 == document2["Strawhats"].size());
+
+    // Internally will call MergeMappingNode.
+    document["Strawhats"].MergeSequenceNode(document2["Strawhats"], "Name");
+    REQUIRE(4 == document["Strawhats"].size());
+
+    auto luffy = std::find_if(
+        document["Strawhats"].Sequence().begin(),
+        document["Strawhats"].Sequence().end(),
+        [](auto const& n) { return n["Name"].as<std::string>() == "Monkey D Luffy"; });
+    REQUIRE(luffy != document["Strawhats"].Sequence().end());
+
+    // From original node
+    REQUIRE((*luffy)["Bounty"].as<std::string>() == "3,000,000,000");
+
+    // From merged node
+    REQUIRE((*luffy)["Fruit"].as<std::string>() == "Gomu Gomu no Mi");
 }

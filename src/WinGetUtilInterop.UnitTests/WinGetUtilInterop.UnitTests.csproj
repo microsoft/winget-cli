@@ -107,9 +107,6 @@
     <None Include="..\AppInstallerCLITests\TestData\Shadow\V1_5\ManifestV1_5-Shadow-Installer.yaml" Link="TestCollateral\Shadow\ManifestV1_5-Shadow-Installer.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\AppInstallerCLITests\TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale.yaml" Link="TestCollateral\Shadow\ManifestV1_5-Shadow-Locale.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="..\AppInstallerCLITests\TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow.yaml" Link="TestCollateral\Shadow\ManifestV1_5-Shadow-Shadow.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -40,7 +40,6 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
             var input = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", "Shadow");
             var mergedManifestPath = Path.GetTempFileName();
             var logFile = Path.GetTempFileName();
-            this.log.WriteLine(mergedManifestPath);
 
             var factory = new WinGetFactory();
             using var log = factory.LoggingInit(logFile);
@@ -77,7 +76,6 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
             var enGBLocale = manifest.Localization.Where(l => l.PackageLocale == "en-GB").FirstOrDefault();
             Assert.NotNull(enGBLocale);
             Assert.Single(enGBLocale.Icons);
-            Assert.Equal("The MSIX SDK project is an effort to enable developers UK", enGBLocale.Description);
             Assert.Equal("https://shadowIcon-en-GB", enGBLocale.Icons[0].IconUrl);
             Assert.Equal("png", enGBLocale.Icons[0].IconFileType);
             Assert.Equal("32x32", enGBLocale.Icons[0].IconResolution);
