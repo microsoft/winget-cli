@@ -6,11 +6,13 @@
 
 namespace WinGetUtilInterop.UnitTests.APIUnitTests
 {
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
     using Microsoft.WinGetUtil.Api;
     using Microsoft.WinGetUtil.Common;
+    using Microsoft.WinGetUtil.Manifest.V1;
     using Microsoft.WinGetUtil.Models.V1;
     using Xunit;
     using Xunit.Abstractions;
@@ -20,7 +22,8 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
     /// </summary>
     public class ManifestUnitTests
     {
-        private ITestOutputHelper log;
+        private static string testCollateralDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral");
+        private readonly ITestOutputHelper log;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ManifestUnitTests"/> class.
@@ -37,7 +40,7 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
         [Fact]
         public void CreateShadowManifest()
         {
-            var input = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", "Shadow");
+            var input = Path.Combine(testCollateralDir, "Shadow");
             var mergedManifestPath = Path.GetTempFileName();
             var logFile = Path.GetTempFileName();
 
@@ -90,6 +93,67 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
             Assert.Equal("20x20", frFRLocale.Icons[0].IconResolution);
             Assert.Equal("dark", frFRLocale.Icons[0].IconTheme);
             Assert.Equal("3333333333333333333333333333333333333333333333333333333333333333", frFRLocale.Icons[0].IconSha256);
+        }
+
+        /// <summary>
+        /// Test serializing the shadow manifest.
+        /// </summary>
+        [Fact]
+        public void SerializeShadowManifest()
+        {
+            var shadowManifest = ManifestShadow.CreateManifest();
+            shadowManifest.Id = "Package.package";
+            shadowManifest.Version = "1.0";
+            shadowManifest.PackageLocale = "en-US";
+            shadowManifest.ManifestVersion = "1.5";
+            shadowManifest.Icons = new List<ManifestIcon>
+            {
+                new ManifestIcon()
+                {
+                    IconUrl = "iconUrl",
+                    IconFileType = "fileType",
+                    IconResolution = "iconResolution",
+                    IconTheme = "iconTheme",
+                    IconSha256 = "iconSha256",
+                },
+            };
+            shadowManifest.Localization = new List<ManifestShadowLocalization>
+            {
+                new ManifestShadowLocalization()
+                {
+                    PackageLocale = "es-MX",
+                    Icons = new List<ManifestIcon>()
+                    {
+                        new ManifestIcon()
+                        {
+                            IconUrl = "iconUrl-esMX",
+                            IconFileType = "fileType-esMX",
+                            IconResolution = "iconResolution-esMX",
+                            IconTheme = "iconTheme-esMX",
+                            IconSha256 = "iconSha256-esMX",
+                        },
+                    },
+                },
+                new ManifestShadowLocalization()
+                {
+                    PackageLocale = "de-DE",
+                    Icons = new List<ManifestIcon>()
+                    {
+                        new ManifestIcon()
+                        {
+                            IconUrl = "iconUrl-de-DE",
+                            IconFileType = "fileType-de-DE",
+                            IconResolution = "iconResolution-de-DE",
+                            IconTheme = "iconTheme-de-DE",
+                            IconSha256 = "iconSha256-de-DE",
+                        },
+                    },
+                },
+            };
+
+            var serialized = shadowManifest.Serialize();
+            Assert.Equal(File.ReadAllText(Path.Combine(testCollateralDir, "ExpectedShadowManifest.yaml")), serialized);
+            this.log.WriteLine(serialized);
         }
     }
 }

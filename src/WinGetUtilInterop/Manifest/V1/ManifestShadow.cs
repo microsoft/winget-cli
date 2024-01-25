@@ -6,6 +6,7 @@
 
 namespace Microsoft.WinGetUtil.Manifest.V1
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using Microsoft.WinGetUtil.Common;
@@ -54,6 +55,19 @@ namespace Microsoft.WinGetUtil.Manifest.V1
         /// Gets or sets collection of additional ManifestShadowLocalization.
         /// </summary>
         public List<ManifestShadowLocalization> Localization { get; set; }
+
+        /// <summary>
+        /// Creates a shadow manifest.
+        /// Assigns the correct ManifestType.
+        /// </summary>
+        /// <returns>A shadow manifest.</returns>
+        public static ManifestShadow CreateManifest()
+        {
+            return new ManifestShadow()
+            {
+                ManifestType = "shadow",
+            };
+        }
 
         /// <summary>
         /// Deserialize a stream reader into a ManifestShadow object.
@@ -108,11 +122,37 @@ namespace Microsoft.WinGetUtil.Manifest.V1
             return shadow;
         }
 
+        /// <summary>
+        /// Serializes the shadow manifest.
+        /// </summary>
+        /// <returns>Serialized shadow manifest as string.</returns>
+        public string Serialize()
+        {
+            this.Validate();
+            var serializer = Helpers.CreateSerializer();
+            return serializer.Serialize(this);
+        }
+
         private void Validate()
         {
             if (this.ManifestType != "shadow")
             {
                 throw new WinGetManifestException("Invalid shadow manifest");
+            }
+
+            if (string.IsNullOrEmpty(this.Id))
+            {
+                throw new ArgumentNullException(nameof(this.Id));
+            }
+
+            if (string.IsNullOrEmpty(this.Version))
+            {
+                throw new ArgumentNullException(nameof(this.Version));
+            }
+
+            if (string.IsNullOrEmpty(this.ManifestVersion))
+            {
+                throw new ArgumentNullException(nameof(this.ManifestVersion));
             }
         }
     }

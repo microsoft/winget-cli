@@ -43,6 +43,9 @@
     <None Update="TestCollateral\DifferentId.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TestCollateral\ExpectedShadowManifest.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestCollateral\PackageTestNewName.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

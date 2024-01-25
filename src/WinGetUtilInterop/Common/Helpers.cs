@@ -20,10 +20,21 @@ namespace Microsoft.WinGetUtil.Common
         /// <returns>IDeserializer object.</returns>
         public static IDeserializer CreateDeserializer()
         {
-            var deserializer = new DeserializerBuilder().
-                WithNamingConvention(PascalCaseNamingConvention.Instance).
-                IgnoreUnmatchedProperties();
-            return deserializer.Build();
+            return new DeserializerBuilder()
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .IgnoreUnmatchedProperties()
+                .Build();
+        }
+
+        /// <summary>
+        /// Helper to serialize the manifest.
+        /// </summary>
+        /// <returns>ISerializer object.</returns>
+        public static ISerializer CreateSerializer()
+        {
+            return new SerializerBuilder()
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .Build();
         }
     }
 }
