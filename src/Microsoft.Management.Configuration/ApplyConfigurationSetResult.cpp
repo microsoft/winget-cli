@@ -7,7 +7,7 @@
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
     ApplyConfigurationSetResult::ApplyConfigurationSetResult() :
-        m_unitResults(single_threaded_vector<ApplyConfigurationUnitResult>())
+        m_unitResults(multi_threaded_vector<ApplyConfigurationUnitResult>())
     {}
 
     Windows::Foundation::Collections::IVectorView<ApplyConfigurationUnitResult> ApplyConfigurationSetResult::UnitResults() const

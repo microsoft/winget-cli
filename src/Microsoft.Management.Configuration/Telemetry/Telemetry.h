@@ -109,6 +109,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             const ConfigurationSet& configurationSet,
             const ApplyConfigurationSetResult& result) const noexcept;
 
+        // Logs a processing summary event for a configuration set apply run exception.
+        void LogConfigProcessingSummaryForApplyException(
+            const ConfigurationSet& configurationSet,
+            hresult error,
+            const ApplyConfigurationSetResult& result) const noexcept;
+
     protected:
         bool IsTelemetryEnabled() const noexcept;
 

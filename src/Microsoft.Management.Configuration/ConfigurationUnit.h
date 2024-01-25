@@ -65,7 +65,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         guid m_instanceIdentifier;
         hstring m_identifier;
         ConfigurationUnitIntent m_intent = ConfigurationUnitIntent::Apply;
-        Windows::Foundation::Collections::IVector<hstring> m_dependencies{ winrt::single_threaded_vector<hstring>() };
+        Windows::Foundation::Collections::IVector<hstring> m_dependencies{ winrt::multi_threaded_vector<hstring>() };
         Windows::Foundation::Collections::ValueSet m_metadata;
         Windows::Foundation::Collections::ValueSet m_settings;
         IConfigurationUnitProcessorDetails m_details{ nullptr };
