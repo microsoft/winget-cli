@@ -4,8 +4,6 @@
 #include "ConfigurationSet.h"
 #include "ConfigurationSet.g.cpp"
 #include "ConfigurationSetParser.h"
-#include "ConfigurationSetSerializer.h"
-#include "Database/ConfigurationDatabase.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -14,7 +12,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         GUID instanceIdentifier;
         THROW_IF_FAILED(CoCreateGuid(&instanceIdentifier));
         m_instanceIdentifier = instanceIdentifier;
-        std::tie(m_schemaVersion, m_schemaUri) = ConfigurationSetParser::LatestVersion();
+        m_schemaVersion = ConfigurationSetParser::LatestVersion();
     }
 
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
@@ -30,6 +28,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSet::Parameters(std::vector<Configuration::ConfigurationParameter>&& value)
     {
         m_parameters = winrt::multi_threaded_vector<Configuration::ConfigurationParameter>(std::move(value));
+    }
+
+    bool ConfigurationSet::IsFromHistory() const
+    {
+        return false;
     }
 
     hstring ConfigurationSet::Name()
@@ -69,26 +72,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     ConfigurationSetState ConfigurationSet::State()
     {
-        auto status = ConfigurationStatus::Instance();
-        return status->GetSetState(m_instanceIdentifier);
+        return ConfigurationSetState::Unknown;
     }
 
     clock::time_point ConfigurationSet::FirstApply()
     {
-        auto status = ConfigurationStatus::Instance();
-        return status->GetSetFirstApply(m_instanceIdentifier);
+        return m_firstApply;
     }
 
     clock::time_point ConfigurationSet::ApplyBegun()
     {
-        auto status = ConfigurationStatus::Instance();
-        return status->GetSetApplyBegun(m_instanceIdentifier);
+        return clock::time_point{};
     }
 
     clock::time_point ConfigurationSet::ApplyEnded()
     {
-        auto status = ConfigurationStatus::Instance();
-        return status->GetSetApplyEnded(m_instanceIdentifier);
+        return clock::time_point{};
     }
 
     Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit> ConfigurationSet::Units()
@@ -114,68 +113,25 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_schemaVersion = value;
     }
 
-    void ConfigurationSet::ConfigurationSetChange(com_ptr<ConfigurationSetChangeData>& data, const std::optional<guid>& unitInstanceIdentifier) try
+    event_token ConfigurationSet::ConfigurationSetChange(const Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>& handler)
     {
-        if (unitInstanceIdentifier)
-        {
-            Windows::Foundation::Collections::IVector<ConfigurationUnit> comUnits = m_units;
-
-            std::vector<ConfigurationUnit> units{ comUnits.Size() };
-            units.resize(comUnits.GetMany(0, units));
-
-            for (const ConfigurationUnit& unit : units)
-            {
-                if (unit.InstanceIdentifier() == unitInstanceIdentifier.value())
-                {
-                    data->Unit(unit);
-                    break;
-                }
-            }
-        }
-
-        m_configurationSetChange(*get_strong(), *data);
-    }
-    CATCH_LOG();
-
-    event_token ConfigurationSet::ConfigurationSetChange(const Windows::Foundation::TypedEventHandler<WinRT_Self, Configuration::ConfigurationSetChangeData>& handler)
-    {
-        if (!m_configurationSetChange)
-        {
-            auto status = ConfigurationStatus::Instance();
-            std::atomic_store(&m_setChangeRegistration, status->RegisterForSetChange(*this));
-        }
-
         return m_configurationSetChange.add(handler);
     }
 
     void ConfigurationSet::ConfigurationSetChange(const event_token& token) noexcept
     {
         m_configurationSetChange.remove(token);
-
-        if (!m_configurationSetChange)
-        {
-            std::atomic_store(&m_setChangeRegistration, {});
-        }
     }
 
     void ConfigurationSet::Serialize(const Windows::Storage::Streams::IOutputStream& stream)
     {
-        std::unique_ptr<ConfigurationSetSerializer> serializer = ConfigurationSetSerializer::CreateSerializer(m_schemaVersion);
-        hstring result = serializer->Serialize(this);
-        auto resultUtf8 = winrt::to_string(result);
-        std::vector<uint8_t> bytes(resultUtf8.begin(), resultUtf8.end());
-
-        Windows::Storage::Streams::DataWriter dataWriter{ stream };
-        dataWriter.WriteBytes(bytes);
-        dataWriter.StoreAsync().get();
-        dataWriter.DetachStream();
+        UNREFERENCED_PARAMETER(stream);
+        THROW_HR(E_NOTIMPL);
     }
 
     void ConfigurationSet::Remove()
     {
-        ConfigurationDatabase database;
-        database.EnsureOpened(false);
-        database.RemoveSetHistory(*get_strong());
+        THROW_HR(E_NOTIMPL);
     }
 
     Windows::Foundation::Collections::ValueSet ConfigurationSet::Metadata()
@@ -226,15 +182,5 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     HRESULT STDMETHODCALLTYPE ConfigurationSet::SetLifetimeWatcher(IUnknown* watcher)
     {
         return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
-    }
-
-    void ConfigurationSet::SetInputHash(std::string inputHash)
-    {
-        m_inputHash = std::move(inputHash);
-    }
-
-    const std::string& ConfigurationSet::GetInputHash() const
-    {
-        return m_inputHash;
     }
 }

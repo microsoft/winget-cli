@@ -33,16 +33,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_set;
     }
 
-    Windows::Foundation::IAsyncOperation<ITestGroupSettingsResult> DefaultSetGroupProcessor::TestGroupSettingsAsync(Windows::Foundation::EventHandler<ITestSettingsResult> progressHandler)
+    Windows::Foundation::IAsyncOperationWithProgress<ITestGroupSettingsResult, ITestSettingsResult> DefaultSetGroupProcessor::TestGroupSettingsAsync()
     {
         auto strongThis = get_strong();
         co_await resume_background();
 
+        auto progress = co_await get_progress_token();
         auto cancellation = co_await get_cancellation_token();
         cancellation.enable_propagation();
 
         auto result = make_self<wil::details::module_count_wrapper<implementation::TestGroupSettingsResult>>();
         result->Group(m_set);
+        progress.set_result(*result);
 
         try
         {
@@ -78,9 +80,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
                         if (groupProcessor)
                         {
-                            auto testOperation = groupProcessor.TestGroupSettingsAsync([&](const auto&, const ITestSettingsResult& unitResult)
+                            auto testOperation = groupProcessor.TestGroupSettingsAsync();
+
+                            testOperation.Progress([&](const auto&, const ITestSettingsResult& unitResult)
                                 {
-                                    progressHandler(nullptr, unitResult);
+                                    progress(unitResult);
                                 });
 
                             ITestGroupSettingsResult groupResult = co_await testOperation;
@@ -135,7 +139,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
                 try
                 {
-                    progressHandler(nullptr, settingsResult);
+                    progress(settingsResult);
                 }
                 CATCH_LOG();
             }
@@ -149,12 +153,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    Windows::Foundation::IAsyncOperation<IApplyGroupSettingsResult> DefaultSetGroupProcessor::ApplyGroupSettingsAsync(Windows::Foundation::EventHandler<IApplyGroupMemberSettingsResult> progressHandler)
+    Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult> DefaultSetGroupProcessor::ApplyGroupSettingsAsync()
     {
         auto strongThis = get_strong();
         co_await resume_background();
 
-        ConfigurationSetApplyProcessor applyProcessor{ m_set, m_setProcessor, { std::move(progressHandler), co_await winrt::get_cancellation_token() } };
+        ConfigurationSetApplyProcessor applyProcessor{ m_set, m_setProcessor, { co_await winrt::get_progress_token(), co_await winrt::get_cancellation_token() } };
         applyProcessor.Process(m_consistencyCheckOnly);
 
         co_return applyProcessor.Result();
