@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
+#include <optional>
 #include <vector>
 #include <winget/LocIndependent.h>
+#include <winrt/Windows.System.h>
 
 namespace AppInstaller::Utility
 {
@@ -21,6 +22,9 @@ namespace AppInstaller::Utility
 
     // Converts a string to corresponding enum
     Architecture ConvertToArchitectureEnum(std::string_view archStr);
+
+    // Converts an ProcessorArchitecture to an Architecture
+    std::optional<Architecture> ConvertToArchitectureEnum(winrt::Windows::System::ProcessorArchitecture architecture);
 
     // Converts an Architecture to a string_view
     LocIndView ToString(Architecture architecture);

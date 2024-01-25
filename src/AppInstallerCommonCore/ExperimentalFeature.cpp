@@ -48,6 +48,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFConfiguration03>();
             case ExperimentalFeature::Feature::Reboot:
                 return userSettings.Get<Setting::EFReboot>();
+            case ExperimentalFeature::Feature::SideBySide:
+                return userSettings.Get<Setting::EFSideBySide>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -85,6 +87,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Configuration Schema 0.3", "configuration03", "https://aka.ms/winget-settings", Feature::Configuration03 };
         case Feature::Reboot:
             return ExperimentalFeature{ "Reboot", "reboot", "https://aka.ms/winget-settings", Feature::Reboot };
+        case Feature::SideBySide:
+            return ExperimentalFeature{ "Side-by-side improvements", "sideBySide", "https://aka.ms/winget-settings", Feature::SideBySide };
         default:
             THROW_HR(E_UNEXPECTED);
         }

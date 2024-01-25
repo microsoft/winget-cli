@@ -280,17 +280,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### configuration
-
-This feature enables the configuration commands. These commands allow configuring the system into a desired state.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "configuration": true
-   },
-```
-
 ### windowsFeature
 
 This feature enables the ability to enable Windows Feature dependencies during installation.
@@ -332,5 +321,16 @@ You can enable the feature as shown below.
 ```json
    "experimentalFeatures": {
        "configuration03": true
+   },
+```
+
+### sideBySide
+
+This feature enables experimental improvements for supporting multiple instances of a package being installed on a system.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "sideBySide": true
    },
 ```
