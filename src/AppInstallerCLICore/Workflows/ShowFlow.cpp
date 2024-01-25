@@ -66,7 +66,8 @@ namespace {
         }
     }
 
-    void ShowAgreements(Execution::OutputStream outputStream, std::vector<AppInstaller::Manifest::Agreement> agreements) {
+    void ShowAgreements(Execution::OutputStream outputStream, const std::vector<AppInstaller::Manifest::Agreement>& agreements) {
+
         if (agreements.empty()) {
             return;
         }
