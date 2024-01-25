@@ -403,7 +403,7 @@ namespace AppInstaller::YAML
         Require(Type::Sequence);
         other.Require(Type::Sequence);
 
-        auto getKeyValue = [&](const YAML::Node& node, std::string_view key) {
+        auto getKeyValue = [](const YAML::Node& node, std::string_view key) {
                 auto keyNode = node[key];
                 if (keyNode.IsNull())
                 {

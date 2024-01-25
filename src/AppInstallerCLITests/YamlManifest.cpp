@@ -1749,7 +1749,7 @@ TEST_CASE("ShadowManifest_ShadowNotAllowed", "[ShadowManifest]")
         "ManifestV1_5-Shadow-Shadow.yaml" }, multiFileDirectory);
 
     TempFile mergedManifestFile{ "merged.yaml" };
-    CHECK_THROWS_MATCHES(YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile), ManifestException, ManifestExceptionMatcher("Shadow manifest is not allowed. [ManifestType] Value: shadow File: ManifestV1_5-Shadow-Shadow.yaml"));
+    REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile), ManifestException, ManifestExceptionMatcher("Shadow manifest is not allowed. [ManifestType] Value: shadow File: ManifestV1_5-Shadow-Shadow.yaml"));
 }
 
 TEST_CASE("ShadowManifest_TwoShadowFiles", "[ShadowManifest]")
@@ -1767,7 +1767,7 @@ TEST_CASE("ShadowManifest_TwoShadowFiles", "[ShadowManifest]")
         "ManifestV1_5-Shadow-Shadow2.yaml" }, multiFileDirectory);
 
     TempFile mergedManifestFile{ "merged.yaml" };
-    CHECK_THROWS_MATCHES(YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. [ManifestType] Value: shadow File: ManifestV1_5-Shadow-Shadow2.yaml"));
+    REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. [ManifestType] Value: shadow File: ManifestV1_5-Shadow-Shadow2.yaml"));
 }
 
 TEST_CASE("ShadowManifest_NotVerifiedPublisher", "[ShadowManifest]")
@@ -1787,7 +1787,7 @@ TEST_CASE("ShadowManifest_NotVerifiedPublisher", "[ShadowManifest]")
         "ManifestV1_5-Shadow-Shadow.yaml" }, multiFileDirectory);
 
     TempFile mergedManifestFile{ "merged.yaml" };
-    CHECK_THROWS_MATCHES(YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile), ManifestException, ManifestExceptionMatcher("Field usage requires verified publishers. [Icons]"));
+    REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile), ManifestException, ManifestExceptionMatcher("Field usage requires verified publishers. [Icons]"));
 }
 
 TEST_CASE("YamlParserTypes", "[YAML]")
@@ -1842,4 +1842,12 @@ TEST_CASE("YamlMergeNode", "[YAML]")
 
     // From merged node
     REQUIRE((*luffy)["Fruit"].as<std::string>() == "Gomu Gomu no Mi");
+}
+
+TEST_CASE("YamlMergeNode_MergeSequenceNoKey", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Merge.yaml"));
+    auto document2 = Load(TestDataFile("Node-Merge2.yaml"));
+
+    REQUIRE_THROWS_HR(document["Strawhats"].MergeSequenceNode(document2["Strawhats"], "Power"), APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
 }
