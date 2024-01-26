@@ -272,6 +272,7 @@ mylog
 mysilent
 mysilentwithprogress
 nameof
+Nami
 nativehandle
 NBLGGH
 NESTEDINSTALLER
@@ -368,6 +369,7 @@ riid
 roblox
 ronomon
 rosoft
+Roronoa
 rowids
 roy
 runspace
@@ -393,6 +395,7 @@ Sideload
 SIGNATUREHASH
 similarissues
 similaritytolerance
+Skipx
 Sku
 SMTO
 sortof
