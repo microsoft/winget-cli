@@ -346,6 +346,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackagesFoundInImportFile);
         WINGET_DEFINE_RESOURCE_STRINGID(Notes);
         WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoRepairInfoFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoUpgradeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenLogsArgumentDescription);
@@ -421,6 +422,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RepairCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RepairCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairDifferentInstallTechnology);
         WINGET_DEFINE_RESOURCE_STRINGID(ReparsePointsNotSupportedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityForAgreements);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);
