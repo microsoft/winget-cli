@@ -376,6 +376,7 @@ runtimeclass
 ryfu
 rzkzqaqjwj
 SARL
+sbom
 schematab
 sddl
 SECUREFILEPATH
