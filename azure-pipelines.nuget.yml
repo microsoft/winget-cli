@@ -154,7 +154,7 @@ extends:
             targetPath: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
             artifactName: $(packageName)
             publishLocation: Container
-            sbomBuildDropPath: '$(Build.ArtifactStagingDirectory)\$(packageName)'
+            sbomBuildDropPath: '$(Build.ArtifactStagingDirectory)'
           # - output: nuget
           #   displayName: 'Push WingetUtil nuget package to nuget.org'
           #   packageParentPath: '$(Build.ArtifactStagingDirectory)'
