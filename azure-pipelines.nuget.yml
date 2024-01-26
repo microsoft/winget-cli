@@ -155,13 +155,13 @@ extends:
             artifactName: $(packageName)
             publishLocation: Container
             sbomBuildDropPath: '$(Build.ArtifactStagingDirectory)'
-          # - output: nuget
-          #   displayName: 'Push WingetUtil nuget package to nuget.org'
-          #   packageParentPath: '$(Build.ArtifactStagingDirectory)'
-          #   nuGetFeedType: external
-          #   includeNugetOrg: true
-          #   packagesToPush: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
-          #   publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"
+          - output: nuget
+            displayName: 'Push WingetUtil nuget package to nuget.org'
+            packageParentPath: '$(Build.ArtifactStagingDirectory)'
+            nuGetFeedType: external
+            includeNugetOrg: true
+            packagesToPush: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
+            publishFeedCredentials: "WindowsPackageManagerAzurePipelineNuget - NuGet.org"
         steps:
         - checkout: none
 
