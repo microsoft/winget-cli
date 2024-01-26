@@ -136,6 +136,7 @@ foldc
 foldcase
 FOLDERID
 FORPARSING
+foundfr
 fundraiser
 fuzzer
 fzanollo
@@ -144,6 +145,7 @@ GESMBH
 GHS
 gity
 goku
+Gomu
 GRPICONDIR
 GRPICONDIRENTRY
 guiddef

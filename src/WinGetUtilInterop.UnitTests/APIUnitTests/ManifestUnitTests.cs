@@ -14,6 +14,7 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
     using Microsoft.WinGetUtil.Common;
     using Microsoft.WinGetUtil.Manifest.V1;
     using Microsoft.WinGetUtil.Models.V1;
+    using WinGetUtilInterop.UnitTests.Common;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -37,7 +38,7 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
         /// <summary>
         /// Test creating a manifest with shadow.
         /// </summary>
-        [Fact]
+        [FactSkipx64CI]
         public void CreateShadowManifest()
         {
             var input = Path.Combine(testCollateralDir, "Shadow");

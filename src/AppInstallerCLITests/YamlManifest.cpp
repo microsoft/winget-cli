@@ -1824,18 +1824,18 @@ TEST_CASE("YamlMergeNode", "[YAML]")
     auto document = Load(TestDataFile("Node-Merge.yaml"));
     auto document2 = Load(TestDataFile("Node-Merge2.yaml"));
 
-    REQUIRE(3 == document["Strawhats"].size());
-    REQUIRE(2 == document2["Strawhats"].size());
+    REQUIRE(3 == document["StrawHats"].size());
+    REQUIRE(2 == document2["StrawHats"].size());
 
     // Internally will call MergeMappingNode.
-    document["Strawhats"].MergeSequenceNode(document2["Strawhats"], "Name");
-    REQUIRE(4 == document["Strawhats"].size());
+    document["StrawHats"].MergeSequenceNode(document2["StrawHats"], "Name");
+    REQUIRE(4 == document["StrawHats"].size());
 
     auto luffy = std::find_if(
-        document["Strawhats"].Sequence().begin(),
-        document["Strawhats"].Sequence().end(),
+        document["StrawHats"].Sequence().begin(),
+        document["StrawHats"].Sequence().end(),
         [](auto const& n) { return n["Name"].as<std::string>() == "Monkey D Luffy"; });
-    REQUIRE(luffy != document["Strawhats"].Sequence().end());
+    REQUIRE(luffy != document["StrawHats"].Sequence().end());
 
     // From original node
     REQUIRE((*luffy)["Bounty"].as<std::string>() == "3,000,000,000");
@@ -1849,5 +1849,5 @@ TEST_CASE("YamlMergeNode_MergeSequenceNoKey", "[YAML]")
     auto document = Load(TestDataFile("Node-Merge.yaml"));
     auto document2 = Load(TestDataFile("Node-Merge2.yaml"));
 
-    REQUIRE_THROWS_HR(document["Strawhats"].MergeSequenceNode(document2["Strawhats"], "Power"), APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
+    REQUIRE_THROWS_HR(document["StrawHats"].MergeSequenceNode(document2["StrawHats"], "Power"), APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
 }
