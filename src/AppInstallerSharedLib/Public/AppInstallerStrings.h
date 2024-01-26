@@ -268,4 +268,7 @@ namespace AppInstaller::Utility
 
     // Converts the given GUID value to a string.
     std::string ConvertGuidToString(const GUID& value);
+
+    // Converts the input string to a DWORD value using std::stoul and returns a boolean value based on the resulting DWORD value.
+    bool IsDwordFlagSet(const std::string& value);
 }

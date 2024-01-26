@@ -867,4 +867,17 @@ namespace AppInstaller::Utility
         THROW_HR_IF(E_UNEXPECTED, !StringFromGUID2(value, buffer, ARRAYSIZE(buffer)));
         return ConvertToUTF8(buffer);
     }
+
+    bool IsDwordFlagSet(const std::string& value)
+    {
+        if (std::empty(value))
+        {
+            return false;
+        }
+
+        DWORD dwordValue = std::stoul(value);
+
+        // If the value is 0, then it is not set.
+        return dwordValue != 0;
+    }
 }

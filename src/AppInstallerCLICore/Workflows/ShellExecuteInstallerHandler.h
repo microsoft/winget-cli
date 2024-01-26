@@ -35,6 +35,18 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: InstallerArgs
     void GetInstallerArgs(Execution::Context& context);
 
+    // Repair is done through invoking ShellExecute on downloaded installer.
+    // Required Args: None
+    // Inputs: Manifest?, InstallerPath, InstallerArgs
+    // Outputs: OperationReturnCode
+    void ShellExecuteRepairImpl(Execution::Context& context);
+
+    // Repair the MSI
+    // Required Args: None
+    // Inputs: ProductCodes
+    // Output: None
+    void ShellExecuteMsiExecRepair(Execution::Context& context);
+
     // Enables the Windows Feature dependency by invoking ShellExecute on the DISM executable.
     // Required Args: None
     // Inputs: Windows Feature dependency

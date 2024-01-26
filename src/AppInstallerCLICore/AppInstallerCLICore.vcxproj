@@ -414,6 +414,7 @@
     <ClInclude Include="Workflows\PinFlow.h" />
     <ClInclude Include="Workflows\PortableFlow.h" />
     <ClInclude Include="Workflows\PromptFlow.h" />
+    <ClInclude Include="Workflows\RepairFlow.h" />
     <ClInclude Include="Workflows\SettingsFlow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
@@ -489,6 +490,7 @@
     <ClCompile Include="Workflows\PinFlow.cpp" />
     <ClCompile Include="Workflows\PortableFlow.cpp" />
     <ClCompile Include="Workflows\PromptFlow.cpp" />
+    <ClCompile Include="Workflows\RepairFlow.cpp" />
     <ClCompile Include="Workflows\SettingsFlow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />

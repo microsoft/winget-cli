@@ -202,6 +202,31 @@ namespace AppInstaller::CLI::Workflow
 
             return args;
         }
+
+        // Gets the arguments for repairing an MSI with MsiExec
+        std::string GetMsiExecRepairArgs(Execution::Context& context, const Utility::LocIndString& productCode)
+        {
+            // https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options
+            // Available Options for '/f [p|o|e|d|c|a|u|m|s|v] <Product.msi | ProductCode>'
+            // Default parameter for '/f' is 'omus'
+            // o - Reinstall all files regardless of version
+            // m - Rewrite all required registry entries (This is the default option)
+            // u - Rewrite all required user-specific registry entries (This is the default option)
+            // s - Overwrite all existing shortcuts (This is the default option)
+            std::string args = "/f" + productCode.get();
+
+            // https://learn.microsoft.com/en-us/windows/win32/msi/standard-installer-command-line-options
+            if (context.Args.Contains(Execution::Args::Type::Silent))
+            {
+                args += " /quiet /norestart";
+            }
+            else if (!context.Args.Contains(Execution::Args::Type::Interactive))
+            {
+                args += " /passive /norestart";
+            }
+
+            return args;
+        }
     }
 
     void ShellExecuteInstallImpl(Execution::Context& context)
@@ -287,6 +312,36 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ShellExecuteRepairImpl(Execution::Context& context)
+    {
+        // TODO: Define repair starting resource string
+        //context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+
+        std::wstring commandUtf16 = Utility::ConvertToUTF16(context.Get<Execution::Data::RepairString>());
+
+        // Parse the command string as application and command line for CreateProcess
+        wil::unique_cotaskmem_string app = nullptr;
+        wil::unique_cotaskmem_string args = nullptr;
+        THROW_IF_FAILED(SHEvaluateSystemCommandTemplate(commandUtf16.c_str(), &app, NULL, &args));
+
+        auto repairResult = context.Reporter.ExecuteWithProgress(
+            std::bind(InvokeShellExecute,
+                   std::filesystem::path(app.get()),
+                   Utility::ConvertToUTF8(args.get()),
+                   std::placeholders::_1));
+
+        if (!repairResult)
+        {
+            // TODO: Define repair abandoned resource string
+            //context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
+        }
+        else
+        {
+            context.Add<Execution::Data::OperationReturnCode>(repairResult.value());
+        }
+    }
+
     void ShellExecuteMsiExecUninstall(Execution::Context& context)
     {
         const auto& productCodes = context.Get<Execution::Data::ProductCodes>();
@@ -313,6 +368,37 @@ namespace AppInstaller::CLI::Workflow
                 context.Add<Execution::Data::OperationReturnCode>(uninstallResult.value());
             }
         }
+    }
+
+    void ShellExecuteMsiExecRepair(Execution::Context& context)
+    {
+        const auto& productCodes = context.Get<Execution::Data::ProductCodes>();
+        // TODO: Define repair starting resource string
+        //context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+
+        const std::filesystem::path msiexecPath{ ExpandEnvironmentVariables(L"%windir%\\system32\\msiexec.exe") };
+
+        for (const auto& productCode : productCodes)
+        {
+            AICLI_LOG(CLI, Info, << "Repairing: " << productCode);
+            auto repairResult = context.Reporter.ExecuteWithProgress(
+                std::bind(InvokeShellExecute,
+                     msiexecPath,
+                     GetMsiExecUninstallArgs(context, productCode),
+                     std::placeholders::_1));
+
+            if (!repairResult)
+            {
+                // TODO: Define repair abandoned resource string
+                //context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
+            }
+            else
+            {
+                context.Add<Execution::Data::OperationReturnCode>(repairResult.value());
+            }
+        }
+    
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
