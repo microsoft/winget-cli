@@ -203,6 +203,12 @@ namespace AppInstaller::Repository
         UserIntentArchitecture,
         // The locale of user intent
         UserIntentLocale,
+        // The standard modify command; which may be interactive
+        StandardModifyCommand,
+        // No Modify flag
+        NoModify,
+        // No Repair flag
+        NoRepair,
     };
 
     // Convert a PackageVersionMetadata to a string.
