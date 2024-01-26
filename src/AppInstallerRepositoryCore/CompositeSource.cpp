@@ -423,9 +423,16 @@ namespace AppInstaller::Repository
         {
             static constexpr IPackageType PackageType = IPackageType::PinnablePackage;
 
-            PinnablePackage() {}
+            PinnablePackage() = default;
+
+            PinnablePackage(const PinnablePackage&) = default;
+            PinnablePackage& operator=(const PinnablePackage&) = default;
+
+            PinnablePackage(PinnablePackage&&) = default;
+            PinnablePackage& operator=(PinnablePackage&&) = default;
+
             PinnablePackage(std::shared_ptr<IPackage> package, std::optional<Pinning::Pin> pin = {})
-                : m_package(package), m_pin(pin)
+                : m_package(std::move(package)), m_pin(std::move(pin))
             {
                 // Get the source ID for available packages
                 auto availableVersion = m_package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
@@ -569,9 +576,9 @@ namespace AppInstaller::Repository
             Utility::LocIndString GetProperty(PackageProperty property) const override
             {
                 std::shared_ptr<IPackageVersion> truth;
-                if (m_defaultAvailablePackage)
+                if (m_primaryAvailablePackage)
                 {
-                    truth = m_defaultAvailablePackage->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                    truth = m_primaryAvailablePackage->GetLatestAvailableVersion(PinBehavior::IgnorePins);
                 }
                 if (!truth)
                 {
@@ -616,21 +623,33 @@ namespace AppInstaller::Repository
                 std::vector<PackageVersionKey> result;
                 auto installedPin = GetInstalledPin();
 
-                for (const auto& availablePackage : m_availablePackages)
-                {
-                    auto versionKeys = availablePackage.GetAvailableVersionKeys(pinBehavior);
-
-                    // The version keys we have already have pin information from the available package.
-                    // Here we also add information from the installed package.
-                    if (installedPin)
+                auto processSinglePackage = [&](const PinnablePackage& package)
                     {
-                        for (auto& versionKey : versionKeys)
-                        {
-                            versionKey.PinnedState = GetPinnedStateForVersion(versionKey, installedPin, pinBehavior);
-                        }
-                    }
+                        auto versionKeys = package.GetAvailableVersionKeys(pinBehavior);
 
-                    std::copy(versionKeys.begin(), versionKeys.end(), std::back_inserter(result));
+                        // The version keys we have already have pin information from the available package.
+                        // Here we also add information from the installed package.
+                        if (installedPin)
+                        {
+                            for (auto& versionKey : versionKeys)
+                            {
+                                versionKey.PinnedState = GetPinnedStateForVersion(versionKey, installedPin, pinBehavior);
+                            }
+                        }
+
+                        std::copy(versionKeys.begin(), versionKeys.end(), std::back_inserter(result));
+                    };
+
+                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide) && m_primaryAvailablePackage)
+                {
+                    processSinglePackage(m_primaryAvailablePackage.value());
+                }
+                else
+                {
+                    for (const auto& availablePackage : m_availablePackages)
+                    {
+                        processSinglePackage(availablePackage);
+                    }
                 }
 
                 // Remove all elements whose channel does not match the installed package.
@@ -664,18 +683,33 @@ namespace AppInstaller::Repository
 
             std::pair<std::shared_ptr<IPackageVersion>, Pinning::PinType> GetAvailableVersionAndPin(const PackageVersionKey& versionKey) const override
             {
-                for (const auto& availablePackage : m_availablePackages)
+                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide) && m_primaryAvailablePackage)
                 {
-                    if (!Utility::IsEmptyOrWhitespace(versionKey.SourceId) && versionKey.SourceId != availablePackage.GetSourceId())
+                    if (Utility::IsEmptyOrWhitespace(versionKey.SourceId) || versionKey.SourceId == m_primaryAvailablePackage->GetSourceId())
                     {
-                        continue;
+                        auto result = m_primaryAvailablePackage->GetAvailableVersionAndPin(versionKey);
+                        if (result.first)
+                        {
+                            result.second = GetPinnedStateForVersion(versionKey, GetInstalledPin(), PinBehavior::ConsiderPins);
+                            return result;
+                        }
                     }
-
-                    auto result = availablePackage.GetAvailableVersionAndPin(versionKey);
-                    if (result.first)
+                }
+                else
+                {
+                    for (const auto& availablePackage : m_availablePackages)
                     {
-                        result.second = GetPinnedStateForVersion(versionKey, GetInstalledPin(), PinBehavior::ConsiderPins);
-                        return result;
+                        if (!Utility::IsEmptyOrWhitespace(versionKey.SourceId) && versionKey.SourceId != availablePackage.GetSourceId())
+                        {
+                            continue;
+                        }
+
+                        auto result = availablePackage.GetAvailableVersionAndPin(versionKey);
+                        if (result.first)
+                        {
+                            result.second = GetPinnedStateForVersion(versionKey, GetInstalledPin(), PinBehavior::ConsiderPins);
+                            return result;
+                        }
                     }
                 }
 
@@ -767,18 +801,25 @@ namespace AppInstaller::Repository
                 return m_trackingPackage;
             }
 
-            void AddAvailablePackage(std::shared_ptr<IPackage> availablePackage)
+            void AddAvailablePackage(std::shared_ptr<IPackage> availablePackage, bool setPrimary = false)
             {
+                // Disable primary if feature not enabled
+                setPrimary = setPrimary && ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide);
+
                 if (availablePackage)
                 {
-                    if (!m_defaultAvailablePackage)
+                    m_availablePackages.emplace_back(std::move(availablePackage));
+
+                    if (setPrimary)
                     {
-                        // Set override only with the first available version found
-                        m_defaultAvailablePackage = availablePackage;
-                        TrySetOverrideInstalledVersion(m_defaultAvailablePackage);
+                        m_primaryAvailablePackage = m_availablePackages.back();
                     }
 
-                    m_availablePackages.emplace_back(std::move(availablePackage));
+                    // Set override for primary or with the first available version found
+                    if (setPrimary || m_availablePackages.size() == 1)
+                    {
+                        TrySetOverrideInstalledVersion(m_availablePackages.back().GetPackage());
+                    }
                 }
             }
 
@@ -825,7 +866,7 @@ namespace AppInstaller::Repository
 
         private:
             // Try to set a version that will override the version string from the installed package
-            void TrySetOverrideInstalledVersion(std::shared_ptr<IPackage> availablePackage)
+            void TrySetOverrideInstalledVersion(const std::shared_ptr<IPackage>& availablePackage)
             {
                 if (m_installedPackage && availablePackage)
                 {
@@ -852,7 +893,7 @@ namespace AppInstaller::Repository
             std::shared_ptr<IPackage> m_trackingPackage;
             std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
             std::string m_overrideInstalledVersion;
-            std::shared_ptr<IPackage> m_defaultAvailablePackage;
+            std::optional<PinnablePackage> m_primaryAvailablePackage;
             std::vector<PinnablePackage> m_availablePackages;
         };
 

@@ -40,7 +40,7 @@ namespace AppInstaller::Pinning
     // but they break when the package is updated outside of winget.
     struct PinKey
     {
-        PinKey() {}
+        PinKey() = default;
         PinKey(const Manifest::Manifest::string_t& packageId, std::string_view sourceId)
             : PackageId(packageId), SourceId(sourceId) {}
 
@@ -71,12 +71,18 @@ namespace AppInstaller::Pinning
         // Used for logging
         std::string ToString() const;
 
-        const std::string PackageId;
-        const std::string SourceId;
+        std::string PackageId;
+        std::string SourceId;
     };
 
     struct Pin
     {
+        Pin(const Pin&) = default;
+        Pin& operator=(const Pin& other) = default;
+
+        Pin(Pin&&) = default;
+        Pin& operator=(Pin&&) = default;
+
         static Pin CreateBlockingPin(PinKey&& pinKey);
         static Pin CreatePinningPin(PinKey&& pinKey);
         static Pin CreateGatingPin(PinKey&& pinKey, Utility::GatedVersion&& gatedVersion);
