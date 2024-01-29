@@ -1180,7 +1180,7 @@ namespace AppInstaller::Manifest
 
                     YAML::Node key{ YAML::Node::Type::Scalar, "", YAML::Mark() };
                     key.SetScalar("Icons");
-                    YAML::Node value = shadowNode["Icons"];
+                    YAML::Node value = shadowNode.GetChildNode("Icons");
                     m_rootNode.get().AddMappingNode(std::move(key), std::move(value));
                 }
             }
@@ -1208,10 +1208,10 @@ namespace AppInstaller::Manifest
                 }
 
                 // Merge yaml
-                auto shadowLocalizationsNode = shadowNode["Localization"];
+                auto shadowLocalizationsNode = shadowNode.GetChildNode("Localization");
                 if (m_p_localizationsNode)
                 {
-                    m_rootNode.get()["Localization"].MergeSequenceNode(shadowLocalizationsNode, "PackageLocale", true);
+                    m_rootNode.get().GetChildNode("Localization").MergeSequenceNode(shadowLocalizationsNode, "PackageLocale", true);
                 }
                 else
                 {

@@ -269,6 +269,71 @@ namespace AppInstaller::YAML
         return result;
     }
 
+    // Gets a child node from the mapping by its name.
+    Node& Node::GetChildNode(std::string_view key)
+    {
+        Require(Type::Mapping);
+
+        auto itr = m_mapping->begin();
+        for (; itr != m_mapping->end(); itr++)
+        {
+            if (Utility::CaseInsensitiveEquals(itr->first.m_scalar, key))
+            {
+                break;
+            }
+        }
+
+        if (itr == m_mapping->end())
+        {
+            return s_globalInvalidNode;
+        }
+
+        auto firstFound = itr;
+        for (++itr; itr != m_mapping->end(); itr++)
+        {
+            if (Utility::CaseInsensitiveEquals(itr->first.m_scalar, key))
+            {
+                break;
+            }
+        }
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY, itr != m_mapping->end());
+        Node& result = firstFound->second;
+        return result;
+    }
+
+    const Node& Node::GetChildNode(std::string_view key) const
+    {
+        Require(Type::Mapping);
+
+        auto itr = m_mapping->begin();
+        for (; itr != m_mapping->end(); itr++)
+        {
+            if (Utility::CaseInsensitiveEquals(itr->first.m_scalar, key))
+            {
+                break;
+            }
+        }
+
+        if (itr == m_mapping->end())
+        {
+            return s_globalInvalidNode;
+        }
+
+        auto firstFound = itr;
+        for (++itr; itr != m_mapping->end(); itr++)
+        {
+            if (Utility::CaseInsensitiveEquals(itr->first.m_scalar, key))
+            {
+                break;
+            }
+        }
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY, itr != m_mapping->end());
+        const Node& result = firstFound->second;
+        return result;
+    }
+
     Node& Node::operator[](size_t index)
     {
         Require(Type::Sequence);

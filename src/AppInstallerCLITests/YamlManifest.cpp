@@ -1864,3 +1864,57 @@ TEST_CASE("YamlMergeNode_MergeSequenceNoKey", "[YAML]")
 
     REQUIRE_THROWS_HR(document["StrawHats"].MergeSequenceNode(document2["StrawHats"], "Power"), APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
 }
+
+TEST_CASE("YamlMappingNode", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Mapping.yaml"));
+
+    auto node = document["key"];
+    REQUIRE(node.as<std::string>() == "value");
+
+    auto node2 = document.GetChildNode("KEY");
+    REQUIRE(node2.as<std::string>() == "value");
+
+    auto node3 = document.GetChildNode("key");
+    REQUIRE(node3.as<std::string>() == "value");
+
+    auto node4 = document.GetChildNode("kEy");
+    REQUIRE(node4.as<std::string>() == "value");
+
+    auto node5 = document.GetChildNode("fake");
+    REQUIRE(node5.IsNull());
+
+    auto node6 = document["repeatedkey"];
+    REQUIRE(node6.as<std::string>() == "repeated value");
+    REQUIRE_THROWS_HR(document.GetChildNode("repeatedkey"), APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+    
+    REQUIRE_THROWS_HR(document.GetChildNode("RepeatedKey"), APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+    REQUIRE_THROWS_HR(document["RepeatedKey"], APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+}
+
+TEST_CASE("YamlMappingNode_const", "[YAML2]")
+{
+    const auto document = Load(TestDataFile("Node-Mapping.yaml"));
+
+    auto node = document["key"];
+    REQUIRE(node.as<std::string>() == "value");
+
+    auto node2 = document.GetChildNode("KEY");
+    REQUIRE(node2.as<std::string>() == "value");
+
+    auto node3 = document.GetChildNode("key");
+    REQUIRE(node3.as<std::string>() == "value");
+
+    auto node4 = document.GetChildNode("kEy");
+    REQUIRE(node4.as<std::string>() == "value");
+
+    auto node5 = document.GetChildNode("fake");
+    REQUIRE(node5.IsNull());
+
+    auto node6 = document["repeatedkey"];
+    REQUIRE(node6.as<std::string>() == "repeated value");
+    REQUIRE_THROWS_HR(document.GetChildNode("repeatedkey"), APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+
+    REQUIRE_THROWS_HR(document.GetChildNode("RepeatedKey"), APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+    REQUIRE_THROWS_HR(document["RepeatedKey"], APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+}
