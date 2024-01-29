@@ -748,7 +748,7 @@ namespace AppInstaller::Logging
                     TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),
                     TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "ClientVersion"),
                     TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "ClientPackageVersion"),
-                    TraceLoggingBool(Runtime::IsReleaseBuild(), "IsReleaseBuild"),
+                    TraceLoggingBool(false, "IsReleaseBuild"),
                     TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                     // From TelemetrySummary
                     TraceLoggingHResult(m_summary.FailureHResult, "FailureHResult"),

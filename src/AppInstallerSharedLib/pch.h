@@ -52,11 +52,11 @@
 #include <wil/filesystem.h>
 #pragma warning( pop )
 
-#ifndef WINGET_DISABLE_FOR_FUZZING
+//#ifndef WINGET_DISABLE_FOR_FUZZING
 #include <wil/cppwinrt.h>
 
 #include <winrt/Windows.ApplicationModel.Resources.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.System.Profile.h>
-#endif
+//#endif

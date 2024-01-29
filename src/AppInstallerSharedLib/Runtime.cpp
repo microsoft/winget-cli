@@ -139,7 +139,6 @@ namespace AppInstaller::Runtime
         }
     }
 
-#ifndef WINGET_DISABLE_FOR_FUZZING
     LocIndString GetOSVersion()
     {
         winrt::Windows::System::Profile::AnalyticsInfo analyticsInfo{};
@@ -165,7 +164,6 @@ namespace AppInstaller::Runtime
         winrt::Windows::Globalization::GeographicRegion region;
         return Utility::ConvertToUTF8(region.CodeTwoLetter());
     }
-#endif
 
     bool IsCurrentOSVersionGreaterThanOrEqual(const Utility::Version& version)
     {

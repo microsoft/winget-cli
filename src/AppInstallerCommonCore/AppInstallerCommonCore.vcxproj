@@ -447,24 +447,14 @@
     <ClCompile Include="DODownloader.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FolderFileWatcher.cpp" />
-    <ClCompile Include="Deployment.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="Deployment.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
-    <ClCompile Include="ExtensionCatalog.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="ExtensionCatalog.cpp" />
     <ClCompile Include="FileLogger.cpp" />
-    <ClCompile Include="HttpStream\HttpClientWrapper.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="HttpStream\HttpLocalCache.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="HttpStream\HttpRandomAccessStream.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="HttpStream\HttpClientWrapper.cpp" />
+    <ClCompile Include="HttpStream\HttpLocalCache.cpp" />
+    <ClCompile Include="HttpStream\HttpRandomAccessStream.cpp" />
     <ClCompile Include="Locale.cpp" />
     <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestCommon.cpp" />

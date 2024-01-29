@@ -68,6 +68,7 @@ namespace AppInstaller::JSON
         return std::nullopt;
     }
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
     utility::string_t GetUtilityString(std::string_view nodeName)
     {
         return utility::conversions::to_string_t(nodeName.data());
@@ -211,6 +212,7 @@ namespace AppInstaller::JSON
 
         return result;
     }
+#endif
 
     bool IsValidNonEmptyStringValue(std::optional<std::string>& value)
     {

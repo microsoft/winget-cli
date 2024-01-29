@@ -7,7 +7,10 @@
 #ifndef _NO_ASYNCRTIMP
 #define _NO_ASYNCRTIMP
 #endif
-#include <cpprest/json.h>
+
+#ifndef WINGET_DISABLE_FOR_FUZZING
+ #include <cpprest/json.h>
+#endif
 
 #include <optional>
 #include <string>
@@ -31,6 +34,7 @@ namespace AppInstaller::JSON
     template<>
     std::optional<std::vector<std::string>> GetValue<std::vector<std::string>>(const Json::Value& node);
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
     // For cpprestsdk JSON
     std::optional<std::reference_wrapper<const web::json::value>> GetJsonValueFromNode(const web::json::value& node, const utility::string_t& keyName);
 
@@ -54,6 +58,7 @@ namespace AppInstaller::JSON
     utility::string_t GetUtilityString(std::string_view nodeName);
 
     web::json::value GetStringValue(std::string_view value);
+#endif
 
     bool IsValidNonEmptyStringValue(std::optional<std::string>& value);
 
