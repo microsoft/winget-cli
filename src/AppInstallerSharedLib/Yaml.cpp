@@ -398,19 +398,20 @@ namespace AppInstaller::YAML
         return {};
     }
 
-    void Node::MergeSequenceNode(Node& other, std::string_view key)
+    void Node::MergeSequenceNode(Node& other, std::string_view key, bool caseInsensitive)
     {
         Require(Type::Sequence);
         other.Require(Type::Sequence);
 
-        auto getKeyValue = [](const YAML::Node& node, std::string_view key) {
+        auto getKeyValue = [caseInsensitive](const YAML::Node& node, std::string_view key) {
                 auto keyNode = node[key];
                 if (keyNode.IsNull())
                 {
                     THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
                 }
-                
-                return keyNode.as<std::string>();
+
+                auto keyValue = keyNode.as<std::string>();
+                return caseInsensitive ? std::string{ Utility::FoldCase(std::string_view{keyValue}) } : keyValue;
         };
 
         std::map<std::string, Node> newSequenceMap;

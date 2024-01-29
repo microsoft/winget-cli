@@ -77,7 +77,7 @@ namespace WinGetUtilInterop.UnitTests.APIUnitTests
 
             Assert.Equal(2, manifest.Localization.Count);
 
-            var enGBLocale = manifest.Localization.Where(l => l.PackageLocale == "en-GB").FirstOrDefault();
+            var enGBLocale = manifest.Localization.Where(l => l.PackageLocale == "en-gb").FirstOrDefault();
             Assert.NotNull(enGBLocale);
             Assert.Single(enGBLocale.Icons);
             Assert.Equal("https://shadowIcon-en-GB", enGBLocale.Icons[0].IconUrl);

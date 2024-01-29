@@ -10,7 +10,7 @@ Icons:
     IconTheme: default
     IconSha256: 1111111111111111111111111111111111111111111111111111111111111111
 Localization:
-  - PackageLocale: en-GB
+  - PackageLocale: en-gb
     Icons:
     - IconUrl: https://shadowIcon-en-GB
       IconFileType: png

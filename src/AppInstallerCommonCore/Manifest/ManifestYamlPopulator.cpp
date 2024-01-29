@@ -1170,7 +1170,7 @@ namespace AppInstaller::Manifest
         if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_5 })
         {
             // Default localization
-            if (m_manifest.get().DefaultLocalization.Locale == shadowManifest.DefaultLocalization.Locale)
+            if (Utility::ICUCaseInsensitiveEquals(m_manifest.get().DefaultLocalization.Locale, shadowManifest.DefaultLocalization.Locale))
             {
                 // Icons
                 if (!m_manifest.get().DefaultLocalization.Contains(Localization::Icons) &&
@@ -1192,7 +1192,7 @@ namespace AppInstaller::Manifest
                 for (auto const& shadowLocalization : shadowManifest.Localizations)
                 {
                     // Manifest
-                    if (auto iter = std::find_if(m_manifest.get().Localizations.begin(), m_manifest.get().Localizations.end(), [&](auto const& l) { return l.Locale == shadowLocalization.Locale; }); iter != m_manifest.get().Localizations.end())
+                    if (auto iter = std::find_if(m_manifest.get().Localizations.begin(), m_manifest.get().Localizations.end(), [&](auto const& l) { return Utility::ICUCaseInsensitiveEquals(l.Locale, shadowLocalization.Locale); }); iter != m_manifest.get().Localizations.end())
                     {
                         if (!(*iter).Contains(Localization::Icons) &&
                             shadowLocalization.Contains(Localization::Icons))
@@ -1211,7 +1211,7 @@ namespace AppInstaller::Manifest
                 auto shadowLocalizationsNode = shadowNode["Localization"];
                 if (m_p_localizationsNode)
                 {
-                    m_rootNode.get()["Localization"].MergeSequenceNode(shadowLocalizationsNode, "PackageLocale");
+                    m_rootNode.get()["Localization"].MergeSequenceNode(shadowLocalizationsNode, "PackageLocale", true);
                 }
                 else
                 {

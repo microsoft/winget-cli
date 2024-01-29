@@ -1829,6 +1829,19 @@ TEST_CASE("YamlMergeNode", "[YAML]")
 
     // Internally will call MergeMappingNode.
     document["StrawHats"].MergeSequenceNode(document2["StrawHats"], "Name");
+    REQUIRE(5 == document["StrawHats"].size());
+}
+
+TEST_CASE("YamlMergeNode_CaseInsensitive", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Merge.yaml"));
+    auto document2 = Load(TestDataFile("Node-Merge2.yaml"));
+
+    REQUIRE(3 == document["StrawHats"].size());
+    REQUIRE(2 == document2["StrawHats"].size());
+
+    // Internally will call MergeMappingNode.
+    document["StrawHats"].MergeSequenceNode(document2["StrawHats"], "Name", true);
     REQUIRE(4 == document["StrawHats"].size());
 
     auto luffy = std::find_if(

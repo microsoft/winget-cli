@@ -106,7 +106,7 @@ namespace AppInstaller::YAML
 
         // Merges sequence nodes. If both sequence have the specified key with the same value
         // they will get merged together. All elements in sequence must have the key.
-        void MergeSequenceNode(Node& other, std::string_view key);
+        void MergeSequenceNode(Node& other, std::string_view key, bool caseInsensitive = false);
 
         // Adds a child node to the mapping.
         template <typename... Args>
