@@ -360,6 +360,7 @@ REGSAM
 relativefilepath
 remoting
 reparse
+repeatedkey
 restsource
 RGBQUAD
 rgex
