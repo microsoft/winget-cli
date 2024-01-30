@@ -45,6 +45,8 @@ namespace AppInstaller::Authentication
     {
         std::lock_guard<std::mutex> lock{ m_authLock };
 
+        AuthenticationResult result;
+
         if (!m_authenticatedAccount)
         {
             // This is the first time invocation or previous authentication failed
@@ -58,32 +60,31 @@ namespace AppInstaller::Authentication
 
             if (m_authArgs.Mode == AuthenticationMode::Interactive)
             {
-                return GetToken(webAccount, true);
+                result = GetToken(webAccount, true);
             }
             else if (m_authArgs.Mode == AuthenticationMode::SilentPreferred)
             {
-                auto authResult = GetTokenSilent(webAccount);
-                if (FAILED(authResult.Status))
+                result = GetTokenSilent(webAccount);
+                if (FAILED(result.Status))
                 {
-                    authResult = GetToken(webAccount);
+                    result = GetToken(webAccount);
                 }
-                return authResult;
             }
             else if (m_authArgs.Mode == AuthenticationMode::Silent)
             {
-                return GetTokenSilent(webAccount);
+                result = GetTokenSilent(webAccount);
             }
         }
         else
         {
-            auto authResult = GetTokenSilent(m_authenticatedAccount);
-            if (FAILED(authResult.Status) && m_authArgs.Mode != AuthenticationMode::Silent)
+            result = GetTokenSilent(m_authenticatedAccount);
+            if (FAILED(result.Status) && m_authArgs.Mode != AuthenticationMode::Silent)
             {
-                authResult = GetToken(m_authenticatedAccount);
+                result = GetToken(m_authenticatedAccount);
             }
-
-            return authResult;
         }
+
+        return result;
     }
 
     WebAccount WebAccountManagerAuthenticator::FindWebAccount(std::string_view accountName)
@@ -155,24 +156,31 @@ namespace AppInstaller::Authentication
         auto authManagerFactory = winrt::get_activation_factory<WebAuthenticationCoreManager>();
         winrt::com_ptr<IWebAuthenticationCoreManagerInterop> authManagerInterop{ authManagerFactory.as<IWebAuthenticationCoreManagerInterop>() };
 
-        HRESULT requestOperationResult = S_OK;
-        if (webAccount)
+        HRESULT requestOperationResult = APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED;
+
+        try
         {
-            requestOperationResult = authManagerInterop->RequestTokenWithWebAccountForWindowAsync(
-                GetForegroundWindow(),
-                request.as<::IInspectable>().get(),
-                webAccount.as<::IInspectable>().get(),
-                iidAsyncRequestResult,
-                reinterpret_cast<void**>(&requestOperation));
+            AuthenticationWindowBase parentWindow;
+
+            if (webAccount)
+            {
+                requestOperationResult = authManagerInterop->RequestTokenWithWebAccountForWindowAsync(
+                    parentWindow.GetHandle(),
+                    request.as<::IInspectable>().get(),
+                    webAccount.as<::IInspectable>().get(),
+                    iidAsyncRequestResult,
+                    reinterpret_cast<void**>(&requestOperation));
+            }
+            else
+            {
+                requestOperationResult = authManagerInterop->RequestTokenForWindowAsync(
+                    parentWindow.GetHandle(),
+                    request.as<::IInspectable>().get(),
+                    iidAsyncRequestResult,
+                    reinterpret_cast<void**>(&requestOperation));
+            }
         }
-        else
-        {
-            requestOperationResult = authManagerInterop->RequestTokenForWindowAsync(
-                GetForegroundWindow(),
-                request.as<::IInspectable>().get(),
-                iidAsyncRequestResult,
-                reinterpret_cast<void**>(&requestOperation));
-        }
+        CATCH_LOG()
 
         if (FAILED(requestOperationResult))
         {
@@ -231,7 +239,6 @@ namespace AppInstaller::Authentication
             {
 
             }
-
             result.Status = APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED;
         }
         else if (requestResult.ResponseStatus() == WebTokenRequestStatus::UserCancel)

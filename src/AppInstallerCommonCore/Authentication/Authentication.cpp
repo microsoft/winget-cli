@@ -44,14 +44,104 @@ namespace AppInstaller::Authentication
         return true;
     }
 
-    AuthenticationWindowBase AuthenticationWindowBase::Create()
+    AuthenticationWindowBase::AuthenticationWindowBase()
     {
-        return AuthenticationWindowBase();
+        InitializeWindowThread();
     }
 
     HWND AuthenticationWindowBase::GetHandle()
     {
-        return m_windowHandle.get();
+        return m_windowHandle;
+    }
+
+    AuthenticationWindowBase::~AuthenticationWindowBase()
+    {
+        if (!PostThreadMessageW(m_windowThreadId, WM_CLOSE, 0, 0))
+        {
+            m_terminateWindowThread = true;
+        }
+
+        m_windowThread.join();
+    }
+
+    void AuthenticationWindowBase::InitializeWindowThread()
+    {
+        static std::once_flag s_registerWindowClassOnce;
+        static LPCWSTR s_windowsClassName = L"WingetAuthenticationParentWindowClass";
+        static HMODULE hModule = GetModuleHandle(NULL);
+        THROW_LAST_ERROR_IF_NULL_MSG(hModule, "Failed to get resource module for authentication window");
+
+        std::call_once(s_registerWindowClassOnce,
+            [&]()
+            {
+                WNDCLASS wc = {};
+                wc.lpfnWndProc = AuthenticationWindowBase::WindowProcessFunction;
+                wc.hInstance = hModule;
+                wc.lpszClassName = s_windowsClassName;
+                THROW_LAST_ERROR_IF_MSG(!RegisterClassW(&wc), "Failed to get resource module for authentication window");
+            });
+
+        wil::unique_event waitForWindowReady;
+        waitForWindowReady.create();
+
+        m_windowThread = std::thread(
+            [&]()
+            {
+                m_windowHandle = CreateWindowW(
+                    s_windowsClassName,
+                    L"WingetAuthenticationParentWindow",
+                    WS_OVERLAPPEDWINDOW,
+                    0, 0, 0, 0, /* size and position */
+                    NULL, /* hWndParent */
+                    NULL, /* hMenu */
+                    hModule,
+                    NULL); /* lpParam */
+                THROW_LAST_ERROR_IF_NULL_MSG(hModule, "Failed to create authentication parent window");
+
+                // Best effort only
+                SetForegroundWindow(m_windowHandle);
+
+                m_windowThreadId = GetCurrentThreadId();
+
+                // Set window ready event
+                waitForWindowReady.SetEvent();
+
+                // Message loop
+                MSG msg;
+                BOOL getMsgResult;
+                while ((getMsgResult = GetMessage(&msg, NULL, 0, 0)) != 0)
+                {
+                    if (m_terminateWindowThread || getMsgResult == -1)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        TranslateMessage(&msg);
+                        DispatchMessage(&msg);
+                    }
+                }
+            });
+
+        THROW_HR_IF_MSG(APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED, !waitForWindowReady.wait(10000), "Creating authentication parent window timed out");
+    }
+
+    LRESULT __stdcall AuthenticationWindowBase::WindowProcessFunction(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    {
+        switch (uMsg)
+        {
+        case WM_ENDSESSION:
+        case WM_CLOSE:
+            DestroyWindow(hWnd);
+            break;
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            break;
+        default:
+            return DefWindowProc(hWnd, uMsg, wParam, lParam);
+        }
+
+        return 0;
     }
 
     std::string_view AuthenticationTypeToString(AuthenticationType in)

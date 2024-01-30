@@ -118,10 +118,13 @@ namespace AppInstaller::Authentication
         ~AuthenticationWindowBase();
 
     private:
-        wil::unique_event m_windowReady;
-        wil::unique_hwnd m_windowHandle;
+        HWND m_windowHandle;
+        DWORD m_windowThreadId;
         std::thread m_windowThread;
+        // In case PostThreadMessage() fails, let window thread exit immediately.
+        std::atomic<bool> m_terminateWindowThread = false;
 
+        void InitializeWindowThread();
         static LRESULT WINAPI WindowProcessFunction(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     };
 
