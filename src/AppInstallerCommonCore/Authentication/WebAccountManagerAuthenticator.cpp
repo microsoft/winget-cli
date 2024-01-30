@@ -157,30 +157,24 @@ namespace AppInstaller::Authentication
         winrt::com_ptr<IWebAuthenticationCoreManagerInterop> authManagerInterop{ authManagerFactory.as<IWebAuthenticationCoreManagerInterop>() };
 
         HRESULT requestOperationResult = APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED;
-
-        try
+        AuthenticationWindowBase parentWindow;
+        if (webAccount)
         {
-            AuthenticationWindowBase parentWindow;
-
-            if (webAccount)
-            {
-                requestOperationResult = authManagerInterop->RequestTokenWithWebAccountForWindowAsync(
-                    parentWindow.GetHandle(),
-                    request.as<::IInspectable>().get(),
-                    webAccount.as<::IInspectable>().get(),
-                    iidAsyncRequestResult,
-                    reinterpret_cast<void**>(&requestOperation));
-            }
-            else
-            {
-                requestOperationResult = authManagerInterop->RequestTokenForWindowAsync(
-                    parentWindow.GetHandle(),
-                    request.as<::IInspectable>().get(),
-                    iidAsyncRequestResult,
-                    reinterpret_cast<void**>(&requestOperation));
-            }
+            requestOperationResult = authManagerInterop->RequestTokenWithWebAccountForWindowAsync(
+                parentWindow.GetHandle(),
+                request.as<::IInspectable>().get(),
+                webAccount.as<::IInspectable>().get(),
+                iidAsyncRequestResult,
+                reinterpret_cast<void**>(&requestOperation));
         }
-        CATCH_LOG()
+        else
+        {
+            requestOperationResult = authManagerInterop->RequestTokenForWindowAsync(
+                parentWindow.GetHandle(),
+                request.as<::IInspectable>().get(),
+                iidAsyncRequestResult,
+                reinterpret_cast<void**>(&requestOperation));
+        }
 
         if (FAILED(requestOperationResult))
         {

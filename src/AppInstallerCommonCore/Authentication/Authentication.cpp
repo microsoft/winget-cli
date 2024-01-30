@@ -19,7 +19,7 @@ namespace AppInstaller::Authentication
         THROW_HR_IF(E_UNEXPECTED, args.Mode == AuthenticationMode::Unknown);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED, info.Type == AuthenticationType::Unknown);
         THROW_HR_IF(E_UNEXPECTED, info.Type == AuthenticationType::None);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO, info.ValidateIntegrity());
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO, !info.ValidateIntegrity());
 
         if (info.Type == AuthenticationType::MicrosoftEntraId)
         {
@@ -56,12 +56,15 @@ namespace AppInstaller::Authentication
 
     AuthenticationWindowBase::~AuthenticationWindowBase()
     {
-        if (!PostThreadMessageW(m_windowThreadId, WM_CLOSE, 0, 0))
+        if (!PostMessageW(m_windowHandle, WM_CLOSE, 0, 0))
         {
             m_terminateWindowThread = true;
         }
 
-        m_windowThread.join();
+        if (m_windowThread.joinable())
+        {
+            m_windowThread.join();
+        }
     }
 
     void AuthenticationWindowBase::InitializeWindowThread()
