@@ -469,7 +469,7 @@ namespace AppInstaller::YAML
         other.Require(Type::Sequence);
 
         auto getKeyValue = [caseInsensitive](const YAML::Node& node, std::string_view key) {
-            auto keyNode = node.GetChildNode(key);
+            auto keyNode = caseInsensitive ? node.GetChildNode(key) : node[key];
             if (keyNode.IsNull())
             {
                 THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);

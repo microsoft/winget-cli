@@ -1828,7 +1828,7 @@ TEST_CASE("YamlMergeNode", "[YAML]")
     REQUIRE(2 == document2["StrawHats"].size());
 
     // Internally will call MergeMappingNode.
-    document["StrawHats"].MergeSequenceNode(document2["StrawHats"], "Name");
+    document["StrawHats"].MergeSequenceNode(document2["StrawHats"], "Bounty");
     REQUIRE(5 == document["StrawHats"].size());
 }
 
