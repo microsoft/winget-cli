@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <optional>
+#include "AppInstallerErrors.h"
 
 namespace AppInstaller::Authentication
 {
@@ -50,7 +51,6 @@ namespace AppInstaller::Authentication
     struct AuthenticationInfo
     {
         AuthenticationType Type = AuthenticationType::None;
-
         std::optional<MicrosoftEntraIdAuthenticationInfo> MicrosoftEntraIdInfo;
 
         bool ValidateIntegrity();
@@ -65,12 +65,66 @@ namespace AppInstaller::Authentication
         std::string AuthenticationAccount;
     };
 
+    // The authentication result
+    struct AuthenticationResult
+    {
+        // Default to failed. S_OK on authentication success.
+        HRESULT Status = APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED;
+
+        // The token result on authentication success.
+        std::string Token;
+    };
+
+    // Individual authentication provider interface. Authenticator will delegate authentication to authentication provider.
+    struct IAuthenticationProvider
+    {
+        virtual ~IAuthenticationProvider() = default;
+
+        // Authenticate and return string result.
+        virtual AuthenticationResult AuthenticateForToken() = 0;
+    };
+
+    // The authenticator
     struct Authenticator
     {
         Authenticator(AuthenticationInfo info, AuthenticationArguments args);
 
-        std::string AuthenticateForToken();
+        // Authenticate and return string result.
+        AuthenticationResult AuthenticateForToken();
+
+    private:
+        std::unique_ptr<IAuthenticationProvider> m_authProvider;
     };
 
+    // This is the class for authentication window parent window.
+    // When authenticating interactively, some api needs handle to a parent window.
+    // This class will initiate a new thread and create a hidden window but with foreground priority (best effort).
+    // This class handles terminating the window sthread on destruction
+    struct AuthenticationWindowBase
+    {
+        // The constructor will initiate the authentication parent window and thread
+        AuthenticationWindowBase();
+
+        AuthenticationWindowBase(const AuthenticationWindowBase&) = delete;
+        AuthenticationWindowBase& operator=(const AuthenticationWindowBase&) = delete;
+
+        AuthenticationWindowBase(AuthenticationWindowBase&&) = delete;
+        AuthenticationWindowBase& operator=(AuthenticationWindowBase&&) = delete;
+
+        // Get the native window handle
+        HWND GetHandle();
+
+        // The destructor will terminate the authentication parent window and thread
+        ~AuthenticationWindowBase();
+
+    private:
+        wil::unique_event m_windowReady;
+        wil::unique_hwnd m_windowHandle;
+        std::thread m_windowThread;
+
+        static LRESULT WINAPI WindowProcessFunction(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    };
+
+    // Create bearer token from a raw token
     std::string CreateBearerToken(std::string rawToken);
 }

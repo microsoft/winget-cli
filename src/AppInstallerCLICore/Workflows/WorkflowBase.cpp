@@ -259,7 +259,7 @@ namespace AppInstaller::CLI::Workflow
 
     Authentication::AuthenticationArguments GetAuthenticationArguments(const Execution::Context& context)
     {
-        ::AppInstaller::Authentication::AuthenticationArguments authArgs;
+        AppInstaller::Authentication::AuthenticationArguments authArgs;
 
         if (context.Args.Contains(Execution::Args::Type::AuthenticationMode))
         {

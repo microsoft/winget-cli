@@ -40,7 +40,13 @@ namespace AppInstaller::Repository::Rest::Schema::V1_7
 
         if (m_information.Authentication.Type == Authentication::AuthenticationType::MicrosoftEntraId)
         {
-            result.insert_or_assign(web::http::header_names::authorization, JSON::GetUtilityString(m_authenticator->AuthenticateForToken()));
+            auto authResult = m_authenticator->AuthenticateForToken();
+            if (FAILED(authResult.Status))
+            {
+                AICLI_LOG(Repo, Error, << "Authentication failed. Result: " << authResult.Status);
+                THROW_HR(authResult.Status);
+            }
+            result.insert_or_assign(web::http::header_names::authorization, JSON::GetUtilityString(authResult.Token));
         }
 
         return result;
