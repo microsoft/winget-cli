@@ -469,14 +469,14 @@ namespace AppInstaller::YAML
         other.Require(Type::Sequence);
 
         auto getKeyValue = [caseInsensitive](const YAML::Node& node, std::string_view key) {
-                auto keyNode = node[key];
-                if (keyNode.IsNull())
-                {
-                    THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
-                }
+            auto keyNode = node.GetChildNode(key);
+            if (keyNode.IsNull())
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
+            }
 
-                auto keyValue = keyNode.as<std::string>();
-                return caseInsensitive ? std::string{ Utility::FoldCase(std::string_view{keyValue}) } : keyValue;
+            auto keyValue = keyNode.as<std::string>();
+            return caseInsensitive ? std::string{ Utility::FoldCase(std::string_view{keyValue}) } : keyValue;
         };
 
         std::map<std::string, Node> newSequenceMap;
