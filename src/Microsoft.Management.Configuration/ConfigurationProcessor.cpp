@@ -502,8 +502,24 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             auto applyOperation = groupProcessor.ApplyGroupSettingsAsync();
 
             // Forward unit result progress to caller
+            bool firstProgressStateTransfer = true;
             applyOperation.Progress([&](const auto&, const IApplyGroupMemberSettingsResult& unitResult)
                 {
+                    // Copy the current state over to our result on the first progress callback in case any were missed
+                    if (firstProgressStateTransfer)
+                    {
+                        for (const IApplyGroupMemberSettingsResult& initialResult : applyOperation.GetResults().UnitResults())
+                        {
+                            auto itr = unitResultMap.find(initialResult.Unit().InstanceIdentifier());
+                            if (itr != unitResultMap.end())
+                            {
+                                itr->second->Initialize(initialResult);
+                            }
+                        }
+
+                        firstProgressStateTransfer = false;
+                    }
+
                     // Update overall result
                     auto itr = unitResultMap.find(unitResult.Unit().InstanceIdentifier());
                     if (itr != unitResultMap.end())
@@ -600,10 +616,25 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             auto testOperation = groupProcessor.TestGroupSettingsAsync();
 
             // Forward unit result progress to caller
+            bool firstProgressStateTransfer = true;
             testOperation.Progress([&](const auto&, const ITestSettingsResult& unitResult)
                 {
+                    // Copy the current state over to our result on the first progress callback in case any were missed
+                    if (firstProgressStateTransfer)
+                    {
+                        for (const ITestSettingsResult& initialResult : testOperation.GetResults().UnitResults())
+                        {
+                            auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
+                            testResult->Initialize(initialResult);
+                            result->AppendUnitResult(*testResult);
+                        }
+
+                        firstProgressStateTransfer = false;
+                    }
+
                     auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
                     testResult->Initialize(unitResult);
+                    result->AppendUnitResult(*testResult);
                     progress.Progress(*testResult);
                 });
 
@@ -612,7 +643,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             ITestGroupSettingsResult testResult = testOperation.get();
 
-            // Place all results from the processor into our result
+            // Send telemetry for all results
             for (const ITestSettingsResult& unitResult : testResult.UnitResults())
             {
                 auto testUnitResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
@@ -624,8 +655,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     ConfigurationUnitIntent::Assert,
                     TelemetryTraceLogger::TestAction,
                     testUnitResult->ResultInformation());
-
-                result->AppendUnitResult(*testUnitResult);
             }
 
             m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForTest(*winrt::get_self<implementation::ConfigurationSet>(configurationSet), *result);
