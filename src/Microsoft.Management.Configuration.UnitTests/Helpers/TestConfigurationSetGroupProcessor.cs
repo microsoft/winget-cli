@@ -50,10 +50,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <summary>
         /// Apply settings for the group.
         /// </summary>
+        /// <param name="progressHandler">The progress handler.</param>
         /// <returns>The operation to apply settings.</returns>
-        public IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult> ApplyGroupSettingsAsync()
+        public IAsyncOperation<IApplyGroupSettingsResult> ApplyGroupSettingsAsync(EventHandler<IApplyGroupMemberSettingsResult> progressHandler)
         {
-            return AsyncInfo.Run((CancellationToken cancellationToken, IProgress<IApplyGroupMemberSettingsResult> progress) => Task.Run<IApplyGroupSettingsResult>(() =>
+            return AsyncInfo.Run((CancellationToken cancellationToken) => Task.Run<IApplyGroupSettingsResult>(() =>
             {
                 this.WaitOnAsyncEvent(cancellationToken);
 
@@ -62,7 +63,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 
                 if (this.Set != null)
                 {
-                    TestConfigurationUnitGroupProcessor.ApplyGroupSettings(this.Set.Units, progress, result);
+                    TestConfigurationUnitGroupProcessor.ApplyGroupSettings(this.Set.Units, progressHandler, result);
                 }
 
                 return result;
@@ -72,10 +73,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <summary>
         /// Test settings for the group.
         /// </summary>
+        /// <param name="progressHandler">The progress handler.</param>
         /// <returns>The operation to test settings.</returns>
-        public IAsyncOperationWithProgress<ITestGroupSettingsResult, ITestSettingsResult> TestGroupSettingsAsync()
+        public IAsyncOperation<ITestGroupSettingsResult> TestGroupSettingsAsync(EventHandler<ITestSettingsResult> progressHandler)
         {
-            return AsyncInfo.Run((CancellationToken cancellationToken, IProgress<ITestSettingsResult> progress) => Task.Run<ITestGroupSettingsResult>(() =>
+            return AsyncInfo.Run((CancellationToken cancellationToken) => Task.Run<ITestGroupSettingsResult>(() =>
             {
                 this.WaitOnAsyncEvent(cancellationToken);
 
@@ -85,7 +87,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
                 if (this.Set != null)
                 {
                     result.TestResult = TestConfigurationUnitGroupProcessor.GetTestResult(this.Set.Metadata);
-                    TestConfigurationUnitGroupProcessor.TestGroupSettings(this.Set.Units, progress, result);
+                    TestConfigurationUnitGroupProcessor.TestGroupSettings(this.Set.Units, progressHandler, result);
                 }
 
                 return result;
