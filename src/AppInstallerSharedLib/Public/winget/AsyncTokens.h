@@ -118,6 +118,29 @@ namespace AppInstaller::WinRT
         private:
             Token m_token;
         };
+
+        // Type containing winrt EventHandler.
+        template <typename ResultT, typename ProgressT>
+        struct AsyncProgressEventHandlerT : public AsyncProgressTypeErasure<ResultT, ProgressT>
+        {
+            using Token = winrt::Windows::Foundation::EventHandler<ProgressT>;
+
+            AsyncProgressEventHandlerT(Token&& token) : m_token(std::move(token)) {}
+
+            void Progress(ProgressT const& progress) const override
+            {
+                m_token(m_result, progress);
+            }
+
+            void Result(ResultT const& result) const override
+            {
+                m_result = result;
+            }
+
+        private:
+            mutable ResultT m_result = nullptr;
+            Token m_token;
+        };
     }
 
     // May hold a progress token and provide the ability to send progress updates.
@@ -134,6 +157,14 @@ namespace AppInstaller::WinRT
             AsyncCancellation(std::move(cancellation))
         {
             m_token = std::make_unique<details::AsyncProgressT<Promise, ResultT, ProgressT>>(std::move(progress));
+        }
+
+        // Create a progress object from an EventHandler.
+        template <typename Promise>
+        AsyncProgress(winrt::Windows::Foundation::EventHandler<ProgressT>&& progress, winrt::impl::cancellation_token<Promise>&& cancellation) :
+            AsyncCancellation(std::move(cancellation))
+        {
+            m_token = std::make_unique<details::AsyncProgressEventHandlerT<ResultT, ProgressT>>(std::move(progress));
         }
 
         // Sends progress if this object is not empty.

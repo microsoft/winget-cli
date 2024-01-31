@@ -198,6 +198,7 @@
   <ItemGroup>
     <ClInclude Include="ApplyConfigurationSetResult.h" />
     <ClInclude Include="ApplyConfigurationUnitResult.h" />
+    <ClInclude Include="ApplyGroupSettingsResult.h" />
     <ClInclude Include="ArgumentValidation.h" />
     <ClInclude Include="ConfigThreadGlobals.h" />
     <ClInclude Include="ConfigurationChangeData.h" />
@@ -216,6 +217,7 @@
     <ClInclude Include="ConfigurationStaticFunctions.h" />
     <ClInclude Include="ConfigurationUnit.h" />
     <ClInclude Include="ConfigurationUnitResultInformation.h" />
+    <ClInclude Include="DefaultSetGroupProcessor.h" />
     <ClInclude Include="DiagnosticInformationInstance.h" />
     <ClInclude Include="ExceptionResultHelpers.h" />
     <ClInclude Include="GetAllConfigurationUnitSettingsResult.h" />
@@ -229,10 +231,13 @@
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="TestConfigurationSetResult.h" />
     <ClInclude Include="TestConfigurationUnitResult.h" />
+    <ClInclude Include="TestGroupSettingsResult.h" />
+    <ClInclude Include="TestSettingsResult.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplyConfigurationSetResult.cpp" />
     <ClCompile Include="ApplyConfigurationUnitResult.cpp" />
+    <ClCompile Include="ApplyGroupSettingsResult.cpp" />
     <ClCompile Include="ArgumentValidation.cpp" />
     <ClCompile Include="ConfigThreadGlobals.cpp" />
     <ClCompile Include="ConfigurationChangeData.cpp" />
@@ -250,6 +255,7 @@
     <ClCompile Include="ConfigurationStaticFunctions.cpp" />
     <ClCompile Include="ConfigurationUnit.cpp" />
     <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
+    <ClCompile Include="DefaultSetGroupProcessor.cpp" />
     <ClCompile Include="DiagnosticInformationInstance.cpp" />
     <ClCompile Include="GetAllConfigurationUnitSettingsResult.cpp" />
     <ClCompile Include="GetConfigurationSetDetailsResult.cpp" />
@@ -264,6 +270,8 @@
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="TestConfigurationSetResult.cpp" />
     <ClCompile Include="TestConfigurationUnitResult.cpp" />
+    <ClCompile Include="TestGroupSettingsResult.cpp" />
+    <ClCompile Include="TestSettingsResult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Microsoft_Management_Configuration.def" />

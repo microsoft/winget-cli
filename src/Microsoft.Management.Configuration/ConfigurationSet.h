@@ -74,11 +74,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring m_path;
         guid m_instanceIdentifier;
         clock::time_point m_firstApply{};
-        Windows::Foundation::Collections::IVector<ConfigurationUnit> m_units{ winrt::single_threaded_vector<ConfigurationUnit>() };
+        Windows::Foundation::Collections::IVector<ConfigurationUnit> m_units{ winrt::multi_threaded_vector<ConfigurationUnit>() };
         hstring m_schemaVersion;
         winrt::event<Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>> m_configurationSetChange;
         Windows::Foundation::Collections::ValueSet m_metadata;
-        Windows::Foundation::Collections::IVector<ConfigurationParameter> m_parameters{ winrt::single_threaded_vector<ConfigurationParameter>() };
+        Windows::Foundation::Collections::IVector<ConfigurationParameter> m_parameters{ winrt::multi_threaded_vector<ConfigurationParameter>() };
         Windows::Foundation::Collections::ValueSet m_variables;
         Windows::Foundation::Uri m_schemaUri = nullptr;
 #endif

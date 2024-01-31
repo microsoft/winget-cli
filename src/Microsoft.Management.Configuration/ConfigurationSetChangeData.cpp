@@ -35,6 +35,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_unit = unit;
     }
 
+    void ConfigurationSetChangeData::Initialize(const IApplyGroupMemberSettingsResult& unitResult)
+    {
+        m_change = ConfigurationSetChangeEventType::UnitStateChanged;
+        m_setState = ConfigurationSetState::InProgress;
+        m_unitState = unitResult.State();
+        m_resultInformation = unitResult.ResultInformation();
+        m_unit = unitResult.Unit();
+    }
+
     ConfigurationSetChangeEventType ConfigurationSetChangeData::Change()
     {
         return m_change;

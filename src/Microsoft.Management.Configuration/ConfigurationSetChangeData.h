@@ -18,6 +18,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         void Initialize(ConfigurationSetState state);
         void Initialize(ConfigurationUnitState state, IConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit);
+        void Initialize(const IApplyGroupMemberSettingsResult& unitResult);
 #endif
 
         ConfigurationSetChangeEventType Change();

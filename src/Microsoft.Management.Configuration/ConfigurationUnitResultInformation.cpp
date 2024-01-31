@@ -29,10 +29,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationUnitResultInformation::Initialize(const Configuration::IConfigurationUnitResultInformation& other)
     {
-        m_resultCode = other.ResultCode();
-        m_description = other.Description();
-        m_details = other.Details();
-        m_resultSource = other.ResultSource();
+        if (other)
+        {
+            m_resultCode = other.ResultCode();
+            m_description = other.Description();
+            m_details = other.Details();
+            m_resultSource = other.ResultSource();
+        }
     }
 
     void ConfigurationUnitResultInformation::Initialize(hresult resultCode, std::wstring_view description)
