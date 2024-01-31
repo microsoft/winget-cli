@@ -250,6 +250,7 @@
     <ClCompile Include="RestInterface_1_4.cpp" />
     <ClCompile Include="RestInterface_1_5.cpp" />
     <ClCompile Include="RestInterface_1_6.cpp" />
+    <ClCompile Include="RestInterface_1_7.cpp" />
     <ClCompile Include="ResumeFlow.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="SearchRequestSerializer.cpp" />

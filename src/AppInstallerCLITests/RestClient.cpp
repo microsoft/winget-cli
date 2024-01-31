@@ -51,7 +51,21 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
 
     // Update this test to next version so that we don't forget to add to supported versions before rest e2e tests are available.
     Version invalid{ "1.8.0" };
-    REQUIRE_THROWS(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, invalid));
+    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, invalid), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
+
+    Authentication::AuthenticationArguments authArgs;
+    authArgs.Mode = Authentication::AuthenticationMode::Silent;
+    Version version_1_7{ "1.7.0" };
+
+    // GetSupportedInterface throws on unknown authentication type.
+    IRestClient::Information infoWithUnknownAuthenticationType{ "TestId", { "1.7.0" } };
+    infoWithUnknownAuthenticationType.Authentication.Type = Authentication::AuthenticationType::Unknown;
+    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, infoWithUnknownAuthenticationType, authArgs, version_1_7), APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+
+    // GetSupportedInterface throws on invalid authentication info.
+    IRestClient::Information infoWithInvalidAuthenticationInfo{ "TestId", { "1.7.0" } };
+    infoWithInvalidAuthenticationInfo.Authentication.Type = Authentication::AuthenticationType::MicrosoftEntraId;
+    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, infoWithInvalidAuthenticationInfo, authArgs, version_1_7), APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO);
 }
 
 TEST_CASE("GetInformation_Success", "[RestSource]")
@@ -62,7 +76,8 @@ TEST_CASE("GetInformation_Success", "[RestSource]")
               "SourceIdentifier": "Source123",
               "ServerSupportedVersions": [
                 "1.0.0",
-                "1.1.0"],
+                "1.1.0"
+               ],
               "SourceAgreements": {
                 "AgreementsIdentifier": "agreementV1",
                 "Agreements": [{
@@ -105,6 +120,71 @@ TEST_CASE("GetInformation_Success", "[RestSource]")
     REQUIRE(information.UnsupportedQueryParameters.at(0) == "Moniker");
     REQUIRE(information.UnsupportedPackageMatchFields.size() == 1);
     REQUIRE(information.UnsupportedPackageMatchFields.at(0) == "Moniker");
+    REQUIRE(information.Authentication.Type == Authentication::AuthenticationType::None);
+    REQUIRE_FALSE(information.Authentication.MicrosoftEntraIdInfo.has_value());
+}
+
+TEST_CASE("GetInformation_WithAuthenticationInfo_Success", "[RestSource]")
+{
+    utility::string_t sample = _XPLATSTR(
+        R"delimiter({
+            "Data" : {
+              "SourceIdentifier": "Source123",
+              "ServerSupportedVersions": [
+                "1.7.0"
+               ],
+              "SourceAgreements": {
+                "AgreementsIdentifier": "agreementV1",
+                "Agreements": [{
+                    "AgreementLabel": "EULA",
+                    "Agreement": "this is store agreement",
+                    "AgreementUrl": "https://store.agreement"
+                  }
+                ]
+              },
+              "RequiredQueryParameters": [
+                "Market"
+              ],
+              "RequiredPackageMatchFields": [
+                "Market"
+              ],
+              "UnsupportedQueryParameters": [
+                "Moniker"
+              ],
+              "UnsupportedPackageMatchFields": [
+                "Moniker"
+              ],
+              "Authentication": {
+                "AuthenticationType": "microsoftEntraId",
+                "MicrosoftEntraIdAuthenticationInfo" : {
+                  "Resource": "GUID",
+                  "Scope" : "test"
+                }
+              }
+        }})delimiter");
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
+    IRestClient::Information information = RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper));
+    REQUIRE(information.SourceIdentifier == "Source123");
+    REQUIRE(information.ServerSupportedVersions.size() == 1);
+    REQUIRE(information.ServerSupportedVersions.at(0) == "1.7.0");
+    REQUIRE(information.SourceAgreementsIdentifier == "agreementV1");
+    REQUIRE(information.SourceAgreements.size() == 1);
+    REQUIRE(information.SourceAgreements.at(0).Label == "EULA");
+    REQUIRE(information.SourceAgreements.at(0).Text == "this is store agreement");
+    REQUIRE(information.SourceAgreements.at(0).Url == "https://store.agreement");
+    REQUIRE(information.RequiredQueryParameters.size() == 1);
+    REQUIRE(information.RequiredQueryParameters.at(0) == "Market");
+    REQUIRE(information.RequiredPackageMatchFields.size() == 1);
+    REQUIRE(information.RequiredPackageMatchFields.at(0) == "Market");
+    REQUIRE(information.UnsupportedQueryParameters.size() == 1);
+    REQUIRE(information.UnsupportedQueryParameters.at(0) == "Moniker");
+    REQUIRE(information.UnsupportedPackageMatchFields.size() == 1);
+    REQUIRE(information.UnsupportedPackageMatchFields.at(0) == "Moniker");
+    REQUIRE(information.Authentication.Type == Authentication::AuthenticationType::MicrosoftEntraId);
+    REQUIRE(information.Authentication.MicrosoftEntraIdInfo.has_value());
+    REQUIRE(information.Authentication.MicrosoftEntraIdInfo->Resource == "GUID");
+    REQUIRE(information.Authentication.MicrosoftEntraIdInfo->Scope == "test");
 }
 
 TEST_CASE("GetInformation_Fail_AgreementsWithoutIdentifier", "[RestSource]")
@@ -130,6 +210,61 @@ TEST_CASE("GetInformation_Fail_AgreementsWithoutIdentifier", "[RestSource]")
     REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
+TEST_CASE("GetInformation_Fail_InvalidMicrosoftEntraIdInfo", "[RestSource]")
+{
+    utility::string_t sample1 = _XPLATSTR(
+        R"delimiter({
+            "Data" : {
+              "SourceIdentifier": "Source123",
+              "ServerSupportedVersions": [
+                "1.7.0"
+               ],
+              "Authentication": {
+                "AuthenticationType": "microsoftEntraId"
+              }
+        }})delimiter");
+
+    HttpClientHelper helper1{ GetTestRestRequestHandler(web::http::status_codes::OK, sample1) };
+    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper1)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+
+    utility::string_t sample2 = _XPLATSTR(
+        R"delimiter({
+            "Data" : {
+              "SourceIdentifier": "Source123",
+              "ServerSupportedVersions": [
+                "1.7.0"
+               ],
+              "Authentication": {
+                "AuthenticationType": "microsoftEntraId",
+                "MicrosoftEntraIdAuthenticationInfo" : {
+                  "Resource": "",
+                  "Scope" : "test"
+                }
+              }
+        }})delimiter");
+
+    HttpClientHelper helper2{ GetTestRestRequestHandler(web::http::status_codes::OK, sample2) };
+    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper2)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+
+    utility::string_t sample3 = _XPLATSTR(
+        R"delimiter({
+            "Data" : {
+              "SourceIdentifier": "Source123",
+              "ServerSupportedVersions": [
+                "1.7.0"
+               ],
+              "Authentication": {
+                "AuthenticationType": "microsoftEntraId",
+                "MicrosoftEntraIdAuthenticationInfo" : {
+                  "Scope" : "test"
+                }
+              }
+        }})delimiter");
+
+    HttpClientHelper helper3{ GetTestRestRequestHandler(web::http::status_codes::OK, sample3) };
+    REQUIRE_THROWS_HR(RestClient::GetInformation(TestRestUri, {}, {}, std::move(helper3)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+}
+
 TEST_CASE("RestClientCreate_UnsupportedVersion", "[RestSource]")
 {
     utility::string_t sample = _XPLATSTR(
@@ -143,6 +278,49 @@ TEST_CASE("RestClientCreate_UnsupportedVersion", "[RestSource]")
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
     REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+}
+
+TEST_CASE("RestClientCreate_UnsupportedAuthenticatinMethod", "[RestSource]")
+{
+    utility::string_t sample = _XPLATSTR(
+        R"delimiter({
+            "Data" : {
+              "SourceIdentifier": "Source123",
+              "ServerSupportedVersions": [
+                "1.7.0"
+               ],
+              "Authentication": {
+                "AuthenticationType": "unknown"
+              }
+        }})delimiter");
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
+    Authentication::AuthenticationArguments authArgs;
+    authArgs.Mode = Authentication::AuthenticationMode::Silent;
+    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, std::move(authArgs), std::move(helper)), APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+}
+
+TEST_CASE("RestClientCreate_InvalidAuthenticationArguments", "[RestSource]")
+{
+    utility::string_t sample = _XPLATSTR(
+        R"delimiter({
+            "Data" : {
+              "SourceIdentifier": "Source123",
+              "ServerSupportedVersions": [
+                "1.7.0"
+               ],
+              "Authentication": {
+                "AuthenticationType": "microsoftEntraId",
+                "MicrosoftEntraIdAuthenticationInfo" : {
+                  "Resource" : "test"
+                }
+              }
+        }})delimiter");
+
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
+    Authentication::AuthenticationArguments authArgs;
+    authArgs.Mode = Authentication::AuthenticationMode::Unknown;
+    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, std::move(authArgs), std::move(helper)), E_UNEXPECTED);
 }
 
 TEST_CASE("RestClientCreate_1.0_Success", "[RestSource]")
@@ -210,4 +388,68 @@ TEST_CASE("RestClientCreate_1.1_Success", "[RestSource]")
     REQUIRE(information.UnsupportedQueryParameters.at(0) == "Moniker");
     REQUIRE(information.UnsupportedPackageMatchFields.size() == 1);
     REQUIRE(information.UnsupportedPackageMatchFields.at(0) == "Moniker");
+}
+
+TEST_CASE("RestClientCreate_1.7_Success", "[RestSource]")
+{
+    utility::string_t sample = _XPLATSTR(
+        R"delimiter({
+            "Data" : {
+              "SourceIdentifier": "Source123",
+              "ServerSupportedVersions": [
+                "1.7.0"
+               ],
+              "SourceAgreements": {
+                "AgreementsIdentifier": "agreementV1",
+                "Agreements": [{
+                    "AgreementLabel": "EULA",
+                    "Agreement": "this is store agreement",
+                    "AgreementUrl": "https://store.agreement"
+                  }
+                ]
+              },
+              "RequiredQueryParameters": [
+                "Market"
+              ],
+              "RequiredPackageMatchFields": [
+                "Market"
+              ],
+              "UnsupportedQueryParameters": [
+                "Moniker"
+              ],
+              "UnsupportedPackageMatchFields": [
+                "Moniker"
+              ],
+              "Authentication": {
+                "AuthenticationType": "microsoftEntraId",
+                "MicrosoftEntraIdAuthenticationInfo" : {
+                  "Resource": "GUID",
+                  "Scope" : "test"
+                }
+              }
+        }})delimiter");
+
+    Authentication::AuthenticationArguments authArgs;
+    authArgs.Mode = Authentication::AuthenticationMode::Silent;
+    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
+    RestClient client = RestClient::Create(TestRestUri, {}, {}, std::move(authArgs), std::move(helper));
+    REQUIRE(client.GetSourceIdentifier() == "Source123");
+    auto information = client.GetSourceInformation();
+    REQUIRE(information.SourceAgreementsIdentifier == "agreementV1");
+    REQUIRE(information.SourceAgreements.size() == 1);
+    REQUIRE(information.SourceAgreements.at(0).Label == "EULA");
+    REQUIRE(information.SourceAgreements.at(0).Text == "this is store agreement");
+    REQUIRE(information.SourceAgreements.at(0).Url == "https://store.agreement");
+    REQUIRE(information.RequiredQueryParameters.size() == 1);
+    REQUIRE(information.RequiredQueryParameters.at(0) == "Market");
+    REQUIRE(information.RequiredPackageMatchFields.size() == 1);
+    REQUIRE(information.RequiredPackageMatchFields.at(0) == "Market");
+    REQUIRE(information.UnsupportedQueryParameters.size() == 1);
+    REQUIRE(information.UnsupportedQueryParameters.at(0) == "Moniker");
+    REQUIRE(information.UnsupportedPackageMatchFields.size() == 1);
+    REQUIRE(information.UnsupportedPackageMatchFields.at(0) == "Moniker");
+    REQUIRE(information.Authentication.Type == Authentication::AuthenticationType::MicrosoftEntraId);
+    REQUIRE(information.Authentication.MicrosoftEntraIdInfo.has_value());
+    REQUIRE(information.Authentication.MicrosoftEntraIdInfo->Resource == "GUID");
+    REQUIRE(information.Authentication.MicrosoftEntraIdInfo->Scope == "test");
 }

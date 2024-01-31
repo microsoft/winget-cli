@@ -31,10 +31,26 @@ namespace AppInstaller::Authentication
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static AuthenticationResult* s_AuthenticationResult_TestHook_Override = nullptr;
+
+    void TestHook_SetAuthenticationResult_Override(Authentication::AuthenticationResult* authResult)
+    {
+        s_AuthenticationResult_TestHook_Override = authResult;
+    }
+#endif
+
     // Each authentication provider uses its own mechanism for caching.
     // Here we directly call authentication provider to authenticate.
     AuthenticationResult Authenticator::AuthenticateForToken()
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_AuthenticationResult_TestHook_Override)
+        {
+            return *s_AuthenticationResult_TestHook_Override;
+        }
+#endif
+
         THROW_HR_IF(E_UNEXPECTED, !m_authProvider);
 
         return m_authProvider->AuthenticateForToken();

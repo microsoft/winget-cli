@@ -47,7 +47,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_7
                 AICLI_LOG(Repo, Error, << "Authentication failed. Result: " << authResult.Status);
                 THROW_HR_MSG(authResult.Status, "Failed to authenticate for MicrosoftEntraId");
             }
-            result.insert_or_assign(web::http::header_names::authorization, JSON::GetUtilityString(authResult.Token));
+            result.insert_or_assign(web::http::header_names::authorization, JSON::GetUtilityString(Authentication::CreateBearerToken(authResult.Token)));
         }
 
         return result;
