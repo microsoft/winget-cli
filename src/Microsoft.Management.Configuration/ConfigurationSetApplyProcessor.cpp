@@ -423,9 +423,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
                 if (groupProcessor)
                 {
-                    auto applyOperation = groupProcessor.ApplyGroupSettingsAsync();
-
-                    applyOperation.Progress([&](const auto&, const IApplyGroupMemberSettingsResult& unitResult)
+                    auto applyOperation = groupProcessor.ApplyGroupSettingsAsync([&](const auto&, const IApplyGroupMemberSettingsResult& unitResult)
                         {
                             m_progress.Progress(unitResult);
                         });

@@ -572,11 +572,11 @@ namespace Microsoft.Management.Configuration
 
         // Determines if the system is already in the state described by the configuration unit group.
         // Progress is expected for every descendant unit and finally the group unit itself.
-        Windows.Foundation.IAsyncOperationWithProgress<ITestGroupSettingsResult, ITestSettingsResult> TestGroupSettingsAsync();
+        Windows.Foundation.IAsyncOperation<ITestGroupSettingsResult> TestGroupSettingsAsync(Windows.Foundation.EventHandler<ITestSettingsResult> progressHandler);
 
         // Applies the state described in the configuration unit group.
         // Progress is expected for every descendant unit and finally the group unit itself.
-        Windows.Foundation.IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult> ApplyGroupSettingsAsync();
+        Windows.Foundation.IAsyncOperation<IApplyGroupSettingsResult> ApplyGroupSettingsAsync(Windows.Foundation.EventHandler<IApplyGroupMemberSettingsResult> progressHandler);
     }
 
     // The level of the diagnostic information.
