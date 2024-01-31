@@ -62,7 +62,7 @@ namespace AppInstaller::Authentication
     {
         AuthenticationMode Mode = AuthenticationMode::Unknown;
 
-        // Optional. If set, the value will be used to acuquire the specific account and also be validated with authentication result.
+        // Optional. If set, the value will be used to acquire the specific account and also be validated with authentication result.
         std::string AuthenticationAccount;
     };
 
@@ -100,7 +100,7 @@ namespace AppInstaller::Authentication
     // This is the class for authentication window parent window.
     // When authenticating interactively, some api needs handle to a parent window.
     // This class will initiate a new thread and create a hidden window but with foreground priority (best effort).
-    // This class handles terminating the window sthread on destruction
+    // This class handles terminating the window thread on destruction
     struct AuthenticationWindowBase
     {
         // The constructor will initiate the authentication parent window and thread

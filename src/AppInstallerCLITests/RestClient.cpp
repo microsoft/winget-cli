@@ -280,7 +280,7 @@ TEST_CASE("RestClientCreate_UnsupportedVersion", "[RestSource]")
     REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
-TEST_CASE("RestClientCreate_UnsupportedAuthenticatinMethod", "[RestSource]")
+TEST_CASE("RestClientCreate_UnsupportedAuthenticationMethod", "[RestSource]")
 {
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
