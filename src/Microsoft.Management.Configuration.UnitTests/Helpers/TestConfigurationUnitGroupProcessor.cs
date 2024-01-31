@@ -55,17 +55,18 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <summary>
         /// Apply settings for the group.
         /// </summary>
+        /// <param name="progressHandler">The progress handler.</param>
         /// <returns>The operation to apply settings.</returns>
-        public IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult> ApplyGroupSettingsAsync()
+        public IAsyncOperation<IApplyGroupSettingsResult> ApplyGroupSettingsAsync(EventHandler<IApplyGroupMemberSettingsResult> progressHandler)
         {
-            return AsyncInfo.Run((CancellationToken cancellationToken, IProgress<IApplyGroupMemberSettingsResult> progress) => Task.Run<IApplyGroupSettingsResult>(() =>
+            return AsyncInfo.Run((CancellationToken cancellationToken) => Task.Run<IApplyGroupSettingsResult>(() =>
             {
                 this.WaitOnAsyncEvent(cancellationToken);
 
                 ApplyGroupSettingsResultInstance result = new (this.Group);
                 result.UnitResults = new List<IApplyGroupMemberSettingsResult>();
 
-                ApplyGroupSettings(this.Unit.Units, progress, result);
+                ApplyGroupSettings(this.Unit.Units, progressHandler, result);
 
                 return result;
             }));
@@ -74,10 +75,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <summary>
         /// Test settings for the group.
         /// </summary>
+        /// <param name="progressHandler">The progress handler.</param>
         /// <returns>The operation to test settings.</returns>
-        public IAsyncOperationWithProgress<ITestGroupSettingsResult, ITestSettingsResult> TestGroupSettingsAsync()
+        public IAsyncOperation<ITestGroupSettingsResult> TestGroupSettingsAsync(EventHandler<ITestSettingsResult> progressHandler)
         {
-            return AsyncInfo.Run((CancellationToken cancellationToken, IProgress<ITestSettingsResult> progress) => Task.Run<ITestGroupSettingsResult>(() =>
+            return AsyncInfo.Run((CancellationToken cancellationToken) => Task.Run<ITestGroupSettingsResult>(() =>
             {
                 this.WaitOnAsyncEvent(cancellationToken);
 
@@ -85,7 +87,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
                 result.UnitResults = new List<ITestSettingsResult>();
 
                 result.TestResult = GetTestResult(this.Unit.Metadata);
-                TestGroupSettings(this.Unit.Units, progress, result);
+                TestGroupSettings(this.Unit.Units, progressHandler, result);
 
                 return result;
             }));
@@ -126,16 +128,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <param name="groupMembers">The group members.</param>
         /// <param name="progress">The progress reporting object.</param>
         /// <param name="result">The result object.</param>
-        internal static void ApplyGroupSettings(IList<ConfigurationUnit>? groupMembers, IProgress<IApplyGroupMemberSettingsResult> progress, ApplyGroupSettingsResultInstance result)
+        internal static void ApplyGroupSettings(IList<ConfigurationUnit>? groupMembers, EventHandler<IApplyGroupMemberSettingsResult> progress, ApplyGroupSettingsResultInstance result)
         {
             if (groupMembers != null)
             {
                 foreach (ConfigurationUnit unit in groupMembers)
                 {
                     ApplyGroupMemberSettingsResultInstance unitResult = new (unit);
+                    result.UnitResults!.Add(unitResult);
 
                     unitResult.State = ConfigurationUnitState.InProgress;
-                    progress.Report(unitResult);
+                    progress.Invoke(null, unitResult);
 
                     unitResult.PreviouslyInDesiredState = GetTestResult(unit) == ConfigurationTestResult.Positive;
 
@@ -145,9 +148,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
                     }
 
                     unitResult.State = ConfigurationUnitState.Completed;
-                    progress.Report(unitResult);
-
-                    result.UnitResults!.Add(unitResult);
+                    progress.Invoke(null, unitResult);
                 }
             }
         }
@@ -158,7 +159,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <param name="groupMembers">The group members.</param>
         /// <param name="progress">The progress reporting object.</param>
         /// <param name="result">The result object.</param>
-        internal static void TestGroupSettings(IList<ConfigurationUnit>? groupMembers, IProgress<ITestSettingsResult> progress, TestGroupSettingsResultInstance result)
+        internal static void TestGroupSettings(IList<ConfigurationUnit>? groupMembers, EventHandler<ITestSettingsResult> progress, TestGroupSettingsResultInstance result)
         {
             if (groupMembers != null)
             {
@@ -172,9 +173,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
                     }
 
                     unitResult.TestResult = GetTestResult(unit);
-                    progress.Report(unitResult);
-
                     result.UnitResults!.Add(unitResult);
+                    progress.Invoke(null, unitResult);
                 }
             }
         }

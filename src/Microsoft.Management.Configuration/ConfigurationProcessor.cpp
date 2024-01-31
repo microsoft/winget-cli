@@ -499,28 +499,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
             CATCH_LOG();
 
-            auto applyOperation = groupProcessor.ApplyGroupSettingsAsync();
-
             // Forward unit result progress to caller
-            bool firstProgressStateTransfer = true;
-            applyOperation.Progress([&](const auto&, const IApplyGroupMemberSettingsResult& unitResult)
+            auto applyOperation = groupProcessor.ApplyGroupSettingsAsync([&](const auto&, const IApplyGroupMemberSettingsResult& unitResult)
                 {
-                    // Copy the current state over to our result on the first progress callback in case any were missed
-                    if (firstProgressStateTransfer)
-                    {
-                        for (const IApplyGroupMemberSettingsResult& initialResult : applyOperation.GetResults().UnitResults())
-                        {
-                            auto itr = unitResultMap.find(initialResult.Unit().InstanceIdentifier());
-                            if (itr != unitResultMap.end())
-                            {
-                                itr->second->Initialize(initialResult);
-                            }
-                        }
-
-                        firstProgressStateTransfer = false;
-                    }
-
-                    // Update overall result
                     auto itr = unitResultMap.find(unitResult.Unit().InstanceIdentifier());
                     if (itr != unitResultMap.end())
                     {
@@ -613,27 +594,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            auto testOperation = groupProcessor.TestGroupSettingsAsync();
-
             // Forward unit result progress to caller
-            bool firstProgressStateTransfer = true;
-            testOperation.Progress([&](const auto&, const ITestSettingsResult& unitResult)
+            auto testOperation = groupProcessor.TestGroupSettingsAsync([&](const auto&, const ITestSettingsResult& unitResult)
                 {
-                    // Copy the current state over to our result on the first progress callback in case any were missed
-                    if (firstProgressStateTransfer)
-                    {
-                        for (const ITestSettingsResult& initialResult : testOperation.GetResults().UnitResults())
-                        {
-                            auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
-                            testResult->Initialize(initialResult);
-                            result->AppendUnitResult(*testResult);
-                        }
-
-                        firstProgressStateTransfer = false;
-                    }
-
                     auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
                     testResult->Initialize(unitResult);
+
                     result->AppendUnitResult(*testResult);
                     progress.Progress(*testResult);
                 });
