@@ -3,6 +3,7 @@
 #include "pch.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
+#include <AppInstallerLogging.h>
 #include "WebAccountManagerAuthenticator.h"
 
 using namespace std::string_view_literals;
@@ -30,6 +31,7 @@ namespace AppInstaller::Authentication
         {
             m_webAccountProvider = WebAuthenticationCoreManager::FindAccountProviderAsync(s_MicrosoftEntraIdProviderId, s_MicrosoftEntraIdAuthority).get();
             THROW_HR_IF_MSG(E_UNEXPECTED, !m_webAccountProvider, "Authentication Provider not found for Microsoft Entra Id");
+            AICLI_LOG(Core, Info, << "WebAccountManagerAuthenticator created for MicrosoftEntraId. Resource: " << m_authInfo.MicrosoftEntraIdInfo->Resource << ", Scope: " << m_authInfo.MicrosoftEntraIdInfo->Scope);
         }
         else if (m_authInfo.Type == AuthenticationType::None)
         {
@@ -41,9 +43,14 @@ namespace AppInstaller::Authentication
         }
     }
 
+    // WebAccountManager manages token and cache at OS level.
+    // So for each authentication request, we call WebAccountManager api to retrieve token.
+    // We do not need to implement own cache logic.
     AuthenticationResult WebAccountManagerAuthenticator::AuthenticateForToken()
     {
         std::lock_guard<std::mutex> lock{ m_authLock };
+
+        AICLI_LOG(Core, Info, << "Started WebAccountManagerAuthenticator::AuthenticateForToken.");
 
         AuthenticationResult result;
 
@@ -77,6 +84,8 @@ namespace AppInstaller::Authentication
         }
         else
         {
+            // Previous authentication successful. Just retrieve the token with the authenticated account.
+            // In rare cases silent flow fails, use interactive flow.
             result = GetTokenSilent(m_authenticatedAccount);
             if (FAILED(result.Status) && m_authArgs.Mode != AuthenticationMode::Silent)
             {
@@ -84,17 +93,16 @@ namespace AppInstaller::Authentication
             }
         }
 
+        AICLI_LOG(Core, Info, << "Finished WebAccountManagerAuthenticator::AuthenticateForToken. Result: " << result.Status);
+
         return result;
     }
 
     WebAccount WebAccountManagerAuthenticator::FindWebAccount(std::string_view accountName)
     {
-        WebAccount result = nullptr;
+        AICLI_LOG(Core, Info, << "FindWebAccount called. Desired Account: " << accountName);
 
-        if (accountName.empty())
-        {
-            return result;
-        }
+        WebAccount result = nullptr;
 
         if (m_authInfo.Type == AuthenticationType::MicrosoftEntraId)
         {
@@ -112,9 +120,18 @@ namespace AppInstaller::Authentication
             }
             else
             {
-                // Log info
+                AICLI_LOG(Core, Warning, << "FindAllAccountsAsync failed. Status: " << findAccountsResult.Status());
+                auto providerError = findAccountsResult.ProviderError();
+                if (providerError)
+                {
+                    AICLI_LOG(Core, Warning,
+                        << "FindAllAccountsAsync Provider Error. ErrorCode: " << providerError.ErrorCode()
+                        << ", Message: " << Utility::ConvertToUTF8(providerError.ErrorMessage()));
+                }
             }
         }
+
+        AICLI_LOG(Core, Info, << "FindWebAccount result: " << ((result != nullptr) ? "found" : "not found"));
 
         return result;
     }
@@ -145,9 +162,12 @@ namespace AppInstaller::Authentication
 
     AuthenticationResult WebAccountManagerAuthenticator::GetToken(WebAccount webAccount, bool forceInteractive)
     {
+        AICLI_LOG(Core, Info, << "Started GetToken. ForceInteractive: " << forceInteractive);
+
         auto request = CreateTokenRequest(forceInteractive);
         if (!request)
         {
+            AICLI_LOG(Core, Error, << "CreateTokenRequest returned empty request");
             return {};
         }
 
@@ -178,6 +198,7 @@ namespace AppInstaller::Authentication
 
         if (FAILED(requestOperationResult))
         {
+            AICLI_LOG(Core, Error, << "RequestTokenForWindowAsync failed. Result: " << requestOperationResult);
             return {};
         }
 
@@ -186,9 +207,12 @@ namespace AppInstaller::Authentication
 
     AuthenticationResult WebAccountManagerAuthenticator::GetTokenSilent(WebAccount webAccount)
     {
+        AICLI_LOG(Core, Info, << "Started GetTokenSilent.");
+
         auto request = CreateTokenRequest(false);
         if (!request)
         {
+            AICLI_LOG(Core, Error, << "CreateTokenRequest returned empty request");
             return {};
         }
 
@@ -201,6 +225,7 @@ namespace AppInstaller::Authentication
 
         if (!requestResult)
         {
+            AICLI_LOG(Core, Error, << "WebTokenRequestResult is null");
             return result;
         }
 
@@ -214,35 +239,44 @@ namespace AppInstaller::Authentication
             {
                 result.Status = S_OK;
                 result.Token = Utility::ConvertToUTF8(responseData.Token());
+                // Assign authenticated account for future token retrieval.
                 m_authenticatedAccount = authenticatedAccount;
+                AICLI_LOG(Core, Info, << "Authentication success");
             }
             else
             {
+                AICLI_LOG(Core, Error, << "Authentication success. But the authenticated account is not the desired one.");
                 result.Status = APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT;
             }
         }
         else if (requestResult.ResponseStatus() == WebTokenRequestStatus::AccountSwitch)
         {
+            AICLI_LOG(Core, Error, << "Authentication failed. The authenticated account is not the desired one.");
             result.Status = APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT;
         }
         else if (requestResult.ResponseStatus() == WebTokenRequestStatus::ProviderError ||
             requestResult.ResponseStatus() == WebTokenRequestStatus::AccountProviderNotAvailable)
         {
+            AICLI_LOG(Core, Error, << "Authentication failed. Provider failed.");
             auto responseError = requestResult.ResponseError();
             if (responseError)
             {
-
+                AICLI_LOG(Core, Error, << "Provider Error. Code: " << responseError.ErrorCode() << ", Message: " << Utility::ConvertToUTF8(responseError.ErrorMessage()));
             }
             result.Status = APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED;
         }
         else if (requestResult.ResponseStatus() == WebTokenRequestStatus::UserCancel)
         {
+            AICLI_LOG(Core, Error, << "Authentication failed. User cancelled.");
             result.Status = APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER;
         }
         else if (requestResult.ResponseStatus() == WebTokenRequestStatus::UserInteractionRequired)
         {
+            AICLI_LOG(Core, Error, << "Authentication failed. Interactive authentication required.");
             result.Status = APPINSTALLER_CLI_ERROR_AUTHENTICATION_INTERACTIVE_REQUIRED;
         }
+
+        AICLI_LOG(Core, Info, << "HandleGetTokenResult Result: " << result.Status);
 
         return result;
     }

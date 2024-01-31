@@ -201,7 +201,13 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH, "The current client version did not match the client version of the saved state."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE, "The resume state data is invalid."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_CANNOT_OPEN_CHECKPOINT_INDEX, "Unable to open the checkpoint database."),
-
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED, "Exceeded max resume limit."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO, "Invalid authentication info."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED, "Authentication method not supported."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED, "Authentication failed."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_AUTHENTICATION_INTERACTIVE_REQUIRED, "Authentication failed. Interactive authentication required."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER, "Authentication failed. User cancelled."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT, "Authentication failed. Authenticated account is not the desired account."),
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),

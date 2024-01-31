@@ -116,6 +116,22 @@ namespace AppInstaller::CLI::Workflow
                 {
                     context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate(Utility::LocIndView{ s.Name }) << std::endl;
                 }
+
+                // Report sources that may need authentication
+                if (source.IsComposite())
+                {
+                    for (const auto& s : source.GetAvailableSources())
+                    {
+                        if (s.GetInformation().Authentication.Type != Authentication::AuthenticationType::None)
+                        {
+                            context.Reporter.Info() << Execution::AuthenticationEmphasis << Resource::String::SourceRequiresAuthentication(Utility::LocIndView{ s.GetDetails().Name }) << std::endl;
+                        }
+                    }
+                }
+                else if (source.GetInformation().Authentication.Type != Authentication::AuthenticationType::None)
+                {
+                    context.Reporter.Info() << Execution::AuthenticationEmphasis << Resource::String::SourceRequiresAuthentication(Utility::LocIndView{ source.GetDetails().Name }) << std::endl;
+                }
             }
             catch (const wil::ResultException& re)
             {
@@ -267,6 +283,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
+            // If user did not specify authentication mode, determine based on if disable interactivity flag exists.
             authArgs.Mode = context.Args.Contains(Execution::Args::Type::DisableInteractivity) ? Authentication::AuthenticationMode::Silent : Authentication::AuthenticationMode::SilentPreferred;
         }
 
@@ -274,6 +291,8 @@ namespace AppInstaller::CLI::Workflow
         {
             authArgs.AuthenticationAccount = context.Args.GetArg(Execution::Args::Type::AuthenticationAccount);
         }
+
+        AICLI_LOG(CLI, Info, << "Created authentication arguments. Mode: " << Authentication::AuthenticationModeToString(authArgs.Mode) << ", Account: " << authArgs.AuthenticationAccount);
 
         return authArgs;
     }

@@ -20,6 +20,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_7
 
         if (m_information.Authentication.Type == Authentication::AuthenticationType::MicrosoftEntraId)
         {
+            AICLI_LOG(Repo, Info, << "Creating authenticator for MicrosoftEntraId authentication. Source Identifier: " << m_information.SourceIdentifier);
             m_authenticator = std::make_unique<Authentication::Authenticator>(m_information.Authentication, m_authArgs);
         }
         else if (m_information.Authentication.Type == Authentication::AuthenticationType::Unknown)
@@ -44,7 +45,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_7
             if (FAILED(authResult.Status))
             {
                 AICLI_LOG(Repo, Error, << "Authentication failed. Result: " << authResult.Status);
-                THROW_HR(authResult.Status);
+                THROW_HR_MSG(authResult.Status, "Failed to authenticate for MicrosoftEntraId");
             }
             result.insert_or_assign(web::http::header_names::authorization, JSON::GetUtilityString(authResult.Token));
         }

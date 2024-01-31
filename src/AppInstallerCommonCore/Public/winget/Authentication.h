@@ -53,6 +53,7 @@ namespace AppInstaller::Authentication
         AuthenticationType Type = AuthenticationType::None;
         std::optional<MicrosoftEntraIdAuthenticationInfo> MicrosoftEntraIdInfo;
 
+        // Validates data integrity against known authentication type.
         bool ValidateIntegrity();
     };
 
@@ -84,7 +85,7 @@ namespace AppInstaller::Authentication
         virtual AuthenticationResult AuthenticateForToken() = 0;
     };
 
-    // The authenticator
+    // The public facing authenticator
     struct Authenticator
     {
         Authenticator(AuthenticationInfo info, AuthenticationArguments args);

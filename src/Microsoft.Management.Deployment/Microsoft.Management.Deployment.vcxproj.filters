@@ -95,7 +95,4 @@
       <UniqueIdentifier>{9c3907ed-84d9-4485-9b15-04c50717f0ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
-  </ItemGroup>
 </Project>

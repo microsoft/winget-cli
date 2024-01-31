@@ -137,7 +137,7 @@ namespace AppInstaller::CLI::Execution
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
 
-            AuthenticationMode, // Authentication mode
+            AuthenticationMode, // Authentication mode (silent, silentPreferred or interactive)
             AuthenticationAccount, // Authentication account to be used
 
             ToolVersion,

@@ -29,10 +29,12 @@ namespace AppInstaller::Repository::Rest
 
         static std::optional<AppInstaller::Utility::Version> GetLatestCommonVersion(const std::vector<std::string>& serverSupportedVersions, const std::set<AppInstaller::Utility::Version>& wingetSupportedVersions);
 
+        // Responsible for getting the source information contracts with minimal validation. Does not try to create a rest interface out of it.
         static Schema::IRestClient::Information GetInformation(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Schema::HttpClientHelper& helper = {});
 
         static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const Schema::HttpClientHelper::HttpRequestHeaders& additionalHeaders, const Schema::IRestClient::Information& information, const Authentication::AuthenticationArguments& authArgs, const AppInstaller::Utility::Version& version);
 
+        // Creates the rest client. Full validation performed (just as opening the source)
         static RestClient Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Authentication::AuthenticationArguments& authArgs = {}, const Schema::HttpClientHelper& helper = {});
     private:
         RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier);

@@ -634,7 +634,12 @@ namespace Microsoft.Management.Deployment
         BlockedByPolicy,
         CatalogError,
         InternalError,
-        InvalidOptions
+        InvalidOptions,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+        {
+            AuthenticationError,
+            AccessDenied,
+        }
     };
 
     /// IMPLEMENTATION NOTE: SearchResult from winget/RepositorySearch.h
@@ -718,7 +723,7 @@ namespace Microsoft.Management.Deployment
 
         /// Choice of authentication flow behavior.
         AuthenticationMode AuthenticationMode;
-        /// Optional. The authentication account to use for authentication.
+        /// Optional. The authentication account to be used for authentication.
         String AuthenticationAccount;
     }
 
@@ -820,9 +825,11 @@ namespace Microsoft.Management.Deployment
         {
 
             /// Authentication arguments used in authentication flow during package catalog operations if applicable.
+            /// This is user or caller input.
             AuthenticationArguments AuthenticationArguments;
 
-            /// Authentication info for the package catalog.
+            /// Authentication info from the package catalog.
+            /// This is defined by individual package catalog.
             AuthenticationInfo AuthenticationInfo { get; };
         }
     }

@@ -16,17 +16,27 @@ namespace AppInstaller::Repository::Rest::Schema
         constexpr std::string_view MicrosoftEntraId_Scope = "Scope"sv;
     }
 
+    // The authentication info json looks like below:
+    // "Authentication": {
+    //     "AuthenticationType": "microsoftEntraId",
+    //     "MicrosoftEntraIdAuthenticationInfo" : {
+    //         "Resource": "GUID",
+    //         "Scope" : "test"
+    //     }
+    // }
     Authentication::AuthenticationInfo ParseAuthenticationInfo(const web::json::value& dataObject, std::optional<Manifest::ManifestVer>)
     {
         auto authenticationObject = JSON::GetJsonValueFromNode(dataObject, JSON::GetUtilityString(Authentication));
         if (!authenticationObject)
         {
+            AICLI_LOG(Repo, Info, << "Authentication node not found. Assuming authentication type none.");
             return {};
         }
 
         const auto& authenticationObjectNode = authenticationObject.value().get();
         if (authenticationObjectNode.is_null())
         {
+            AICLI_LOG(Repo, Info, << "Authentication node is null. Assuming authentication type none.");
             return {};
         }
 
@@ -34,9 +44,11 @@ namespace AppInstaller::Repository::Rest::Schema
         result.Type = Authentication::AuthenticationType::Unknown;
 
         auto authenticationTypeString = JSON::GetRawStringValueFromJsonNode(authenticationObjectNode, JSON::GetUtilityString(AuthenticationType));
+        // AuthenticationType required if Authentication exists and is not null.
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO, !JSON::IsValidNonEmptyStringValue(authenticationTypeString));
         result.Type = Authentication::ConvertToAuthenticationType(authenticationTypeString.value());
 
+        // Parse MicrosoftEntraId info
         auto microsoftEntraIdInfoObject = JSON::GetJsonValueFromNode(authenticationObjectNode, JSON::GetUtilityString(MicrosoftEntraIdAuthenticationInfo));
         if (microsoftEntraIdInfoObject)
         {
@@ -45,6 +57,7 @@ namespace AppInstaller::Repository::Rest::Schema
             Authentication::MicrosoftEntraIdAuthenticationInfo microsoftEntraIdInfo;
 
             auto resourceString = JSON::GetRawStringValueFromJsonNode(microsoftEntraIdInfoNode, JSON::GetUtilityString(MicrosoftEntraId_Resource));
+            // Resource required if MicrosoftEntraIdAuthenticationInfo exists and is not null.
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO, !JSON::IsValidNonEmptyStringValue(resourceString));
             microsoftEntraIdInfo.Resource = std::move(resourceString.value());
 

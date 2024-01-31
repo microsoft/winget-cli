@@ -195,6 +195,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
             resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::InvalidOptions;
             break;
+        case APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_INTERACTIVE_REQUIRED:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT:
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::AuthenticationError;
+            break;
+        case HTTP_E_STATUS_DENIED:
+        case HTTP_E_STATUS_FORBIDDEN:
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::AccessDenied;
+            break;
         case APPINSTALLER_CLI_ERROR_COMMAND_FAILED:
         case APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX:
         case APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED:
@@ -473,7 +485,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     ::AppInstaller::Authentication::AuthenticationArguments GetAuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments authArgs)
     {
         ::AppInstaller::Authentication::AuthenticationArguments result;
-        result.Mode = ::AppInstaller::Authentication::AuthenticationMode::Silent; // default for com invocations.
+        result.Mode = ::AppInstaller::Authentication::AuthenticationMode::Silent; // Default to silent for com invocations.
 
         if (authArgs)
         {

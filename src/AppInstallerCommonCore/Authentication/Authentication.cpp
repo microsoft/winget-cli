@@ -4,6 +4,7 @@
 #include "Public/winget/Authentication.h"
 #include "WebAccountManagerAuthenticator.h"
 #include <AppInstallerStrings.h>
+#include <AppInstallerLogging.h>
 
 using namespace std::string_view_literals;
 
@@ -21,12 +22,17 @@ namespace AppInstaller::Authentication
         THROW_HR_IF(E_UNEXPECTED, info.Type == AuthenticationType::None);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO, !info.ValidateIntegrity());
 
+        AICLI_LOG(Core, Info, << "AuthenticationArguments values. Mode: " << AuthenticationModeToString(args.Mode) << ", Account: " << args.AuthenticationAccount);
+
         if (info.Type == AuthenticationType::MicrosoftEntraId)
         {
+            AICLI_LOG(Core, Info, << "Creating WebAccountManagerAuthenticator for MicrosoftEntraId");
             m_authProvider = std::make_unique<WebAccountManagerAuthenticator>(std::move(info), std::move(args));
         }
     }
 
+    // Each authentication provider uses its own mechanism for caching.
+    // Here we directly call authentication provider to authenticate.
     AuthenticationResult Authenticator::AuthenticateForToken()
     {
         THROW_HR_IF(E_UNEXPECTED, !m_authProvider);
@@ -36,6 +42,7 @@ namespace AppInstaller::Authentication
 
     bool AuthenticationInfo::ValidateIntegrity()
     {
+        // For MicrosoftEntraId, Resource is required.
         if (Type == AuthenticationType::MicrosoftEntraId)
         {
             return MicrosoftEntraIdInfo.has_value() && !MicrosoftEntraIdInfo->Resource.empty();
@@ -94,7 +101,7 @@ namespace AppInstaller::Authentication
                     s_windowsClassName,
                     L"WingetAuthenticationParentWindow",
                     WS_OVERLAPPEDWINDOW,
-                    0, 0, 0, 0, /* size and position */
+                    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, /* size and position */
                     NULL, /* hWndParent */
                     NULL, /* hMenu */
                     hModule,
