@@ -6,8 +6,8 @@
 #include <Rest/RestClient.h>
 #include <Rest/Schema/IRestClient.h>
 #include <AppInstallerVersions.h>
-#include <set>
 #include <AppInstallerErrors.h>
+#include <AppInstallerRuntime.h>
 
 using namespace AppInstaller;
 using namespace AppInstaller::Utility;
@@ -392,6 +392,12 @@ TEST_CASE("RestClientCreate_1.1_Success", "[RestSource]")
 
 TEST_CASE("RestClientCreate_1.7_Success", "[RestSource]")
 {
+    if (Runtime::IsRunningAsSystem())
+    {
+        WARN("Test does not support running as system. Skipped.");
+        return;
+    }
+
     utility::string_t sample = _XPLATSTR(
         R"delimiter({
             "Data" : {

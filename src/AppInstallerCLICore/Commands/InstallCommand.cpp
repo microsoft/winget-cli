@@ -125,6 +125,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
+                Workflow::Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
                 Workflow::InstallSinglePackage;
         }
         else
@@ -154,6 +155,7 @@ namespace AppInstaller::CLI
             else
             {
                 context <<
+                    Workflow::Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
                     Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
             }
         }

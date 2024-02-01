@@ -86,6 +86,12 @@ namespace
 
 TEST_CASE("GetManifests_GoodRequest_Authentication", "[RestSource][Interface_1_7]")
 {
+    if (Runtime::IsRunningAsSystem())
+    {
+        WARN("Test does not support running as system. Skipped.");
+        return;
+    }
+
     std::string expectedToken = "TestToken";
 
     // Set good authentication result
@@ -106,6 +112,12 @@ TEST_CASE("GetManifests_GoodRequest_Authentication", "[RestSource][Interface_1_7
 
 TEST_CASE("GetManifests_BadRequest_AuthenticationFailed", "[RestSource][Interface_1_7]")
 {
+    if (Runtime::IsRunningAsSystem())
+    {
+        WARN("Test does not support running as system. Skipped.");
+        return;
+    }
+
     std::string expectedToken = "TestToken";
 
     // Set authentication failed result
@@ -121,6 +133,12 @@ TEST_CASE("GetManifests_BadRequest_AuthenticationFailed", "[RestSource][Interfac
 
 TEST_CASE("GetManifests_BadRequest_InvalidAuthenticationToken", "[RestSource][Interface_1_7]")
 {
+    if (Runtime::IsRunningAsSystem())
+    {
+        WARN("Test does not support running as system. Skipped.");
+        return;
+    }
+
     std::string expectedToken = "TestToken";
 
     // Set authentication result with incorrect token
@@ -137,6 +155,12 @@ TEST_CASE("GetManifests_BadRequest_InvalidAuthenticationToken", "[RestSource][In
 
 TEST_CASE("Search_GoodRequest_Authentication", "[RestSource][Interface_1_7]")
 {
+    if (Runtime::IsRunningAsSystem())
+    {
+        WARN("Test does not support running as system. Skipped.");
+        return;
+    }
+
     std::string expectedToken = "TestToken";
 
     // Set good authentication result
@@ -159,6 +183,12 @@ TEST_CASE("Search_GoodRequest_Authentication", "[RestSource][Interface_1_7]")
 
 TEST_CASE("Search_BadRequest_AuthenticationFailed", "[RestSource][Interface_1_7]")
 {
+    if (Runtime::IsRunningAsSystem())
+    {
+        WARN("Test does not support running as system. Skipped.");
+        return;
+    }
+
     std::string expectedToken = "TestToken";
 
     // Set authentication failed result
@@ -177,6 +207,12 @@ TEST_CASE("Search_BadRequest_AuthenticationFailed", "[RestSource][Interface_1_7]
 
 TEST_CASE("Search_BadRequest_InvalidAuthenticationToken", "[RestSource][Interface_1_7]")
 {
+    if (Runtime::IsRunningAsSystem())
+    {
+        WARN("Test does not support running as system. Skipped.");
+        return;
+    }
+
     std::string expectedToken = "TestToken";
 
     // Set authentication result with incorrect token

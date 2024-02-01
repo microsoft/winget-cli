@@ -4,6 +4,7 @@
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerLogging.h>
+#include <AppInstallerRuntime.h>
 #include "WebAccountManagerAuthenticator.h"
 
 using namespace std::string_view_literals;
@@ -24,6 +25,9 @@ namespace AppInstaller::Authentication
 
     WebAccountManagerAuthenticator::WebAccountManagerAuthenticator(AuthenticationInfo info, AuthenticationArguments args) : m_authInfo(std::move(info)), m_authArgs(std::move(args))
     {
+        // WebAccountManager manages accounts as user. When running as system, it can only retrieve domain joined device token.
+        // This is very rare scenario for rest source to require a device token. And it needs approval to provision winget client registration.
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), Runtime::IsRunningAsSystem());
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO, !m_authInfo.ValidateIntegrity());
         THROW_HR_IF(E_UNEXPECTED, m_authArgs.Mode == AuthenticationMode::Unknown);
 
