@@ -38,6 +38,8 @@ extern "C"
         SchemaValidation = 0x1,
         // Validate against schema and also perform semantic validation
         SchemaAndSemanticValidation = 0x2,
+        // Use shadow manifest
+        AllowShadowManifest = 0x4,
 
         /// Below options are additional validation behaviors if needed
 

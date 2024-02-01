@@ -315,6 +315,7 @@ jobs:
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
+      diagnosticsEnabled: true
     condition: succeededOrFailed()
   
   - task: VSTest@2

@@ -136,6 +136,7 @@ foldc
 foldcase
 FOLDERID
 FORPARSING
+foundfr
 fundraiser
 fuzzer
 fzanollo
@@ -144,6 +145,7 @@ GESMBH
 GHS
 gity
 goku
+Gomu
 GRPICONDIR
 GRPICONDIRENTRY
 guiddef
@@ -270,6 +272,7 @@ mylog
 mysilent
 mysilentwithprogress
 nameof
+Nami
 nativehandle
 NBLGGH
 NESTEDINSTALLER
@@ -357,6 +360,7 @@ REGSAM
 relativefilepath
 remoting
 reparse
+repeatedkey
 restsource
 RGBQUAD
 rgex
@@ -366,6 +370,7 @@ riid
 roblox
 ronomon
 rosoft
+Roronoa
 rowids
 roy
 runspace
@@ -391,6 +396,7 @@ Sideload
 SIGNATUREHASH
 similarissues
 similaritytolerance
+Skipx
 Sku
 SMTO
 sortof

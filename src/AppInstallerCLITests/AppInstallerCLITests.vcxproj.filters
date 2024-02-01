@@ -46,6 +46,12 @@
     <Filter Include="Source Files\Repository">
       <UniqueIdentifier>{13d4d227-0f04-4e57-a663-c3c535438ab3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TestData\Shadow">
+      <UniqueIdentifier>{6f8102b7-ea5f-4379-bb59-067ced63d970}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestData\Shadow\V1_5">
+      <UniqueIdentifier>{6bd68492-3f96-4023-af35-63249cd18158}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -937,6 +943,33 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\notepad.ico">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-DefaultLocale.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale2.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow2.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Installer.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Node-Merge.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Node-Merge2.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Node-Mapping.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>

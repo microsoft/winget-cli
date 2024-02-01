@@ -203,6 +203,12 @@ namespace AppInstaller::Manifest::YamlParser
 
         for (const auto& entry : manifestList)
         {
+            if (entry.ManifestType == ManifestTypeEnum::Shadow)
+            {
+                // There's no schema for a shadow manifest.
+                continue;
+            }
+
             if (schemaList.find(entry.ManifestType) == schemaList.end())
             {
                 // Copy constructor of valijson::Schema was private

@@ -55,6 +55,7 @@ namespace AppInstaller::Manifest
         // Options not exposed in winget util
         bool FullValidation = false;
         bool ThrowOnWarning = false;
+        bool AllowShadowManifest = false;
     };
 
     // ManifestVer is inherited from Utility::Version and is a more restricted version.
@@ -201,6 +202,7 @@ namespace AppInstaller::Manifest
         Locale,
         Merged,
         Preview,
+        Shadow,
     };
 
     enum class DependencyType
