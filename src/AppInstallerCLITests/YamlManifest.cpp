@@ -1819,7 +1819,37 @@ TEST_CASE("YamlParserTypes", "[YAML]")
     CHECK(localTag.GetTagType() == Node::TagType::Unknown);
 }
 
-TEST_CASE("YamlMergeNode", "[YAML]")
+TEST_CASE("YamlMergeMappingNode", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Mapping.yaml"));
+
+    auto mergeNode = document["MergeNode"];
+    auto mergeNode2 = document["MergeNode2"];
+
+    REQUIRE(3 == mergeNode.size());
+    REQUIRE(2 == mergeNode2.size());
+
+    mergeNode.MergeMappingNode(mergeNode2);
+
+    REQUIRE(5 == mergeNode.size());
+}
+
+TEST_CASE("YamlMergeMappingNode_CaseInsensitive", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Mapping.yaml"));
+
+    auto mergeNode = document["MergeNode"];
+    auto mergeNode2 = document["MergeNode2"];
+
+    REQUIRE(3 == mergeNode.size());
+    REQUIRE(2 == mergeNode2.size());
+
+    mergeNode.MergeMappingNode(mergeNode2, true);
+
+    REQUIRE(4 == mergeNode.size());
+}
+
+TEST_CASE("YamlMergeSequenceNode", "[YAML]")
 {
     auto document = Load(TestDataFile("Node-Merge.yaml"));
     auto document2 = Load(TestDataFile("Node-Merge2.yaml"));
@@ -1832,7 +1862,7 @@ TEST_CASE("YamlMergeNode", "[YAML]")
     REQUIRE(5 == document["StrawHats"].size());
 }
 
-TEST_CASE("YamlMergeNode_CaseInsensitive", "[YAML]")
+TEST_CASE("YamlMergeSequenceNode_CaseInsensitive", "[YAML]")
 {
     auto document = Load(TestDataFile("Node-Merge.yaml"));
     auto document2 = Load(TestDataFile("Node-Merge2.yaml"));
@@ -1892,7 +1922,7 @@ TEST_CASE("YamlMappingNode", "[YAML]")
     REQUIRE_THROWS_HR(document["RepeatedKey"], APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
 }
 
-TEST_CASE("YamlMappingNode_const", "[YAML2]")
+TEST_CASE("YamlMappingNode_const", "[YAML]")
 {
     const auto document = Load(TestDataFile("Node-Mapping.yaml"));
 

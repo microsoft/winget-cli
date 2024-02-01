@@ -463,7 +463,7 @@ namespace AppInstaller::YAML
         return {};
     }
 
-    void Node::MergeSequenceNode(Node& other, std::string_view key, bool caseInsensitive)
+    void Node::MergeSequenceNode(Node other, std::string_view key, bool caseInsensitive)
     {
         Require(Type::Sequence);
         other.Require(Type::Sequence);
@@ -497,7 +497,7 @@ namespace AppInstaller::YAML
             }
             else
             {
-                newSequenceMap[keyValue].MergeMappingNode(node);
+                newSequenceMap[keyValue].MergeMappingNode(node, caseInsensitive);
             }
         }
 
@@ -511,7 +511,7 @@ namespace AppInstaller::YAML
         m_sequence = std::move(newSequence);
     }
 
-    void Node::MergeMappingNode(Node& other)
+    void Node::MergeMappingNode(Node other, bool caseInsensitive)
     {
         Require(Type::Mapping);
         other.Require(Type::Mapping);
@@ -519,9 +519,20 @@ namespace AppInstaller::YAML
         std::multimap<Node, Node> uniques;
         for (auto& keyValuePair : other.m_mapping.value())
         {
-            if (m_mapping->count(keyValuePair.first) == 0)
+            if (caseInsensitive)
             {
-                uniques.emplace(std::move(keyValuePair));
+                auto node = GetChildNode(keyValuePair.first.as<std::string>());
+                if (node.IsNull())
+                {
+                    uniques.emplace(std::move(keyValuePair));
+                }
+            }
+            else
+            {
+                if (m_mapping->count(keyValuePair.first) == 0)
+                {
+                    uniques.emplace(std::move(keyValuePair));
+                }
             }
         }
 
