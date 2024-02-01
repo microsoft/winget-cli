@@ -582,15 +582,15 @@ namespace AppInstaller::Repository
                 }
                 if (!truth)
                 {
+                    truth = GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                }
+                if (!truth)
+                {
                     truth = m_trackingPackageVersion;
                 }
                 if (!truth)
                 {
                     truth = GetInstalledVersion();
-                }
-                if (!truth)
-                {
-                    truth = GetLatestAvailableVersion(PinBehavior::IgnorePins);
                 }
 
                 switch (property)
@@ -1201,44 +1201,161 @@ namespace AppInstaller::Repository
                     return;
                 }
 
+                // The key to uniquely identify the package in the map
                 struct InstalledResultFoldKey
                 {
-                    InstalledResultFoldKey()
+                    InstalledResultFoldKey() = default;
 
-                    size_t operator()()
+                    InstalledResultFoldKey(const std::shared_ptr<IPackage>& package)
                     {
-
+                        std::shared_ptr<IPackageVersion> latestAvailable = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                        if (latestAvailable)
+                        {
+                            SourceIdentifier = latestAvailable->GetSource().GetIdentifier();
+                            PackageIdentifier = latestAvailable->GetProperty(PackageVersionProperty::Id);
+                        }
                     }
+
+                    // Hash operation
+                    size_t operator()(const InstalledResultFoldKey& value) const noexcept
+                    {
+                        std::hash<std::string> hashString;
+                        return hashString(value.SourceIdentifier) ^ (hashString(value.PackageIdentifier) << 1);
+                    }
+
+                    bool operator==(const InstalledResultFoldKey& other) const noexcept
+                    {
+                        // Treat both empty as invalid and never equal
+                        if (SourceIdentifier.empty() && PackageIdentifier.empty())
+                        {
+                            return false;
+                        }
+
+                        return SourceIdentifier == other.SourceIdentifier && PackageIdentifier == other.PackageIdentifier;
+                    }
+
+                    std::string SourceIdentifier;
+                    std::string PackageIdentifier;
+                };
+
+                // The data for a package in the map
+                struct InstalledResultFoldData
+                {
+                    InstalledResultFoldData() = default;
+                    explicit InstalledResultFoldData(size_t primaryPackageIndex) : PrimaryPackageIndex(primaryPackageIndex) {}
+
+                    std::optional<size_t> PrimaryPackageIndex;
+                    std::vector<size_t> NonPrimaryPackageIndices;
                 };
 
                 std::unordered_map<InstalledResultFoldKey, InstalledResultFoldData, InstalledResultFoldKey> foldData;
 
                 // Attempt to fold all primary package matches first.
                 // Packages without primaries will still be indexed into the hash table.
-                size_t primaryFoldCount = 0;
+                size_t foldCount = 0;
                 for (size_t i = 0; i < Matches.size(); ++i)
                 {
                     CompositeResultMatch& currentMatch = Matches[i];
+                    size_t matchMoveLocation = i - foldCount;
 
                     // Check current match for fold target
                     if (currentMatch.Package->GetPrimaryAvailablePackage())
                     {
-                        // TODO: Check for a matching primary in our hash table
-                        //      IF found, fold into previous value
-                        //      IF NOT found, add to hash table
+                        InstalledResultFoldKey key{ currentMatch.Package->GetPrimaryAvailablePackage()->GetPackage() };
+
+                        auto itr = foldData.find(key);
+                        if (itr != foldData.end())
+                        {
+                            if (itr->second.PrimaryPackageIndex)
+                            {
+                                // TODO: add installed version into target package
+                                ++foldCount;
+                                continue;
+                            }
+                            else
+                            {
+                                itr->second.PrimaryPackageIndex = matchMoveLocation;
+                            }
+                        }
+                        else
+                        {
+                            foldData[key] = InstalledResultFoldData{ matchMoveLocation };
+                        }
                     }
                     else
                     {
-                        // TODO: index available packages into hash table
+                        for (const auto& availablePackage : currentMatch.Package->GetAvailablePackages())
+                        {
+                            InstalledResultFoldKey key{ availablePackage.GetPackage() };
+
+                            auto itr = foldData.find(key);
+                            if (itr == foldData.end())
+                            {
+                                itr = foldData.insert({ key, {} }).first;
+                            }
+
+                            itr->second.NonPrimaryPackageIndices.emplace_back(matchMoveLocation);
+                        }
+                    }
+
+                    if (matchMoveLocation != i)
+                    {
+                        Matches[matchMoveLocation] = std::move(Matches[i]);
                     }
                 }
 
+                // Get rid of the excess entries
+                Matches.erase(Matches.end() - foldCount, Matches.end());
+
                 // After primary matches are folded, attempt to fold results without primary matches.
                 // The latest primary match will be preferred as a tiebreak.
+                foldCount = 0;
+                for (size_t i = 0; i < Matches.size(); ++i)
+                {
+                    CompositeResultMatch& currentMatch = Matches[i];
+                    size_t matchMoveLocation = i - foldCount;
 
+                    if (!currentMatch.Package->GetPrimaryAvailablePackage())
+                    {
+                        InstalledResultFoldData* latestPrimaryAvailable = nullptr;
+                        std::vector<InstalledResultFoldData*> availableFoldData;
+
+                        for (const auto& availablePackage : currentMatch.Package->GetAvailablePackages())
+                        {
+                            auto& packageFoldData = foldData.at(availablePackage.GetPackage());
+
+                            if (packageFoldData.PrimaryPackageIndex)
+                            {
+                                if (!latestPrimaryAvailable ||
+                                    Matches[latestPrimaryAvailable->PrimaryPackageIndex.value()].Package->GetTrackingPackageWriteTime() < Matches[packageFoldData.PrimaryPackageIndex.value()].Package->GetTrackingPackageWriteTime())
+                                {
+                                    latestPrimaryAvailable = &packageFoldData;
+                                }
+                            }
+                            else
+                            {
+                                availableFoldData.emplace_back(&packageFoldData);
+                            }
+                        }
+
+                        if (latestPrimaryAvailable)
+                        {
+                            // TODO: Fold into latest primary
+                            ++foldCount;
+                            continue;
+                        }
+
+                        // TODO: Given a set of 
+                    }
+
+                    if (matchMoveLocation != i)
+                    {
+                        Matches[matchMoveLocation] = std::move(Matches[i]);
+                    }
+                }
 
                 // Get rid of the excess entries
-                Matches.resize(Matches.size() - primaryFoldCount);
+                Matches.erase(Matches.end() - foldCount, Matches.end());
             }
 
             std::vector<CompositeResultMatch> Matches;
