@@ -898,16 +898,16 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
     <value>Microsoft Store-Quelle für den Windows-App-Installer aktivieren</value>
   </data>
   <data name="PolicyEnableWinGetSettings" xml:space="preserve">
-    <value>Einstellungen des Windows-Paket-Manager aktivieren</value>
+    <value>Einstellungen des Windows Package Manager aktivieren</value>
   </data>
   <data name="PolicyEnableWinGet" xml:space="preserve">
-    <value>Windows-Paket-Manager aktivieren</value>
+    <value>Windows Package Manager aktivieren</value>
   </data>
   <data name="PolicyEnableWindowsPackageManagerCommandLineInterfaces" xml:space="preserve">
     <value>Aktivieren der Windows-Paketmanager-Befehlszeilenschnittstellen</value>
   </data>
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
-    <value>Intervall für das automatische Aktualisieren der Windows-Paket-Manager-Quelle in Minuten festlegen</value>
+    <value>Intervall für das automatische Aktualisieren der Windows Package Manager-Quelle in Minuten festlegen</value>
   </data>
   <data name="PoliciesPolicy" xml:space="preserve">
     <value>Gruppenrichtlinie</value>
@@ -1158,7 +1158,7 @@ Stimmen Sie den Bedingungen zu?</value>
     <value>Die Installation war erfolgreich. Starten Sie die Anwendung neu, um das Upgrade abzuschließen.</value>
   </data>
   <data name="HeaderArgumentDescription" xml:space="preserve">
-    <value>Optionaler HTTP-Kopfzeile der REST-Quelle für Windows-Paket-Manager</value>
+    <value>Optionaler HTTP-Kopfzeile der REST-Quelle für Windows Package Manager</value>
   </data>
   <data name="HeaderArgumentNotApplicableForNonRestSourceWarning" xml:space="preserve">
     <value>Die optionale Kopfzeile wird ignoriert, da sie für diese Quelle nicht anwendbar ist.</value>
@@ -1299,11 +1299,11 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <comment>"working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
-    <value>Dies ist eine stabile Version des Windows-Paket-Managers. Wenn Sie experimentelle Features ausprobieren möchten, installieren Sie bitte eine Vorabversion. Anweisungen finden Sie auf GitHub unter https://github.com/microsoft/winget-cli.</value>
+    <value>Dies ist eine stabile Version des Windows Package Managers. Wenn Sie experimentelle Features ausprobieren möchten, installieren Sie bitte eine Vorabversion. Anweisungen finden Sie auf GitHub unter https://github.com/microsoft/winget-cli.</value>
     <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
   <data name="WindowsPackageManager" xml:space="preserve">
-    <value>Windows-Paket-Manager v{0}</value>
+    <value>Windows Package Manager v{0}</value>
     <comment>{Locked="{0}"} Label displaying the product name and version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
@@ -1322,7 +1322,7 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <value>Die Installationstechnologie der angegebenen neueren Version unterscheidet sich von der aktuell installierten Version. Deinstallieren Sie das Paket, und installieren Sie die neuere Version.</value>
   </data>
   <data name="WindowsPackageManagerPreview" xml:space="preserve">
-    <value>Windows-Paket-Manager (Vorschau) v{0}</value>
+    <value>Windows Package Manager (Vorschau) v{0}</value>
     <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="ArchitectureArgumentDescription" xml:space="preserve">
@@ -1332,7 +1332,7 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <value>Pakete auch dann aktualisieren, wenn ihre aktuelle Version nicht bestimmt werden kann</value>
   </data>
   <data name="IncludeUnknownInListArgumentDescription" xml:space="preserve">
-    <value>Listet Pakete auf, auch wenn deren aktuelle Version nicht ermittelt werden kann. Kann nur mit dem Argument „--upgrade-available“ verwendet werden</value>
+    <value>Listet Pakete auf, auch wenn deren aktuelle Version nicht bestimmt werden kann. Kann nur mit dem Argument „--upgrade-available“ verwendet werden</value>
     <comment>{Locked="--upgrade-available"}</comment>
   </data>
   <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
@@ -1340,11 +1340,11 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
   <data name="UpgradeUnknownVersionCount" xml:space="preserve">
-    <value>Mindestens {0} Paket verfügt über Versionsnummern, die nicht ermittelt werden können. Verwenden Sie „--include-unknown“, um alle Ergebnisse anzuzeigen.</value>
+    <value>Mindestens {0} Paket(e) verfügen über Versionsnummern, die nicht bestimmt werden können. Verwenden Sie „--include-unknown“, um alle Ergebnisse anzuzeigen.</value>
     <comment>{Locked="{0}","--include-unknown"} {0} is a placeholder that is replaced by an integer number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeRequireExplicitCount" xml:space="preserve">
-    <value>{0} Pakete sind angeheftet und müssen explizit aktualisiert werden.</value>
+    <value>{0} Paket(e) sind angeheftet und müssen explizit aktualisiert werden.</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages that require explicit upgrades.</comment>
   </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
@@ -1402,33 +1402,33 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <value>Befehlszeilenalias hinzugefügt:</value>
   </data>
   <data name="PortableLinksMachine" xml:space="preserve">
-    <value>Portables Linkverzeichnis (Computer)</value>
+    <value>Verzeichnis für portable Verknüpfungen (Computer)</value>
   </data>
   <data name="PortableLinksUser" xml:space="preserve">
-    <value>Verzeichnis für portierbare Links (Benutzer)</value>
+    <value>Verzeichnis für portable Verknüpfungen (Benutzer)</value>
   </data>
   <data name="PortableRootUser" xml:space="preserve">
-    <value>Portierbarer Paketstamm (Benutzer)</value>
+    <value>Stamm für portable Pakete (Benutzer)</value>
   </data>
   <data name="PortableRoot" xml:space="preserve">
-    <value>Portierbarer Paketstamm</value>
+    <value>Stamm für portable Pakete</value>
   </data>
   <data name="PortableRoot86" xml:space="preserve">
-    <value>Portierbares Paketstamm (x86)</value>
+    <value>Stamm für portable Pakete (x86)</value>
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable Installation fehlgeschlagen; Aufräumen...</value>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>Das Portable-Paket wurde geändert. Aufgrund von „--force“ wird fortgefahren</value>
+    <value>Das portable Paket wurde geändert. Aufgrund von „--force“ wird fortgefahren</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Das Portable-Paket kann nicht entfernt werden, da es geändert wurde. Um dies außer Kraft zu setzen, verwenden Sie „--force“</value>
+    <value>Das portable Paket kann nicht entfernt werden, da es geändert wurde. Um dies außer Kraft zu setzen, verwenden Sie „--force“</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
-    <value>Dateien verbleiben im Installationsverzeichnis: {0}</value>
+    <value>Im Installationsverzeichnis verbleibende Dateien: {0}</value>
     <comment>{Locked="{0}"} Warning message displayed when files remain in install directory. {0} is a placeholder replaced by the directory path.</comment>
   </data>
   <data name="PurgeInstallDirectory" xml:space="preserve">
@@ -1476,7 +1476,7 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <value>Listet nur Pakete auf, für die ein Upgrade verfügbar ist</value>
   </data>
   <data name="UpgradeAvailableForPinned" xml:space="preserve">
-    <value>Für die folgenden Pakete ist ein Upgrade verfügbar, für das Upgrade ist jedoch eine explizite Zielgruppenadressierung erforderlich:</value>
+    <value>Für die folgenden Pakete ist ein Upgrade verfügbar, die Pakete müssen jedoch explizit angegeben werden:</value>
     <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
   </data>
   <data name="Downloading" xml:space="preserve">
@@ -1554,44 +1554,44 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
   </data>
   <data name="PinAddCommandLongDescription" xml:space="preserve">
-    <value>Fügen Sie eine neue PIN hinzu. Eine PIN kann die Windows-Paket-Manager vom Upgrade eines Pakets auf bestimmte Versionsbereiche einschränken oder ein Upgrade des Pakets verhindern. Ein angeheftetes Paket kann weiterhin eigenständig aktualisiert werden und von außerhalb des Windows-Paket-Manager aktualisiert werden. Ein angeheftetes Paket kann standardmäßig aktualisiert werden, indem es explizit im Befehl "upgrade" erwähnt wird oder indem das Flag "--include-pinned" zu "winget upgrade --all" hinzugefügt wird.</value>
+    <value>Ein Paket anheften. Wird ein Paket angeheftet, kann dies den Windows Package Manager beim Upgrade auf bestimmte Versionsbereiche einschränken oder ein Upgrade des Pakets insgesamt verhindern. Ein angeheftetes Paket kann weiterhin eigenständig aktualisiert werden und außerhalb des Windows Package Managers aktualisiert werden. Standardmäßig kann ein angeheftetes Paket aktualisiert werden, indem es explizit im Befehl "upgrade" erwähnt wird oder indem das Flag "--include-pinned" zu "winget upgrade --all" hinzugefügt wird.</value>
     <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
   </data>
   <data name="PinAddCommandShortDescription" xml:space="preserve">
-    <value>Neue PIN hinzufügen</value>
+    <value>Ein Paket anheften</value>
   </data>
   <data name="PinCommandLongDescription" xml:space="preserve">
-    <value>Verwalten Sie Paketpins mit den Unterbefehlen. Eine PIN kann die Windows-Paket-Manager einschränken, ein Paket auf bestimmte Versionsbereiche zu aktualisieren, oder das Upgrade des Pakets kann verhindert werden. Ein angeheftetes Paket kann weiterhin eigenständig aktualisiert werden und von außerhalb des Windows-Paket-Manager aktualisiert werden.</value>
+    <value>Verwalten Sie angeheftete Pakete mit den Unterbefehlen. Wird ein Paket angeheftet, kann dies den Windows Package Manager beim Upgrade auf bestimmte Versionsbereiche einschränken oder ein Upgrade des Pakets insgesamt verhindern. Ein angeheftetes Paket kann weiterhin eigenständig aktualisiert werden und außerhalb des Windows Package Managers aktualisiert werden.</value>
   </data>
   <data name="PinCommandShortDescription" xml:space="preserve">
-    <value>Paketpins verwalten</value>
+    <value>Angeheftete Pakete verwalten</value>
   </data>
   <data name="PinListCommandLongDescription" xml:space="preserve">
-    <value>Listet alle aktuellen Pins oder vollständige Details eines bestimmten Pins auf.</value>
+    <value>Listet alle aktuell angehefteten Pakete auf oder gibt Details zu einem bestimmten angehefteten Paket aus.</value>
   </data>
   <data name="PinListCommandShortDescription" xml:space="preserve">
-    <value>Aktuelle Pins auflisten</value>
+    <value>Aktuell angeheftete Pakete auflisten</value>
   </data>
   <data name="PinRemoveCommandLongDescription" xml:space="preserve">
-    <value>Entfernen Sie eine bestimmte Paket-PIN.</value>
+    <value>Ein bestimmtes Paket nicht mehr anheften</value>
   </data>
   <data name="PinRemoveCommandShortDescription" xml:space="preserve">
-    <value>Paket-PIN entfernen</value>
+    <value>Peket nicht mehr anheften</value>
   </data>
   <data name="PinResetCommandLongDescription" xml:space="preserve">
-    <value>Alle vorhandenen Pins zurücksetzen.</value>
+    <value>Liste aller angehefteten Pakete zurücksetzen.</value>
   </data>
   <data name="PinResetCommandShortDescription" xml:space="preserve">
-    <value>Pins zurücksetzen</value>
+    <value>Angeheftete Pakete zurücksetzen</value>
   </data>
   <data name="GatedVersionArgumentDescription" xml:space="preserve">
-    <value>Version, an die das Paket angeheftet werden soll. Der Platzhalter "*" kann als letzter Versionsteil verwendet werden.</value>
+    <value>Version, mit der das Paket angeheftet werden soll. Der Platzhalter "*" kann als letzter Versionsteil verwendet werden.</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
-    <value>Upgrade blockieren, bis der Pin entfernt wird, wodurch Außerkraftsetzungsargumente verhindert werden</value>
+    <value>Upgrade blockieren, solange das Paket angeheftet ist. Verhindert das Überschreiben durch spezielle Argumente.</value>
   </data>
   <data name="PinInstalledArgumentDescription" xml:space="preserve">
-    <value>Bestimmte installierte Version anheften</value>
+    <value>Eine bestimmte installierte Version anheften</value>
   </data>
   <data name="PinInstalledSource" xml:space="preserve">
     <value>Installiert</value>
@@ -1611,48 +1611,48 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <value>Die Einstellungsdatei konnte nicht geladen werden. Standardwerte werden verwendet.</value>
   </data>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
-    <value>Bereichsfilter für das installierte Paket auswählen (Benutzer oder Computer)</value>
+    <value>Bereichsfilter für installierte Pakete auswählen (Benutzer oder Computer)</value>
     <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
   </data>
   <data name="PinAdded" xml:space="preserve">
-    <value>Pin erfolgreich hinzugefügt</value>
+    <value>Paket erfolgreich angeheftet</value>
   </data>
   <data name="PinAlreadyExists" xml:space="preserve">
-    <value>Für das Paket {0} ist bereits eine PIN vorhanden.</value>
+    <value>Das Paket {0} ist bereits angeheftet.</value>
     <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to add a pin for a package that is already pinned.</comment>
   </data>
   <data name="PinExistsOverwriting" xml:space="preserve">
-    <value>Für das Paket {0} ist bereits eine PIN vorhanden. Überschreiben aufgrund des --force Arguments.</value>
+    <value>Das Paket {0} ist bereits angeheftet. Angeheftete Version wird aufgrund des --force Arguments überschrieben.</value>
     <comment>{Locked="--force"}{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
   </data>
   <data name="PinExistsUseForceArg" xml:space="preserve">
-    <value>Für das Paket {0} ist bereits eine PIN vorhanden. Verwenden Sie das --force Argument, um es zu überschreiben.</value>
+    <value>Das Paket {0} ist bereits angeheftet. Verwenden Sie das --force Argument, um die angeheftete Version zu überschreiben.</value>
     <comment>{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
   </data>
   <data name="PinResettingAll" xml:space="preserve">
-    <value>Alle aktuellen Pins werden zurückgesetzt.</value>
+    <value>Liste aller aktuell angehefteter Pakete zurücksetzen</value>
   </data>
   <data name="PinResetUseForceArg" xml:space="preserve">
-    <value>Verwenden Sie das argument --force, um alle Pins zurückzusetzen. Die folgenden Pins würden entfernt:</value>
+    <value>Verwenden Sie das argument --force, um die Liste aller aktuell angehefteter Pakete zurückzusetzen. Die folgenden Paket wären nicht mehr angeheftet:</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="PinType" xml:space="preserve">
     <value>Stecknadeltyp</value>
   </data>
   <data name="PinDoesNotExist" xml:space="preserve">
-    <value>Für das Paket {0} ist keine PIN vorhanden</value>
+    <value>Paket {0} ist nicht angeheftet.</value>
     <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to delete a pin for a package that is not pinned.</comment>
   </data>
   <data name="PinNoPinsExist" xml:space="preserve">
-    <value>Es sind keine Pins konfiguriert.</value>
+    <value>Es sind keine Pakete angeheftet.</value>
     <comment>Shown when listing or modifying existing pins if there are none.</comment>
   </data>
   <data name="PinResetSuccessful" xml:space="preserve">
-    <value>Pins erfolgreich zurückgesetzt</value>
+    <value>Liste angehefteter Pakete erfolgreich zurückgesetzt.</value>
     <comment>Shown after resetting (deleting) all the pins</comment>
   </data>
   <data name="PinCannotOpenIndex" xml:space="preserve">
-    <value>Pin-Datenbank kann nicht geöffnet werden.</value>
+    <value>Datenbank angehefteter Pakete kann nicht geöffnet werden.</value>
     <comment>Error message for when we cannot open the database containing package pins.</comment>
   </data>
   <data name="ArgumentForSinglePackageProvidedWithMultipleQueries" xml:space="preserve">
@@ -1694,35 +1694,35 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches fails. This message is for generic failures, we have more specific messages for when the search returns no results, or when it returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
   </data>
   <data name="UpgradeBlockedByPinCount" xml:space="preserve">
-    <value>{0} Pakete verfügen über einen Pin, der vor dem Upgrade entfernt werden muss</value>
+    <value>{0} Paket(e) sind angeheftet, sie müssen vor dem Upgrade aus der Liste angehefteter Pakete entfernt werden.</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
-    <value>Aktualisieren von Paketen auch dann, wenn sie über einen nicht blockierenden Pin verfügen</value>
+    <value>Pakete auch dann aktualisieren, wenn sie nicht blockierend angeheftet sind.</value>
   </data>
   <data name="IncludePinnedInListArgumentDescription" xml:space="preserve">
-    <value>Listet Pakete auf, auch wenn sie einen Pin haben, der ein Upgrade verhindert. Kann nur mit dem Argument „--upgrade-available“ verwendet werden</value>
+    <value>Listet Pakete auf, auch wenn sie angeheftet sind, wodurch ein Upgrade verhindert wird. Kann nur mit dem Argument „--upgrade-available“ verwendet werden.</value>
     <comment>{Locked="--upgrade-available"}</comment>
   </data>
   <data name="PinRemovedSuccessfully" xml:space="preserve">
-    <value>Pin erfolgreich entfernt</value>
+    <value>Paket erfolgreich aus der Liste angehefteter Pakete entfernt.</value>
   </data>
   <data name="UpgradeIsPinned" xml:space="preserve">
-    <value>Es wurde eine neuere Version gefunden, das Paket verfügt jedoch über eine PIN, die ein Upgrade verhindert.</value>
+    <value>Es wurde eine neuere Version gefunden, das Paket ist jedoch angeheftet, wodurch ein Upgrade verhindert wird.</value>
   </data>
   <data name="PackageIsPinned" xml:space="preserve">
-    <value>Das Paket ist angeheftet und kann nicht aktualisiert werden. Verwenden Sie den Befehl "winget pin", um Pins anzuzeigen und zu bearbeiten. Einige Stecknadeltypen können mit dem Argument "--include-pinned" umgangen werden.</value>
+    <value>Das Paket ist angeheftet und kann nicht aktualisiert werden. Verwenden Sie den Befehl "winget pin", um die Liste angehefteter Pakete anzuzeigen und zu bearbeiten. Einige Pakete können mit dem Argument "--include-pinned" dennoch aktualisiert werden.</value>
     <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
   </data>
   <data name="UpgradePinnedByUserCount" xml:space="preserve">
-    <value>{0} Pakete verfügen über Pins, die ein Upgrade verhindern. Verwenden Sie den Befehl "winget pin", um Pins anzuzeigen und zu bearbeiten. Wenn Sie das --include-pinned-Argument verwenden, werden möglicherweise weitere Ergebnisse angezeigt.</value>
+    <value>{0} Paket(e) sind angeheftet, wodurch ein Upgrade verhindert wird. Verwenden Sie den Befehl "winget pin", um die Liste angehefteter Pakete anzuzeigen und zu bearbeiten. Wenn Sie das Argument "--include-pinned" verwenden, werden möglicherweise weitere Ergebnisse angezeigt.</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
   <data name="ConfigureCommandLongDescription" xml:space="preserve">
     <value>Stellt sicher, dass das System dem gewünschten Zustand entspricht, wie in der angegebenen Konfiguration beschrieben. Kann Prozessoren herunterladen/ausführen, um den gewünschten Zustand zu erreichen. Die Konfiguration und die Prozessoren sollten überprüft werden, um sicherzustellen, dass sie vertrauenswürdig sind, bevor sie angewendet werden.</value>
   </data>
   <data name="ConfigureCommandShortDescription" xml:space="preserve">
-    <value>Konfiguriert das System in einem gewünschten Zustand</value>
+    <value>Versetzt das System in einen gewünschten Zustand.</value>
   </data>
   <data name="ConfigureShowCommandLongDescription" xml:space="preserve">
     <value>Zeigt Details zur angegebenen Konfiguration an. Standardmäßig wird das System nicht geändert, aber einige Optionen führen dazu, dass Dateien heruntergeladen und/oder geladen werden.</value>
@@ -1737,7 +1737,7 @@ Geben Sie eine Option für --source an, um den Vorgang fortzusetzen.</value>
     <value>Überprüft das System anhand eines gewünschten Zustands.</value>
   </data>
   <data name="ConfigureValidateCommandLongDescription" xml:space="preserve">
-    <value>Überprüft eine Konfigurationsdatei auf Richtigkeit.</value>
+    <value>Überprüft eine Konfigurationsdatei auf Korrektheit.</value>
   </data>
   <data name="ConfigureValidateCommandShortDescription" xml:space="preserve">
     <value>Überprüft eine Konfigurationsdatei</value>
