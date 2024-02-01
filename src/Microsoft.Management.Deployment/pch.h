@@ -5,5 +5,7 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 
+#include <ostream>
+#include <string>
 #include <mutex>
 #include <random>

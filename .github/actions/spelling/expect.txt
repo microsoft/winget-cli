@@ -247,6 +247,7 @@ mdmp
 MDs
 megamorf
 meme
+microsoftentraid
 midl
 minexample
 minidump
@@ -394,6 +395,7 @@ SHGDN
 SHOWNORMAL
 Sideload
 SIGNATUREHASH
+silentpreferred
 similarissues
 similaritytolerance
 Skipx
@@ -461,6 +463,7 @@ UParse
 upgradable
 upgradecode
 URLZONE
+USEDEFAULT
 userfilesetting
 userprofile
 UWP
@@ -491,6 +494,7 @@ winreg
 winrtact
 winstring
 withstarts
+WNDCLASS
 WNDCLASSEX
 WPARAM
 wpr

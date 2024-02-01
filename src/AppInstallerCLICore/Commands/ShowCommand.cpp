@@ -31,6 +31,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Locale),
             Argument::ForType(Execution::Args::Type::ListVersions),
             Argument::ForType(Execution::Args::Type::CustomHeader),
+            Argument::ForType(Execution::Args::Type::AuthenticationMode),
+            Argument::ForType(Execution::Args::Type::AuthenticationAccount),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
     }

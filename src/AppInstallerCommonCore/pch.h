@@ -92,6 +92,8 @@
 #include <winrt/Windows.Web.Http.Filters.h>
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
+#include <winrt/Windows.Security.Authentication.Web.Core.h>
+#include <winrt/Windows.Security.Credentials.h>
 
 #endif
 
@@ -103,3 +105,4 @@
 #include <shcore.h>
 
 #include <AppxPackaging.h>
+#include <WebAuthenticationCoreManagerInterop.h>

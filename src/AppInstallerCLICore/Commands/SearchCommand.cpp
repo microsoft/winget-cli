@@ -25,6 +25,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
             Argument::ForType(Execution::Args::Type::CustomHeader),
+            Argument::ForType(Execution::Args::Type::AuthenticationMode),
+            Argument::ForType(Execution::Args::Type::AuthenticationAccount),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::ListVersions),
         };

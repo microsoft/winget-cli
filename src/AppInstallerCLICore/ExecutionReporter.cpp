@@ -21,6 +21,7 @@ namespace AppInstaller::CLI::Execution
     const Sequence& ConvertToUpgradeFlowEmphasis = TextFormat::Foreground::BrightYellow;
     const Sequence& ConfigurationIntentEmphasis = TextFormat::Foreground::Bright;
     const Sequence& ConfigurationUnitEmphasis = TextFormat::Foreground::BrightCyan;
+    const Sequence& AuthenticationEmphasis = TextFormat::Foreground::BrightYellow;
 
     Reporter::Reporter(std::ostream& outStream, std::istream& inStream) :
         Reporter(std::make_shared<BaseStream>(outStream, true, ConsoleModeRestore::Instance().IsVTEnabled()), inStream)

@@ -875,7 +875,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="InstallScopeDescription" xml:space="preserve">
     <value>Select install scope (user or machine)</value>
-    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+    <comment>{Locked="user","machine"} This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
     <value>The value provided for the `{0}` argument is invalid; valid values are: {1}</value>
@@ -1615,7 +1615,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
     <value>Select installed package scope filter (user or machine)</value>
-    <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
+    <comment>{Locked="user","machine"} This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
   </data>
   <data name="PinAdded" xml:space="preserve">
     <value>Pin added successfully</value>
@@ -2422,6 +2422,42 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED" xml:space="preserve">
     <value>Failed to download package. Download for offline installation is prohibited.</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE" xml:space="preserve">
+    <value>A required service is busy or unavailable. Try again later.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND" xml:space="preserve">
+    <value>The guid provided does not correspond to a valid resume state.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH" xml:space="preserve">
+    <value>The current client version did not match the client version of the saved state.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE" xml:space="preserve">
+    <value>The resume state data is invalid.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CANNOT_OPEN_CHECKPOINT_INDEX" xml:space="preserve">
+    <value>Unable to open the checkpoint database.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED" xml:space="preserve">
+    <value>Exceeded max resume limit.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO" xml:space="preserve">
+    <value>Invalid authentication info.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Authentication method not supported.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED" xml:space="preserve">
+    <value>Authentication failed.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_INTERACTIVE_REQUIRED" xml:space="preserve">
+    <value>Authentication failed. Interactive authentication required.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER" xml:space="preserve">
+    <value>Authentication failed. User cancelled.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT" xml:space="preserve">
+    <value>Authentication failed. Authenticated account is not the desired account.</value>
+  </data>
   <data name="APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE" xml:space="preserve">
     <value>Application is currently running. Exit the application then try again.</value>
   </data>
@@ -2705,5 +2741,20 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="WinGetResourceUnitFailedToValidatePackage" xml:space="preserve">
     <value>WinGetPackage configuration unit package cannot be validated. Package Id: {0}</value>
     <comment>{Locked="WinGetPackage,{0}"}</comment>
+  </data>
+  <data name="AuthenticationModeArgumentDescription" xml:space="preserve">
+    <value>Specify authentication window preference (silent, silentPreferred or interactive)</value>
+    <comment>{Locked="silent","silentPreferred","interactive"} This argument allows the user to select authentication window popup behavior.</comment>
+  </data>
+  <data name="AuthenticationAccountArgumentDescription" xml:space="preserve">
+    <value>Specify the account to be used for authentication</value>
+  </data>
+  <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
+    <value>Failed to add source. This winget version does not support the source's authentication method. Try upgrade to latest winget version.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="SourceRequiresAuthentication" xml:space="preserve">
+    <value>The {0} source requires authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with the source for access authorization.</value>
+    <comment>{Locked="{0}"}</comment>
   </data>
 </root>

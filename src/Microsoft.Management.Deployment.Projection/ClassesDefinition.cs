@@ -94,6 +94,18 @@ namespace Microsoft.Management.Deployment.Projection
                 }
             },
 
+            [typeof(AuthenticationArguments)] = new()
+            {
+                ProjectedClassType = typeof(AuthenticationArguments),
+                InterfaceType = typeof(IAuthenticationArguments),
+                Clsids = new Dictionary<ClsidContext, Guid>()
+                {
+                    [ClsidContext.InProc] = new Guid("8D593114-1CF1-43B9-8722-4DBB30103296"),
+                    [ClsidContext.OutOfProc] = new Guid("BA580786-BDE3-4F6C-B8F3-44698AC8711A"),
+                    [ClsidContext.OutOfProcDev] = new Guid("6484A61D-50FA-41F0-B71E-F4370C6EB37C"),
+                }
+            },
+
             [typeof(PackageManagerSettings)] = new()
             {
                 ProjectedClassType = typeof(PackageManagerSettings),
