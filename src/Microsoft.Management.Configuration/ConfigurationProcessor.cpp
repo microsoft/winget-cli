@@ -499,12 +499,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
             CATCH_LOG();
 
-            auto applyOperation = groupProcessor.ApplyGroupSettingsAsync();
-
             // Forward unit result progress to caller
-            applyOperation.Progress([&](const auto&, const IApplyGroupMemberSettingsResult& unitResult)
+            auto applyOperation = groupProcessor.ApplyGroupSettingsAsync([&](const auto&, const IApplyGroupMemberSettingsResult& unitResult)
                 {
-                    // Update overall result
                     auto itr = unitResultMap.find(unitResult.Unit().InstanceIdentifier());
                     if (itr != unitResultMap.end())
                     {
@@ -597,13 +594,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            auto testOperation = groupProcessor.TestGroupSettingsAsync();
-
             // Forward unit result progress to caller
-            testOperation.Progress([&](const auto&, const ITestSettingsResult& unitResult)
+            auto testOperation = groupProcessor.TestGroupSettingsAsync([&](const auto&, const ITestSettingsResult& unitResult)
                 {
                     auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
                     testResult->Initialize(unitResult);
+
+                    result->AppendUnitResult(*testResult);
                     progress.Progress(*testResult);
                 });
 
@@ -612,7 +609,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             ITestGroupSettingsResult testResult = testOperation.get();
 
-            // Place all results from the processor into our result
+            // Send telemetry for all results
             for (const ITestSettingsResult& unitResult : testResult.UnitResults())
             {
                 auto testUnitResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
@@ -624,8 +621,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     ConfigurationUnitIntent::Assert,
                     TelemetryTraceLogger::TestAction,
                     testUnitResult->ResultInformation());
-
-                result->AppendUnitResult(*testUnitResult);
             }
 
             m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForTest(*winrt::get_self<implementation::ConfigurationSet>(configurationSet), *result);

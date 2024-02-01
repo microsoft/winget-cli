@@ -17,9 +17,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         IInspectable Group();
 
-        Windows::Foundation::IAsyncOperationWithProgress<ITestGroupSettingsResult, ITestSettingsResult> TestGroupSettingsAsync();
+        Windows::Foundation::IAsyncOperation<ITestGroupSettingsResult> TestGroupSettingsAsync(Windows::Foundation::EventHandler<ITestSettingsResult> progressHandler);
 
-        Windows::Foundation::IAsyncOperationWithProgress<IApplyGroupSettingsResult, IApplyGroupMemberSettingsResult> ApplyGroupSettingsAsync();
+        Windows::Foundation::IAsyncOperation<IApplyGroupSettingsResult> ApplyGroupSettingsAsync(Windows::Foundation::EventHandler<IApplyGroupMemberSettingsResult> progressHandler);
 
     private:
         void ThrowIf(bool cancellation);
