@@ -835,6 +835,11 @@ namespace AppInstaller::Repository
                 m_trackingWriteTime = trackingWriteTime;
             }
 
+            std::chrono::system_clock::time_point GetTrackingPackageWriteTime() const
+            {
+                return m_trackingWriteTime;
+            }
+
             // Gets the information about the pins that exist for this package
             void GetExistingPins(PinningIndex& pinningIndex)
             {
@@ -922,7 +927,7 @@ namespace AppInstaller::Repository
             Source m_trackingSource;
             std::shared_ptr<IPackage> m_trackingPackage;
             std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
-            std::chrono::system_clock::time_point m_trackingWriteTime;
+            std::chrono::system_clock::time_point m_trackingWriteTime = std::chrono::system_clock::time_point::min();
             std::string m_overrideInstalledVersion;
             std::optional<PinnablePackage> m_primaryAvailablePackage;
             std::vector<PinnablePackage> m_availablePackages;
@@ -1193,7 +1198,25 @@ namespace AppInstaller::Repository
                 return result;
             }
 
-            // Group results by their available package correlations.
+            // Group results in an attempt to have a single result that covers all installed versions.
+            // This is expected to be called immediately after the installed search portion,
+            // when each result will contain a single installed version and some number of available packages.
+            // 
+            // The folds that happen are:
+            //  1. When results have the same primary available package (the primary available package is set due to tracking data)
+            //  2. When a result has no primary available package, but another result does have a primary that matches one of the availables
+            //      a. Choose the latest primary if there are multiple
+            //  3. When multiple results have no primary available package and share the same available package set
+            //      a. There are many potential additional rules that could be made here, but we will start with the simplest version.
+            //
+            // Potential improvements:
+            //  1. Attempting correlation of non-primary available packages to allow folding in more complex cases
+            //      a. For example, if installed A has {source1:package1, source2:package2} and installed B has {source1:package1}, can we
+            //          make sure that source1:package1 and source2:package2 are in fact "the same" to confidently say that installed A and B
+            //          are side by side versions.
+            //  2. Attempt correlation by installed data only
+            //      a. We can potentially detect multiple instances of the same installed item with the same correlation logic turned back on
+            //          the installed source.  This would allow for folding even when the package is not in any available source.
             void FoldInstalledResults()
             {
                 if (!ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide))
@@ -1252,11 +1275,9 @@ namespace AppInstaller::Repository
 
                 // Attempt to fold all primary package matches first.
                 // Packages without primaries will still be indexed into the hash table.
-                size_t foldCount = 0;
                 for (size_t i = 0; i < Matches.size(); ++i)
                 {
                     CompositeResultMatch& currentMatch = Matches[i];
-                    size_t matchMoveLocation = i - foldCount;
 
                     // Check current match for fold target
                     if (currentMatch.Package->GetPrimaryAvailablePackage())
@@ -1269,17 +1290,16 @@ namespace AppInstaller::Repository
                             if (itr->second.PrimaryPackageIndex)
                             {
                                 // TODO: add installed version into target package
-                                ++foldCount;
-                                continue;
+                                currentMatch.Package.reset();
                             }
                             else
                             {
-                                itr->second.PrimaryPackageIndex = matchMoveLocation;
+                                itr->second.PrimaryPackageIndex = i;
                             }
                         }
                         else
                         {
-                            foldData[key] = InstalledResultFoldData{ matchMoveLocation };
+                            foldData[key] = InstalledResultFoldData{ i };
                         }
                     }
                     else
@@ -1294,26 +1314,22 @@ namespace AppInstaller::Repository
                                 itr = foldData.insert({ key, {} }).first;
                             }
 
-                            itr->second.NonPrimaryPackageIndices.emplace_back(matchMoveLocation);
+                            itr->second.NonPrimaryPackageIndices.emplace_back(i);
                         }
-                    }
-
-                    if (matchMoveLocation != i)
-                    {
-                        Matches[matchMoveLocation] = std::move(Matches[i]);
                     }
                 }
 
-                // Get rid of the excess entries
-                Matches.erase(Matches.end() - foldCount, Matches.end());
-
                 // After primary matches are folded, attempt to fold results without primary matches.
-                // The latest primary match will be preferred as a tiebreak.
-                foldCount = 0;
+                // The latest primary match will be preferred.
                 for (size_t i = 0; i < Matches.size(); ++i)
                 {
                     CompositeResultMatch& currentMatch = Matches[i];
-                    size_t matchMoveLocation = i - foldCount;
+
+                    // Skip any matches that we have already folded
+                    if (!currentMatch.Package)
+                    {
+                        continue;
+                    }
 
                     if (!currentMatch.Package->GetPrimaryAvailablePackage())
                     {
@@ -1340,22 +1356,48 @@ namespace AppInstaller::Repository
 
                         if (latestPrimaryAvailable)
                         {
-                            // TODO: Fold into latest primary
-                            ++foldCount;
+                            // TODO: Fold with the latest primary, preserving the one with the lower index
+                            // TODO: reset the Package from the match that is not kept
                             continue;
                         }
 
-                        // TODO: Given a set of 
-                    }
+                        // First, find the intersection of all results that contain all of the packages from this result.
+                        std::vector<size_t> candidateMatches;
+                        for (size_t j = 0; j < availableFoldData.size(); ++j)
+                        {
+                            InstalledResultFoldData* packageFoldData = availableFoldData[j];
 
-                    if (matchMoveLocation != i)
-                    {
-                        Matches[matchMoveLocation] = std::move(Matches[i]);
+                            if (j == 0)
+                            {
+                                candidateMatches = packageFoldData->NonPrimaryPackageIndices;
+                            }
+                            else
+                            {
+                                std::vector<size_t> temp;
+                                std::set_intersection(
+                                    candidateMatches.begin(), candidateMatches.end(),
+                                    packageFoldData->NonPrimaryPackageIndices.begin(), packageFoldData->NonPrimaryPackageIndices.end(),
+                                    std::back_inserter(temp));
+                                candidateMatches = std::move(temp);
+                            }
+                        }
+
+                        // Now exclude both our own result and any that have a different (larger) number of available packages
+                        candidateMatches.erase(std::remove_if(candidateMatches.begin(), candidateMatches.end(),
+                            [&](size_t index) { return index == i || Matches[index].Package->GetAvailablePackages().size() != currentMatch.Package->GetAvailablePackages().size(); }),
+                            candidateMatches.end());
+
+                        // All of these remaining values should be folded in to our result
+                        for (size_t foldTarget : candidateMatches)
+                        {
+                            // TODO: Fold into our result
+                            Matches[foldTarget].Package.reset();
+                        }
                     }
                 }
 
-                // Get rid of the excess entries
-                Matches.erase(Matches.end() - foldCount, Matches.end());
+                // Get rid of the folded results; we reset the Package to indicate that it is no longer valid
+                Matches.erase(std::remove_if(Matches.begin(), Matches.end(), [&](const CompositeResultMatch& match) { return !match.Package; }), Matches.end());
             }
 
             std::vector<CompositeResultMatch> Matches;
