@@ -468,7 +468,7 @@ namespace AppInstaller::YAML
         Require(Type::Sequence);
         other.Require(Type::Sequence);
 
-        auto getKeyValue = [caseInsensitive](const YAML::Node& node, std::string_view key) {
+        auto getKeyValue = [&](const YAML::Node& node) {
             auto keyNode = caseInsensitive ? node.GetChildNode(key) : node[key];
             if (keyNode.IsNull())
             {
@@ -483,14 +483,14 @@ namespace AppInstaller::YAML
         for (Node& node : m_sequence.value())
         {
             node.Require(Type::Mapping);
-            auto keyValue = getKeyValue(node, key);
+            auto keyValue = getKeyValue(node);
             newSequenceMap.emplace(std::move(keyValue), std::move(node));
         }
 
         for (Node& node : other.m_sequence.value())
         {
             node.Require(Type::Mapping);
-            auto keyValue = getKeyValue(node, key);
+            auto keyValue = getKeyValue(node);
             if (newSequenceMap.find(keyValue) == newSequenceMap.end())
             {
                 newSequenceMap.emplace(std::move(keyValue), std::move(node));
