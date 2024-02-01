@@ -104,11 +104,11 @@ namespace AppInstaller::Utility
 
     using NormalizedString = NormalizedUTF8<NORM_FORM::NormalizationKC, true>;
 
-    // Compares the two UTF8 strings in a case insensitive manner.
+    // Compares the two UTF8 strings in a case-insensitive manner.
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b);
 
-    // Returns if a UTF8 string is contained within a vector in a case insensitive manner.
+    // Returns if a UTF8 string is contained within a vector in a case-insensitive manner.
     bool CaseInsensitiveContains(const std::vector<std::string_view>& a, std::string_view b);
 
     // Determines if string a starts with string b.
@@ -119,7 +119,7 @@ namespace AppInstaller::Utility
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveContainsSubstring(std::string_view a, std::string_view b);
 
-    // Compares the two UTF8 strings in a case insensitive manner, using ICU for case folding.
+    // Compares the two UTF8 strings in a case-insensitive manner, using ICU for case folding.
     bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b);
 
     // Determines if string a starts with string b, using ICU for case folding.
