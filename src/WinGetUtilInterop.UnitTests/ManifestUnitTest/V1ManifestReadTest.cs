@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGetUtil.UnitTests.ManifestUnitTest
+namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
 {
     using System.IO;
     using System.Reflection;
