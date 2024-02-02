@@ -295,18 +295,18 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
         }
 
-        if (repairCommand.empty())
-        {
-            context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
-        }
-
         context <<
             Workflow::GetInstallerArgs;
 
         // Following is not applicable for RepairBehaviorEnum::Installer, as we can call ShelleExecuteInstall directly with repair argument.
         if (repairBehavior != RepairBehaviorEnum::Installer)
         {
+            if (repairCommand.empty())
+            {
+                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+            }
+
             repairCommand.append(" ");
             repairCommand.append(context.Get<Execution::Data::InstallerArgs>());
             context.Add<Execution::Data::RepairString>(repairCommand);

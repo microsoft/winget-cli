@@ -240,7 +240,16 @@ namespace AppInstaller::CLI::Workflow
 
     void ShellExecuteInstallImpl(Execution::Context& context)
     {
-        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+        bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
+
+        if (!isRepair)
+        {
+            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+        }
 
         const auto& installer = context.Get<Execution::Data::Installer>();
         const std::string& installerArgs = context.Get<Execution::Data::InstallerArgs>();
@@ -268,7 +277,15 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installResult)
         {
-            context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
+            if (!isRepair)
+            {
+                context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
+            }
+            else
+            {
+                context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
+            }
+
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else
@@ -334,9 +351,9 @@ namespace AppInstaller::CLI::Workflow
 
         auto repairResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeShellExecute,
-                   std::filesystem::path(app.get()),
-                   Utility::ConvertToUTF8(args.get()),
-                   std::placeholders::_1));
+                std::filesystem::path(app.get()),
+                Utility::ConvertToUTF8(args.get()),
+                std::placeholders::_1));
 
         if (!repairResult)
         {
@@ -389,9 +406,9 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Repairing: " << productCode);
             auto repairResult = context.Reporter.ExecuteWithProgress(
                 std::bind(InvokeShellExecute,
-                     msiexecPath,
-                     GetMsiExecUninstallArgs(context, productCode),
-                     std::placeholders::_1));
+                    msiexecPath,
+                    GetMsiExecUninstallArgs(context, productCode),
+                    std::placeholders::_1));
 
             if (!repairResult)
             {
@@ -403,7 +420,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Add<Execution::Data::OperationReturnCode>(repairResult.value());
             }
         }
-    
+
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
