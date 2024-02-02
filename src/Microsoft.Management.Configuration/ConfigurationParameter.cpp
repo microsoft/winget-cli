@@ -97,7 +97,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationParameter::AllowedValues(std::vector<Windows::Foundation::IInspectable>&& value)
     {
-        m_allowedValues = winrt::single_threaded_vector<Windows::Foundation::IInspectable>(std::move(value));
+        m_allowedValues = winrt::multi_threaded_vector<Windows::Foundation::IInspectable>(std::move(value));
     }
 
     uint32_t ConfigurationParameter::MinimumLength()

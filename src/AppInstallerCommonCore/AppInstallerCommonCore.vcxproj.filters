@@ -28,6 +28,9 @@
     <Filter Include="Telemetry">
       <UniqueIdentifier>{552a58eb-8d07-41b2-87b5-3e71b9fb3cfd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Authentication">
+      <UniqueIdentifier>{9dd9ab66-00f0-4b18-90ca-6c5da3dc01c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -180,6 +183,12 @@
     <ClInclude Include="Public\winget\Reboot.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Authentication\WebAccountManagerAuthenticator.h">
+      <Filter>Authentication</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Authentication.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -322,6 +331,12 @@
     </ClCompile>
     <ClCompile Include="Reboot.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Authentication\Authentication.cpp">
+      <Filter>Authentication</Filter>
+    </ClCompile>
+    <ClCompile Include="Authentication\WebAccountManagerAuthenticator.cpp">
+      <Filter>Authentication</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

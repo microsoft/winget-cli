@@ -436,9 +436,9 @@
     <ClCompile Include="ConfigurationCommon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClInclude Include="Commands\DownloadCommand.cpp">
+    <ClCompile Include="Commands\DownloadCommand.cpp">
       <Filter>Commands</Filter>
-    </ClInclude>
+    </ClCompile>
     <ClCompile Include="Commands\ResumeCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>

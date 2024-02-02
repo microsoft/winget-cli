@@ -6,7 +6,7 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    TestConfigurationSetResult::TestConfigurationSetResult() : m_unitResults(single_threaded_vector<TestConfigurationUnitResult>())
+    TestConfigurationSetResult::TestConfigurationSetResult() : m_unitResults(multi_threaded_vector<TestConfigurationUnitResult>())
     {
     }
 

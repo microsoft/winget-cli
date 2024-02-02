@@ -505,6 +505,80 @@ namespace Microsoft.Management.Configuration
         IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit);
     }
 
+    // The result of applying an individual unit settings with an IConfigurationGroupProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IApplyGroupMemberSettingsResult
+    {
+        // The configuration unit.
+        ConfigurationUnit Unit{ get; };
+
+        // The state of the unit.
+        // Properties other than `Unit` are not valid unless this value is `Completed`.
+        ConfigurationUnitState State{ get; };
+
+        // Will be true if the configuration unit was in the desired state (Test returns true) prior to the apply action.
+        Boolean PreviouslyInDesiredState{ get; };
+
+        // Indicates whether a reboot is required after the settings were applied.
+        Boolean RebootRequired{ get; };
+
+        // The result of applying the configuration unit.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // The result of applying the settings with an IConfigurationGroupProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface IApplyGroupSettingsResult
+    {
+        // The configuration group object (set or unit).
+        Object Group{ get; };
+
+        // Indicates whether a reboot is required after the settings were applied.
+        Boolean RebootRequired{ get; };
+
+        // The result of applying the configuration unit group.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // Results for each configuration unit in the group.
+        Windows.Foundation.Collections.IVector<IApplyGroupMemberSettingsResult> UnitResults{ get; };
+    }
+
+    // The result of testing the settings with an IConfigurationGroupProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface ITestGroupSettingsResult
+    {
+        // The configuration group object (set or unit).
+        Object Group{ get; };
+
+        // The result (if any) of running Test on the configuration unit group.
+        ConfigurationTestResult TestResult{ get; };
+
+        // The result of testing the configuration unit group.
+        // This is not the response for the test, but rather contains information about the actual attempt to run the test.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // Results for each configuration unit in the group.
+        Windows.Foundation.Collections.IVector<ITestSettingsResult> UnitResults{ get; };
+    }
+
+    // Provides access to a specific configuration unit group within the runtime.
+    // An object returned by `CreateUnitProcessor` or `CreateSetProcessor` can implement this interface to indicate that it can take
+    // the responsibility of executing the units that it contains.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface IConfigurationGroupProcessor
+    {
+        // The configuration group object (set or unit).
+        Object Group{ get; };
+
+        // Determines if the system is already in the state described by the configuration unit group.
+        // Progress is expected for every descendant unit and finally the group unit itself.
+        Windows.Foundation.IAsyncOperation<ITestGroupSettingsResult> TestGroupSettingsAsync(Windows.Foundation.EventHandler<ITestSettingsResult> progressHandler);
+
+        // Applies the state described in the configuration unit group.
+        // Progress is expected for every descendant unit and finally the group unit itself.
+        Windows.Foundation.IAsyncOperation<IApplyGroupSettingsResult> ApplyGroupSettingsAsync(Windows.Foundation.EventHandler<IApplyGroupMemberSettingsResult> progressHandler);
+    }
+
     // The level of the diagnostic information.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum DiagnosticLevel

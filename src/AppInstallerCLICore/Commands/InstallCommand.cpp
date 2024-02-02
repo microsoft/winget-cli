@@ -49,6 +49,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::NoUpgrade),
             Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AuthenticationMode),
+            Argument::ForType(Args::Type::AuthenticationAccount),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Rename),
             Argument::ForType(Args::Type::UninstallPrevious),
@@ -123,7 +125,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
-                Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
+                Workflow::Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
                 Workflow::InstallSinglePackage;
         }
         else
@@ -135,7 +137,7 @@ namespace AppInstaller::CLI
             if (!context.Args.Contains(Execution::Args::Type::Force))
             {
                 context <<
-                    Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
+                    Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context), false, Repository::CompositeSearchBehavior::AvailablePackages);
             }
 
             if (context.Args.Contains(Execution::Args::Type::MultiQuery))
@@ -153,7 +155,7 @@ namespace AppInstaller::CLI
             else
             {
                 context <<
-                    Workflow::Checkpoint("exampleCheckpoint", {}) << // TODO: Checkpoint example
+                    Workflow::Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
                     Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
             }
         }

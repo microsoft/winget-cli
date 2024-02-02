@@ -80,7 +80,7 @@ jobs:
           FolderPath: src
           Pattern: |
             *\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
-            WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll
+            WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.1\WinGetUtilInterop.dll
           UseMinimatch: true
           signConfigType: inlineSignParams
           inlineOperation: |
@@ -114,8 +114,8 @@ jobs:
               WinGetUtil.nuspec
               src\$(buildPlatform)\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
               src\$(buildPlatform)\$(buildConfiguration)\WinGetUtil\WinGetUtil.pdb
-              src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll
-              src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.pdb
+              src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.1\WinGetUtilInterop.dll
+              src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.1\WinGetUtilInterop.pdb
               src\WinGetUtilInterop\build\Microsoft.WindowsPackageManager.Utils.targets
               schemas\JSON\manifests\**
           TargetFolder: '$(artifactsDir)'

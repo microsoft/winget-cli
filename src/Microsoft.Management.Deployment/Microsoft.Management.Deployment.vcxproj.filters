@@ -35,6 +35,9 @@
     <ClCompile Include="PackageManagerSettings.cpp" />
     <ClCompile Include="PackageInstallerInfo.cpp" />
     <ClCompile Include="PackageInstallerInstalledStatus.cpp" />
+    <ClCompile Include="AuthenticationArguments.cpp" />
+    <ClCompile Include="AuthenticationInfo.cpp" />
+    <ClCompile Include="MicrosoftEntraIdAuthenticationInfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -75,6 +78,9 @@
     <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="AuthenticationArguments.h" />
+    <ClInclude Include="AuthenticationInfo.h" />
+    <ClInclude Include="MicrosoftEntraIdAuthenticationInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />

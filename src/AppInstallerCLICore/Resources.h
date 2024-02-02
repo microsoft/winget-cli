@@ -33,6 +33,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScan);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScanOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(ArgumentForSinglePackageProvidedWithMultipleQueries);
+        WINGET_DEFINE_RESOURCE_STRINGID(AuthenticationAccountArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(AuthenticationModeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommandAliases);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);
@@ -495,6 +497,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddBegin);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceAddFailedAuthenticationNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddOpenSourceFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAgreementsMarketMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAgreementsNotAgreedTo);
@@ -529,6 +532,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveOne);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceRequiresAuthentication);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandShortDescription);

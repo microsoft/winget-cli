@@ -168,7 +168,7 @@ namespace AppInstaller::Manifest
         }
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetRootFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetRootFieldProcessInfo()
     {
         // Common fields across versions
         std::vector<FieldProcessInfo> result =
@@ -176,12 +176,11 @@ namespace AppInstaller::Manifest
             { "ManifestVersion", [](const YAML::Node&, const VariantManifestPtr&)->ValidationErrors { /* ManifestVersion already populated. Field listed here for duplicate and PascalCase check */ return {}; } },
             { "Installers", [this](const YAML::Node& value, const VariantManifestPtr&)->ValidationErrors { m_p_installersNode = &value; return {}; } },
             { "Localization", [this](const YAML::Node& value, const VariantManifestPtr&)->ValidationErrors { m_p_localizationsNode = &value; return {}; } },
-            { "Channel", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<Manifest>(v)->Channel = Utility::Trim(value.as<std::string>()); return {}; }
-            },
+            { "Channel", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<Manifest>(v)->Channel = Utility::Trim(value.as<std::string>()); return {}; } },
         };
 
         // Additional version specific fields
-        if (manifestVersion.Major() == 0)
+        if (m_manifestVersion.get().Major() == 0)
         {
             std::vector<FieldProcessInfo> previewRootFields
             {
@@ -190,12 +189,13 @@ namespace AppInstaller::Manifest
                 { "AppMoniker", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<Manifest>(v)->Moniker = Utility::Trim(value.as<std::string>()); return {}; } },
             };
 
+
             std::move(previewRootFields.begin(), previewRootFields.end(), std::inserter(result, result.end()));
         }
-        else if (manifestVersion.Major() == 1)
+        else if (m_manifestVersion.get().Major() == 1)
         {
             // Starting v1, we should be only adding new fields for each minor version increase
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1 })
             {
                 std::vector<FieldProcessInfo> v1RootFields
                 {
@@ -210,16 +210,16 @@ namespace AppInstaller::Manifest
         }
 
         // Root fields mapped as Installer and Localization values
-        auto rootInstallerFields = GetInstallerFieldProcessInfo(manifestVersion, true);
+        auto rootInstallerFields = GetInstallerFieldProcessInfo(true);
         std::move(rootInstallerFields.begin(), rootInstallerFields.end(), std::inserter(result, result.end()));
 
-        auto rootLocalizationFields = GetLocalizationFieldProcessInfo(manifestVersion, true);
+        auto rootLocalizationFields = GetLocalizationFieldProcessInfo(true);
         std::move(rootLocalizationFields.begin(), rootLocalizationFields.end(), std::inserter(result, result.end()));
 
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetInstallerFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetInstallerFieldProcessInfo(bool forRootFields)
     {
         // Common fields across versions
         std::vector<FieldProcessInfo> result =
@@ -230,7 +230,7 @@ namespace AppInstaller::Manifest
         };
 
         // Additional version specific fields
-        if (manifestVersion.Major() == 0)
+        if (m_manifestVersion.get().Major() == 0)
         {
             // Root level and Localization node level
             std::vector<FieldProcessInfo> previewCommonFields =
@@ -254,7 +254,7 @@ namespace AppInstaller::Manifest
                     { "Scope", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->Scope = ConvertToScopeEnum(value.as<std::string>()); return {}; } },
                 };
 
-                if (manifestVersion.HasExtension(s_MSStoreExtension))
+                if (m_manifestVersion.get().HasExtension(s_MSStoreExtension))
                 {
                     installerOnlyFields.emplace_back("ProductId", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ManifestInstaller>(v)->ProductId = value.as<std::string>(); return {}; });
                 }
@@ -275,10 +275,10 @@ namespace AppInstaller::Manifest
                 std::move(rootOnlyFields.begin(), rootOnlyFields.end(), std::inserter(result, result.end()));
             }
         }
-        else if (manifestVersion.Major() == 1)
+        else if (m_manifestVersion.get().Major() == 1)
         {
             // Starting v1, we should be only adding new fields for each minor version increase
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1 })
             {
                 // Root level and Installer node level
                 std::vector<FieldProcessInfo> v1CommonFields =
@@ -316,7 +316,7 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_1 })
             {
                 std::vector<FieldProcessInfo> fields_v1_1 =
                 {
@@ -334,7 +334,7 @@ namespace AppInstaller::Manifest
                 std::move(fields_v1_1.begin(), fields_v1_1.end(), std::inserter(result, result.end()));
             }
 
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_2 })
             {
                 std::vector<FieldProcessInfo> fields_v1_2 =
                 {
@@ -345,7 +345,7 @@ namespace AppInstaller::Manifest
                 std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
             }
 
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_4 })
             {
                 std::vector<FieldProcessInfo> fields_v1_4 =
                 {
@@ -357,7 +357,7 @@ namespace AppInstaller::Manifest
                 std::move(fields_v1_4.begin(), fields_v1_4.end(), std::inserter(result, result.end()));
             }
 
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_6 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_6 })
             {
                 std::vector<FieldProcessInfo> fields_v1_6 =
                 {
@@ -367,7 +367,7 @@ namespace AppInstaller::Manifest
                 std::move(fields_v1_6.begin(), fields_v1_6.end(), std::inserter(result, result.end()));
             }
 
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_7 })
             {
                 std::vector<FieldProcessInfo> fields_v1_7 =
                 {
@@ -381,7 +381,7 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetSwitchesFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetSwitchesFieldProcessInfo()
     {
         // Common fields across versions
         std::vector<FieldProcessInfo> result =
@@ -395,17 +395,17 @@ namespace AppInstaller::Manifest
         };
 
         // Additional version specific fields
-        if (manifestVersion.Major() == 0)
+        if (m_manifestVersion.get().Major() == 0)
         {
             // Language only exists in preview manifests. Though we don't use it in our code yet, keep it here to be consistent with schema.
             result.emplace_back("Language", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::Language] = value.as<std::string>(); return{}; });
             result.emplace_back("Update", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
         }
-        else if (manifestVersion.Major() == 1)
+        else if (m_manifestVersion.get().Major() == 1)
         {
             result.emplace_back("Upgrade", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::Update] = value.as<std::string>(); return{}; });
 
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
+            if (m_manifestVersion.get() >= ManifestVer{s_ManifestVersionV1_7})
             {
                 result.emplace_back("Repair", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::Repair] = value.as<std::string>(); return{}; });
             };
@@ -414,17 +414,17 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetExpectedReturnCodesFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetExpectedReturnCodesFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_1 })
         {
             result.emplace_back("InstallerReturnCode", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ExpectedReturnCode>(v)->InstallerReturnCode = static_cast<int>(value.as<int>()); return {}; });
             result.emplace_back("ReturnResponse", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ExpectedReturnCode>(v)->ReturnResponse = ConvertToExpectedReturnCodeEnum(value.as<std::string>()); return {}; });
         }
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_2 })
         {
             result.emplace_back("ReturnResponseUrl", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<ExpectedReturnCode>(v)->ReturnResponseUrl = value.as<std::string>(); return {}; });
         }
@@ -432,7 +432,7 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetLocalizationFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetLocalizationFieldProcessInfo(bool forRootFields)
     {
         // Common fields across versions
         std::vector<FieldProcessInfo> result =
@@ -442,7 +442,7 @@ namespace AppInstaller::Manifest
         };
 
         // Additional version specific fields
-        if (manifestVersion.Major() == 0)
+        if (m_manifestVersion.get().Major() == 0)
         {
             // Root level and Localization node level
             result.emplace_back("Homepage", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestLocalizationPtr(v)->Add<Localization::PackageUrl>(value.as<std::string>()); return {}; });
@@ -467,10 +467,10 @@ namespace AppInstaller::Manifest
                 std::move(rootOnlyFields.begin(), rootOnlyFields.end(), std::inserter(result, result.end()));
             }
         }
-        else if (manifestVersion.Major() == 1)
+        else if (m_manifestVersion.get().Major() == 1)
         {
             // Starting v1, we should be only adding new fields for each minor version increase
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1 })
             {
                 // Root level and Localization node level
                 std::vector<FieldProcessInfo> v1CommonFields =
@@ -485,7 +485,7 @@ namespace AppInstaller::Manifest
                     { "PackageUrl", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestLocalizationPtr(v)->Add<Localization::PackageUrl>(value.as<std::string>()); return {}; } },
                     { "License", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestLocalizationPtr(v)->Add<Localization::License>(value.as<std::string>()); return {}; } },
                     { "Copyright", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestLocalizationPtr(v)->Add<Localization::Copyright>(value.as<std::string>()); return {}; } },
-                    { "CopyrightUrl", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors{ GetManifestLocalizationPtr(v)->Add<Localization::CopyrightUrl>(value.as<std::string>()); return {}; } },
+                    { "CopyrightUrl", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestLocalizationPtr(v)->Add<Localization::CopyrightUrl>(value.as<std::string>()); return {}; } },
                     { "ShortDescription", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestLocalizationPtr(v)->Add<Localization::ShortDescription>(Utility::Trim(value.as<std::string>())); return {}; } },
                     { "Tags", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestLocalizationPtr(v)->Add<Localization::Tags>(ProcessStringSequenceNode(value)); return {}; } },
                 };
@@ -493,7 +493,7 @@ namespace AppInstaller::Manifest
                 std::move(v1CommonFields.begin(), v1CommonFields.end(), std::inserter(result, result.end()));
             }
 
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_1 })
             {
                 std::vector<FieldProcessInfo> fields_v1_1 =
                 {
@@ -505,7 +505,7 @@ namespace AppInstaller::Manifest
                 std::move(fields_v1_1.begin(), fields_v1_1.end(), std::inserter(result, result.end()));
             }
 
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_2 })
             {
                 std::vector<FieldProcessInfo> fields_v1_2 =
                 {
@@ -517,7 +517,7 @@ namespace AppInstaller::Manifest
                 std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
             }
 
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_5 })
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_5 })
             {
                 std::vector<FieldProcessInfo> fields_v1_5 =
                 {
@@ -531,11 +531,11 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetDependenciesFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetDependenciesFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1 })
         {
             result =
             {
@@ -549,11 +549,11 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetPackageDependenciesFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetPackageDependenciesFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1 })
         {
             result =
             {
@@ -565,11 +565,11 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetAgreementFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetAgreementFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_1 })
         {
             result =
             {
@@ -582,11 +582,11 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetMarketsFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetMarketsFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_1 })
         {
             result =
             {
@@ -598,11 +598,11 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetAppsAndFeaturesEntryFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetAppsAndFeaturesEntryFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_1 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_1 })
         {
             result =
             {
@@ -618,11 +618,11 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetDocumentationFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetDocumentationFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_2 })
         {
             result =
             {
@@ -634,11 +634,11 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetIconFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetIconFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_5 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_5 })
         {
             result =
             {
@@ -653,11 +653,11 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetNestedInstallerFileFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetNestedInstallerFileFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             result =
             {
@@ -669,11 +669,11 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetInstallationMetadataFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetInstallationMetadataFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             result =
             {
@@ -685,11 +685,11 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetInstallationMetadataFilesFieldProcessInfo(const ManifestVer& manifestVersion)
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetInstallationMetadataFilesFieldProcessInfo()
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             result =
             {
@@ -699,6 +699,57 @@ namespace AppInstaller::Manifest
                 { "InvocationParameter", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<InstalledFile>(v)->InvocationParameter = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "DisplayName", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { variant_ptr<InstalledFile>(v)->DisplayName = Utility::Trim(value.as<std::string>()); return {}; } },
             };
+        }
+
+        return result;
+    }
+
+    
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetShadowRootFieldProcessInfo()
+    {
+        std::vector<FieldProcessInfo> result;
+
+        if (m_manifestVersion.get().Major() == 1)
+        {
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_5 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_5 =
+                {
+                    {
+                        { "Localization", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { return ProcessShadowLocalizationNode(value, variant_ptr<Manifest>(v)); } },
+                        { "ManifestType", [](const YAML::Node&, const VariantManifestPtr&)->ValidationErrors { return {}; } },
+                        { "PackageIdentifier", [](const YAML::Node&, const VariantManifestPtr&)->ValidationErrors { return {}; } },
+                        { "PackageVersion", [](const YAML::Node&, const VariantManifestPtr&)->ValidationErrors { return {}; } },
+                        { "ManifestVersion", [](const YAML::Node&, const VariantManifestPtr&)->ValidationErrors { return {}; } },
+                    },
+                };
+
+                std::move(fields_v1_5.begin(), fields_v1_5.end(), std::inserter(result, result.end()));
+            }
+        }
+
+        auto rootLocalizationFields = GetShadowLocalizationFieldProcessInfo();
+        std::move(rootLocalizationFields.begin(), rootLocalizationFields.end(), std::inserter(result, result.end()));
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetShadowLocalizationFieldProcessInfo()
+    {
+        std::vector<FieldProcessInfo> result;
+
+        if (m_manifestVersion.get().Major() == 1)
+        {
+            if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_5 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_5 =
+                {
+                    { "PackageLocale", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { GetManifestLocalizationPtr(v)->Locale = value.as<std::string>(); return {}; } },
+                    { "Icons", [this](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { return ProcessIconsNode(value, GetManifestLocalizationPtr(v)); } },
+                };
+
+                std::move(fields_v1_5.begin(), fields_v1_5.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -889,7 +940,7 @@ namespace AppInstaller::Manifest
         {
             localization->Add<Localization::Documentations>(std::move(documentations));
         }
-        
+
         return resultErrors;
     }
 
@@ -962,36 +1013,54 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    ValidationErrors ManifestYamlPopulator::PopulateManifestInternal(
-        const YAML::Node& rootNode,
-        Manifest& manifest,
-        const ManifestVer& manifestVersion,
-        ManifestValidateOption validateOption)
+    std::vector<ValidationError> ManifestYamlPopulator::ProcessShadowLocalizationNode(const YAML::Node& localizationNode, Manifest* manifest)
     {
-        m_validateOption = validateOption;
-        m_isMergedManifest = !rootNode["ManifestType"sv].IsNull() && rootNode["ManifestType"sv].as<std::string>() == "merged";
+        THROW_HR_IF(E_INVALIDARG, !localizationNode.IsSequence());
 
         ValidationErrors resultErrors;
-        manifest.ManifestVersion = manifestVersion;
+        auto shadowLocalizationFields = GetShadowLocalizationFieldProcessInfo();
+
+        for (auto const& entry : localizationNode.Sequence())
+        {
+            ManifestLocalization localization;
+            auto errors = ValidateAndProcessFields(entry, shadowLocalizationFields, VariantManifestPtr(&localization));
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            manifest->Localizations.emplace_back(std::move(std::move(localization)));
+        }
+
+        return resultErrors;
+    }
+
+    ManifestYamlPopulator::ManifestYamlPopulator(YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, ManifestValidateOption validateOption) :
+        m_rootNode(rootNode), m_manifest(manifest), m_manifestVersion(manifestVersion), m_validateOption(validateOption)
+    {
+        m_isMergedManifest = !m_rootNode.get()["ManifestType"sv].IsNull() && m_rootNode.get()["ManifestType"sv].as<std::string>() == "merged";
+        m_manifest.get().ManifestVersion = m_manifestVersion;
+    }
+
+    ValidationErrors ManifestYamlPopulator::PopulateManifestInternal()
+    {
+        const YAML::Node& rootNode = m_rootNode;
+        ValidationErrors resultErrors;
 
         // Prepare field infos
-        RootFieldInfos = GetRootFieldProcessInfo(manifestVersion);
-        InstallerFieldInfos = GetInstallerFieldProcessInfo(manifestVersion);
-        SwitchesFieldInfos = GetSwitchesFieldProcessInfo(manifestVersion);
-        ExpectedReturnCodesFieldInfos = GetExpectedReturnCodesFieldProcessInfo(manifestVersion);
-        DependenciesFieldInfos = GetDependenciesFieldProcessInfo(manifestVersion);
-        PackageDependenciesFieldInfos = GetPackageDependenciesFieldProcessInfo(manifestVersion);
-        LocalizationFieldInfos = GetLocalizationFieldProcessInfo(manifestVersion);
-        AgreementFieldInfos = GetAgreementFieldProcessInfo(manifestVersion);
-        MarketsFieldInfos = GetMarketsFieldProcessInfo(manifestVersion);
-        AppsAndFeaturesEntryFieldInfos = GetAppsAndFeaturesEntryFieldProcessInfo(manifestVersion);
-        DocumentationFieldInfos = GetDocumentationFieldProcessInfo(manifestVersion);
-        IconFieldInfos = GetIconFieldProcessInfo(manifestVersion);
-        NestedInstallerFileFieldInfos = GetNestedInstallerFileFieldProcessInfo(manifestVersion);
-        InstallationMetadataFieldInfos = GetInstallationMetadataFieldProcessInfo(manifestVersion);
-        InstallationMetadataFilesFieldInfos = GetInstallationMetadataFilesFieldProcessInfo(manifestVersion);
+        RootFieldInfos = GetRootFieldProcessInfo();
+        InstallerFieldInfos = GetInstallerFieldProcessInfo();
+        SwitchesFieldInfos = GetSwitchesFieldProcessInfo();
+        ExpectedReturnCodesFieldInfos = GetExpectedReturnCodesFieldProcessInfo();
+        DependenciesFieldInfos = GetDependenciesFieldProcessInfo();
+        PackageDependenciesFieldInfos = GetPackageDependenciesFieldProcessInfo();
+        LocalizationFieldInfos = GetLocalizationFieldProcessInfo();
+        AgreementFieldInfos = GetAgreementFieldProcessInfo();
+        MarketsFieldInfos = GetMarketsFieldProcessInfo();
+        AppsAndFeaturesEntryFieldInfos = GetAppsAndFeaturesEntryFieldProcessInfo();
+        DocumentationFieldInfos = GetDocumentationFieldProcessInfo();
+        IconFieldInfos = GetIconFieldProcessInfo();
+        NestedInstallerFileFieldInfos = GetNestedInstallerFileFieldProcessInfo();
+        InstallationMetadataFieldInfos = GetInstallationMetadataFieldProcessInfo();
+        InstallationMetadataFilesFieldInfos = GetInstallationMetadataFilesFieldProcessInfo();
 
-        resultErrors = ValidateAndProcessFields(rootNode, RootFieldInfos, VariantManifestPtr(&manifest));
+        resultErrors = ValidateAndProcessFields(rootNode, RootFieldInfos, VariantManifestPtr(&(m_manifest.get())));
 
         if (!m_p_installersNode)
         {
@@ -1001,7 +1070,7 @@ namespace AppInstaller::Manifest
         // Populate installers
         for (auto const& entry : m_p_installersNode->Sequence())
         {
-            ManifestInstaller installer = manifest.DefaultInstallerInfo;
+            ManifestInstaller installer = m_manifest.get().DefaultInstallerInfo;
 
             // Clear these defaults as PackageFamilyName, ProductCode, AppsAndFeaturesEntries need to be copied based on InstallerType
             installer.PackageFamilyName.clear();
@@ -1019,36 +1088,36 @@ namespace AppInstaller::Manifest
             // Copy in system reference strings from the root if not set in the installer and appropriate
             if (installer.PackageFamilyName.empty() && DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
             {
-                installer.PackageFamilyName = manifest.DefaultInstallerInfo.PackageFamilyName;
+                installer.PackageFamilyName = m_manifest.get().DefaultInstallerInfo.PackageFamilyName;
             }
 
             if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
             {
-                installer.ProductCode = manifest.DefaultInstallerInfo.ProductCode;
+                installer.ProductCode = m_manifest.get().DefaultInstallerInfo.ProductCode;
             }
 
             if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
             {
-                installer.AppsAndFeaturesEntries = manifest.DefaultInstallerInfo.AppsAndFeaturesEntries;
+                installer.AppsAndFeaturesEntries = m_manifest.get().DefaultInstallerInfo.AppsAndFeaturesEntries;
             }
 
             if (IsArchiveType(installer.BaseInstallerType))
             {
                 if (installer.NestedInstallerFiles.empty())
                 {
-                    installer.NestedInstallerFiles = manifest.DefaultInstallerInfo.NestedInstallerFiles;
+                    installer.NestedInstallerFiles = m_manifest.get().DefaultInstallerInfo.NestedInstallerFiles;
                 }
 
                 if (installer.NestedInstallerType == InstallerTypeEnum::Unknown)
                 {
-                    installer.NestedInstallerType = manifest.DefaultInstallerInfo.NestedInstallerType;
+                    installer.NestedInstallerType = m_manifest.get().DefaultInstallerInfo.NestedInstallerType;
                 }
             }
 
             // If there are no dependencies on installer use default ones
             if (!installer.Dependencies.HasAny())
             {
-                installer.Dependencies = manifest.DefaultInstallerInfo.Dependencies;
+                installer.Dependencies = m_manifest.get().DefaultInstallerInfo.Dependencies;
             }
 
             // Populate installer default switches if not exists
@@ -1072,7 +1141,7 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            manifest.Installers.emplace_back(std::move(installer));
+            m_manifest.get().Installers.emplace_back(std::move(installer));
         }
 
         // Populate additional localizations
@@ -1083,7 +1152,73 @@ namespace AppInstaller::Manifest
                 ManifestLocalization localization;
                 auto errors = ValidateAndProcessFields(entry, LocalizationFieldInfos, VariantManifestPtr(&localization));
                 std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
-                manifest.Localizations.emplace_back(std::move(std::move(localization)));
+                m_manifest.get().Localizations.emplace_back(std::move(std::move(localization)));
+            }
+        }
+
+        return resultErrors;
+    }
+
+    ValidationErrors ManifestYamlPopulator::InsertShadow(const YAML::Node& shadowNode)
+    {
+        Manifest shadowManifest;
+
+        // Process shadow node.
+        auto resultErrors = ValidateAndProcessFields(shadowNode, GetShadowRootFieldProcessInfo(), VariantManifestPtr(&shadowManifest));
+
+        // Merge.
+        if (m_manifestVersion.get() >= ManifestVer{ s_ManifestVersionV1_5 })
+        {
+            // Default localization
+            if (Utility::ICUCaseInsensitiveEquals(m_manifest.get().DefaultLocalization.Locale, shadowManifest.DefaultLocalization.Locale))
+            {
+                // Icons
+                if (!m_manifest.get().DefaultLocalization.Contains(Localization::Icons) &&
+                    shadowManifest.DefaultLocalization.Contains(Localization::Icons))
+                {
+                    m_manifest.get().DefaultLocalization.Add<Localization::Icons>(std::move(shadowManifest.DefaultLocalization.Get<Localization::Icons>()));
+
+                    YAML::Node key{ YAML::Node::Type::Scalar, "", YAML::Mark() };
+                    key.SetScalar("Icons");
+                    YAML::Node value = shadowNode.GetChildNode("Icons");
+                    m_rootNode.get().AddMappingNode(std::move(key), std::move(value));
+                }
+            }
+
+            // Localizations
+            if (!shadowManifest.Localizations.empty())
+            {
+                // Merge manifest object
+                for (auto const& shadowLocalization : shadowManifest.Localizations)
+                {
+                    // Manifest
+                    if (auto iter = std::find_if(m_manifest.get().Localizations.begin(), m_manifest.get().Localizations.end(), [&](auto const& l) { return Utility::ICUCaseInsensitiveEquals(l.Locale, shadowLocalization.Locale); }); iter != m_manifest.get().Localizations.end())
+                    {
+                        if (!(*iter).Contains(Localization::Icons) &&
+                            shadowLocalization.Contains(Localization::Icons))
+                        {
+                            (*iter).Add<Localization::Icons>(std::move(shadowLocalization.Get<Localization::Icons>()));
+                        }
+                    }
+                    else
+                    {
+                        ManifestLocalization localization = shadowLocalization;
+                        m_manifest.get().Localizations.emplace_back(std::move(std::move(localization)));
+                    }
+                }
+
+                // Merge yaml
+                auto shadowLocalizationsNode = shadowNode.GetChildNode("Localization");
+                if (m_p_localizationsNode)
+                {
+                    m_rootNode.get().GetChildNode("Localization").MergeSequenceNode(shadowLocalizationsNode, "PackageLocale", true);
+                }
+                else
+                {
+                    YAML::Node key{ YAML::Node::Type::Scalar, "", YAML::Mark() };
+                    key.SetScalar("Localization");
+                    m_rootNode.get().AddMappingNode(std::move(key), std::move(shadowLocalizationsNode));
+                }
             }
         }
 
@@ -1091,12 +1226,21 @@ namespace AppInstaller::Manifest
     }
 
     ValidationErrors ManifestYamlPopulator::PopulateManifest(
-        const YAML::Node& rootNode,
+        YAML::Node& rootNode,
         Manifest& manifest,
         const ManifestVer& manifestVersion,
-        ManifestValidateOption validateOption)
+        ManifestValidateOption validateOption,
+        const std::optional<YAML::Node>& shadowNode)
     {
-        ManifestYamlPopulator manifestPopulator;
-        return manifestPopulator.PopulateManifestInternal(rootNode, manifest, manifestVersion, validateOption);
+        ManifestYamlPopulator manifestPopulator(rootNode, manifest, manifestVersion, validateOption);
+        auto errors = manifestPopulator.PopulateManifestInternal();
+
+        if (shadowNode.has_value())
+        {
+            auto shadowErrors = manifestPopulator.InsertShadow(shadowNode.value());
+            std::move(shadowErrors.begin(), shadowErrors.end(), std::inserter(errors, errors.end()));
+        }
+
+        return errors;
     }
 }

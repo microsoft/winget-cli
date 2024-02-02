@@ -119,6 +119,12 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            if (sourceToAdd.GetInformation().Authentication.Type == Authentication::AuthenticationType::Unknown)
+            {
+                context.Reporter.Error() << Resource::String::SourceAddFailedAuthenticationNotSupported << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+            }
+
             context << Workflow::HandleSourceAgreements(sourceToAdd);
             if (context.IsTerminated())
             {

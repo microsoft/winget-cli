@@ -26,7 +26,7 @@ Documentations:
   - DocumentLabel: Default document label
     DocumentUrl: https://DefaultDocumentUrl.com
 Icons:
-  - IconUrl: https://testIcon
+  - IconUrl: https://testIcon-en-US
     IconFileType: ico
     IconResolution: custom
     IconTheme: default

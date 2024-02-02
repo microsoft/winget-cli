@@ -183,6 +183,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AuthenticationArguments.h" />
+    <ClInclude Include="AuthenticationInfo.h" />
     <ClInclude Include="CatalogPackage.h" />
     <ClInclude Include="CheckInstalledStatusResult.h" />
     <ClInclude Include="ConnectResult.h" />
@@ -199,6 +201,7 @@
     <ClInclude Include="InstallOptions.h" />
     <ClInclude Include="InstallResult.h" />
     <ClInclude Include="MatchResult.h" />
+    <ClInclude Include="MicrosoftEntraIdAuthenticationInfo.h" />
     <ClInclude Include="PackageAgreement.h" />
     <ClInclude Include="PackageCatalog.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
@@ -219,6 +222,8 @@
     <ClInclude Include="UninstallResult.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AuthenticationArguments.cpp" />
+    <ClCompile Include="AuthenticationInfo.cpp" />
     <ClCompile Include="CatalogPackage.cpp" />
     <ClCompile Include="CheckInstalledStatusResult.cpp" />
     <ClCompile Include="ComClsids.cpp" />
@@ -236,6 +241,7 @@
     <ClCompile Include="InstallOptions.cpp" />
     <ClCompile Include="InstallResult.cpp" />
     <ClCompile Include="MatchResult.cpp" />
+    <ClCompile Include="MicrosoftEntraIdAuthenticationInfo.cpp" />
     <ClCompile Include="PackageAgreement.cpp" />
     <ClCompile Include="PackageCatalog.cpp" />
     <ClCompile Include="PackageCatalogInfo.cpp" />

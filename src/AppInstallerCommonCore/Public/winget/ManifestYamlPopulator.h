@@ -13,13 +13,19 @@ namespace AppInstaller::Manifest
     struct ManifestYamlPopulator
     {
         static std::vector<ValidationError> PopulateManifest(
-            const YAML::Node& rootNode,
+            YAML::Node& rootNode,
             Manifest& manifest,
             const ManifestVer& manifestVersion,
-            ManifestValidateOption validateOption);
+            ManifestValidateOption validateOption,
+            const std::optional<YAML::Node>& shadowNode);
 
     private:
 
+        ManifestYamlPopulator(YAML::Node& rootNode, Manifest& manifest, const ManifestVer& manifestVersion, ManifestValidateOption validateOption);
+
+        std::reference_wrapper<YAML::Node> m_rootNode;
+        std::reference_wrapper<Manifest> m_manifest;
+        std::reference_wrapper<const ManifestVer> m_manifestVersion;
         bool m_isMergedManifest = false;
         ManifestValidateOption m_validateOption;
 
@@ -50,26 +56,29 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> InstallationMetadataFieldInfos;
         std::vector<FieldProcessInfo> InstallationMetadataFilesFieldInfos;
 
-
         // Cache of Installers node and Localization node
         YAML::Node const* m_p_installersNode = nullptr;
         YAML::Node const* m_p_localizationsNode = nullptr;
 
-        std::vector<FieldProcessInfo> GetRootFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetInstallerFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields = false);
-        std::vector<FieldProcessInfo> GetSwitchesFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetExpectedReturnCodesFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetDependenciesFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetPackageDependenciesFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetLocalizationFieldProcessInfo(const ManifestVer& manifestVersion, bool forRootFields = false);
-        std::vector<FieldProcessInfo> GetAgreementFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetMarketsFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetAppsAndFeaturesEntryFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetDocumentationFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetIconFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetNestedInstallerFileFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetInstallationMetadataFieldProcessInfo(const ManifestVer& manifestVersion);
-        std::vector<FieldProcessInfo> GetInstallationMetadataFilesFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetRootFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetInstallerFieldProcessInfo(bool forRootFields = false);
+        std::vector<FieldProcessInfo> GetSwitchesFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetExpectedReturnCodesFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetDependenciesFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetPackageDependenciesFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetLocalizationFieldProcessInfo(bool forRootFields = false);
+        std::vector<FieldProcessInfo> GetAgreementFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetMarketsFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetAppsAndFeaturesEntryFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetDocumentationFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetIconFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetNestedInstallerFileFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetInstallationMetadataFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetInstallationMetadataFilesFieldProcessInfo();
+
+        // Shadow
+        std::vector<FieldProcessInfo> GetShadowRootFieldProcessInfo();
+        std::vector<FieldProcessInfo> GetShadowLocalizationFieldProcessInfo();
 
         // This method takes YAML root node and list of manifest field info.
         // Yaml lib does not support case insensitive search and it allows duplicate keys. If duplicate keys exist,
@@ -89,11 +98,9 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> ProcessIconsNode(const YAML::Node& iconsNode, ManifestLocalization* localization);
         std::vector<ValidationError> ProcessNestedInstallerFilesNode(const YAML::Node& nestedInstallerFilesNode, AppInstaller::Manifest::ManifestInstaller* installer);
         std::vector<ValidationError> ProcessInstallationMetadataFilesNode(const YAML::Node& installedFilesNode, InstallationMetadataInfo* installationMetadata);
+        std::vector<ValidationError> ProcessShadowLocalizationNode(const YAML::Node& localizationNode, Manifest* manifest);
 
-        std::vector<ValidationError> PopulateManifestInternal(
-            const YAML::Node& rootNode,
-            Manifest& manifest,
-            const ManifestVer& manifestVersion,
-            ManifestValidateOption validateOption);
+        std::vector<ValidationError> PopulateManifestInternal();
+        std::vector<ValidationError> InsertShadow(const YAML::Node& shadowNode);
     };
 }
