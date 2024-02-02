@@ -203,8 +203,6 @@ TEST_CASE("ResumeFlow_WriteToRunOnceRegistry", "[Reboot][Resume][windowsFeature]
 
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFResume>(true);
-    testSettings.Set<Setting::EFReboot>(true);
-    testSettings.Set<Setting::EFWindowsFeature>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };

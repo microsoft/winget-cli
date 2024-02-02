@@ -21,9 +21,7 @@ TEST_CASE("InstallFlow_WindowsFeatureDoesNotExist", "[windowsFeature]")
     }
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -54,9 +52,7 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
     }
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -86,9 +82,7 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
     }
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
 
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(ERROR_SUCCESS);
     auto expectedErrorCode = 0xc0040001; // DISMAPI_E_DISMAPI_NOT_INITIALIZED
@@ -130,9 +124,7 @@ TEST_CASE("InstallFlow_RebootRequired", "[windowsFeature]")
     }
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
 
     // Override with reboot required HRESULT.
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(ERROR_SUCCESS);
@@ -163,9 +155,7 @@ TEST_CASE("InstallFlow_RebootRequired_Force", "[windowsFeature]")
     }
 
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
 
     // Override with reboot required HRESULT.
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(ERROR_SUCCESS);
