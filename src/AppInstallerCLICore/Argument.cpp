@@ -376,7 +376,7 @@ namespace AppInstaller::CLI
         case Args::Type::ResumeId:
             return Argument{ type, Resource::String::ResumeIdArgumentDescription, ArgumentType::Standard, true };
         case Args::Type::AllowReboot:
-            return Argument{ type, Resource::String::AllowRebootArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Reboot };
+            return Argument{ type, Resource::String::AllowRebootArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::IgnoreResumeLimit:
             return Argument{ type, Resource::String::IgnoreResumeLimitArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Resume };
         default:
