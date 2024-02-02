@@ -43,7 +43,7 @@ namespace AppInstaller::CLI::Workflow
                 auto installedVersion = package->GetInstalledVersion();
                 if (installedVersion)
                 {
-                    pinKeys.emplace(Pinning::PinKey::GetPinKeyForInstalled(installedVersion->GetProperty(PackageVersionProperty::Id)));
+                    pinKeys.emplace(Pinning::PinKey::GetPinKeyForInstalled(installedVersion));
                 }
             }
             else

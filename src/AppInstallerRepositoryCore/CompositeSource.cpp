@@ -562,8 +562,8 @@ namespace AppInstaller::Repository
                 // Grab the installed version's channel to allow for filtering in calls to get available info.
                 if (installedPackage)
                 {
-                    m_installedPackage.emplace(installedPackage);
-                    auto installedVersion = m_installedPackage->GetInstalledVersion();
+                    m_installedPackages.emplace_back(std::move(installedPackage));
+                    auto installedVersion = m_installedPackages.front().GetPackage()->GetInstalledVersion();
                     if (installedVersion)
                     {
                         m_installedChannel = installedVersion->GetProperty(PackageVersionProperty::Channel);
@@ -735,15 +735,18 @@ namespace AppInstaller::Repository
                 const CompositePackage* otherComposite = PackageCast<const CompositePackage*>(other);
 
                 if (!otherComposite ||
-                    static_cast<bool>(m_installedPackage) != static_cast<bool>(otherComposite->m_installedPackage) ||
+                    m_installedPackages.size() != otherComposite->m_installedPackages.size() ||
                     m_availablePackages.size() != otherComposite->m_availablePackages.size())
                 {
                     return false;
                 }
-
-                if (m_installedPackage && !m_installedPackage->GetPackage()->IsSame(otherComposite->m_installedPackage->GetPackage().get()))
+                
+                for (size_t i = 0; i < m_installedPackages.size(); ++i)
                 {
-                    return false;
+                    if (!m_installedPackages[i].GetPackage()->IsSame(otherComposite->m_installedPackages[i].GetPackage().get()))
+                    {
+                        return false;
+                    }
                 }
 
                 for (size_t i = 0; i < m_availablePackages.size(); ++i)
@@ -875,16 +878,14 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                if (m_installedPackage)
+                for (auto& installedPackage : m_installedPackages)
                 {
-                    Pinning::PinKey pinKey = Pinning::PinKey::GetPinKeyForInstalled(
-                        m_installedPackage->GetProperty(PackageProperty::Id).get()
-                    );
+                    Pinning::PinKey pinKey = Pinning::PinKey::GetPinKeyForInstalled(installedPackage);
 
                     auto pin = pinningIndex.GetPin(pinKey);
                     if (pin.has_value())
                     {
-                        m_installedPackage->SetPin(std::move(pin.value()));
+                        installedPackage.SetPin(std::move(pin.value()));
                     }
                 }
             }
@@ -897,6 +898,11 @@ namespace AppInstaller::Repository
             std::vector<PinnablePackage>& GetAvailablePackages()
             {
                 return m_availablePackages;
+            }
+
+            void FoldInstalledIn(const std::shared_ptr<CompositePackage>& other)
+            {
+                std::move(other->m_installedPackages.begin(), other->m_installedPackages.end(), std::back_inserter(m_installedPackages));
             }
 
         private:
@@ -922,13 +928,13 @@ namespace AppInstaller::Repository
                 return m_installedPackage ? m_installedPackage->GetPin() : std::nullopt;
             }
 
-            std::optional<PinnablePackage> m_installedPackage;
-            Utility::LocIndString m_installedChannel;
+            std::vector<PinnablePackage> m_installedPackages;
+            Utility::LocIndString m_installedChannel_FIXUP;
             Source m_trackingSource;
             std::shared_ptr<IPackage> m_trackingPackage;
             std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
             std::chrono::system_clock::time_point m_trackingWriteTime = std::chrono::system_clock::time_point::min();
-            std::string m_overrideInstalledVersion;
+            std::string m_overrideInstalledVersion_FIXUP;
             std::optional<PinnablePackage> m_primaryAvailablePackage;
             std::vector<PinnablePackage> m_availablePackages;
         };
@@ -1204,7 +1210,7 @@ namespace AppInstaller::Repository
             // 
             // The folds that happen are:
             //  1. When results have the same primary available package (the primary available package is set due to tracking data)
-            //  2. When a result has no primary available package, but another result does have a primary that matches one of the availables
+            //  2. When a result has no primary available package, but another result does have a primary that matches one of the available
             //      a. Choose the latest primary if there are multiple
             //  3. When multiple results have no primary available package and share the same available package set
             //      a. There are many potential additional rules that could be made here, but we will start with the simplest version.
@@ -1289,7 +1295,7 @@ namespace AppInstaller::Repository
                         {
                             if (itr->second.PrimaryPackageIndex)
                             {
-                                // TODO: add installed version into target package
+                                Matches[itr->second.PrimaryPackageIndex.value()].Package->FoldInstalledIn(currentMatch.Package);
                                 currentMatch.Package.reset();
                             }
                             else
@@ -1356,8 +1362,15 @@ namespace AppInstaller::Repository
 
                         if (latestPrimaryAvailable)
                         {
-                            // TODO: Fold with the latest primary, preserving the one with the lower index
-                            // TODO: reset the Package from the match that is not kept
+                            Matches[latestPrimaryAvailable->PrimaryPackageIndex.value()].Package->FoldInstalledIn(currentMatch.Package);
+                            currentMatch.Package.reset();
+
+                            // If the result with the primary is later, move it forward
+                            if (latestPrimaryAvailable->PrimaryPackageIndex.value() > i)
+                            {
+                                currentMatch.Package = std::move(Matches[latestPrimaryAvailable->PrimaryPackageIndex.value()].Package);
+                                Matches[latestPrimaryAvailable->PrimaryPackageIndex.value()].Package.reset();
+                            }
                             continue;
                         }
 
@@ -1390,7 +1403,7 @@ namespace AppInstaller::Repository
                         // All of these remaining values should be folded in to our result
                         for (size_t foldTarget : candidateMatches)
                         {
-                            // TODO: Fold into our result
+                            currentMatch.Package->FoldInstalledIn(Matches[foldTarget].Package);
                             Matches[foldTarget].Package.reset();
                         }
                     }
