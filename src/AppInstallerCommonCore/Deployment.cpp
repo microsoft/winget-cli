@@ -322,4 +322,18 @@ namespace AppInstaller::Deployment
 
         return packages.begin() != packages.end();
     }
+
+    void RegisterPackage(
+        std::string_view packageFamilyName,
+        IProgressCallback& callback)
+    {
+        size_t id = GetDeploymentOperationId();
+        AICLI_LOG(Core, Info, << "Starting RegisterPackageByFullNameAsync operation #" << id << ": " << packageFamilyName);
+
+        PackageManager packageManager;
+        winrt::hstring packageFamilyNameWide = Utility::ConvertToUTF16(packageFamilyName).c_str();
+        auto deployOperation = packageManager.RegisterPackageByFamilyNameAsync(packageFamilyNameWide, nullptr, DeploymentOptions::None, nullptr, nullptr);
+
+        WaitForDeployment(deployOperation, id, callback);
+    }
 }

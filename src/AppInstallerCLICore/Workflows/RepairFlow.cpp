@@ -6,8 +6,13 @@
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/ArchiveFlow.h"
+#include "AppInstallerDeployment.h"
+#include "AppInstallerMsixInfo.h"
+#include "MSStoreInstallerHandler.h"
+#include "ManifestComparator.h"
 
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Msix;
 using namespace AppInstaller::Repository;
 
 namespace AppInstaller::CLI::Workflow
@@ -131,14 +136,22 @@ namespace AppInstaller::CLI::Workflow
             break;
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
-            // TODO: Implement Msi/Wix repair - call the msiexec.exe to repair the app
-            Workflow::ShellExecuteMsiExecRepair(context);
+            context <<
+                Workflow::ShellExecuteMsiExecRepair <<
+                ReportRepairResult("MsiExec", APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED);
+
             break;
         case InstallerTypeEnum::Msix:
-            // TODO: Implement Msix repair re-register
+            context <<
+                Workflow::RepairMsixPackage;
+
             break;
         case InstallerTypeEnum::MSStore:
-            // TODO: Implement MSStore repair - call the store API to repair the app
+        {
+            context <<
+                Workflow::MSStoreRepair;
+        }
+
             break;
         case InstallerTypeEnum::Portable:
         default:
@@ -247,9 +260,51 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::RepairString>(repairCommand);
     }
 
-    void RecordRepair(Execution::Context& context)
+    void RepairMsixPackage(Execution::Context& context)
     {
-        UNREFERENCED_PARAMETER(context);
+        bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
+
+        const auto& packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>();
+        context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+
+        for (const auto& packageFamilyName : packageFamilyNames)
+        {
+            auto packageFullName = Msix::GetPackageFullNameFromFamilyName(packageFamilyName);
+
+            if (!packageFullName.has_value())
+            {
+                AICLI_LOG(CLI, Warning, << "No package found with family name: " << packageFamilyName);
+                continue;
+    }
+
+            AICLI_LOG(CLI, Info, << "Repairing package: " << packageFullName.value());
+
+            try
+            {
+                if (!isMachineScope)
+                {
+                    // Best effort repair by registering the package.
+                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RegisterPackage, packageFamilyName, std::placeholders::_1));
+                }
+                else
+                {
+                    // TODO: Do we need a different error code for repair failure?
+                    // resuse install failure for the scenario.
+                    context.Reporter.Error() << Resource::String::RepairFlowReturnCodeSystemNotSupported << std::endl;
+                    context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
+                    AICLI_LOG(CLI, Error, << "Device wide repair for msix type is not supported.");
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
+                }
+            }
+            catch (const wil::ResultException& re)
+            {
+                context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
+                context << ReportRepairResult("MSIX", re.GetErrorCode(), true);
+                return;
+            }
+        }
+
+        context.Reporter.Info() << Resource::String::RepairFlowRepairSuccess << std::endl;
     }
 
     void ReportRepairResult::operator()(Execution::Context& context) const
@@ -260,11 +315,24 @@ namespace AppInstaller::CLI::Workflow
 
         if (repairResult != 0)
         {
-            //context.Reporter.Error() << Resource::String::RepairCommandFailure << std::endl; // TODO Add failure resource string.
+            const auto installerPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+
+            Logging::Telemetry().LogRepairFailure(
+                installerPackageVersion->GetProperty(PackageVersionProperty::Id),
+                installerPackageVersion->GetProperty(PackageVersionProperty::Version),
+                m_repairType,
+                repairResult);
+
+            // Show log path if available
+            if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
+            {
+                auto installerLogPath = Utility::LocIndString{ context.Get<Execution::Data::LogPath>().u8string() };
+                context.Reporter.Info() << Resource::String::InstallerLogAvailable(installerLogPath) << std::endl;
+        }
         }
         else
         {
-            // context.Reporter.Info() << Resource::String::RepairCommandSuccess << std::endl; // TODO:Add success resource string
+            context.Reporter.Info() << Resource::String::RepairFlowRepairSuccess << std::endl;
         }
     }
 

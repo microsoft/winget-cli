@@ -325,6 +325,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallTryGetEntitlement);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreRepairFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleExclusiveArgumentsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleNonPortableNestedInstallersSpecified);
@@ -420,9 +421,16 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(RebootRequiredToEnableWindowsFeatureOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(RelatedLink);
         WINGET_DEFINE_RESOURCE_STRINGID(RenameArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairAbandoned);
         WINGET_DEFINE_RESOURCE_STRINGID(RepairCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RepairCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RepairDifferentInstallTechnology);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairFlowNoApplicableVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairFlowNoMatchingVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairFlowRepairSuccess);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairFlowReturnCodeSystemNotSupported);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairFlowStartingPackageRepair);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairOperationNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(ReparsePointsNotSupportedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityForAgreements);
         WINGET_DEFINE_RESOURCE_STRINGID(ReportIdentityFound);

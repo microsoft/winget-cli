@@ -2758,10 +2758,10 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"}</comment>
   </data>
   <data name="RepairCommandLongDescription" xml:space="preserve">
-    <value>(TODO: long description) Repairs the selected package</value>
+    <value>Repairs the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
   </data>
   <data name="RepairCommandShortDescription" xml:space="preserve">
-    <value>(TODO: short description) Repairs the selected package</value>
+    <value>Repairs the selected package</value>
   </data>
   <data name="NoRepairInfoFound" xml:space="preserve">
     <value>winget cannot locate the Repair command for this package. Please reach out to the package publisher for support.</value>
@@ -2769,5 +2769,45 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="RepairDifferentInstallTechnology" xml:space="preserve">
     <value>The installer technology in use does not match the version currently installed.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND" xml:space="preserve">
+    <value>Repair command not found.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED" xml:space="preserve">
+    <value>The installer technology in use doesn't support repair.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXEC_REPAIR_COMMAND_FAILED" xml:space="preserve">
+    <value>Running repair command failed</value>
+  </data>
+  <data name="RepairFlowRepairSuccess" xml:space="preserve">
+    <value>Repair operation completed successfully.</value>
+  </data>
+  <data name="RepairAbandoned" xml:space="preserve">
+    <value>Repair Abandoned</value>
+  </data>
+  <data name="RepairFlowStartingPackageRepair" xml:space="preserve">
+    <value>Starting Package Repair...</value>
+  </data>
+  <data name="MSStoreRepairFailed" xml:space="preserve">
+    <value>Failed to repair Microsoft Store package. Error code: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to repair. {0} is a placeholder replaced by an error code.</comment>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED" xml:space="preserve">
+    <value>Repair operation failed.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE" xml:space="preserve">
+    <value>Repair operation is not applicable.</value>
+  </data>
+  <data name="RepairFlowNoApplicableVersion" xml:space="preserve">
+    <value>A matching package version is available in a configured source, but it does not apply to your system or requirements.</value>
+  </data>
+  <data name="RepairFlowNoMatchingVersion" xml:space="preserve">
+    <value>No matching package versions are available from the configured sources.</value>
+  </data>
+  <data name="RepairFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>The current system configuration does not support the repair of this package.</value>
+  </data>
+  <data name="RepairOperationNotSupported" xml:space="preserve">
+    <value>The installer technology in use does not support repair.</value>
   </data>
 </root>
