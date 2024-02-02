@@ -173,10 +173,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
         {
-            context.SetFlags(Execution::ContextFlag::InstallerExecutionUseRepair);
-
             context <<
-                Workflow::SelectInstaller << // TODO: Set ContxtFlag for repair.
                 GenerateRepairString;
         }
         break;
@@ -186,7 +183,8 @@ namespace AppInstaller::CLI::Workflow
             break;
         case InstallerTypeEnum::Msix:
         case InstallerTypeEnum::MSStore:
-            context << SetPackageFamilyNamesInContext;
+            context <<
+                SetPackageFamilyNamesInContext;
             break;
         case InstallerTypeEnum::Portable:
         default:
@@ -220,7 +218,6 @@ namespace AppInstaller::CLI::Workflow
             break;
         case RepairBehaviorEnum::Installer:
             context <<
-                Workflow::EnsureSupportForDownload <<
                 Workflow::DownloadInstaller;
 
             if (installerType == InstallerTypeEnum::Zip)
@@ -309,8 +306,6 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportRepairResult::operator()(Execution::Context& context) const
     {
-        UNREFERENCED_PARAMETER(context);
-
         DWORD repairResult = 0;
 
         if (repairResult != 0)
@@ -338,11 +333,129 @@ namespace AppInstaller::CLI::Workflow
 
     void RepairSinglePackage::operator()(Execution::Context& context) const
     {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_operationType != OperationType::Repair);
+
         context <<
             GetInstalledPackageVersion <<
             RepairApplicabilityCheck <<
             GetRepairInfo <<
-            Workflow::ExecuteRepair <<
-            Workflow::RecordRepair;
+            Workflow::ExecuteRepair;
+    }
+
+    void SelectApplicablePackageVersion::operator()(Execution::Context& context) const
+    {
+        auto package = context.Get<Execution::Data::Package>();
+        auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
+        const bool reportVersionNotFound = m_isSinglePackage;
+
+        bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
+
+        Utility::Version version;
+        Utility::Version installedVersion;
+
+        if (isRepair)
+        {
+            installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
+        }
+
+        ManifestComparator manifestComparator(context, isRepair ? installedPackage->GetMetadata() : IPackageVersion::Metadata{}); // Use the installed package metadata for comparison if we are repairing
+
+        bool versionFound = false;
+        bool installedTypeInapplicable = false;
+
+        if (isRepair && installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
+        {
+            if (reportVersionNotFound)
+            {
+                context.Reporter.Info() << Resource::String::NoApplicableInstallers << std::endl;
+            }
+
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
+        }
+
+        const auto& versionKeys = package->GetAvailableVersionKeys();
+        bool matchingVersionFound = false;
+
+        for (const auto& versionKey : versionKeys)
+        {
+            if (!matchingVersionFound || installedVersion == Utility::Version(versionKey.Version))
+            {
+                if (isRepair)
+                {
+                    matchingVersionFound = true;
+                }
+
+                auto packageVersion = package->GetAvailableVersion(versionKey);
+                auto manifest = packageVersion->GetManifest();
+
+                // Check applicable Installer
+                auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(manifest);
+                if (!installer.has_value())
+                {
+                    // If there is at least one installer whose only reason is InstalledType.
+                    auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
+                    if (onlyInstalledType != inapplicabilities.end())
+                    {
+                        installedTypeInapplicable = true;
+                    }
+
+                    continue;
+                }
+
+                Logging::Telemetry().LogSelectedInstaller(
+                    static_cast<int>(installer->Arch),
+                    installer->Url,
+                    Manifest::InstallerTypeToString(installer->EffectiveInstallerType()),
+                    Manifest::ScopeToString(installer->Scope),
+                    installer->Locale);
+
+                Logging::Telemetry().LogManifestFields(
+                    manifest.Id,
+                    manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>(),
+                    manifest.Version);
+
+                // Since we already did installer selection, just populate the context Data
+                manifest.ApplyLocale(installer->Locale);
+                context.Add<Execution::Data::Manifest>(std::move(manifest));
+                context.Add<Execution::Data::PackageVersion>(std::move(packageVersion));
+                context.Add<Execution::Data::Installer>(std::move(installer));
+
+                versionFound = true;
+                break;
+            }
+            else
+            {
+                // Any following versions are not applicable
+                break;
+            }
+        }
+
+        if (!versionFound)
+        {
+            if (reportVersionNotFound)
+            {
+                if (installedTypeInapplicable)
+                {
+                    context.Reporter.Info() << Resource::String::RepairDifferentInstallTechnology << std::endl;
+                }
+                else if (isRepair)
+                {
+                    if (!matchingVersionFound)
+                    {
+                        context.Reporter.Info() << Resource::String::RepairFlowNoMatchingVersion << std::endl;
+                    }
+                    else
+                    {
+                        context.Reporter.Info() << Resource::String::RepairFlowNoApplicableVersion << std::endl;
+                    }
+                }
+                else
+                {
+                    context.Reporter.Info() << Resource::String::NoApplicableInstallers << std::endl;
+                }
+            }
+
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
+        }
     }
 }
