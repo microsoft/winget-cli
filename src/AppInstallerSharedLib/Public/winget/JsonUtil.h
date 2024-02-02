@@ -9,7 +9,7 @@
 #endif
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
- #include <cpprest/json.h>
+#include <cpprest/json.h>
 #endif
 
 #include <optional>

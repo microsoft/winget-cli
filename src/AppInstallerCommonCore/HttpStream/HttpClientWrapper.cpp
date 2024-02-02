@@ -86,8 +86,12 @@ namespace AppInstaller::Utility::HttpStream
             co_await SendHttpRequestAsync(0, 1);
         }
     }
+
+#ifdef WINGET_DISABLE_FOR_FUZZING
 #pragma warning( push )
 #pragma warning( disable : 4714)
+#endif
+
     std::future<IBuffer> HttpClientWrapper::SendHttpRequestAsync(
         _In_ ULONG64 startPosition,
         _In_ UINT32 requestedSizeInBytes)
@@ -168,7 +172,9 @@ namespace AppInstaller::Utility::HttpStream
         co_return co_await response.Content().ReadAsBufferAsync();
     }
 
+#ifdef WINGET_DISABLE_FOR_FUZZING
 #pragma warning( pop ) 
+#endif
 
     std::future<IBuffer> HttpClientWrapper::DownloadRangeAsync(
         const ULONG64 startPosition,

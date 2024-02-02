@@ -73,7 +73,6 @@
 #include <wil/win32_helpers.h>
 #pragma warning( pop )
 
-#ifndef WINGET_DISABLE_FOR_FUZZING
 #include <wil/cppwinrt.h>
 
 #include <winrt/Windows.ApplicationModel.h>
@@ -92,8 +91,6 @@
 #include <winrt/Windows.Web.Http.Filters.h>
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
-
-#endif
 
 #include <wrl/client.h>
 #include <wrl/implements.h>
