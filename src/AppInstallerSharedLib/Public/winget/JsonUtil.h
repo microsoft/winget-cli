@@ -58,13 +58,13 @@ namespace AppInstaller::JSON
     utility::string_t GetUtilityString(std::string_view nodeName);
 
     web::json::value GetStringValue(std::string_view value);
-#endif
-
-    bool IsValidNonEmptyStringValue(std::optional<std::string>& value);
 
     // Base64 encode
     std::string Base64Encode(const std::vector<BYTE>& input);
 
     // Base64 decode
     std::vector<BYTE>Base64Decode(const std::string& input);
+#endif
+
+    bool IsValidNonEmptyStringValue(std::optional<std::string>& value);
 }

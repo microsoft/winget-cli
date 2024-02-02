@@ -729,11 +729,6 @@ namespace AppInstaller::Logging
     {
         if (IsTelemetryEnabled())
         {
-            bool result = Runtime::IsReleaseBuild();
-            if (result)
-            {
-                printf("asdf");
-            }
             LocIndString version = Runtime::GetClientVersion();
             LocIndString packageVersion;
             if (Runtime::IsRunningInPackagedContext())
@@ -753,7 +748,7 @@ namespace AppInstaller::Logging
                     TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),
                     TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "ClientVersion"),
                     TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "ClientPackageVersion"),
-                    TraceLoggingBool(false, "IsReleaseBuild"),
+                    TraceLoggingBool(Runtime::IsReleaseBuild(), "IsReleaseBuild"),
                     TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                     // From TelemetrySummary
                     TraceLoggingHResult(m_summary.FailureHResult, "FailureHResult"),

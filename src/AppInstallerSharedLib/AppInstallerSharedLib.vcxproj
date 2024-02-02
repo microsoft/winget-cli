@@ -472,7 +472,7 @@
     <None Include="PropertySheet.props" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\cpprestsdk\cpprestsdk.vcxproj">
+    <ProjectReference Include="..\cpprestsdk\cpprestsdk.vcxproj" Condition="'$(Configuration)'!='Fuzzing'">
       <Project>{866c3f06-636f-4be8-bc24-5f86ecc606a1}</Project>
     </ProjectReference>
     <ProjectReference Include="..\JsonCppLib\JsonCppLib.vcxproj">

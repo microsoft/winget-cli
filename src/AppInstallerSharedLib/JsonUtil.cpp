@@ -212,17 +212,6 @@ namespace AppInstaller::JSON
 
         return result;
     }
-#endif
-
-    bool IsValidNonEmptyStringValue(std::optional<std::string>& value)
-    {
-        if (Utility::IsEmptyOrWhitespace(value.value_or("")))
-        {
-            return false;
-        }
-
-        return true;
-    }
 
     std::string Base64Encode(const std::vector<BYTE>& input)
     {
@@ -262,5 +251,16 @@ namespace AppInstaller::JSON
         THROW_LAST_ERROR_IF(!CryptStringToBinaryW(inputWide.data(), static_cast<DWORD>(inputWide.size()), CRYPT_STRING_BASE64, result.data(), &resultSize, nullptr, nullptr));
 
         return result;
+    }
+#endif
+
+    bool IsValidNonEmptyStringValue(std::optional<std::string>& value)
+    {
+        if (Utility::IsEmptyOrWhitespace(value.value_or("")))
+        {
+            return false;
+        }
+
+        return true;
     }
 }
