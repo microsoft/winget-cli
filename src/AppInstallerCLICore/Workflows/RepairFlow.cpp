@@ -6,8 +6,11 @@
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/ArchiveFlow.h"
+#include "Workflows/InstallFlow.h"
+#include "winget/ManifestCommon.h"
 #include "AppInstallerDeployment.h"
 #include "AppInstallerMsixInfo.h"
+#include "AppInstallerSynchronization.h"
 #include "MSStoreInstallerHandler.h"
 #include "ManifestComparator.h"
 
@@ -110,9 +113,23 @@ namespace AppInstaller::CLI::Workflow
 
             if (Utility::IsDwordFlagSet(noModifyARPFlag) || Utility::IsDwordFlagSet(noRepairARPFlag))
             {
-                // TODO: Add resource string for no repair allowed.
-                THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
             }
+        }
+
+        auto const& repairBehavior = context.Get<Execution::Data::Installer>()->RepairBehavior;
+
+        if (repairBehavior == RepairBehaviorEnum::Unknown)
+        {
+            context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+        }
+        else if (repairBehavior == RepairBehaviorEnum::Installer)
+        {
+            context <<
+                Workflow::EnsureSupportForDownload <<
+                Workflow::EnsureSupportForInstall;
         }
     }
 
@@ -121,7 +138,21 @@ namespace AppInstaller::CLI::Workflow
         const std::string installerType = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
         InstallerTypeEnum installerTypeEnum = ConvertToInstallerTypeEnum(installerType);
 
-        // TODO: Obtain cross process lock to ensure only one repair is running at a time.
+        Synchronization::CrossProcessInstallLock lock;
+
+        if (!ExemptFromSingleInstallLocking(installerTypeEnum))
+        {
+            // Acquire the lock , if the operation is cancelled it will return false so we will also return.
+            if (!context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
+                {
+                    callback.SetProgressMessage(Resource::String::InstallWaitingOnAnother());
+                    return lock.Acquire(callback);
+                }))
+            {
+                AICLI_LOG(CLI, Info, << "Abandoning attempt to acquire repair lock due to cancellation");
+                return;
+            }
+        }
 
         switch (installerTypeEnum)
         {
@@ -129,11 +160,34 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
-            //TODO: Implement Burn repair - use repair read from the manifest switch on the installer.
+        {
+            const auto& installer = context.Get<Execution::Data::Installer>();
+            const auto& repairBehavior = installer->RepairBehavior;
+
+            if (repairBehavior == RepairBehaviorEnum::Modify || repairBehavior == RepairBehaviorEnum::Uninstaller)
+            {
+                Workflow::ShellExecuteRepairImpl(context);
+            }
+            else if (repairBehavior == RepairBehaviorEnum::Installer)
+            {
+                Workflow::ShellExecuteInstallImpl(context);
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+            }
+
+            const auto& repairBehaviorString = RepairBehaviorToString(repairBehavior);
+
+            std::string repairType(repairBehaviorString);
+            repairType.append("-Repair");
+
             context <<
-                Workflow::GetInstallerArgs <<
-                Workflow::ShellExecuteRepairImpl;
-            break;
+                ReportRepairResult(repairType, APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED);
+        }
+
+        break;
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
             context <<
@@ -152,7 +206,7 @@ namespace AppInstaller::CLI::Workflow
                 Workflow::MSStoreRepair;
         }
 
-            break;
+        break;
         case InstallerTypeEnum::Portable:
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -195,7 +249,6 @@ namespace AppInstaller::CLI::Workflow
     void GenerateRepairString(Execution::Context& context)
     {
         auto installer = context.Get<Execution::Data::Installer>();
-        //auto installerType = installer->EffectiveInstallerType();
         auto installerType = installer->BaseInstallerType;
 
         auto repairBehavior = installer->RepairBehavior;
@@ -228,10 +281,7 @@ namespace AppInstaller::CLI::Workflow
                     VerifyAndSetNestedInstaller;
             }
 
-            // TODO: Download the installer
-            // TODO: For zip installer require slightly different flow to extract the installer.
-
-            repairCommand.append(context.Get<Execution::Data::InstallerPath>().string()); // This is the path to the downloaded installer.
+            // [NOTE:] We will ShellExecuteInstallimpl for this scenario which uses installer path directly.so no need for repair command generation.
 
             break;
         case RepairBehaviorEnum::Uninstaller:
@@ -251,10 +301,16 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
         }
 
-        repairCommand.append(" ");
-        repairCommand.append(repairSwitch);
+        context <<
+            Workflow::GetInstallerArgs;
 
-        context.Add<Execution::Data::RepairString>(repairCommand);
+        // Following is not applicable for RepairBehaviorEnum::Installer, as we can call ShelleExecuteInstall directly with repair argument.
+        if (repairBehavior != RepairBehaviorEnum::Installer)
+        {
+            repairCommand.append(" ");
+            repairCommand.append(context.Get<Execution::Data::InstallerArgs>());
+            context.Add<Execution::Data::RepairString>(repairCommand);
+        }
     }
 
     void RepairMsixPackage(Execution::Context& context)
@@ -272,7 +328,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 AICLI_LOG(CLI, Warning, << "No package found with family name: " << packageFamilyName);
                 continue;
-    }
+            }
 
             AICLI_LOG(CLI, Info, << "Repairing package: " << packageFullName.value());
 
@@ -323,7 +379,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto installerLogPath = Utility::LocIndString{ context.Get<Execution::Data::LogPath>().u8string() };
                 context.Reporter.Info() << Resource::String::InstallerLogAvailable(installerLogPath) << std::endl;
-        }
+            }
         }
         else
         {
@@ -336,7 +392,6 @@ namespace AppInstaller::CLI::Workflow
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_operationType != OperationType::Repair);
 
         context <<
-            GetInstalledPackageVersion <<
             RepairApplicabilityCheck <<
             GetRepairInfo <<
             Workflow::ExecuteRepair;

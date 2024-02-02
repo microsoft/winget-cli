@@ -287,6 +287,7 @@ namespace AppInstaller::CLI::Workflow
 
     void EnsureApplicableInstaller(Execution::Context& context)
     {
+        bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
         const auto& installer = context.Get<Execution::Data::Installer>();
 
         if (!installer.has_value())
@@ -295,9 +296,13 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
-        context <<
-            EnsureSupportForDownload <<
-            EnsureSupportForInstall;
+        // We don't need download support or install support check for "repair" right away, so skipt this check for repair.
+        if (!isRepair)
+        {
+            context <<
+                EnsureSupportForDownload <<
+                EnsureSupportForInstall;
+        }
     }
 
     void CheckForUnsupportedArgs(Execution::Context& context)

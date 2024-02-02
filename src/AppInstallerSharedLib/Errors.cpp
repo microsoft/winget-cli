@@ -274,6 +274,12 @@ namespace AppInstaller
             // Errors without the error bit set
             WINGET_HRESULT_INFO(WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE, "The install location is not applicable."),
             WINGET_HRESULT_INFO(WINGET_INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK, "The file was found but the hash was not checked."),
+
+            // Repair errors.
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND, "Repair command not found."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE, "Repair operation is not applicable."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED, "The installer technology in use doesn't support repair."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED, "Repair operation failed."),
         };
 
         const WinGetHResultData* FindWinGetHResultData(HRESULT value)

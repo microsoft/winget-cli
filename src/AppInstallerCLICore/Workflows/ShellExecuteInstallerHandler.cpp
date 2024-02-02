@@ -76,6 +76,7 @@ namespace AppInstaller::CLI::Workflow
         std::string GetInstallerArgsTemplate(Execution::Context& context)
         {
             bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+            bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
 
             const auto& installer = context.Get<Execution::Data::Installer>();
             const auto& installerSwitches = installer->Switches;
@@ -112,6 +113,14 @@ namespace AppInstaller::CLI::Workflow
             if (installerSwitches.find(InstallerSwitchType::Log) != installerSwitches.end())
             {
                 installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Log);
+            }
+
+            // Contruct repair arg. Custom switches and othe args are not applicable for repair scenario so we can return here.
+            if (isRepair && installerSwitches.find(InstallerSwitchType::Repair) != installerSwitches.end())
+            {
+                installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Repair);
+
+                return installerArgs;
             }
 
             // Construct custom arg.
@@ -314,8 +323,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ShellExecuteRepairImpl(Execution::Context& context)
     {
-        // TODO: Define repair starting resource string
-        //context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+        context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
 
         std::wstring commandUtf16 = Utility::ConvertToUTF16(context.Get<Execution::Data::RepairString>());
 
@@ -332,8 +340,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!repairResult)
         {
-            // TODO: Define repair abandoned resource string
-            //context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
+            context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else
@@ -373,8 +380,7 @@ namespace AppInstaller::CLI::Workflow
     void ShellExecuteMsiExecRepair(Execution::Context& context)
     {
         const auto& productCodes = context.Get<Execution::Data::ProductCodes>();
-        // TODO: Define repair starting resource string
-        //context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+        context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
 
         const std::filesystem::path msiexecPath{ ExpandEnvironmentVariables(L"%windir%\\system32\\msiexec.exe") };
 
@@ -389,8 +395,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!repairResult)
             {
-                // TODO: Define repair abandoned resource string
-                //context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
+                context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
                 AICLI_TERMINATE_CONTEXT(E_ABORT);
             }
             else
