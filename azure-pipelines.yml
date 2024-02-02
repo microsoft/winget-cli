@@ -44,7 +44,7 @@ jobs:
 
   strategy:
     matrix:
-      x64_release:
+      x64_fuzzing:
         buildConfiguration: 'Fuzzing'
         buildPlatform: 'x64'
 
@@ -96,4 +96,4 @@ jobs:
       onefuzzOSes: 'Windows'
     env:
       onefuzzDropDirectory: '$(buildOutDir)'
-       onefuzzDropPAT: $(onefuzzDropPAT)
+      onefuzzDropPAT: $(onefuzzDropPAT)
