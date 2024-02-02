@@ -25,7 +25,10 @@
 
 // TODO: See if we can get down to having just one JSON parser...
 #include <json/json.h>
+
+#ifndef WINGET_DISABLE_FOR_FUZZING
 #include <cpprest/json.h>
+#endif
 
 #pragma warning( push )
 #pragma warning ( disable : 4458 4100 4702 6031 )
