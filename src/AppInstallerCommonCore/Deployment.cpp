@@ -327,13 +327,18 @@ namespace AppInstaller::Deployment
         std::string_view packageFamilyName,
         IProgressCallback& callback)
     {
-        size_t id = GetDeploymentOperationId();
-        AICLI_LOG(Core, Info, << "Starting RegisterPackageByFullNameAsync operation #" << id << ": " << packageFamilyName);
+        PartialPercentProgressCallback progress{ callback, 100 };
 
-        PackageManager packageManager;
-        winrt::hstring packageFamilyNameWide = Utility::ConvertToUTF16(packageFamilyName).c_str();
-        auto deployOperation = packageManager.RegisterPackageByFamilyNameAsync(packageFamilyNameWide, nullptr, DeploymentOptions::None, nullptr, nullptr);
+        progress.SetRange(0, 100);
+        {
+            size_t id = GetDeploymentOperationId();
+            AICLI_LOG(Core, Info, << "Starting RegisterPackageByFullNameAsync operation #" << id << ": " << packageFamilyName);
 
-        WaitForDeployment(deployOperation, id, callback);
+            PackageManager packageManager;
+            winrt::hstring packageFamilyNameWide = Utility::ConvertToUTF16(packageFamilyName).c_str();
+            auto deployOperation = packageManager.RegisterPackageByFamilyNameAsync(packageFamilyNameWide, nullptr, DeploymentOptions::None, nullptr, nullptr);
+
+            WaitForDeployment(deployOperation, id, callback);
+        }
     }
 }

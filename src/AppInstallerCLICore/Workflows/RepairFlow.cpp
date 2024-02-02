@@ -7,6 +7,7 @@
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/ArchiveFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/PromptFlow.h"
 #include "winget/ManifestCommon.h"
 #include "AppInstallerDeployment.h"
 #include "AppInstallerMsixInfo.h"
@@ -96,26 +97,34 @@ namespace AppInstaller::CLI::Workflow
         const std::string installerType = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
         InstallerTypeEnum installerTypeEnum = ConvertToInstallerTypeEnum(installerType);
 
-        if (installerTypeEnum == InstallerTypeEnum::Burn
-            || installerTypeEnum == InstallerTypeEnum::Exe
-            || installerTypeEnum == InstallerTypeEnum::Inno
-            || installerTypeEnum == InstallerTypeEnum::Nullsoft
-            || installerTypeEnum == InstallerTypeEnum::Msi
-            || installerTypeEnum == InstallerTypeEnum::Wix)
+        switch (installerTypeEnum)
         {
-            IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
+           case InstallerTypeEnum::Burn:
+           case InstallerTypeEnum::Exe:
+           case InstallerTypeEnum::Inno:
+           case InstallerTypeEnum::Nullsoft:
+           case InstallerTypeEnum::Msi:
+           case InstallerTypeEnum::Wix:
+           {
+               IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
 
-            auto noModifyItr = packageMetadata.find(PackageVersionMetadata::NoModify);
-            std::string noModifyARPFlag = noModifyItr != packageMetadata.end() ? noModifyItr->second : std::string();
+               auto noModifyItr = packageMetadata.find(PackageVersionMetadata::NoModify);
+               std::string noModifyARPFlag = noModifyItr != packageMetadata.end() ? noModifyItr->second : std::string();
 
-            auto noRepairItr = packageMetadata.find(PackageVersionMetadata::NoRepair);
-            std::string noRepairARPFlag = noRepairItr != packageMetadata.end() ? noRepairItr->second : std::string();
+               auto noRepairItr = packageMetadata.find(PackageVersionMetadata::NoRepair);
+               std::string noRepairARPFlag = noRepairItr != packageMetadata.end() ? noRepairItr->second : std::string();
 
-            if (Utility::IsDwordFlagSet(noModifyARPFlag) || Utility::IsDwordFlagSet(noRepairARPFlag))
-            {
-                context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
-            }
+               if (Utility::IsDwordFlagSet(noModifyARPFlag) || Utility::IsDwordFlagSet(noRepairARPFlag))
+               {
+                   context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
+                   AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
+               }
+           }
+           break;
+           case InstallerTypeEnum::Msix:
+           case InstallerTypeEnum::MSStore:
+           default:
+               return; // No check for these types
         }
 
         auto const& repairBehavior = context.Get<Execution::Data::Installer>()->RepairBehavior;
@@ -135,8 +144,8 @@ namespace AppInstaller::CLI::Workflow
 
     void ExecuteRepair(Execution::Context& context)
     {
-        const std::string installerType = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
-        InstallerTypeEnum installerTypeEnum = ConvertToInstallerTypeEnum(installerType);
+        const auto& installer = context.Get<Execution::Data::Installer>();
+        InstallerTypeEnum installerTypeEnum = installer->EffectiveInstallerType();
 
         Synchronization::CrossProcessInstallLock lock;
 
@@ -161,7 +170,6 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
         {
-            const auto& installer = context.Get<Execution::Data::Installer>();
             const auto& repairBehavior = installer->RepairBehavior;
 
             if (repairBehavior == RepairBehaviorEnum::Modify || repairBehavior == RepairBehaviorEnum::Uninstaller)
@@ -203,6 +211,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::MSStore:
         {
             context <<
+                EnsureStorePolicySatisfied <<
                 Workflow::MSStoreRepair;
         }
 
@@ -271,6 +280,8 @@ namespace AppInstaller::CLI::Workflow
             break;
         case RepairBehaviorEnum::Installer:
             context <<
+                Workflow::ShowInstallationDisclaimer <<
+                Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
                 Workflow::DownloadInstaller;
 
             if (installerType == InstallerTypeEnum::Zip)
