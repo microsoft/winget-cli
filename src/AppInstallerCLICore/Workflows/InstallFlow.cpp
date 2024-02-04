@@ -296,7 +296,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
-        // We don't need download support or install support check for "repair" right away, so skipt this check for repair.
+        // We don't need download support or install support check for "repair" right away, so skip this check for repair.
         if (!isRepair)
         {
             context <<

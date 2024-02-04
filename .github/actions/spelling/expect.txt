@@ -305,6 +305,7 @@ nuffing
 objbase
 objidl
 ofile
+omus
 ools
 oop
 OPTOUT

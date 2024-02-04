@@ -292,7 +292,7 @@ namespace AppInstaller::CLI::Workflow
                     VerifyAndSetNestedInstaller;
             }
 
-            // [NOTE:] We will ShellExecuteInstallimpl for this scenario which uses installer path directly.so no need for repair command generation.
+            // [NOTE:] We will ShellExecuteInstall for this scenario which uses installer path directly.so no need for repair command generation.
 
             break;
         case RepairBehaviorEnum::Uninstaller:
@@ -309,7 +309,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::GetInstallerArgs;
 
-        // Following is not applicable for RepairBehaviorEnum::Installer, as we can call ShelleExecuteInstall directly with repair argument.
+        // Following is not applicable for RepairBehaviorEnum::Installer, as we can call ShellExecuteInstall directly with repair argument.
         if (repairBehavior != RepairBehaviorEnum::Installer)
         {
             if (repairCommand.empty())
@@ -353,7 +353,7 @@ namespace AppInstaller::CLI::Workflow
                 else
                 {
                     // TODO: Do we need a different error code for repair failure?
-                    // resuse install failure for the scenario.
+                    // reuse install failure for the scenario.
                     context.Reporter.Error() << Resource::String::RepairFlowReturnCodeSystemNotSupported << std::endl;
                     context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
                     AICLI_LOG(CLI, Error, << "Device wide repair for msix type is not supported.");
