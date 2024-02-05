@@ -1014,7 +1014,6 @@ TEST_CASE("UpdateFlow_UpdateMultiple_NotAllFound", "[UpdateFlow][workflow][Multi
 TEST_CASE("UpdateFlow_UpdateWithReboot", "[UpdateFlow][workflow][reboot]")
 {
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFReboot>(true);
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
