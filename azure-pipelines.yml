@@ -91,9 +91,9 @@ jobs:
       targetPath: '$(artifactsDir)'
     condition: succeededOrFailed()
 
-  # - task: onefuzz-task@0
-  #   inputs:
-  #     onefuzzOSes: 'Windows'
-  #   env:
-  #     onefuzzDropDirectory: '$(buildOutDir)'
-  #     onefuzzDropPAT: $(onefuzzDropPAT)
+  - task: onefuzz-task@0
+    inputs:
+      onefuzzOSes: 'Windows'
+    env:
+      onefuzzDropDirectory: '$(buildOutDir)'
+      onefuzzDropPAT: $(onefuzzDropPAT)
