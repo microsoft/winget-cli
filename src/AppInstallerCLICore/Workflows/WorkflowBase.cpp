@@ -782,6 +782,7 @@ namespace AppInstaller::CLI::Workflow
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
 
+        // TODO: Integrate pinning data
         PinBehavior pinBehavior;
         if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::Force))
         {
@@ -800,8 +801,8 @@ namespace AppInstaller::CLI::Workflow
 
             if (installedVersion)
             {
-                auto latestVersion = match.Package->GetLatestAvailableVersion(pinBehavior);
-                bool updateAvailable = match.Package->IsUpdateAvailable(pinBehavior);
+                auto latestVersion = match.Package->GetLatestAvailableVersion();
+                bool updateAvailable = match.Package->IsUpdateAvailable();
                 bool updateIsPinned = false;
 
                 if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown() && updateAvailable)
@@ -1008,6 +1009,7 @@ namespace AppInstaller::CLI::Workflow
             // TODO: The logic here will probably have to get more difficult once we support channels
             if (Utility::IsEmptyOrWhitespace(m_version) && Utility::IsEmptyOrWhitespace(m_channel))
             {
+                // TODO: Integrate pinning data
                 PinBehavior pinBehavior;
                 if (context.Args.Contains(Execution::Args::Type::Force))
                 {
@@ -1019,7 +1021,7 @@ namespace AppInstaller::CLI::Workflow
                     pinBehavior = context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
                 }
 
-                requestedVersion = package->GetLatestAvailableVersion(pinBehavior);
+                requestedVersion = package->GetLatestAvailableVersion();
 
                 if (!requestedVersion)
                 {
@@ -1033,14 +1035,13 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                auto requestedVersionAndPin = package->GetAvailableVersionAndPin(key);
-                requestedVersion = requestedVersionAndPin.first;
-                auto pin = requestedVersionAndPin.second;
+                requestedVersion = package->GetAvailableVersion(key);
 
-                isPinned =
-                    pin == Pinning::PinType::Blocking ||
-                    pin == Pinning::PinType::Gating ||
-                    (pin == Pinning::PinType::Pinning && !context.Args.Contains(Execution::Args::Type::IncludePinned));
+                // TODO: Pinning update
+                //isPinned =
+                //    pin == Pinning::PinType::Blocking ||
+                //    pin == Pinning::PinType::Gating ||
+                //    (pin == Pinning::PinType::Pinning && !context.Args.Contains(Execution::Args::Type::IncludePinned));
             }
 
             if (isPinned)

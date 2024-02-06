@@ -4,7 +4,7 @@
 #include <winget/SQLiteWrapper.h>
 #include "Microsoft/Schema/IPinningIndex.h"
 #include <winget/SQLiteStorageBase.h>
-#include "winget/Pin.h"
+#include <winget/Pin.h>
 #include <winget/ManagedFile.h>
 
 namespace AppInstaller::Repository::Microsoft

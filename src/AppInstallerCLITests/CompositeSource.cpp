@@ -9,6 +9,7 @@
 #include <Microsoft/PinningIndex.h>
 #include <PackageTrackingCatalogSourceFactory.h>
 #include <winget/Pin.h>
+#include <winget/PinningData.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;

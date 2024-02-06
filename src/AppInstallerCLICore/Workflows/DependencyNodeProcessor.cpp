@@ -48,7 +48,8 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            pinBehavior = m_context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+            // TODO: Convert to calling into the PinningData
+            //pinBehavior = m_context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
         }
 
         if (m_nodePackageInstalledVersion && dependencyNode.IsVersionOk(Utility::Version(m_nodePackageInstalledVersion->GetProperty(PackageVersionProperty::Version))))

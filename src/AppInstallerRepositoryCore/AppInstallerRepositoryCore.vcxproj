@@ -348,7 +348,6 @@
     <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
     <ClInclude Include="Microsoft\PinningIndex.h" />
-    <ClInclude Include="Microsoft\PortableIndex.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
     <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
@@ -412,6 +411,7 @@
     <ClInclude Include="Public\winget\ARPCorrelationAlgorithms.h" />
     <ClInclude Include="Public\winget\PackageTrackingCatalog.h" />
     <ClInclude Include="Public\winget\PinningData.h" />
+    <ClInclude Include="Public\winget\PortableIndex.h" />
     <ClInclude Include="Public\winget\RepositorySearch.h" />
     <ClInclude Include="Public\winget\RepositorySource.h" />
     <ClInclude Include="Rest\RestClient.h" />

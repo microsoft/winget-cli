@@ -10,6 +10,18 @@ namespace AppInstaller::Repository::Microsoft
 
 namespace AppInstaller::Pinning
 {
+    // Possible ways to consider pins when getting a package's available versions
+    enum class PinBehavior
+    {
+        // Ignore pins, returns all available versions.
+        IgnorePins,
+        // Include available versions for packages with a Pinning pin.
+        // Blocking pins and Gating pins still respected.
+        IncludePinned,
+        // Respect all the types of pins.
+        ConsiderPins,
+    };
+
     // The public representation of the pinning database.
     struct PinningData
     {
@@ -29,15 +41,14 @@ namespace AppInstaller::Pinning
         operator bool() const;
         bool IsDatabaseConnected() const;
 
+        // Pass through functions to the index itself
         void AddOrUpdatePin(const Pin& pin);
-
         void RemovePin(const PinKey& pinKey);
-
         std::optional<Pin> GetPin(const PinKey& pinKey);
-
         std::vector<Pin> GetAllPins();
-
         bool ResetAllPins(std::string_view sourceId = {});
+
+
 
     private:
         std::shared_ptr<AppInstaller::Repository::Microsoft::PinningIndex> m_database;
