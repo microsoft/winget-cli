@@ -2,12 +2,16 @@
 // Licensed under the MIT License.
 #pragma once
 #include <winget/SQLiteWrapper.h>
-#include "Microsoft/Schema/ICheckpointDatabase.h"
 #include <winget/SQLiteStorageBase.h>
 #include <winget/ManagedFile.h>
 
 namespace AppInstaller::Repository::Microsoft
 {
+    namespace Schema
+    {
+        struct ICheckpointDatabase;
+    }
+
     struct CheckpointDatabase : SQLite::SQLiteStorageBase
     {
         // An id that refers to a specific Checkpoint.
@@ -16,18 +20,14 @@ namespace AppInstaller::Repository::Microsoft
         CheckpointDatabase(const CheckpointDatabase&) = delete;
         CheckpointDatabase& operator=(const CheckpointDatabase&) = delete;
 
-        CheckpointDatabase(CheckpointDatabase&&) = default;
-        CheckpointDatabase& operator=(CheckpointDatabase&&) = default;
+        CheckpointDatabase(CheckpointDatabase&&);
+        CheckpointDatabase& operator=(CheckpointDatabase&&);
 
         // Create a new checkpoint database.
         static std::shared_ptr<CheckpointDatabase> CreateNew(const std::string& filePath, SQLite::Version version = SQLite::Version::Latest());
 
         // Opens an existing checkpoint database.
-        static std::shared_ptr<CheckpointDatabase> Open(const std::string& filePath, OpenDisposition disposition = OpenDisposition::ReadWrite, Utility::ManagedFile&& indexFile = {})
-        {
-            CheckpointDatabase result{ filePath, disposition, std::move(indexFile) };
-            return std::make_shared<CheckpointDatabase>(std::move(result));
-        }
+        static std::shared_ptr<CheckpointDatabase> Open(const std::string& filePath, OpenDisposition disposition = OpenDisposition::ReadWrite, Utility::ManagedFile&& indexFile = {});
 
         // Returns a value indicating whether the database is empty.
         bool IsEmpty();
@@ -68,9 +68,6 @@ namespace AppInstaller::Repository::Microsoft
 
         // Constructor used to create a new index.
         CheckpointDatabase(const std::string& target, SQLite::Version version);
-
-        // Creates the ICheckpointDatabase interface object for this version.
-        std::unique_ptr<Schema::ICheckpointDatabase> CreateICheckpointDatabase() const;
 
         std::unique_ptr<Schema::ICheckpointDatabase> m_interface;
     };

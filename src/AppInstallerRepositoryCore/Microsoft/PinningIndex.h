@@ -32,6 +32,11 @@ namespace AppInstaller::Repository::Microsoft
         // Opens or creates a PinningIndex database on the default path.
         // openDisposition is only used when opening an existing database.
         // Returns nullptr in case of error.
+        static std::shared_ptr<PinningIndex> OpenIfExists(OpenDisposition openDisposition = OpenDisposition::Read);
+
+        // Opens or creates a PinningIndex database on the default path.
+        // openDisposition is only used when opening an existing database.
+        // Returns nullptr in case of error.
         static std::shared_ptr<PinningIndex> OpenOrCreateDefault(OpenDisposition openDisposition = OpenDisposition::ReadWrite);
 
         // Adds a pin to the index.

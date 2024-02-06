@@ -67,7 +67,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::call_once(m_defaultInstallVersionOnceFlag,
             [&]()
             {
-                std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion = m_package.get()->GetLatestAvailableVersion(AppInstaller::Repository::PinBehavior::IgnorePins);
+                std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion = m_package.get()->GetLatestAvailableVersion();
                 if (latestVersion)
                 {
                     // DefaultInstallVersion hasn't been created yet, create and populate it.
@@ -97,7 +97,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     bool CatalogPackage::IsUpdateAvailable()
     {
-        return m_package->IsUpdateAvailable(AppInstaller::Repository::PinBehavior::IgnorePins);
+        return m_package->IsUpdateAvailable();
     }
     Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult> CatalogPackage::CheckInstalledStatusAsync(
         Microsoft::Management::Deployment::InstalledStatusType checkTypes)

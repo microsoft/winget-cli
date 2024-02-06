@@ -331,8 +331,8 @@ TEST_CASE("CompositeSource_MultiMatch_FindsStrongMatch", "[CompositeSource]")
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
-    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name).get() == name);
-    REQUIRE(!Version(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Version)).IsUnknown());
+    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name).get() == name);
+    REQUIRE(!Version(result.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version)).IsUnknown());
 }
 
 TEST_CASE("CompositeSource_MultiMatch_DoesNotFindStrongMatch", "[CompositeSource]")
@@ -550,11 +550,11 @@ TEST_CASE("CompositePackage_AvailableVersions_ChannelFilteredOut", "[CompositeSo
     REQUIRE(versionKeys.size() == 1);
     REQUIRE(versionKeys[0].Channel.empty());
 
-    auto latestVersion = result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+    auto latestVersion = result.Matches[0].Package->GetLatestAvailableVersion();
     REQUIRE(latestVersion);
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Channel).get().empty());
 
-    REQUIRE(!result.Matches[0].Package->IsUpdateAvailable(PinBehavior::IgnorePins));
+    REQUIRE(!result.Matches[0].Package->IsUpdateAvailable());
 }
 
 TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[CompositeSource]")
@@ -586,11 +586,11 @@ TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[Composite
     REQUIRE(versionKeys.size() == 1);
     REQUIRE(versionKeys[0].Channel == channel);
 
-    auto latestVersion = result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+    auto latestVersion = result.Matches[0].Package->GetLatestAvailableVersion();
     REQUIRE(latestVersion);
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Channel).get() == channel);
 
-    REQUIRE(result.Matches[0].Package->IsUpdateAvailable(PinBehavior::IgnorePins));
+    REQUIRE(result.Matches[0].Package->IsUpdateAvailable());
 }
 
 TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource]")
@@ -630,7 +630,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 2);
-    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name).get() == firstName);
+    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name).get() == firstName);
 }
 
 TEST_CASE("CompositeSource_MultipleAvailableSources_MatchSecond", "[CompositeSource]")
@@ -659,7 +659,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchSecond", "[CompositeSou
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
-    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name).get() == secondName);
+    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name).get() == secondName);
 }
 
 TEST_CASE("CompositeSource_MultipleAvailableSources_ReverseMatchBoth", "[CompositeSource]")
@@ -731,7 +731,7 @@ TEST_CASE("CompositeSource_AvailableSearchFailure", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
 
-    auto pfns = result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
+    auto pfns = result.Matches[0].Package->GetLatestAvailableVersion()->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
     REQUIRE(pfns.size() == 1);
     REQUIRE(pfns[0] == pfn);
 
@@ -877,7 +877,7 @@ TEST_CASE("CompositeSource_TrackingPackageFound", "[CompositeSource]")
     REQUIRE(result.Matches[0].Package);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetInstalledVersion()->GetSource().GetIdentifier() == setup.Available->Details.Identifier);
-    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins));
+    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion());
 }
 
 TEST_CASE("CompositeSource_TrackingPackageFound_MetadataPopulatedFromTracking", "[CompositeSource]")
@@ -968,7 +968,7 @@ TEST_CASE("CompositeSource_TrackingFound_AvailableNot", "[CompositeSource]")
     REQUIRE(result.Matches[0].Package);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetInstalledVersion()->GetSource().GetIdentifier() == setup.Available->Details.Identifier);
-    REQUIRE(!result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins));
+    REQUIRE(!result.Matches[0].Package->GetLatestAvailableVersion());
 }
 
 TEST_CASE("CompositeSource_TrackingFound_AvailablePath", "[CompositeSource]")
@@ -1009,7 +1009,7 @@ TEST_CASE("CompositeSource_TrackingFound_AvailablePath", "[CompositeSource]")
     REQUIRE(result.Matches[0].Package);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetInstalledVersion()->GetSource().GetIdentifier() == setup.Available->Details.Identifier);
-    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins));
+    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion());
 }
 
 TEST_CASE("CompositeSource_TrackingFound_NotInstalled", "[CompositeSource]")

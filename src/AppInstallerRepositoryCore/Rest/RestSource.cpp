@@ -59,7 +59,7 @@ namespace AppInstaller::Repository::Rest
                 return {};
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior) const override
+            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
                 std::shared_ptr<const RestSource> source = GetReferenceSource();
                 std::scoped_lock versionsLock{ m_packageVersionsLock };
@@ -74,7 +74,7 @@ namespace AppInstaller::Repository::Rest
                 return result;
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
             {
                 std::scoped_lock versionsLock{ m_packageVersionsLock };
                 return GetLatestVersionInternal();
@@ -82,7 +82,7 @@ namespace AppInstaller::Repository::Rest
 
             std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override;
 
-            bool IsUpdateAvailable(PinBehavior) const override
+            bool IsUpdateAvailable() const override
             {
                 return false;
             }

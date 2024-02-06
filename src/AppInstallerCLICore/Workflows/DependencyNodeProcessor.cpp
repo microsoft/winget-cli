@@ -42,17 +42,14 @@ namespace AppInstaller::CLI::Workflow
         auto packageId = package->GetProperty(PackageProperty::Id);
         m_nodePackageInstalledVersion = package->GetInstalledVersion();
 
-        PinBehavior pinBehavior;
         if (m_context.Args.Contains(Execution::Args::Type::Force))
         {
-            pinBehavior = PinBehavior::IgnorePins;
+            m_nodePackageLatestVersion = package->GetLatestAvailableVersion();
         }
         else
         {
             pinBehavior = m_context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
         }
-
-        m_nodePackageLatestVersion = package->GetLatestAvailableVersion(pinBehavior);
 
         if (m_nodePackageInstalledVersion && dependencyNode.IsVersionOk(Utility::Version(m_nodePackageInstalledVersion->GetProperty(PackageVersionProperty::Version))))
         {

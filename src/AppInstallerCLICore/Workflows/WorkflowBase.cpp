@@ -627,7 +627,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
-            auto latestVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+            auto latestVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion();
 
             table.OutputLine({
                 latestVersion->GetProperty(PackageVersionProperty::Name),
@@ -738,7 +738,7 @@ namespace AppInstaller::CLI::Workflow
             auto package = searchResult.Matches[i].Package;
 
             std::string sourceName;
-            auto latest = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+            auto latest = package->GetLatestAvailableVersion();
             if (latest)
             {
                 auto source = latest->GetSource();
@@ -813,7 +813,7 @@ namespace AppInstaller::CLI::Workflow
 
                 if (m_onlyShowUpgrades && !updateAvailable)
                 {
-                    bool updateAvailableWithoutPins = match.Package->IsUpdateAvailable(PinBehavior::IgnorePins);
+                    bool updateAvailableWithoutPins = match.Package->IsUpdateAvailable();
                     if (updateAvailableWithoutPins)
                     {
                         // When given the --include-pinned argument, report blocking and gating pins in a separate table.
@@ -823,7 +823,7 @@ namespace AppInstaller::CLI::Workflow
                             updateIsPinned = true;
 
                             // Override these so we generate the table line below.
-                            latestVersion = match.Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                            latestVersion = match.Package->GetLatestAvailableVersion();
                             updateAvailable = true;
                         }
                         else
@@ -1024,7 +1024,7 @@ namespace AppInstaller::CLI::Workflow
                 if (!requestedVersion)
                 {
                     // Check whether we didn't find the latest version because it was pinned or because there wasn't one
-                    auto latestVersion = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                    auto latestVersion = package->GetLatestAvailableVersion();
                     if (latestVersion)
                     {
                         isPinned = true;

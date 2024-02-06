@@ -285,7 +285,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior) const override
+            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
                 std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
 
@@ -318,7 +318,7 @@ namespace AppInstaller::Repository::Microsoft
                 return m_availableVersionKeys;
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
             {
                 return GetLatestVersionInternal();
             }
@@ -359,7 +359,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            bool IsUpdateAvailable(PinBehavior) const override
+            bool IsUpdateAvailable() const override
             {
                 return false;
             }
@@ -434,12 +434,12 @@ namespace AppInstaller::Repository::Microsoft
                 return GetLatestVersionInternal();
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior) const override
+            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
                 return {};
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
             {
                 return {};
             }
@@ -449,7 +449,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            bool IsUpdateAvailable(PinBehavior) const override
+            bool IsUpdateAvailable() const override
             {
                 return false;
             }
