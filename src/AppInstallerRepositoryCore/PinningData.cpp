@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Public/winget/PinningData.h"
 #include "Microsoft/PinningIndex.h"
+#include "Public/winget/RepositorySource.h"
 
 using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Repository;
@@ -10,6 +11,47 @@ using namespace AppInstaller::Repository::Microsoft;
 
 namespace AppInstaller::Pinning
 {
+    namespace
+    {
+        // Evaluates the pinning state of a version for a single pin.
+        PinType EvaluatePinnedStateForVersion(
+            const Utility::Version& version,
+            const std::optional<Pin>& pin,
+            PinBehavior behavior)
+        {
+            if (pin)
+            {
+                if (pin->GetType() == PinType::Blocking
+                    || (pin->GetType() == PinType::Pinning && behavior != PinBehavior::IncludePinned)
+                    || (pin->GetType() == PinType::Gating && !pin->GetGatedVersion().IsValidVersion(version)))
+                {
+                    return pin->GetType();
+                }
+            }
+
+            return PinType::Unknown;
+        }
+
+        // Gets the pinned state for an available PackageVersionKey that may have a pin,
+        // and optionally an additional pin that could come from the installed version.
+        // If both pins are present, we return the one that is the most strict.
+        Pinning::PinType GetPinnedStateForVersion(
+            const Utility::Version& version,
+            const std::optional<Pinning::Pin>& availablePin,
+            const std::optional<Pinning::Pin>& installedPin,
+            PinBehavior behavior)
+        {
+            if (behavior == PinBehavior::IgnorePins)
+            {
+                return Pinning::PinType::Unknown;
+            }
+
+            return Stricter(
+                EvaluatePinnedStateForVersion(version, availablePin, behavior),
+                EvaluatePinnedStateForVersion(version, installedPin, behavior));
+        }
+    }
+
     PinningData::PinningData() = default;
     PinningData::PinningData(const PinningData&) = default;
     PinningData& PinningData::operator=(const PinningData&) = default;
@@ -75,10 +117,10 @@ namespace AppInstaller::Pinning
     {
         if (m_behavior == PinBehavior::IgnorePins)
         {
-            // No need to keep the database reference if we are just going to ignore it
+            // Because the database isn't guaranteed to be present, align ignoring pins with there being no pins to ignore.
             m_database.reset();
         }
-        else if (installedVersion)
+        else if (installedVersion && m_database)
         {
             PinKey key = PinKey::GetPinKeyForInstalled(installedVersion->GetProperty(PackageVersionProperty::Id));
             m_installedPin = m_database->GetPin(key);
@@ -100,10 +142,29 @@ namespace AppInstaller::Pinning
 
     PinningData::PinStateEvaluator::~PinStateEvaluator() = default;
 
-    // Gets the latest available package that fits within the pinning restrictions.
-    std::shared_ptr<AppInstaller::Repository::IPackageVersion> PinningData::PinStateEvaluator::GetLatestAvailableVersionForPins(const std::shared_ptr<AppInstaller::Repository::IPackage>& package);
+    std::shared_ptr<IPackageVersion> PinningData::PinStateEvaluator::GetLatestAvailableVersionForPins(const std::shared_ptr<IPackage>& package)
+    {
+        if (!m_database)
+        {
+            return package->GetLatestAvailableVersion();
+        }
 
-    bool PinningData::PinStateEvaluator::IsUpdate(const std::shared_ptr<AppInstaller::Repository::IPackageVersion>& availableVersion)
+        auto availableVersionKeys = package->GetAvailableVersionKeys();
+
+        // Skip until we find a version that isn't pinned
+        for (const auto& availableVersion : availableVersionKeys)
+        {
+            std::shared_ptr<IPackageVersion> packageVersion = package->GetAvailableVersion(availableVersion);
+            if (EvaluatePinType(packageVersion) == Pinning::PinType::Unknown)
+            {
+                return packageVersion;
+            }
+        }
+
+        return {};
+    }
+
+    bool PinningData::PinStateEvaluator::IsUpdate(const std::shared_ptr<IPackageVersion>& availableVersion)
     {
         if (m_installedVersion && availableVersion)
         {
@@ -118,13 +179,34 @@ namespace AppInstaller::Pinning
         return false;
     }
 
-    // Determines if the given version is a possible update given the current pinning restrictions.
-    PinType PinningData::PinStateEvaluator::EvaluatePinType(const AppInstaller::Repository::PackageVersionKey& key);
+    PinType PinningData::PinStateEvaluator::EvaluatePinType(const std::shared_ptr<AppInstaller::Repository::IPackageVersion>& packageVersion)
+    {
+        if (!m_database || !packageVersion)
+        {
+            return PinType::Unknown;
+        }
+
+        std::optional<Pin> incomingPin;
+
+        PinKey pinKey{ packageVersion->GetProperty(PackageVersionProperty::Id).get(), packageVersion->GetSource().GetIdentifier()};
+        auto itr = m_availablePins.find(pinKey);
+        if (itr == m_availablePins.end())
+        {
+            incomingPin = m_database->GetPin(pinKey);
+            m_availablePins[pinKey] = incomingPin;
+        }
+        else
+        {
+            incomingPin = itr->second;
+        }
+
+        return GetPinnedStateForVersion(packageVersion->GetProperty(PackageVersionProperty::Version).get(), incomingPin, m_installedPin, m_behavior);
+    }
 
     // Creates an object for use in evaluating pinning data for a given package
     PinningData::PinStateEvaluator PinningData::CreatePinStateEvaluator(
         PinBehavior behavior,
-        const std::shared_ptr<AppInstaller::Repository::IPackageVersion>& installedVersion)
+        const std::shared_ptr<IPackageVersion>& installedVersion)
     {
         return { behavior, m_database, installedVersion };
     }

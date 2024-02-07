@@ -1045,7 +1045,7 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 requestedVersion = package->GetAvailableVersion(key);
-                isPinned = evaluator.EvaluatePinType(key) != PinType::Unknown;
+                isPinned = evaluator.EvaluatePinType(requestedVersion) != PinType::Unknown;
             }
 
             if (isPinned)

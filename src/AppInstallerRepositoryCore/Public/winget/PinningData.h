@@ -3,6 +3,10 @@
 #pragma once
 #include <winget/Pin.h>
 #include <winget/RepositorySearch.h>
+#include <map>
+#include <memory>
+#include <optional>
+#include <vector>
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -79,14 +83,15 @@ namespace AppInstaller::Pinning
             // Determines if the given version is an update to the installed version that this object was created with.
             bool IsUpdate(const std::shared_ptr<AppInstaller::Repository::IPackageVersion>& availableVersion);
 
-            // Determines if the given version is a possible update given the current pinning restrictions.
-            PinType EvaluatePinType(const AppInstaller::Repository::PackageVersionKey& key);
+            // Determines the pin type to apply to the given version.
+            PinType EvaluatePinType(const std::shared_ptr<AppInstaller::Repository::IPackageVersion>& packageVersion);
 
         private:
             PinBehavior m_behavior;
             std::shared_ptr<AppInstaller::Repository::Microsoft::PinningIndex> m_database;
             std::optional<Pin> m_installedPin;
             std::optional<Utility::VersionAndChannel> m_installedVersion;
+            std::map<PinKey, std::optional<Pin>> m_availablePins;
         };
 
         // Creates an object for use in evaluating pinning data for a given package

@@ -554,8 +554,6 @@ TEST_CASE("CompositePackage_AvailableVersions_ChannelFilteredOut", "[CompositeSo
     auto latestVersion = result.Matches[0].Package->GetLatestAvailableVersion();
     REQUIRE(latestVersion);
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Channel).get().empty());
-
-    REQUIRE(!result.Matches[0].Package->IsUpdateAvailable());
 }
 
 TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[CompositeSource]")
@@ -590,8 +588,6 @@ TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[Composite
     auto latestVersion = result.Matches[0].Package->GetLatestAvailableVersion();
     REQUIRE(latestVersion);
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Channel).get() == channel);
-
-    REQUIRE(result.Matches[0].Package->IsUpdateAvailable());
 }
 
 TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource]")
@@ -1061,22 +1057,34 @@ struct ExpectedResultForPinBehavior
     std::optional<std::string> LatestAvailableVersion;
 };
 
+struct ExpectedPackageVersionKey : public PackageVersionKey
+{
+    ExpectedPackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel, PinType pinType) :
+        PackageVersionKey(sourceId, version, channel), PinnedState(pinType) {}
+
+    PinType PinnedState;
+};
+
 struct ExpectedResultsForPinning
 {
     std::map<PinBehavior, ExpectedResultForPinBehavior> ResultsForPinBehavior;
-    std::vector<PackageVersionKey> AvailableVersions;
+    std::vector<ExpectedPackageVersionKey> AvailableVersions;
 };
 
 void RequireExpectedResultsWithPin(std::shared_ptr<IPackage> package, const ExpectedResultsForPinning& expectedResult)
 {
+    PinningData pinningData{ PinningData::Disposition::ReadOnly };
+
     for (const auto& entry : expectedResult.ResultsForPinBehavior)
     {
         auto pinBehavior = entry.first;
         const auto& result = entry.second;
 
-        REQUIRE(package->IsUpdateAvailable(pinBehavior) == result.IsUpdateAvailable);
+        auto evaluator = pinningData.CreatePinStateEvaluator(pinBehavior, package->GetInstalledVersion());
+        auto latestAvailable = evaluator.GetLatestAvailableVersionForPins(package);
 
-        auto latestAvailable = package->GetLatestAvailableVersion(pinBehavior);
+        REQUIRE(evaluator.IsUpdate(latestAvailable) == result.IsUpdateAvailable);
+
         if (result.LatestAvailableVersion.has_value())
         {
             REQUIRE(latestAvailable);
@@ -1092,10 +1100,13 @@ void RequireExpectedResultsWithPin(std::shared_ptr<IPackage> package, const Expe
     REQUIRE(availableVersionKeys.size() == expectedResult.AvailableVersions.size());
     for (size_t i = 0; i < availableVersionKeys.size(); ++i)
     {
+        auto evaluator = pinningData.CreatePinStateEvaluator(PinBehavior::ConsiderPins, package->GetInstalledVersion());
+
+        auto packageVersion = package->GetAvailableVersion(expectedResult.AvailableVersions[i]);
+        REQUIRE(packageVersion);
         REQUIRE(availableVersionKeys[i].SourceId == expectedResult.AvailableVersions[i].SourceId);
         REQUIRE(availableVersionKeys[i].Version == expectedResult.AvailableVersions[i].Version);
-        REQUIRE(availableVersionKeys[i].PinnedState == expectedResult.AvailableVersions[i].PinnedState);
-        REQUIRE(package->GetAvailableVersion(expectedResult.AvailableVersions[i]));
+        REQUIRE(evaluator.EvaluatePinType(packageVersion) == expectedResult.AvailableVersions[i].PinnedState);
     }
 }
 
@@ -1120,7 +1131,7 @@ TEST_CASE("CompositeSource_Pinning_AvailableVersionPinned", "[CompositeSource][P
         auto manifest2 = MakeDefaultManifest("1.0.1"sv);
         auto manifest3 = MakeDefaultManifest("1.1.0"sv);
         auto package = TestPackage::Make(
-            std::vector<Manifest::Manifest>{ manifest1, manifest2, manifest3 },
+            std::vector<Manifest::Manifest>{ manifest3, manifest2, manifest1 },
             setup.Available);
 
         SearchResult result;

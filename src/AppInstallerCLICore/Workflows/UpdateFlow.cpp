@@ -89,8 +89,10 @@ namespace AppInstaller::CLI::Workflow
                     upgradeVersionAvailable = true;
                 }
 
+                auto packageVersion = package->GetAvailableVersion(key);
+
                 // Check if the package is pinned
-                PinType pinType = evaluator.EvaluatePinType(key);
+                PinType pinType = evaluator.EvaluatePinType(packageVersion);
                 if (pinType != Pinning::PinType::Unknown)
                 {
                     AICLI_LOG(CLI, Info, << "Package [" << package->GetProperty(PackageProperty::Id) << " with Version[" << key.Version << "] from Source[" << key.SourceId << "] has a Pin with type[" << ToString(pinType) << "]");
@@ -105,7 +107,6 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                auto packageVersion = package->GetAvailableVersion(key);
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer

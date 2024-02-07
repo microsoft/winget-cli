@@ -64,6 +64,11 @@ namespace AppInstaller::Pinning
         return first > second;
     }
 
+    PinType Stricter(PinType first, PinType second)
+    {
+        return IsStricter(first, second) ? first : second;
+    }
+
     std::string PinKey::ToString() const
     {
         std::stringstream ss;
