@@ -89,7 +89,7 @@ namespace AppInstaller::Utility::HttpStream
 
 #ifdef WINGET_DISABLE_FOR_FUZZING
 #pragma warning( push )
-#pragma warning( disable : 4714)
+#pragma warning( disable : 4714) // HRESULT_FROM_WIN32 marked as forceinline not inlined
 #endif
 
     std::future<IBuffer> HttpClientWrapper::SendHttpRequestAsync(
