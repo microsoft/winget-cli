@@ -552,6 +552,25 @@ namespace AppInstaller::Repository
             std::optional<Pinning::Pin> m_pin;
         };
 
+        // A pinnable package that is installed.
+        struct InstalledPinnablePackage
+        {
+            InstalledPinnablePackage(std::shared_ptr<IPackage> package)
+                : Pinnable(std::move(package))
+            {
+                // Get the version for installed packages
+                auto installedVersion = Pinnable.GetInstalledVersion();
+                if (installedVersion)
+                {
+                    Version.Assign(installedVersion->GetProperty(PackageVersionProperty::Version));
+                }
+            }
+
+            PinnablePackage Pinnable;
+            Utility::Version Version;
+            std::string OverrideVersion;
+        };
+
         // A composite package for the CompositeSource.
         struct CompositePackage : public IPackage
         {
@@ -563,11 +582,6 @@ namespace AppInstaller::Repository
                 if (installedPackage)
                 {
                     m_installedPackages.emplace_back(std::move(installedPackage));
-                    auto installedVersion = m_installedPackages.front().GetPackage()->GetInstalledVersion();
-                    if (installedVersion)
-                    {
-                        m_installedChannel = installedVersion->GetProperty(PackageVersionProperty::Channel);
-                    }
                 }
 
                 AddAvailablePackage(std::move(availablePackage), setPrimary);
@@ -606,12 +620,14 @@ namespace AppInstaller::Repository
 
             std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
             {
-                if (m_installedPackage)
+                if (!m_installedPackages.empty())
                 {
-                    auto installedVersion = m_installedPackage->GetInstalledVersion();
+                    const InstalledPinnablePackage& firstInstalled = m_installedPackages.front();
+
+                    auto installedVersion = firstInstalled.Pinnable.GetInstalledVersion();
                     if (installedVersion)
                     {
-                        return std::make_shared<CompositeInstalledVersion>(std::move(installedVersion), m_trackingSource, m_trackingPackageVersion, m_overrideInstalledVersion);
+                        return std::make_shared<CompositeInstalledVersion>(std::move(installedVersion), m_trackingSource, m_trackingPackageVersion, firstInstalled.OverrideVersion);
                     }
                 }
 
@@ -652,11 +668,7 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                // Remove all elements whose channel does not match the installed package.
-                std::string_view channel = m_installedChannel;
-                result.erase(
-                    std::remove_if(result.begin(), result.end(), [&](const PackageVersionKey& pvk) { return !Utility::ICUCaseInsensitiveEquals(pvk.Channel, channel); }),
-                    result.end());
+                // TODO: Remove all elements whose channel does not match the installed packages.
 
                 // Put latest versions at the front; for versions available from multiple sources maintain the order they were added in
                 std::stable_sort(result.begin(), result.end());
@@ -743,7 +755,7 @@ namespace AppInstaller::Repository
                 
                 for (size_t i = 0; i < m_installedPackages.size(); ++i)
                 {
-                    if (!m_installedPackages[i].GetPackage()->IsSame(otherComposite->m_installedPackages[i].GetPackage().get()))
+                    if (!m_installedPackages[i].Pinnable.GetPackage()->IsSame(otherComposite->m_installedPackages[i].Pinnable.GetPackage().get()))
                     {
                         return false;
                     }
@@ -787,15 +799,14 @@ namespace AppInstaller::Repository
                 return false;
             }
 
-            std::shared_ptr<IPackage> GetInstalledPackage() const
+            bool ContainsInstalledPackage(const IPackage* installedPackage) const
             {
-                if (m_installedPackage)
+                for (const InstalledPinnablePackage& installed : m_installedPackages)
                 {
-                    return m_installedPackage->GetPackage();
-                }
-                else
-                {
-                    return {};
+                    if (installed.Pinnable.GetPackage()->IsSame(installedPackage))
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -885,7 +896,7 @@ namespace AppInstaller::Repository
                     auto pin = pinningIndex.GetPin(pinKey);
                     if (pin.has_value())
                     {
-                        installedPackage.SetPin(std::move(pin.value()));
+                        installedPackage.Pinnable.SetPin(std::move(pin.value()));
                     }
                 }
             }
@@ -903,21 +914,25 @@ namespace AppInstaller::Repository
             void FoldInstalledIn(const std::shared_ptr<CompositePackage>& other)
             {
                 std::move(other->m_installedPackages.begin(), other->m_installedPackages.end(), std::back_inserter(m_installedPackages));
+                std::sort(m_installedPackages.begin(), m_installedPackages.end(), [](const InstalledPinnablePackage& a, const InstalledPinnablePackage& b) { return a.Version < b.Version; });
             }
 
         private:
             // Try to set a version that will override the version string from the installed package
             void TrySetOverrideInstalledVersion(const std::shared_ptr<IPackage>& availablePackage)
             {
-                if (m_installedPackage && availablePackage)
+                if (availablePackage)
                 {
-                    auto installedVersion = m_installedPackage->GetInstalledVersion();
-                    if (installedVersion)
+                    for (InstalledPinnablePackage& package : m_installedPackages)
                     {
-                        auto installedType = Manifest::ConvertToInstallerTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::InstalledType]);
-                        if (Manifest::DoesInstallerTypeSupportArpVersionRange(installedType))
+                        auto installedVersion = package.Pinnable.GetInstalledVersion();
+                        if (installedVersion)
                         {
-                            m_overrideInstalledVersion = GetMappedInstalledVersion(installedVersion->GetProperty(PackageVersionProperty::Version), availablePackage);
+                            auto installedType = Manifest::ConvertToInstallerTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::InstalledType]);
+                            if (Manifest::DoesInstallerTypeSupportArpVersionRange(installedType))
+                            {
+                                package.OverrideVersion = GetMappedInstalledVersion(installedVersion->GetProperty(PackageVersionProperty::Version), availablePackage);
+                            }
                         }
                     }
                 }
@@ -928,13 +943,11 @@ namespace AppInstaller::Repository
                 return m_installedPackage ? m_installedPackage->GetPin() : std::nullopt;
             }
 
-            std::vector<PinnablePackage> m_installedPackages;
-            Utility::LocIndString m_installedChannel_FIXUP;
+            std::vector<InstalledPinnablePackage> m_installedPackages;
             Source m_trackingSource;
             std::shared_ptr<IPackage> m_trackingPackage;
             std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
             std::chrono::system_clock::time_point m_trackingWriteTime = std::chrono::system_clock::time_point::min();
-            std::string m_overrideInstalledVersion_FIXUP;
             std::optional<PinnablePackage> m_primaryAvailablePackage;
             std::vector<PinnablePackage> m_availablePackages;
         };
@@ -1128,12 +1141,11 @@ namespace AppInstaller::Repository
             }
 
             // Determines if the results contain the given installed package.
-            bool ContainsInstalledPackage(const IPackage* installedPackage)
+            bool ContainsInstalledPackage(const IPackage* installedPackage) const
             {
                 for (auto& match : Matches)
                 {
-                    const std::shared_ptr<IPackage>& matchPackage = match.Package->GetInstalledPackage();
-                    if (matchPackage && matchPackage->IsSame(installedPackage))
+                    if (match.Package->ContainsInstalledPackage(installedPackage))
                     {
                         return true;
                     }
