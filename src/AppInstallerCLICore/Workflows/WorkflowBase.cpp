@@ -106,6 +106,7 @@ namespace AppInstaller::CLI::Workflow
                 auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails>
                 {
                     source.SetCaller("winget-cli");
+                    source.SetAuthenticationArguments(GetAuthenticationArguments(context));
                     return source.Open(progress);
                 };
                 auto updateFailures = context.Reporter.ExecuteWithProgress(openFunction, true);
@@ -114,6 +115,22 @@ namespace AppInstaller::CLI::Workflow
                 for (const auto& s : updateFailures)
                 {
                     context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate(Utility::LocIndView{ s.Name }) << std::endl;
+                }
+
+                // Report sources that may need authentication
+                if (source.IsComposite())
+                {
+                    for (const auto& s : source.GetAvailableSources())
+                    {
+                        if (s.GetInformation().Authentication.Type != Authentication::AuthenticationType::None)
+                        {
+                            context.Reporter.Info() << Execution::AuthenticationEmphasis << Resource::String::SourceRequiresAuthentication(Utility::LocIndView{ s.GetDetails().Name }) << std::endl;
+                        }
+                    }
+                }
+                else if (source.GetInformation().Authentication.Type != Authentication::AuthenticationType::None)
+                {
+                    context.Reporter.Info() << Execution::AuthenticationEmphasis << Resource::String::SourceRequiresAuthentication(Utility::LocIndView{ source.GetDetails().Name }) << std::endl;
                 }
             }
             catch (const wil::ResultException& re)
@@ -256,6 +273,30 @@ namespace AppInstaller::CLI::Workflow
         return installedSource;
     }
 
+    Authentication::AuthenticationArguments GetAuthenticationArguments(const Execution::Context& context)
+    {
+        AppInstaller::Authentication::AuthenticationArguments authArgs;
+
+        if (context.Args.Contains(Execution::Args::Type::AuthenticationMode))
+        {
+            authArgs.Mode = Authentication::ConvertToAuthenticationMode(context.Args.GetArg(Execution::Args::Type::AuthenticationMode));
+        }
+        else
+        {
+            // If user did not specify authentication mode, determine based on if disable interactivity flag exists.
+            authArgs.Mode = context.Args.Contains(Execution::Args::Type::DisableInteractivity) ? Authentication::AuthenticationMode::Silent : Authentication::AuthenticationMode::SilentPreferred;
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::AuthenticationAccount))
+        {
+            authArgs.AuthenticationAccount = context.Args.GetArg(Execution::Args::Type::AuthenticationAccount);
+        }
+
+        AICLI_LOG(CLI, Info, << "Created authentication arguments. Mode: " << Authentication::AuthenticationModeToString(authArgs.Mode) << ", Account: " << authArgs.AuthenticationAccount);
+
+        return authArgs;
+    }
+
     HRESULT HandleException(Execution::Context& context, std::exception_ptr exception)
     {
         try
@@ -384,7 +425,6 @@ namespace AppInstaller::CLI::Workflow
 
             auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails>
             {
-                source.SetCaller("winget-cli");
                 return source.Open(progress);
             };
             context.Reporter.ExecuteWithProgress(openFunction, true);

@@ -42,10 +42,15 @@ namespace AppInstaller::Repository::Rest
                 m_caller = std::move(caller);
             }
 
+            void SetAuthenticationArguments(Authentication::AuthenticationArguments authArgs) override
+            {
+                m_authArgs = std::move(authArgs);
+            }
+
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 Initialize();
-                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
+                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_caller, m_authArgs, m_httpClientHelper);
                 return std::make_shared<RestSource>(m_details, m_information, std::move(restClient));
             }
 
@@ -56,11 +61,10 @@ namespace AppInstaller::Repository::Rest
                     [&]()
                     {
                         m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration);
-                        RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
+                        auto sourceInformation = RestClient::GetInformation(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
 
-                        m_details.Identifier = restClient.GetSourceIdentifier();
+                        m_details.Identifier = sourceInformation.SourceIdentifier;
 
-                        const auto& sourceInformation = restClient.GetSourceInformation();
                         m_information.UnsupportedPackageMatchFields = sourceInformation.UnsupportedPackageMatchFields;
                         m_information.RequiredPackageMatchFields = sourceInformation.RequiredPackageMatchFields;
                         m_information.UnsupportedQueryParameters = sourceInformation.UnsupportedQueryParameters;
@@ -71,6 +75,8 @@ namespace AppInstaller::Repository::Rest
                         {
                             m_information.SourceAgreements.emplace_back(agreement.Label, agreement.Text, agreement.Url);
                         }
+
+                        m_information.Authentication = sourceInformation.Authentication;
                     });
             }
 
@@ -79,6 +85,7 @@ namespace AppInstaller::Repository::Rest
             SourceInformation m_information;
             std::optional<std::string> m_customHeader;
             std::string m_caller;
+            Authentication::AuthenticationArguments m_authArgs;
             std::once_flag m_initializeFlag;
         };
 

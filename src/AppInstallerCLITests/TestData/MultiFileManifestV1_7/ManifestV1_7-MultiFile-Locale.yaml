@@ -29,7 +29,7 @@ Documentations:
   - DocumentLabel: Default document label
     DocumentUrl: https://DefaultDocumentUrl.com
 Icons:
-  - IconUrl: https://localeTestIcon
+  - IconUrl: https://localeTestIcon-en-GB
     IconFileType: png
     IconResolution: 32x32
     IconTheme: light

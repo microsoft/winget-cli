@@ -31,6 +31,11 @@ namespace Microsoft.WinGetUtil.Common
         /// </summary>
         SchemaAndSemanticValidation = 0x2,
 
+        /// <summary>
+        /// Allow shadow manifest
+        /// </summary>
+        AllowShadowManifest = 0x4,
+
         // Below options are additional validation behaviors if needed
 
         /// <summary>

@@ -6,6 +6,7 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/RepositorySearch.h>
 #include <winget/RepositorySource.h>
+#include <winget/Authentication.h>
 
 #include <string>
 #include <string_view>
@@ -77,6 +78,9 @@ namespace AppInstaller::CLI::Workflow
 
     // Helper to determine installed source to use based on context input.
     Repository::PredefinedSource DetermineInstalledSource(const Execution::Context& context);
+
+    // Helper to create authentication arguments from context input.
+    Authentication::AuthenticationArguments GetAuthenticationArguments(const Execution::Context& context);
 
     // Helper to report exceptions and return the HRESULT.
     HRESULT HandleException(Execution::Context& context, std::exception_ptr exception);

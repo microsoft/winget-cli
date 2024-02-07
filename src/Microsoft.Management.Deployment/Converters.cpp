@@ -195,6 +195,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
             resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::InvalidOptions;
             break;
+        case APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_INTERACTIVE_REQUIRED:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT:
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::AuthenticationError;
+            break;
+        case HTTP_E_STATUS_DENIED:
+        case HTTP_E_STATUS_FORBIDDEN:
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::AccessDenied;
+            break;
         case APPINSTALLER_CLI_ERROR_COMMAND_FAILED:
         case APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX:
         case APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED:
@@ -426,5 +438,47 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
 
         return Microsoft::Management::Deployment::IconTheme::Unknown;
+    }
+
+    winrt::Microsoft::Management::Deployment::AuthenticationType GetDeploymentAuthenticationType(::AppInstaller::Authentication::AuthenticationType authType)
+    {
+        switch (authType)
+        {
+        case ::AppInstaller::Authentication::AuthenticationType::None:
+            return Microsoft::Management::Deployment::AuthenticationType::None;
+        case ::AppInstaller::Authentication::AuthenticationType::MicrosoftEntraId:
+            return Microsoft::Management::Deployment::AuthenticationType::MicrosoftEntraId;
+        }
+
+        return Microsoft::Management::Deployment::AuthenticationType::Unknown;
+    }
+
+    ::AppInstaller::Authentication::AuthenticationMode GetAuthenticationMode(winrt::Microsoft::Management::Deployment::AuthenticationMode authMode)
+    {
+        switch (authMode)
+        {
+        case winrt::Microsoft::Management::Deployment::AuthenticationMode::Interactive:
+            return ::AppInstaller::Authentication::AuthenticationMode::Interactive;
+        case winrt::Microsoft::Management::Deployment::AuthenticationMode::SilentPreferred:
+            return ::AppInstaller::Authentication::AuthenticationMode::SilentPreferred;
+        case winrt::Microsoft::Management::Deployment::AuthenticationMode::Silent:
+            return ::AppInstaller::Authentication::AuthenticationMode::Silent;
+        }
+
+        return ::AppInstaller::Authentication::AuthenticationMode::Unknown;
+    }
+
+    ::AppInstaller::Authentication::AuthenticationArguments GetAuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments authArgs)
+    {
+        ::AppInstaller::Authentication::AuthenticationArguments result;
+        result.Mode = ::AppInstaller::Authentication::AuthenticationMode::Silent; // Default to silent for com invocations.
+
+        if (authArgs)
+        {
+            result.Mode = GetAuthenticationMode(authArgs.AuthenticationMode());
+            result.AuthenticationAccount = ::AppInstaller::Utility::ConvertToUTF8(authArgs.AuthenticationAccount());
+        }
+
+        return result;
     }
 }

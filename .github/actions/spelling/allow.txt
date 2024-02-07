@@ -78,6 +78,7 @@ emoji
 ENDDIALOG
 ensureandinsert
 ensurepathexists
+entra
 ENU
 EOAC
 errorlevel

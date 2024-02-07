@@ -22,12 +22,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSet::Units(std::vector<Configuration::ConfigurationUnit>&& units)
     {
-        m_units = winrt::single_threaded_vector<Configuration::ConfigurationUnit>(std::move(units));
+        m_units = winrt::multi_threaded_vector<Configuration::ConfigurationUnit>(std::move(units));
     }
 
     void ConfigurationSet::Parameters(std::vector<Configuration::ConfigurationParameter>&& value)
     {
-        m_parameters = winrt::single_threaded_vector<Configuration::ConfigurationParameter>(std::move(value));
+        m_parameters = winrt::multi_threaded_vector<Configuration::ConfigurationParameter>(std::move(value));
     }
 
     bool ConfigurationSet::IsFromHistory() const

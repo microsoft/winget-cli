@@ -7,6 +7,7 @@
 #include <AppInstallerRuntime.h>
 #include <winget/Locale.h>
 #include <winget/Reboot.h>
+#include <winget/Authentication.h>
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility::literals;
@@ -716,7 +717,7 @@ namespace AppInstaller::CLI
         {
             if (Manifest::ConvertToScopeEnum(execArgs.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
             {
-                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "user"_lis, "machine"_lis});
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "user"_lis, "machine"_lis });
                 throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::InstallScope).Name, validOptions));
             }
         }
@@ -727,6 +728,15 @@ namespace AppInstaller::CLI
             if (selectedInstallerType == Manifest::InstallerTypeEnum::Unknown)
             {
                 throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues(Argument::ForType(Execution::Args::Type::InstallerType).Name()));
+            }
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::AuthenticationMode))
+        {
+            if (Authentication::ConvertToAuthenticationMode(execArgs.GetArg(Execution::Args::Type::AuthenticationMode)) == Authentication::AuthenticationMode::Unknown)
+            {
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "interactive"_lis, "silentPreferred"_lis, "silent"_lis });
+                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AuthenticationMode).Name, validOptions));
             }
         }
 
@@ -872,8 +882,7 @@ namespace AppInstaller::CLI
         }
 
         // NOTE: Reboot logic will still run even if the context is terminated (not including unhandled exceptions).
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot) &&
-            context.Args.Contains(Execution::Args::Type::AllowReboot) &&
+        if (context.Args.Contains(Execution::Args::Type::AllowReboot) &&
             WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired))
         {
             context.Reporter.Warn() << Resource::String::InitiatingReboot << std::endl;

@@ -59,6 +59,8 @@ namespace AppInstaller::CLI
             Argument{ Args::Type::GatedVersion, Resource::String::GatedVersionArgumentDescription, ArgumentType::Standard },
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AuthenticationMode),
+            Argument::ForType(Args::Type::AuthenticationAccount),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Force),
             Argument{ Args::Type::BlockingPin, Resource::String::PinAddBlockingArgumentDescription, ArgumentType::Flag },
@@ -151,6 +153,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Command),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AuthenticationMode),
+            Argument::ForType(Args::Type::AuthenticationAccount),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument{ Args::Type::PinInstalled, Resource::String::PinInstalledArgumentDescription, ArgumentType::Flag },
         };
@@ -237,6 +241,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Command),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AuthenticationMode),
+            Argument::ForType(Args::Type::AuthenticationAccount),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }

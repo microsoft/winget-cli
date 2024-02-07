@@ -59,6 +59,7 @@
 #include <type_traits>
 #include <unordered_set>
 #include <vector>
+#include <variant>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6285 6287 6340 6387 6388 26451 26495 28196 )
@@ -91,6 +92,8 @@
 #include <winrt/Windows.Web.Http.Filters.h>
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
+#include <winrt/Windows.Security.Authentication.Web.Core.h>
+#include <winrt/Windows.Security.Credentials.h>
 
 #endif
 
@@ -102,3 +105,4 @@
 #include <shcore.h>
 
 #include <AppxPackaging.h>
+#include <WebAuthenticationCoreManagerInterop.h>

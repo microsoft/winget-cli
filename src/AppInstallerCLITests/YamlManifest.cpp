@@ -14,41 +14,613 @@ using namespace AppInstaller::Manifest::YamlWriter;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::YAML;
 
-using MultiValue = std::vector<NormalizedString>;
-bool operator==(const MultiValue& a, const MultiValue& b)
+namespace
 {
-    if (a.size() != b.size())
+    using MultiValue = std::vector<NormalizedString>;
+    bool operator==(const MultiValue& a, const MultiValue& b)
     {
-        return false;
-    }
-
-    for (size_t i = 0; i < a.size(); ++i)
-    {
-        if (a[i] != b[i])
+        if (a.size() != b.size())
         {
             return false;
         }
+
+        for (size_t i = 0; i < a.size(); ++i)
+        {
+            if (a[i] != b[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    return true;
-}
+    void ValidateError(
+        const ValidationError& error,
+        ValidationError::Level level,
+        AppInstaller::StringResource::StringId message,
+        std::string field,
+        std::string value)
+    {
+        REQUIRE(level == error.ErrorLevel);
+        REQUIRE(message == error.Message);
+        REQUIRE(field == error.Context);
+        REQUIRE(value == error.Value);
+    }
 
-void ValidateError(
-    const ValidationError& error,
-    ValidationError::Level level,
-    AppInstaller::StringResource::StringId message,
-    std::string field,
-    std::string value)
-{
-    REQUIRE(level == error.ErrorLevel);
-    REQUIRE(message == error.Message);
-    REQUIRE(field == error.Context);
-    REQUIRE(value == error.Value);
-}
+    void ValidateError(const ValidationError& error, ValidationError::Level level, AppInstaller::StringResource::StringId message)
+    {
+        ValidateError(error, level, message, std::string(), std::string());
+    }
 
-void ValidateError(const ValidationError& error, ValidationError::Level level, AppInstaller::StringResource::StringId message)
-{
-    ValidateError(error, level, message, std::string(), std::string());
+    struct ManifestExceptionMatcher : public Catch::MatcherBase<ManifestException>
+    {
+        ManifestExceptionMatcher(std::string expectedMessage, bool expectedWarningOnly = false) :
+            m_expectedMessage(expectedMessage), m_expectedWarningOnly(expectedWarningOnly) {}
+
+        // Performs the test for this matcher
+        bool match(ManifestException const& e) const override
+        {
+            return e.GetManifestErrorMessage().find(m_expectedMessage) != std::string::npos &&
+                e.IsWarningOnly() == m_expectedWarningOnly;
+        }
+
+        virtual std::string describe() const override {
+            std::ostringstream ss;
+            ss << std::boolalpha << "Expected exception message: " << m_expectedMessage << " Expected IsWarningOnly: " << m_expectedWarningOnly;
+            return ss.str();
+        }
+
+    private:
+        std::string m_expectedMessage;
+        bool m_expectedWarningOnly;
+    };
+
+    ManifestValidateOption GetTestManifestValidateOption(
+        bool schemaValidationOnly = false,
+        bool errorOnVerifiedPublisher = false)
+    {
+        ManifestValidateOption validateOption;
+        validateOption.FullValidation = true;
+        validateOption.ThrowOnWarning = true;
+        validateOption.SchemaValidationOnly = schemaValidationOnly;
+        validateOption.ErrorOnVerifiedPublisherFields = errorOnVerifiedPublisher;
+        return validateOption;
+    }
+
+    void TestManifest(
+        const std::filesystem::path& manifestPath,
+        const std::string& expectedMessage = {},
+        bool expectedWarningOnly = false,
+        ManifestValidateOption validateOption = GetTestManifestValidateOption())
+    {
+        INFO(manifestPath.u8string());
+
+        if (expectedMessage.empty())
+        {
+            CHECK_NOTHROW(YamlParser::CreateFromPath(TestDataFile(manifestPath), validateOption));
+        }
+        else
+        {
+            CHECK_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile(manifestPath), validateOption), ManifestException, ManifestExceptionMatcher(expectedMessage, expectedWarningOnly));
+        }
+    }
+
+    struct ManifestTestCase
+    {
+        std::string TestFile;
+        std::string ExpectedMessage = {};
+        bool IsWarningOnly = false;
+        ManifestValidateOption ValidateOption = GetTestManifestValidateOption();
+    };
+
+    void CopyTestDataFilesToFolder(const std::vector<std::string>& testDataFiles, const std::filesystem::path& dest)
+    {
+        for (const auto& fileName : testDataFiles)
+        {
+            std::filesystem::copy(TestDataFile(fileName), dest);
+        }
+    }
+
+    void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, ManifestVer manifestVer = { s_ManifestVersionV1 }, bool isExported = false)
+    {
+        REQUIRE(manifest.Id == "microsoft.msixsdk");
+        REQUIRE(manifest.Version == "1.7.32");
+        REQUIRE(manifest.DefaultLocalization.Locale == "en-US");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Publisher>() == "Microsoft");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::PublisherUrl>() == "https://www.microsoft.com");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::PublisherSupportUrl>() == "https://www.microsoft.com/support");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::PrivacyUrl>() == "https://www.microsoft.com/privacy");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Author>() == "Microsoft");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == "MSIX SDK");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageUrl>() == "https://www.microsoft.com/msixsdk/home");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::License>() == "MIT License");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::LicenseUrl>() == "https://www.microsoft.com/msixsdk/license");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Copyright>() == "Copyright Microsoft Corporation");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::CopyrightUrl>() == "https://www.microsoft.com/msixsdk/copyright");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::ShortDescription>() == "This is MSIX SDK");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers");
+        REQUIRE(manifest.Moniker == "msixsdk");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>() == MultiValue{ "appxsdk", "msixsdk" });
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::ReleaseNotes>() == "Default release notes");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::ReleaseNotesUrl>() == "https://DefaultReleaseNotes.net");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().size() == 1);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).Label == "DefaultLabel");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementText == "DefaultText");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementUrl == "https://DefaultAgreementUrl.net");
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::PurchaseUrl>() == "https://DefaultPurchaseUrl.com");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::InstallationNotes>() == "Default installation notes");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().size() == 1);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentLabel == "Default document label");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentUrl == "https://DefaultDocumentUrl.com");
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_5 })
+        {
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().size() == 1);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Url == "https://testIcon-en-US");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Ico);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Custom);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Default);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123"));
+        }
+
+        if (!isExported)
+        {
+            REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
+            REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
+            REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
+            REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Exe);
+            REQUIRE(manifest.DefaultInstallerInfo.Scope == ScopeEnum::Machine);
+            REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive, InstallModeEnum::Silent, InstallModeEnum::SilentWithProgress });
+
+            auto defaultSwitches = manifest.DefaultInstallerInfo.Switches;
+            REQUIRE(defaultSwitches.at(InstallerSwitchType::Custom) == "/custom");
+            REQUIRE(defaultSwitches.at(InstallerSwitchType::SilentWithProgress) == "/silentwithprogress");
+            REQUIRE(defaultSwitches.at(InstallerSwitchType::Silent) == "/silence");
+            REQUIRE(defaultSwitches.at(InstallerSwitchType::Interactive) == "/interactive");
+            REQUIRE(defaultSwitches.at(InstallerSwitchType::Log) == "/log=<LOGPATH>");
+            REQUIRE(defaultSwitches.at(InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
+            REQUIRE(defaultSwitches.at(InstallerSwitchType::Update) == "/upgrade");
+
+            REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<DWORD>{ 1, static_cast<DWORD>(0x80070005) });
+            REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
+            REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
+            REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
+            REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "msix", "appxbundle", "msixbundle" });
+
+            auto dependencies = manifest.DefaultInstallerInfo.Dependencies;
+            REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsFeature, "IIS"));
+            REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsLibrary, "VC Runtime"));
+            REQUIRE(dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDep", "1.0.0"));
+            REQUIRE(dependencies.HasExactDependency(DependencyType::External, "Outside dependencies"));
+            REQUIRE(dependencies.Size() == 4);
+
+            REQUIRE(manifest.DefaultInstallerInfo.Capabilities == MultiValue{ "internetClient" });
+            REQUIRE(manifest.DefaultInstallerInfo.RestrictedCapabilities == MultiValue{ "runFullTrust" });
+            REQUIRE(manifest.DefaultInstallerInfo.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+            REQUIRE(manifest.DefaultInstallerInfo.ProductCode == "{Foo}");
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+            {
+                REQUIRE(manifest.DefaultInstallerInfo.ReleaseDate == "2021-01-01");
+                REQUIRE(manifest.DefaultInstallerInfo.InstallerAbortsTerminal);
+                REQUIRE(manifest.DefaultInstallerInfo.InstallLocationRequired);
+                REQUIRE(manifest.DefaultInstallerInfo.RequireExplicitUpgrade);
+                REQUIRE(manifest.DefaultInstallerInfo.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
+                REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.size() == 1);
+                REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
+                REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.size() == 1);
+                REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
+                REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
+                REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
+                REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
+                REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
+                REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
+                REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.size() == 1);
+                REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.at(0) == "US");
+                REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.size() == 1);
+                REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.at(10).ReturnResponseEnum == ExpectedReturnCodeEnum::PackageInUse);
+            }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+            {
+                REQUIRE(manifest.DefaultInstallerInfo.DisplayInstallWarnings);
+                REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.size() == 1);
+                REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
+            }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
+            {
+                REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerType == InstallerTypeEnum::Msi);
+                REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.size() == 1);
+                REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).RelativeFilePath == "RelativeFilePath");
+                REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).PortableCommandAlias == "PortableCommandAlias");
+                REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp");
+                REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.size() == 1);
+                REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).RelativeFilePath == "main.exe");
+                REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
+                REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).InvocationParameter == "/arg");
+            }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+            {
+                REQUIRE(manifest.DefaultInstallerInfo.DownloadCommandProhibited);
+            }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+            {
+                REQUIRE(defaultSwitches.at(InstallerSwitchType::Repair) == "/repair");
+                REQUIRE(manifest.DefaultInstallerInfo.RepairBehavior == RepairBehaviorEnum::Modify);
+            }
+        }
+
+        if (isSingleton || isExported)
+        {
+            REQUIRE(manifest.Installers.size() == 1);
+        }
+        else
+        {
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+            {
+                REQUIRE(manifest.Installers.size() == 5);
+            }
+            else if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
+            {
+                REQUIRE(manifest.Installers.size() == 4);
+            }
+            else if (manifestVer == ManifestVer{ s_ManifestVersionV1_2 })
+            {
+                REQUIRE(manifest.Installers.size() == 3);
+            }
+            else
+            {
+                REQUIRE(manifest.Installers.size() == 2);
+            }
+        }
+
+        ManifestInstaller installer1 = manifest.Installers.at(0);
+        REQUIRE(installer1.Arch == Architecture::X86);
+        REQUIRE(installer1.Locale == "en-GB");
+        REQUIRE(installer1.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop });
+        REQUIRE(installer1.MinOSVersion == "10.0.1.0");
+        REQUIRE(installer1.BaseInstallerType == InstallerTypeEnum::Msix);
+        REQUIRE(installer1.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.msix");
+        REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+        REQUIRE(installer1.SignatureSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+        REQUIRE(installer1.Scope == ScopeEnum::User);
+        REQUIRE(installer1.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive });
+
+        auto installer1Switches = installer1.Switches;
+        REQUIRE(installer1Switches.at(InstallerSwitchType::Custom) == "/c");
+        REQUIRE(installer1Switches.at(InstallerSwitchType::SilentWithProgress) == "/sp");
+        REQUIRE(installer1Switches.at(InstallerSwitchType::Silent) == "/s");
+        REQUIRE(installer1Switches.at(InstallerSwitchType::Interactive) == "/i");
+        REQUIRE(installer1Switches.at(InstallerSwitchType::Log) == "/l=<LOGPATH>");
+        REQUIRE(installer1Switches.at(InstallerSwitchType::InstallLocation) == "/d=<INSTALLPATH>");
+        REQUIRE(installer1Switches.at(InstallerSwitchType::Update) == "/u");
+
+        REQUIRE(installer1.UpdateBehavior == UpdateBehaviorEnum::Install);
+        REQUIRE(installer1.Commands == MultiValue{ "makemsixPreview", "makeappxPreview" });
+        REQUIRE(installer1.Protocols == MultiValue{ "protocol1preview", "protocol2preview" });
+        REQUIRE(installer1.FileExtensions == MultiValue{ "appxbundle", "msixbundle", "appx", "msix" });
+
+        auto installer1Dependencies = installer1.Dependencies;
+        REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsFeature, "PreviewIIS"));
+        REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsLibrary, "Preview VC Runtime"));
+        REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDepPreview", "1.0.0"));
+        REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::External, "Preview Outside dependencies"));
+        REQUIRE(installer1Dependencies.Size() == 4);
+
+        REQUIRE(installer1.Capabilities == MultiValue{ "internetClientPreview" });
+        REQUIRE(installer1.RestrictedCapabilities == MultiValue{ "runFullTrustPreview" });
+        REQUIRE(installer1.PackageFamilyName == "Microsoft.DesktopAppInstallerPreview_8wekyb3d8bbwe");
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+        {
+            REQUIRE(installer1.ReleaseDate == "2021-02-02");
+            REQUIRE_FALSE(installer1.InstallerAbortsTerminal);
+            REQUIRE_FALSE(installer1.InstallLocationRequired);
+            REQUIRE_FALSE(installer1.RequireExplicitUpgrade);
+            REQUIRE(installer1.ElevationRequirement == ElevationRequirementEnum::ElevationRequired);
+            REQUIRE(installer1.UnsupportedOSArchitectures.size() == 1);
+            REQUIRE(installer1.UnsupportedOSArchitectures.at(0) == Architecture::Arm64);
+            REQUIRE(installer1.AppsAndFeaturesEntries.size() == 0);
+            REQUIRE(installer1.Markets.AllowedMarkets.size() == 0);
+            REQUIRE(installer1.Markets.ExcludedMarkets.size() == 1);
+            REQUIRE(installer1.Markets.ExcludedMarkets.at(0) == "US");
+            REQUIRE(installer1.ExpectedReturnCodes.at(2).ReturnResponseEnum == ExpectedReturnCodeEnum::ContactSupport);
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+        {
+            REQUIRE_FALSE(installer1.DisplayInstallWarnings);
+            REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
+            REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
+            REQUIRE(installer1.UnsupportedArguments.size() == 1);
+            REQUIRE(installer1.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Location);
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
+        {
+            // NestedInstaller metadata should not be populated unless the InstallerType is zip.
+            REQUIRE(installer1.NestedInstallerType == InstallerTypeEnum::Unknown);
+            REQUIRE(installer1.NestedInstallerFiles.size() == 0);
+
+            REQUIRE(installer1.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp");
+            REQUIRE(installer1.InstallationMetadata.Files.size() == 1);
+            REQUIRE(installer1.InstallationMetadata.Files.at(0).RelativeFilePath == "main.exe");
+            REQUIRE(installer1.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
+            REQUIRE(installer1.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+            REQUIRE(installer1.InstallationMetadata.Files.at(0).InvocationParameter == "/arg");
+            REQUIRE(installer1.InstallationMetadata.Files.at(0).DisplayName == "DisplayName");
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+        {
+            REQUIRE_FALSE(installer1.DownloadCommandProhibited);
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+        {
+            REQUIRE(installer1.Switches.at(InstallerSwitchType::Repair) == "/r");
+            REQUIRE(installer1.RepairBehavior == RepairBehaviorEnum::Modify);
+        }
+
+        if (!isSingleton)
+        {
+            if (!isExported)
+            {
+                ManifestInstaller installer2 = manifest.Installers.at(1);
+                REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Exe);
+                REQUIRE(installer2.Arch == Architecture::X64);
+                REQUIRE(installer2.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+                REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                REQUIRE(installer2.ProductCode == "{Bar}");
+
+                if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+                {
+                    REQUIRE(installer2.ReleaseDate == "2021-01-01");
+                    REQUIRE(installer2.InstallerAbortsTerminal);
+                    REQUIRE(installer2.InstallLocationRequired);
+                    REQUIRE(installer2.RequireExplicitUpgrade);
+                    REQUIRE(installer2.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
+                    REQUIRE(installer2.UnsupportedOSArchitectures.size() == 1);
+                    REQUIRE(installer2.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
+                    REQUIRE(installer2.AppsAndFeaturesEntries.size() == 1);
+                    REQUIRE(installer2.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
+                    REQUIRE(installer2.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
+                    REQUIRE(installer2.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
+                    REQUIRE(installer2.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
+                    REQUIRE(installer2.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
+                    REQUIRE(installer2.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
+                    REQUIRE(installer2.Markets.AllowedMarkets.size() == 1);
+                    REQUIRE(installer2.Markets.AllowedMarkets.at(0) == "US");
+                    REQUIRE(installer2.ExpectedReturnCodes.size() == 1);
+                    REQUIRE(installer2.ExpectedReturnCodes.at(10).ReturnResponseEnum == ExpectedReturnCodeEnum::PackageInUse);
+                }
+
+                if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+                {
+                    ManifestInstaller installer3 = manifest.Installers.at(2);
+                    REQUIRE(installer3.BaseInstallerType == InstallerTypeEnum::Portable);
+                    REQUIRE(installer3.Arch == Architecture::X86);
+                    REQUIRE(installer3.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.exe");
+                    REQUIRE(installer3.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                    REQUIRE(installer3.Commands == MultiValue{ "standalone" });
+                    REQUIRE(installer3.ExpectedReturnCodes.size() == 1);
+                    REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
+                    REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
+                    REQUIRE_FALSE(installer3.DisplayInstallWarnings);
+                    REQUIRE(installer3.UnsupportedArguments.size() == 1);
+                    REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
+                }
+
+                if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
+                {
+                    ManifestInstaller installer4 = manifest.Installers.at(3);
+                    REQUIRE(installer4.BaseInstallerType == InstallerTypeEnum::Zip);
+                    REQUIRE(installer4.Arch == Architecture::X64);
+                    REQUIRE(installer4.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+                    REQUIRE(installer4.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                    REQUIRE(installer4.ProductCode == "{Foo}");
+                    REQUIRE(installer4.NestedInstallerType == InstallerTypeEnum::Portable);
+                    REQUIRE(installer4.NestedInstallerFiles.size() == 2);
+                    REQUIRE(installer4.NestedInstallerFiles.at(0).RelativeFilePath == "relativeFilePath1");
+                    REQUIRE(installer4.NestedInstallerFiles.at(0).PortableCommandAlias == "portableAlias1");
+                    REQUIRE(installer4.NestedInstallerFiles.at(1).RelativeFilePath == "relativeFilePath2");
+                    REQUIRE(installer4.NestedInstallerFiles.at(1).PortableCommandAlias == "portableAlias2");
+                    REQUIRE(installer4.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp2");
+                    REQUIRE(installer4.InstallationMetadata.Files.size() == 1);
+                    REQUIRE(installer4.InstallationMetadata.Files.at(0).RelativeFilePath == "main2.exe");
+                    REQUIRE(installer4.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Other);
+                    REQUIRE(installer4.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                    REQUIRE(installer4.InstallationMetadata.Files.at(0).InvocationParameter == "/arg2");
+                    REQUIRE(installer4.InstallationMetadata.Files.at(0).DisplayName == "DisplayName2");
+                }
+
+                if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+                {
+                    REQUIRE(installer2.DownloadCommandProhibited);
+                    REQUIRE(installer2.UpdateBehavior == UpdateBehaviorEnum::Deny);
+                }
+
+                if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
+                {
+                    REQUIRE(installer2.RepairBehavior == RepairBehaviorEnum::Uninstaller);
+                    REQUIRE(installer2.Switches.at(InstallerSwitchType::Repair) == "/r");
+
+                    ManifestInstaller installer5 = manifest.Installers.at(4);
+                    REQUIRE(installer5.BaseInstallerType == InstallerTypeEnum::Burn);
+                    REQUIRE(installer5.Arch == Architecture::X64);
+                    REQUIRE(installer5.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
+                    REQUIRE(installer5.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+                    REQUIRE(installer5.ProductCode == "{Bar}");
+                    REQUIRE(installer5.Switches.at(InstallerSwitchType::Repair) == "/repair");
+                    REQUIRE(installer5.RepairBehavior == RepairBehaviorEnum::Modify);
+                }
+            }
+
+            // Localization
+            REQUIRE(manifest.Localizations.size() == 1);
+            ManifestLocalization localization1 = manifest.Localizations.at(0);
+            REQUIRE(localization1.Locale == "en-GB");
+            REQUIRE(localization1.Get<Localization::Publisher>() == "Microsoft UK");
+            REQUIRE(localization1.Get<Localization::PublisherUrl>() == "https://www.microsoft.com/UK");
+            REQUIRE(localization1.Get<Localization::PublisherSupportUrl>() == "https://www.microsoft.com/support/UK");
+            REQUIRE(localization1.Get<Localization::PrivacyUrl>() == "https://www.microsoft.com/privacy/UK");
+            REQUIRE(localization1.Get<Localization::Author>() == "Microsoft UK");
+            REQUIRE(localization1.Get<Localization::PackageName>() == "MSIX SDK UK");
+            REQUIRE(localization1.Get<Localization::PackageUrl>() == "https://www.microsoft.com/msixsdk/home/UK");
+            REQUIRE(localization1.Get<Localization::License>() == "MIT License UK");
+            REQUIRE(localization1.Get<Localization::LicenseUrl>() == "https://www.microsoft.com/msixsdk/license/UK");
+            REQUIRE(localization1.Get<Localization::Copyright>() == "Copyright Microsoft Corporation UK");
+            REQUIRE(localization1.Get<Localization::CopyrightUrl>() == "https://www.microsoft.com/msixsdk/copyright/UK");
+            REQUIRE(localization1.Get<Localization::ShortDescription>() == "This is MSIX SDK UK");
+            REQUIRE(localization1.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers UK");
+            REQUIRE(localization1.Get<Localization::Tags>() == MultiValue{ "appxsdkUK", "msixsdkUK" });
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
+            {
+                REQUIRE(localization1.Get<Localization::ReleaseNotes>() == "Release notes");
+                REQUIRE(localization1.Get<Localization::ReleaseNotesUrl>() == "https://ReleaseNotes.net");
+                REQUIRE(localization1.Get<Localization::Agreements>().size() == 1);
+                REQUIRE(localization1.Get<Localization::Agreements>().at(0).Label == "Label");
+                REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementText == "Text");
+                REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementUrl == "https://AgreementUrl.net");
+            }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
+            {
+                REQUIRE(localization1.Get<Localization::PurchaseUrl>() == "https://DefaultPurchaseUrl.com");
+                REQUIRE(localization1.Get<Localization::InstallationNotes>() == "Default installation notes");
+                REQUIRE(localization1.Get<Localization::Documentations>().size() == 1);
+                REQUIRE(localization1.Get<Localization::Documentations>().at(0).DocumentLabel == "Default document label");
+                REQUIRE(localization1.Get<Localization::Documentations>().at(0).DocumentUrl == "https://DefaultDocumentUrl.com");
+            }
+
+            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_5 })
+            {
+                REQUIRE(localization1.Get<Localization::Icons>().size() == 1);
+                REQUIRE(localization1.Get<Localization::Icons>().at(0).Url == "https://localeTestIcon-en-GB");
+                REQUIRE(localization1.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Png);
+                REQUIRE(localization1.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square32);
+                REQUIRE(localization1.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Light);
+                REQUIRE(localization1.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"));
+            }
+        }
+    }
+
+    struct ManifestShadowTestInfo
+    {
+        bool shadowDefaultLocale;
+        bool shadowEnGbLocale;
+    };
+
+    void VerifyV1ManifestContentCreatedWithShadow(const Manifest& manifest, ManifestShadowTestInfo shadowInfo, ManifestVer manifestVer = { s_ManifestVersionV1_5 })
+    {
+        REQUIRE(manifest.Id == "microsoft.msixsdk");
+        REQUIRE(manifest.Version == "1.7.32");
+        REQUIRE(manifest.Installers.size() == 1);
+
+        // Default localization
+        REQUIRE(manifest.DefaultLocalization.Locale == "en-US");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Publisher>() == "Microsoft");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == "MSIX SDK");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::License>() == "MIT License");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::ShortDescription>() == "This is MSIX SDK");
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_5 })
+        {
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().size() == 1);
+
+            if (shadowInfo.shadowDefaultLocale)
+            {
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Url == "https://shadowIcon-default");
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Ico);
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Custom);
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Default);
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("1111111111111111111111111111111111111111111111111111111111111111"));
+            }
+            else
+            {
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().size() == 1);
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Url == "https://testIcon-en-US");
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Ico);
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Custom);
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Default);
+                REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123"));
+            }
+        }
+
+        // Localization
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_5 })
+        {
+            REQUIRE(manifest.Localizations.size() == 3);
+
+            bool foundEnGbLocale = false;
+            bool foundfrFrLocale = false;
+            for (auto const& localization : manifest.Localizations)
+            {
+                if (localization.Locale == "en-GB")
+                {
+                    REQUIRE(localization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers UK");
+                    if (shadowInfo.shadowEnGbLocale)
+                    {
+                        REQUIRE(localization.Get<Localization::Icons>().size() == 1);
+                        REQUIRE(localization.Get<Localization::Icons>().at(0).Url == "https://shadowIcon-en-GB");
+                        REQUIRE(localization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Png);
+                        REQUIRE(localization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square32);
+                        REQUIRE(localization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Light);
+                        REQUIRE(localization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("2222222222222222222222222222222222222222222222222222222222222222"));
+                    }
+                    else
+                    {
+                        REQUIRE(localization.Get<Localization::Icons>().size() == 1);
+                        REQUIRE(localization.Get<Localization::Icons>().at(0).Url == "https://localeTestIcon-en-GB");
+                        REQUIRE(localization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Png);
+                        REQUIRE(localization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square32);
+                        REQUIRE(localization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Light);
+                        REQUIRE(localization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"));
+                    }
+
+                    foundEnGbLocale = true;
+                }
+                else if (localization.Locale == "fr-FR")
+                {
+                    REQUIRE(localization.Get<Localization::Icons>().size() == 1);
+                    REQUIRE(localization.Get<Localization::Icons>().at(0).Url == "https://shadowIcon-fr-FR");
+                    REQUIRE(localization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Jpeg);
+                    REQUIRE(localization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square20);
+                    REQUIRE(localization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Dark);
+                    REQUIRE(localization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("3333333333333333333333333333333333333333333333333333333333333333"));
+                    foundfrFrLocale = true;
+                }
+                else
+                {
+                    REQUIRE(localization.Locale == "es-MX");
+                    REQUIRE(localization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers MX");
+                    REQUIRE(localization.Get<Localization::Icons>().size() == 1);
+                    REQUIRE(localization.Get<Localization::Icons>().at(0).Url == "https://localeTestIcon-es-MX");
+                    REQUIRE(localization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Png);
+                    REQUIRE(localization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square32);
+                    REQUIRE(localization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Light);
+                    REQUIRE(localization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("4444444444444444444444444444444444444444444444444444444444444444"));
+                }
+            }
+
+            REQUIRE(foundEnGbLocale);
+            REQUIRE(foundfrFrLocale);
+        }
+    }
 }
 
 TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
@@ -164,67 +736,6 @@ TEST_CASE("ReadGoodManifestWithSpaces", "[ManifestValidation]")
     REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
     REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
 }
-
-struct ManifestExceptionMatcher : public Catch::MatcherBase<ManifestException>
-{
-    ManifestExceptionMatcher(std::string expectedMessage, bool expectedWarningOnly = false) :
-        m_expectedMessage(expectedMessage), m_expectedWarningOnly(expectedWarningOnly) {}
-
-    // Performs the test for this matcher
-    bool match(ManifestException const& e) const override
-    {
-        return e.GetManifestErrorMessage().find(m_expectedMessage) != std::string::npos &&
-            e.IsWarningOnly() == m_expectedWarningOnly;
-    }
-
-    virtual std::string describe() const override {
-        std::ostringstream ss;
-        ss << std::boolalpha << "Expected exception message: " << m_expectedMessage << " Expected IsWarningOnly: " << m_expectedWarningOnly;
-        return ss.str();
-    }
-
-private:
-    std::string m_expectedMessage;
-    bool m_expectedWarningOnly;
-};
-
-ManifestValidateOption GetTestManifestValidateOption(
-    bool schemaValidationOnly = false,
-    bool errorOnVerifiedPublisher = false)
-{
-    ManifestValidateOption validateOption;
-    validateOption.FullValidation = true;
-    validateOption.ThrowOnWarning = true;
-    validateOption.SchemaValidationOnly = schemaValidationOnly;
-    validateOption.ErrorOnVerifiedPublisherFields = errorOnVerifiedPublisher;
-    return validateOption;
-}
-
-void TestManifest(
-    const std::filesystem::path& manifestPath,
-    const std::string& expectedMessage = {},
-    bool expectedWarningOnly = false,
-    ManifestValidateOption validateOption = GetTestManifestValidateOption())
-{
-    INFO(manifestPath.u8string());
-
-    if (expectedMessage.empty())
-    {
-        CHECK_NOTHROW(YamlParser::CreateFromPath(TestDataFile(manifestPath), validateOption));
-    }
-    else
-    {
-        CHECK_THROWS_MATCHES(YamlParser::CreateFromPath(TestDataFile(manifestPath), validateOption), ManifestException, ManifestExceptionMatcher(expectedMessage, expectedWarningOnly));
-    }
-}
-
-struct ManifestTestCase
-{
-    std::string TestFile;
-    std::string ExpectedMessage = {};
-    bool IsWarningOnly = false;
-    ManifestValidateOption ValidateOption = GetTestManifestValidateOption();
-};
 
 TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
 {
@@ -386,380 +897,6 @@ TEST_CASE("ManifestVersionExtensions", "[ManifestValidation]")
     REQUIRE(ManifestVer("1.0.0-msstore.2-other"sv).HasExtension("msstore"));
 }
 
-void CopyTestDataFilesToFolder(const std::vector<std::string>& testDataFiles, const std::filesystem::path& dest)
-{
-    for (const auto& fileName : testDataFiles)
-    {
-        std::filesystem::copy(TestDataFile(fileName), dest);
-    }
-}
-
-void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, ManifestVer manifestVer = { s_ManifestVersionV1 }, bool isExported = false)
-{
-    REQUIRE(manifest.Id == "microsoft.msixsdk");
-    REQUIRE(manifest.Version == "1.7.32");
-    REQUIRE(manifest.DefaultLocalization.Locale == "en-US");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::Publisher>() == "Microsoft");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::PublisherUrl>() == "https://www.microsoft.com");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::PublisherSupportUrl>() == "https://www.microsoft.com/support");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::PrivacyUrl>() == "https://www.microsoft.com/privacy");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::Author>() == "Microsoft");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == "MSIX SDK");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageUrl>() == "https://www.microsoft.com/msixsdk/home");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::License>() == "MIT License");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::LicenseUrl>() == "https://www.microsoft.com/msixsdk/license");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::Copyright>() == "Copyright Microsoft Corporation");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::CopyrightUrl>() == "https://www.microsoft.com/msixsdk/copyright");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::ShortDescription>() == "This is MSIX SDK");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers");
-    REQUIRE(manifest.Moniker == "msixsdk");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::Tags>() == MultiValue{ "appxsdk", "msixsdk" });
-
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
-    {
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::ReleaseNotes>() == "Default release notes");
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::ReleaseNotesUrl>() == "https://DefaultReleaseNotes.net");
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().size() == 1);
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).Label == "DefaultLabel");
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementText == "DefaultText");
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementUrl == "https://DefaultAgreementUrl.net");
-    }
-
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
-    {
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::PurchaseUrl>() == "https://DefaultPurchaseUrl.com");
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::InstallationNotes>() == "Default installation notes");
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().size() == 1);
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentLabel == "Default document label");
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentUrl == "https://DefaultDocumentUrl.com");
-    }
-
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_5 })
-    {
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().size() == 1);
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Url == "https://testIcon");
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Ico);
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Custom);
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Default);
-        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123"));
-    }
-
-    if (!isExported)
-    {
-        REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
-        REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
-        REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
-        REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Exe);
-        REQUIRE(manifest.DefaultInstallerInfo.Scope == ScopeEnum::Machine);
-        REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive, InstallModeEnum::Silent, InstallModeEnum::SilentWithProgress });
-
-        auto defaultSwitches = manifest.DefaultInstallerInfo.Switches;
-        REQUIRE(defaultSwitches.at(InstallerSwitchType::Custom) == "/custom");
-        REQUIRE(defaultSwitches.at(InstallerSwitchType::SilentWithProgress) == "/silentwithprogress");
-        REQUIRE(defaultSwitches.at(InstallerSwitchType::Silent) == "/silence");
-        REQUIRE(defaultSwitches.at(InstallerSwitchType::Interactive) == "/interactive");
-        REQUIRE(defaultSwitches.at(InstallerSwitchType::Log) == "/log=<LOGPATH>");
-        REQUIRE(defaultSwitches.at(InstallerSwitchType::InstallLocation) == "/dir=<INSTALLPATH>");
-        REQUIRE(defaultSwitches.at(InstallerSwitchType::Update) == "/upgrade");
-
-        REQUIRE(manifest.DefaultInstallerInfo.InstallerSuccessCodes == std::vector<DWORD>{ 1, static_cast<DWORD>(0x80070005) });
-        REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
-        REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
-        REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
-        REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "msix", "appxbundle", "msixbundle" });
-
-        auto dependencies = manifest.DefaultInstallerInfo.Dependencies;
-        REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsFeature, "IIS"));
-        REQUIRE(dependencies.HasExactDependency(DependencyType::WindowsLibrary, "VC Runtime"));
-        REQUIRE(dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDep", "1.0.0"));
-        REQUIRE(dependencies.HasExactDependency(DependencyType::External, "Outside dependencies"));
-        REQUIRE(dependencies.Size() == 4);
-
-        REQUIRE(manifest.DefaultInstallerInfo.Capabilities == MultiValue{ "internetClient" });
-        REQUIRE(manifest.DefaultInstallerInfo.RestrictedCapabilities == MultiValue{ "runFullTrust" });
-        REQUIRE(manifest.DefaultInstallerInfo.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
-        REQUIRE(manifest.DefaultInstallerInfo.ProductCode == "{Foo}");
-
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
-        {
-            REQUIRE(manifest.DefaultInstallerInfo.ReleaseDate == "2021-01-01");
-            REQUIRE(manifest.DefaultInstallerInfo.InstallerAbortsTerminal);
-            REQUIRE(manifest.DefaultInstallerInfo.InstallLocationRequired);
-            REQUIRE(manifest.DefaultInstallerInfo.RequireExplicitUpgrade);
-            REQUIRE(manifest.DefaultInstallerInfo.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
-            REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.size() == 1);
-            REQUIRE(manifest.DefaultInstallerInfo.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
-            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.size() == 1);
-            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
-            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
-            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
-            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
-            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
-            REQUIRE(manifest.DefaultInstallerInfo.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
-            REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.size() == 1);
-            REQUIRE(manifest.DefaultInstallerInfo.Markets.AllowedMarkets.at(0) == "US");
-            REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.size() == 1);
-            REQUIRE(manifest.DefaultInstallerInfo.ExpectedReturnCodes.at(10).ReturnResponseEnum == ExpectedReturnCodeEnum::PackageInUse);
-        }
-
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
-        {
-            REQUIRE(manifest.DefaultInstallerInfo.DisplayInstallWarnings);
-            REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.size() == 1);
-            REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
-        }
-
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
-        {
-            REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerType == InstallerTypeEnum::Msi);
-            REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.size() == 1);
-            REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).RelativeFilePath == "RelativeFilePath");
-            REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).PortableCommandAlias == "PortableCommandAlias");
-            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp");
-            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.size() == 1);
-            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).RelativeFilePath == "main.exe");
-            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
-            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-            REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).InvocationParameter == "/arg");
-        }
-
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
-        {
-            REQUIRE(manifest.DefaultInstallerInfo.DownloadCommandProhibited);
-        }
-    }
-
-    if (isSingleton || isExported)
-    {
-        REQUIRE(manifest.Installers.size() == 1);
-    }
-    else
-    {
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
-        {
-            REQUIRE(manifest.Installers.size() == 4);
-        }
-        else if (manifestVer == ManifestVer{ s_ManifestVersionV1_2 })
-        {
-            REQUIRE(manifest.Installers.size() == 3);
-        }
-        else
-        {
-            REQUIRE(manifest.Installers.size() == 2);
-        }
-    }
-
-    ManifestInstaller installer1 = manifest.Installers.at(0);
-    REQUIRE(installer1.Arch == Architecture::X86);
-    REQUIRE(installer1.Locale == "en-GB");
-    REQUIRE(installer1.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop });
-    REQUIRE(installer1.MinOSVersion == "10.0.1.0");
-    REQUIRE(installer1.BaseInstallerType == InstallerTypeEnum::Msix);
-    REQUIRE(installer1.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.msix");
-    REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-    REQUIRE(installer1.SignatureSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-    REQUIRE(installer1.Scope == ScopeEnum::User);
-    REQUIRE(installer1.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive });
-
-    auto installer1Switches = installer1.Switches;
-    REQUIRE(installer1Switches.at(InstallerSwitchType::Custom) == "/c");
-    REQUIRE(installer1Switches.at(InstallerSwitchType::SilentWithProgress) == "/sp");
-    REQUIRE(installer1Switches.at(InstallerSwitchType::Silent) == "/s");
-    REQUIRE(installer1Switches.at(InstallerSwitchType::Interactive) == "/i");
-    REQUIRE(installer1Switches.at(InstallerSwitchType::Log) == "/l=<LOGPATH>");
-    REQUIRE(installer1Switches.at(InstallerSwitchType::InstallLocation) == "/d=<INSTALLPATH>");
-    REQUIRE(installer1Switches.at(InstallerSwitchType::Update) == "/u");
-
-    REQUIRE(installer1.UpdateBehavior == UpdateBehaviorEnum::Install);
-    REQUIRE(installer1.Commands == MultiValue{ "makemsixPreview", "makeappxPreview" });
-    REQUIRE(installer1.Protocols == MultiValue{ "protocol1preview", "protocol2preview" });
-    REQUIRE(installer1.FileExtensions == MultiValue{ "appxbundle", "msixbundle", "appx", "msix" });
-
-    auto installer1Dependencies = installer1.Dependencies;
-    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsFeature, "PreviewIIS"));
-    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsLibrary, "Preview VC Runtime"));
-    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDepPreview", "1.0.0"));
-    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::External, "Preview Outside dependencies"));
-    REQUIRE(installer1Dependencies.Size() == 4);
-
-    REQUIRE(installer1.Capabilities == MultiValue{ "internetClientPreview" });
-    REQUIRE(installer1.RestrictedCapabilities == MultiValue{ "runFullTrustPreview" });
-    REQUIRE(installer1.PackageFamilyName == "Microsoft.DesktopAppInstallerPreview_8wekyb3d8bbwe");
-
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
-    {
-        REQUIRE(installer1.ReleaseDate == "2021-02-02");
-        REQUIRE_FALSE(installer1.InstallerAbortsTerminal);
-        REQUIRE_FALSE(installer1.InstallLocationRequired);
-        REQUIRE_FALSE(installer1.RequireExplicitUpgrade);
-        REQUIRE(installer1.ElevationRequirement == ElevationRequirementEnum::ElevationRequired);
-        REQUIRE(installer1.UnsupportedOSArchitectures.size() == 1);
-        REQUIRE(installer1.UnsupportedOSArchitectures.at(0) == Architecture::Arm64);
-        REQUIRE(installer1.AppsAndFeaturesEntries.size() == 0);
-        REQUIRE(installer1.Markets.AllowedMarkets.size() == 0);
-        REQUIRE(installer1.Markets.ExcludedMarkets.size() == 1);
-        REQUIRE(installer1.Markets.ExcludedMarkets.at(0) == "US");
-        REQUIRE(installer1.ExpectedReturnCodes.at(2).ReturnResponseEnum == ExpectedReturnCodeEnum::ContactSupport);
-    }
-
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
-    {
-        REQUIRE_FALSE(installer1.DisplayInstallWarnings);
-        REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
-        REQUIRE(installer1.ExpectedReturnCodes.at(3).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
-        REQUIRE(installer1.UnsupportedArguments.size() == 1);
-        REQUIRE(installer1.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Location);
-    }
-
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
-    {
-        // NestedInstaller metadata should not be populated unless the InstallerType is zip.
-        REQUIRE(installer1.NestedInstallerType == InstallerTypeEnum::Unknown);
-        REQUIRE(installer1.NestedInstallerFiles.size() == 0);
-
-        REQUIRE(installer1.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp");
-        REQUIRE(installer1.InstallationMetadata.Files.size() == 1);
-        REQUIRE(installer1.InstallationMetadata.Files.at(0).RelativeFilePath == "main.exe");
-        REQUIRE(installer1.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
-        REQUIRE(installer1.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-        REQUIRE(installer1.InstallationMetadata.Files.at(0).InvocationParameter == "/arg");
-        REQUIRE(installer1.InstallationMetadata.Files.at(0).DisplayName == "DisplayName");
-    }
-
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
-    {
-        REQUIRE_FALSE(installer1.DownloadCommandProhibited);
-    }
-
-    if (!isSingleton)
-    {
-        if (!isExported)
-        {
-            ManifestInstaller installer2 = manifest.Installers.at(1);
-            REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Exe);
-            REQUIRE(installer2.Arch == Architecture::X64);
-            REQUIRE(installer2.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
-            REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-            REQUIRE(installer2.ProductCode == "{Bar}");
-
-            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
-            {
-                REQUIRE(installer2.ReleaseDate == "2021-01-01");
-                REQUIRE(installer2.InstallerAbortsTerminal);
-                REQUIRE(installer2.InstallLocationRequired);
-                REQUIRE(installer2.RequireExplicitUpgrade);
-                REQUIRE(installer2.ElevationRequirement == ElevationRequirementEnum::ElevatesSelf);
-                REQUIRE(installer2.UnsupportedOSArchitectures.size() == 1);
-                REQUIRE(installer2.UnsupportedOSArchitectures.at(0) == Architecture::Arm);
-                REQUIRE(installer2.AppsAndFeaturesEntries.size() == 1);
-                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).DisplayName == "DisplayName");
-                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).DisplayVersion == "DisplayVersion");
-                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).Publisher == "Publisher");
-                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).ProductCode == "ProductCode");
-                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).UpgradeCode == "UpgradeCode");
-                REQUIRE(installer2.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
-                REQUIRE(installer2.Markets.AllowedMarkets.size() == 1);
-                REQUIRE(installer2.Markets.AllowedMarkets.at(0) == "US");
-                REQUIRE(installer2.ExpectedReturnCodes.size() == 1);
-                REQUIRE(installer2.ExpectedReturnCodes.at(10).ReturnResponseEnum == ExpectedReturnCodeEnum::PackageInUse);
-            }
-
-            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
-            {
-                ManifestInstaller installer3 = manifest.Installers.at(2);
-                REQUIRE(installer3.BaseInstallerType == InstallerTypeEnum::Portable);
-                REQUIRE(installer3.Arch == Architecture::X86);
-                REQUIRE(installer3.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.exe");
-                REQUIRE(installer3.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-                REQUIRE(installer3.Commands == MultiValue{ "standalone" });
-                REQUIRE(installer3.ExpectedReturnCodes.size() == 1);
-                REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
-                REQUIRE(installer3.ExpectedReturnCodes.at(11).ReturnResponseUrl == "https://defaultReturnResponseUrl.com");
-                REQUIRE_FALSE(installer3.DisplayInstallWarnings);
-                REQUIRE(installer3.UnsupportedArguments.size() == 1);
-                REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
-            }
-
-            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
-            {
-                ManifestInstaller installer4 = manifest.Installers.at(3);
-                REQUIRE(installer4.BaseInstallerType == InstallerTypeEnum::Zip);
-                REQUIRE(installer4.Arch == Architecture::X64);
-                REQUIRE(installer4.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
-                REQUIRE(installer4.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-                REQUIRE(installer4.ProductCode == "{Foo}");
-                REQUIRE(installer4.NestedInstallerType == InstallerTypeEnum::Portable);
-                REQUIRE(installer4.NestedInstallerFiles.size() == 2);
-                REQUIRE(installer4.NestedInstallerFiles.at(0).RelativeFilePath == "relativeFilePath1");
-                REQUIRE(installer4.NestedInstallerFiles.at(0).PortableCommandAlias == "portableAlias1");
-                REQUIRE(installer4.NestedInstallerFiles.at(1).RelativeFilePath == "relativeFilePath2");
-                REQUIRE(installer4.NestedInstallerFiles.at(1).PortableCommandAlias == "portableAlias2");
-                REQUIRE(installer4.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp2");
-                REQUIRE(installer4.InstallationMetadata.Files.size() == 1);
-                REQUIRE(installer4.InstallationMetadata.Files.at(0).RelativeFilePath == "main2.exe");
-                REQUIRE(installer4.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Other);
-                REQUIRE(installer4.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
-                REQUIRE(installer4.InstallationMetadata.Files.at(0).InvocationParameter == "/arg2");
-                REQUIRE(installer4.InstallationMetadata.Files.at(0).DisplayName == "DisplayName2");
-            }
-
-            if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
-            {
-                REQUIRE(installer2.DownloadCommandProhibited);
-                REQUIRE(installer2.UpdateBehavior == UpdateBehaviorEnum::Deny);
-            }
-        }
-
-        // Localization
-        REQUIRE(manifest.Localizations.size() == 1);
-        ManifestLocalization localization1 = manifest.Localizations.at(0);
-        REQUIRE(localization1.Locale == "en-GB");
-        REQUIRE(localization1.Get<Localization::Publisher>() == "Microsoft UK");
-        REQUIRE(localization1.Get<Localization::PublisherUrl>() == "https://www.microsoft.com/UK");
-        REQUIRE(localization1.Get<Localization::PublisherSupportUrl>() == "https://www.microsoft.com/support/UK");
-        REQUIRE(localization1.Get<Localization::PrivacyUrl>() == "https://www.microsoft.com/privacy/UK");
-        REQUIRE(localization1.Get<Localization::Author>() == "Microsoft UK");
-        REQUIRE(localization1.Get<Localization::PackageName>() == "MSIX SDK UK");
-        REQUIRE(localization1.Get<Localization::PackageUrl>() == "https://www.microsoft.com/msixsdk/home/UK");
-        REQUIRE(localization1.Get<Localization::License>() == "MIT License UK");
-        REQUIRE(localization1.Get<Localization::LicenseUrl>() == "https://www.microsoft.com/msixsdk/license/UK");
-        REQUIRE(localization1.Get<Localization::Copyright>() == "Copyright Microsoft Corporation UK");
-        REQUIRE(localization1.Get<Localization::CopyrightUrl>() == "https://www.microsoft.com/msixsdk/copyright/UK");
-        REQUIRE(localization1.Get<Localization::ShortDescription>() == "This is MSIX SDK UK");
-        REQUIRE(localization1.Get<Localization::Description>() == "The MSIX SDK project is an effort to enable developers UK");
-        REQUIRE(localization1.Get<Localization::Tags>() == MultiValue{ "appxsdkUK", "msixsdkUK" });
-
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_1 })
-        {
-            REQUIRE(localization1.Get<Localization::ReleaseNotes>() == "Release notes");
-            REQUIRE(localization1.Get<Localization::ReleaseNotesUrl>() == "https://ReleaseNotes.net");
-            REQUIRE(localization1.Get<Localization::Agreements>().size() == 1);
-            REQUIRE(localization1.Get<Localization::Agreements>().at(0).Label == "Label");
-            REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementText == "Text");
-            REQUIRE(localization1.Get<Localization::Agreements>().at(0).AgreementUrl == "https://AgreementUrl.net");
-        }
-
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
-        {
-            REQUIRE(localization1.Get<Localization::PurchaseUrl>() == "https://DefaultPurchaseUrl.com");
-            REQUIRE(localization1.Get<Localization::InstallationNotes>() == "Default installation notes");
-            REQUIRE(localization1.Get<Localization::Documentations>().size() == 1);
-            REQUIRE(localization1.Get<Localization::Documentations>().at(0).DocumentLabel == "Default document label");
-            REQUIRE(localization1.Get<Localization::Documentations>().at(0).DocumentUrl == "https://DefaultDocumentUrl.com");
-        }
-
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_5 })
-        {
-            REQUIRE(localization1.Get<Localization::Icons>().size() == 1);
-            REQUIRE(localization1.Get<Localization::Icons>().at(0).Url == "https://localeTestIcon");
-            REQUIRE(localization1.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Png);
-            REQUIRE(localization1.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square32);
-            REQUIRE(localization1.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Light);
-            REQUIRE(localization1.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"));
-        }
-    }
-}
-
 TEST_CASE("ValidateV1GoodManifestAndVerifyContents", "[ManifestValidation]")
 {
     ManifestValidateOption validateOption;
@@ -792,7 +929,7 @@ TEST_CASE("ValidateV1_1GoodManifestAndVerifyContents", "[ManifestValidation]")
     TempDirectory singletonDirectory{ "SingletonManifest" };
     CopyTestDataFilesToFolder({ "ManifestV1_1-Singleton.yaml" }, singletonDirectory);
     Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
-    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{s_ManifestVersionV1_1});
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_1 });
 
     TempDirectory multiFileDirectory{ "MultiFileManifest" };
     CopyTestDataFilesToFolder({
@@ -1119,6 +1256,37 @@ TEST_CASE("WriteV1_6SingletonManifestAndVerifyContents", "[ManifestCreation]")
     REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
     Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
     VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_6 }, true);
+}
+
+TEST_CASE("WriteV1_7SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_7-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_7 }, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_7-MultiFile-Version.yaml",
+        "ManifestV1_7-MultiFile-Installer.yaml",
+        "ManifestV1_7-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_7-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory);
+    TempDirectory exportedMultiFileDirectory{ "exportedMultiFile" };
+    std::filesystem::path generatedMultiFileManifestPath = exportedMultiFileDirectory.GetPath() / "testMultiFileManifest.yaml";
+    YamlWriter::OutputYamlFile(multiFileManifest, multiFileManifest.Installers[0], generatedMultiFileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultiFileManifestPath));
+    Manifest generatedMultiFileManifest = YamlParser::CreateFromPath(exportedMultiFileDirectory);
+    VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_7 }, true);
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)
@@ -1469,7 +1637,7 @@ TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
 {
     Manifest manifestNoArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-NoArpVersionDeclared.yaml"));
     REQUIRE(manifestNoArp.GetArpVersionRange().IsEmpty());
-    
+
     Manifest manifestSingleArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-SingleArpVersionDeclared.yaml"));
     auto arpRangeSingleArp = manifestSingleArp.GetArpVersionRange();
     REQUIRE(arpRangeSingleArp.GetMinVersion().ToString() == "11.0");
@@ -1479,6 +1647,147 @@ TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
     auto arpRangeMultiArp = manifestMultiArp.GetArpVersionRange();
     REQUIRE(arpRangeMultiArp.GetMinVersion().ToString() == "12.0");
     REQUIRE(arpRangeMultiArp.GetMaxVersion().ToString() == "13.0");
+}
+
+TEST_CASE("ShadowManifest", "[ShadowManifest]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    validateOption.AllowShadowManifest = true;
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-Shadow-Installer.yaml",
+        "ManifestV1_5-Shadow-DefaultLocale.yaml",
+        "ManifestV1_5-Shadow-Locale.yaml",
+        "ManifestV1_5-Shadow-Locale2.yaml",
+        "ManifestV1_5-Shadow-Shadow.yaml" }, multiFileDirectory);
+
+    auto shadowInfo = ManifestShadowTestInfo{};
+    shadowInfo.shadowDefaultLocale = true;
+    shadowInfo.shadowEnGbLocale = true;
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContentCreatedWithShadow(multiFileManifest, shadowInfo);
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContentCreatedWithShadow(mergedManifest, shadowInfo);
+}
+
+TEST_CASE("ShadowManifest_SkipShadowDefaultLocale", "[ShadowManifest]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    validateOption.AllowShadowManifest = true;
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-Shadow-Installer.yaml",
+        "ManifestV1_5-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_5-Shadow-Locale.yaml",
+        "ManifestV1_5-Shadow-Locale2.yaml",
+        "ManifestV1_5-Shadow-Shadow.yaml" }, multiFileDirectory);
+
+    auto shadowInfo = ManifestShadowTestInfo{};
+    shadowInfo.shadowDefaultLocale = false;
+    shadowInfo.shadowEnGbLocale = true;
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContentCreatedWithShadow(multiFileManifest, shadowInfo);
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContentCreatedWithShadow(mergedManifest, shadowInfo);
+}
+
+TEST_CASE("ShadowManifest_SkipShadowLocalizationLocale", "[ShadowManifest]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    validateOption.AllowShadowManifest = true;
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-Shadow-Installer.yaml",
+        "ManifestV1_5-Shadow-DefaultLocale.yaml",
+        "ManifestV1_5-MultiFile-Locale.yaml",
+        "ManifestV1_5-Shadow-Locale2.yaml",
+        "ManifestV1_5-Shadow-Shadow.yaml" }, multiFileDirectory);
+
+    auto shadowInfo = ManifestShadowTestInfo{};
+    shadowInfo.shadowDefaultLocale = true;
+    shadowInfo.shadowEnGbLocale = false;
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContentCreatedWithShadow(multiFileManifest, shadowInfo);
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContentCreatedWithShadow(mergedManifest, shadowInfo);
+}
+
+TEST_CASE("ShadowManifest_ShadowNotAllowed", "[ShadowManifest]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    validateOption.AllowShadowManifest = false;
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-Shadow-Installer.yaml",
+        "ManifestV1_5-Shadow-DefaultLocale.yaml",
+        "ManifestV1_5-Shadow-Locale.yaml",
+        "ManifestV1_5-Shadow-Locale2.yaml",
+        "ManifestV1_5-Shadow-Shadow.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile), ManifestException, ManifestExceptionMatcher("Shadow manifest is not allowed. [ManifestType] Value: shadow File: ManifestV1_5-Shadow-Shadow.yaml"));
+}
+
+TEST_CASE("ShadowManifest_TwoShadowFiles", "[ShadowManifest]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    validateOption.AllowShadowManifest = true;
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-Shadow-Installer.yaml",
+        "ManifestV1_5-Shadow-DefaultLocale.yaml",
+        "ManifestV1_5-Shadow-Shadow.yaml",
+        "ManifestV1_5-Shadow-Shadow2.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. [ManifestType] Value: shadow File: ManifestV1_5-Shadow-Shadow2.yaml"));
+}
+
+TEST_CASE("ShadowManifest_NotVerifiedPublisher", "[ShadowManifest]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    validateOption.AllowShadowManifest = true;
+    validateOption.ErrorOnVerifiedPublisherFields = true;
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-Shadow-Installer.yaml",
+        "ManifestV1_5-Shadow-DefaultLocale.yaml",
+        "ManifestV1_5-Shadow-Locale.yaml",
+        "ManifestV1_5-Shadow-Locale2.yaml",
+        "ManifestV1_5-Shadow-Shadow.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    REQUIRE_THROWS_MATCHES(YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile), ManifestException, ManifestExceptionMatcher("Field usage requires verified publishers. [Icons]"));
 }
 
 TEST_CASE("YamlParserTypes", "[YAML]")
@@ -1508,4 +1817,134 @@ TEST_CASE("YamlParserTypes", "[YAML]")
 
     auto localTag = document["LocalTag"];
     CHECK(localTag.GetTagType() == Node::TagType::Unknown);
+}
+
+TEST_CASE("YamlMergeMappingNode", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Mapping.yaml"));
+
+    auto mergeNode = document["MergeNode"];
+    auto mergeNode2 = document["MergeNode2"];
+
+    REQUIRE(3 == mergeNode.size());
+    REQUIRE(2 == mergeNode2.size());
+
+    mergeNode.MergeMappingNode(mergeNode2);
+
+    REQUIRE(5 == mergeNode.size());
+}
+
+TEST_CASE("YamlMergeMappingNode_CaseInsensitive", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Mapping.yaml"));
+
+    auto mergeNode = document["MergeNode"];
+    auto mergeNode2 = document["MergeNode2"];
+
+    REQUIRE(3 == mergeNode.size());
+    REQUIRE(2 == mergeNode2.size());
+
+    mergeNode.MergeMappingNode(mergeNode2, true);
+
+    REQUIRE(4 == mergeNode.size());
+}
+
+TEST_CASE("YamlMergeSequenceNode", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Merge.yaml"));
+    auto document2 = Load(TestDataFile("Node-Merge2.yaml"));
+
+    REQUIRE(3 == document["StrawHats"].size());
+    REQUIRE(2 == document2["StrawHats"].size());
+
+    // Internally will call MergeMappingNode.
+    document["StrawHats"].MergeSequenceNode(document2["StrawHats"], "Bounty");
+    REQUIRE(5 == document["StrawHats"].size());
+}
+
+TEST_CASE("YamlMergeSequenceNode_CaseInsensitive", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Merge.yaml"));
+    auto document2 = Load(TestDataFile("Node-Merge2.yaml"));
+
+    REQUIRE(3 == document["StrawHats"].size());
+    REQUIRE(2 == document2["StrawHats"].size());
+
+    // Internally will call MergeMappingNode.
+    document["StrawHats"].MergeSequenceNode(document2["StrawHats"], "Name", true);
+    REQUIRE(4 == document["StrawHats"].size());
+
+    auto luffy = std::find_if(
+        document["StrawHats"].Sequence().begin(),
+        document["StrawHats"].Sequence().end(),
+        [](auto const& n) { return n["Name"].as<std::string>() == "Monkey D Luffy"; });
+    REQUIRE(luffy != document["StrawHats"].Sequence().end());
+
+    // From original node
+    REQUIRE((*luffy)["Bounty"].as<std::string>() == "3,000,000,000");
+
+    // From merged node
+    REQUIRE((*luffy)["Fruit"].as<std::string>() == "Gomu Gomu no Mi");
+}
+
+TEST_CASE("YamlMergeNode_MergeSequenceNoKey", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Merge.yaml"));
+    auto document2 = Load(TestDataFile("Node-Merge2.yaml"));
+
+    REQUIRE_THROWS_HR(document["StrawHats"].MergeSequenceNode(document2["StrawHats"], "Power"), APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
+}
+
+TEST_CASE("YamlMappingNode", "[YAML]")
+{
+    auto document = Load(TestDataFile("Node-Mapping.yaml"));
+
+    auto node = document["key"];
+    REQUIRE(node.as<std::string>() == "value");
+
+    auto node2 = document.GetChildNode("KEY");
+    REQUIRE(node2.as<std::string>() == "value");
+
+    auto node3 = document.GetChildNode("key");
+    REQUIRE(node3.as<std::string>() == "value");
+
+    auto node4 = document.GetChildNode("kEy");
+    REQUIRE(node4.as<std::string>() == "value");
+
+    auto node5 = document.GetChildNode("fake");
+    REQUIRE(node5.IsNull());
+
+    auto node6 = document["repeatedkey"];
+    REQUIRE(node6.as<std::string>() == "repeated value");
+    REQUIRE_THROWS_HR(document.GetChildNode("repeatedkey"), APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+    
+    REQUIRE_THROWS_HR(document.GetChildNode("RepeatedKey"), APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+    REQUIRE_THROWS_HR(document["RepeatedKey"], APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+}
+
+TEST_CASE("YamlMappingNode_const", "[YAML]")
+{
+    const auto document = Load(TestDataFile("Node-Mapping.yaml"));
+
+    auto node = document["key"];
+    REQUIRE(node.as<std::string>() == "value");
+
+    auto node2 = document.GetChildNode("KEY");
+    REQUIRE(node2.as<std::string>() == "value");
+
+    auto node3 = document.GetChildNode("key");
+    REQUIRE(node3.as<std::string>() == "value");
+
+    auto node4 = document.GetChildNode("kEy");
+    REQUIRE(node4.as<std::string>() == "value");
+
+    auto node5 = document.GetChildNode("fake");
+    REQUIRE(node5.IsNull());
+
+    auto node6 = document["repeatedkey"];
+    REQUIRE(node6.as<std::string>() == "repeated value");
+    REQUIRE_THROWS_HR(document.GetChildNode("repeatedkey"), APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+
+    REQUIRE_THROWS_HR(document.GetChildNode("RepeatedKey"), APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
+    REQUIRE_THROWS_HR(document["RepeatedKey"], APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY);
 }

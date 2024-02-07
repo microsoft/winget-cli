@@ -389,7 +389,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Authentication\WebAccountManagerAuthenticator.h" />
     <ClInclude Include="DODownloader.h" />
+    <ClInclude Include="Public\winget\Authentication.h" />
     <ClInclude Include="Public\winget\FolderFileWatcher.h" />
     <ClInclude Include="Public\winget\MsixManifest.h" />
     <ClInclude Include="Public\winget\AdminSettings.h" />
@@ -442,6 +444,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
+    <ClCompile Include="Authentication\Authentication.cpp" />
+    <ClCompile Include="Authentication\WebAccountManagerAuthenticator.cpp" />
     <ClCompile Include="Debugging.cpp" />
     <ClCompile Include="DependenciesGraph.cpp" />
     <ClCompile Include="DODownloader.cpp" />

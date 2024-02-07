@@ -45,7 +45,10 @@ namespace AppInstaller::Repository::Rest::Schema
     HttpClientHelper::HttpClientHelper(std::shared_ptr<web::http::http_pipeline_stage> stage) : m_defaultRequestHandlerStage(std::move(stage)) {}
 
     pplx::task<web::http::http_response> HttpClientHelper::Post(
-        const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
+        const utility::string_t& uri,
+        const web::json::value& body,
+        const HttpClientHelper::HttpRequestHeaders& headers,
+        const HttpClientHelper::HttpRequestHeaders& authHeaders) const
     {
         AICLI_LOG(Repo, Info, << "Sending http POST request to: " << utility::conversions::to_utf8string(uri));
         web::http::client::http_client client = GetClient(uri);
@@ -62,14 +65,23 @@ namespace AppInstaller::Repository::Rest::Schema
 
         AICLI_LOG(Repo, Verbose, << "Http POST request details:\n" << utility::conversions::to_utf8string(request.to_string()));
 
+        // Add auth headers after logging
+        for (auto& pair : authHeaders)
+        {
+            request.headers().add(pair.first, pair.second);
+        }
+
         return client.request(request);
     }
 
     std::optional<web::json::value> HttpClientHelper::HandlePost(
-        const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
+        const utility::string_t& uri,
+        const web::json::value& body,
+        const HttpClientHelper::HttpRequestHeaders& headers,
+        const HttpClientHelper::HttpRequestHeaders& authHeaders) const
     {
         web::http::http_response httpResponse;
-        HttpClientHelper::Post(uri, body, headers).then([&httpResponse](const web::http::http_response& response)
+        HttpClientHelper::Post(uri, body, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
             {
                 httpResponse = response;
             }).wait();
@@ -78,7 +90,9 @@ namespace AppInstaller::Repository::Rest::Schema
     }
 
     pplx::task<web::http::http_response> HttpClientHelper::Get(
-        const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
+        const utility::string_t& uri,
+        const HttpClientHelper::HttpRequestHeaders& headers,
+        const HttpClientHelper::HttpRequestHeaders& authHeaders) const
     {
         AICLI_LOG(Repo, Info, << "Sending http GET request to: " << utility::conversions::to_utf8string(uri));
         web::http::client::http_client client = GetClient(uri);
@@ -94,14 +108,22 @@ namespace AppInstaller::Repository::Rest::Schema
 
         AICLI_LOG(Repo, Verbose, << "Http GET request details:\n" << utility::conversions::to_utf8string(request.to_string()));
 
+        // Add auth headers after logging
+        for (auto& pair : authHeaders)
+        {
+            request.headers().add(pair.first, pair.second);
+        }
+
         return client.request(request);
     }
 
     std::optional<web::json::value> HttpClientHelper::HandleGet(
-        const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
+        const utility::string_t& uri,
+        const HttpClientHelper::HttpRequestHeaders& headers,
+        const HttpClientHelper::HttpRequestHeaders& authHeaders) const
     {
         web::http::http_response httpResponse;
-        Get(uri, headers).then([&httpResponse](const web::http::http_response& response)
+        Get(uri, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
             {
                 httpResponse = response;
             }).wait();

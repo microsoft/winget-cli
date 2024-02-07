@@ -30,18 +30,24 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void PackageCatalogBackgroundUpdateInterval(winrt::Windows::Foundation::TimeSpan const& value);
         bool InstalledPackageInformationOnly();
         void InstalledPackageInformationOnly(bool value);
+        winrt::Microsoft::Management::Deployment::AuthenticationArguments AuthenticationArguments();
+        void AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value);
+        winrt::Microsoft::Management::Deployment::AuthenticationInfo AuthenticationInfo();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions m_compositePackageCatalogOptions{ nullptr };
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo m_info{ nullptr };
+        std::once_flag m_sourceAgreementsOnceFlag;
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::SourceAgreement> m_sourceAgreements{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::SourceAgreement>() };
         ::AppInstaller::Repository::Source m_sourceReference;
         std::optional<std::string> m_additionalPackageCatalogArguments;
         bool m_acceptSourceAgreements = true;
         bool m_installedPackageInformationOnly = false;
-        std::once_flag m_sourceAgreementsOnceFlag;
         winrt::Windows::Foundation::TimeSpan m_packageCatalogBackgroundUpdateInterval = winrt::Windows::Foundation::TimeSpan::zero();
+        winrt::Microsoft::Management::Deployment::AuthenticationArguments m_authenticationArguments{ nullptr };
+        std::once_flag m_authenticationInfoOnceFlag;
+        winrt::Microsoft::Management::Deployment::AuthenticationInfo m_authenticationInfo{ nullptr };
 #endif
     };
 }

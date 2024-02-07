@@ -121,6 +121,17 @@ ms.localizationpriority: medium
 | 0x8A15006B | -1978335125 | APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES | Failed to download package dependencies. |
 | 0x8A15006C | -1978335124 | APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED | Failed to download package. Download for offline installation is prohibited. |
 | 0x8A15006D | -1978335123 | APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE | A required service is busy or unavailable. Try again later. |
+| 0x8A15006E | -1978335122 | APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND | The guid provided does not correspond to a valid resume state. |
+| 0x8A15006F | -1978335121 | APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH | The current client version did not match the client version of the saved state. |
+| 0x8A150070 | -1978335120 | APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE | The resume state data is invalid. |
+| 0x8A150071 | -1978335119 | APPINSTALLER_CLI_ERROR_CANNOT_OPEN_CHECKPOINT_INDEX | Unable to open the checkpoint database. |
+| 0x8A150072 | -1978335118 | APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED | Exceeded max resume limit. |
+| 0x8A150073 | -1978335117 | APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO | Invalid authentication info. |
+| 0x8A150074 | -1978335116 | APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED | Authentication method not supported. |
+| 0x8A150075 | -1978335115 | APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED | Authentication failed. |
+| 0x8A150076 | -1978335114 | APPINSTALLER_CLI_ERROR_AUTHENTICATION_INTERACTIVE_REQUIRED | Authentication failed. Interactive authentication required. |
+| 0x8A150077 | -1978335113 | APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER | Authentication failed. User cancelled. |
+| 0x8A150078 | -1978335112 | APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT | Authentication failed. Authenticated account is not the desired account. |
 
 
 ## Install errors.
