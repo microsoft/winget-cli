@@ -44,9 +44,12 @@ jobs:
 
   strategy:
     matrix:
-      x64_fuzzing:
+      fuzzing_x64:
         buildConfiguration: 'Fuzzing'
         buildPlatform: 'x64'
+      fuzzing_x86:
+        buildConfiguration: 'Fuzzing'
+        buildPlatform: 'x86'
 
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
@@ -64,7 +67,7 @@ jobs:
       restoreSolution: '$(solution)'
 
   - task: VSBuild@1
-    displayName: Build Solution
+    displayName: Build Fuzzing Artifacts
     inputs:
       platform: '$(buildPlatform)'
       solution: '$(solution)'
@@ -72,13 +75,14 @@ jobs:
       msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog'
 
   - task: CopyFiles@2
+    displayName: Copy Fuzzing Artifacts for Publishing
     inputs:
       SourceFolder: '$(buildOutDir)'
       Contents: '**'
       TargetFolder: '$(artifactsDir)'
 
   - task: PublishPipelineArtifact@1
-    displayName: Publish Pipeline Artifacts
+    displayName: Publish Fuzzing Artifacts
     inputs:
       targetPath: '$(artifactsDir)'
     condition: succeededOrFailed()
@@ -89,3 +93,4 @@ jobs:
   #   env:
   #     onefuzzDropDirectory: '$(buildOutDir)'
   #     onefuzzDropPAT: $(onefuzzDropPAT)
+  #     onefuzzFilingBugPAT: $(onefuzzBugFilingPAT)
