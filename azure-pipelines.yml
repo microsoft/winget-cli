@@ -54,6 +54,15 @@ jobs:
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
 
   steps:
+  - task: NuGetToolInstaller@1
+    displayName: Install Nuget
+
+  # Restores all projects, including native (vcxproj) projects
+  - task: NuGetCommand@2
+    displayName: Restore Solution
+    inputs:
+      restoreSolution: '$(solution)'
+
   - task: VSBuild@1
     displayName: Build Solution
     inputs:
