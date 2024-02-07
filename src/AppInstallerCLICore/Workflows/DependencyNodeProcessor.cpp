@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "DependencyNodeProcessor.h"
 #include "ManifestComparator.h"
+#include <winget/PinningData.h>
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
@@ -48,8 +49,12 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            // TODO: Convert to calling into the PinningData
-            //pinBehavior = m_context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+            Pinning::PinBehavior pinBehavior = m_context.Args.Contains(Execution::Args::Type::IncludePinned) ? Pinning::PinBehavior::IncludePinned : Pinning::PinBehavior::ConsiderPins;
+
+            Pinning::PinningData pinningData{ Pinning::PinningData::Disposition::ReadOnly };
+            auto evaluator = pinningData.CreatePinStateEvaluator(pinBehavior, package->GetInstalledVersion());
+
+            m_nodePackageLatestVersion = evaluator.GetLatestAvailableVersionForPins(package);
         }
 
         if (m_nodePackageInstalledVersion && dependencyNode.IsVersionOk(Utility::Version(m_nodePackageInstalledVersion->GetProperty(PackageVersionProperty::Version))))

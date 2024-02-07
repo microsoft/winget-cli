@@ -69,7 +69,10 @@ namespace AppInstaller::CLI::Workflow
 
         // If we are updating a single package or we got the --include-pinned flag,
         // we include packages with Pinning pins
-        //const bool includePinned = m_isSinglePackage || context.Args.Contains(Execution::Args::Type::IncludePinned);
+        const bool includePinned = m_isSinglePackage || context.Args.Contains(Execution::Args::Type::IncludePinned);
+
+        PinningData pinningData{ PinningData::Disposition::ReadOnly };
+        auto evaluator = pinningData.CreatePinStateEvaluator(includePinned ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins, package->GetInstalledVersion());
 
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys();
@@ -86,23 +89,21 @@ namespace AppInstaller::CLI::Workflow
                     upgradeVersionAvailable = true;
                 }
 
-                // TODO: Integrate new pinning lookup model
-                //// Check if the package is pinned
-                //if (key.PinnedState == Pinning::PinType::Blocking ||
-                //    key.PinnedState == Pinning::PinType::Gating ||
-                //    (key.PinnedState == Pinning::PinType::Pinning && !includePinned))
-                //{
-                //    AICLI_LOG(CLI, Info, << "Package [" << package->GetProperty(PackageProperty::Id) << " with Version[" << key.Version << "] from Source[" << key.SourceId << "] has a Pin with type[" << ToString(key.PinnedState) << "]");
-                //    if (context.Args.Contains(Execution::Args::Type::Force))
-                //    {
-                //        AICLI_LOG(CLI, Info, << "Ignoring pin due to --force argument");
-                //    }
-                //    else
-                //    {
-                //        packagePinned = true;
-                //        continue;
-                //    }
-                //}
+                // Check if the package is pinned
+                PinType pinType = evaluator.EvaluatePinType(key);
+                if (pinType != Pinning::PinType::Unknown)
+                {
+                    AICLI_LOG(CLI, Info, << "Package [" << package->GetProperty(PackageProperty::Id) << " with Version[" << key.Version << "] from Source[" << key.SourceId << "] has a Pin with type[" << ToString(pinType) << "]");
+                    if (context.Args.Contains(Execution::Args::Type::Force))
+                    {
+                        AICLI_LOG(CLI, Info, << "Ignoring pin due to --force argument");
+                    }
+                    else
+                    {
+                        packagePinned = true;
+                        continue;
+                    }
+                }
 
                 auto packageVersion = package->GetAvailableVersion(key);
                 auto manifest = packageVersion->GetManifest();

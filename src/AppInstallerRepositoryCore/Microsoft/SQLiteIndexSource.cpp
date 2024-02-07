@@ -359,11 +359,6 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            bool IsUpdateAvailable() const override
-            {
-                return false;
-            }
-
             bool IsSame(const IPackage* other) const override
             {
                 const AvailablePackage* otherAvailable = PackageCast<const AvailablePackage*>(other);
@@ -447,11 +442,6 @@ namespace AppInstaller::Repository::Microsoft
             std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey&) const override
             {
                 return {};
-            }
-
-            bool IsUpdateAvailable() const override
-            {
-                return false;
             }
 
             bool IsSame(const IPackage* other) const override

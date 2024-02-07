@@ -439,20 +439,6 @@ namespace AppInstaller::Repository
                 return {};
             }
 
-            bool IsUpdateAvailable() const override
-            {
-                auto installed = GetInstalledVersion();
-
-                if (!installed)
-                {
-                    return false;
-                }
-
-                auto latest = GetLatestAvailableVersion();
-
-                return (latest && (GetVACFromVersion(installed.get()).IsUpdatedBy(GetVACFromVersion(latest.get()))));
-            }
-
             bool IsSame(const IPackage* other) const override
             {
                 const CompositePackage* otherComposite = PackageCast<const CompositePackage*>(other);

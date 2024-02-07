@@ -79,7 +79,7 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenPinningIndex::operator()(Execution::Context& context) const
     {
-        auto pinningData = Pinning::PinningData{ m_readOnly };
+        auto pinningData = Pinning::PinningData{ m_readOnly ? Pinning::PinningData::Disposition::ReadOnly : Pinning::PinningData::Disposition::ReadWrite };
         if (!m_readOnly && !pinningData)
         {
             AICLI_LOG(CLI, Error, << "Unable to open pinning index.");

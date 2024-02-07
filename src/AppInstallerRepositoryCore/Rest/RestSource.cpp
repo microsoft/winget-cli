@@ -82,11 +82,6 @@ namespace AppInstaller::Repository::Rest
 
             std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override;
 
-            bool IsUpdateAvailable() const override
-            {
-                return false;
-            }
-
             bool IsSame(const IPackage* other) const override
             {
                 const AvailablePackage* otherAvailablePackage = PackageCast<const AvailablePackage*>(other);

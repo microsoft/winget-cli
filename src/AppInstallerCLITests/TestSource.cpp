@@ -202,19 +202,6 @@ namespace TestCommon
         return {};
     }
 
-    bool TestPackage::IsUpdateAvailable() const
-    {
-        if (InstalledVersion && !AvailableVersions.empty())
-        {
-            Utility::Version installed{ InstalledVersion->GetProperty(PackageVersionProperty::Version) };
-            Utility::Version available{ AvailableVersions[0]->GetProperty(PackageVersionProperty::Version) };
-
-            return available > installed;
-        }
-
-        return false;
-    }
-
     bool TestPackage::IsSame(const IPackage* other) const
     {
         if (IsSameOverride)

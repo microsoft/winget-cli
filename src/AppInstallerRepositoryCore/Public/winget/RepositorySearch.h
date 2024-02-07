@@ -334,11 +334,6 @@ namespace AppInstaller::Repository
         // Gets the installed package information.
         virtual std::shared_ptr<IPackageVersion> GetInstalledVersion() const = 0;
 
-        // Note on pins:
-        // Pins only make sense when there is both an installed and an available version.
-        // Only for the composite source will GetAvailableVersionKeys() include pinned state,
-        // and GetLatestAvailableVersion() consider the pin behavior.
-
         // Gets all available versions of this package.
         // The versions will be returned in sorted, descending order.
         //  Ex. { 4, 3, 2, 1 }
@@ -350,9 +345,6 @@ namespace AppInstaller::Repository
 
         // Gets a specific version of this package.
         virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const = 0;
-
-        // Gets a value indicating whether an available version is newer than the installed version.
-        virtual bool IsUpdateAvailable() const = 0;
 
         // Determines if the given IPackage refers to the same package as this one.
         virtual bool IsSame(const IPackage*) const = 0;

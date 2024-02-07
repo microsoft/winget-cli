@@ -71,8 +71,8 @@ namespace AppInstaller::Pinning
         // Used for logging
         std::string ToString() const;
 
-        const std::string PackageId;
-        const std::string SourceId;
+        std::string PackageId;
+        std::string SourceId;
     };
 
     struct Pin

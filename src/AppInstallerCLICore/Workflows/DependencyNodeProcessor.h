@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
 #include <winget/RepositorySearch.h>
 #include "ExecutionContext.h"
-#include "winget/ManifestCommon.h"
+#include <winget/ManifestCommon.h>
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
