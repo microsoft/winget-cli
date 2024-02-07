@@ -17,7 +17,7 @@ This spec describes a feature to specify a proxy for winget to use when connecti
 
 A new command line argument will be added to specify a proxy to use during a particular invocation of winget.
 
-An option to set a default proxy to use on every flow will be added, but it will be gated to require aministrator permissions.
+An option to set a default proxy to use on every flow will be added, but it will be gated to require administrator permissions.
 
 New Group Policy will also be added for IT admins to control the use of proxies.
 The policies will be similar to those we already have for sources, so that a specific proxy can be required or only a predefined set of proxies can be allowed.
@@ -83,4 +83,4 @@ A faulty or misconfigured proxy could impact most of winget's functionality, but
 Things we may want to consider in the future:
 * Extend support for proxies to the Configuration feature
 * Add proxy support to the COM API
-* Add support for proxies that require authentiation
+* Add support for proxies that require authentication
