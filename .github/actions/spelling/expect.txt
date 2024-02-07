@@ -78,6 +78,7 @@ corecrt
 count'th
 countof
 countryregion
+Cov
 CPIL
 craigloewen
 createmanifestmetadata
@@ -137,6 +138,7 @@ foldcase
 FOLDERID
 FORPARSING
 foundfr
+fsanitize
 fundraiser
 fuzzer
 fzanollo
@@ -158,6 +160,7 @@ HINSTANCE
 hkey
 hlocal
 hmodule
+Hostx
 hre
 hresults
 hrow
