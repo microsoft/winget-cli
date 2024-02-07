@@ -77,10 +77,12 @@ namespace AppInstaller::Pinning
 
             ~PinStateEvaluator();
 
-            // Gets the latest available package that fits within the pinning restrictions.
+            // Gets the latest available package version that fits within the pinning restrictions.
+            // This should be the package object that contains available versions associated with the installed version for which this evaluator was created.
             std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestAvailableVersionForPins(const std::shared_ptr<AppInstaller::Repository::IPackage>& package);
 
             // Determines if the given version is an update to the installed version that this object was created with.
+            // This should be a version associated with the installed version for which this evaluator was created.
             bool IsUpdate(const std::shared_ptr<AppInstaller::Repository::IPackageVersion>& availableVersion);
 
             // Determines the pin type to apply to the given version.
@@ -91,6 +93,7 @@ namespace AppInstaller::Pinning
             std::shared_ptr<AppInstaller::Repository::Microsoft::PinningIndex> m_database;
             std::optional<Pin> m_installedPin;
             std::optional<Utility::VersionAndChannel> m_installedVersion;
+            // Cache pins for available version to reduce database lookups.
             std::map<PinKey, std::optional<Pin>> m_availablePins;
         };
 

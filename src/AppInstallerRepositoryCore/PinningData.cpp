@@ -32,7 +32,7 @@ namespace AppInstaller::Pinning
             return PinType::Unknown;
         }
 
-        // Gets the pinned state for an available PackageVersionKey that may have a pin,
+        // Gets the pinned state for an available version that may have a pin,
         // and optionally an additional pin that could come from the installed version.
         // If both pins are present, we return the one that is the most strict.
         Pinning::PinType GetPinnedStateForVersion(
@@ -115,12 +115,15 @@ namespace AppInstaller::Pinning
         const std::shared_ptr<IPackageVersion>& installedVersion) :
         m_behavior(behavior), m_database(std::move(database))
     {
-        if (m_behavior == PinBehavior::IgnorePins)
+        if (m_behavior == PinBehavior::IgnorePins || !installedVersion)
         {
             // Because the database isn't guaranteed to be present, align ignoring pins with there being no pins to ignore.
+            // Also do not consider pins when there is no installed version. This is to remain consistent with the previous
+            // implementation. If this is to be changed, more install paths will need to be do pinning checks to ensure
+            // that one could, for instance, block the install of a package.
             m_database.reset();
         }
-        else if (installedVersion && m_database)
+        else if (m_database)
         {
             PinKey key = PinKey::GetPinKeyForInstalled(installedVersion->GetProperty(PackageVersionProperty::Id));
             m_installedPin = m_database->GetPin(key);
