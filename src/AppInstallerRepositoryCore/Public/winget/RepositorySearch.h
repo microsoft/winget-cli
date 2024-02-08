@@ -323,7 +323,7 @@ namespace AppInstaller::Repository
         CompositePackage,
     };
 
-    // A package, potentially containing information about it's local state and the available versions.
+    // Contains information about a package and its versions from a single source.
     struct IPackage
     {
         virtual ~IPackage() = default;
@@ -331,26 +331,41 @@ namespace AppInstaller::Repository
         // Gets a property of this package.
         virtual Utility::LocIndString GetProperty(PackageProperty property) const = 0;
 
-        // Gets the installed package information.
-        virtual std::shared_ptr<IPackageVersion> GetInstalledVersion() const = 0;
-
-        // Gets all available versions of this package.
+        // Gets all versions of this package.
         // The versions will be returned in sorted, descending order.
         //  Ex. { 4, 3, 2, 1 }
-        // The list may contain versions from multiple sources.
-        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys() const = 0;
+        virtual std::vector<PackageVersionKey> GetVersionKeys() const = 0;
 
         // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const = 0;
+        virtual std::shared_ptr<IPackageVersion> GetVersion(const PackageVersionKey& versionKey) const = 0;
 
-        // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const = 0;
+        // A convenience method to effectively call `GetVersion(GetVersionKeys[0])`.
+        virtual std::shared_ptr<IPackageVersion> GetLatestVersion() const = 0;
+
+        // Gets the source that this package is from.
+        virtual Source GetSource() const = 0;
 
         // Determines if the given IPackage refers to the same package as this one.
         virtual bool IsSame(const IPackage*) const = 0;
 
         // Gets this object as the requested type, or null if it is not the requested type.
         virtual const void* CastTo(IPackageType type) const = 0;
+    };
+
+    // Contains information about a package from a search result.
+    struct IPackageSearchResult
+    {
+        virtual ~IPackageSearchResult() = default;
+
+        // Gets a property of this package result.
+        virtual Utility::LocIndString GetProperty(PackageProperty property) const = 0;
+
+        // Gets the installed package information.
+        virtual std::shared_ptr<IPackage> GetInstalled() const = 0;
+
+        // Gets all of the available packages for this result.
+        // There will be at most one package per source in this list.
+        virtual std::vector<std::shared_ptr<IPackage>> GetAvailable() const = 0;
     };
 
     // Does the equivalent of a dynamic_cast, but without it to allow RTTI to be disabled.
@@ -376,12 +391,12 @@ namespace AppInstaller::Repository
     struct ResultMatch
     {
         // The package found by the search request.
-        std::shared_ptr<IPackage> Package;
+        std::shared_ptr<IPackageSearchResult> Package;
 
         // The highest order field on which the package matched the search.
         PackageMatchFilter MatchCriteria;
 
-        ResultMatch(std::shared_ptr<IPackage> p, PackageMatchFilter f) : Package(std::move(p)), MatchCriteria(std::move(f)) {}
+        ResultMatch(std::shared_ptr<IPackageSearchResult> p, PackageMatchFilter f) : Package(std::move(p)), MatchCriteria(std::move(f)) {}
     };
 
     // Search result data.
