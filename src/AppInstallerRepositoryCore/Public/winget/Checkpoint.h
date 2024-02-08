@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Microsoft/CheckpointDatabase.h"
+#include <winget/CheckpointDatabase.h>
 #include <guiddef.h>
 
 using namespace AppInstaller::Repository::Microsoft;
@@ -18,7 +18,7 @@ namespace AppInstaller::Checkpoints
 
     struct CheckpointManager;
 
-    // A representation of a row in the Checkpoint table. 
+    // A representation of a row in the Checkpoint table.
     template <typename T>
     struct Checkpoint
     {

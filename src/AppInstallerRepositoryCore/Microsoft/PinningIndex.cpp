@@ -7,6 +7,60 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    std::optional<std::filesystem::path> s_PinningIndexOverride{};
+    void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath)
+    {
+        s_PinningIndexOverride = std::move(indexPath);
+    }
+#endif
+
+    namespace
+    {
+        std::filesystem::path GetPinningDatabasePath()
+        {
+            const auto DefaultPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
+
+            return
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                s_PinningIndexOverride.has_value() ? s_PinningIndexOverride.value() :
+#endif
+                DefaultPath;
+        }
+
+        std::shared_ptr<PinningIndex> OpenDatabaseIfExists(const std::filesystem::path& path, SQLite::SQLiteStorageBase::OpenDisposition openDisposition)
+        {
+            AICLI_LOG(Repo, Info, << "Attempting to open pinning database: " << path);
+
+            try
+            {
+                if (std::filesystem::exists(path))
+                {
+                    if (std::filesystem::is_regular_file(path))
+                    {
+                        try
+                        {
+                            AICLI_LOG(Repo, Info, << "... opening existing pinning database");
+                            return std::make_shared<PinningIndex>(PinningIndex::Open(path.u8string(), openDisposition));
+                        }
+                        CATCH_LOG();
+
+                        AICLI_LOG(Repo, Info, << "... deleting bad pinning database file");
+                        std::filesystem::remove_all(path);
+                    }
+                    else
+                    {
+                        AICLI_LOG(Repo, Info, << "... deleting pinning database path that is a directory");
+                        std::filesystem::remove_all(path);
+                    }
+                }
+            }
+            CATCH_LOG();
+
+            return {};
+        }
+    }
+
     PinningIndex PinningIndex::CreateNew(const std::string& filePath, SQLite::Version version)
     {
         AICLI_LOG(Repo, Info, << "Creating new Pinning Index with version [" << version << "] at '" << filePath << "'");
@@ -26,49 +80,29 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    std::optional<std::filesystem::path> s_PinningIndexOverride{};
-    void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath)
+    std::shared_ptr<PinningIndex> PinningIndex::OpenIfExists(OpenDisposition openDisposition)
     {
-        s_PinningIndexOverride = std::move(indexPath);
+        return OpenDatabaseIfExists(GetPinningDatabasePath(), openDisposition);
     }
-#endif
 
     std::shared_ptr<PinningIndex> PinningIndex::OpenOrCreateDefault(OpenDisposition openDisposition)
     {
-        const auto DefaultIndexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        const auto indexPath = s_PinningIndexOverride.has_value() ? s_PinningIndexOverride.value() : DefaultIndexPath;
-#else
-        const auto indexPath = DefaultIndexPath;
-#endif
+        const auto databasePath = GetPinningDatabasePath();
 
-        AICLI_LOG(Repo, Info, << "Opening pinning index");
+        std::shared_ptr<PinningIndex> result = OpenDatabaseIfExists(databasePath, openDisposition);
 
-
-        try
+        if (!result)
         {
-            if (std::filesystem::exists(indexPath))
+            AICLI_LOG(Repo, Info, << "... creating pinning database");
+
+            try
             {
-                if (std::filesystem::is_regular_file(indexPath))
-                {
-                    try
-                    {
-                        AICLI_LOG(Repo, Info, << "Opening existing pinning index");
-                        return std::make_shared<PinningIndex>(PinningIndex::Open(indexPath.u8string(), openDisposition));
-                    }
-                    CATCH_LOG();
-                }
-
-                AICLI_LOG(Repo, Info, << "Attempting to delete bad index file");
-                std::filesystem::remove_all(indexPath);
+                result = std::make_shared<PinningIndex>(PinningIndex::CreateNew(databasePath.u8string()));
             }
-
-            return std::make_shared<PinningIndex>(PinningIndex::CreateNew(indexPath.u8string()));
+            CATCH_LOG();
         }
-        CATCH_LOG();
 
-        return {};
+        return result;
     }
 
     PinningIndex::IdType PinningIndex::AddPin(const Pinning::Pin& pin)

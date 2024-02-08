@@ -4,12 +4,10 @@
 #include "Resources.h"
 #include "PinFlow.h"
 #include "TableOutput.h"
-#include "Microsoft/PinningIndex.h"
-#include <winget/SQLiteStorageBase.h>
-#include "winget/RepositorySearch.h"
+#include <winget/PinningData.h>
+#include <winget/RepositorySearch.h>
 
 using namespace AppInstaller::Repository;
-using namespace AppInstaller::SQLite;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -81,22 +79,21 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenPinningIndex::operator()(Execution::Context& context) const
     {
-        auto openDisposition = m_readOnly ? SQLiteStorageBase::OpenDisposition::Read : SQLiteStorageBase::OpenDisposition::ReadWrite;
-        auto pinningIndex = PinningIndex::OpenOrCreateDefault(openDisposition);
-        if (!pinningIndex)
+        auto pinningData = Pinning::PinningData{ m_readOnly ? Pinning::PinningData::Disposition::ReadOnly : Pinning::PinningData::Disposition::ReadWrite };
+        if (!m_readOnly && !pinningData)
         {
             AICLI_LOG(CLI, Error, << "Unable to open pinning index.");
             context.Reporter.Error() << Resource::String::PinCannotOpenIndex << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CANNOT_OPEN_PINNING_INDEX);
         }
 
-        context.Add<Execution::Data::PinningIndex>(std::move(pinningIndex));
+        context.Add<Execution::Data::PinningData>(std::move(pinningData));
     }
 
     void GetAllPins(Execution::Context& context)
     {
         AICLI_LOG(CLI, Info, << "Getting all existing pins");
-        context.Add<Execution::Data::Pins>(context.Get<Execution::Data::PinningIndex>()->GetAllPins());
+        context.Add<Execution::Data::Pins>(context.Get<Execution::Data::PinningData>().GetAllPins());
     }
 
     void SearchPin(Execution::Context& context)
@@ -104,12 +101,12 @@ namespace AppInstaller::CLI::Workflow
         auto pinKeys = GetPinKeysForPackage(context);
 
         auto package = context.Get<Execution::Data::Package>();
-        auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
+        auto pinningData = context.Get<Execution::Data::PinningData>();
 
         std::vector<Pinning::Pin> pins;
         for (const auto& pinKey : pinKeys)
         {
-            auto pin = pinningIndex->GetPin(pinKey);
+            auto pin = pinningData.GetPin(pinKey);
             if (pin)
             {
                 pins.emplace_back(std::move(pin.value()));
@@ -124,7 +121,7 @@ namespace AppInstaller::CLI::Workflow
         auto pinKeys = GetPinKeysForPackage(context);
 
         auto package = context.Get<Execution::Data::Package>();
-        auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
+        auto pinningData = context.Get<Execution::Data::PinningData>();
         auto installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
 
         std::vector<Pinning::Pin> pinsToAddOrUpdate;
@@ -133,7 +130,7 @@ namespace AppInstaller::CLI::Workflow
             auto pin = CreatePin(context, pinKey);
             AICLI_LOG(CLI, Info, << "Evaluating Pin " << pin.ToString());
 
-            auto existingPin = pinningIndex->GetPin(pinKey);
+            auto existingPin = pinningData.GetPin(pinKey);
             if (existingPin)
             {
                 Utility::LocIndString packageNameToReport;
@@ -183,7 +180,7 @@ namespace AppInstaller::CLI::Workflow
             for (const auto& pin : pinsToAddOrUpdate)
 
             {
-                pinningIndex->AddOrUpdatePin(pin);
+                pinningData.AddOrUpdatePin(pin);
             }
 
             context.Reporter.Info() << Resource::String::PinAdded << std::endl;
@@ -195,7 +192,7 @@ namespace AppInstaller::CLI::Workflow
         auto package = context.Get<Execution::Data::Package>();
         auto pins = context.Get<Execution::Data::Pins>();
 
-        auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
+        auto pinningData = context.Get<Execution::Data::PinningData>();
         bool pinExists = false;
 
         // Note that if a source was specified in the command line,
@@ -206,7 +203,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& pin : pins)
         {
             AICLI_LOG(CLI, Info, << "Removing Pin " << pin.GetKey().ToString());
-            pinningIndex->RemovePin(pin.GetKey());
+            pinningData.RemovePin(pin.GetKey());
             pinExists = true;
         }
 
@@ -307,7 +304,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        if (context.Get<Execution::Data::PinningIndex>()->ResetAllPins(sourceId))
+        if (context.Get<Execution::Data::PinningData>().ResetAllPins(sourceId))
         {
             context.Reporter.Info() << Resource::String::PinResetSuccessful << std::endl;
         }

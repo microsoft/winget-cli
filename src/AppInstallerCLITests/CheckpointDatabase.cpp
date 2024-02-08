@@ -2,14 +2,13 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include <Microsoft/CheckpointDatabase.h>
+#include <winget/CheckpointDatabase.h>
 #include <Public/winget/Checkpoint.h>
 
 using namespace std::string_literals;
 using namespace TestCommon;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::SQLite;
-using namespace AppInstaller::Repository::Microsoft::Schema;
 using namespace AppInstaller::Checkpoints;
 
 TEST_CASE("CheckpointDatabaseCreateLatestAndReopen", "[checkpointDatabase]")

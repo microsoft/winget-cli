@@ -8,6 +8,7 @@
 #include <Microsoft/PinningIndex.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerVersions.h>
+#include <winget/PinningData.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
@@ -17,17 +18,6 @@ using namespace AppInstaller::Utility;
 using namespace AppInstaller::Pinning;
 using namespace AppInstaller::SQLite;
 
-void OverrideForOpenPinningIndex(TestContext& context, const std::filesystem::path& indexPath)
-{
-    context.Override({ "OpenPinningIndex", [=](TestContext& context)
-        {
-            auto pinningIndex = std::filesystem::exists(indexPath) ?
-                PinningIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :
-                PinningIndex::CreateNew(indexPath.u8string());
-            context.Add<Execution::Data::PinningIndex>(std::make_shared<PinningIndex>(std::move(pinningIndex)));
-        } });
-}
-
 TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
@@ -35,7 +25,6 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
 
     std::ostringstream pinAddOutput;
     TestContext addContext{ pinAddOutput, std::cin };
-    OverrideForOpenPinningIndex(addContext, indexFile.GetPath());
     OverrideForCompositeInstalledSource(addContext, CreateTestSource({ TSR::TestInstaller_Exe }));
     addContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
     addContext.Args.AddArg(Execution::Args::Type::BlockingPin);
@@ -56,7 +45,6 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
 
         std::ostringstream pinListOutput;
         TestContext listContext{ pinListOutput, std::cin };
-        OverrideForOpenPinningIndex(listContext, indexFile.GetPath());
         OverrideForCompositeInstalledSource(listContext, CreateTestSource({ TSR::TestInstaller_Exe }));
         listContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
 
@@ -71,7 +59,6 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
     {
         std::ostringstream pinRemoveOutput;
         TestContext removeContext{ pinRemoveOutput, std::cin };
-        OverrideForOpenPinningIndex(removeContext, indexFile.GetPath());
         OverrideForCompositeInstalledSource(removeContext, CreateTestSource({ TSR::TestInstaller_Exe }));
         removeContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
 
@@ -87,7 +74,6 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
     {
         std::ostringstream pinResetOutput;
         TestContext resetContext{ pinResetOutput, std::cin };
-        OverrideForOpenPinningIndex(resetContext, indexFile.GetPath());
 
         SECTION("Without --force")
         {
@@ -117,7 +103,6 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
     {
         std::ostringstream pinUpdateOutput;
         TestContext updateContext{ pinUpdateOutput, std::cin };
-        OverrideForOpenPinningIndex(updateContext, indexFile.GetPath());
         OverrideForCompositeInstalledSource(updateContext, CreateTestSource({ TSR::TestInstaller_Exe }));
         updateContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
 
@@ -173,7 +158,6 @@ TEST_CASE("PinFlow_ListEmpty", "[PinFlow][workflow]")
 
     std::ostringstream pinListOutput;
     TestContext listContext{ pinListOutput, std::cin };
-    OverrideForOpenPinningIndex(listContext, indexFile.GetPath());
     OverrideForCompositeInstalledSource(listContext, CreateTestSource({}));
 
     PinListCommand pinList({});
@@ -190,7 +174,6 @@ TEST_CASE("PinFlow_RemoveNonExisting", "[PinFlow][workflow]")
 
     std::ostringstream pinRemoveOutput;
     TestContext removeContext{ pinRemoveOutput, std::cin };
-    OverrideForOpenPinningIndex(removeContext, indexFile.GetPath());
     OverrideForCompositeInstalledSource(removeContext, CreateTestSource({ TSR::TestInstaller_Exe }));
     removeContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
 
@@ -208,7 +191,6 @@ TEST_CASE("PinFlow_ResetEmpty", "[PinFlow][workflow]")
 
     std::ostringstream pinResetOutput;
     TestContext resetContext{ pinResetOutput, std::cin };
-    OverrideForOpenPinningIndex(resetContext, indexFile.GetPath());
     resetContext.Args.AddArg(Execution::Args::Type::Force);
 
     PinResetCommand pinReset({});

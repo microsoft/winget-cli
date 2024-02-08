@@ -1,11 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "CheckpointDatabase.h"
-#include "Schema/Checkpoint_1_0/CheckpointDatabaseInterface.h"
+#include "Public/winget/CheckpointDatabase.h"
+#include "Microsoft/Schema/ICheckpointDatabase.h"
+#include "Microsoft/Schema/Checkpoint_1_0/CheckpointDatabaseInterface.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
+    namespace
+    {
+        // Creates the ICheckpointDatabase interface object for the given version.
+        std::unique_ptr<Schema::ICheckpointDatabase> CreateICheckpointDatabase(const SQLite::Version& version)
+        {
+            if (version == SQLite::Version{ 1, 0 } ||
+                version.MajorVersion == 1 ||
+                version.IsLatest())
+            {
+                return std::make_unique<Schema::Checkpoint_V1_0::CheckpointDatabaseInterface>();
+            }
+
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        }
+    }
+
+    CheckpointDatabase::CheckpointDatabase(CheckpointDatabase&&) = default;
+    CheckpointDatabase& CheckpointDatabase::operator=(CheckpointDatabase&&) = default;
+
     std::shared_ptr<CheckpointDatabase> CheckpointDatabase::CreateNew(const std::string& filePath, SQLite::Version version)
     {
         AICLI_LOG(Repo, Info, << "Creating new Checkpoint database with version [" << version << "] at '" << filePath << "'");
@@ -23,6 +43,11 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
 
         return std::make_shared<CheckpointDatabase>(std::move(result));
+    }
+
+    std::shared_ptr<CheckpointDatabase> CheckpointDatabase::Open(const std::string& filePath, SQLite::SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile)
+    {
+        return std::make_shared<CheckpointDatabase>(CheckpointDatabase{ filePath, disposition, std::move(indexFile) });
     }
 
     bool CheckpointDatabase::IsEmpty()
@@ -128,29 +153,18 @@ namespace AppInstaller::Repository::Microsoft
         return values.value();
     }
 
-    std::unique_ptr<Schema::ICheckpointDatabase> CheckpointDatabase::CreateICheckpointDatabase() const
-    {
-        if (m_version == SQLite::Version{ 1, 0 } ||
-            m_version.MajorVersion == 1 ||
-            m_version.IsLatest())
-        {
-            return std::make_unique<Schema::Checkpoint_V1_0::CheckpointDatabaseInterface>();
-        }
-
-        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-    }
 
     CheckpointDatabase::CheckpointDatabase(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
         SQLiteStorageBase(target, disposition, std::move(indexFile))
     {
         AICLI_LOG(Repo, Info, << "Opened Checkpoint Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
-        m_interface = CreateICheckpointDatabase();
+        m_interface = CreateICheckpointDatabase(m_version);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
 
     CheckpointDatabase::CheckpointDatabase(const std::string& target, SQLite::Version version) : SQLiteStorageBase(target, version)
     {
-        m_interface = CreateICheckpointDatabase();
+        m_interface = CreateICheckpointDatabase(m_version);
         m_version = m_interface->GetVersion();
     }
 }

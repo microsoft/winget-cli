@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "CompositeSource.h"
-#include "Microsoft/PinningIndex.h"
 #include <winget/ExperimentalFeature.h>
 
-using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Settings;
 
 namespace AppInstaller::Repository
@@ -20,92 +18,6 @@ namespace AppInstaller::Repository
                 Utility::Version(packageVersion->GetProperty(PackageVersionProperty::Version)),
                 Utility::Channel(packageVersion->GetProperty(PackageVersionProperty::Channel))
             };
-        }
-
-        Pinning::PinKey GetPinKeyForAvailable(IPackage* availablePackage)
-        {
-            return {
-                availablePackage->GetProperty(PackageProperty::Id).get(),
-                availablePackage->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetSource().GetIdentifier()
-            };
-        }
-
-        // Gets the pinned state for an available PackageVersionKey that may have a pin,
-        // and optionally an additional pin that could come from the installed version or
-        // be a pin we have not considered yet for the version key.
-        // If there are a pin both in the version key and passed as an argument,
-        // we return the one that is the most strict.
-        // Note that for a package with both available and installed pins, we will call this
-        // twice: once with the available pin to set the pinned state in the version key,
-        // and once with the installed pin to set the final pinned state.
-        Pinning::PinType GetPinnedStateForVersion(
-            const PackageVersionKey& availableVersionKey,
-            const std::optional<Pinning::Pin>& pin,
-            PinBehavior pinBehavior)
-        {
-            if (pinBehavior == PinBehavior::IgnorePins)
-            {
-                // No need to check anything
-                return Pinning::PinType::Unknown;
-            }
-
-            // For the pin in the version version, we can ignore it depending on the behavior and type.
-            // If it is gating, we don't need to check the version as that was already done when the
-            // PinnedState info was added (and we don't have the gated version here).
-            Pinning::PinType pinnedStateFromVersionKey = Pinning::PinType::Unknown;
-            if (availableVersionKey.PinnedState == Pinning::PinType::Blocking
-                || (availableVersionKey.PinnedState == Pinning::PinType::Pinning && pinBehavior != PinBehavior::IncludePinned)
-                || availableVersionKey.PinnedState == Pinning::PinType::Gating)
-            {
-                pinnedStateFromVersionKey = availableVersionKey.PinnedState;
-            }
-
-            // For the additional pin, we can ignore it depending on the behavior and type.
-            // If it is gating, we need to check the version.
-            Pinning::PinType pinnedStateFromAdditionalPin = Pinning::PinType::Unknown;
-            if (pin)
-            {
-                if (pin->GetType() == Pinning::PinType::Blocking
-                    || (pin->GetType() == Pinning::PinType::Pinning && pinBehavior != PinBehavior::IncludePinned)
-                    || (pin->GetType() == Pinning::PinType::Gating && !pin->GetGatedVersion().IsValidVersion(availableVersionKey.Version)))
-                {
-                    pinnedStateFromAdditionalPin = pin->GetType();
-                }
-            }
-
-            return Pinning::IsStricter(pinnedStateFromVersionKey, pinnedStateFromAdditionalPin) ? pinnedStateFromVersionKey : pinnedStateFromAdditionalPin;
-        }
-
-        // Gets the latest available version that satisfies both the available pin (already tagged on the keys)
-        // and the installed pin (if any).
-        // Version keys must be sorted with the latest first.
-        std::optional<PackageVersionKey> GetLatestAvailableVersionKeySatisfyingPin(
-            const std::vector<PackageVersionKey>& availableVersionKeys,
-            const std::optional<Pinning::Pin>& installedPin,
-            PinBehavior pinBehavior)
-        {
-            if (availableVersionKeys.empty())
-            {
-                return {};
-            }
-
-            if (pinBehavior == PinBehavior::IgnorePins)
-            {
-                return availableVersionKeys.front();
-            }
-            else
-            {
-                // Skip until we find a version that isn't pinned
-                for (const auto& availableVersion : availableVersionKeys)
-                {
-                    if (GetPinnedStateForVersion(availableVersion, installedPin, pinBehavior) == Pinning::PinType::Unknown)
-                    {
-                        return availableVersion;
-                    }
-                }
-            }
-
-            return {};
         }
 
         // Returns true for fields that provide a strong match; one that is not based on a heuristic.
@@ -415,162 +327,6 @@ namespace AppInstaller::Repository
             std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
         };
 
-        // Wrapper around a package to add pinning functionality for composite packages.
-        // Most of the methods are only here for completeness of the interface and are not actually used.
-        // A pinnable package can either be an installed package or a single available package;
-        // we deal with composite packages on CompositePackage.
-        struct PinnablePackage : public IPackage
-        {
-            static constexpr IPackageType PackageType = IPackageType::PinnablePackage;
-
-            PinnablePackage() = default;
-
-            PinnablePackage(const PinnablePackage&) = default;
-            PinnablePackage& operator=(const PinnablePackage&) = default;
-
-            PinnablePackage(PinnablePackage&&) = default;
-            PinnablePackage& operator=(PinnablePackage&&) = default;
-
-            PinnablePackage(std::shared_ptr<IPackage> package, std::optional<Pinning::Pin> pin = {})
-                : m_package(std::move(package)), m_pin(std::move(pin))
-            {
-                // Get the source ID for available packages
-                auto availableVersion = m_package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
-                if (availableVersion)
-                {
-                    m_sourceId = availableVersion->GetSource().GetIdentifier();
-                }
-            }
-
-            const std::string& GetSourceId() const
-            {
-                return m_sourceId;
-            }
-
-            const std::shared_ptr<IPackage>& GetPackage() const
-            {
-                return m_package;
-            }
-
-            const std::optional<Pinning::Pin>& GetPin() const
-            {
-                return m_pin;
-            }
-
-            void SetPin(Pinning::Pin&& pin)
-            {
-                m_pin.emplace(std::move(pin));
-            }
-
-            Utility::LocIndString GetProperty(PackageProperty property) const override
-            {
-                return m_package->GetProperty(property);
-            }
-
-            std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
-            {
-                return m_package->GetInstalledVersion();
-            }
-
-            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior) const override
-            {
-                auto result = m_package->GetAvailableVersionKeys();
-                if (m_pin.has_value())
-                {
-                    // Add pin information to all version keys
-                    for (auto& pvk : result)
-                    {
-                        pvk.PinnedState = GetPinnedStateForVersion(pvk, m_pin, pinBehavior);
-                    }
-                }
-
-                return result;
-            }
-
-            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
-            {
-                return GetAvailableVersionAndPin(versionKey).first;
-            }
-
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior) const override
-            {
-                auto availableVersionKeys = GetAvailableVersionKeys(pinBehavior);
-                auto latestVersionKey = GetLatestAvailableVersionKeySatisfyingPin(availableVersionKeys, /* installedPin */ {}, pinBehavior);
-                if (!latestVersionKey)
-                {
-                    return {};
-                }
-
-                return GetAvailableVersion(latestVersionKey.value());
-            }
-
-            virtual std::pair<std::shared_ptr<IPackageVersion>, Pinning::PinType> GetAvailableVersionAndPin(const PackageVersionKey& versionKey) const override
-            {
-                Pinning::PinType pinType = Pinning::PinType::Unknown;
-
-                if (m_pin.has_value())
-                {
-                    pinType = GetPinnedStateForVersion(versionKey, m_pin.value(), PinBehavior::ConsiderPins);
-                }
-
-                return { m_package->GetAvailableVersion(versionKey), pinType };
-            }
-
-            bool IsUpdateAvailable(PinBehavior) const override
-            {
-                return false;
-            }
-
-            bool IsSame(const IPackage* other) const override
-            {
-                const PinnablePackage* otherAvailable = PackageCast<const PinnablePackage*>(other);
-
-                if (otherAvailable)
-                {
-                    return
-                        m_sourceId == otherAvailable->m_sourceId &&
-                        m_pin == otherAvailable->m_pin &&
-                        m_package->IsSame(otherAvailable->m_package.get());
-                }
-
-                return false;
-            }
-
-            const void* CastTo(IPackageType type) const override
-            {
-                if (type == PackageType)
-                {
-                    return this;
-                }
-
-                return nullptr;
-            }
-
-        private:
-            std::string m_sourceId;
-            std::shared_ptr<IPackage> m_package;
-            std::optional<Pinning::Pin> m_pin;
-        };
-
-        // A pinnable package that is installed.
-        struct InstalledPinnablePackage
-        {
-            InstalledPinnablePackage(std::shared_ptr<IPackage> package)
-                : Pinnable(std::move(package))
-            {
-                // Get the version for installed packages
-                auto installedVersion = Pinnable.GetInstalledVersion();
-                if (installedVersion)
-                {
-                    Version.Assign(installedVersion->GetProperty(PackageVersionProperty::Version));
-                }
-            }
-
-            PinnablePackage Pinnable;
-            Utility::Version Version;
-            std::string OverrideVersion;
-        };
-
         // A composite package for the CompositeSource.
         struct CompositePackage : public IPackage
         {
@@ -592,11 +348,11 @@ namespace AppInstaller::Repository
                 std::shared_ptr<IPackageVersion> truth;
                 if (m_primaryAvailablePackage)
                 {
-                    truth = m_primaryAvailablePackage->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                    truth = m_primaryAvailablePackage->GetLatestAvailableVersion();
                 }
                 if (!truth)
                 {
-                    truth = GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                    truth = GetLatestAvailableVersion();
                 }
                 if (!truth)
                 {
@@ -634,25 +390,13 @@ namespace AppInstaller::Repository
                 return {};
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior) const override
+            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
                 std::vector<PackageVersionKey> result;
-                auto installedPin = GetInstalledPin();
 
                 auto processSinglePackage = [&](const PinnablePackage& package)
                     {
-                        auto versionKeys = package.GetAvailableVersionKeys(pinBehavior);
-
-                        // The version keys we have already have pin information from the available package.
-                        // Here we also add information from the installed package.
-                        if (installedPin)
-                        {
-                            for (auto& versionKey : versionKeys)
-                            {
-                                versionKey.PinnedState = GetPinnedStateForVersion(versionKey, installedPin, pinBehavior);
-                            }
-                        }
-
+                        auto versionKeys = package.GetAvailableVersionKeys();
                         std::copy(versionKeys.begin(), versionKeys.end(), std::back_inserter(result));
                     };
 
@@ -676,70 +420,39 @@ namespace AppInstaller::Repository
                 return result;
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior) const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
             {
-                auto availableVersionKeys = GetAvailableVersionKeys(pinBehavior);
-                auto latestVersionKey = GetLatestAvailableVersionKeySatisfyingPin(availableVersionKeys, GetInstalledPin(), pinBehavior);
-                if (!latestVersionKey)
-                {
-                    return {};
-                }
-
-                return GetAvailableVersion(latestVersionKey.value());
+                return GetAvailableVersion({ "", "", m_installedChannel.get() });
             }
 
             std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
             {
-                return GetAvailableVersionAndPin(versionKey).first;
-            }
-
-            std::pair<std::shared_ptr<IPackageVersion>, Pinning::PinType> GetAvailableVersionAndPin(const PackageVersionKey& versionKey) const override
-            {
                 if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide) && m_primaryAvailablePackage)
                 {
-                    if (Utility::IsEmptyOrWhitespace(versionKey.SourceId) || versionKey.SourceId == m_primaryAvailablePackage->GetSourceId())
+                    auto latestAvailable = m_primaryAvailablePackage->GetLatestAvailableVersion();
+                    if (Utility::IsEmptyOrWhitespace(versionKey.SourceId) || versionKey.SourceId == latestAvailable->GetSource().GetIdentifier())
                     {
-                        auto result = m_primaryAvailablePackage->GetAvailableVersionAndPin(versionKey);
-                        if (result.first)
-                        {
-                            result.second = GetPinnedStateForVersion(versionKey, GetInstalledPin(), PinBehavior::ConsiderPins);
-                            return result;
-                        }
+                        return availablePackage->GetAvailableVersion(versionKey);
                     }
                 }
                 else
                 {
                     for (const auto& availablePackage : m_availablePackages)
                     {
-                        if (!Utility::IsEmptyOrWhitespace(versionKey.SourceId) && versionKey.SourceId != availablePackage.GetSourceId())
+                        if (!Utility::IsEmptyOrWhitespace(versionKey.SourceId))
                         {
-                            continue;
+                            auto latestAvailable = availablePackage->GetLatestAvailableVersion();
+                            if (latestAvailable && versionKey.SourceId != latestAvailable->GetSource().GetIdentifier())
+                            {
+                                continue;
+                            }
                         }
 
-                        auto result = availablePackage.GetAvailableVersionAndPin(versionKey);
-                        if (result.first)
-                        {
-                            result.second = GetPinnedStateForVersion(versionKey, GetInstalledPin(), PinBehavior::ConsiderPins);
-                            return result;
-                        }
+                        return availablePackage->GetAvailableVersion(versionKey);
                     }
                 }
 
                 return {};
-            }
-
-            bool IsUpdateAvailable(PinBehavior pinBehavior) const override
-            {
-                auto installed = GetInstalledVersion();
-
-                if (!installed)
-                {
-                    return false;
-                }
-
-                auto latest = GetLatestAvailableVersion(pinBehavior);
-
-                return (latest && (GetVACFromVersion(installed.get()).IsUpdatedBy(GetVACFromVersion(latest.get()))));
             }
 
             bool IsSame(const IPackage* other) const override
@@ -761,10 +474,19 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                for (size_t i = 0; i < m_availablePackages.size(); ++i)
+                for (const auto& availablePackage : m_availablePackages)
                 {
-                    if (m_availablePackages[i].GetSourceId() != otherComposite->m_availablePackages[i].GetSourceId() ||
-                        !m_availablePackages[i].GetPackage()->IsSame(otherComposite->m_availablePackages[i].GetPackage().get()))
+                    bool foundMatch = false;
+                    for (const auto& otherAvailablePackage : otherComposite->m_availablePackages)
+                    {
+                        if (availablePackage->IsSame(otherAvailablePackage.get()))
+                        {
+                            foundMatch = true;
+                            break;
+                        }
+                    }
+
+                    if (!foundMatch)
                     {
                         return false;
                     }
@@ -789,7 +511,7 @@ namespace AppInstaller::Repository
                 {
                     for (const auto& availablePackage : m_availablePackages)
                     {
-                        if (other->IsSame(availablePackage.GetPackage().get()))
+                        if (other->IsSame(availablePackage.get()))
                         {
                             return true;
                         }
@@ -801,13 +523,15 @@ namespace AppInstaller::Repository
 
             bool ContainsInstalledPackage(const IPackage* installedPackage) const
             {
-                for (const InstalledPinnablePackage& installed : m_installedPackages)
+                for (const auto& installed : m_installedPackages)
                 {
-                    if (installed.Pinnable.GetPackage()->IsSame(installedPackage))
+                    if (installed->IsSame(installedPackage))
                     {
                         return true;
                     }
                 }
+
+                return false;
             }
 
             const std::shared_ptr<IPackage>& GetTrackingPackage() const
@@ -854,59 +578,12 @@ namespace AppInstaller::Repository
                 return m_trackingWriteTime;
             }
 
-            // Gets the information about the pins that exist for this package
-            void GetExistingPins(PinningIndex& pinningIndex)
-            {
-                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide) && m_primaryAvailablePackage)
-                {
-                    // Safeguard in case a package with no available sneaks in as we intentionally do in tests
-                    if (!m_primaryAvailablePackage->GetPackage()->GetAvailableVersionKeys().empty())
-                    {
-                        Pinning::PinKey pinKey = GetPinKeyForAvailable(m_primaryAvailablePackage->GetPackage().get());
-
-                        auto pin = pinningIndex.GetPin(pinKey);
-                        if (pin.has_value())
-                        {
-                            m_primaryAvailablePackage->SetPin(std::move(pin.value()));
-                        }
-                    }
-                }
-
-                for (auto& availablePackage : m_availablePackages)
-                {
-                    // Safeguard in case a package with no available sneaks in as we intentionally do in tests
-                    if (availablePackage.GetPackage()->GetAvailableVersionKeys().empty())
-                    {
-                        continue;
-                    }
-
-                    Pinning::PinKey pinKey = GetPinKeyForAvailable(availablePackage.GetPackage().get());
-
-                    auto pin = pinningIndex.GetPin(pinKey);
-                    if (pin.has_value())
-                    {
-                        availablePackage.SetPin(std::move(pin.value()));
-                    }
-                }
-
-                for (auto& installedPackage : m_installedPackages)
-                {
-                    Pinning::PinKey pinKey = Pinning::PinKey::GetPinKeyForInstalled(installedPackage);
-
-                    auto pin = pinningIndex.GetPin(pinKey);
-                    if (pin.has_value())
-                    {
-                        installedPackage.Pinnable.SetPin(std::move(pin.value()));
-                    }
-                }
-            }
-
-            std::optional<PinnablePackage>& GetPrimaryAvailablePackage()
+            std::shared_ptr<IPackage>& GetPrimaryAvailablePackage()
             {
                 return m_primaryAvailablePackage;
             }
 
-            std::vector<PinnablePackage>& GetAvailablePackages()
+            std::vector<std::shared_ptr<IPackage>>& GetAvailablePackages()
             {
                 return m_availablePackages;
             }
@@ -938,18 +615,13 @@ namespace AppInstaller::Repository
                 }
             }
 
-            std::optional<Pinning::Pin> GetInstalledPin() const
-            {
-                return m_installedPackage ? m_installedPackage->GetPin() : std::nullopt;
-            }
-
-            std::vector<InstalledPinnablePackage> m_installedPackages;
+            std::vector<std::shared_ptr<IPackage>> m_installedPackages;
             Source m_trackingSource;
             std::shared_ptr<IPackage> m_trackingPackage;
             std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
             std::chrono::system_clock::time_point m_trackingWriteTime = std::chrono::system_clock::time_point::min();
-            std::optional<PinnablePackage> m_primaryAvailablePackage;
-            std::vector<PinnablePackage> m_availablePackages;
+            std::shared_ptr<IPackage> m_primaryAvailablePackage;
+            std::vector<std::shared_ptr<IPackage>> m_availablePackages;
         };
 
         // The comparator compares the ResultMatch by MatchType first, then Field in a predefined order.

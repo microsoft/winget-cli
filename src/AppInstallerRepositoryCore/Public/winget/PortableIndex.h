@@ -2,16 +2,19 @@
 // Licensed under the MIT License.
 #pragma once
 #include <winget/SQLiteWrapper.h>
-#include "Microsoft/Schema/IPortableIndex.h"
-#include "Microsoft/Schema/Portable_1_0/PortableTable.h"
 #include <winget/SQLiteStorageBase.h>
-#include "winget/PortableFileEntry.h"
+#include <winget/PortableFileEntry.h>
 #include <winget/ManagedFile.h>
 
 using namespace AppInstaller::Portable;
 
 namespace AppInstaller::Repository::Microsoft
 {
+    namespace Schema
+    {
+        struct IPortableIndex;
+    }
+
     struct PortableIndex : SQLite::SQLiteStorageBase
     {
         // An id that refers to a specific portable file.
@@ -20,17 +23,16 @@ namespace AppInstaller::Repository::Microsoft
         PortableIndex(const PortableIndex&) = delete;
         PortableIndex& operator=(const PortableIndex&) = delete;
 
-        PortableIndex(PortableIndex&&) = default;
-        PortableIndex& operator=(PortableIndex&&) = default;
+        PortableIndex(PortableIndex&&);
+        PortableIndex& operator=(PortableIndex&&);
+
+        ~PortableIndex();
 
         // Creates a new PortableIndex database of the given version.
         static PortableIndex CreateNew(const std::string& filePath, SQLite::Version version = SQLite::Version::Latest());
 
         // Opens an existing PortableIndex database.
-        static PortableIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {})
-        {
-            return { filePath, disposition, std::move(indexFile) };
-        }
+        static PortableIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {});
 
         IdType AddPortableFile(const Portable::PortableFileEntry& file);
 
