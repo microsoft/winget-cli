@@ -2,7 +2,7 @@
   "ConfigVersion": 3,
   "Entries": [
     {
-      "JobNotificationEmail": "ryfu@microsoft.com",
+      "JobNotificationEmail": "peetdev@microsoft.com",
       "Skip": false,
       "Fuzzer": {
         "$type": "libfuzzer",
@@ -18,20 +18,14 @@
         "WinGetYamlFuzzing.exe",
         "WinGetYamlFuzzing.pdb",
         "WinGetYamlFuzzing.lib",
-        "WinGetYamlFuzzing.exp",
-        "WinGetYamlFuzzing.exp",
-        "clang_rt.asan_dynamic-x86_64.dll",
-        "AppInstallerCommonCore\\AppInstallerCommonCore.lib",
-        "AppInstallerSharedLib\\AppInstallerSharedLib.lib",
-        "JsonCppLib\\JsonCppLib.lib",
-        "YamlCppLib\\YamlCppLib.lib"
+        "clang_rt.asan_dynamic-x86_64.dll"
       ],
       "AdoTemplate": {
         "Org": "ms",
         "Project": "winget-cli",
         "AssignedTo": "ryfu@microsoft.com",
         "AreaPath": "OS\\Windows Client and Services\\ADEPT\\E4D-Engineered for Developers\\InstaDev",
-        "IterationPath": "OS\\Future"
+        "IterationPath": "OS"
       }
     }
   ]

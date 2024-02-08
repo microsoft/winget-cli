@@ -541,7 +541,6 @@ jobs:
 
 - job: 'Fuzzing'
   timeoutInMinutes: 60
-  dependsOn: 'GetReleaseTag'
   condition: always()
 
   strategy:
@@ -577,7 +576,7 @@ jobs:
   - task: CopyFiles@2
     displayName: Copy Fuzzing Artifacts for Publishing
     inputs:
-      SourceFolder: '$(buildOutDir)'
+      SourceFolder: '$(buildOutDir)\WinGetYamlFuzzing'
       Contents: '**'
       TargetFolder: '$(artifactsDir)'
 
@@ -590,6 +589,6 @@ jobs:
     inputs:
       onefuzzOSes: 'Windows'
     env:
-      onefuzzDropDirectory: '$(buildOutDir)'
+      onefuzzDropDirectory: '$(buildOutDir)\WinGetYamlFuzzing'
       onefuzzDropPAT: $(onefuzzDropPAT)
       onefuzzFilingBugPAT: $(onefuzzBugFilingPAT)
