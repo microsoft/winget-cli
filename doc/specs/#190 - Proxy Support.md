@@ -16,8 +16,9 @@ This spec describes a feature to specify a proxy for winget to use when connecti
 ## Solution Design
 
 A new command line argument will be added to specify a proxy to use during a particular invocation of winget.
+This functionality will first need to be enabled through an admin setting, slimilar to local manifests or hash override.
 
-An option to set a default proxy to use on every flow will be added, but it will be gated to require administrator permissions.
+An option to set a default proxy to use on every flow will be added, but it will require administrator permissions to be set.
 
 New Group Policy will also be added for IT admins to control the use of proxies.
 The policies will be similar to those we already have for sources, so that a specific proxy can be required or only a predefined set of proxies can be allowed.
@@ -33,6 +34,7 @@ We will add a command line argument taking the URI to the proxy.
 A separate parameter will be available to disable the use of proxy if there is a default set.
 
 ```
+> winget settings --enable ProxyCommandLineArgument
 > winget install Contoso.App --proxy https://127.0.0.1:2345
 > winget install Contoso.App --no-proxy
 ```
@@ -63,6 +65,7 @@ The following mitigating factors will be in place:
   When initially adding the source, administrator privileges are already required to limit misuse.
 * Pre-indexed sources include manifest hashes in the local database, to ensure that the manifest downloaded later is as expected.
 * For the Microsoft Store source, we use certificate pinning to ensure we are talking to the right server.
+* When communicating with REST sources, the certificate used by the source for HTTPS needs to match the domain.
 * Manifests include a hash of the installer that is validated before executing it.
   The ability to ignore installer hash mismatches requires administrator privileges.
 
