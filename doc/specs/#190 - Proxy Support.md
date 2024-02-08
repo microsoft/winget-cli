@@ -16,7 +16,7 @@ This spec describes a feature to specify a proxy for winget to use when connecti
 ## Solution Design
 
 A new command line argument will be added to specify a proxy to use during a particular invocation of winget.
-This functionality will first need to be enabled through an admin setting, slimilar to local manifests or hash override.
+This functionality will first need to be enabled through an admin setting, similar to local manifests or hash override.
 
 An option to set a default proxy to use on every flow will be added, but it will require administrator permissions to be set.
 
