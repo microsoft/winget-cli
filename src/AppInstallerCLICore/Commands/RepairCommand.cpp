@@ -14,6 +14,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> RepairCommand::GetArguments() const
     {
         return {
+            Argument::ForType(Args::Type::Query),                            // -q
             Argument::ForType(Args::Type::Manifest),                         // -m
             Argument::ForType(Args::Type::Id),                               // -id
             Argument::ForType(Args::Type::Name),                             // -n
@@ -98,18 +99,15 @@ namespace AppInstaller::CLI
         }
         else
         {
-            if (!context.Args.Contains(Args::Type::MultiQuery))
-            {
-                context <<
-                    Workflow::SearchSourceForSingle <<
-                    Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(OperationType::Repair) <<
-                    Workflow::GetInstalledPackageVersion <<
-                    Workflow::SelectApplicablePackageVersion(true) <<
-                    Workflow::EnsureApplicableInstaller <<
-                    Workflow::ReportPackageIdentity <<
-                    Workflow::RepairSinglePackage(OperationType::Repair);
-            }
+            context <<
+                Workflow::SearchSourceForSingle <<
+                Workflow::HandleSearchResultFailures <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Repair) <<
+                Workflow::GetInstalledPackageVersion <<
+                Workflow::SelectApplicablePackageVersion(true) <<
+                Workflow::EnsureApplicableInstaller <<
+                Workflow::ReportPackageIdentity <<
+                Workflow::RepairSinglePackage(OperationType::Repair);
         }
     }
 }
