@@ -50,25 +50,25 @@ namespace TestCommon
         }
     }
 
-    TempFile::TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction)
+    TempFile::TempFile(const std::string& baseName, const std::string& baseExt, std::optional<KeepTempFile> keepTempFile)
     {
         _filepath = GetTempFilePath(baseName, baseExt);
-        if (deleteFileOnConstruction)
+        if (!keepTempFile)
         {
             std::filesystem::remove(_filepath);
         }
     }
 
-    TempFile::TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction)
+    TempFile::TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, std::optional<KeepTempFile> keepTempFile)
     {
         _filepath = GetFilePath(parent, baseName, baseExt);
-        if (deleteFileOnConstruction)
+        if (!keepTempFile)
         {
             std::filesystem::remove(_filepath);
         }
     }
 
-    TempFile::TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction)
+    TempFile::TempFile(const std::filesystem::path& filePath, std::optional<KeepTempFile> keepTempFile)
     {
         if (filePath.is_relative())
         {
@@ -79,7 +79,7 @@ namespace TestCommon
         {
             _filepath = filePath;
         }
-        if (deleteFileOnConstruction)
+        if (!keepTempFile)
         {
             std::filesystem::remove(_filepath);
         }

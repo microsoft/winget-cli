@@ -11,6 +11,7 @@
 #include "PackageInstallerInstalledStatus.h"
 #include "CheckInstalledStatusResult.h"
 #include <wil\cppwinrt_wrl.h>
+#include <winget/PinningData.h>
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -62,14 +63,22 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             });
         return m_availableVersions.GetView();
     }
-    Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::DefaultInstallVersion()
+
+    void CatalogPackage::InitializeDefaultInstallVersion()
     {
         std::call_once(m_defaultInstallVersionOnceFlag,
             [&]()
             {
-                std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion = m_package.get()->GetLatestAvailableVersion(AppInstaller::Repository::PinBehavior::IgnorePins);
+                using namespace AppInstaller::Pinning;
+
+                PinningData pinningData{ PinningData::Disposition::ReadOnly };
+                auto evaluator = pinningData.CreatePinStateEvaluator(PinBehavior::ConsiderPins, m_package->GetInstalledVersion());
+
+                std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion = evaluator.GetLatestAvailableVersionForPins(m_package);
                 if (latestVersion)
                 {
+                    m_updateAvailable = evaluator.IsUpdate(latestVersion);
+
                     // DefaultInstallVersion hasn't been created yet, create and populate it.
                     // DefaultInstallVersion is the LatestAvailableVersion of the internal package object.
                     auto latestVersionImpl = winrt::make_self<wil::details::module_count_wrapper<
@@ -78,8 +87,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     m_defaultInstallVersion = *latestVersionImpl;
                 }
             });
+    }
+
+    Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::DefaultInstallVersion()
+    {
+        InitializeDefaultInstallVersion();
         return m_defaultInstallVersion;
     }
+
     Microsoft::Management::Deployment::PackageVersionInfo CatalogPackage::GetPackageVersionInfo(Microsoft::Management::Deployment::PackageVersionId const& versionKey)
     {
         winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
@@ -95,10 +110,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return packageVersionInfo;
     }
+
     bool CatalogPackage::IsUpdateAvailable()
     {
-        return m_package->IsUpdateAvailable(AppInstaller::Repository::PinBehavior::IgnorePins);
+        InitializeDefaultInstallVersion();
+        return m_updateAvailable;
     }
+
     Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult> CatalogPackage::CheckInstalledStatusAsync(
         Microsoft::Management::Deployment::InstalledStatusType checkTypes)
     {

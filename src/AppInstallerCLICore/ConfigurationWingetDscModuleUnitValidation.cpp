@@ -358,7 +358,7 @@ namespace AppInstaller::CLI::Configuration
                    {
                        if (!package.Version.empty())
                        {
-                           auto versionKeys = searchResult.Matches.at(0).Package->GetAvailableVersionKeys(Repository::PinBehavior::IgnorePins);
+                           auto versionKeys = searchResult.Matches.at(0).Package->GetAvailableVersionKeys();
                            bool foundVersion = false;
                            for (auto const& versionKey : versionKeys)
                            {

@@ -7,7 +7,7 @@
 #include "InstallFlow.h"
 #include "UpdateFlow.h"
 #include "ManifestComparator.h"
-#include <Microsoft/PinningIndex.h>
+#include <winget/PinningData.h>
 
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
@@ -71,6 +71,9 @@ namespace AppInstaller::CLI::Workflow
         // we include packages with Pinning pins
         const bool includePinned = m_isSinglePackage || context.Args.Contains(Execution::Args::Type::IncludePinned);
 
+        PinningData pinningData{ PinningData::Disposition::ReadOnly };
+        auto evaluator = pinningData.CreatePinStateEvaluator(includePinned ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins, package->GetInstalledVersion());
+
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys();
         // Assume that no update versions are applicable
@@ -85,12 +88,14 @@ namespace AppInstaller::CLI::Workflow
                 {
                     upgradeVersionAvailable = true;
                 }
+
+                auto packageVersion = package->GetAvailableVersion(key);
+
                 // Check if the package is pinned
-                if (key.PinnedState == Pinning::PinType::Blocking ||
-                    key.PinnedState == Pinning::PinType::Gating ||
-                    (key.PinnedState == Pinning::PinType::Pinning && !includePinned))
+                PinType pinType = evaluator.EvaluatePinType(packageVersion);
+                if (pinType != Pinning::PinType::Unknown)
                 {
-                    AICLI_LOG(CLI, Info, << "Package [" << package->GetProperty(PackageProperty::Id) << " with Version[" << key.Version << "] from Source[" << key.SourceId << "] has a Pin with type[" << ToString(key.PinnedState) << "]");
+                    AICLI_LOG(CLI, Info, << "Package [" << package->GetProperty(PackageProperty::Id) << " with Version[" << key.Version << "] from Source[" << key.SourceId << "] has a Pin with type[" << ToString(pinType) << "]");
                     if (context.Args.Contains(Execution::Args::Type::Force))
                     {
                         AICLI_LOG(CLI, Info, << "Ignoring pin due to --force argument");
@@ -102,7 +107,6 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                auto packageVersion = package->GetAvailableVersion(key);
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer

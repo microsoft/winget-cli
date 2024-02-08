@@ -10,7 +10,7 @@
 #include <winget/PortableARPEntry.h>
 #include <winget/SQLiteStorageBase.h>
 #include <Microsoft/Schema/IPortableIndex.h>
-#include <Microsoft/PortableIndex.h>
+#include <winget/PortableIndex.h>
 
 using namespace std::string_literals;
 using namespace AppInstaller::CLI::Portable;

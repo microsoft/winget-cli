@@ -6,9 +6,9 @@
 #include "COMContext.h"
 #include "Command.h"
 #include "ExecutionContext.h"
-#include "Public/winget/Checkpoint.h"
-#include "winget/Reboot.h"
-#include "winget/UserSettings.h"
+#include <winget/Checkpoint.h>
+#include <winget/Reboot.h>
+#include <winget/UserSettings.h>
 
 using namespace AppInstaller::Checkpoints;
 
