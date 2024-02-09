@@ -439,12 +439,12 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             public const string V110ManifestMerged = "V1_1ManifestMerged.yaml";
 
             /// <summary>
-            /// Merged v1.1 manifest.
+            /// Merged v1.6 manifest.
             /// </summary>
             public const string V160ManifestMerged = "V1_6ManifestMerged.yaml";
 
             /// <summary>
-            /// Merged v1.1 manifest.
+            /// Merged v1.7 manifest.
             /// </summary>
             public const string V170ManifestMerged = "V1_7ManifestMerged.yaml";
 
