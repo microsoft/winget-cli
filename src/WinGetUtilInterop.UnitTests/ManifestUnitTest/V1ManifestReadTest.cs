@@ -57,12 +57,12 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             Manifest v160manifest = Manifest.CreateManifestFromPath(
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V160ManifestMerged));
 
-            this.ValidateManifestFields(v110manifest, TestManifestVersion.V160);
+            this.ValidateManifestFields(v160manifest, TestManifestVersion.V160);
 
             Manifest v170manifest = Manifest.CreateManifestFromPath(
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V170ManifestMerged));
 
-            this.ValidateManifestFields(v160manifest, TestManifestVersion.V170);
+            this.ValidateManifestFields(v170manifest, TestManifestVersion.V170);
         }
 
         /// <summary>
@@ -413,7 +413,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("https://DocumentUrl.com", manifestDocumentation.DocumentUrl);
 
                 Assert.Single(localization1.Icons);
-                ManifestIcon icon = manifest.Icons[0];
+                ManifestIcon icon = localization1.Icons[0];
 
                 Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321", icon.IconSha256);
                 Assert.Equal("dark", icon.IconTheme);
