@@ -49,6 +49,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string InstallLocation { get; set; }
 
         /// <summary>
+        /// Gets or sets the repair switch.
+        /// </summary>
+        public string Repair { get; set; }
+
+        /// <summary>
         /// Override op_Equality.
         /// </summary>
         /// <param name="lhs">left hand side.</param>
@@ -111,7 +116,8 @@ namespace Microsoft.WinGetUtil.Models.V1
                    (this.Interactive == other.Interactive) &&
                    (this.Upgrade == other.Upgrade) &&
                    (this.Log == other.Log) &&
-                   (this.InstallLocation == other.InstallLocation);
+                   (this.InstallLocation == other.InstallLocation) &&
+                   (this.Repair == other.Repair);
         }
 
         /// <summary>
@@ -127,7 +133,8 @@ namespace Microsoft.WinGetUtil.Models.V1
                     this.Interactive,
                     this.Upgrade,
                     this.Log,
-                    this.InstallLocation).GetHashCode();
+                    this.InstallLocation,
+                    this.Repair).GetHashCode();
         }
     }
 }
