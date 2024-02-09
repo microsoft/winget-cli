@@ -67,13 +67,13 @@ namespace AppInstaller::CLI::Workflow
         {
             if (!checkVersion)
             {
-                return package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                return package->GetLatestAvailableVersion();
             }
 
             auto availablePackageVersion = package->GetAvailableVersion({ "", version, channel });
             if (!availablePackageVersion)
             {
-                availablePackageVersion = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                availablePackageVersion = package->GetLatestAvailableVersion();
                 if (availablePackageVersion)
                 {
                     // Warn installed version is not available.

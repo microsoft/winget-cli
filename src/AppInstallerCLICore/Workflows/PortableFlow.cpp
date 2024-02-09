@@ -4,9 +4,9 @@
 #include "PortableFlow.h"
 #include "PortableInstaller.h"
 #include "WorkflowBase.h"
-#include "winget/Filesystem.h"
-#include "winget/PortableFileEntry.h"
-#include <Microsoft/PortableIndex.h>
+#include <winget/Filesystem.h>
+#include <winget/PortableFileEntry.h>
+#include <winget/PortableIndex.h>
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;

@@ -882,8 +882,7 @@ namespace AppInstaller::CLI
         }
 
         // NOTE: Reboot logic will still run even if the context is terminated (not including unhandled exceptions).
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Reboot) &&
-            context.Args.Contains(Execution::Args::Type::AllowReboot) &&
+        if (context.Args.Contains(Execution::Args::Type::AllowReboot) &&
             WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired))
         {
             context.Reporter.Warn() << Resource::String::InitiatingReboot << std::endl;
