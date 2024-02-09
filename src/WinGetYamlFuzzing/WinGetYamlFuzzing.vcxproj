@@ -60,7 +60,7 @@
     <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Fuzzing'">
@@ -84,7 +84,7 @@
       <AdditionalDependencies>legacy_stdio_definitions.lib;libsancov.lib;icuuc.lib;icuin.lib;urlmon.lib;Bcrypt.lib;wininet.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll"  "$(OutDir)"</Command>
+      <Command>xcopy /y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "$(OutDir)"</Command>
       <Message>Copy the required ASan runtime DLL to the output directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -101,11 +101,12 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <Optimization>Disabled</Optimization>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>false</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <OptimizeReferences>false</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>legacy_stdio_definitions.lib;icuuc.lib;icuin.lib;urlmon.lib;Bcrypt.lib;wininet.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -135,7 +136,7 @@
     <Text Include="dictionary.txt" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="OneFuzzConfig.json" />
+    <CopyFileToFolders Include="OneFuzzConfig.json" Condition="'$(Configuration)'=='Fuzzing'" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include <cstdint>
+#include <optional>
 #include <winget/ManifestYamlParser.h>
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t * data, size_t size)
