@@ -30,11 +30,11 @@ namespace AppInstaller::Repository::Rest
         };
 
         // The IPackage implementation for Available packages from RestSource.
-        struct AvailablePackage : public std::enable_shared_from_this<AvailablePackage>, public SourceReference, public IPackage
+        struct RestPackage : public std::enable_shared_from_this<RestPackage>, public SourceReference, public IPackage, public ICompositePackage
         {
-            static constexpr IPackageType PackageType = IPackageType::RestAvailablePackage;
+            static constexpr IPackageType PackageType = IPackageType::RestPackage;
 
-            AvailablePackage(const std::shared_ptr<RestSource>& source, IRestClient::Package&& package) :
+            RestPackage(const std::shared_ptr<RestSource>& source, IRestClient::Package&& package) :
                 SourceReference(source), m_package(std::move(package))
             {
                 SortVersionsInternal();
@@ -54,12 +54,7 @@ namespace AppInstaller::Repository::Rest
                 }
             }
 
-            std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
-            {
-                return {};
-            }
-
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            std::vector<PackageVersionKey> GetVersionKeys() const override
             {
                 std::shared_ptr<const RestSource> source = GetReferenceSource();
                 std::scoped_lock versionsLock{ m_packageVersionsLock };
@@ -74,22 +69,27 @@ namespace AppInstaller::Repository::Rest
                 return result;
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            std::shared_ptr<IPackageVersion> GetLatestVersion() const override
             {
                 std::scoped_lock versionsLock{ m_packageVersionsLock };
                 return GetLatestVersionInternal();
             }
 
-            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override;
+            std::shared_ptr<IPackageVersion> GetVersion(const PackageVersionKey& versionKey) const override;
+
+            Source GetSource() const override
+            {
+                return Source{ GetReferenceSource() };
+            }
 
             bool IsSame(const IPackage* other) const override
             {
-                const AvailablePackage* otherAvailablePackage = PackageCast<const AvailablePackage*>(other);
+                const RestPackage* otherPackage = PackageCast<const RestPackage*>(other);
 
-                if (otherAvailablePackage)
+                if (otherPackage)
                 {
-                    return GetReferenceSource()->IsSame(otherAvailablePackage->GetReferenceSource().get()) &&
-                        Utility::CaseInsensitiveEquals(m_package.PackageInformation.PackageIdentifier, otherAvailablePackage->m_package.PackageInformation.PackageIdentifier);
+                    return GetReferenceSource()->IsSame(otherPackage->GetReferenceSource().get()) &&
+                        Utility::CaseInsensitiveEquals(m_package.PackageInformation.PackageIdentifier, otherPackage->m_package.PackageInformation.PackageIdentifier);
                 }
 
                 return false;
@@ -103,6 +103,17 @@ namespace AppInstaller::Repository::Rest
                 }
 
                 return nullptr;
+            }
+
+            // Inherited via ICompositePackage
+            std::shared_ptr<IPackage> GetInstalled() override
+            {
+                return {};
+            }
+
+            std::vector<std::shared_ptr<IPackage>> GetAvailable() override
+            {
+                return std::vector<std::shared_ptr<IPackage>>{ shared_from_this() };
             }
 
             // Helpers for PackageVersion interop
@@ -161,9 +172,9 @@ namespace AppInstaller::Repository::Rest
             }
 
         private:
-            std::shared_ptr<AvailablePackage> NonConstSharedFromThis() const
+            std::shared_ptr<RestPackage> NonConstSharedFromThis() const
             {
-                return const_cast<AvailablePackage*>(this)->shared_from_this();
+                return const_cast<RestPackage*>(this)->shared_from_this();
             }
 
             // Must hold m_packageVersionsLock while calling this
@@ -188,7 +199,7 @@ namespace AppInstaller::Repository::Rest
         struct PackageVersion : public SourceReference, public IPackageVersion
         {
             PackageVersion(
-                const std::shared_ptr<RestSource>& source, std::shared_ptr<AvailablePackage>&& package, IRestClient::VersionInfo versionInfo)
+                const std::shared_ptr<RestSource>& source, std::shared_ptr<RestPackage>&& package, IRestClient::VersionInfo versionInfo)
                 : SourceReference(source), m_package(std::move(package)), m_versionInfo(std::move(versionInfo)) {}
 
             // Inherited via IPackageVersion
@@ -347,11 +358,11 @@ namespace AppInstaller::Repository::Rest
             }
 
         private:
-            std::shared_ptr<AvailablePackage> m_package;
+            std::shared_ptr<RestPackage> m_package;
             IRestClient::VersionInfo m_versionInfo;
         };
 
-        std::shared_ptr<IPackageVersion> AvailablePackage::GetAvailableVersion(const PackageVersionKey& versionKey) const
+        std::shared_ptr<IPackageVersion> RestPackage::GetVersion(const PackageVersionKey& versionKey) const
         {
             std::shared_ptr<RestSource> source = GetReferenceSource();
             std::scoped_lock versionsLock{ m_packageVersionsLock };
@@ -405,7 +416,7 @@ namespace AppInstaller::Repository::Rest
             return packageVersion;
         }
 
-        std::shared_ptr<IPackageVersion> AvailablePackage::GetLatestVersionInternal() const
+        std::shared_ptr<IPackageVersion> RestPackage::GetLatestVersionInternal() const
         {
             return std::make_shared<PackageVersion>(GetReferenceSource(), NonConstSharedFromThis(), m_package.Versions.front());
         }
@@ -450,7 +461,7 @@ namespace AppInstaller::Repository::Rest
         std::shared_ptr<RestSource> sharedThis = NonConstSharedFromThis();
         for (auto& result : results.Matches)
         {
-            std::shared_ptr<IPackage> package = std::make_shared<AvailablePackage>(sharedThis, std::move(result));
+            std::shared_ptr<IPackage> package = std::make_shared<RestPackage>(sharedThis, std::move(result));
 
             // TODO: Improve to use Package match filter to return relevant search results.
             PackageMatchFilter packageFilter{ {}, {}, {} };

@@ -254,6 +254,10 @@ namespace AppInstaller::Repository
             // The order for the sources depends on the context.
             return Utility::VersionAndChannel({ Version }, { Channel }) < Utility::VersionAndChannel({ other.Version }, { other.Channel });
         }
+
+        // Determines if a well defined key (this one) is matched by the provided key.
+        // The provided key may use empty values to indicate no specific matching requirements.
+        bool IsMatch(const PackageVersionKey& other) const;
     };
 
 
@@ -316,11 +320,10 @@ namespace AppInstaller::Repository
     enum class IPackageType
     {
         TestPackage,
-        RestAvailablePackage,
-        SQLiteAvailablePackage,
-        SQLiteInstalledPackage,
+        RestPackage,
+        SQLitePackage,
         PinnablePackage,
-        CompositePackage,
+        CompositeInstalledPackage,
     };
 
     // Contains information about a package and its versions from a single source.
@@ -352,20 +355,20 @@ namespace AppInstaller::Repository
         virtual const void* CastTo(IPackageType type) const = 0;
     };
 
-    // Contains information about a package from a search result.
-    struct IPackageSearchResult
+    // Contains information about the graph of packages related to a search.
+    struct ICompositePackage
     {
-        virtual ~IPackageSearchResult() = default;
+        virtual ~ICompositePackage() = default;
 
         // Gets a property of this package result.
         virtual Utility::LocIndString GetProperty(PackageProperty property) const = 0;
 
         // Gets the installed package information.
-        virtual std::shared_ptr<IPackage> GetInstalled() const = 0;
+        virtual std::shared_ptr<IPackage> GetInstalled() = 0;
 
         // Gets all of the available packages for this result.
         // There will be at most one package per source in this list.
-        virtual std::vector<std::shared_ptr<IPackage>> GetAvailable() const = 0;
+        virtual std::vector<std::shared_ptr<IPackage>> GetAvailable() = 0;
     };
 
     // Does the equivalent of a dynamic_cast, but without it to allow RTTI to be disabled.
@@ -391,12 +394,12 @@ namespace AppInstaller::Repository
     struct ResultMatch
     {
         // The package found by the search request.
-        std::shared_ptr<IPackageSearchResult> Package;
+        std::shared_ptr<ICompositePackage> Package;
 
         // The highest order field on which the package matched the search.
         PackageMatchFilter MatchCriteria;
 
-        ResultMatch(std::shared_ptr<IPackageSearchResult> p, PackageMatchFilter f) : Package(std::move(p)), MatchCriteria(std::move(f)) {}
+        ResultMatch(std::shared_ptr<ICompositePackage> p, PackageMatchFilter f) : Package(std::move(p)), MatchCriteria(std::move(f)) {}
     };
 
     // Search result data.
