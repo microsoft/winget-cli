@@ -336,6 +336,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public bool DownloadCommandProhibited { get; set; }
 
         /// <summary>
+        /// Gets or sets the default repair behavior.
+        /// </summary>
+        public string RepairBehavior { get; set; }
+
+        /// <summary>
         /// Deserialize a stream reader into a Manifest object.
         /// </summary>
         /// <param name="filePath">file path.</param>
@@ -503,10 +508,6 @@ namespace Microsoft.WinGetUtil.Models.V1
             // Equality of Manifest consist on only these properties.
             return (this.Id == other.Id) &&
                    (this.Version == other.Version) &&
-                   (this.InstallerLocale == other.InstallerLocale) &&
-                   (this.Scope == other.Scope) &&
-                   (this.InstallerType == other.InstallerType) &&
-                   (this.Switches == other.Switches) &&
                    this.CompareInstallers(other.Installers);
         }
 
