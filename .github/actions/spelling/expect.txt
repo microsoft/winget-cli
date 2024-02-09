@@ -326,6 +326,7 @@ PCCERT
 PCs
 pcwsz
 PDWORD
+peetdev
 PEGI
 PFM
 pfxpath
