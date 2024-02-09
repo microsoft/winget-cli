@@ -34,6 +34,7 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             V100,
             V110,
             V160,
+            V170,
         }
 
         /// <summary>
@@ -56,7 +57,12 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             Manifest v160manifest = Manifest.CreateManifestFromPath(
                 Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V160ManifestMerged));
 
-            this.ValidateManifestFields(v160manifest, TestManifestVersion.V160);
+            this.ValidateManifestFields(v110manifest, TestManifestVersion.V160);
+
+            Manifest v170manifest = Manifest.CreateManifestFromPath(
+                Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestCollateral", ManifestStrings.V170ManifestMerged));
+
+            this.ValidateManifestFields(v160manifest, TestManifestVersion.V170);
         }
 
         /// <summary>
@@ -124,6 +130,27 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("DefaultLabel", manifest.Agreements[0].AgreementLabel);
                 Assert.Equal("DefaultText", manifest.Agreements[0].Agreement);
                 Assert.Equal("https://DefaultAgreementUrl.net", manifest.Agreements[0].AgreementUrl);
+            }
+
+            if (manifestVersion >= TestManifestVersion.V160)
+            {
+                Assert.Equal("Default installation notes", manifest.InstallationNotes);
+                Assert.Equal("https://DefaultPurchaseUrl.com", manifest.PurchaseUrl);
+
+                Assert.Single(manifest.Documentations);
+                ManifestDocumentation manifestDocumentation = manifest.Documentations[0];
+
+                Assert.Equal("Default document label", manifestDocumentation.DocumentLabel);
+                Assert.Equal("https://DefaultDocumentUrl.com", manifestDocumentation.DocumentUrl);
+
+                Assert.Single(manifest.Icons);
+                ManifestIcon icon = manifest.Icons[0];
+
+                Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123", icon.IconSha256);
+                Assert.Equal("default", icon.IconTheme);
+                Assert.Equal("https://testIcon", icon.IconUrl);
+                Assert.Equal("custom", icon.IconResolution);
+                Assert.Equal("ico", icon.IconFileType);
             }
 
             // Default installer
@@ -205,6 +232,41 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
                 Assert.Equal("contactSupport", manifest.ExpectedReturnCodes[0].ReturnResponse);
             }
 
+            if (manifestVersion >= TestManifestVersion.V160)
+            {
+                Assert.Equal("msi", manifest.NestedInstallerType);
+                Assert.Single(manifest.NestedInstallerFiles);
+                InstallerNestedInstallerFile installerNestedInstallerFile = manifest.NestedInstallerFiles[0];
+                Assert.Equal("RelativeFilePath", installerNestedInstallerFile.RelativeFilePath);
+                Assert.Equal("PortableCommandAlias", installerNestedInstallerFile.PortableCommandAlias);
+
+                InstallerInstallationMetadata installerInstallationMetadata = manifest.InstallationMetadata;
+                Assert.Equal("%ProgramFiles%\\TestApp", installerInstallationMetadata.DefaultInstallLocation);
+                Assert.Single(installerInstallationMetadata.Files);
+
+                ManifestInstallerFile installerFile = installerInstallationMetadata.Files[0];
+                Assert.Equal("main.exe", installerFile.RelativeFilePath);
+                Assert.Equal("DisplayName", installerFile.DisplayName);
+                Assert.Equal("/arg", installerFile.InvocationParameter);
+                Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installerFile.FileSha256);
+
+                Assert.Single(manifest.UnsupportedArguments);
+                Assert.Equal("log", manifest.UnsupportedArguments[0]);
+
+                Assert.Single(manifest.UnsupportedOSArchitectures);
+                Assert.Equal("arm", manifest.UnsupportedOSArchitectures[0]);
+
+                Assert.True(manifest.DisplayInstallWarnings);
+                Assert.True(manifest.DownloadCommandProhibited);
+            }
+
+            if (manifestVersion >= TestManifestVersion.V170)
+            {
+                Assert.Equal("/repair", defaultSwitches.Repair);
+                Assert.Equal("uninstaller", manifest.RepairBehavior);
+            }
+
+            // Individual installers
             Assert.Equal(2, manifest.Installers.Count);
             ManifestInstaller installer1 = manifest.Installers[0];
             Assert.Equal("x86", installer1.Arch);
@@ -280,7 +342,35 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installer2.Sha256);
             Assert.Equal("{Bar}", installer2.ProductCode);
 
-            // Localization
+            if (manifestVersion >= TestManifestVersion.V160)
+            {
+                Assert.Single(installer1.InstallationMetadata.Files);
+                ManifestInstallerFile installerFile2 = installer1.InstallationMetadata.Files[0];
+                Assert.Equal("main2.exe", installerFile2.RelativeFilePath);
+                Assert.Equal("DisplayName2", installerFile2.DisplayName);
+                Assert.Equal("/arg2", installerFile2.InvocationParameter);
+                Assert.Equal("79D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installerFile2.FileSha256);
+
+                Assert.Equal("msi", installer1.NestedInstallerType);
+
+                InstallerNestedInstallerFile installerNestedInstallerFile2 = installer1.NestedInstallerFiles[0];
+                Assert.Equal("RelativeFilePath2", installerNestedInstallerFile2.RelativeFilePath);
+                Assert.Equal("PortableCommandAlias2", installerNestedInstallerFile2.PortableCommandAlias);
+
+                Assert.Single(installer1.UnsupportedArguments);
+                Assert.Equal("location", installer1.UnsupportedArguments[0]);
+
+                Assert.True(installer1.DisplayInstallWarnings);
+                Assert.True(installer1.DownloadCommandProhibited);
+            }
+
+            if (manifestVersion >= TestManifestVersion.V170)
+            {
+                Assert.Equal("/r", installer1Switches.Repair);
+                Assert.Equal("modify", installer1.RepairBehavior);
+            }
+
+            // Additional Localizations
             Assert.Single(manifest.Localization);
             ManifestLocalization localization1 = manifest.Localization[0];
             Assert.Equal("en-GB", localization1.PackageLocale);
@@ -313,67 +403,23 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
 
             if (manifestVersion >= TestManifestVersion.V160)
             {
-                Assert.Equal("msi", manifest.NestedInstallerType);
-                Assert.Equal("Default installation notes", manifest.InstallationNotes);
-                Assert.Equal("https://DefaultPurchaseUrl.com", manifest.PurchaseUrl);
+                Assert.Equal("Installation notes", localization1.InstallationNotes);
+                Assert.Equal("https://PurchaseUrl.com", localization1.PurchaseUrl);
 
-                Assert.True(manifest.DisplayInstallWarnings);
-                Assert.True(manifest.DownloadCommandProhibited);
+                Assert.Single(localization1.Documentations);
+                ManifestDocumentation manifestDocumentation = localization1.Documentations[0];
 
-                Assert.Single(manifest.NestedInstallerFiles);
-                InstallerNestedInstallerFile installerNestedInstallerFile = manifest.NestedInstallerFiles[0];
-                Assert.Equal("RelativeFilePath", installerNestedInstallerFile.RelativeFilePath);
-                Assert.Equal("PortableCommandAlias", installerNestedInstallerFile.PortableCommandAlias);
+                Assert.Equal("Document label", manifestDocumentation.DocumentLabel);
+                Assert.Equal("https://DocumentUrl.com", manifestDocumentation.DocumentUrl);
 
-                InstallerInstallationMetadata installerInstallationMetadata = manifest.InstallationMetadata;
-                Assert.Equal("%ProgramFiles%\\TestApp", installerInstallationMetadata.DefaultInstallLocation);
-                Assert.Single(installerInstallationMetadata.Files);
-
-                ManifestInstallerFile installerFile = installerInstallationMetadata.Files[0];
-                Assert.Equal("main.exe", installerFile.RelativeFilePath);
-                Assert.Equal("DisplayName", installerFile.DisplayName);
-                Assert.Equal("/arg", installerFile.InvocationParameter);
-                Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installerFile.FileSha256);
-
-                Assert.Single(manifest.Documentations);
-                ManifestDocumentation manifestDocumentation = manifest.Documentations[0];
-
-                Assert.Equal("Default document label", manifestDocumentation.DocumentLabel);
-                Assert.Equal("https://DefaultDocumentUrl.com", manifestDocumentation.DocumentUrl);
-
-                Assert.Single(manifest.Icons);
+                Assert.Single(localization1.Icons);
                 ManifestIcon icon = manifest.Icons[0];
 
-                Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123", icon.IconSha256);
-                Assert.Equal("default", icon.IconTheme);
-                Assert.Equal("https://testIcon", icon.IconUrl);
-                Assert.Equal("custom", icon.IconResolution);
-                Assert.Equal("ico", icon.IconFileType);
-
-                Assert.Single(manifest.UnsupportedArguments);
-                Assert.Equal("log", manifest.UnsupportedArguments[0]);
-
-                Assert.Single(manifest.UnsupportedOSArchitectures);
-                Assert.Equal("arm", manifest.UnsupportedOSArchitectures[0]);
-
-                Assert.Single(installer1.InstallationMetadata.Files);
-                ManifestInstallerFile installerFile2 = installer1.InstallationMetadata.Files[0];
-                Assert.Equal("main2.exe", installerFile2.RelativeFilePath);
-                Assert.Equal("DisplayName2", installerFile2.DisplayName);
-                Assert.Equal("/arg2", installerFile2.InvocationParameter);
-                Assert.Equal("79D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82", installerFile2.FileSha256);
-
-                Assert.Equal("msi", installer1.NestedInstallerType);
-
-                InstallerNestedInstallerFile installerNestedInstallerFile2 = installer1.NestedInstallerFiles[0];
-                Assert.Equal("RelativeFilePath2", installerNestedInstallerFile2.RelativeFilePath);
-                Assert.Equal("PortableCommandAlias2", installerNestedInstallerFile2.PortableCommandAlias);
-
-                Assert.Single(installer1.UnsupportedArguments);
-                Assert.Equal("location", installer1.UnsupportedArguments[0]);
-
-                Assert.True(installer1.DisplayInstallWarnings);
-                Assert.True(installer1.DownloadCommandProhibited);
+                Assert.Equal("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321", icon.IconSha256);
+                Assert.Equal("dark", icon.IconTheme);
+                Assert.Equal("https://testIcon2", icon.IconUrl);
+                Assert.Equal("32x32", icon.IconResolution);
+                Assert.Equal("png", icon.IconFileType);
             }
         }
 
@@ -396,6 +442,11 @@ namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
             /// Merged v1.1 manifest.
             /// </summary>
             public const string V160ManifestMerged = "V1_6ManifestMerged.yaml";
+
+            /// <summary>
+            /// Merged v1.1 manifest.
+            /// </summary>
+            public const string V170ManifestMerged = "V1_7ManifestMerged.yaml";
 
             /// <summary>
             /// Merged v1 manifest without localization.
