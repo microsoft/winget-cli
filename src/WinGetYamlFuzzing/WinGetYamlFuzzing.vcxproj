@@ -83,8 +83,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>legacy_stdio_definitions.lib;libsancov.lib;icuuc.lib;icuin.lib;urlmon.lib;Bcrypt.lib;wininet.lib;shlwapi.lib;Crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
+    <PostBuildEvent Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">
       <Command>xcopy /y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "$(OutDir)"</Command>
+      <Message>Copy the required ASan runtime DLL to the output directory.</Message>
+    </PostBuildEvent>
+    <PostBuildEvent Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">
+      <Command>xcopy /y "$(VCToolsInstallDir)bin\Hostx64\x86\clang_rt.asan_dynamic-i386.dll" "$(OutDir)"</Command>
       <Message>Copy the required ASan runtime DLL to the output directory.</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
