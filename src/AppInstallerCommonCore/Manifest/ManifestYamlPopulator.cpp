@@ -408,6 +408,8 @@ namespace AppInstaller::Manifest
             if (m_manifestVersion.get() >= ManifestVer{s_ManifestVersionV1_7})
             {
                 result.emplace_back("Repair", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::Repair] = value.as<std::string>(); return{}; });
+                result.emplace_back("ScopeUser", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::ScopeUser] = value.as<std::string>(); return{}; });
+                result.emplace_back("ScopeMachine", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::ScopeMachine] = value.as<std::string>(); return{}; });
             };
         }
 

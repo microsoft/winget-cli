@@ -114,6 +114,8 @@ namespace AppInstaller::Manifest
         InstallLocation,
         Update,
         Repair,
+        ScopeUser,
+        ScopeMachine,
     };
 
     enum class RepairBehaviorEnum

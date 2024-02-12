@@ -346,6 +346,7 @@
     <ClInclude Include="CompositeSource.h" />
     <ClInclude Include="IconDefs.h" />
     <ClInclude Include="ISource.h" />
+    <ClInclude Include="ManifestDeserializer.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
     <ClInclude Include="Microsoft\PinningIndex.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
@@ -454,6 +455,7 @@
     <ClCompile Include="CompositeSource.cpp" />
     <ClCompile Include="InstalledFilesCorrelation.cpp" />
     <ClCompile Include="InstallerMetadataCollectionContext.cpp" />
+    <ClCompile Include="ManifestDeserializer_1_7.cpp" />
     <ClCompile Include="ManifestJSONParser.cpp" />
     <ClCompile Include="Microsoft\ARPHelper.cpp" />
     <ClCompile Include="Microsoft\ConfigurableTestSourceFactory.cpp" />

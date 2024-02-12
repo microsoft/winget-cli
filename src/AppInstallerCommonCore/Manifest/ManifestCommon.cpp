@@ -582,6 +582,10 @@ namespace AppInstaller::Manifest
             return "Upgrade"sv;
         case InstallerSwitchType::Repair:
             return "Repair"sv;
+        case InstallerSwitchType::ScopeUser:
+            return "ScopeUser"sv;
+        case InstallerSwitchType::ScopeMachine:
+            return "ScopeMachine"sv;
         }
 
         return "Unknown"sv;
@@ -976,7 +980,9 @@ namespace AppInstaller::Manifest
                 {InstallerSwitchType::Silent, ManifestInstaller::string_t("/VERYSILENT /NORESTART")},
                 {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/SILENT /NORESTART")},
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
-                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")},
+                {InstallerSwitchType::ScopeUser, ManifestInstaller::string_t("/CURRENTUSER")},
+                {InstallerSwitchType::ScopeMachine, ManifestInstaller::string_t("/ALLUSERS")}
             };
         default:
             return {};

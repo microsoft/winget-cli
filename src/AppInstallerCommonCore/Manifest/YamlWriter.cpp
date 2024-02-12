@@ -78,6 +78,8 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view Upgrade = "Upgrade"sv;
         constexpr std::string_view Custom = "Custom"sv;
         constexpr std::string_view Repair = "Repair"sv;
+        constexpr std::string_view ScopeUser = "ScopeUser"sv;
+        constexpr std::string_view ScopeMachine = "ScopeMachine"sv;
 
         constexpr std::string_view InstallerSuccessCodes = "InstallerSuccessCodes"sv;
         constexpr std::string_view UpgradeBehavior = "UpgradeBehavior"sv;
