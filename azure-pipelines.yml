@@ -541,7 +541,7 @@ jobs:
 
 - job: 'Fuzzing'
   timeoutInMinutes: 60
-  condition: always()
+  condition: not(eq(variables['Build.Reason'], 'PullRequest'))
 
   strategy:
     matrix:
