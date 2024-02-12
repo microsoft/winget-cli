@@ -548,9 +548,9 @@ jobs:
       x64:
         buildConfiguration: 'Fuzzing'
         buildPlatform: 'x64'
-      x86:
-        buildConfiguration: 'Fuzzing'
-        buildPlatform: 'x86'
+      # x86:
+      #   buildConfiguration: 'Fuzzing'
+      #   buildPlatform: 'x86'
 
   variables:
     buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
