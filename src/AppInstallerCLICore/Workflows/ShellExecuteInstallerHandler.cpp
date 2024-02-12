@@ -120,27 +120,21 @@ namespace AppInstaller::CLI::Workflow
             if (scope == ScopeEnum::Unknown)
             {
                 // If the scope of the installer is unknown, try getting the scope from the arguments provided
+                // This will also return ScopeEnum::Unknown if the argument doesn't exist
                 scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
             }
             
-            // If the scope is specified, select the appropriate switch to pull in
-            std::optional<Manifest::InstallerSwitchType> scopeSwitch = std::nullopt;
-            switch (scope)
+            // If the scope is unknown, default to the user scope
+            Manifest::InstallerSwitchType scopeSwitch = InstallerSwitchType::ScopeUser;
+            if (scope == ScopeEnum::Machine)
             {
-                case AppInstaller::Manifest::ScopeEnum::User:
-                    scopeSwitch = InstallerSwitchType::ScopeUser;
-                    break;
-                case AppInstaller::Manifest::ScopeEnum::Machine:
-                    scopeSwitch = InstallerSwitchType::ScopeMachine;
-                    break;
-                default:
-                    break;
+                scopeSwitch = InstallerSwitchType::ScopeMachine;
             }
 
-            // It is possible that the scope is unknown, resulting in scopeSwitch having no value; Check that it has value before attempting to populate the switch content
-            if (scopeSwitch.has_value() && installerSwitches.find(scopeSwitch.value()) != installerSwitches.end())
+            // Construct scope arg.
+            if (installerSwitches.find(scopeSwitch) != installerSwitches.end())
             {
-                installerArgs += ' ' + installerSwitches.at(scopeSwitch.value());
+                installerArgs += ' ' + installerSwitches.at(scopeSwitch);
             }
 
             // Construct custom arg.
