@@ -545,9 +545,9 @@ jobs:
 
   strategy:
     matrix:
-      # x64:
-      #   buildConfiguration: 'Fuzzing'
-      #   buildPlatform: 'x64'
+      x64:
+        buildConfiguration: 'Fuzzing'
+        buildPlatform: 'x64'
       x86:
         buildConfiguration: 'Fuzzing'
         buildPlatform: 'x86'
