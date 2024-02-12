@@ -461,7 +461,7 @@ namespace AppInstaller::Repository::Rest
         std::shared_ptr<RestSource> sharedThis = NonConstSharedFromThis();
         for (auto& result : results.Matches)
         {
-            std::shared_ptr<IPackage> package = std::make_shared<RestPackage>(sharedThis, std::move(result));
+            std::shared_ptr<ICompositePackage> package = std::make_shared<RestPackage>(sharedThis, std::move(result));
 
             // TODO: Improve to use Package match filter to return relevant search results.
             PackageMatchFilter packageFilter{ {}, {}, {} };

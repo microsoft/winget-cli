@@ -406,10 +406,12 @@
     <ClInclude Include="Public\winget\CheckpointDatabase.h" />
     <ClInclude Include="Public\winget\IconExtraction.h" />
     <ClInclude Include="Public\winget\InstalledFilesCorrelation.h" />
+    <ClInclude Include="Public\winget\InstalledStatus.h" />
     <ClInclude Include="Public\winget\InstallerMetadataCollectionContext.h" />
     <ClInclude Include="Public\winget\ManifestJSONParser.h" />
     <ClInclude Include="Public\winget\ARPCorrelationAlgorithms.h" />
     <ClInclude Include="Public\winget\PackageTrackingCatalog.h" />
+    <ClInclude Include="Public\winget\PackageVersionSelection.h" />
     <ClInclude Include="Public\winget\PinningData.h" />
     <ClInclude Include="Public\winget\PortableIndex.h" />
     <ClInclude Include="Public\winget\RepositorySearch.h" />
@@ -492,6 +494,7 @@
     <ClCompile Include="PackageDependenciesValidation.cpp" />
     <ClCompile Include="PackageInstalledStatus.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
+    <ClCompile Include="PackageVersionSelection.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

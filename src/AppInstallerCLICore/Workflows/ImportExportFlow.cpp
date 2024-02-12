@@ -9,6 +9,7 @@
 #include "WorkflowBase.h"
 #include <winget/RepositorySearch.h>
 #include <winget/Runtime.h>
+#include <winget/PackageVersionSelection.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -60,20 +61,22 @@ namespace AppInstaller::CLI::Workflow
         // If requested, checks that the installed version is available and reports a warning if it is not.
         std::shared_ptr<IPackageVersion> GetAvailableVersionForInstalledPackage(
             Execution::Context& context,
-            std::shared_ptr<IPackage> package,
+            std::shared_ptr<ICompositePackage> package,
             Utility::LocIndView version,
             Utility::LocIndView channel,
             bool checkVersion)
         {
+            std::shared_ptr<IPackageVersionCollection> availableVersions = GetAvailableVersionsForInstalledVersion(package);
+
             if (!checkVersion)
             {
-                return package->GetLatestAvailableVersion();
+                return availableVersions->GetLatestVersion();
             }
 
-            auto availablePackageVersion = package->GetAvailableVersion({ "", version, channel });
+            auto availablePackageVersion = availableVersions->GetVersion({ "", version, channel });
             if (!availablePackageVersion)
             {
-                availablePackageVersion = package->GetLatestAvailableVersion();
+                availablePackageVersion = availableVersions->GetLatestVersion();
                 if (availablePackageVersion)
                 {
                     // Warn installed version is not available.
@@ -100,7 +103,7 @@ namespace AppInstaller::CLI::Workflow
         auto& exportedSources = exportedPackages.Sources;
         for (const auto& packageMatch : searchResult.Matches)
         {
-            auto installedPackageVersion = packageMatch.Package->GetInstalledVersion();
+            auto installedPackageVersion = packageMatch.Package->GetInstalled()->GetLatestVersion();
             auto version = installedPackageVersion->GetProperty(PackageVersionProperty::Version);
             auto channel = installedPackageVersion->GetProperty(PackageVersionProperty::Channel);
 

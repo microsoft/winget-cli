@@ -396,14 +396,20 @@
     <ClInclude Include="Rest\Schema\AuthenticationInfoParser.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\CheckpointDatabase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\PinningData.h">
-      <Filter>Header Files</Filter>
+      <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\PortableIndex.h">
-      <Filter>Header Files</Filter>
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\CheckpointDatabase.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\InstalledStatus.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\PackageVersionSelection.h">
+      <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -636,6 +642,9 @@
       <Filter>Rest\Schema</Filter>
     </ClCompile>
     <ClCompile Include="PinningData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageVersionSelection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

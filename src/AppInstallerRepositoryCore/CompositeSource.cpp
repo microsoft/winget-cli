@@ -421,15 +421,9 @@ namespace AppInstaller::Repository
         {
             CompositePackage(const std::shared_ptr<ICompositePackage>& installedPackage, const std::shared_ptr<ICompositePackage>& availablePackage = {})
             {
-                // Grab the installed version's channel to allow for filtering in calls to get available info.
                 if (installedPackage)
                 {
                     m_installedPackage = installedPackage->GetInstalled();
-                    auto installedVersion = m_installedPackage->GetLatestVersion();
-                    if (installedVersion)
-                    {
-                        m_installedChannel = installedVersion->GetProperty(PackageVersionProperty::Channel);
-                    }
                 }
 
                 AddAvailablePackage(availablePackage);
@@ -538,7 +532,6 @@ namespace AppInstaller::Repository
             }
 
             std::shared_ptr<IPackage> m_installedPackage;
-            Utility::LocIndString m_installedChannel;
             Source m_trackingSource;
             std::shared_ptr<IPackage> m_trackingPackage;
             std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
