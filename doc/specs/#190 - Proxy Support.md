@@ -31,7 +31,8 @@ Note that it will not affect the behavior of installers themselves, so an instal
 ## UI/UX Design
 
 We will add a command line argument taking the URI to the proxy.
-A separate parameter will be available to disable the use of proxy if there is a default set.
+A separate argument will be available to disable the use of proxy if there is a default set.
+Both of these arguments will be disabled by default and require admin privileges to enable.
 
 ```
 > winget settings --enable ProxyCommandLineArgument
@@ -40,6 +41,7 @@ A separate parameter will be available to disable the use of proxy if there is a
 ```
 
 To configure the default proxy, a new `proxy` subcommand will be added to the `settings` command, with options to `set` and `reset` the default.
+This will require admin privileges and does not require `ProxyCommandLineArgument` to be enabled.
 
 ```
 > winget settings proxy set https://127.0.0.1:2345
@@ -60,14 +62,14 @@ There is a possibility of an attacker using a malicious proxy to tamper with the
 This is not much different from the risks of using a public network.
 The following mitigating factors will be in place:
 * (New) The ability to set a default proxy will be restricted to administrators, to prevent attackers from adding a proxy without the user realizing.
-* (New) A Group Policy will be available to block the use of proxies, or limit it to an approved list.
+* (New) A Group Policy will be available to block the use of proxies, require the use of a specific proxy, or limit them to an approved list.
 * Pre-indexed sources need to be signed, and the publisher is required to match during source update.
   When initially adding the source, administrator privileges are already required to limit misuse.
 * Pre-indexed sources include manifest hashes in the local database, to ensure that the manifest downloaded later is as expected.
 * For the Microsoft Store source, we use certificate pinning to ensure we are talking to the right server.
 * When communicating with REST sources, the certificate used by the source for HTTPS needs to match the domain.
 * Manifests include a hash of the installer that is validated before executing it.
-  The ability to ignore installer hash mismatches requires administrator privileges.
+  The ability to ignore installer hash mismatches is disabled by default, and enabling it requires administrator privileges.
 
 ### Compatibility
 
@@ -87,3 +89,5 @@ Things we may want to consider in the future:
 * Extend support for proxies to the Configuration feature
 * Add proxy support to the COM API
 * Add support for proxies that require authentication
+* Add the ability for admins to set multiple allowed proxies that a user can use
+* Add the ability to specify a different default proxy for each source
