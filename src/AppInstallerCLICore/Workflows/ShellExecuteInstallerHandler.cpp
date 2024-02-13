@@ -117,14 +117,9 @@ namespace AppInstaller::CLI::Workflow
             // Manifests may specify arguments to be used in a specific scope
             // Try and get the scope from the selected installer
             Manifest::ScopeEnum scope = installer->Scope;
-            if (scope == ScopeEnum::Unknown)
-            {
-                // If the scope of the installer is unknown, try getting the scope from the arguments provided
-                // This will also return ScopeEnum::Unknown if the argument doesn't exist
-                scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-            }
             
             // If the scope is unknown, default to the user scope
+            // The scope should never be unknown if the scope switch is specified, so defaulting to user is just for sanity
             Manifest::InstallerSwitchType scopeSwitch = InstallerSwitchType::ScopeUser;
             if (scope == ScopeEnum::Machine)
             {
