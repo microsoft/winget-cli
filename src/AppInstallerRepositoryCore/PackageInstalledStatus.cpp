@@ -85,7 +85,7 @@ namespace AppInstaller::Repository
 
             std::vector<InstallerInstalledStatus> result;
             bool checkFileHash = false;
-            std::shared_ptr<IPackageVersion> installedVersion = package->GetInstalled()->GetLatestVersion();
+            std::shared_ptr<IPackageVersion> installedVersion = GetInstalledVersion(package);
             std::shared_ptr<IPackageVersion> availableVersion;
             FileHashMap fileHashes;
 

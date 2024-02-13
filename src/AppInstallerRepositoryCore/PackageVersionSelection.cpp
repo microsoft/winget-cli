@@ -11,16 +11,9 @@ namespace AppInstaller::Repository
     {
         struct AvailablePackageVersionCollection : public IPackageVersionCollection
         {
-            AvailablePackageVersionCollection(const std::shared_ptr<ICompositePackage>& composite) :
+            AvailablePackageVersionCollection(const std::shared_ptr<ICompositePackage>& composite, const std::shared_ptr<IPackageVersion>& installedVersion) :
                 m_packages(composite->GetAvailable())
             {
-                std::shared_ptr<IPackage> installed = composite->GetInstalled();
-                if (!installed)
-                {
-                    return;
-                }
-
-                std::shared_ptr<IPackageVersion> installedVersion = installed->GetLatestVersion();
                 if (!installedVersion)
                 {
                     return;
@@ -83,6 +76,32 @@ namespace AppInstaller::Repository
 
     std::shared_ptr<IPackageVersionCollection> GetAvailableVersionsForInstalledVersion(const std::shared_ptr<ICompositePackage>& composite)
     {
-        return std::make_shared<AvailablePackageVersionCollection>(composite);
+        return std::make_shared<AvailablePackageVersionCollection>(composite, GetInstalledVersion(composite));
+    }
+
+    std::shared_ptr<IPackageVersionCollection> GetAvailableVersionsForInstalledVersion(
+        const std::shared_ptr<ICompositePackage>& composite,
+        const std::shared_ptr<IPackageVersion>& installedVersion)
+    {
+        return std::make_shared<AvailablePackageVersionCollection>(composite, installedVersion);
+    }
+
+    std::shared_ptr<IPackageVersion> GetInstalledVersion(const std::shared_ptr<ICompositePackage>& composite)
+    {
+        auto installedPackage = composite->GetInstalled();
+        return installedPackage ? installedPackage->GetLatestVersion() : nullptr;
+    }
+
+    std::shared_ptr<IPackage> GetAvailablePackageFromSource(const std::shared_ptr<ICompositePackage>& composite, const std::string_view sourceIdentifier)
+    {
+        for (const std::shared_ptr<IPackage>& package : composite->GetAvailable())
+        {
+            if (sourceIdentifier != package->GetSource().GetIdentifier())
+            {
+                return package;
+            }
+        }
+
+        return {};
     }
 }

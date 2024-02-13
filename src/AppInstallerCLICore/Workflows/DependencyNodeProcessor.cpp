@@ -42,7 +42,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& match = matches.at(0);
         const auto& package = match.Package;
         auto packageId = package->GetProperty(PackageProperty::Id);
-        m_nodePackageInstalledVersion = package->GetInstalled()->GetLatestVersion();
+        m_nodePackageInstalledVersion = GetInstalledVersion(package);
         std::shared_ptr<IPackageVersionCollection> availableVersions = GetAvailableVersionsForInstalledVersion(package);
 
         if (m_context.Args.Contains(Execution::Args::Type::Force))

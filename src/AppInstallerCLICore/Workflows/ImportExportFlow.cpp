@@ -103,7 +103,7 @@ namespace AppInstaller::CLI::Workflow
         auto& exportedSources = exportedPackages.Sources;
         for (const auto& packageMatch : searchResult.Matches)
         {
-            auto installedPackageVersion = packageMatch.Package->GetInstalled()->GetLatestVersion();
+            auto installedPackageVersion = GetInstalledVersion(packageMatch.Package);
             auto version = installedPackageVersion->GetProperty(PackageVersionProperty::Version);
             auto channel = installedPackageVersion->GetProperty(PackageVersionProperty::Channel);
 
