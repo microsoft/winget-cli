@@ -291,17 +291,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### windowsFeature
-
-This feature enables the ability to enable Windows Feature dependencies during installation.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "windowsFeature": true
-   },
-```
-
 ### resume
 
 This feature enables support for some commands to resume.
@@ -310,17 +299,6 @@ You can enable the feature as shown below.
 ```json
    "experimentalFeatures": {
        "resume": true
-   },
-```
-
-### reboot
-
-This feature enables support for initiating a reboot.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "reboot": true
    },
 ```
 

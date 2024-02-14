@@ -32,6 +32,9 @@ namespace AppInstaller::Pinning
     // Determines which of two pin types is more strict.
     bool IsStricter(PinType first, PinType second);
 
+    // Returns the stricter of two pin types.
+    PinType Stricter(PinType first, PinType second);
+
     // The set of values needed to uniquely identify a Pin.
     // A Pin can apply to an installed package or to an available package.
     // Pins on available packages can persist when an app is updated outside of winget,
@@ -71,8 +74,8 @@ namespace AppInstaller::Pinning
         // Used for logging
         std::string ToString() const;
 
-        const std::string PackageId;
-        const std::string SourceId;
+        std::string PackageId;
+        std::string SourceId;
     };
 
     struct Pin

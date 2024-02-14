@@ -1213,7 +1213,6 @@ TEST_CASE("InstallFlow_InstallWithReboot", "[InstallFlow][workflow][reboot]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFReboot>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };

@@ -306,6 +306,8 @@ subcontext
 SUBLANG
 subresource
 subselect
+substr
+SUPPRESSMSGBOXES
 SWIPECONTROL
 SYMED
 symlinktarget

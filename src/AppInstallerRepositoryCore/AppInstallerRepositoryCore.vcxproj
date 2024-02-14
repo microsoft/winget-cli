@@ -348,11 +348,9 @@
     <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
     <ClInclude Include="Microsoft\PinningIndex.h" />
-    <ClInclude Include="Microsoft\PortableIndex.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
     <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
-    <ClInclude Include="Microsoft\CheckpointDatabase.h" />
     <ClInclude Include="Microsoft\Schema\1_0\ChannelTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\CommandsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_0\IdTable.h" />
@@ -405,12 +403,15 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\winget\ARPCorrelation.h" />
     <ClInclude Include="Public\winget\Checkpoint.h" />
+    <ClInclude Include="Public\winget\CheckpointDatabase.h" />
     <ClInclude Include="Public\winget\IconExtraction.h" />
     <ClInclude Include="Public\winget\InstalledFilesCorrelation.h" />
     <ClInclude Include="Public\winget\InstallerMetadataCollectionContext.h" />
     <ClInclude Include="Public\winget\ManifestJSONParser.h" />
     <ClInclude Include="Public\winget\ARPCorrelationAlgorithms.h" />
     <ClInclude Include="Public\winget\PackageTrackingCatalog.h" />
+    <ClInclude Include="Public\winget\PinningData.h" />
+    <ClInclude Include="Public\winget\PortableIndex.h" />
     <ClInclude Include="Public\winget\RepositorySearch.h" />
     <ClInclude Include="Public\winget\RepositorySource.h" />
     <ClInclude Include="Rest\RestClient.h" />
@@ -431,6 +432,7 @@
     <ClInclude Include="Rest\Schema\1_6\Interface.h" />
     <ClInclude Include="Rest\Schema\1_6\Json\ManifestDeserializer.h" />
     <ClInclude Include="Rest\Schema\1_7\Interface.h" />
+    <ClInclude Include="Rest\Schema\1_7\Json\ManifestDeserializer.h" />
     <ClInclude Include="Rest\Schema\AuthenticationInfoParser.h" />
     <ClInclude Include="Rest\Schema\CommonRestConstants.h" />
     <ClInclude Include="Rest\Schema\HttpClientHelper.h" />
@@ -494,6 +496,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PinningData.cpp" />
     <ClCompile Include="RepositorySearch.cpp" />
     <ClCompile Include="RepositorySource.cpp" />
     <ClCompile Include="Rest\RestClient.cpp" />
@@ -513,6 +516,7 @@
     <ClCompile Include="Rest\Schema\1_5\RestInterface_1_5.cpp" />
     <ClCompile Include="Rest\Schema\1_6\Json\ManifestDeserializer_1_6.cpp" />
     <ClCompile Include="Rest\Schema\1_6\RestInterface_1_6.cpp" />
+    <ClCompile Include="Rest\Schema\1_7\Json\ManifestDeserializer_1_7.cpp" />
     <ClCompile Include="Rest\Schema\1_7\RestInterface_1_7.cpp" />
     <ClCompile Include="Rest\Schema\AuthenticationInfoParser.cpp" />
     <ClCompile Include="Rest\Schema\HttpClientHelper.cpp" />

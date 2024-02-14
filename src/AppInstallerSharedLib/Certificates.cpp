@@ -7,7 +7,6 @@
 #include "winget/JsonUtil.h"
 #include "winget/Resources.h"
 
-
 namespace AppInstaller::Certificates
 {
     namespace

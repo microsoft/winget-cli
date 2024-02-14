@@ -9,6 +9,7 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/Pin.h>
+#include <winget/PinningData.h>
 #include <winget/Runtime.h>
 
 using namespace std::string_literals;
@@ -627,7 +628,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
-            auto latestVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+            auto latestVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion();
 
             table.OutputLine({
                 latestVersion->GetProperty(PackageVersionProperty::Name),
@@ -738,7 +739,7 @@ namespace AppInstaller::CLI::Workflow
             auto package = searchResult.Matches[i].Package;
 
             std::string sourceName;
-            auto latest = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+            auto latest = package->GetLatestAvailableVersion();
             if (latest)
             {
                 auto source = latest->GetSource();
@@ -794,14 +795,18 @@ namespace AppInstaller::CLI::Workflow
             pinBehavior = PinBehavior::IgnorePins;
         }
 
+        PinningData pinningData{ PinningData::Disposition::ReadOnly };
+
         for (const auto& match : searchResult.Matches)
         {
             auto installedVersion = match.Package->GetInstalledVersion();
 
             if (installedVersion)
             {
-                auto latestVersion = match.Package->GetLatestAvailableVersion(pinBehavior);
-                bool updateAvailable = match.Package->IsUpdateAvailable(pinBehavior);
+                auto evaluator = pinningData.CreatePinStateEvaluator(pinBehavior, installedVersion);
+
+                auto latestVersion = evaluator.GetLatestAvailableVersionForPins(match.Package);
+                bool updateAvailable = evaluator.IsUpdate(latestVersion);
                 bool updateIsPinned = false;
 
                 if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown() && updateAvailable)
@@ -813,7 +818,10 @@ namespace AppInstaller::CLI::Workflow
 
                 if (m_onlyShowUpgrades && !updateAvailable)
                 {
-                    bool updateAvailableWithoutPins = match.Package->IsUpdateAvailable(PinBehavior::IgnorePins);
+                    // Reuse the evaluator to check if there is an update outside of the pinning
+                    auto unpinnedLatestVersion = match.Package->GetLatestAvailableVersion();
+                    bool updateAvailableWithoutPins = evaluator.IsUpdate(unpinnedLatestVersion);
+
                     if (updateAvailableWithoutPins)
                     {
                         // When given the --include-pinned argument, report blocking and gating pins in a separate table.
@@ -823,7 +831,7 @@ namespace AppInstaller::CLI::Workflow
                             updateIsPinned = true;
 
                             // Override these so we generate the table line below.
-                            latestVersion = match.Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                            latestVersion = std::move(unpinnedLatestVersion);
                             updateAvailable = true;
                         }
                         else
@@ -1006,26 +1014,29 @@ namespace AppInstaller::CLI::Workflow
         {
             bool isPinned = false;
 
+            PinBehavior pinBehavior;
+            if (context.Args.Contains(Execution::Args::Type::Force))
+            {
+                // --force ignores any pins
+                pinBehavior = PinBehavior::IgnorePins;
+            }
+            else
+            {
+                pinBehavior = context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+            }
+
+            PinningData pinningData{ PinningData::Disposition::ReadOnly };
+            auto evaluator = pinningData.CreatePinStateEvaluator(pinBehavior, package->GetInstalledVersion());
+
             // TODO: The logic here will probably have to get more difficult once we support channels
             if (Utility::IsEmptyOrWhitespace(m_version) && Utility::IsEmptyOrWhitespace(m_channel))
             {
-                PinBehavior pinBehavior;
-                if (context.Args.Contains(Execution::Args::Type::Force))
-                {
-                    // --force ignores any pins
-                    pinBehavior = PinBehavior::IgnorePins;
-                }
-                else
-                {
-                    pinBehavior = context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
-                }
-
-                requestedVersion = package->GetLatestAvailableVersion(pinBehavior);
+                requestedVersion = evaluator.GetLatestAvailableVersionForPins(package);
 
                 if (!requestedVersion)
                 {
                     // Check whether we didn't find the latest version because it was pinned or because there wasn't one
-                    auto latestVersion = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                    auto latestVersion = package->GetLatestAvailableVersion();
                     if (latestVersion)
                     {
                         isPinned = true;
@@ -1034,14 +1045,8 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                auto requestedVersionAndPin = package->GetAvailableVersionAndPin(key);
-                requestedVersion = requestedVersionAndPin.first;
-                auto pin = requestedVersionAndPin.second;
-
-                isPinned =
-                    pin == Pinning::PinType::Blocking ||
-                    pin == Pinning::PinType::Gating ||
-                    (pin == Pinning::PinType::Pinning && !context.Args.Contains(Execution::Args::Type::IncludePinned));
+                requestedVersion = package->GetAvailableVersion(key);
+                isPinned = evaluator.EvaluatePinType(requestedVersion) != PinType::Unknown;
             }
 
             if (isPinned)

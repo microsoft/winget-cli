@@ -5,7 +5,7 @@
 #include <winget/SQLiteWrapper.h>
 #include <winget/SQLiteStorageBase.h>
 #include <Microsoft/Schema/IPortableIndex.h>
-#include <Microsoft/PortableIndex.h>
+#include <winget/PortableIndex.h>
 #include <Microsoft/Schema/Portable_1_0/PortableTable.h>
 #include <winget/PortableFileEntry.h>
 

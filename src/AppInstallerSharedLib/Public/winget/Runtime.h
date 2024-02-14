@@ -41,5 +41,12 @@ namespace AppInstaller::Runtime
     bool IsRunningAsSystem();
 
     // Returns true if this is a release build; false if not.
-    inline constexpr bool IsReleaseBuild();
+    inline constexpr bool IsReleaseBuild()
+    {
+#ifdef WINGET_ENABLE_RELEASE_BUILD
+        return true;
+#else
+        return false;
+#endif
+    }
 }

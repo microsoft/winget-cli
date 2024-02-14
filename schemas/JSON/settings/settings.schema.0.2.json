@@ -271,16 +271,6 @@
           "type": "boolean",
           "default": false
         },
-        "windowsFeature": {
-          "description": "Enable support for enabling Windows Feature(s)",
-          "type": "boolean",
-          "default": false
-        },
-        "reboot": {
-            "description": "Enable support for initiating a reboot",
-            "type": "boolean",
-            "default": false
-        },
         "repair": {
           "description": "Enable support for repairing a package",
           "type": "boolean",

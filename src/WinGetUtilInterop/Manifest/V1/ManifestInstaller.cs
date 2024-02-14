@@ -199,6 +199,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         public bool DownloadCommandProhibited { get; set; }
 
         /// <summary>
+        /// Gets or sets the repair behavior.
+        /// </summary>
+        public string RepairBehavior { get; set; }
+
+        /// <summary>
         /// Returns a List of strings containing the URIs contained within this installer.
         /// </summary>
         /// <returns>List of strings.</returns>
@@ -256,10 +261,8 @@ namespace Microsoft.WinGetUtil.Models.V1
                    (this.Scope == other.Scope) &&
                    (this.InstallerType == other.InstallerType) &&
                    (this.Switches == other.Switches) &&
-                   (this.InstallationMetadata == other.InstallationMetadata) &&
                    (this.NestedInstallerType == other.NestedInstallerType) &&
-                   (this.NestedInstallerFiles == other.NestedInstallerFiles) &&
-                   (this.DisplayInstallWarnings == other.DisplayInstallWarnings);
+                   (this.NestedInstallerFiles == other.NestedInstallerFiles);
     }
 
         /// <summary>
@@ -275,7 +278,9 @@ namespace Microsoft.WinGetUtil.Models.V1
                     this.InstallerLocale,
                     this.Scope,
                     this.InstallerType,
-                    this.Switches).GetHashCode();
+                    this.Switches,
+                    this.NestedInstallerType,
+                    this.NestedInstallerFiles).GetHashCode();
         }
     }
 }

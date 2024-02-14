@@ -40,6 +40,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
         virtual std::optional<Manifest::ManifestInstaller> DeserializeInstaller(const web::json::value& installerJsonObject) const;
 
+        virtual std::map<Manifest::InstallerSwitchType, Manifest::string_t> DeserializeInstallerSwitches(const web::json::value& installerSwitchesJsonObject) const;
+
         std::optional<Manifest::DependencyList> DeserializeDependency(const web::json::value& dependenciesJsonObject) const;
 
         virtual Manifest::InstallerTypeEnum ConvertToInstallerType(std::string_view in) const;
