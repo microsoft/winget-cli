@@ -117,34 +117,28 @@ namespace TestCommon
         }
     }
 
-    TestPackage::TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source, bool hideSystemReferenceStringsOnVersion)
+    TestPackage::TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source, bool hideSystemReferenceStringsOnVersion) :
+        Source(source)
     {
         for (const auto& manifest : available)
         {
-            AvailableVersions.emplace_back(TestPackageVersion::Make(manifest, source, hideSystemReferenceStringsOnVersion));
+            Versions.emplace_back(TestPackageVersion::Make(manifest, source, hideSystemReferenceStringsOnVersion));
         }
     }
 
-    TestPackage::TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available, std::weak_ptr<const ISource> source) :
-        InstalledVersion(TestPackageVersion::Make(installed, std::move(installationMetadata), source))
+    TestPackage::TestPackage(const Manifest& installed, MetadataMap installationMetadata, std::weak_ptr<const ISource> source) :
+        Source(source)
     {
-        for (const auto& manifest : available)
-        {
-            AvailableVersions.emplace_back(TestPackageVersion::Make(manifest, source));
-        }
+        Versions.emplace_back(TestPackageVersion::Make(installed, std::move(installationMetadata), source));
     }
 
     TestPackage::LocIndString TestPackage::GetProperty(PackageProperty property) const
     {
         std::shared_ptr<IPackageVersion> truth;
 
-        if (!AvailableVersions.empty())
+        if (!Versions.empty())
         {
-            truth = AvailableVersions[0];
-        }
-        else
-        {
-            truth = InstalledVersion;
+            truth = Versions[0];
         }
 
         if (!truth)
@@ -163,34 +157,29 @@ namespace TestCommon
         }
     }
 
-    std::shared_ptr<IPackageVersion> TestPackage::GetInstalledVersion() const
-    {
-        return InstalledVersion;
-    }
-
-    std::vector<PackageVersionKey> TestPackage::GetAvailableVersionKeys() const
+    std::vector<PackageVersionKey> TestPackage::GetVersionKeys() const
     {
         std::vector<PackageVersionKey> result;
-        for (const auto& version : AvailableVersions)
+        for (const auto& version : Versions)
         {
             result.emplace_back(PackageVersionKey(version->GetSource().GetIdentifier(), version->GetProperty(PackageVersionProperty::Version).get(), version->GetProperty(PackageVersionProperty::Channel).get()));
         }
         return result;
     }
 
-    std::shared_ptr<IPackageVersion> TestPackage::GetLatestAvailableVersion() const
+    std::shared_ptr<IPackageVersion> TestPackage::GetLatestVersion() const
     {
-        if (AvailableVersions.empty())
+        if (Versions.empty())
         {
             return {};
         }
 
-        return AvailableVersions[0];
+        return Versions[0];
     }
 
-    std::shared_ptr<IPackageVersion> TestPackage::GetAvailableVersion(const PackageVersionKey& versionKey) const
+    std::shared_ptr<IPackageVersion> TestPackage::GetVersion(const PackageVersionKey& versionKey) const
     {
-        for (const auto& version : AvailableVersions)
+        for (const auto& version : Versions)
         {
             if ((versionKey.Version.empty() || versionKey.Version == version->GetProperty(PackageVersionProperty::Version).get()) && 
                 (versionKey.Channel.empty() || versionKey.Channel == version->GetProperty(PackageVersionProperty::Channel).get()))
@@ -200,6 +189,11 @@ namespace TestCommon
         }
 
         return {};
+    }
+
+    Repository::Source TestPackage::GetSource() const
+    {
+        return std::const_pointer_cast<TestPackage::ISource>(Source.lock());
     }
 
     bool TestPackage::IsSame(const IPackage* other) const
@@ -212,15 +206,14 @@ namespace TestCommon
         const TestPackage* otherAvailable = PackageCast<const TestPackage*>(other);
 
         if (!otherAvailable ||
-            InstalledVersion.get() != otherAvailable->InstalledVersion.get() ||
-            AvailableVersions.size() != otherAvailable->AvailableVersions.size())
+            Versions.size() != otherAvailable->Versions.size())
         {
             return false;
         }
 
-        for (size_t i = 0; i < AvailableVersions.size(); ++i)
+        for (size_t i = 0; i < Versions.size(); ++i)
         {
-            if (AvailableVersions[i].get() != otherAvailable->AvailableVersions[i].get())
+            if (Versions[i].get() != otherAvailable->Versions[i].get())
             {
                 return false;
             }
@@ -237,6 +230,62 @@ namespace TestCommon
         }
 
         return nullptr;
+    }
+
+    TestCompositePackage::TestCompositePackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source, bool hideSystemReferenceStringsOnVersion)
+    {
+        if (!available.empty())
+        {
+            Available.emplace_back(TestPackage::Make(available, source, hideSystemReferenceStringsOnVersion));
+        }
+    }
+
+    TestCompositePackage::TestCompositePackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available, std::weak_ptr<const ISource> source) :
+        Installed(TestPackage::Make(installed, std::move(installationMetadata), source))
+    {
+        if (!available.empty())
+        {
+            Available.emplace_back(TestPackage::Make(available, source));
+        }
+    }
+
+    TestCompositePackage::LocIndString TestCompositePackage::GetProperty(PackageProperty property) const
+    {
+        std::shared_ptr<IPackage> truth;
+
+        if (!Available.empty())
+        {
+            truth = Available[0];
+        }
+        else
+        {
+            truth = Installed;
+        }
+
+        if (!truth)
+        {
+            THROW_HR(E_NOT_VALID_STATE);
+        }
+
+        switch (property)
+        {
+        case PackageProperty::Id:
+            return truth->GetProperty(PackageProperty::Id);
+        case PackageProperty::Name:
+            return truth->GetProperty(PackageProperty::Name);
+        default:
+            return {};
+        }
+    }
+
+    std::shared_ptr<AppInstaller::Repository::IPackage> TestCompositePackage::GetInstalled()
+    {
+        return Installed;
+    }
+
+    std::vector<std::shared_ptr<AppInstaller::Repository::IPackage>> TestCompositePackage::GetAvailable()
+    {
+        return Available;
     }
 
     const SourceDetails& TestSource::GetDetails() const

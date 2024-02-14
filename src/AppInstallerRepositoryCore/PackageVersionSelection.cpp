@@ -9,6 +9,19 @@ namespace AppInstaller::Repository
 {
     namespace
     {
+        std::shared_ptr<IPackage> GetAvailablePackageFromSource(const std::vector<std::shared_ptr<IPackage>>& packages, const std::string_view sourceIdentifier)
+        {
+            for (const std::shared_ptr<IPackage>& package : packages)
+            {
+                if (sourceIdentifier != package->GetSource().GetIdentifier())
+                {
+                    return package;
+                }
+            }
+
+            return {};
+        }
+
         struct AvailablePackageVersionCollection : public IPackageVersionCollection
         {
             AvailablePackageVersionCollection(const std::shared_ptr<ICompositePackage>& composite, const std::shared_ptr<IPackageVersion>& installedVersion) :
@@ -37,39 +50,53 @@ namespace AppInstaller::Repository
                 }
 
                 // Remove all elements whose channel does not match the installed package.
-                std::string_view channel = m_channel;
-                result.erase(
-                    std::remove_if(result.begin(), result.end(), [&](const PackageVersionKey& pvk) { return !Utility::ICUCaseInsensitiveEquals(pvk.Channel, channel); }),
-                    result.end());
+                if (m_channel)
+                {
+                    result.erase(
+                        std::remove_if(result.begin(), result.end(), [&](const PackageVersionKey& pvk) { return !Utility::ICUCaseInsensitiveEquals(pvk.Channel, m_channel.value()); }),
+                        result.end());
+                }
+
+                // Put latest versions at the front; for versions available from multiple sources maintain the order they were added in
+                std::stable_sort(result.begin(), result.end());
 
                 return result;
             }
 
             std::shared_ptr<IPackageVersion> GetVersion(const PackageVersionKey& versionKey) const override
             {
-                for (const std::shared_ptr<IPackage>& package : m_packages)
+                // If there is a specific source, just use that package's result
+                std::shared_ptr<IPackage> package;
+
+                if (!versionKey.SourceId.empty())
                 {
-                    if (!Utility::IsEmptyOrWhitespace(versionKey.SourceId))
+                    package = GetAvailablePackageFromSource(m_packages, versionKey.SourceId);
+                }
+                else
+                {
+                    // Otherwise, find the first version that matches
+                    std::vector<PackageVersionKey> versions = GetVersionKeys();
+
+                    for (const PackageVersionKey& key : versions)
                     {
-                        if (versionKey.SourceId != package->GetSource().GetIdentifier())
+                        if (key.IsMatch(versionKey))
                         {
-                            continue;
+                            package = GetAvailablePackageFromSource(m_packages, key.SourceId);
+                            break;
                         }
                     }
-
-                    return package->GetVersion(versionKey);
                 }
 
-                return {};
+                return package ? package->GetVersion(versionKey) : nullptr;
             }
 
             std::shared_ptr<IPackageVersion> GetLatestVersion() const override
             {
-                return GetVersion({ "", "", m_channel });
+                return GetVersion({ "", "", m_channel.value_or("") });
             }
 
         private:
-            std::string m_channel;
+            std::optional<std::string> m_channel;
             std::vector<std::shared_ptr<IPackage>> m_packages;
         };
     }
@@ -94,14 +121,6 @@ namespace AppInstaller::Repository
 
     std::shared_ptr<IPackage> GetAvailablePackageFromSource(const std::shared_ptr<ICompositePackage>& composite, const std::string_view sourceIdentifier)
     {
-        for (const std::shared_ptr<IPackage>& package : composite->GetAvailable())
-        {
-            if (sourceIdentifier != package->GetSource().GetIdentifier())
-            {
-                return package;
-            }
-        }
-
-        return {};
+        return GetAvailablePackageFromSource(composite->GetAvailable(), sourceIdentifier);
     }
 }
