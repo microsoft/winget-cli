@@ -270,12 +270,7 @@
           "description": "Enable support for configuration",
           "type": "boolean",
           "default": false
-        },
-        "repair": {
-          "description": "Enable support for repairing a package",
-          "type": "boolean",
-          "default": false
-        },
+        }
       }
     }
   },

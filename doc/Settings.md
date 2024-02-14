@@ -312,14 +312,3 @@ You can enable the feature as shown below.
        "configuration03": true
    },
 ```
-
-### repair
-
-This feature enables the repair command to be used for package repair.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "repair": true
-   },
-```

@@ -212,7 +212,6 @@ namespace AppInstallerCLIE2ETests.Helpers
             ConfigureFeature("windowsFeature", status);
             ConfigureFeature("resume", status);
             ConfigureFeature("reboot", status);
-            ConfigureFeature("repair", status);
         }
 
         private static JObject GetJsonSettingsObject(string objectName)
