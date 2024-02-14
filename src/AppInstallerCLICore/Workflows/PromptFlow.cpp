@@ -178,7 +178,7 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
 
-                context << Workflow::ReportManifestIdentityWithVersion(Resource::String::ReportIdentityForAgreements) << Workflow::ShowPackageInfo;
+                context << Workflow::ReportManifestIdentityWithVersion(Resource::String::ReportIdentityForAgreements) << Workflow::ShowAgreementsInfo;
                 context.Reporter.EmptyLine();
             }
 
@@ -186,12 +186,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (!m_ensureAgreementsAcceptance)
                 {
-                    return;
-                }
-
-                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::AgreementsAcceptedByCaller))
-                {
-                    AICLI_LOG(CLI, Info, << "Skipping package agreements acceptance check because AgreementsAcceptedByCaller flag is set.");
                     return;
                 }
 
@@ -264,7 +258,7 @@ namespace AppInstaller::CLI::Workflow
 
                 // When prompting for a single package, we use the provided location directly.
                 // This is different from when we prompt for multiple packages or use the root in the settings.
-                context.Args.AddArg(Execution::Args::Type::InstallLocation, m_installLocation.string());
+                context.Args.AddArg(Execution::Args::Type::InstallLocation, m_installLocation.u8string());
             }
 
             void PromptForMultiplePackages(Execution::Context& context, std::vector<Execution::Context*>& packagesToPrompt) override
@@ -314,7 +308,7 @@ namespace AppInstaller::CLI::Workflow
                 auto installLocation = m_installLocation;
                 installLocation += "\\" + packageId;
                 AICLI_LOG(CLI, Info, << "Setting install location for package [" << packageId << "] to: " << installLocation);
-                context.Args.AddArg(Execution::Args::Type::InstallLocation, installLocation.string());
+                context.Args.AddArg(Execution::Args::Type::InstallLocation, installLocation.u8string());
             }
 
             std::filesystem::path m_installLocation;
@@ -375,24 +369,27 @@ namespace AppInstaller::CLI::Workflow
         };
 
         // Gets all the prompts that may be displayed, in order of appearance
-        std::vector<std::unique_ptr<PackagePrompt>> GetPackagePrompts(bool ensureAgreementsAcceptance  = true)
+        std::vector<std::unique_ptr<PackagePrompt>> GetPackagePrompts(bool ensureAgreementsAcceptance = true, bool installerDownloadOnly = false)
         {
             std::vector<std::unique_ptr<PackagePrompt>> result;
-            result.push_back(std::make_unique<PackageAgreementsPrompt>(ensureAgreementsAcceptance));
-            result.push_back(std::make_unique<InstallRootPrompt>());
-            result.push_back(std::make_unique<InstallerAbortsTerminalPrompt>());
+
+            if (installerDownloadOnly)
+            {
+                result.push_back(std::make_unique<PackageAgreementsPrompt>(ensureAgreementsAcceptance));
+            }
+            else
+            {
+                result.push_back(std::make_unique<PackageAgreementsPrompt>(ensureAgreementsAcceptance));
+                result.push_back(std::make_unique<InstallRootPrompt>());
+                result.push_back(std::make_unique<InstallerAbortsTerminalPrompt>());
+            }
+
             return result;
         }
     }
 
     void HandleSourceAgreements::operator()(Execution::Context& context) const
     {
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::AgreementsAcceptedByCaller))
-        {
-            AICLI_LOG(CLI, Info, << "Skipping source agreements acceptance check because AgreementsAcceptedByCaller flag is set.");
-            return;
-        }
-
         bool allAccepted = true;
 
         if (m_source.IsComposite())
@@ -419,7 +416,9 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowPromptsForSinglePackage::operator()(Execution::Context& context) const
     {
-        for (auto& prompt : GetPackagePrompts())
+        bool installerDownloadOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
+
+        for (auto& prompt : GetPackagePrompts(true, installerDownloadOnly))
         {
             // Show the prompt if needed
             if (prompt->PackageNeedsPrompt(context))
@@ -436,7 +435,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowPromptsForMultiplePackages::operator()(Execution::Context& context) const
     {
-        for (auto& prompt : GetPackagePrompts(m_ensureAgreementsAcceptance))
+        for (auto& prompt : GetPackagePrompts(m_ensureAgreementsAcceptance, m_installerDownloadOnly))
         {
             // Find which packages need this prompt
             std::vector<Execution::Context*> packagesToPrompt;
@@ -457,6 +456,14 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
             }
+        }
+    }
+
+    void RequireInteractivity::operator()(Execution::Context& context) const
+    {
+        if (!IsInteractivityAllowed(context))
+        {
+            AICLI_TERMINATE_CONTEXT(m_nonInteractiveError);
         }
     }
 }

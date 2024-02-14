@@ -11,6 +11,9 @@
 
 namespace AppInstaller::CLI::Execution
 {
+    // Gets the current console width.
+    size_t GetConsoleWidth();
+
     // The base stream for all channels.
     struct BaseStream
     {

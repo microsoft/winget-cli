@@ -9,6 +9,7 @@
 namespace AppInstaller::CLI
 {
     using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Workflow;
     using namespace std::string_view_literals;
 
     std::vector<Argument> SearchCommand::GetArguments() const
@@ -24,6 +25,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
             Argument::ForType(Execution::Args::Type::CustomHeader),
+            Argument::ForType(Execution::Args::Type::AuthenticationMode),
+            Argument::ForType(Execution::Args::Type::AuthenticationAccount),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::ListVersions),
         };
@@ -84,14 +87,14 @@ namespace AppInstaller::CLI
             if (context.Args.Contains(Execution::Args::Type::ListVersions))
             {
                 context <<
-                Workflow::EnsureOneMatchFromSearchResult(false) <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Search) <<
                 Workflow::ReportPackageIdentity <<
                 Workflow::ShowAppVersions;
             }
             else
             {
                 context << 
-                    Workflow::EnsureMatchesFromSearchResult(false) <<
+                    Workflow::EnsureMatchesFromSearchResult(OperationType::Search) <<
                     Workflow::ReportSearchResult;
             }
         

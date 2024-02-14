@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "RootCommand.h"
+#include <AppInstallerRuntime.h>
 
 #include "InstallCommand.h"
 #include "ShowCommand.h"
@@ -19,14 +20,19 @@
 #include "ExportCommand.h"
 #include "ImportCommand.h"
 #include "PinCommand.h"
+#include "ConfigureCommand.h"
+#include "DebugCommand.h"
+#include "TestCommand.h"
+#include "DownloadCommand.h"
+#include "ErrorCommand.h"
+#include "ResumeCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
 
-using namespace AppInstaller::Utility::literals;
-
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::Utility::literals;
     using namespace Settings;
 
     namespace
@@ -126,6 +132,33 @@ namespace AppInstaller::CLI
             }
             adminSettingsTable.Complete();
         }
+
+        void OutputKeyDirectories(Execution::Context& context)
+        {
+            Execution::TableOutput<2> keyDirectories{ context.Reporter, { Resource::String::KeyDirectoriesHeader, {} } };
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::Logs }, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation, true).u8string() });
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::UserSettings }, UserSettings::SettingsFilePath(true).u8string() });
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableLinksUser }, Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation, true).u8string() });
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableLinksMachine }, Runtime::GetPathTo(Runtime::PathName::PortableLinksMachineLocation, true).u8string() });
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRootUser }, Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot, true).u8string() });
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRoot, true).u8string() });
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot86 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86, true).u8string() });
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::InstallerDownloads }, Runtime::GetPathTo(Runtime::PathName::UserProfileDownloads, true).u8string() });
+            keyDirectories.Complete();
+            context.Reporter.Info() << std::endl;
+        }
+
+        void OutputLinks(Execution::Context& context)
+        {
+            Execution::TableOutput<2> links{ context.Reporter, { Resource::String::Links, {} } };
+            links.OutputLine({ Resource::LocString{ Resource::String::PrivacyStatement }, "https://aka.ms/winget-privacy" });
+            links.OutputLine({ Resource::LocString{ Resource::String::LicenseAgreement }, "https://aka.ms/winget-license" });
+            links.OutputLine({ Resource::LocString{ Resource::String::ThirdPartSoftwareNotices }, "https://aka.ms/winget-3rdPartyNotice" });
+            links.OutputLine({ Resource::LocString{ Resource::String::MainHomepage }, "https://aka.ms/winget" });
+            links.OutputLine({ Resource::LocString{ Resource::String::WindowsStoreTerms }, "https://www.microsoft.com/en-us/storedocs/terms-of-sale" });
+            links.Complete();
+            context.Reporter.Info() << std::endl;
+        }
     }
 
     std::vector<std::unique_ptr<Command>> RootCommand::GetCommands() const
@@ -147,6 +180,16 @@ namespace AppInstaller::CLI
             std::make_unique<ExportCommand>(FullName()),
             std::make_unique<ImportCommand>(FullName()),
             std::make_unique<PinCommand>(FullName()),
+            std::make_unique<ConfigureCommand>(FullName()),
+            std::make_unique<DownloadCommand>(FullName()),
+            std::make_unique<ErrorCommand>(FullName()),
+            std::make_unique<ResumeCommand>(FullName()),
+#if _DEBUG
+            std::make_unique<DebugCommand>(FullName()),
+#endif
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            std::make_unique<TestCommand>(FullName()),
+#endif
         });
     }
 
@@ -210,22 +253,10 @@ namespace AppInstaller::CLI
                 info << Resource::String::Package(Runtime::GetPackageVersion()) << std::endl;
             };
 
-            info << std::endl << Resource::String::Logs(Utility::LocIndView{ Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() }) << std::endl;
-            info << std::endl << Resource::String::UserSettings(Utility::LocIndView{ UserSettings::SettingsFilePath(true).u8string() }) << std::endl;
-
             info << std::endl;
 
-            Execution::TableOutput<2> links{ context.Reporter, { Resource::String::Links, {} } };
-
-            links.OutputLine({ Resource::LocString(Resource::String::PrivacyStatement).get(), "https://aka.ms/winget-privacy" });
-            links.OutputLine({ Resource::LocString(Resource::String::LicenseAgreement).get(), "https://aka.ms/winget-license" });
-            links.OutputLine({ Resource::LocString(Resource::String::ThirdPartSoftwareNotices).get(), "https://aka.ms/winget-3rdPartyNotice" });
-            links.OutputLine({ Resource::LocString(Resource::String::MainHomepage).get(), "https://aka.ms/winget" });
-            links.OutputLine({ Resource::LocString(Resource::String::WindowsStoreTerms).get(), "https://www.microsoft.com/en-us/storedocs/terms-of-sale" });
-
-            links.Complete();
-            info << std::endl;
-
+            OutputKeyDirectories(context);
+            OutputLinks(context);
             OutputGroupPolicies(context);
             OutputAdminSettings(context);
         }

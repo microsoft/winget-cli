@@ -11,3 +11,4 @@ EXPORTS
     WindowsPackageManagerInProcModuleTerminate
     WindowsPackageManagerInProcModuleGetClassObject
     WindowsPackageManagerInProcModuleGetActivationFactory
+    WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization

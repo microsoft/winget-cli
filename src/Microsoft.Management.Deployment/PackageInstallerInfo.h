@@ -19,6 +19,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::System::ProcessorArchitecture Architecture();
         winrt::Microsoft::Management::Deployment::PackageInstallerScope Scope();
         hstring Locale();
+        // Contract 6.0
+        winrt::Microsoft::Management::Deployment::ElevationRequirement ElevationRequirement();
         
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

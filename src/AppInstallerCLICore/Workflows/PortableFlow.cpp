@@ -4,9 +4,9 @@
 #include "PortableFlow.h"
 #include "PortableInstaller.h"
 #include "WorkflowBase.h"
-#include "winget/Filesystem.h"
-#include "winget/PortableFileEntry.h"
-#include <Microsoft/PortableIndex.h>
+#include <winget/Filesystem.h>
+#include <winget/PortableFileEntry.h>
+#include <winget/PortableIndex.h>
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
@@ -172,6 +172,8 @@ namespace AppInstaller::CLI::Workflow
         // InstallerPath will point to a directory if it is extracted from an archive.
         if (std::filesystem::is_directory(installerPath))
         {
+            portableInstaller.RecordToIndex = true;
+
             for (const auto& entry : std::filesystem::directory_iterator(installerPath))
             {
                 std::filesystem::path entryPath = entry.path();
@@ -189,17 +191,12 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            if (entries.size() > 1)
-            {
-                portableInstaller.RecordToIndex = true;
-            }
-
             const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
 
             for (const auto& nestedInstallerFile : nestedInstallerFiles)
             {
                 const std::filesystem::path& targetPath = targetInstallDirectory / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
-                
+
                 std::filesystem::path commandAlias;
                 if (nestedInstallerFile.PortableCommandAlias.empty())
                 {
@@ -218,31 +215,20 @@ namespace AppInstaller::CLI::Workflow
         {
             std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
             const std::vector<string_t>& commands = context.Get<Execution::Data::Installer>()->Commands;
-            std::filesystem::path fileName;
-            std::filesystem::path commandAlias;
-            
+            std::filesystem::path commandAlias = installerPath.filename();
+
+            if (!commands.empty())
+            {
+                commandAlias = ConvertToUTF16(commands[0]);
+            }
+
             if (!renameArg.empty())
             {
-                fileName = commandAlias = ConvertToUTF16(renameArg);
+                commandAlias = ConvertToUTF16(renameArg);
             }
-            else
-            {
-                if (!commands.empty())
-                {
-                    commandAlias = ConvertToUTF16(commands[0]);
-                }
-                else
-                {
-                    commandAlias = installerPath.filename();
-                }
-
-                fileName = installerPath.filename();
-            }
-
-            AppInstaller::Filesystem::AppendExtension(fileName, ".exe");
             AppInstaller::Filesystem::AppendExtension(commandAlias, ".exe");
 
-            const std::filesystem::path& targetFullPath = targetInstallDirectory / fileName;
+            const std::filesystem::path& targetFullPath = targetInstallDirectory / commandAlias;
             entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, {})));
             entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetFullPath)));
         }

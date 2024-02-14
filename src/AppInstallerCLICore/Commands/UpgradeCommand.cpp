@@ -11,13 +11,13 @@
 #include "Resources.h"
 #include <winget/LocIndependent.h>
 
-using namespace AppInstaller::CLI::Execution;
-using namespace AppInstaller::Manifest;
-using namespace AppInstaller::CLI::Workflow;
-using namespace AppInstaller::Utility::literals;
-
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::CLI::Workflow;
+    using namespace AppInstaller::Utility::literals;
+
     namespace
     {
         // Determines whether we should list available upgrades, instead
@@ -55,14 +55,19 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomSwitches),
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation), // -l
-            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::InstallArchitecture), // -a
+            Argument::ForType(Args::Type::InstallerType),
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AllowReboot),
+            Argument::ForType(Args::Type::SkipDependencies),
             Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
-            Argument::ForType(Execution::Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AuthenticationMode),
+            Argument::ForType(Args::Type::AuthenticationAccount),
             Argument{ Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
             Argument{ Args::Type::IncludePinned, Resource::String::IncludePinnedArgumentDescription, ArgumentType::Flag},
@@ -162,7 +167,7 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
-                EnsureMatchesFromSearchResult(true) <<
+                EnsureMatchesFromSearchResult(OperationType::Upgrade) <<
                 ReportListResult(true);
         }
         else if (context.Args.Contains(Execution::Args::Type::All))
@@ -171,7 +176,7 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
-                EnsureMatchesFromSearchResult(true) <<
+                EnsureMatchesFromSearchResult(OperationType::Upgrade) <<
                 ReportListResult(true) <<
                 UpdateAllApplicable;
         }
@@ -181,7 +186,7 @@ namespace AppInstaller::CLI
             context <<
                 GetManifestFromArg <<
                 SearchSourceUsingManifest <<
-                EnsureOneMatchFromSearchResult(true) <<
+                EnsureOneMatchFromSearchResult(OperationType::Upgrade) <<
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
@@ -193,17 +198,19 @@ namespace AppInstaller::CLI
             // The remaining case: search for specific packages to update
             if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
-                context << Workflow::InstallOrUpgradeSinglePackage(/* isUpgrade */ true);
+                context << Workflow::InstallOrUpgradeSinglePackage(OperationType::Upgrade);
             }
             else
             {
+                bool skipDependencies = Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies);
                 context <<
                     Workflow::GetMultiSearchRequests <<
-                    Workflow::SearchSubContextsForSingle(Workflow::SearchSubContextsForSingle::SearchPurpose::Upgrade) <<
+                    Workflow::SearchSubContextsForSingle(OperationType::Upgrade) <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
-                    Workflow::InstallMultiplePackages(
-                        Resource::String::InstallAndUpgradeCommandsReportDependencies,
-                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+                    Workflow::ProcessMultiplePackages(
+                        Resource::String::PackageRequiresDependencies,
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED,
+                        {}, true, skipDependencies);
             }
         }
     }

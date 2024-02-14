@@ -141,7 +141,10 @@ namespace AppInstaller::YAML::Wrapper
                 pop = true;
                 break;
             case YAML_SCALAR_NODE:
-                stackItem.node->SetScalar(ConvertScalarToString(stackItem.yamlNode));
+                stackItem.node->SetScalar(
+                    ConvertScalarToString(stackItem.yamlNode),
+                    stackItem.yamlNode->data.scalar.style == YAML_SINGLE_QUOTED_SCALAR_STYLE ||
+                    stackItem.yamlNode->data.scalar.style == YAML_DOUBLE_QUOTED_SCALAR_STYLE);
                 pop = true;
                 break;
             case YAML_SEQUENCE_NODE:

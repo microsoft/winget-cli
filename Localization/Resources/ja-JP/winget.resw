@@ -271,6 +271,10 @@
     <value>このパッケージは Microsoft Store から提供されています。winget は、現在のユーザーに代わって Microsoft Store からパッケージを取得する必要がある場合があります。</value>
     <comment>{Locked="winget"}</comment>
   </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>構成されたソースを探して見つけるかマニフェストから直接見つけて、選んだパッケージをインストールします。既定では、そのクエリはパッケージの id、name、または moniker と大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すと使えます。既定では、install コマンドは、パッケージのインストール済み状態を確認し、アップグレードがあればそれを実行しようとします。直接インストールするには、--force を指定してオーバーライドします。</value>
+    <comment>{Locked="--force"}; id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>指定されたパッケージをインストール</value>
   </data>
@@ -314,6 +318,10 @@
   <data name="InvalidNameError" xml:space="preserve">
     <value>引数名が現在のコマンドに対して認識されませんでした: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
+  </data>
+  <data name="KeyDirectoriesHeader" xml:space="preserve">
+    <value>Winget ディレクトリ</value>
+    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>使用するロケール (BCP47 形式)</value>
@@ -377,18 +385,6 @@
   <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
     <value>Microsoft Store パッケージをインストールまたはアップグレードできませんでした。エラー コード: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
-  </data>
-  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
-    <value>パッケージ取得の成功の確認/要求に失敗しました: ネットワーク エラー</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
-    <value>パッケージ取得の成功の確認/要求に失敗しました: ストア アカウントが見つかりませんでした</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
-    <value>パッケージ取得の成功の確認/要求に失敗しました: サーバー エラー</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
-    <value>パッケージ取得の成功の確認/要求</value>
   </data>
   <data name="MSStoreStoreClientBlocked" xml:space="preserve">
     <value>Microsoft Store クライアントがポリシーによってブロックされているため、Microsoft Store パッケージをインストールまたはアップグレードできませんでした</value>
@@ -684,6 +680,9 @@
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>コマンドの実行中に予期しないエラーが発生しました:</value>
   </data>
+  <data name="UninstallPreviousArgumentDescription" xml:space="preserve">
+    <value>アップグレード中に以前のバージョンのパッケージをアンインストールする</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>認識されないコマンド: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
@@ -694,6 +693,15 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>適用可能なアップグレードは見つかりませんでした。</value>
   </data>
+  <data name="UpdateNotApplicableReason" xml:space="preserve">
+    <value>構成されたソースでは新しいパッケージ バージョンを使用できますが、システムまたは要件には適用されません。</value>
+  </data>
+  <data name="UpdateNoPackagesFound" xml:space="preserve">
+    <value>利用可能なアップグレードが見つかりませんでした。</value>
+  </data>
+  <data name="UpdateNoPackagesFoundReason" xml:space="preserve">
+    <value>構成されたソースから入手できる新しいパッケージ バージョンはありません。</value>
+  </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>インストールされたパッケージ リスト、またはマニフェストから直接検索し、選択されたパッケージをアップグレードします。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。引数が指定されていない場合は、利用可能なアップグレードを含むパッケージが表示されます</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
@@ -702,8 +710,8 @@
     <value>利用可能なアップグレードの表示と実行</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>使用法: {0}{1}</value>
-    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
+    <value>使用法: {0} {1}</value>
+    <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>厳密なガイドラインのセットを使用してマニフェストを検証します。これは、リポジトリに送信する前にマニフェストを確認できるようにすることを目的としています。</value>
@@ -759,8 +767,8 @@
     <value>ローカル マニフェストと検索クエリ引数の両方が指定されています</value>
   </data>
   <data name="Logs" xml:space="preserve">
-    <value>ログ: {0}</value>
-    <comment>{Locked="{0}"} Label displayed for diagnostic files containing information about the application use. {0} is a placeholder replaced by the logs directory path.</comment>
+    <value>ログ</value>
+    <comment>Label displayed for diagnostic files containing information about the application use.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>インストーラーはポリシーによってブロックされています</value>
@@ -824,10 +832,6 @@
   <data name="ImportInstallFailed" xml:space="preserve">
     <value>1つまたは複数のインポートされたパッケージをインストールできませんでした</value>
   </data>
-  <data name="ImportSearchFailed" xml:space="preserve">
-    <value>インポート用のパッケージが見つかりません: {0}</value>
-    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
-  </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
     <value>インポートに必要なソースがインストールされていません: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
@@ -837,8 +841,8 @@
     <comment>{Locked="{0}"} Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
-    <value>インストールされているパッケージのバージョンは、どのソースからも使用できません: {0}{1}{2}</value>
-    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
+    <value>インストールされているパッケージのバージョンは、どのソースからも使用できません: {0} {1} {2}</value>
+    <comment>{Locked="{0} {1} {2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>インポート ファイルにパッケージが見つかりません</value>
@@ -846,9 +850,9 @@
   <data name="InvalidJsonFile" xml:space="preserve">
     <value>JSON ファイルが無効です</value>
   </data>
-  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+  <data name="MultiQueryPackageAlreadyInstalled" xml:space="preserve">
     <value>パッケージは既にインストールされています: {0}</value>
-    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>使用できないパッケージを無視する</value>
@@ -899,24 +903,15 @@
   <data name="PolicyEnableWinGet" xml:space="preserve">
     <value>Windows パッケージ マネージャーを有効にする</value>
   </data>
+  <data name="PolicyEnableWindowsPackageManagerCommandLineInterfaces" xml:space="preserve">
+    <value>Windows パッケージ マネージャーのコマンド ライン インターフェイスを有効にする</value>
+  </data>
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>Windows パッケージ マネージャーのソース自動更新間隔を分単位で設定する</value>
-  </data>
-  <data name="PoliciesDisabled" xml:space="preserve">
-    <value>無効</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
-  <data name="PoliciesEnabled" xml:space="preserve">
-    <value>有効</value>
-    <comment>As in enabled/disabled</comment>
   </data>
   <data name="PoliciesPolicy" xml:space="preserve">
     <value>グループ ポリシー</value>
     <comment>Header for a table listing active Group Policies</comment>
-  </data>
-  <data name="PoliciesState" xml:space="preserve">
-    <value>都道府県</value>
-    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
   </data>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Windows アプリ インストーラーのローカル マニフェスト ファイルを有効にする</value>
@@ -988,9 +983,9 @@
     <value>このインポートで見つかったパッケージには、次の依存関係があります:</value>
     <comment>Import command sentence showed before reporting dependencies</comment>
   </data>
-  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+  <data name="PackageRequiresDependencies" xml:space="preserve">
     <value>このパッケージには次の依存関係が必要です:</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+    <comment>Message shown before reporting dependencies</comment>
   </data>
   <data name="DependenciesFlowInstall" xml:space="preserve">
     <value>依存関係をインストールしています</value>
@@ -1024,7 +1019,7 @@
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
     <value>manifest: {0} {1} に適したインストーラーが見つかりません</value>
-    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
+    <comment>{Locked="{0} {1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>パッケージ依存関係の処理中にエラーが発生しました。インストールを続行しますか?</value>
@@ -1217,15 +1212,17 @@
   <data name="AdminSettingDisableDescription" xml:space="preserve">
     <value>特定の管理者設定を無効にします</value>
   </data>
-  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>指定された管理者設定引数が多すぎます: '{0}'</value>
-    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
-  </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
-    <value>管理者設定が有効になりました。</value>
+    <value>管理者設定 '{0}' を有効にしました。</value>
+    <comment>{Locked="{0}"} Message displayed when the user enables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
   </data>
   <data name="AdminSettingDisabled" xml:space="preserve">
-    <value>管理者設定が無効になっています。</value>
+    <value>管理者設定 '{0}' を無効にしました。</value>
+    <comment>{Locked="{0}"} Message displayed when the user disables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
+  </data>
+  <data name="AdminSettingHeader" xml:space="preserve">
+    <value>管理者設定</value>
+    <comment>Header for a table displaying admin settings.</comment>
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>アプリケーションは現在実行中です。アプリケーションを終了してから、もう一度お試しください。</value>
@@ -1315,6 +1312,9 @@
   <data name="CountOutOfBoundsError" xml:space="preserve">
     <value>要求された結果の数は 1 から 1000 の間である必要があります。</value>
   </data>
+  <data name="CustomSwitchesArgumentDescription" xml:space="preserve">
+    <value>既定値に加えてインストーラーに渡される引数</value>
+  </data>
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>新しいバージョンが見つかりましたが、インストールテクノロジが現在インストールされているバージョンと異なります。パッケージをアンインストールして、新しいバージョンをインストールしてください。</value>
   </data>
@@ -1325,31 +1325,27 @@
     <value>Windows パッケージ マネージャー (プレビュー) v{0}</value>
     <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
-  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
-    <value>アーキテクチャを選択してインストール</value>
+  <data name="ArchitectureArgumentDescription" xml:space="preserve">
+    <value>アーキテクチャを選択する</value>
   </data>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
     <value>現在のバージョンを特定できない場合でもパッケージをアップグレードする</value>
+  </data>
+  <data name="IncludeUnknownInListArgumentDescription" xml:space="preserve">
+    <value>現在のバージョンを特定できない場合でもパッケージを一覧表示します。--upgrade-available 引数でのみ使用できます</value>
+    <comment>{Locked="--upgrade-available"}</comment>
   </data>
   <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
     <value>このパッケージのバージョン番号を特定できません。とにかくアップグレードするには、前のコマンドに引数 --include-unknown を追加します。</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
-  <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>パッケージのバージョン番号を判別できません。"--include-unknown" を使用すると、その他の結果が表示される場合があります。</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
-  </data>
-  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>パッケージのバージョン番号を判別できません。"--include-unknown" を使用すると、その他の結果が表示される場合があります。</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
-  </data>
   <data name="UpgradeUnknownVersionCount" xml:space="preserve">
-    <value>個のパッケージのバージョン番号を判別できません。すべての結果を表示するには、"--include-unknown" を指定します。</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+    <value>{0} 個のパッケージのバージョン番号を判別できません。すべての結果を表示するには、--include-unknown を使用してください。</value>
+    <comment>{Locked="{0}","--include-unknown"} {0} is a placeholder that is replaced by an integer number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeRequireExplicitCount" xml:space="preserve">
-    <value>パッケージがピン留めされているため、明示的にアップグレードする必要があります。</value>
-    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+    <value>{0} パッケージがピン留めされているため、明示的にアップグレードする必要があります。</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages that require explicit upgrades.</comment>
   </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>指定された引数はクエリでのみ使用できます。</value>
@@ -1405,12 +1401,23 @@
   <data name="PortableAliasAdded" xml:space="preserve">
     <value>コマンド ライン エイリアスが追加されました:</value>
   </data>
+  <data name="PortableLinksMachine" xml:space="preserve">
+    <value>ポータブル リンク ディレクトリ (マシン)</value>
+  </data>
+  <data name="PortableLinksUser" xml:space="preserve">
+    <value>ポータブル リンク ディレクトリ (ユーザー)</value>
+  </data>
+  <data name="PortableRootUser" xml:space="preserve">
+    <value>ポータブル パッケージ ルート (ユーザー)</value>
+  </data>
+  <data name="PortableRoot" xml:space="preserve">
+    <value>ポータブル パッケージ ルート</value>
+  </data>
+  <data name="PortableRoot86" xml:space="preserve">
+    <value>ポータブル パッケージ ルート (x86)</value>
+  </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>ポータブル インストールに失敗しました; クリーンアップしています...</value>
-  </data>
-  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>--purge と --preserve 引数の両方が指定されています</value>
-    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
     <value>移植可能パッケージは変更されています。--force が指定されているため続行しています</value>
@@ -1464,6 +1471,9 @@
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>互換性のないコマンド ライン引数が指定されました</value>
+  </data>
+  <data name="UpgradeArgumentDescription" xml:space="preserve">
+    <value>アップグレードが利用可能なパッケージのみを一覧表示します</value>
   </data>
   <data name="UpgradeAvailableForPinned" xml:space="preserve">
     <value>次のパッケージにはアップグレードを適用可能ですが、アップグレードには明示的対象化が必要です:</value>
@@ -1544,14 +1554,14 @@
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
   </data>
   <data name="PinAddCommandLongDescription" xml:space="preserve">
-    <value>新しいピンを追加します。ピン留めをすると、Windows パッケージ マネージャーがパッケージを特定のバージョンの範囲に更新するのを制限したり、パッケージを完全に更新できなくなる可能性があります。ピン留めされたパッケージは、それ自体で更新され、Windows パッケージ マネージャー外から更新される可能性があります。既定では、ピン留めされたパッケージを更新するには、'upgrade' コマンドで明示的に指定するか、'--include-pinned' フラグを 'winget upgrade --all' に追加します。</value>
+    <value>新しいピンを追加します。ピン留めをすると、Windows パッケージ マネージャーがパッケージを特定のバージョンの範囲にアップグレードするのを制限したり、パッケージを完全にアップグレードできなくなる可能性があります。ピン留めされたパッケージは、それ自体でアップグレードされ、Windows パッケージ マネージャー外からアップグレードされる可能性があります。既定では、ピン留めされたパッケージをアップグレードするには、'upgrade' コマンドで明示的に指定するか、'--include-pinned' フラグを 'winget upgrade --all' に追加します。</value>
     <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
   </data>
   <data name="PinAddCommandShortDescription" xml:space="preserve">
     <value>新しい PIN を追加する</value>
   </data>
   <data name="PinCommandLongDescription" xml:space="preserve">
-    <value>サブコマンドを使用してパッケージのピンを管理します。ピン留めすると、Windows パッケージ マネージャーがパッケージを特定のバージョンの範囲に更新するのを制限したり、パッケージを完全に更新できなくなる可能性があります。ピン留めされたパッケージは、それ自体で更新され、Windows パッケージ マネージャー外から更新される可能性があります。</value>
+    <value>サブコマンドを使用してパッケージのピンを管理します。ピン留めすると、Windows パッケージ マネージャーがパッケージを特定のバージョンの範囲にアップグレードするのを制限したり、パッケージを完全にアップグレードできなくなる可能性があります。ピン留めされたパッケージは、それ自体でアップグレードされ、Windows パッケージ マネージャー外からアップグレードされる可能性があります。</value>
   </data>
   <data name="PinCommandShortDescription" xml:space="preserve">
     <value>パッケージ ピンの管理</value>
@@ -1574,15 +1584,18 @@
   <data name="PinResetCommandShortDescription" xml:space="preserve">
     <value>PIN をリセット</value>
   </data>
-  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
-    <value>バージョン引数と '--blocking' 引数の両方が指定されています</value>
-    <comment>{Locked="--blocking"}</comment>
-  </data>
   <data name="GatedVersionArgumentDescription" xml:space="preserve">
     <value>パッケージをピン留めするバージョン。ワイルドカード '*' を最後のバージョン部分として使用できます</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
     <value>ピンが削除されるまで更新をブロックし、引数をオーバーライドできないようにします</value>
+  </data>
+  <data name="PinInstalledArgumentDescription" xml:space="preserve">
+    <value>インストールされている特定のバージョンをピン留めする</value>
+  </data>
+  <data name="PinInstalledSource" xml:space="preserve">
+    <value>インストール済み</value>
+    <comment>Value used in a table to indicate that a package comes from the list of packages installed in the machine</comment>
   </data>
   <data name="SettingsExportCommandLongDescription" xml:space="preserve">
     <value>設定を JSON としてエクスポート</value>
@@ -1591,8 +1604,8 @@
     <value>設定のエクスポート</value>
   </data>
   <data name="UserSettings" xml:space="preserve">
-    <value>ユーザー設定: {0}</value>
-    <comment>{Locked="{0}"} Label displayed for the file containing the user settings. {0} is a placeholder replaced by the user settings file path.</comment>
+    <value>ユーザー設定</value>
+    <comment>Label displayed for the file containing the user settings.</comment>
   </data>
   <data name="SettingsWarningUsingDefault" xml:space="preserve">
     <value>設定ファイルを読み込めませんでした。既定値を使用しています。</value>
@@ -1600,5 +1613,465 @@
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
     <value>インストールされているパッケージ スコープ フィルター (ユーザーまたはコンピューター) の選択</value>
     <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
+  </data>
+  <data name="PinAdded" xml:space="preserve">
+    <value>ピンが正常に追加されました</value>
+  </data>
+  <data name="PinAlreadyExists" xml:space="preserve">
+    <value>パッケージ {0}の PIN は既に存在します</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to add a pin for a package that is already pinned.</comment>
+  </data>
+  <data name="PinExistsOverwriting" xml:space="preserve">
+    <value>パッケージ {0}の PIN は既に存在します。--force引数が原因で上書きしています。</value>
+    <comment>{Locked="--force"}{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
+  </data>
+  <data name="PinExistsUseForceArg" xml:space="preserve">
+    <value>パッケージ {0}の PIN は既に存在します。--force引数を使用して上書きします。</value>
+    <comment>{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
+  </data>
+  <data name="PinResettingAll" xml:space="preserve">
+    <value>現在のすべてのピンをリセットしています。</value>
+  </data>
+  <data name="PinResetUseForceArg" xml:space="preserve">
+    <value>--force 引数を使用して、すべてのピンをリセットします。次のピンが削除されます:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PinType" xml:space="preserve">
+    <value>ピンの種類</value>
+  </data>
+  <data name="PinDoesNotExist" xml:space="preserve">
+    <value>パッケージ {0} にピンがありません</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to delete a pin for a package that is not pinned.</comment>
+  </data>
+  <data name="PinNoPinsExist" xml:space="preserve">
+    <value>ピンが構成されていません。</value>
+    <comment>Shown when listing or modifying existing pins if there are none.</comment>
+  </data>
+  <data name="PinResetSuccessful" xml:space="preserve">
+    <value>ピンが正常にリセットされました</value>
+    <comment>Shown after resetting (deleting) all the pins</comment>
+  </data>
+  <data name="PinCannotOpenIndex" xml:space="preserve">
+    <value>ピン データベースを開けません。</value>
+    <comment>Error message for when we cannot open the database containing package pins.</comment>
+  </data>
+  <data name="ArgumentForSinglePackageProvidedWithMultipleQueries" xml:space="preserve">
+    <value>1 つのパッケージにのみ使用できる引数が指定されました</value>
+  </data>
+  <data name="MultipleExclusiveArgumentsProvided" xml:space="preserve">
+    <value>複数の相互排他的引数が指定されました: {0}</value>
+    <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
+  </data>
+  <data name="DependencyArgumentMissing" xml:space="preserve">
+    <value>引数 {0} は {1} でのみ使用できます</value>
+    <comment>{Locked="{0}","{1}"} Error message shown when having an argument needs another to be present, but that is missing. {0} and {1} are replaced by the arguments. For example "Argument --include-unknown can only be used with --upgrade"</comment>
+  </data>
+  <data name="StateDisabled" xml:space="preserve">
+    <value>無効</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateEnabled" xml:space="preserve">
+    <value>有効</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateHeader" xml:space="preserve">
+    <value>状態</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies and Settings</comment>
+  </data>
+  <data name="MultiQueryArgumentDescription" xml:space="preserve">
+    <value>パッケージの検索に使用されるクエリ</value>
+  </data>
+  <data name="MultiQueryPackageNotFound" xml:space="preserve">
+    <value>パッケージが見つかりません: {0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns no results. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFoundMultiple" xml:space="preserve">
+    <value>複数のパッケージが見つかりました: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFailed" xml:space="preserve">
+    <value>検索に失敗しました: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches fails. This message is for generic failures, we have more specific messages for when the search returns no results, or when it returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="UpgradeBlockedByPinCount" xml:space="preserve">
+    <value>{0} 個のパッケージには、アップグレードする前に削除する必要があるピンがあります</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
+  </data>
+  <data name="IncludePinnedArgumentDescription" xml:space="preserve">
+    <value>ブロックでないピンを持っている場合でもパッケージをアップグレードする</value>
+  </data>
+  <data name="IncludePinnedInListArgumentDescription" xml:space="preserve">
+    <value>アップグレードを妨げるピンがある場合でもパッケージを一覧表示します。--upgrade-available 引数でのみ使用できます</value>
+    <comment>{Locked="--upgrade-available"}</comment>
+  </data>
+  <data name="PinRemovedSuccessfully" xml:space="preserve">
+    <value>ピンが正常に削除されました</value>
+  </data>
+  <data name="UpgradeIsPinned" xml:space="preserve">
+    <value>新しいバージョンが見つかりましたが、パッケージにアップグレードを止めるピンが含まれています。</value>
+  </data>
+  <data name="PackageIsPinned" xml:space="preserve">
+    <value>パッケージはピン留めされているため、アップグレードできません。ピンを表示および編集するには、'winget pin' コマンドを使用します。一部のピンの種類は、--include-pinned 引数を使用してバイパスできます。</value>
+    <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
+  </data>
+  <data name="UpgradePinnedByUserCount" xml:space="preserve">
+    <value>{0} 個のパッケージには、アップグレードを止めるピンがあります。'winget pin' コマンドを使用してピンを表示および編集します。--include-pinned 引数を使用すると、より多くの結果が表示される場合があります。</value>
+    <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
+  </data>
+  <data name="ConfigureCommandLongDescription" xml:space="preserve">
+    <value>指定された構成で説明されているように、システムが適切な状態と一致することを確認します。適切な状態を達成するために、プロセッサをダウンロードまたは実行してください。構成とプロセッサを実行する前に、それらが信頼できることを確認する必要があります。</value>
+  </data>
+  <data name="ConfigureCommandShortDescription" xml:space="preserve">
+    <value>システムを適切な状態に構成します</value>
+  </data>
+  <data name="ConfigureShowCommandLongDescription" xml:space="preserve">
+    <value>指定された構成の詳細を表示します。既定では、システムは変更されませんが、一部のオプションによってファイルがダウンロードまたは読み込まれます。</value>
+  </data>
+  <data name="ConfigureShowCommandShortDescription" xml:space="preserve">
+    <value>構成の詳細を表示します</value>
+  </data>
+  <data name="ConfigureTestCommandLongDescription" xml:space="preserve">
+    <value>指定された構成で説明されているように、システムが適切な状態と一致することを確認します。適切な状態をテストするために、プロセッサをダウンロードまたは実行してください。構成とプロセッサを実行する前に、それらが信頼できることを確認する必要があります。</value>
+  </data>
+  <data name="ConfigureTestCommandShortDescription" xml:space="preserve">
+    <value>システムを適切な状態と照合します</value>
+  </data>
+  <data name="ConfigureValidateCommandLongDescription" xml:space="preserve">
+    <value>構成ファイルの正確性を検証します。</value>
+  </data>
+  <data name="ConfigureValidateCommandShortDescription" xml:space="preserve">
+    <value>構成ファイルを検証します</value>
+  </data>
+  <data name="ConfigurationFieldInvalidType" xml:space="preserve">
+    <value>構成ファイル'{0}'フィールドの種類が正しくありません。</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file.</comment>
+  </data>
+  <data name="ConfigurationFileArgumentDescription" xml:space="preserve">
+    <value>構成ファイルへのパス</value>
+  </data>
+  <data name="ConfigurationFileInvalid" xml:space="preserve">
+    <value>構成ファイルが無効です。</value>
+  </data>
+  <data name="ConfigurationFileVersionUnknown" xml:space="preserve">
+    <value>構成ファイル バージョン {0} は不明です。</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the version of the configuration file.</comment>
+  </data>
+  <data name="ConfigurationAcceptWarningArgumentDescription" xml:space="preserve">
+    <value>構成の警告を受け入れ、対話型プロンプトを表示できないようにします</value>
+  </data>
+  <data name="ConfigurationApply" xml:space="preserve">
+    <value>適用</value>
+    <comment>Indicates that this item is used to write state</comment>
+  </data>
+  <data name="ConfigurationAssert" xml:space="preserve">
+    <value>アサート</value>
+    <comment>Indicates that this item is used to check/assert the state rather than write to it</comment>
+  </data>
+  <data name="ConfigurationDependencies" xml:space="preserve">
+    <value>依存関係:{0}</value>
+    <comment>{Locked="{0}"} Label displaying a list of dependencies. {0} is replaced with a space separated list of identifiers referencing other items.</comment>
+  </data>
+  <data name="ConfigurationFailedToApply" xml:space="preserve">
+    <value>一部の構成が正常に適用されませんでした。</value>
+  </data>
+  <data name="ConfigurationFailedToGetDetails" xml:space="preserve">
+    <value>構成に関する詳細情報を取得できませんでした。</value>
+  </data>
+  <data name="ConfigurationInform" xml:space="preserve">
+    <value>情報</value>
+    <comment>Indicates that this item is used to retrieve values for future use rather than writing them</comment>
+  </data>
+  <data name="ConfigurationLocal" xml:space="preserve">
+    <value>ローカル</value>
+    <comment>Used to indicate that the item is present on the device.</comment>
+  </data>
+  <data name="ConfigurationModuleNameOnly" xml:space="preserve">
+    <value>モジュール: {0}</value>
+    <comment>{Locked="{0}"} Label displaying a module name. {0} is replaced with the name of the module from the user input file.</comment>
+  </data>
+  <data name="ConfigurationModuleWithDetails" xml:space="preserve">
+    <value>モジュール: {1} [{2}] による {0}</value>
+    <comment>{Locked="{0}","{1}","{2}"} Label displaying module information. {0} is replaced by the module name. {1} is replaced by the module author. {2} is replaced by a string indicating the source of the module.</comment>
+  </data>
+  <data name="ConfigurationSettings" xml:space="preserve">
+    <value>設定:</value>
+    <comment>Label for the values that are used as inputs for this item when applying state</comment>
+  </data>
+  <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
+    <value>構成が正常に適用されました。</value>
+  </data>
+  <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
+    <value>別の構成がシステムに適用されています。この構成は可能な限り早く続行...</value>
+  </data>
+  <data name="ConfigurationWarning" xml:space="preserve">
+    <value>実行を選択した構成設定について理解する責任はお客様にあります。お客様が作成またはインポートした構成ファイルについて、Microsoft は責任を負いません。この構成により、Windows の設定の変更、ソフトウェアのインストール、ソフトウェアの設定の変更 (セキュリティ設定を含む) が行われることや、サードパーティのパッケージとサービスに対するユーザー同意事項についてお客様の代理としての承諾が行われることがあります。この構成ファイルを実行することは、これらのリソースと設定を理解して同意したことの確認となります。インストールされるアプリケーションがある場合、それぞれの所有者からライセンスが付与されます。サードパーティのパッケージまたはサービスについて Microsoft は責任を負わず、ライセンスを付与することもありません。</value>
+    <comment>Legal approved. Do not change without approval.</comment>
+  </data>
+  <data name="ConfigurationWarningPromptApply" xml:space="preserve">
+    <value>構成を確認してから、システムへの適用を続行しますか?</value>
+    <comment>PM approved.</comment>
+  </data>
+  <data name="ConfigurationFileEmpty" xml:space="preserve">
+    <value>構成が空です。</value>
+  </data>
+  <data name="WindowsFeatureNotFound" xml:space="preserve">
+    <value>機能 [{0}] が見つかりませんでした。</value>
+    <comment>{Locked="{0}"} Error message displayed when a Windows feature was not found on the system.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
+    <value>Windows 機能の依存関係を有効にできませんでした。インストールを続行するには、'--force'を使用します。</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="RebootRequiredToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
+    <value>Windows 機能を完全に有効にするには再起動が必要です。このチェックをオーバーライドするには、'--force' を使用してください。</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
+    <value>Windows 機能の依存関係を有効にできませんでした;--forceが原因で続行しています</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.
+{Locked="--force"}</comment>
+  </data>
+  <data name="EnablingWindowsFeature" xml:space="preserve">
+    <value>{0} [{1}] を有効にしています...</value>
+    <comment>{Locked="{0}","{1}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeature" xml:space="preserve">
+    <value>{0} [{1}] 機能を有効にできませんでした。</value>
+    <comment>{Locked="{0}"} Windows Feature display name
+{Locked="{1}"} Windows Feature name</comment>
+  </data>
+  <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
+    <value>Windows 機能を完全に有効にするには再起動が必要です。--force が原因で続行しています</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
+  </data>
+  <data name="InstallWaitingOnAnother" xml:space="preserve">
+    <value>別のインストール/アンインストールが完了するのを待機しています...</value>
+  </data>
+  <data name="PinVersion" xml:space="preserve">
+    <value>ピン留めされたバージョン</value>
+    <comment>Table header for the version to which a package is pinned; meaning it should not update from that version.</comment>
+  </data>
+  <data name="ConfigurationDescriptionWasTruncated" xml:space="preserve">
+    <value>&lt;追加の詳細については、ログ ファイルを参照&gt;</value>
+    <comment>The brackets are intended to make the value stand out from other text which it will follow. Any locale appropriate mechanism that achieves this is acceptable.</comment>
+  </data>
+  <data name="ConfigurationGettingDetails" xml:space="preserve">
+    <value>構成の詳細を取得しています</value>
+  </data>
+  <data name="ConfigurationInitializing" xml:space="preserve">
+    <value>構成システムを初期化しています</value>
+  </data>
+  <data name="ConfigurationReadingConfigFile" xml:space="preserve">
+    <value>構成ファイルを読み取っています</value>
+  </data>
+  <data name="ConfigurationUnitAssertHadNegativeResult" xml:space="preserve">
+    <value>このシステムは、構成によってアサートされた適切な状態ではありません。</value>
+  </data>
+  <data name="ConfigurationUnitFailed" xml:space="preserve">
+    <value>この構成単位は不明な理由で失敗しました: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedConfigSet" xml:space="preserve">
+    <value>構成が原因で構成単位が失敗しました: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedDuringGet" xml:space="preserve">
+    <value>現在のシステム状態の取得中に構成単位が失敗しました。</value>
+  </data>
+  <data name="ConfigurationUnitFailedDuringSet" xml:space="preserve">
+    <value>必要な状態の適用中に構成単位が失敗しました。</value>
+  </data>
+  <data name="ConfigurationUnitFailedDuringTest" xml:space="preserve">
+    <value>現在のシステム状態のテスト中に構成単位が失敗しました。</value>
+  </data>
+  <data name="ConfigurationUnitFailedInternal" xml:space="preserve">
+    <value>内部エラーのため、構成単位が失敗しました: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedPrecondition" xml:space="preserve">
+    <value>必須条件が無効なため、構成単位が失敗しました: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedSystemState" xml:space="preserve">
+    <value>システムの状態が原因で構成単位が失敗しました: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedUnitProcessing" xml:space="preserve">
+    <value>構成単位の実行中にエラーが発生しました: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitHasDuplicateIdentifier" xml:space="preserve">
+    <value>構成に識別子 '{0}' が複数回含まれています。</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by the identifier string from the user input file.</comment>
+  </data>
+  <data name="ConfigurationUnitHasMissingDependency" xml:space="preserve">
+    <value>依存関係 '{0}' が構成内に見つかりませんでした。</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by the identifier string from the user input file.</comment>
+  </data>
+  <data name="ConfigurationUnitManuallySkipped" xml:space="preserve">
+    <value>この構成単位は手動でスキップされました。</value>
+  </data>
+  <data name="ConfigurationUnitModuleConflict" xml:space="preserve">
+    <value>構成単位のモジュールは、同じバージョンの複数の場所で使用できます。</value>
+  </data>
+  <data name="ConfigurationUnitModuleImportFailed" xml:space="preserve">
+    <value>構成単位のモジュールを読み込めませんでした。</value>
+  </data>
+  <data name="ConfigurationUnitMultipleMatches" xml:space="preserve">
+    <value>構成単位に一致する項目が複数見つかりました。モジュールを指定して、正しいモジュールを選択してください。</value>
+  </data>
+  <data name="ConfigurationUnitNotFound" xml:space="preserve">
+    <value>構成単位が見つかりませんでした。</value>
+  </data>
+  <data name="ConfigurationUnitNotFoundInModule" xml:space="preserve">
+    <value>構成単位がモジュール内に正しく含まれていませんでした。</value>
+  </data>
+  <data name="ConfigurationUnitNotRunDueToDependency" xml:space="preserve">
+    <value>依存関係が失敗したか、実行されなかったため、この構成単位は実行されませんでした。</value>
+  </data>
+  <data name="ConfigurationUnitNotRunDueToFailedAssert" xml:space="preserve">
+    <value>アサートが失敗したか false であったため、この構成単位は実行されませんでした。</value>
+  </data>
+  <data name="ConfigurationUnitReturnedInvalidResult" xml:space="preserve">
+    <value>構成単位が実行中に予期しない結果を返しました。</value>
+  </data>
+  <data name="ConfigurationUnitSkipped" xml:space="preserve">
+    <value>この構成単位は不明な理由で実行されませんでした: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationFieldInvalidValue" xml:space="preserve">
+    <value>フィールド '{0}'に無効な値が含まれています: {1}</value>
+    <comment>{Locked="{0}","{1}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file. {1} is a placeholder for the invalid value.</comment>
+  </data>
+  <data name="ConfigurationFieldMissing" xml:space="preserve">
+    <value>フィールド '{0}' が見つからないか、空です。</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the expected field name from the file.</comment>
+  </data>
+  <data name="SeeLineAndColumn" xml:space="preserve">
+    <value>ファイル内の行{0}、列{1}を参照してください。</value>
+    <comment>{Locked="{0}","{1}"} Indicates the file location of the error, {0} and {1} are placeholders for numbers of the line and column, respectively.</comment>
+  </data>
+  <data name="CancellingOperation" xml:space="preserve">
+    <value>操作を取り消しています</value>
+  </data>
+  <data name="InstallStubPackageDescription" xml:space="preserve">
+    <value>AppInstaller のスタブ パッケージをインストールする</value>
+  </data>
+  <data name="InstallFullPackageDescription" xml:space="preserve">
+    <value>AppInstaller のフル パッケージをインストールする</value>
+  </data>
+  <data name="ConfigurationEnableMessage" xml:space="preserve">
+    <value>構成コンポーネントを有効にします。ストアへのアクセス権が必要です。</value>
+  </data>
+  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+    <value>オプション '--enable' と '--disable' は他の引数で使用することはできません。</value>
+    <comment>{Locked="--enable", "--disable"}</comment>
+  </data>
+  <data name="ConfigurationEnablingMessage" xml:space="preserve">
+    <value>構成コンポーネントを有効にしています。ストアへのアクセス権が必要です。</value>
+  </data>
+  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
+    <value>構成が有効になっていません。'winget configure --enable' を実行して有効にしてください。</value>
+  </data>
+  <data name="ConfigurationEnabledMessage" xml:space="preserve">
+    <value>構成が有効になっています。</value>
+  </data>
+  <data name="ConfigurationDisableMessage" xml:space="preserve">
+    <value>構成コンポーネントを無効にします。ストアへのアクセス権が必要です。</value>
+  </data>
+  <data name="ConfigurationDisablingMessage" xml:space="preserve">
+    <value>構成コンポーネントを無効にしています。ストアへのアクセス権が必要です。</value>
+  </data>
+  <data name="ConfigurationDisabledMessage" xml:space="preserve">
+    <value>構成が無効になっています。</value>
+  </data>
+  <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
+    <value>パッケージの依存関係と Windows 機能の処理をスキップする</value>
+  </data>
+  <data name="DependenciesSkippedMessage" xml:space="preserve">
+    <value>依存関係がスキップされました。</value>
+  </data>
+  <data name="FailedToRefreshPathWarning" xml:space="preserve">
+    <value>プロセスの PATH 変数を更新できませんでした。PATH 変数への変更に依存する後続のインストールは失敗する可能性があります。</value>
+    <comment>{Locked="PATH"}</comment>
+  </data>
+  <data name="ConfigurationFailedToTest" xml:space="preserve">
+    <value>状態のテスト中に一部の構成ユニットが失敗しました。</value>
+  </data>
+  <data name="ConfigurationInDesiredState" xml:space="preserve">
+    <value>システムは記述された構成状態です。</value>
+  </data>
+  <data name="ConfigurationNoTestRun" xml:space="preserve">
+    <value>構成の状態がテストされませんでした。</value>
+  </data>
+  <data name="ConfigurationNotInDesiredState" xml:space="preserve">
+    <value>システムは、記述された構成状態ではありません。</value>
+  </data>
+  <data name="ConfigurationUnexpectedTestResult" xml:space="preserve">
+    <value>予期しないテスト結果: {0}</value>
+    <comment>{Locked="{0}"} Error message. {0} will be replaced with the unexpected value (a number).</comment>
+  </data>
+  <data name="ConfigurationWarningPromptTest" xml:space="preserve">
+    <value>構成を確認してから、システムに対する検証を続行しますか?</value>
+  </data>
+  <data name="ConfigurationFileInvalidYAML" xml:space="preserve">
+    <value>構成ファイルが有効な YAML ファイルではありません。</value>
+    <comment>{Locked="YAML"} YAML is a file format name.</comment>
+  </data>
+  <data name="ConfigurationUnitIsPartOfDependencyCycle" xml:space="preserve">
+    <value>この構成ユニットは依存関係サイクルの一部です。</value>
+  </data>
+  <data name="ConfigurationValidationFoundNoIssues" xml:space="preserve">
+    <value>検証で問題は見つかりませんでした。</value>
+  </data>
+  <data name="ConfigurationUnitNeedsPrereleaseWarning" xml:space="preserve">
+    <value>構成ユニットはプレリリースとしてのみ使用できますが、構成内でそのようにマークされていません。'allowPrerelease: true' を 'directives' に追加してください。</value>
+    <comment>{Locked="allowPrerelease: true","directives"} These are values in the configuration file that are not localized.</comment>
+  </data>
+  <data name="ConfigurationUnitNotInCatalogWarning" xml:space="preserve">
+    <value>構成単位がローカルで見つかりましたが、構成されたカタログに見つかりませんでした。構成を適用する前に、それがシステムに存在することを確認してください。</value>
+  </data>
+  <data name="ConfigurationUnitNotPublicWarning" xml:space="preserve">
+    <value>構成ユニットはパブリックに使用できません。この構成を使用するすべてのユーザーがアクセスできることを確認してください。</value>
+  </data>
+  <data name="ConfigurationUnitModuleNotProvidedWarning" xml:space="preserve">
+    <value>モジュールが指定されませんでした。モジュールを指定すると、パフォーマンスが向上し、今後の名前の競合が回避されます。</value>
+  </data>
+  <data name="DownloadCommandLongDescription" xml:space="preserve">
+    <value>構成されたソースを探して見つけるかマニフェストから直接見つけて、選んだパッケージからインストーラをダウンロードします。既定では、そのクエリはパッケージの id、name、または moniker と大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すと使えます。既定では、download コマンドによってユーザーのダウンロード フォルダーに該当するインストーラがダウンロードされます。</value>
+  </data>
+  <data name="DownloadCommandShortDescription" xml:space="preserve">
+    <value>指定されたパッケージからインストーラをダウンロードする</value>
+  </data>
+  <data name="DownloadDirectoryArgumentDescription" xml:space="preserve">
+    <value>インストーラのダウンロード先ディレクトリ</value>
+  </data>
+  <data name="DependenciesFlowDownload" xml:space="preserve">
+    <value>依存関係をダウンロードしています:</value>
+  </data>
+  <data name="InstallerDownloaded" xml:space="preserve">
+    <value>インストーラがダウンロードされました: {0}</value>
+    <comment>{Locked="{0}"} Full path of the downloaded installer.</comment>
+  </data>
+  <data name="InstallerTypeArgumentDescription" xml:space="preserve">
+    <value>インストーラ タイプを選択する</value>
+  </data>
+  <data name="InstallerDownloads" xml:space="preserve">
+    <value>インストーラのダウンロード</value>
+  </data>
+  <data name="InstallerDownloadCommandProhibited" xml:space="preserve">
+    <value>インストーラは、後でオフラインでインストールするためにダウンロードすることはできません。 </value>
+  </data>
+  <data name="ConfigurationAllUsersElevated" xml:space="preserve">
+    <value>`--module-path allusers` を実行するには管理者特権が必要です。</value>
+    <comment>{Locked="--module-path allusers"}</comment>
+  </data>
+  <data name="ConfigurationModulePath" xml:space="preserve">
+    <value>モジュールを格納するローカル コンピューター上の場所を指定します。既定の %LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules</value>
+    <comment>{Locked="allusers","currentuser","default","%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
+  </data>
+  <data name="ConfigurationModulePathArgError" xml:space="preserve">
+    <value>`--module-path` 値は、`currentuser`、`allusers`、`default`、または絶対パスである必要があります。</value>
+    <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
   </data>
 </root>

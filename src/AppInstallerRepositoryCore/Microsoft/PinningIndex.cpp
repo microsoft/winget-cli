@@ -2,14 +2,68 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PinningIndex.h"
-#include "SQLiteStorageBase.h"
+#include <winget/SQLiteStorageBase.h>
 #include "Schema/Pinning_1_0/PinningIndexInterface.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
-    PinningIndex PinningIndex::CreateNew(const std::string& filePath, Schema::Version version)
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    std::optional<std::filesystem::path> s_PinningIndexOverride{};
+    void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath)
     {
-        AICLI_LOG(Repo, Info, << "Creating new Pinning Index [" << version << "] at '" << filePath << "'");
+        s_PinningIndexOverride = std::move(indexPath);
+    }
+#endif
+
+    namespace
+    {
+        std::filesystem::path GetPinningDatabasePath()
+        {
+            const auto DefaultPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
+
+            return
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                s_PinningIndexOverride.has_value() ? s_PinningIndexOverride.value() :
+#endif
+                DefaultPath;
+        }
+
+        std::shared_ptr<PinningIndex> OpenDatabaseIfExists(const std::filesystem::path& path, SQLite::SQLiteStorageBase::OpenDisposition openDisposition)
+        {
+            AICLI_LOG(Repo, Info, << "Attempting to open pinning database: " << path);
+
+            try
+            {
+                if (std::filesystem::exists(path))
+                {
+                    if (std::filesystem::is_regular_file(path))
+                    {
+                        try
+                        {
+                            AICLI_LOG(Repo, Info, << "... opening existing pinning database");
+                            return std::make_shared<PinningIndex>(PinningIndex::Open(path.u8string(), openDisposition));
+                        }
+                        CATCH_LOG();
+
+                        AICLI_LOG(Repo, Info, << "... deleting bad pinning database file");
+                        std::filesystem::remove_all(path);
+                    }
+                    else
+                    {
+                        AICLI_LOG(Repo, Info, << "... deleting pinning database path that is a directory");
+                        std::filesystem::remove_all(path);
+                    }
+                }
+            }
+            CATCH_LOG();
+
+            return {};
+        }
+    }
+
+    PinningIndex PinningIndex::CreateNew(const std::string& filePath, SQLite::Version version)
+    {
+        AICLI_LOG(Repo, Info, << "Creating new Pinning Index with version [" << version << "] at '" << filePath << "'");
         PinningIndex result{ filePath, version };
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "pinningindex_createnew");
@@ -26,55 +80,35 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    std::optional<std::filesystem::path> s_PinningIndexOverride{};
-    void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath)
+    std::shared_ptr<PinningIndex> PinningIndex::OpenIfExists(OpenDisposition openDisposition)
     {
-        s_PinningIndexOverride = std::move(indexPath);
+        return OpenDatabaseIfExists(GetPinningDatabasePath(), openDisposition);
     }
-#endif
 
     std::shared_ptr<PinningIndex> PinningIndex::OpenOrCreateDefault(OpenDisposition openDisposition)
     {
-        const auto DefaultIndexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        const auto indexPath = s_PinningIndexOverride.has_value() ? s_PinningIndexOverride.value() : DefaultIndexPath;
-#else
-        const auto indexPath = DefaultIndexPath;
-#endif
+        const auto databasePath = GetPinningDatabasePath();
 
-        AICLI_LOG(Repo, Info, << "Opening pinning index");
+        std::shared_ptr<PinningIndex> result = OpenDatabaseIfExists(databasePath, openDisposition);
 
-
-        try
+        if (!result)
         {
-            if (std::filesystem::exists(indexPath))
+            AICLI_LOG(Repo, Info, << "... creating pinning database");
+
+            try
             {
-                if (std::filesystem::is_regular_file(indexPath))
-                {
-                    try
-                    {
-                        AICLI_LOG(Repo, Info, << "Opening existing pinning index");
-                        return std::make_shared<PinningIndex>(PinningIndex::Open(indexPath.u8string(), openDisposition));
-                    }
-                    CATCH_LOG();
-                }
-
-                AICLI_LOG(Repo, Info, << "Attempting to delete bad index file");
-                std::filesystem::remove_all(indexPath);
+                result = std::make_shared<PinningIndex>(PinningIndex::CreateNew(databasePath.u8string()));
             }
-
-            return std::make_shared<PinningIndex>(PinningIndex::CreateNew(indexPath.u8string()));
+            CATCH_LOG();
         }
-        CATCH_LOG();
 
-        return {};
+        return result;
     }
 
     PinningIndex::IdType PinningIndex::AddPin(const Pinning::Pin& pin)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Adding Pin for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "] with pin type " << Pinning::ToString(pin.GetType()));
+        AICLI_LOG(Repo, Verbose, << "Adding Pin " << pin.ToString());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_addpin");
 
@@ -90,7 +124,7 @@ namespace AppInstaller::Repository::Microsoft
     bool PinningIndex::UpdatePin(const Pinning::Pin& pin)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Updating Pin for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "] with pin type " << Pinning::ToString(pin.GetType()));
+        AICLI_LOG(Repo, Verbose, << "Updating Pin " << pin.ToString());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_updatepin");
 
@@ -121,7 +155,7 @@ namespace AppInstaller::Repository::Microsoft
     void PinningIndex::RemovePin(const Pinning::PinKey& pinKey)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Removing Pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
+        AICLI_LOG(Repo, Verbose, << "Removing Pin " << pinKey.ToString());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_removePin");
 
@@ -152,7 +186,7 @@ namespace AppInstaller::Repository::Microsoft
 
     std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndex() const
     {
-        if (m_version == Schema::Version{ 1, 0 } ||
+        if (m_version == SQLite::Version{ 1, 0 } ||
             m_version.MajorVersion == 1 ||
             m_version.IsLatest())
         {
@@ -170,7 +204,7 @@ namespace AppInstaller::Repository::Microsoft
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
 
-    PinningIndex::PinningIndex(const std::string& target, Schema::Version version) : SQLiteStorageBase(target, version)
+    PinningIndex::PinningIndex(const std::string& target, SQLite::Version version) : SQLiteStorageBase(target, version)
     {
         m_interface = CreateIPinningIndex();
         m_version = m_interface->GetVersion();

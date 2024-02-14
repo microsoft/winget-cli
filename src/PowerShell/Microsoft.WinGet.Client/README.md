@@ -1,18 +1,46 @@
 ﻿# Windows Package Manager PowerShell Module
 
-This project contains the source code for building the Windows Package Manager PowerShell Module.
+The Windows Package Manager PowerShell Module is made up on two components
+
+1. The `Microsoft.WinGet.Client.Cmdlets` project which contains cmdlet implementations.
+2. The `Microsoft.WinGet.Client.Engine` project which contain the real logic for the cmdlets.
 
 ## Building the PowerShell Module Locally
 
-After building the project solution, the `Microsoft.WinGet.Client` PowerShell module can be found in the output directory in the `PowerShell` folder. For example if you built the project as x64 release, you should expect to find the module files in `$(SolutionDirectory)/src/x64/Release/PowerShell`.
+After building the Microsoft.WinGet.Client.Cmdlets project, the `Microsoft.WinGet.Client` PowerShell module can be found in the output directory in the `PowerShell` folder. For example if you built the project as x64 release, you should expect to find the module files in `$(SolutionDirectory)/src/x64/Release/PowerShell`.
 
-## Prerequisites
+This project has after build targets that will copy all the necessary files in the correct location.
 
-The PowerShell module has a dependency on the latest [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist?view=msvc-170) package which can be downloaded or installed through the Windows Package Manager (WinGet) by running the following command:
+## Adding a new cmdlet
+In order to avoid [assembly dependency conflicts](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts?view=powershell-7.3) this project uses a custom `AssemblyLoadContext` that load all dependencies.
 
-```
-winget install --id Microsoft.VCRedist.2015+.x64
-```
+Microsoft.WinGet.Client.Cmdlets.dll is the binary that gets loaded when the module is imported. When Microsoft.WinGet.Client.Engine.dll is getting loaded the resolving handler use the custom ALC to load it. Then all the dependencies of that binary will be loaded using that custom context.
+
+The dependencies are laid out in two directories: `DirectDependencies` and `SharedDependencies`. The resolving handler looks for binaries under `DirectDependencies` and uses the custom ALC to load them. The custom ALC load any binaries in `DirectDependencies` and `SharedDependencies`.
+
+Exception: WinRT.Runtime.dll doesn't support getting loaded in multiple times in the same process, because it affects static state in the CLR itself. We special case it to get loaded in by the default loader.
+
+If the new cmdlet introduces a new dependency, please make sure to add it in the after build targets to copy it in the Dependencies directory.
+
+## Cmdlets
+- Assert-WinGetPackageManager
+- Find-WinGetPackage
+- Get-WinGetPackage
+- Get-WinGetSource
+- Get-WinGetUserSettings
+- Get-WinGetVersion
+- Install-WinGetPackage
+- Repair-WinGetPackageManager
+- Set-WinGetUserSettings
+- Test-WinGetUserSettings
+- Uninstall-WinGetPackage
+- Update-WinGetPackage
+- Add-WinGetSource
+- Disable-WinGetSetting
+- Enable-WinGetSetting
+- Get-WinGetSettings
+- Remove-WinGetSource
+- Reset-WinGetSource
 
 ## Quick Start Guide
 
@@ -27,18 +55,3 @@ Import the module manifest (Microsoft.WinGet.Client.psd1) by running the followi
 ```
 Import-Module <Path to Microsoft.WinGet.Client.psd1>
 ```
-
-The following cmdlets and functions are available for you to try:
-
-    Get-WinGetVersion
-    Enable-WinGetSetting
-    Disable-WinGetSetting
-    Add-WinGetSource
-    Remove-WinGetSource
-    Reset-WinGetSource
-    Find-WinGetPackage
-    Get-WinGetPackage
-    Get-WinGetSource
-    Install-WinGetPackage
-    Uninstall-WinGetPackage
-    Update-WinGetPackage

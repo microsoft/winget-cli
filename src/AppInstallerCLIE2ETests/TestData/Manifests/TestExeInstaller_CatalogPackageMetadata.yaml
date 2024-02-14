@@ -1,0 +1,53 @@
+# Manifest for verifying the output of the CatalogPackageMetadata COM object.
+PackageIdentifier: AppInstallerTest.CatalogPackageMetadata
+PackageVersion: 1.0.0.0
+PackageName: TestCatalogPackageMetadata
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: testLicense
+ShortDescription: testShortDescription
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    InstallerSwitches:
+      Custom: /execustom
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+Agreements:
+  - AgreementLabel: testAgreementLabel
+    Agreement: testAgreementText
+    AgreementUrl: https://testAgreementUrl.net
+PublisherUrl: https://testPublisherUrl.com
+PublisherSupportUrl: https://testPublisherSupportUrl.com
+PrivacyUrl: https://testPrivacyUrl.com
+Author: testAuthor
+PackageUrl: https://testPackageUrl.com
+LicenseUrl: https://testLicenseUrl.com
+Copyright: testCopyright
+CopyrightUrl: https://testCopyrightUrl.com
+Description: testDescription
+Moniker: testMoniker
+PurchaseUrl: https://testPurchaseUrl.com
+Tags:
+  - "tag1"
+  - "tag2"
+ReleaseNotes: testReleaseNotes
+ReleaseNotesUrl: https://testReleaseNotes.net
+InstallationNotes: testInstallationNotes
+Documentations:
+  - DocumentLabel: testDocumentLabel
+    DocumentUrl: https://testDocumentUrl.com
+Icons:
+  - IconUrl: https://testIcon
+    IconFileType: ico
+    IconResolution: custom
+    IconTheme: default
+    IconSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123
+ManifestType: singleton
+ManifestVersion: 1.5.0

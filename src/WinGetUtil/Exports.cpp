@@ -85,7 +85,7 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, !!*index);
 
         std::string filePathUtf8 = ConvertToUTF8(filePath);
-        Schema::Version internalVersion{ majorVersion, minorVersion };
+        AppInstaller::SQLite::Version internalVersion{ majorVersion, minorVersion };
 
         std::unique_ptr<SQLiteIndex> result = std::make_unique<SQLiteIndex>(SQLiteIndex::CreateNew(filePathUtf8, internalVersion));
 
@@ -291,6 +291,11 @@ extern "C"
                 validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetCreateManifestOption::ReturnErrorOnVerifiedPublisherFields);
             }
 
+            if (WI_IsFlagSet(option, WinGetCreateManifestOption::AllowShadowManifest))
+            {
+                validateOption.AllowShadowManifest = true;
+            }
+
             std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L""));
 
             *manifest = static_cast<WINGET_MANIFEST_HANDLE>(result.release());
@@ -301,7 +306,13 @@ extern "C"
             *succeeded = e.IsWarningOnly();
             if (*succeeded)
             {
-                std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath));
+                ManifestValidateOption validateOption;
+                if (WI_IsFlagSet(option, WinGetCreateManifestOption::AllowShadowManifest))
+                {
+                    validateOption.AllowShadowManifest = true;
+                }
+
+                std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath, validateOption));
                 *manifest = static_cast<WINGET_MANIFEST_HANDLE>(result.release());
             }
             if (message)

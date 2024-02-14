@@ -40,14 +40,12 @@ namespace AppInstaller::CLI::Execution
         {
             Reporter.SetChannel(Reporter::Channel::Disabled);
             Reporter.SetProgressSink(this);
-            SetFlags(CLI::Execution::ContextFlag::AgreementsAcceptedByCaller);
             SetFlags(CLI::Execution::ContextFlag::DisableInteractivity);
         }
 
         COMContext(std::ostream& out, std::istream& in) : CLI::Execution::Context(out, in)
         {
             Reporter.SetProgressSink(this);
-            SetFlags(CLI::Execution::ContextFlag::AgreementsAcceptedByCaller);
             SetFlags(CLI::Execution::ContextFlag::DisableInteractivity);
         }
 
@@ -56,6 +54,7 @@ namespace AppInstaller::CLI::Execution
         // IProgressSink
         void BeginProgress() override;
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
+        void SetProgressMessage(std::string_view message) override;
         void EndProgress(bool) override;
 
         //Execution::Context

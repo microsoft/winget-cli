@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestHooks.h"
 #include <AppInstallerRuntime.h>
+#include <winget/Filesystem.h>
 
 using namespace AppInstaller;
 using namespace AppInstaller::Runtime;
@@ -77,8 +79,15 @@ TEST_CASE("ApplyACL_BothOwners", "[runtime]")
     details.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
     details.ACL[ACEPrincipal::System] = ACEPermissions::All;
 
-    // Both cannot be owners
-    REQUIRE_THROWS_HR(details.ApplyACL(), HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+    if (IsRunningAsSystem())
+    {
+        // Both cannot be owners
+        REQUIRE_THROWS_HR(details.ApplyACL(), HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+    }
+    else
+    {
+        REQUIRE_NOTHROW(details.ApplyACL());
+    }
 }
 
 TEST_CASE("ApplyACL_CurrentUserOwner_SystemAll", "[runtime]")
@@ -113,4 +122,22 @@ TEST_CASE("VerifyDevModeEnabledCheck", "[runtime]")
 
     REQUIRE(modifiedState != initialState);
     REQUIRE(revertedState == initialState);
+}
+
+TEST_CASE("EnsureUserProfileNotPresentInDisplayPaths", "[runtime]")
+{
+    // Clear the overrides that we use when testing as they don't consider display purposes
+    Runtime::TestHook_ClearPathOverrides();
+    auto restorePaths = wil::scope_exit([]() { TestCommon::SetTestPathOverrides(); });
+
+    std::filesystem::path userProfilePath = Filesystem::GetKnownFolderPath(FOLDERID_Profile);
+    std::string userProfileString = userProfilePath.u8string();
+
+    for (auto i = ToIntegral(ToEnum<PathName>(0)); i < ToIntegral(PathName::Max); ++i)
+    {
+        std::filesystem::path displayPath = GetPathTo(ToEnum<PathName>(i), true);
+        std::string displayPathString = displayPath.u8string();
+        INFO(i << " = " << displayPathString);
+        REQUIRE(displayPathString.find(userProfileString) == std::string::npos);
+    }
 }

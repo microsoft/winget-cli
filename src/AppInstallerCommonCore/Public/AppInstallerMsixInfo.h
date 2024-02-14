@@ -91,7 +91,7 @@ namespace AppInstaller::Msix
         void WriteToFileHandle(std::string_view packageFile, HANDLE target, IProgressCallback& progress);
 
         // Get application package manifests from msix and msixbundle.
-        std::vector<MsixPackageManifest> GetAppPackageManifests() const;
+        std::vector<MsixPackageManifest> GetAppPackageManifests(bool includeStub = false) const;
 
     private:
         bool m_isBundle;
@@ -99,8 +99,8 @@ namespace AppInstaller::Msix
         Microsoft::WRL::ComPtr<IAppxBundleReader> m_bundleReader;
         Microsoft::WRL::ComPtr<IAppxPackageReader> m_packageReader;
 
-        // Get application packages.
-        std::vector<Microsoft::WRL::ComPtr<IAppxPackageReader>> GetAppPackages() const;
+        // Get application packages. Ignore stub packages if any.
+        std::vector<Microsoft::WRL::ComPtr<IAppxPackageReader>> GetAppPackages(bool includeStub = false) const;
     };
 
     struct GetCertContextResult

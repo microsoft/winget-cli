@@ -72,6 +72,11 @@ namespace AppInstaller
             // Gets the string resource value.
             std::string ResolveString(std::wstring_view resKey) const
             {
+                if (resKey.empty())
+                {
+                    return {};
+                }
+
                 if (m_wingetLoader)
                 {
                     return Utility::ConvertToUTF8(m_wingetLoader.GetString(resKey));
@@ -79,6 +84,26 @@ namespace AppInstaller
 
                 // Loader failed to load resource file, print the resource key instead.
                 return Utility::ConvertToUTF8(resKey);
+            }
+
+            // Gets the string resource value or nothing if not present.
+            std::optional<Resource::LocString> TryResolveString(std::wstring_view resKey) const
+            {
+                if (!resKey.empty() && m_wingetLoader)
+                {
+                    try
+                    {
+                        winrt::hstring result = m_wingetLoader.GetString(resKey);
+
+                        if (!result.empty())
+                        {
+                            return Resource::LocString{ Utility::LocIndString{ Utility::ConvertToUTF8(result) } };
+                        }
+                    }
+                    CATCH_LOG()
+                }
+
+                return {};
             }
 
         private:
@@ -117,6 +142,11 @@ namespace AppInstaller
         std::ostream& operator<<(std::ostream& out, StringId si)
         {
             return (out << Resource::LocString{ si });
+        }
+
+        std::optional<Resource::LocString> TryResolveString(std::wstring_view resKey)
+        {
+            return Resource::Loader::Instance().TryResolveString(resKey);
         }
     }
 }

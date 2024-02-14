@@ -5,10 +5,11 @@
 #include "ExecutionReporter.h"
 #include <winget/ExperimentalFeature.h>
 #include <winget/RepositorySearch.h>
+#include <winget/RepositorySource.h>
+#include <winget/Authentication.h>
 
 #include <string>
 #include <string_view>
-
 
 namespace AppInstaller::CLI::Execution
 {
@@ -29,13 +30,27 @@ namespace AppInstaller::CLI::Workflow
         PostExecution = 5000,
     };
 
+    enum class OperationType
+    {
+        Completion,
+        Export,
+        Install,
+        List,
+        Pin,
+        Search,
+        Show,
+        Uninstall,
+        Upgrade,
+        Download,
+    };
+
     // A task in the workflow.
     struct WorkflowTask
     {
         using Func = void (*)(Execution::Context&);
 
         WorkflowTask(Func f) : m_isFunc(true), m_func(f) {}
-        WorkflowTask(std::string_view name) : m_name(name) {}
+        WorkflowTask(std::string_view name, bool executeAlways = false) : m_name(name), m_executeAlways(executeAlways) {}
 
         virtual ~WorkflowTask() = default;
 
@@ -50,15 +65,22 @@ namespace AppInstaller::CLI::Workflow
         virtual void operator()(Execution::Context& context) const;
 
         const std::string& GetName() const { return m_name; }
+        bool IsFunction() const { return m_isFunc; }
+        Func Function() const { return m_func; }
+        bool ExecuteAlways() const { return m_executeAlways; }
 
     private:
         bool m_isFunc = false;
         Func m_func = nullptr;
         std::string m_name;
+        bool m_executeAlways = false;
     };
 
     // Helper to determine installed source to use based on context input.
     Repository::PredefinedSource DetermineInstalledSource(const Execution::Context& context);
+
+    // Helper to create authentication arguments from context input.
+    Authentication::AuthenticationArguments GetAuthenticationArguments(const Execution::Context& context);
 
     // Helper to report exceptions and return the HRESULT.
     HRESULT HandleException(Execution::Context& context, std::exception_ptr exception);
@@ -216,13 +238,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct EnsureMatchesFromSearchResult : public WorkflowTask
     {
-        EnsureMatchesFromSearchResult(bool isFromInstalledSource) :
-            WorkflowTask("EnsureMatchesFromSearchResult"), m_isFromInstalledSource(isFromInstalledSource) {}
+        EnsureMatchesFromSearchResult(OperationType operation) :
+            WorkflowTask("EnsureMatchesFromSearchResult"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_isFromInstalledSource;
+        OperationType m_operationType;
     };
 
     // Ensures that there is only one result in the search.
@@ -231,13 +253,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Package
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
     {
-        EnsureOneMatchFromSearchResult(bool isFromInstalledSource) :
-            WorkflowTask("EnsureOneMatchFromSearchResult"), m_isFromInstalledSource(isFromInstalledSource) {}
+        EnsureOneMatchFromSearchResult(OperationType operation) :
+            WorkflowTask("EnsureOneMatchFromSearchResult"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_isFromInstalledSource;
+        OperationType m_operationType;
     };
 
     // Gets the manifest from package.
@@ -302,6 +324,22 @@ namespace AppInstaller::CLI::Workflow
         Execution::Args::Type m_arg;
     };
 
+    // Ensures the local file exists and is not a directory. Or it's a Uri. Default only https is supported at the moment.
+    // Required Args: the one given
+    // Inputs: None
+    // Outputs: None
+    struct VerifyFileOrUri : public WorkflowTask
+    {
+        VerifyFileOrUri(Execution::Args::Type arg, std::vector<std::wstring> supportedSchemes = { L"https" }) :
+            WorkflowTask("VerifyFileOrUri"), m_arg(arg), m_supportedSchemes(std::move(supportedSchemes)) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::Args::Type m_arg;
+        std::vector<std::wstring> m_supportedSchemes;
+    };
+
     // Opens the manifest file provided on the command line.
     // Required Args: Manifest
     // Inputs: None
@@ -338,21 +376,6 @@ namespace AppInstaller::CLI::Workflow
         std::optional<Resource::StringId> m_label;
         Execution::Reporter::Level m_level;
     };
-
-    // Composite flow that produces a manifest; either from one given on the command line or by searching.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: Manifest
-    struct GetManifest : public WorkflowTask
-    {
-        GetManifest(bool considerPins) : WorkflowTask("GetManifest"), m_considerPins(considerPins) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        bool m_considerPins;
-    };
-
 
     // Selects the installer from the manifest, if one is applicable.
     // Required Args: None

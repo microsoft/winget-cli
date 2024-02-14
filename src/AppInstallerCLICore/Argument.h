@@ -58,15 +58,19 @@ namespace AppInstaller::CLI
         // Arguments for installer or uninstaller behavior, which do not work for multiple packages.
         // E.g.: --override
         SingleInstallerBehavior = 0x20,
-        // Arguments for selecting or interacting with the source.
-        // E.g.: --accept-source-agreements
-        Source = 0x40,
+        // Arguments for selecting or interacting with the source used for initial querying
+        // E.g.: --header
+        QuerySource = 0x40,
         // Arguments that only make sense when talking about multiple packages
         MultiplePackages = 0x80,
         // Flag arguments that should be copied over when creating a sub-context
         CopyFlagToSubContext = 0x100,
         // Arguments with associated values that should be copied over when creating a sub-context
         CopyValueToSubContext = 0x200,
+        // Arguments for selecting or interacting with dependencies or setting specific source behaviors
+        // E.g.: --dependency-source
+        // E.g.: --accept-source-agreements
+        ExtendedSource = 0x400,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ArgTypeCategory);
@@ -80,6 +84,7 @@ namespace AppInstaller::CLI
         EnableDisable = 0x2,
         PurgePreserve = 0x4,
         PinType = 0x8,
+        StubType = 0x10,
 
         // This must always be at the end
         Max
@@ -89,7 +94,7 @@ namespace AppInstaller::CLI
 
     // An argument to a command; containing only data that is common to all its uses.
     // Argument extends this by adding command-specific values, like help strings.
-    struct  ArgumentCommon
+    struct ArgumentCommon
     {
         // Defines an argument with no alias.
         constexpr static char NoAlias = '\0';
@@ -181,6 +186,9 @@ namespace AppInstaller::CLI
 
         // Requires that at most one argument from the list is present.
         static void ValidateExclusiveArguments(const Execution::Args& args);
+
+        // Requires that if an argument depends on another one, it is not present without the dependency.
+        static void ValidateArgumentDependency(const Execution::Args& args, Execution::Args::Type type, Execution::Args::Type dependencyArgType);
 
         static ArgTypeCategory GetCategoriesPresent(const Execution::Args& arg);
 

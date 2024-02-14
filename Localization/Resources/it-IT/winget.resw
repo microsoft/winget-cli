@@ -206,7 +206,7 @@
     <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
-    <value>Mostra lo stato delle funzionalità sperimentali. Le funzionalità sperimentali possono essere attivate tramite “winget settings”.</value>
+    <value>Mostra lo stato delle funzionalità sperimentali. Le funzionalità sperimentali possono essere attivate tramite 'winget settings'.</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
@@ -273,7 +273,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>Installa il pacchetto selezionato, trovato eseguendo una ricerca in un'origine configurata o direttamente da un manifesto. Per impostazione predefinita, la query deve corrispondere senza distinzione tra maiuscole e minuscole all'id, name o moniker del pacchetto. È possibile usare altri campi passando l'opzione appropriata. Per impostazione predefinita, il comando install controllerà lo stato di installazione del pacchetto e tenterà di eseguire un aggiornamento, se applicabile. Eseguire l'override con --force per eseguire un'installazione diretta.</value>
-    <comment>{Locked="--force","id","name","moniker"}; id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+    <comment>{Locked="--force"}; id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installa il pacchetto specificato</value>
@@ -318,6 +318,10 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="InvalidNameError" xml:space="preserve">
     <value>Nome argomento non riconosciuto per il comando corrente: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
+  </data>
+  <data name="KeyDirectoriesHeader" xml:space="preserve">
+    <value>Directory WinGet</value>
+    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Impostazioni locali da usare (formato BCP47)</value>
@@ -381,18 +385,6 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
     <value>Non è stato possibile installare o aggiornare il pacchetto di Microsoft Store. Codice di errore: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
-  </data>
-  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
-    <value>Verifica/richiesta di acquisizione pacchetto non riuscita: errore di rete</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
-    <value>Verifica/richiesta di acquisizione pacchetto non riuscita: nessun account Store trovato</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
-    <value>Verifica/richiesta di acquisizione pacchetto non riuscita: errore di rete</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
-    <value>Verifica/richiesta di acquisizione pacchetto riuscita</value>
   </data>
   <data name="MSStoreStoreClientBlocked" xml:space="preserve">
     <value>Non è stato possibile installare o aggiornare il pacchetto Microsoft Store perché il client Microsoft Store è bloccato dai criteri</value>
@@ -688,6 +680,9 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Si è verificato un errore imprevisto durante l'esecuzione del comando:</value>
   </data>
+  <data name="UninstallPreviousArgumentDescription" xml:space="preserve">
+    <value>Disinstalla la versione precedente del pacchetto durante l'aggiornamento</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Comando non riconosciuto: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
@@ -698,6 +693,15 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Non è stato trovato alcun aggiornamento applicabile.</value>
   </data>
+  <data name="UpdateNotApplicableReason" xml:space="preserve">
+    <value>Una versione più recente del pacchetto è disponibile in un'origine configurata, ma non si applica al sistema o ai requisiti.</value>
+  </data>
+  <data name="UpdateNoPackagesFound" xml:space="preserve">
+    <value>Non sono stati trovati aggiornamenti disponibili.</value>
+  </data>
+  <data name="UpdateNoPackagesFoundReason" xml:space="preserve">
+    <value>Non sono disponibili versioni più recenti del pacchetto dalle origini configurate.</value>
+  </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Aggiorna il pacchetto selezionato, trovato eseguendo la ricerca nell'elenco dei pacchetti installati o direttamente da un manifesto. Per impostazione predefinita, la query deve essere insensitively con l'ID, il nome o il moniker del pacchetto. Altri campi possono essere utilizzati passando l'opzione appropriata. Quando non vengono forniti argomenti, mostra i pacchetti con aggiornamenti disponibili</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
@@ -706,8 +710,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Mostra ed esegue gli aggiornamenti disponibili</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>utilizzo: {0}{1}</value>
-    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
+    <value>utilizzo: {0} {1}</value>
+    <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Convalida un manifesto con un insieme di linee guida rigorose. Queste hanno lo scopo di consentirti di controllare il tuo manifesto prima di inviarlo a un repository.</value>
@@ -719,7 +723,7 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Il percorso del manifesto da convalidare</value>
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
-    <value>Abilita la registrazione dettagliata per WinGet</value>
+    <value>Abilita la registrazione dettagliata per winget</value>
   </data>
   <data name="VerifyFileSignedMsix" xml:space="preserve">
     <value>Verifica che il file di input sia un MSIX valido e firmato.</value>
@@ -763,8 +767,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Sono forniti argomenti sia per il manifesto locale che per la query di ricerca.</value>
   </data>
   <data name="Logs" xml:space="preserve">
-    <value>Log: {0}</value>
-    <comment>{Locked="{0}"} Label displayed for diagnostic files containing information about the application use. {0} is a placeholder replaced by the logs directory path.</comment>
+    <value>Log</value>
+    <comment>Label displayed for diagnostic files containing information about the application use.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>Programma di installazione bloccato dai criteri</value>
@@ -828,10 +832,6 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="ImportInstallFailed" xml:space="preserve">
     <value>Impossibile installare uno o più pacchetti importati</value>
   </data>
-  <data name="ImportSearchFailed" xml:space="preserve">
-    <value>Pacchetto non trovato per l'importazione: {0}</value>
-    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
-  </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
     <value>L'origine necessaria per l'importazione non è installata: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
@@ -841,8 +841,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <comment>{Locked="{0}"} Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
-    <value>La versione installata del pacchetto non è disponibile in alcuna origine: {0}{1}{2}</value>
-    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
+    <value>La versione installata del pacchetto non è disponibile in alcuna origine: {0} {1} {2}</value>
+    <comment>{Locked="{0} {1} {2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>Nessun pacchetto trovato nel file di importazione</value>
@@ -850,9 +850,9 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="InvalidJsonFile" xml:space="preserve">
     <value>Il file JSON non è valido</value>
   </data>
-  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+  <data name="MultiQueryPackageAlreadyInstalled" xml:space="preserve">
     <value>Il pacchetto è già installato: {0}</value>
-    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignora pacchetti non disponibili</value>
@@ -903,24 +903,15 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="PolicyEnableWinGet" xml:space="preserve">
     <value>Abilita Gestione pacchetti Windows</value>
   </data>
+  <data name="PolicyEnableWindowsPackageManagerCommandLineInterfaces" xml:space="preserve">
+    <value>Abilita Gestione interfacce della riga di comando dei pacchetti Windows</value>
+  </data>
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>Imposta l’intervallo di aggiornamento automatico di origine Gestione pacchetti Windows in minuti</value>
-  </data>
-  <data name="PoliciesDisabled" xml:space="preserve">
-    <value>Disabilitate</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
-  <data name="PoliciesEnabled" xml:space="preserve">
-    <value>Abilitata</value>
-    <comment>As in enabled/disabled</comment>
   </data>
   <data name="PoliciesPolicy" xml:space="preserve">
     <value>Criteri di gruppo</value>
     <comment>Header for a table listing active Group Policies</comment>
-  </data>
-  <data name="PoliciesState" xml:space="preserve">
-    <value>Stato</value>
-    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
   </data>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Abilita file manifesto locali del programma di installazione app di Windows</value>
@@ -992,9 +983,9 @@ La configurazione è disabilitata a causa dei criteri di gruppo.</value>
     <value>I pacchetti trovati in questa importazione hanno le dipendenze seguenti:</value>
     <comment>Import command sentence showed before reporting dependencies</comment>
   </data>
-  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+  <data name="PackageRequiresDependencies" xml:space="preserve">
     <value>Questo pacchetto richiede le dipendenze seguenti:</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+    <comment>Message shown before reporting dependencies</comment>
   </data>
   <data name="DependenciesFlowInstall" xml:space="preserve">
     <value>Installazione delle dipendenze:</value>
@@ -1028,7 +1019,7 @@ La configurazione è disabilitata a causa dei criteri di gruppo.</value>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
     <value>Non è stato trovato alcun programma di installazione adatto per manifest: {0} {1}</value>
-    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
+    <comment>{Locked="{0} {1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>Errore durante l'elaborazione delle dipendenze del pacchetto. Continuare l'installazione?</value>
@@ -1221,15 +1212,17 @@ Accetti le condizioni?</value>
   <data name="AdminSettingDisableDescription" xml:space="preserve">
     <value>Disabilita l'impostazione di amministratore specifica</value>
   </data>
-  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>Sono stati specificati troppi argomenti dell'impostazione di amministrazione: '{0}'</value>
-    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
-  </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
-    <value>Impostazione di amministrazione abilitata.</value>
+    <value>Impostazione amministratore '{0}' abilitata.</value>
+    <comment>{Locked="{0}"} Message displayed when the user enables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
   </data>
   <data name="AdminSettingDisabled" xml:space="preserve">
-    <value>Impostazione amministratore disabilitata.</value>
+    <value>Impostazione amministratore '{0}' disabilitata.</value>
+    <comment>{Locked="{0}"} Message displayed when the user disables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
+  </data>
+  <data name="AdminSettingHeader" xml:space="preserve">
+    <value>Impostazione amministrazione</value>
+    <comment>Header for a table displaying admin settings.</comment>
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>L'applicazione è attualmente in esecuzione. Uscire dall'applicazione, quindi riprovare.</value>
@@ -1319,6 +1312,9 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="CountOutOfBoundsError" xml:space="preserve">
     <value>Il numero di risultati richiesto deve essere compreso tra 1 e 1000.</value>
   </data>
+  <data name="CustomSwitchesArgumentDescription" xml:space="preserve">
+    <value>Argomenti da passare al programma di installazione oltre ai valori predefiniti</value>
+  </data>
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>È stata trovata una versione più recente, ma la tecnologia di installazione è diversa dalla versione corrente installata. Disinstallare il pacchetto e installare la versione più recente.</value>
   </data>
@@ -1329,31 +1325,27 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
     <value>Gestione pacchetti Windows (Anteprima) v{0}</value>
     <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
-  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
-    <value>Selezionare l'architettura da installare</value>
+  <data name="ArchitectureArgumentDescription" xml:space="preserve">
+    <value>Selezionare l'architettura</value>
   </data>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
     <value>Aggiorna i pacchetti anche se non è possibile determinare la versione corrente</value>
+  </data>
+  <data name="IncludeUnknownInListArgumentDescription" xml:space="preserve">
+    <value>Elenca i pacchetti anche se non è possibile determinare la versione corrente. Può essere utilizzato solo con l'argomento --upgrade-available</value>
+    <comment>{Locked="--upgrade-available"}</comment>
   </data>
   <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
     <value>Non è possibile determinare il numero di versione di questo pacchetto. Per aggiornarlo comunque, aggiungere l'argomento --include-unknown al comando precedente.</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
-  <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>i pacchetti contengono numeri di versione che non possono essere determinati. L'uso di "--include-unknown" può mostrare altri risultati.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
-  </data>
-  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>il pacchetto ha un numero di versione che non può essere determinato. L'uso di "--include-unknown" può mostrare altri risultati.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
-  </data>
   <data name="UpgradeUnknownVersionCount" xml:space="preserve">
-    <value>i pacchetti contengono numeri di versione che non possono essere determinati. Usare "--include-unknown" per visualizzare tutti i risultati.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+    <value>{0} pacchetti contengono numeri di versione che non possono essere determinati. Usare --include-unknown per visualizzare tutti i risultati.</value>
+    <comment>{Locked="{0}","--include-unknown"} {0} is a placeholder that is replaced by an integer number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeRequireExplicitCount" xml:space="preserve">
-    <value>il pacchetto/i è aggiunto e deve essere aggiornato in modo esplicito.</value>
-    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+    <value>{0} pacchetti sono aggiunti e devono essere aggiornati in modo esplicito.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages that require explicit upgrades.</comment>
   </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>Gli argomenti specificati possono essere usati solo con una query.</value>
@@ -1409,12 +1401,23 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="PortableAliasAdded" xml:space="preserve">
     <value>Alias della riga di comando aggiunto:</value>
   </data>
+  <data name="PortableLinksMachine" xml:space="preserve">
+    <value>Directory collegamenti portabili (computer)</value>
+  </data>
+  <data name="PortableLinksUser" xml:space="preserve">
+    <value>Directory collegamenti portabili (utente)</value>
+  </data>
+  <data name="PortableRootUser" xml:space="preserve">
+    <value>Radice pacchetto portabile (utente)</value>
+  </data>
+  <data name="PortableRoot" xml:space="preserve">
+    <value>Radice pacchetto portabile</value>
+  </data>
+  <data name="PortableRoot86" xml:space="preserve">
+    <value>Radice pacchetto portabile (x86)</value>
+  </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Installazione portabile non riuscita; Pulizia...</value>
-  </data>
-  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>Vengono forniti gli argomenti --purge e --preserve</value>
-    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
     <value>Il pacchetto portatile è stato modificato; procedimento causato da --force</value>
@@ -1468,6 +1471,9 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   </data>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Sono stati specificati argomenti della riga di comando incompatibili</value>
+  </data>
+  <data name="UpgradeArgumentDescription" xml:space="preserve">
+    <value>Elenca solo i pacchetti con un aggiornamento disponibile</value>
   </data>
   <data name="UpgradeAvailableForPinned" xml:space="preserve">
     <value>Per i pacchetti seguenti è disponibile un aggiornamento, ma è necessario un targeting esplicito per l'aggiornamento:</value>
@@ -1548,7 +1554,7 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
   </data>
   <data name="PinAddCommandLongDescription" xml:space="preserve">
-    <value>Aggiungi un nuovo PIN. Un PIN può limitare la Gestione pacchetti Windows dall'aggiornamento di un pacchetto a intervalli di versioni specifici o impedire l'aggiornamento totale del pacchetto. È possibile che un pacchetto aggiunto venga aggiornato automaticamente e che venga aggiornato dall'esterno del Gestione pacchetti Windows. Per impostazione predefinita, è possibile aggiornare un pacchetto aggiunto menzionandolo in modo esplicito nel comando 'upgrade' o aggiungendo il flag '--include-pinned' a 'winget upgrade --all'.</value>
+    <value>Aggiungi un nuovo PIN. Un PIN può limitare il Gestione pacchetti Windows dall'aggiornamento di un pacchetto a intervalli di versioni specifici o impedire l'aggiornamento del pacchetto. Un pacchetto aggiunto potrebbe ancora essere aggiornato autonomamente ed essere aggiornato dall'esterno del Gestione pacchetti Windows. Per impostazione predefinita, è possibile aggiornare un pacchetto aggiunto menzionandolo in modo esplicito nel comando 'upgrade' o aggiungendo il flag '--include-pinned' a 'winget upgrade --all'.</value>
     <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
   </data>
   <data name="PinAddCommandShortDescription" xml:space="preserve">
@@ -1578,15 +1584,18 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="PinResetCommandShortDescription" xml:space="preserve">
     <value>Reimposta i pin</value>
   </data>
-  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
-    <value>Sono stati specificati sia gli argomenti di versione che gli argomenti '--blocking'</value>
-    <comment>{Locked="--blocking"}</comment>
-  </data>
   <data name="GatedVersionArgumentDescription" xml:space="preserve">
     <value>Versione a cui aggiungere il pacchetto. È possibile usare il carattere jolly '*' come ultima parte della versione</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
     <value>Blocca l'aggiornamento fino a quando il pin non viene rimosso, evitando la sostituzione degli argomenti</value>
+  </data>
+  <data name="PinInstalledArgumentDescription" xml:space="preserve">
+    <value>Aggiungi una versione installata specifica</value>
+  </data>
+  <data name="PinInstalledSource" xml:space="preserve">
+    <value>Installato</value>
+    <comment>Value used in a table to indicate that a package comes from the list of packages installed in the machine</comment>
   </data>
   <data name="SettingsExportCommandLongDescription" xml:space="preserve">
     <value>Esporta le impostazioni come JSON</value>
@@ -1595,8 +1604,8 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
     <value>Impostazioni di esportazione</value>
   </data>
   <data name="UserSettings" xml:space="preserve">
-    <value>Impostazioni utente: {0}</value>
-    <comment>{Locked="{0}"} Label displayed for the file containing the user settings. {0} is a placeholder replaced by the user settings file path.</comment>
+    <value>Impostazioni utente</value>
+    <comment>Label displayed for the file containing the user settings.</comment>
   </data>
   <data name="SettingsWarningUsingDefault" xml:space="preserve">
     <value>Non è stato possibile caricare il file delle impostazioni. Utilizzo dei valori predefiniti.</value>
@@ -1604,5 +1613,465 @@ Specificarne uno utilizzando l'opzione --source per continuare.</value>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
     <value>Selezionare il filtro dell'ambito del pacchetto installato (utente o computer)</value>
     <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
+  </data>
+  <data name="PinAdded" xml:space="preserve">
+    <value>Aggiunta del pin completata</value>
+  </data>
+  <data name="PinAlreadyExists" xml:space="preserve">
+    <value>È già presente un PIN per il pacchetto {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to add a pin for a package that is already pinned.</comment>
+  </data>
+  <data name="PinExistsOverwriting" xml:space="preserve">
+    <value>Per il pacchetto {0} esiste già un PIN. Sovrascrittura a causa dell'argomento --force.</value>
+    <comment>{Locked="--force"}{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
+  </data>
+  <data name="PinExistsUseForceArg" xml:space="preserve">
+    <value>Per il pacchetto {0} esiste già un PIN. Utilizzare l'argomento --force per sovrascriverlo.</value>
+    <comment>{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
+  </data>
+  <data name="PinResettingAll" xml:space="preserve">
+    <value>Reimpostazione di tutti i pin correnti.</value>
+  </data>
+  <data name="PinResetUseForceArg" xml:space="preserve">
+    <value>Utilizza l'argomento --force per reimpostare tutti i pin. I pin seguenti verranno rimossi:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PinType" xml:space="preserve">
+    <value>Tipo di pin</value>
+  </data>
+  <data name="PinDoesNotExist" xml:space="preserve">
+    <value>Nessun PIN per il pacchetto {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to delete a pin for a package that is not pinned.</comment>
+  </data>
+  <data name="PinNoPinsExist" xml:space="preserve">
+    <value>Nessun PIN configurato.</value>
+    <comment>Shown when listing or modifying existing pins if there are none.</comment>
+  </data>
+  <data name="PinResetSuccessful" xml:space="preserve">
+    <value>Reimpostazione dei pin completata</value>
+    <comment>Shown after resetting (deleting) all the pins</comment>
+  </data>
+  <data name="PinCannotOpenIndex" xml:space="preserve">
+    <value>Impossibile aprire il database pin.</value>
+    <comment>Error message for when we cannot open the database containing package pins.</comment>
+  </data>
+  <data name="ArgumentForSinglePackageProvidedWithMultipleQueries" xml:space="preserve">
+    <value>È stato specificato un argomento che può essere usato solo per un pacchetto singolo</value>
+  </data>
+  <data name="MultipleExclusiveArgumentsProvided" xml:space="preserve">
+    <value>Sono stati specificati più argomenti che si escludono a vicenda: {0}</value>
+    <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
+  </data>
+  <data name="DependencyArgumentMissing" xml:space="preserve">
+    <value>L'argomento {0} può essere utilizzato solo con {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message shown when having an argument needs another to be present, but that is missing. {0} and {1} are replaced by the arguments. For example "Argument --include-unknown can only be used with --upgrade"</comment>
+  </data>
+  <data name="StateDisabled" xml:space="preserve">
+    <value>Disabilitate</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateEnabled" xml:space="preserve">
+    <value>Abilitata</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateHeader" xml:space="preserve">
+    <value>Stato</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies and Settings</comment>
+  </data>
+  <data name="MultiQueryArgumentDescription" xml:space="preserve">
+    <value>Query usata per cercare un'app</value>
+  </data>
+  <data name="MultiQueryPackageNotFound" xml:space="preserve">
+    <value>Pacchetto non trovato: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns no results. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFoundMultiple" xml:space="preserve">
+    <value>Sono stati trovati più pacchetti per: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFailed" xml:space="preserve">
+    <value>Ricerca non riuscita per: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches fails. This message is for generic failures, we have more specific messages for when the search returns no results, or when it returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="UpgradeBlockedByPinCount" xml:space="preserve">
+    <value>{0} pacchetti hanno un PIN che deve essere rimosso prima dell'aggiornamento</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
+  </data>
+  <data name="IncludePinnedArgumentDescription" xml:space="preserve">
+    <value>Aggiorna i pacchetti anche se hanno un PIN non bloccante</value>
+  </data>
+  <data name="IncludePinnedInListArgumentDescription" xml:space="preserve">
+    <value>Elenca i pacchetti anche se hanno un PIN che impedisce l'aggiornamento. Può essere utilizzato solo con l'argomento --upgrade-available</value>
+    <comment>{Locked="--upgrade-available"}</comment>
+  </data>
+  <data name="PinRemovedSuccessfully" xml:space="preserve">
+    <value>L'aggiunta è stata rimossa</value>
+  </data>
+  <data name="UpgradeIsPinned" xml:space="preserve">
+    <value>È stata trovata una versione più recente, ma il pacchetto contiene un PIN che impedisce l'aggiornamento.</value>
+  </data>
+  <data name="PackageIsPinned" xml:space="preserve">
+    <value>Il pacchetto è bloccato e non può essere aggiornato. Utilizza il comando 'winget pin' per visualizzare e modificare le scelte. Alcuni tipi di PIN possono essere ignorati con l'argomento --include-pinned.</value>
+    <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
+  </data>
+  <data name="UpgradePinnedByUserCount" xml:space="preserve">
+    <value>{0} pacchetti contiene pin che impediscono l'aggiornamento. Utilizza il comando 'winget pin' per visualizzare e modificare le scelte. L'utilizzo dell'argomento --include-pinned può mostrare più risultati.</value>
+    <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
+  </data>
+  <data name="ConfigureCommandLongDescription" xml:space="preserve">
+    <value>Assicura che il sistema corrisponda allo stato desiderato, come descritto dalla configurazione fornita. Può scaricare/eseguire i processori per ottenere lo stato desiderato. La configurazione e i processori devono essere controllati per verificarne l'attendibilità prima di applicarli.</value>
+  </data>
+  <data name="ConfigureCommandShortDescription" xml:space="preserve">
+    <value>Configura il sistema in uno stato desiderato</value>
+  </data>
+  <data name="ConfigureShowCommandLongDescription" xml:space="preserve">
+    <value>Mostra i dettagli della configurazione fornita. Per impostazione predefinita, il sistema non verrà modificato, ma alcune opzioni determineranno il download e/o il caricamento dei file.</value>
+  </data>
+  <data name="ConfigureShowCommandShortDescription" xml:space="preserve">
+    <value>Mostra i dettagli di una configurazione</value>
+  </data>
+  <data name="ConfigureTestCommandLongDescription" xml:space="preserve">
+    <value>Controlla che il sistema corrisponda allo stato desiderato come descritto dalla configurazione fornita. Può scaricare/eseguire processori per testare lo stato desiderato. Verificare che la configurazione e i processori siano attendibili prima di eseguirli.</value>
+  </data>
+  <data name="ConfigureTestCommandShortDescription" xml:space="preserve">
+    <value>Controlla il sistema rispetto a uno stato desiderato</value>
+  </data>
+  <data name="ConfigureValidateCommandLongDescription" xml:space="preserve">
+    <value>Convalida un file di configurazione per la correttezza.</value>
+  </data>
+  <data name="ConfigureValidateCommandShortDescription" xml:space="preserve">
+    <value>Convalida un file di configurazione</value>
+  </data>
+  <data name="ConfigurationFieldInvalidType" xml:space="preserve">
+    <value>Il tipo del campo '{0}' nel file di configurazione non è corretto.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file.</comment>
+  </data>
+  <data name="ConfigurationFileArgumentDescription" xml:space="preserve">
+    <value>Percorso del file di configurazione</value>
+  </data>
+  <data name="ConfigurationFileInvalid" xml:space="preserve">
+    <value>Il file di configurazione non è valido.</value>
+  </data>
+  <data name="ConfigurationFileVersionUnknown" xml:space="preserve">
+    <value>La versione del file di configurazione {0} non è nota.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the version of the configuration file.</comment>
+  </data>
+  <data name="ConfigurationAcceptWarningArgumentDescription" xml:space="preserve">
+    <value>Accetta l'avviso di configurazione, impedendo un prompt interattivo</value>
+  </data>
+  <data name="ConfigurationApply" xml:space="preserve">
+    <value>Applica</value>
+    <comment>Indicates that this item is used to write state</comment>
+  </data>
+  <data name="ConfigurationAssert" xml:space="preserve">
+    <value>Asserzione</value>
+    <comment>Indicates that this item is used to check/assert the state rather than write to it</comment>
+  </data>
+  <data name="ConfigurationDependencies" xml:space="preserve">
+    <value>Dipendenze:{0}</value>
+    <comment>{Locked="{0}"} Label displaying a list of dependencies. {0} is replaced with a space separated list of identifiers referencing other items.</comment>
+  </data>
+  <data name="ConfigurationFailedToApply" xml:space="preserve">
+    <value>Parte della configurazione non è stata applicata correttamente.</value>
+  </data>
+  <data name="ConfigurationFailedToGetDetails" xml:space="preserve">
+    <value>Impossibile ottenere informazioni dettagliate sulla configurazione.</value>
+  </data>
+  <data name="ConfigurationInform" xml:space="preserve">
+    <value>Informare</value>
+    <comment>Indicates that this item is used to retrieve values for future use rather than writing them</comment>
+  </data>
+  <data name="ConfigurationLocal" xml:space="preserve">
+    <value>Locale</value>
+    <comment>Used to indicate that the item is present on the device.</comment>
+  </data>
+  <data name="ConfigurationModuleNameOnly" xml:space="preserve">
+    <value>Modulo: {0}</value>
+    <comment>{Locked="{0}"} Label displaying a module name. {0} is replaced with the name of the module from the user input file.</comment>
+  </data>
+  <data name="ConfigurationModuleWithDetails" xml:space="preserve">
+    <value>Modulo: {0} per {1} [{2}]</value>
+    <comment>{Locked="{0}","{1}","{2}"} Label displaying module information. {0} is replaced by the module name. {1} is replaced by the module author. {2} is replaced by a string indicating the source of the module.</comment>
+  </data>
+  <data name="ConfigurationSettings" xml:space="preserve">
+    <value>Impostazioni:</value>
+    <comment>Label for the values that are used as inputs for this item when applying state</comment>
+  </data>
+  <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
+    <value>La configurazione è stata applicata.</value>
+  </data>
+  <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
+    <value>È in corso l'applicazione di un'altra configurazione al sistema. Questa configurazione continuerà non appena possibile...</value>
+  </data>
+  <data name="ConfigurationWarning" xml:space="preserve">
+    <value>È tua responsabilità comprendere le impostazioni di configurazione che scegli di eseguire. Microsoft non è responsabile del file di configurazione creato o importato. Questa configurazione può modificare le impostazioni in Windows, installare software, modificare le impostazioni del software (incluse le impostazioni di sicurezza) e accettare contratti utente per i pacchetti e i servizi di terze parti per conto dell'utente.  Eseguendo questo file di configurazione, riconosci e accetti queste risorse e impostazioni. Tutte le applicazioni installate sono concesse in licenza dai proprietari. Microsoft non è responsabile né concede alcuna licenza a pacchetti o servizi di terze parti.</value>
+    <comment>Legal approved. Do not change without approval.</comment>
+  </data>
+  <data name="ConfigurationWarningPromptApply" xml:space="preserve">
+    <value>La configurazione è stata esaminata e si desidera procedere con l'applicazione al sistema?</value>
+    <comment>PM approved.</comment>
+  </data>
+  <data name="ConfigurationFileEmpty" xml:space="preserve">
+    <value>La configurazione è vuota.</value>
+  </data>
+  <data name="WindowsFeatureNotFound" xml:space="preserve">
+    <value>La funzionalità [{0}] non è stata trovata.</value>
+    <comment>{Locked="{0}"} Error message displayed when a Windows feature was not found on the system.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
+    <value>Non è stato possibile abilitare le dipendenze delle funzionalità di Windows. Per procedere con l'installazione, usare '--force'.</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="RebootRequiredToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
+    <value>Riavvio richiesto per abilitare completamente le funzioni di Windows; per ignorare questo controllo, usare '--force'.</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
+    <value>Non è stato possibile abilitare le dipendenze delle funzionalità di Windows; in corso a causa di --force</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.
+{Locked="--force"}</comment>
+  </data>
+  <data name="EnablingWindowsFeature" xml:space="preserve">
+    <value>Abilitazione di {0} [{1}]...</value>
+    <comment>{Locked="{0}","{1}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeature" xml:space="preserve">
+    <value>Non è stato possibile abilitare {0} [{1}] funzionalità.</value>
+    <comment>{Locked="{0}"} Windows Feature display name
+{Locked="{1}"} Windows Feature name</comment>
+  </data>
+  <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
+    <value>È necessario riavviare il sistema per abilitare completamente le funzionalità di Windows. procedi a causa di --force</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
+  </data>
+  <data name="InstallWaitingOnAnother" xml:space="preserve">
+    <value>In attesa del completamento di un'altra installazione/disinstallazione...</value>
+  </data>
+  <data name="PinVersion" xml:space="preserve">
+    <value>Versione aggiunta</value>
+    <comment>Table header for the version to which a package is pinned; meaning it should not update from that version.</comment>
+  </data>
+  <data name="ConfigurationDescriptionWasTruncated" xml:space="preserve">
+    <value>&lt;Per ulteriori dettagli vedi il file di log&gt;</value>
+    <comment>The brackets are intended to make the value stand out from other text which it will follow. Any locale appropriate mechanism that achieves this is acceptable.</comment>
+  </data>
+  <data name="ConfigurationGettingDetails" xml:space="preserve">
+    <value>Recupero dei dettagli della configurazione</value>
+  </data>
+  <data name="ConfigurationInitializing" xml:space="preserve">
+    <value>Inizializzazione del sistema di configurazione</value>
+  </data>
+  <data name="ConfigurationReadingConfigFile" xml:space="preserve">
+    <value>Lettura del file di configurazione</value>
+  </data>
+  <data name="ConfigurationUnitAssertHadNegativeResult" xml:space="preserve">
+    <value>Il sistema non si trova nello stato desiderato dichiarato dalla configurazione.</value>
+  </data>
+  <data name="ConfigurationUnitFailed" xml:space="preserve">
+    <value>L'unità di configurazione non è riuscita per un motivo sconosciuto: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedConfigSet" xml:space="preserve">
+    <value>L'unità di configurazione non è riuscita a causa della configurazione: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedDuringGet" xml:space="preserve">
+    <value>Errore dell'unità di configurazione durante il tentativo di ottenere lo stato corrente del sistema.</value>
+  </data>
+  <data name="ConfigurationUnitFailedDuringSet" xml:space="preserve">
+    <value>Errore dell'unità di configurazione durante il tentativo di applicare lo stato desiderato.</value>
+  </data>
+  <data name="ConfigurationUnitFailedDuringTest" xml:space="preserve">
+    <value>Errore dell'unità di configurazione durante il tentativo di testare lo stato corrente del sistema.</value>
+  </data>
+  <data name="ConfigurationUnitFailedInternal" xml:space="preserve">
+    <value>L'unità di configurazione non è riuscita a causa di un errore interno: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedPrecondition" xml:space="preserve">
+    <value>L'unità di configurazione non è riuscita perché una condizione preliminare non è valida: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedSystemState" xml:space="preserve">
+    <value>L'unità di configurazione non è riuscita a causa dello stato del sistema: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedUnitProcessing" xml:space="preserve">
+    <value>Errore dell'unità di configurazione durante il tentativo di esecuzione: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitHasDuplicateIdentifier" xml:space="preserve">
+    <value>La configurazione contiene l'identificatore '{0}' più volte.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by the identifier string from the user input file.</comment>
+  </data>
+  <data name="ConfigurationUnitHasMissingDependency" xml:space="preserve">
+    <value>La dipendenza '{0}' non è stata trovata nella configurazione.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by the identifier string from the user input file.</comment>
+  </data>
+  <data name="ConfigurationUnitManuallySkipped" xml:space="preserve">
+    <value>Questa unità di configurazione è stata ignorata manualmente.</value>
+  </data>
+  <data name="ConfigurationUnitModuleConflict" xml:space="preserve">
+    <value>Il modulo per l'unità di configurazione è disponibile in più località con la stessa versione.</value>
+  </data>
+  <data name="ConfigurationUnitModuleImportFailed" xml:space="preserve">
+    <value>Caricamento del modulo per l'unità di configurazione non riuscito.</value>
+  </data>
+  <data name="ConfigurationUnitMultipleMatches" xml:space="preserve">
+    <value>Sono state trovate più corrispondenze per l'unità di configurazione; specificare il modulo per selezionare quello corretto.</value>
+  </data>
+  <data name="ConfigurationUnitNotFound" xml:space="preserve">
+    <value>Impossibile trovare l'unità di configurazione.</value>
+  </data>
+  <data name="ConfigurationUnitNotFoundInModule" xml:space="preserve">
+    <value>L'unità di configurazione non si trovava nel modulo come previsto.</value>
+  </data>
+  <data name="ConfigurationUnitNotRunDueToDependency" xml:space="preserve">
+    <value>L'unità di configurazione non è stata eseguita perché una dipendenza non è riuscita o non è stata eseguita.</value>
+  </data>
+  <data name="ConfigurationUnitNotRunDueToFailedAssert" xml:space="preserve">
+    <value>L'unità di configurazione non è stata eseguita perché un'asserzione non è riuscita o è false.</value>
+  </data>
+  <data name="ConfigurationUnitReturnedInvalidResult" xml:space="preserve">
+    <value>L'unità di configurazione ha restituito un risultato imprevisto durante l'esecuzione.</value>
+  </data>
+  <data name="ConfigurationUnitSkipped" xml:space="preserve">
+    <value>L'unità di configurazione non è stata eseguita per un motivo sconosciuto: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationFieldInvalidValue" xml:space="preserve">
+    <value>Il campo '{0}' ha un valore non valido: {1}</value>
+    <comment>{Locked="{0}","{1}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file. {1} is a placeholder for the invalid value.</comment>
+  </data>
+  <data name="ConfigurationFieldMissing" xml:space="preserve">
+    <value>Il campo '{0}' è mancante o vuoto.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the expected field name from the file.</comment>
+  </data>
+  <data name="SeeLineAndColumn" xml:space="preserve">
+    <value>Vedere la riga {0}, la colonna {1} nel file.</value>
+    <comment>{Locked="{0}","{1}"} Indicates the file location of the error, {0} and {1} are placeholders for numbers of the line and column, respectively.</comment>
+  </data>
+  <data name="CancellingOperation" xml:space="preserve">
+    <value>Annullamento dell'operazione</value>
+  </data>
+  <data name="InstallStubPackageDescription" xml:space="preserve">
+    <value>Installa il pacchetto di stub per AppInstaller</value>
+  </data>
+  <data name="InstallFullPackageDescription" xml:space="preserve">
+    <value>Installa il pacchetto completo per AppInstaller</value>
+  </data>
+  <data name="ConfigurationEnableMessage" xml:space="preserve">
+    <value>Abilita i componenti di configurazione. Richiede l'accesso all'archivio.</value>
+  </data>
+  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+    <value>Impossibile utilizzare le opzioni '--enable' e '--disable' con altri argomenti.</value>
+    <comment>{Locked="--enable", "--disable"}</comment>
+  </data>
+  <data name="ConfigurationEnablingMessage" xml:space="preserve">
+    <value>Abilita i componenti di configurazione. Richiede l'accesso all'archivio.</value>
+  </data>
+  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
+    <value>Configurazione non abilitata. Esegui 'winget configure --enable' per abilitarla.</value>
+  </data>
+  <data name="ConfigurationEnabledMessage" xml:space="preserve">
+    <value>La configurazione è abilitata.</value>
+  </data>
+  <data name="ConfigurationDisableMessage" xml:space="preserve">
+    <value>Disabilita i componenti di configurazione. Richiede l'accesso all'archivio.</value>
+  </data>
+  <data name="ConfigurationDisablingMessage" xml:space="preserve">
+    <value>Disabilita i componenti di configurazione. Richiede l'accesso all'archivio.</value>
+  </data>
+  <data name="ConfigurationDisabledMessage" xml:space="preserve">
+    <value>La configurazione è disabilitata.</value>
+  </data>
+  <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
+    <value>Ignora l'elaborazione delle dipendenze dei pacchetti e delle funzionalità di Windows</value>
+  </data>
+  <data name="DependenciesSkippedMessage" xml:space="preserve">
+    <value>Dipendenze ignorate.</value>
+  </data>
+  <data name="FailedToRefreshPathWarning" xml:space="preserve">
+    <value>Non è stato possibile aggiornare la variabile PATH per il processo. Le installazioni successive che dipendono dalle modifiche apportate alla variabile PATH potrebbero non riuscire.</value>
+    <comment>{Locked="PATH"}</comment>
+  </data>
+  <data name="ConfigurationFailedToTest" xml:space="preserve">
+    <value>Errore di alcune unità di configurazione durante il test dello stato.</value>
+  </data>
+  <data name="ConfigurationInDesiredState" xml:space="preserve">
+    <value>Il sistema si trova nello stato di configurazione descritto.</value>
+  </data>
+  <data name="ConfigurationNoTestRun" xml:space="preserve">
+    <value>Lo stato della configurazione non è stato testato.</value>
+  </data>
+  <data name="ConfigurationNotInDesiredState" xml:space="preserve">
+    <value>Il sistema non si trova nello stato di configurazione descritto.</value>
+  </data>
+  <data name="ConfigurationUnexpectedTestResult" xml:space="preserve">
+    <value>Risultato del test imprevisto: {0}</value>
+    <comment>{Locked="{0}"} Error message. {0} will be replaced with the unexpected value (a number).</comment>
+  </data>
+  <data name="ConfigurationWarningPromptTest" xml:space="preserve">
+    <value>La configurazione è stata esaminata e si desidera procedere con la verifica del sistema?</value>
+  </data>
+  <data name="ConfigurationFileInvalidYAML" xml:space="preserve">
+    <value>Il file di configurazione non è un file di YAML valido.</value>
+    <comment>{Locked="YAML"} YAML is a file format name.</comment>
+  </data>
+  <data name="ConfigurationUnitIsPartOfDependencyCycle" xml:space="preserve">
+    <value>Questa unità di configurazione fa parte di un ciclo di dipendenze.</value>
+  </data>
+  <data name="ConfigurationValidationFoundNoIssues" xml:space="preserve">
+    <value>La convalida non ha rilevato problemi.</value>
+  </data>
+  <data name="ConfigurationUnitNeedsPrereleaseWarning" xml:space="preserve">
+    <value>L'unità di configurazione è disponibile solo come versione preliminare, ma non è contrassegnata in questo modo nella configurazione. Aggiungi 'allowPrerelease: true' alladirectives'.</value>
+    <comment>{Locked="allowPrerelease: true","directives"} These are values in the configuration file that are not localized.</comment>
+  </data>
+  <data name="ConfigurationUnitNotInCatalogWarning" xml:space="preserve">
+    <value>L'unità di configurazione è stata trovata localmente, ma non è stata trovata in alcun catalogo configurato. Verifica che sia presente in qualsiasi sistema prima di applicare la configurazione.</value>
+  </data>
+  <data name="ConfigurationUnitNotPublicWarning" xml:space="preserve">
+    <value>L'unità di configurazione non è disponibile pubblicamente; assicurati che chiunque usi questa configurazione abbia accesso a tale configurazione.</value>
+  </data>
+  <data name="ConfigurationUnitModuleNotProvidedWarning" xml:space="preserve">
+    <value>Il modulo non è stato specificato. La specifica del modulo migliora le prestazioni e impedisce future collisioni di nomi.</value>
+  </data>
+  <data name="DownloadCommandLongDescription" xml:space="preserve">
+    <value>Scarica il programma di installazione dal pacchetto selezionato, trovato eseguendo una ricerca in un'origine configurata o direttamente da un manifesto. Per impostazione predefinita, la query deve corrispondere senza distinzione tra maiuscole e minuscole all'ID, al nome o al moniker del pacchetto. È possibile usare altri campi passando l'opzione appropriata. Per impostazione predefinita, il comando download scaricherà il programma di installazione appropriato nella cartella Download dell'utente.</value>
+  </data>
+  <data name="DownloadCommandShortDescription" xml:space="preserve">
+    <value>Scarica il programma di installazione da un pacchetto specifico</value>
+  </data>
+  <data name="DownloadDirectoryArgumentDescription" xml:space="preserve">
+    <value>Directory in cui vengono scaricati i programmi di installazione</value>
+  </data>
+  <data name="DependenciesFlowDownload" xml:space="preserve">
+    <value>Download delle dipendenze:</value>
+  </data>
+  <data name="InstallerDownloaded" xml:space="preserve">
+    <value>Programma di installazione scaricato: {0}</value>
+    <comment>{Locked="{0}"} Full path of the downloaded installer.</comment>
+  </data>
+  <data name="InstallerTypeArgumentDescription" xml:space="preserve">
+    <value>Seleziona il tipo di programma di installazione</value>
+  </data>
+  <data name="InstallerDownloads" xml:space="preserve">
+    <value>Download del programma di installazione</value>
+  </data>
+  <data name="InstallerDownloadCommandProhibited" xml:space="preserve">
+    <value>Non è consentito scaricare il programma di installazione per un'installazione offline successiva. </value>
+  </data>
+  <data name="ConfigurationAllUsersElevated" xml:space="preserve">
+    <value>'--module-path allusers' richiede privilegi di amministratore per l'esecuzione.</value>
+    <comment>{Locked="--module-path allusers"}</comment>
+  </data>
+  <data name="ConfigurationModulePath" xml:space="preserve">
+    <value>Specifica il percorso nel computer locale in cui archiviare i moduli. %LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules predefinito</value>
+    <comment>{Locked="allusers","currentuser","default","%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
+  </data>
+  <data name="ConfigurationModulePathArgError" xml:space="preserve">
+    <value>Il valore di '--module-path' deve essere 'currentuser', 'allusers', 'default' o un percorso assoluto.</value>
+    <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
   </data>
 </root>

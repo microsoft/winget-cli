@@ -16,6 +16,15 @@ namespace AppInstaller::YAML
     {
         Node s_globalInvalidNode;
 
+        static constexpr std::string_view s_nullTag = "tag:yaml.org,2002:null"sv;
+        static constexpr std::string_view s_boolTag = "tag:yaml.org,2002:bool"sv;
+        static constexpr std::string_view s_strTag = "tag:yaml.org,2002:str"sv;
+        static constexpr std::string_view s_intTag = "tag:yaml.org,2002:int"sv;
+        static constexpr std::string_view s_floatTag = "tag:yaml.org,2002:float"sv;
+        static constexpr std::string_view s_timestampTag = "tag:yaml.org,2002:timestamp"sv;
+        static constexpr std::string_view s_seqTag = "tag:yaml.org,2002:seq"sv;
+        static constexpr std::string_view s_mapTag = "tag:yaml.org,2002:map"sv;
+
         std::string_view GetExceptionTypeStringView(Exception::Type type)
         {
             switch (type)
@@ -49,6 +58,44 @@ namespace AppInstaller::YAML
         void OutputMark(std::ostringstream& out, const Mark& mark)
         {
             out << "[line " << mark.line << "; col " << mark.column << ']';
+        }
+
+        Node::TagType ConvertToTagType(const std::string& tag)
+        {
+            if (tag == s_strTag)
+            {
+                return Node::TagType::Str;
+            }
+            else if (tag == s_seqTag)
+            {
+                return Node::TagType::Seq;
+            }
+            else if (tag == s_mapTag)
+            {
+                return Node::TagType::Map;
+            }
+            else if (tag == s_boolTag)
+            {
+                return Node::TagType::Bool;
+            }
+            else if (tag == s_intTag)
+            {
+                return Node::TagType::Int;
+            }
+            else if (tag == s_floatTag)
+            {
+                return Node::TagType::Float;
+            }
+            else if (tag == s_timestampTag)
+            {
+                return Node::TagType::Timestamp;
+            }
+            else if (tag == s_nullTag)
+            {
+                return Node::TagType::Null;
+            }
+
+            return Node::TagType::Unknown;
         }
     }
 
@@ -89,7 +136,7 @@ namespace AppInstaller::YAML
     }
 
     Exception::Exception(Type type, const char* problem, const Mark& problemMark, const char* context, const Mark& contextMark) :
-        wil::ResultException(APPINSTALLER_CLI_ERROR_LIBYAML_ERROR)
+        wil::ResultException(APPINSTALLER_CLI_ERROR_LIBYAML_ERROR), m_mark(problemMark)
     {
         std::ostringstream out;
         OutputExceptionHeader(out, type);
@@ -127,6 +174,11 @@ namespace AppInstaller::YAML
         return m_what.c_str();
     }
 
+    const Mark& Exception::GetMark() const
+    {
+        return m_mark;
+    }
+
     Node::Node(Type type, std::string tag, const YAML::Mark& mark) :
         m_type(type), m_tag(std::move(tag)), m_mark(mark)
     {
@@ -138,12 +190,42 @@ namespace AppInstaller::YAML
         {
             m_mapping = decltype(m_mapping)::value_type{};
         }
+
+        m_tagType = ConvertToTagType(m_tag);
     }
 
     void Node::SetScalar(std::string value)
     {
         Require(Type::Scalar);
         m_scalar = std::move(value);
+    }
+
+    void Node::SetScalar(std::string value, bool isQuoted)
+    {
+        this->SetScalar(value);
+
+        // For untagged scalar nodes, libyaml always assigns the generic string
+        // tag. Here we just try our best and assume that if the value is unquoted
+        // then is not necessarily a string.
+        // TODO: handle float and timestamps
+        if (!isQuoted && this->GetTagType() == TagType::Str)
+        {
+            // Integer
+            // 0 | -? [1-9] [0-9]*
+            auto tryInt = this->try_as<int64_t>();
+            if (tryInt.has_value())
+            {
+                m_tagType = TagType::Int;
+                return;
+            }
+
+            // Boolean. Either 'true' or 'false'
+            auto tryBool = this->try_as<bool>();
+            if (tryBool.has_value())
+            {
+                m_tagType = TagType::Bool;
+            }
+        }
     }
 
     bool Node::operator<(const Node& other) const
@@ -184,6 +266,71 @@ namespace AppInstaller::YAML
 
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY, ++itrs.first != itrs.second);
 
+        return result;
+    }
+
+    // Gets a child node from the mapping by its name.
+    Node& Node::GetChildNode(std::string_view key)
+    {
+        Require(Type::Mapping);
+
+        auto itr = m_mapping->begin();
+        for (; itr != m_mapping->end(); itr++)
+        {
+            if (Utility::CaseInsensitiveEquals(itr->first.m_scalar, key))
+            {
+                break;
+            }
+        }
+
+        if (itr == m_mapping->end())
+        {
+            return s_globalInvalidNode;
+        }
+
+        auto firstFound = itr;
+        for (++itr; itr != m_mapping->end(); itr++)
+        {
+            if (Utility::CaseInsensitiveEquals(itr->first.m_scalar, key))
+            {
+                break;
+            }
+        }
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY, itr != m_mapping->end());
+        Node& result = firstFound->second;
+        return result;
+    }
+
+    const Node& Node::GetChildNode(std::string_view key) const
+    {
+        Require(Type::Mapping);
+
+        auto itr = m_mapping->begin();
+        for (; itr != m_mapping->end(); itr++)
+        {
+            if (Utility::CaseInsensitiveEquals(itr->first.m_scalar, key))
+            {
+                break;
+            }
+        }
+
+        if (itr == m_mapping->end())
+        {
+            return s_globalInvalidNode;
+        }
+
+        auto firstFound = itr;
+        for (++itr; itr != m_mapping->end(); itr++)
+        {
+            if (Utility::CaseInsensitiveEquals(itr->first.m_scalar, key))
+            {
+                break;
+            }
+        }
+
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY, itr != m_mapping->end());
+        const Node& result = firstFound->second;
         return result;
     }
 
@@ -238,9 +385,36 @@ namespace AppInstaller::YAML
         return m_scalar;
     }
 
+    std::optional<std::string> Node::try_as_dispatch(std::string*) const
+    {
+        return std::optional{ m_scalar };
+    }
+
+    std::wstring Node::as_dispatch(std::wstring*) const
+    {
+        return Utility::ConvertToUTF16(m_scalar);
+    }
+
+    std::optional<std::wstring> Node::try_as_dispatch(std::wstring*) const
+    {
+        return Utility::TryConvertToUTF16(m_scalar);
+    }
+
     int64_t Node::as_dispatch(int64_t*) const
     {
         return std::stoll(m_scalar);
+    }
+
+    std::optional<int64_t> Node::try_as_dispatch(int64_t*) const
+    {
+        try
+        {
+            return std::optional{ std::stoll(m_scalar) };
+        }
+        catch(...)
+        {
+            return {};
+        }
     }
 
     int Node::as_dispatch(int*) const
@@ -249,20 +423,120 @@ namespace AppInstaller::YAML
         return static_cast<int>(std::stoll(m_scalar, 0, 0));
     }
 
+    std::optional<int> Node::try_as_dispatch(int*) const
+    {
+        try
+        {
+            return std::optional{ static_cast<int>(std::stoll(m_scalar, 0, 0)) };
+        }
+        catch (...)
+        {
+            return {};
+        }
+    }
+
     bool Node::as_dispatch(bool*) const
     {
-        if (Utility::CaseInsensitiveEquals(m_scalar, "true"))
+        bool* t = nullptr;
+        auto tryToBool = this->try_as_dispatch(t);
+        if (tryToBool.has_value())
         {
-            return true;
-        }
-        else if (Utility::CaseInsensitiveEquals(m_scalar, "false"))
-        {
-            return false;
+            return tryToBool.value();
         }
         else
         {
             THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
         }
+    }
+
+    std::optional<bool> Node::try_as_dispatch(bool*) const
+    {
+        if (Utility::CaseInsensitiveEquals(m_scalar, "true"))
+        {
+            return std::optional{ true };
+        }
+        else if (Utility::CaseInsensitiveEquals(m_scalar, "false"))
+        {
+            return std::optional{ false };
+        }
+
+        return {};
+    }
+
+    void Node::MergeSequenceNode(Node other, std::string_view key, bool caseInsensitive)
+    {
+        Require(Type::Sequence);
+        other.Require(Type::Sequence);
+
+        auto getKeyValue = [&](const YAML::Node& node) {
+            auto keyNode = caseInsensitive ? node.GetChildNode(key) : node[key];
+            if (keyNode.IsNull())
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
+            }
+
+            auto keyValue = keyNode.as<std::string>();
+            return caseInsensitive ? std::string{ Utility::FoldCase(std::string_view{keyValue}) } : keyValue;
+        };
+
+        std::map<std::string, Node> newSequenceMap;
+        for (Node& node : m_sequence.value())
+        {
+            node.Require(Type::Mapping);
+            auto keyValue = getKeyValue(node);
+            newSequenceMap.emplace(std::move(keyValue), std::move(node));
+        }
+
+        for (Node& node : other.m_sequence.value())
+        {
+            node.Require(Type::Mapping);
+            auto keyValue = getKeyValue(node);
+            if (newSequenceMap.find(keyValue) == newSequenceMap.end())
+            {
+                newSequenceMap.emplace(std::move(keyValue), std::move(node));
+            }
+            else
+            {
+                newSequenceMap[keyValue].MergeMappingNode(node, caseInsensitive);
+            }
+        }
+
+        m_sequence.reset();
+        std::vector<Node> newSequence;
+        for (const auto& keyValuePair : newSequenceMap)
+        {
+            newSequence.push_back(keyValuePair.second);
+        }
+
+        m_sequence = std::move(newSequence);
+    }
+
+    void Node::MergeMappingNode(Node other, bool caseInsensitive)
+    {
+        Require(Type::Mapping);
+        other.Require(Type::Mapping);
+
+        std::multimap<Node, Node> uniques;
+        for (auto& keyValuePair : other.m_mapping.value())
+        {
+            if (caseInsensitive)
+            {
+                auto node = GetChildNode(keyValuePair.first.as<std::string>());
+                if (node.IsNull())
+                {
+                    uniques.emplace(std::move(keyValuePair));
+                }
+            }
+            else
+            {
+                if (m_mapping->count(keyValuePair.first) == 0)
+                {
+                    uniques.emplace(std::move(keyValuePair));
+                }
+            }
+        }
+
+        m_mapping->merge(uniques);
     }
 
     Node Load(std::string_view input)

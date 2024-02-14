@@ -3,103 +3,49 @@
 
 namespace IndexCreationTool
 {
+    using Microsoft.WinGetSourceCreator;
     using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
-    using System.Linq;
+    using System.Text.Json;
+    using System.Text.Json.Serialization;
+    using WinGetSourceCreator.Model;
 
     class Program
     {
-        public const string IndexName = @"index.db";
-        public const string IndexPathInPackage = @"Public\index.db";
-        public const string IndexPackageName = @"source.msix";
-
-        static void Main(string[] args)
+        private static void PrintUsage()
         {
-            string rootDir = string.Empty;
-            string appxManifestPath = string.Empty;
-            string certPath = string.Empty;
+            Console.WriteLine("Usage: IndexCreationTool.exe -f <local source input json file>");
+        }
 
-            // List of directories to include. By default, include all directories.
-            List<string> includeDirList = new() { string.Empty };
-
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i] == "-d" && ++i < args.Length)
-                {
-                    rootDir = args[i];
-                }
-                else if (args[i] == "-i" && ++i < args.Length)
-                {
-                    includeDirList = args[i].Split(",").ToList();
-                }
-                else if (args[i] == "-m" && ++i < args.Length)
-                {
-                    appxManifestPath = args[i];
-                }
-                else if (args[i] == "-c" && ++i < args.Length)
-                {
-                    certPath = args[i];
-                }
-            }
-
-            if (string.IsNullOrEmpty(rootDir))
-            {
-                Console.WriteLine("Usage: IndexCreationTool.exe -d <Path to search for yaml> [-i <Comma-separated list of included dirs in the search for yaml. If not specified, include all dirs>] [-m <appxmanifest for index package> [-c <cert for signing index package>]]");
-                return;
-            }
-
+        static int Main(string[] args)
+        {
             try
             {
-                if (File.Exists(IndexName))
+                string inputFile = string.Empty;
+                for (int i = 0; i < args.Length; i++)
                 {
-                    File.Delete(IndexName);
-                }
-
-                using (var indexHelper = WinGetUtilWrapper.Create(IndexName))
-                {
-                    foreach (string includeDir in includeDirList)
+                    if (args[i] == "-f" && ++i < args.Length)
                     {
-                        var fullPath = Path.Combine(rootDir, includeDir);
-                        foreach (string file in Directory.EnumerateFiles(fullPath, "*.yaml", SearchOption.AllDirectories))
-                        {
-                            indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
-                        }
-                    }
-                    indexHelper.PrepareForPackaging();
-                }
-
-                if (!string.IsNullOrEmpty(appxManifestPath))
-                {
-                    using (StreamWriter outputFile = new StreamWriter("MappingFile.txt"))
-                    {
-                        outputFile.WriteLine("[Files]");
-                        outputFile.WriteLine($"\"{IndexName}\" \"{IndexPathInPackage}\"");
-                        outputFile.WriteLine($"\"{appxManifestPath}\" \"AppxManifest.xml\"");
-                    }
-                    RunCommand("makeappx.exe", $"pack /f MappingFile.txt /o /nv /p {IndexPackageName}");
-
-                    if (!string.IsNullOrEmpty(certPath))
-                    {
-                        RunCommand("signtool.exe", $"sign /a /fd sha256 /f {certPath} {IndexPackageName}");
+                        inputFile = args[i];
                     }
                 }
+
+                if (string.IsNullOrEmpty(inputFile) || !File.Exists(inputFile))
+                {
+                    PrintUsage();
+                    throw new ArgumentException("Missing input file");
+                }
+
+                WinGetLocalSource.CreateFromLocalSourceFile(inputFile);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Failed. Reason: " + e.Message);
+                PrintUsage();
+                Console.WriteLine(e.Message);
+                return -1;
             }
 
-            Environment.Exit(0);
-        }
-
-        static void RunCommand(string command, string args)
-        {
-            Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(command, args);
-            p.Start();
-            p.WaitForExit();
+            return 0;
         }
     }
 }

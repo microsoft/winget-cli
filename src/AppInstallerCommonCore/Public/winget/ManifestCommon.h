@@ -31,8 +31,17 @@ namespace AppInstaller::Manifest
     // V1.2 manifest version
     constexpr std::string_view s_ManifestVersionV1_2 = "1.2.0"sv;
 
-    // V1.3 manifest version
+    // V1.4 manifest version
     constexpr std::string_view s_ManifestVersionV1_4 = "1.4.0"sv;
+
+    // V1.5 manifest version
+    constexpr std::string_view s_ManifestVersionV1_5 = "1.5.0"sv;
+
+    // V1.6 manifest version
+    constexpr std::string_view s_ManifestVersionV1_6 = "1.6.0"sv;
+
+    // V1.7 manifest version
+    constexpr std::string_view s_ManifestVersionV1_7 = "1.7.0"sv;
 
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
@@ -46,6 +55,7 @@ namespace AppInstaller::Manifest
         // Options not exposed in winget util
         bool FullValidation = false;
         bool ThrowOnWarning = false;
+        bool AllowShadowManifest = false;
     };
 
     // ManifestVer is inherited from Utility::Version and is a more restricted version.
@@ -90,6 +100,7 @@ namespace AppInstaller::Manifest
         Unknown,
         Install,
         UninstallPrevious,
+        Deny,
     };
 
     enum class InstallerSwitchType
@@ -102,6 +113,15 @@ namespace AppInstaller::Manifest
         Log,
         InstallLocation,
         Update,
+        Repair,
+    };
+
+    enum class RepairBehaviorEnum
+    {
+        Unknown,
+        Modify,
+        Installer,
+        Uninstaller,
     };
 
     enum class ScopeEnum
@@ -182,6 +202,7 @@ namespace AppInstaller::Manifest
         Locale,
         Merged,
         Preview,
+        Shadow,
     };
 
     enum class DependencyType
@@ -190,6 +211,44 @@ namespace AppInstaller::Manifest
         WindowsLibrary,
         Package,
         External
+    };
+
+    enum class IconFileTypeEnum
+    {
+        Unknown,
+        Jpeg,
+        Png,
+        Ico,
+    };
+
+    enum class IconThemeEnum
+    {
+        Unknown,
+        Default,
+        Light,
+        Dark,
+        HighContrast,
+    };
+
+    // Icon resolutions from https://learn.microsoft.com/en-us/windows/apps/design/style/iconography/app-icon-construction#app-icon
+    enum class IconResolutionEnum
+    {
+        Unknown,
+        Custom,
+        Square16,
+        Square20,
+        Square24,
+        Square30,
+        Square32,
+        Square36,
+        Square40,
+        Square48,
+        Square60,
+        Square64,
+        Square72,
+        Square80,
+        Square96,
+        Square256,
     };
 
     struct ExpectedReturnCode
@@ -292,6 +351,8 @@ namespace AppInstaller::Manifest
 
         // Checks if there are any installation metadata available.
         bool HasData() const { return !DefaultInstallLocation.empty() || !Files.empty(); }
+
+        void Clear() { DefaultInstallLocation.clear(); Files.clear(); }
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
@@ -314,9 +375,43 @@ namespace AppInstaller::Manifest
 
     InstalledFileTypeEnum ConvertToInstalledFileTypeEnum(const std::string& in);
 
+    IconFileTypeEnum ConvertToIconFileTypeEnum(std::string_view in);
+
+    IconThemeEnum ConvertToIconThemeEnum(std::string_view in);
+
+    IconResolutionEnum ConvertToIconResolutionEnum(std::string_view in);
+
+    RepairBehaviorEnum ConvertToRepairBehaviorEnum(std::string_view in);
+
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
+    std::string_view InstallerSwitchTypeToString(InstallerSwitchType installerSwitchType);
+
+    std::string_view ElevationRequirementToString(ElevationRequirementEnum elevationRequirement);
+
+    std::string_view InstallModeToString(InstallModeEnum installMode);
+
+    std::string_view UnsupportedArgumentToString(UnsupportedArgumentEnum unsupportedArgument);
+
+    std::string_view UpdateBehaviorToString(UpdateBehaviorEnum updateBehavior);
+
+    std::string_view RepairBehaviorToString(RepairBehaviorEnum repairBehavior);
+
+    std::string_view PlatformToString(PlatformEnum platform);
+
     std::string_view ScopeToString(ScopeEnum scope);
+
+    std::string_view InstalledFileTypeToString(InstalledFileTypeEnum installedFileType);
+
+    std::string_view IconFileTypeToString(IconFileTypeEnum iconFileType);
+
+    std::string_view IconThemeToString(IconThemeEnum iconTheme);
+
+    std::string_view IconResolutionToString(IconResolutionEnum iconResolution);
+
+    std::string_view ManifestTypeToString(ManifestTypeEnum manifestType);
+
+    std::string_view ExpectedReturnCodeToString(ExpectedReturnCodeEnum expectedReturnCode);
 
     // Gets a value indicating whether the given installer uses the PackageFamilyName system reference.
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);

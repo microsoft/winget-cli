@@ -7,7 +7,7 @@ namespace AppInstaller::Manifest
 {
     struct DependencyGraph
     {
-        // this constructor was intented for use during installation flow (we already have installer dependencies and there's no need to search the source again)
+        // this constructor was intended for use during installation flow (we already have installer dependencies and there's no need to search the source again)
         DependencyGraph(const Dependency& root, const DependencyList& rootDependencies,
             std::function<const DependencyList(const Dependency&)> infoFunction);
 

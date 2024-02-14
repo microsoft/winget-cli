@@ -10,6 +10,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
     using System.Collections;
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.PowerShell;
     using NUnit.Framework;
 
@@ -29,10 +30,6 @@ namespace AppInstallerCLIE2ETests.PowerShell
         {
             InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
             initialSessionState.ExecutionPolicy = ExecutionPolicy.Unrestricted;
-            initialSessionState.ImportPSModule(new string[]
-            {
-                TestCommon.PowerShellModulePath,
-            });
 
             this.runspace = RunspaceFactory.CreateRunspace(initialSessionState);
             this.runspace.Open();
@@ -58,6 +55,16 @@ namespace AppInstallerCLIE2ETests.PowerShell
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Add module path.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        public void AddModulePath(string path)
+        {
+            var newModulePath = this.PowerShell.Runspace.SessionStateProxy.PSVariable.GetValue("env:PSModulePath") + $";{path}";
+            this.PowerShell.Runspace.SessionStateProxy.PSVariable.Set("env:PSModulePath", newModulePath);
         }
 
         /// <summary>

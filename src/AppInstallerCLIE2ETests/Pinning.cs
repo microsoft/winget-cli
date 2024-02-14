@@ -7,23 +7,15 @@
 namespace AppInstallerCLIE2ETests
 {
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
-    using static AppInstallerCLIE2ETests.TestCommon;
+    using static AppInstallerCLIE2ETests.Helpers.TestCommon;
 
     /// <summary>
     /// Test upgrading pinned packages.
     /// </summary>
     public class Pinning : BaseCommand
     {
-        /// <summary>
-        /// Setup done once before all the tests here.
-        /// </summary>
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            WinGetSettingsHelper.ConfigureFeature("pinning", true);
-        }
-
         /// <summary>
         /// Set up for all tests.
         /// </summary>

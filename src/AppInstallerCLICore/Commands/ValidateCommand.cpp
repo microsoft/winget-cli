@@ -5,6 +5,7 @@
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
+#include <winget/ManifestYamlParser.h>
 
 namespace AppInstaller::CLI
 {
@@ -15,6 +16,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Execution::Args::Type::ValidateManifest),
+            Argument::ForType(Execution::Args::Type::IgnoreWarnings),
         };
     }
 
@@ -45,7 +47,7 @@ namespace AppInstaller::CLI
             {
                 ManifestValidateOption validateOption;
                 validateOption.FullValidation = true;
-                validateOption.ThrowOnWarning = true;
+                validateOption.ThrowOnWarning = !(context.Args.Contains(Execution::Args::Type::IgnoreWarnings));
                 auto manifest = YamlParser::CreateFromPath(inputFile, validateOption);
 
                 context.Add<Execution::Data::Manifest>(manifest);

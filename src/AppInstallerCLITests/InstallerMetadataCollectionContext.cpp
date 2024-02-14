@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSource.h"
+#include "TestHooks.h"
 
 #include <winget/InstallerMetadataCollectionContext.h>
 
@@ -237,9 +238,31 @@ namespace
         ARPCorrelationResult CorrelateForNewlyInstalledResult;
     };
 
+    struct TestInstalledFilesCorrelation : public InstalledFilesCorrelation
+    {
+        Correlation::InstallationMetadata CorrelateForNewlyInstalled(const Manifest::Manifest&, const std::string&) override
+        {
+            return InstallationMetadata;
+        }
+
+        void StartFileWatcher() override {}
+
+        void StopFileWatcher() override {}
+
+        Correlation::InstallationMetadata InstallationMetadata;
+    };
+
+    InstallerMetadataCollectionContext CreateTestContext(
+        std::unique_ptr<ARPCorrelationData>&& data,
+        std::unique_ptr<InstalledFilesCorrelation>&& installedFiles,
+        TestInput& input)
+    {
+        return { std::move(data), std::move(installedFiles), input.ToJSON() };
+    }
+
     InstallerMetadataCollectionContext CreateTestContext(std::unique_ptr<ARPCorrelationData>&& data, TestInput& input)
     {
-        return { std::move(data), input.ToJSON() };
+        return { std::move(data), std::make_unique<TestInstalledFilesCorrelation>(), input.ToJSON()};
     }
 
     InstallerMetadataCollectionContext CreateTestContext(TestInput& input)
@@ -852,4 +875,395 @@ TEST_CASE("MetadataCollection_Merge_SameInstaller_Scopes", "[metadata_collection
             REQUIRE(item.second.Scope == currentScope);
         }
     }
+}
+
+TEST_CASE("MetadataCollection_NewPackage_1_2", "[metadata_collection]")
+{
+    TestInput input(MinimalDefaults);
+    input.SupportedMetadataVersion = "1.2";
+    auto correlationData = std::make_unique<TestARPCorrelationData>();
+    auto installedFilesData = std::make_unique<TestInstalledFilesCorrelation>();
+
+    Manifest::Manifest manifest;
+    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Test Package Name");
+    manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>("Test Publisher");
+    manifest.Version = "1.2.3";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].ProductCode = "{guid}";
+
+    IPackageVersion::Metadata metadata;
+    metadata[PackageVersionMetadata::InstalledType] = Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msi);
+    metadata[PackageVersionMetadata::InstalledScope] = Manifest::ScopeToString(Manifest::ScopeEnum::User);
+
+    correlationData->CorrelateForNewlyInstalledResult.Package = std::make_shared<TestPackageVersion>(manifest, metadata);
+
+    Correlation::InstallationMetadata installedFiles;
+    installedFiles.InstalledFiles.DefaultInstallLocation = "%TEMP%\\TestApp";
+    Manifest::InstalledFile installedFile;
+    installedFile.RelativeFilePath = "test.exe";
+    installedFile.FileSha256 = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759");
+    installedFile.FileType = Manifest::InstalledFileTypeEnum::Launch;
+    installedFile.InvocationParameter = "invocation";
+    installedFile.DisplayName = "name";
+    installedFiles.InstalledFiles.Files.emplace_back(std::move(installedFile));
+    Correlation::InstalledStartupLinkFile startupLink;
+    startupLink.RelativeFilePath = "TestApp.lnk";
+    startupLink.FileType = Manifest::InstalledFileTypeEnum::Launch;
+    installedFiles.StartupLinkFiles.emplace_back(std::move(startupLink));
+
+    installedFilesData->InstallationMetadata = std::move(installedFiles);
+
+    std::vector<AppInstaller::Repository::ExtractedIconInfo> testIcons;
+    AppInstaller::Repository::ExtractedIconInfo iconInfo;
+    iconInfo.IconContent = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b700");
+    iconInfo.IconSha256 = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759");
+    iconInfo.IconFileType = Manifest::IconFileTypeEnum::Ico;
+    iconInfo.IconResolution = Manifest::IconResolutionEnum::Custom;
+    iconInfo.IconTheme = Manifest::IconThemeEnum::Default;
+    testIcons.emplace_back(std::move(iconInfo));
+
+    TestHook::SetExtractIconFromArpEntryResult_Override iconsOverride{ testIcons };
+
+    InstallerMetadataCollectionContext context = CreateTestContext(std::move(correlationData), std::move(installedFilesData), input);
+    TestOutput output = GetOutput(context);
+
+    REQUIRE(output.IsSuccess());
+    output.ValidateFieldPresence();
+
+    REQUIRE(output.Metadata->ProductVersionMin.ToString() == output.Metadata->ProductVersionMax.ToString());
+    REQUIRE(output.Metadata->ProductVersionMin.ToString() == manifest.Version);
+    REQUIRE(output.Metadata->InstallerMetadataMap.size() == 1);
+    REQUIRE(output.Metadata->InstallerMetadataMap.count(input.InstallerHash.value()) == 1);
+    const auto& entry = output.Metadata->InstallerMetadataMap[input.InstallerHash.value()];
+    REQUIRE(entry.SubmissionIdentifier == input.SubmissionIdentifier.value());
+    REQUIRE(entry.Scope == metadata[PackageVersionMetadata::InstalledScope]);
+    REQUIRE(entry.AppsAndFeaturesEntries.size() == 1);
+    REQUIRE(entry.AppsAndFeaturesEntries[0].DisplayName == manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>());
+    REQUIRE(entry.AppsAndFeaturesEntries[0].Publisher == manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
+    REQUIRE(entry.AppsAndFeaturesEntries[0].DisplayVersion == manifest.Version);
+    REQUIRE(entry.AppsAndFeaturesEntries[0].ProductCode == manifest.Installers[0].ProductCode);
+    REQUIRE(entry.AppsAndFeaturesEntries[0].InstallerType == Manifest::InstallerTypeEnum::Msi);
+    REQUIRE(entry.InstalledFiles.has_value());
+    REQUIRE(entry.InstalledFiles->DefaultInstallLocation == "%TEMP%\\TestApp");
+    REQUIRE(entry.InstalledFiles->Files.size() == 1);
+    REQUIRE(entry.InstalledFiles->Files[0].RelativeFilePath == "test.exe");
+    REQUIRE(entry.InstalledFiles->Files[0].FileSha256 == Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759"));
+    REQUIRE(entry.InstalledFiles->Files[0].FileType == Manifest::InstalledFileTypeEnum::Launch);
+    REQUIRE(entry.InstalledFiles->Files[0].InvocationParameter == "invocation");
+    REQUIRE(entry.InstalledFiles->Files[0].DisplayName == "name");
+    REQUIRE(entry.StartupLinkFiles.has_value());
+    REQUIRE(entry.StartupLinkFiles->size() == 1);
+    REQUIRE(entry.StartupLinkFiles->at(0).RelativeFilePath == "TestApp.lnk");
+    REQUIRE(entry.StartupLinkFiles->at(0).FileType == Manifest::InstalledFileTypeEnum::Launch);
+    REQUIRE(entry.Icons.size() == 1);
+    REQUIRE(entry.Icons[0].IconContent == Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b700"));
+    REQUIRE(entry.Icons[0].IconSha256 == Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759"));
+    REQUIRE(entry.Icons[0].IconFileType == Manifest::IconFileTypeEnum::Ico);
+    REQUIRE(entry.Icons[0].IconResolution == Manifest::IconResolutionEnum::Custom);
+    REQUIRE(entry.Icons[0].IconTheme == Manifest::IconThemeEnum::Default);
+    REQUIRE(output.Metadata->HistoricalMetadataList.empty());
+}
+
+TEST_CASE("MetadataCollection_NewPackage_NoInstallationMetadata_NoIcons", "[metadata_collection]")
+{
+    TestInput input(MinimalDefaults);
+    input.SupportedMetadataVersion = "1.2";
+    auto correlationData = std::make_unique<TestARPCorrelationData>();
+
+    Manifest::Manifest manifest;
+    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Test Package Name");
+    manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>("Test Publisher");
+    manifest.Version = "1.2.3";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].ProductCode = "{guid}";
+
+    IPackageVersion::Metadata metadata;
+    metadata[PackageVersionMetadata::InstalledType] = Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msi);
+
+    correlationData->CorrelateForNewlyInstalledResult.Package = std::make_shared<TestPackageVersion>(manifest, metadata);
+
+    std::vector<AppInstaller::Repository::ExtractedIconInfo> testIcons;
+    TestHook::SetExtractIconFromArpEntryResult_Override iconsOverride{ testIcons };
+
+    InstallerMetadataCollectionContext context = CreateTestContext(std::move(correlationData), input);
+    TestOutput output = GetOutput(context);
+
+    REQUIRE(output.IsSuccess());
+    output.ValidateFieldPresence();
+
+    REQUIRE(output.Metadata->InstallerMetadataMap.size() == 1);
+    REQUIRE(output.Metadata->InstallerMetadataMap.count(input.InstallerHash.value()) == 1);
+    const auto& entry = output.Metadata->InstallerMetadataMap[input.InstallerHash.value()];
+    REQUIRE(entry.Scope.empty());
+    REQUIRE_FALSE(entry.InstalledFiles.has_value());
+    REQUIRE_FALSE(entry.StartupLinkFiles.has_value());
+    REQUIRE(entry.Icons.size() == 0);
+}
+
+TEST_CASE("MetadataCollection_SameSubmission_SameInstaller_InstallationMetadata_Icons", "[metadata_collection]")
+{
+    std::string version = "1.3.5";
+    std::string productCode = "{guid}";
+    Manifest::InstallerTypeEnum installerType = Manifest::InstallerTypeEnum::Msi;
+
+    TestInput input(MinimalDefaults, version, productCode, installerType);
+    input.SupportedMetadataVersion = "1.2";
+    input.CurrentMetadata->SchemaVersion = { "1.2" };
+
+    Manifest::InstallationMetadataInfo installedFiles;
+    installedFiles.DefaultInstallLocation = "%TEMP%\\TestApp";
+    Manifest::InstalledFile installedFile;
+    installedFile.RelativeFilePath = "test.exe";
+    installedFile.FileSha256 = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759");
+    installedFile.FileType = Manifest::InstalledFileTypeEnum::Launch;
+    installedFile.InvocationParameter = "invocation";
+    installedFile.DisplayName = "name";
+    installedFiles.Files.emplace_back(std::move(installedFile));
+    input.CurrentMetadata->InstallerMetadataMap.begin()->second.InstalledFiles = std::move(installedFiles);
+
+    std::vector<InstalledStartupLinkFile> startupLinkFiles;
+    Correlation::InstalledStartupLinkFile startupLink;
+    startupLink.RelativeFilePath = "TestApp.lnk";
+    startupLink.FileType = Manifest::InstalledFileTypeEnum::Launch;
+    startupLinkFiles.emplace_back(std::move(startupLink));
+    input.CurrentMetadata->InstallerMetadataMap.begin()->second.StartupLinkFiles = std::move(startupLinkFiles);
+
+    std::vector<AppInstaller::Repository::ExtractedIconInfo> testIcons;
+    AppInstaller::Repository::ExtractedIconInfo iconInfo;
+    iconInfo.IconContent = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b700");
+    iconInfo.IconSha256 = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759");
+    iconInfo.IconFileType = Manifest::IconFileTypeEnum::Ico;
+    iconInfo.IconResolution = Manifest::IconResolutionEnum::Custom;
+    iconInfo.IconTheme = Manifest::IconThemeEnum::Default;
+    testIcons.emplace_back(std::move(iconInfo));
+    input.CurrentMetadata->InstallerMetadataMap.begin()->second.Icons = std::move(testIcons);
+
+    auto correlationData = std::make_unique<TestARPCorrelationData>();
+    auto installedFilesData = std::make_unique<TestInstalledFilesCorrelation>();
+
+    Manifest::Manifest manifest;
+    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Different Language Name");
+    // Same publisher
+    manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>(input.CurrentMetadata->InstallerMetadataMap.begin()->second.AppsAndFeaturesEntries[0].Publisher);
+    manifest.Version = version;
+    manifest.Installers.push_back({});
+    manifest.Installers[0].ProductCode = productCode;
+
+    IPackageVersion::Metadata metadata;
+    metadata[PackageVersionMetadata::InstalledType] = Manifest::InstallerTypeToString(installerType);
+
+    correlationData->CorrelateForNewlyInstalledResult.Package = std::make_shared<TestPackageVersion>(manifest, metadata);
+
+    Correlation::InstallationMetadata newInstalledFiles;
+    newInstalledFiles.InstalledFiles.DefaultInstallLocation = "%TEMP%\\NewTestApp";
+    Manifest::InstalledFile newInstalledFile;
+    newInstalledFile.RelativeFilePath = "test.exe";
+    newInstalledFile.FileSha256 = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759");
+    newInstalledFile.FileType = Manifest::InstalledFileTypeEnum::Launch;
+    newInstalledFile.InvocationParameter = "invocation";
+    newInstalledFile.DisplayName = "name";
+    newInstalledFiles.InstalledFiles.Files.emplace_back(std::move(newInstalledFile));
+    Correlation::InstalledStartupLinkFile newStartupLink;
+    newStartupLink.RelativeFilePath = "NewTestApp.lnk";
+    newStartupLink.FileType = Manifest::InstalledFileTypeEnum::Launch;
+    newInstalledFiles.StartupLinkFiles.emplace_back(std::move(newStartupLink));
+
+    installedFilesData->InstallationMetadata = std::move(newInstalledFiles);
+
+    std::vector<AppInstaller::Repository::ExtractedIconInfo> newTestIcons;
+    AppInstaller::Repository::ExtractedIconInfo newIconInfo;
+    newIconInfo.IconContent = Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6");
+    newIconInfo.IconSha256 = Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df8499");
+    newIconInfo.IconFileType = Manifest::IconFileTypeEnum::Jpeg;
+    newIconInfo.IconResolution = Manifest::IconResolutionEnum::Square16;
+    newIconInfo.IconTheme = Manifest::IconThemeEnum::Light;
+    newTestIcons.emplace_back(std::move(newIconInfo));
+
+    TestHook::SetExtractIconFromArpEntryResult_Override iconsOverride{ newTestIcons };
+
+    InstallerMetadataCollectionContext context = CreateTestContext(std::move(correlationData), std::move(installedFilesData), input);
+    TestOutput output = GetOutput(context);
+
+    REQUIRE(output.IsSuccess());
+    output.ValidateFieldPresence();
+
+    REQUIRE(output.Metadata->InstallerMetadataMap.size() == 1);
+    REQUIRE(output.Metadata->InstallerMetadataMap.count(input.InstallerHash.value()) == 1);
+    const auto& entry = output.Metadata->InstallerMetadataMap[input.InstallerHash.value()];
+
+    // Conflicting installed files entries get removed.
+    REQUIRE(entry.InstalledFiles.has_value());
+    REQUIRE_FALSE(entry.InstalledFiles->HasData());
+    // Non duplicate startup links get added.
+    REQUIRE(entry.StartupLinkFiles.has_value());
+    REQUIRE(entry.StartupLinkFiles->size() == 2);
+    // New detected icons always take over
+    REQUIRE(entry.Icons.size() == 1);
+    REQUIRE(entry.Icons[0].IconContent == Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
+    REQUIRE(entry.Icons[0].IconSha256 == Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df8499"));
+    REQUIRE(entry.Icons[0].IconFileType == Manifest::IconFileTypeEnum::Jpeg);
+    REQUIRE(entry.Icons[0].IconResolution == Manifest::IconResolutionEnum::Square16);
+    REQUIRE(entry.Icons[0].IconTheme == Manifest::IconThemeEnum::Light);
+}
+
+TEST_CASE("MetadataCollection_Merge_SameInstaller_InstalledFiles", "[metadata_collection]")
+{
+    TestMerge mergeData{ MinimalDefaults };
+    mergeData.Metadatas->emplace_back(MakeProductMetadata());
+
+    Manifest::InstallationMetadataInfo installedFiles;
+    installedFiles.DefaultInstallLocation = "%TEMP%\\TestApp";
+    Manifest::InstalledFile installedFile;
+    installedFile.RelativeFilePath = "test.exe";
+    installedFile.FileSha256 = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759");
+    installedFile.FileType = Manifest::InstalledFileTypeEnum::Launch;
+    installedFile.InvocationParameter = "invocation";
+    installedFile.DisplayName = "name";
+    installedFiles.Files.emplace_back(std::move(installedFile));
+
+    mergeData.Metadatas->at(0).SchemaVersion = { "1.2" };
+    mergeData.Metadatas->at(0).InstallerMetadataMap.begin()->second.InstalledFiles = installedFiles;
+
+    // Different default install location clears whole data
+    Manifest::InstallationMetadataInfo newInstalledFiles = installedFiles;
+    newInstalledFiles.DefaultInstallLocation = "%TEMP%\\NewTestApp";
+    mergeData.Metadatas->at(1).SchemaVersion = { "1.2" };
+
+    mergeData.Metadatas->at(1).InstallerMetadataMap.begin()->second.InstalledFiles = newInstalledFiles;
+    std::wstring mergeResult = InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {});
+    REQUIRE(!mergeResult.empty());
+
+    ProductMetadata mergeMetadata;
+    mergeMetadata.FromJson(web::json::value::parse(mergeResult));
+
+    REQUIRE(mergeMetadata.InstallerMetadataMap.size() == 1);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles.has_value());
+    REQUIRE_FALSE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles->HasData());
+
+    // Different RelativeFilePath clears the file entry
+    Manifest::InstallationMetadataInfo newInstalledFiles2 = installedFiles;
+    newInstalledFiles2.Files[0].RelativeFilePath = "test2.exe";
+    mergeData.Metadatas->at(1).InstallerMetadataMap.begin()->second.InstalledFiles = newInstalledFiles2;
+    mergeResult = InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {});
+    REQUIRE(!mergeResult.empty());
+
+    mergeMetadata.FromJson(web::json::value::parse(mergeResult));
+
+    REQUIRE(mergeMetadata.InstallerMetadataMap.size() == 1);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles.has_value());
+    REQUIRE_FALSE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles->DefaultInstallLocation.empty());
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles->Files.empty());
+
+    // Different other fields clears the fields themselves
+    Manifest::InstallationMetadataInfo newInstalledFiles3 = installedFiles;
+    newInstalledFiles3.Files[0].DisplayName = "name2";
+    newInstalledFiles3.Files[0].FileSha256 = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b756");
+    newInstalledFiles3.Files[0].InvocationParameter = "invocation2";
+    newInstalledFiles3.Files[0].FileType = Manifest::InstalledFileTypeEnum::Uninstall;
+    mergeData.Metadatas->at(1).InstallerMetadataMap.begin()->second.InstalledFiles = newInstalledFiles3;
+    mergeResult = InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {});
+    REQUIRE(!mergeResult.empty());
+
+    mergeMetadata.FromJson(web::json::value::parse(mergeResult));
+
+    REQUIRE(mergeMetadata.InstallerMetadataMap.size() == 1);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles.has_value());
+    REQUIRE_FALSE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles->DefaultInstallLocation.empty());
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles->Files.size() == 1);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles->Files[0].RelativeFilePath == "test.exe");
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles->Files[0].DisplayName == "");
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles->Files[0].InvocationParameter == "");
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles->Files[0].FileType == Manifest::InstalledFileTypeEnum::Unknown);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.InstalledFiles->Files[0].FileSha256.empty());
+}
+
+TEST_CASE("MetadataCollection_Merge_SameInstaller_StartupLinkFiles", "[metadata_collection]")
+{
+    TestMerge mergeData{ MinimalDefaults };
+    mergeData.Metadatas->emplace_back(MakeProductMetadata());
+
+    std::vector<InstalledStartupLinkFile> startupLinkFiles;
+    Correlation::InstalledStartupLinkFile startupLink;
+    startupLink.RelativeFilePath = "TestApp.lnk";
+    startupLink.FileType = Manifest::InstalledFileTypeEnum::Launch;
+    startupLinkFiles.emplace_back(std::move(startupLink));
+
+    mergeData.Metadatas->at(0).SchemaVersion = { "1.2" };
+    mergeData.Metadatas->at(0).InstallerMetadataMap.begin()->second.StartupLinkFiles = startupLinkFiles;
+
+    // Different relative file path gets added
+    std::vector<InstalledStartupLinkFile> newStartupLinkFiles = startupLinkFiles;
+    newStartupLinkFiles[0].RelativeFilePath = "TestApp2.lnk";
+
+    mergeData.Metadatas->at(1).SchemaVersion = { "1.2" };
+    mergeData.Metadatas->at(1).InstallerMetadataMap.begin()->second.StartupLinkFiles = newStartupLinkFiles;
+    std::wstring mergeResult = InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {});
+    REQUIRE(!mergeResult.empty());
+
+    ProductMetadata mergeMetadata;
+    mergeMetadata.FromJson(web::json::value::parse(mergeResult));
+
+    REQUIRE(mergeMetadata.InstallerMetadataMap.size() == 1);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.StartupLinkFiles.has_value());
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.StartupLinkFiles->size() == 2);
+
+    // Different other fields clears the fields themselves
+    std::vector<InstalledStartupLinkFile> newStartupLinkFiles2 = startupLinkFiles;
+    newStartupLinkFiles2[0].FileType = Manifest::InstalledFileTypeEnum::Uninstall;
+    mergeData.Metadatas->at(1).InstallerMetadataMap.begin()->second.StartupLinkFiles = newStartupLinkFiles2;
+    mergeResult = InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {});
+    REQUIRE(!mergeResult.empty());
+
+    mergeMetadata.FromJson(web::json::value::parse(mergeResult));
+
+    REQUIRE(mergeMetadata.InstallerMetadataMap.size() == 1);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.StartupLinkFiles.has_value());
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.StartupLinkFiles->size() == 1);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.StartupLinkFiles->at(0).RelativeFilePath == "TestApp.lnk");
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.StartupLinkFiles->at(0).FileType == Manifest::InstalledFileTypeEnum::Unknown);
+}
+
+TEST_CASE("MetadataCollection_Merge_SameInstaller_Icons", "[metadata_collection]")
+{
+    TestMerge mergeData{ MinimalDefaults };
+    mergeData.Metadatas->emplace_back(MakeProductMetadata());
+
+    std::vector<AppInstaller::Repository::ExtractedIconInfo> testIcons;
+    AppInstaller::Repository::ExtractedIconInfo iconInfo;
+    iconInfo.IconContent = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b700");
+    iconInfo.IconSha256 = Utility::SHA256::ConvertToBytes("d2a45116709136462ee7a1c42f0e75f0efa258fe959b1504dc8ea4573451b759");
+    iconInfo.IconFileType = Manifest::IconFileTypeEnum::Ico;
+    iconInfo.IconResolution = Manifest::IconResolutionEnum::Custom;
+    iconInfo.IconTheme = Manifest::IconThemeEnum::Default;
+    testIcons.emplace_back(std::move(iconInfo));
+
+    mergeData.Metadatas->at(0).SchemaVersion = { "1.2" };
+    mergeData.Metadatas->at(0).InstallerMetadataMap.begin()->second.Icons = testIcons;
+
+    // Different test icons
+    std::vector<AppInstaller::Repository::ExtractedIconInfo> newTestIcons;
+    AppInstaller::Repository::ExtractedIconInfo newIconInfo;
+    newIconInfo.IconContent = Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6");
+    newIconInfo.IconSha256 = Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df8499");
+    newIconInfo.IconFileType = Manifest::IconFileTypeEnum::Jpeg;
+    newIconInfo.IconResolution = Manifest::IconResolutionEnum::Square16;
+    newIconInfo.IconTheme = Manifest::IconThemeEnum::Light;
+    newTestIcons.emplace_back(std::move(newIconInfo));
+
+    mergeData.Metadatas->at(1).SchemaVersion = { "1.2" };
+    mergeData.Metadatas->at(1).InstallerMetadataMap.begin()->second.Icons = newTestIcons;
+    std::wstring mergeResult = InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {});
+    REQUIRE(!mergeResult.empty());
+
+    ProductMetadata mergeMetadata;
+    mergeMetadata.FromJson(web::json::value::parse(mergeResult));
+
+    // New data always take over
+    REQUIRE(mergeMetadata.InstallerMetadataMap.size() == 1);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.Icons.size() == 1);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.Icons[0].IconContent == Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.Icons[0].IconSha256 == Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df8499"));
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.Icons[0].IconFileType == Manifest::IconFileTypeEnum::Jpeg);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.Icons[0].IconResolution == Manifest::IconResolutionEnum::Square16);
+    REQUIRE(mergeMetadata.InstallerMetadataMap.begin()->second.Icons[0].IconTheme == Manifest::IconThemeEnum::Light);
 }

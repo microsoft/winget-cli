@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -24,9 +24,6 @@
     </Filter>
     <Filter Include="Public">
       <UniqueIdentifier>{69ce2e35-fe7f-41af-bd47-91a70131d167}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ICU">
-      <UniqueIdentifier>{dac1a359-45ac-4456-8a83-f7df10058197}</UniqueIdentifier>
     </Filter>
     <Filter Include="Microsoft\Schema\1_1">
       <UniqueIdentifier>{aef8989c-44fd-4848-ae2c-c81d3f2e2c72}</UniqueIdentifier>
@@ -76,25 +73,40 @@
     <Filter Include="Rest\Schema\1_4\Json">
       <UniqueIdentifier>{d9d70cf5-ce04-4db2-a0ec-970dd0ad22b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_5">
+      <UniqueIdentifier>{f131c993-1136-4f4c-85a9-8606c6d297a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_5\Json">
+      <UniqueIdentifier>{78cf34a8-b868-4393-ad9c-630940569186}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Microsoft\Schema\Pinning_1_0">
       <UniqueIdentifier>{f05e19bb-2161-4ab0-9d04-2dfa2d3eb3c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_6">
+      <UniqueIdentifier>{21da32f5-b918-436e-96a9-465525f90259}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_6\Json">
+      <UniqueIdentifier>{b2e78f3d-931e-432c-8485-255b1dbc9db7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Microsoft\Schema\1_7">
+      <UniqueIdentifier>{f610927a-6f1d-42c5-9ad9-b59790091944}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Microsoft\Schema\Checkpoint_1_0">
+      <UniqueIdentifier>{a3f9c7ed-f487-40d6-9ee7-e9a052e55c29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_7">
+      <UniqueIdentifier>{f42acfce-4fc0-435b-a9a2-bf5528aecbcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_7\Json">
+      <UniqueIdentifier>{7fd6c265-81c0-4c6e-87b2-24bef117e21d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SQLiteWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\SQLiteIndex.h">
       <Filter>Microsoft</Filter>
-    </ClInclude>
-    <ClInclude Include="Microsoft\Schema\MetadataTable.h">
-      <Filter>Microsoft\Schema</Filter>
-    </ClInclude>
-    <ClInclude Include="Microsoft\Schema\Version.h">
-      <Filter>Microsoft\Schema</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h">
       <Filter>Microsoft\Schema</Filter>
@@ -135,9 +147,6 @@
     <ClInclude Include="Microsoft\Schema\1_0\PathPartTable.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
-    <ClInclude Include="SQLiteStatementBuilder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SourceFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -147,14 +156,8 @@
     <ClInclude Include="Microsoft\SQLiteIndexSource.h">
       <Filter>Microsoft</Filter>
     </ClInclude>
-    <ClInclude Include="SQLiteTempTable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_0\SearchResultsTable.h">
       <Filter>Microsoft\Schema\1_0</Filter>
-    </ClInclude>
-    <ClInclude Include="ICU\SQLiteICU.h">
-      <Filter>ICU</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\1_1\Interface.h">
       <Filter>Microsoft\Schema\1_1</Filter>
@@ -324,9 +327,6 @@
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h">
       <Filter>Microsoft\Schema</Filter>
     </ClInclude>
-    <ClInclude Include="Microsoft\SQLiteStorageBase.h">
-      <Filter>Microsoft</Filter>
-    </ClInclude>
     <ClInclude Include="Rest\Schema\1_4\Json\ManifestDeserializer.h">
       <Filter>Rest\Schema\1_4\Json</Filter>
     </ClInclude>
@@ -335,6 +335,12 @@
     </ClInclude>
     <ClInclude Include="Rest\Schema\1_4\Json\SearchResponseDeserializer.h">
       <Filter>Rest\Schema\1_4\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_5\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_5\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_5\Interface.h">
+      <Filter>Rest\Schema\1_5</Filter>
     </ClInclude>
     <ClInclude Include="Rest\Schema\SearchRequestComposer.h">
       <Filter>Rest\Schema</Filter>
@@ -354,22 +360,61 @@
     <ClInclude Include="Microsoft\Schema\Pinning_1_0\PinTable.h">
       <Filter>Microsoft\Schema\Pinning_1_0</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\InstalledFilesCorrelation.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="IconDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\IconExtraction.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_6\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_6\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_6\Interface.h">
+      <Filter>Rest\Schema\1_6</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_7\Interface.h">
+      <Filter>Microsoft\Schema\1_7</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\ICheckpointDatabase.h">
+      <Filter>Microsoft\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\CheckpointDatabase.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDataTable.h">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDatabaseInterface.h">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.h">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Checkpoint.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceUpdateChecks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_7\Interface.h">
+      <Filter>Rest\Schema\1_7</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\AuthenticationInfoParser.h">
+      <Filter>Rest\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_7\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_7\Json</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SQLiteWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Microsoft\SQLiteIndex.cpp">
       <Filter>Microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="Microsoft\Schema\MetadataTable.cpp">
-      <Filter>Microsoft\Schema</Filter>
-    </ClCompile>
-    <ClCompile Include="Microsoft\Schema\Version.cpp">
-      <Filter>Microsoft\Schema</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\OneToOneTable.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
@@ -383,9 +428,6 @@
     <ClCompile Include="Microsoft\Schema\1_0\PathPartTable.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClCompile>
-    <ClCompile Include="SQLiteStatementBuilder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RepositorySource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -394,12 +436,6 @@
     </ClCompile>
     <ClCompile Include="Microsoft\SQLiteIndexSource.cpp">
       <Filter>Microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="SQLiteTempTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ICU\SQLiteICU.c">
-      <Filter>ICU</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_0\Interface_1_0.cpp">
       <Filter>Microsoft\Schema\1_0</Filter>
@@ -533,9 +569,6 @@
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp">
       <Filter>Microsoft\Schema\Portable_1_0</Filter>
     </ClCompile>
-    <ClCompile Include="Microsoft\SQLiteStorageBase.cpp">
-      <Filter>Microsoft</Filter>
-    </ClCompile>
     <ClCompile Include="Rest\Schema\1_4\Json\ManifestDeserializer_1_4.cpp">
       <Filter>Rest\Schema\1_4\Json</Filter>
     </ClCompile>
@@ -544,6 +577,12 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_4\Json\SearchResponseDeserializer_1_4.cpp">
       <Filter>Rest\Schema\1_4\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_5\Json\ManifestDeserializer_1_5.cpp">
+      <Filter>Rest\Schema\1_5\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_5\RestInterface_1_5.cpp">
+      <Filter>Rest\Schema\1_5</Filter>
     </ClCompile>
     <ClCompile Include="Rest\Schema\SearchRequestComposer.cpp">
       <Filter>Rest\Schema</Filter>
@@ -557,11 +596,50 @@
     <ClCompile Include="Microsoft\PinningIndex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinningIndexInterface_1_0.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinTable.cpp">
       <Filter>Microsoft\Schema\Pinning_1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="InstalledFilesCorrelation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IconExtraction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_6\Json\ManifestDeserializer_1_6.cpp">
+      <Filter>Rest\Schema\1_6\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_6\RestInterface_1_6.cpp">
+      <Filter>Rest\Schema\1_6</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_7\Interface_1_7.cpp">
+      <Filter>Microsoft\Schema\1_7</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\CheckpointDatabase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDataTable.cpp">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.cpp">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceUpdateChecks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDatabaseInterface_1_0.cpp">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinningIndexInterface_1_0.cpp">
+      <Filter>Microsoft\Schema\Pinning_1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_7\RestInterface_1_7.cpp">
+      <Filter>Rest\Schema\1_7</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\AuthenticationInfoParser.cpp">
+      <Filter>Rest\Schema</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_7\Json\ManifestDeserializer_1_7.cpp">
+      <Filter>Rest\Schema\1_7\Json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -2,8 +2,22 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-	<OutDir>$(SolutionDir)$(Platform)\$(Configuration)\LocalhostWebServer\</OutDir>
-	<Platforms>x64;x86</Platforms>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\LocalhostWebServer\</OutDir>
+    <Platforms>x64;x86</Platforms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WinGetSourceCreator\WinGetSourceCreator.csproj" />
+    <ProjectReference Include="..\WinGetUtilInterop\WinGetUtilInterop.csproj" />
+    <ProjectReference Include="..\WinGetUtil\WinGetUtil.vcxproj" >
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(TargetDir)..\WinGetUtil\WinGetUtil.dll" DestinationFiles="$(TargetDir)WinGetUtil.dll" />
+  </Target>
 
 </Project>

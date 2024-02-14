@@ -6,8 +6,20 @@
 
 namespace AppInstaller::CLI::Execution
 {
-    using namespace Settings;
     using namespace VirtualTerminal;
+
+    size_t GetConsoleWidth()
+    {
+        CONSOLE_SCREEN_BUFFER_INFO consoleInfo{};
+        if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo))
+        {
+            return static_cast<size_t>(consoleInfo.dwSize.X);
+        }
+        else
+        {
+            return 120;
+        }
+    }
 
     BaseStream::BaseStream(std::ostream& out, bool enabled, bool VTEnabled) :
         m_out(out), m_enabled(enabled), m_VTEnabled(VTEnabled) {}
@@ -96,6 +108,9 @@ namespace AppInstaller::CLI::Execution
     {
         if (m_enabled && m_VTEnabled)
         {
+            // Apply format as normal to ensure that any previous format doesn't bleed through.
+            ApplyFormat();
+
             m_out << sequence;
 
             // An incoming sequence will be valid for 1 "standard" output after this one.
@@ -111,6 +126,9 @@ namespace AppInstaller::CLI::Execution
     {
         if (m_enabled && m_VTEnabled)
         {
+            // Apply format as normal to ensure that any previous format doesn't bleed through.
+            ApplyFormat();
+
             m_out << sequence;
             // An incoming sequence will be valid for 1 "standard" output after this one.
             // We set this to 2 to make that happen, because when it is 1, we will output

@@ -8,6 +8,8 @@
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDownloader.h>
 
+using namespace AppInstaller;
+
 namespace TestCommon
 {
     namespace
@@ -48,25 +50,25 @@ namespace TestCommon
         }
     }
 
-    TempFile::TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction)
+    TempFile::TempFile(const std::string& baseName, const std::string& baseExt, std::optional<KeepTempFile> keepTempFile)
     {
         _filepath = GetTempFilePath(baseName, baseExt);
-        if (deleteFileOnConstruction)
+        if (!keepTempFile)
         {
             std::filesystem::remove(_filepath);
         }
     }
 
-    TempFile::TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction)
+    TempFile::TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, std::optional<KeepTempFile> keepTempFile)
     {
         _filepath = GetFilePath(parent, baseName, baseExt);
-        if (deleteFileOnConstruction)
+        if (!keepTempFile)
         {
             std::filesystem::remove(_filepath);
         }
     }
 
-    TempFile::TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction)
+    TempFile::TempFile(const std::filesystem::path& filePath, std::optional<KeepTempFile> keepTempFile)
     {
         if (filePath.is_relative())
         {
@@ -77,7 +79,7 @@ namespace TestCommon
         {
             _filepath = filePath;
         }
-        if (deleteFileOnConstruction)
+        if (!keepTempFile)
         {
             std::filesystem::remove(_filepath);
         }
@@ -162,6 +164,10 @@ namespace TestCommon
         }
     }
 
+    void TestProgress::SetProgressMessage(std::string_view)
+    {
+    }
+
     void TestProgress::BeginProgress()
     {
     }
@@ -170,7 +176,7 @@ namespace TestCommon
     {
     }
 
-    bool TestProgress::IsCancelled()
+    bool TestProgress::IsCancelledBy(AppInstaller::CancelReason)
     {
         return false;
     }
@@ -358,5 +364,16 @@ namespace TestCommon
         }
 
         return root;
+    }
+
+    void SetTestPathOverrides()
+    {
+        // Force all tests to run against settings inside this container.
+        // This prevents test runs from trashing the users actual settings.
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::LocalState, Runtime::GetPathTo(Runtime::PathName::LocalState) / "Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::UserFileSettings, Runtime::GetPathTo(Runtime::PathName::UserFileSettings) / "Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::StandardSettings, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForRead, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "WinGet_SecureSettings_Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForWrite, Runtime::GetPathDetailsFor(Runtime::PathName::SecureSettingsForRead));
     }
 }

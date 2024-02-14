@@ -5,6 +5,7 @@
 #include "TestHooks.h"
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
+#include <AppInstallerSynchronization.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <winget/AdminSettings.h>
@@ -636,23 +637,28 @@ TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
 
 TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
 {
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     std::ostringstream installOutput;
     TestContext installContext{ installOutput, std::cin };
     auto PreviousThreadGlobals = installContext.SetForCurrentThread();
     OverridePortableInstaller(installContext);
     TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(false);
+    const auto& targetDirectory = tempDirectory.GetPath();
+    const auto& portableTargetPath = targetDirectory / "AppInstallerTestExeInstaller.exe";
     installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    installContext.Args.AddArg(Execution::Args::Type::InstallLocation, targetDirectory.u8string());
+    installContext.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
 
     InstallCommand install({});
     install.Execute(installContext);
-    INFO(installOutput.str());
 
-    // 'DefaultSource' is expected because we are installing from a local manifest.
-    const auto& portableUserRoot = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot);
-    const auto& portableTargetDirectory = portableUserRoot / "AppInstallerCliTest.TestPortableInstaller__DefaultSource";
-    const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
-    REQUIRE(std::filesystem::exists(portableTargetPath));
-    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
+    {
+        INFO(installOutput.str());
+
+        // Use CHECK to allow the uninstall to still occur
+        CHECK(std::filesystem::exists(portableTargetPath));
+        CHECK(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
+    }
 
     // Perform uninstall
     std::ostringstream uninstallOutput;
@@ -664,6 +670,7 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     UninstallCommand uninstall({});
     uninstall.Execute(uninstallContext);
     INFO(uninstallOutput.str());
+    REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
 }
 
 TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")
@@ -1149,4 +1156,102 @@ TEST_CASE("InstallFlow_InstallMultiple_SearchFailed", "[InstallFlow][workflow][M
     INFO(installOutput.str());
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
+}
+
+TEST_CASE("InstallFlow_InstallAcquiresLock", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestQuery_ReturnOne }), true);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestQuery_ReturnOne.Query);
+
+    wil::unique_event enteredShellExecute;
+    enteredShellExecute.create();
+    wil::unique_event canLeaveShellExecute;
+    canLeaveShellExecute.create();
+    AppInstaller::ProgressCallback progress;
+
+    context.Override({ ShellExecuteInstallImpl, [&](TestContext& context)
+        {
+            enteredShellExecute.SetEvent();
+            canLeaveShellExecute.wait(500);
+            ShellExecuteInstallImpl(context);
+        }});
+
+    {
+        std::thread otherThread([&]() {
+            InstallCommand install({});
+            install.Execute(context);
+            });
+
+        REQUIRE(enteredShellExecute.wait(5000));
+
+        AppInstaller::Synchronization::CrossProcessInstallLock mainThreadLock;
+        REQUIRE(!mainThreadLock.TryAcquireNoWait());
+
+        canLeaveShellExecute.SetEvent();
+        otherThread.join();
+    }
+
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_InstallWithReboot", "[InstallFlow][workflow][reboot]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ExpectedReturnCodes.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::AllowReboot);
+
+    context.Override({ ShellExecuteInstallImpl, [&](TestContext& context)
+    {
+        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL (should be treated as an installer error)
+        context.Add<Data::OperationReturnCode>(10);
+    } });
+
+    SECTION("Reboot success")
+    {
+        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(true);
+
+        InstallCommand install({});
+        install.Execute(context);
+        INFO(installOutput.str());
+
+        REQUIRE(context.IsTerminated());
+        REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
+    }
+    SECTION("Reboot failed")
+    {
+        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
+
+        InstallCommand install({});
+        install.Execute(context);
+        INFO(installOutput.str());
+
+        REQUIRE(context.IsTerminated());
+        REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
+    }
 }

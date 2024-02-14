@@ -11,14 +11,14 @@ using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
-using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Utility;
 
 namespace
 {
     static Source SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
     {
-        SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
+        SQLiteIndex index = SQLiteIndex::CreateNew(filePath, AppInstaller::SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
 
         TestDataFile testManifest("Manifest-Good.yaml");
         manifest = YamlParser::CreateFromPath(testManifest);
@@ -87,7 +87,7 @@ TEST_CASE("TrackingCatalog_Install", "[tracking_catalog]")
     SearchResult resultAfter = catalog.Search(request);
     REQUIRE(resultAfter.Matches.size() == 1);
 
-    auto trackingVersion = resultAfter.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+    auto trackingVersion = resultAfter.Matches[0].Package->GetLatestAvailableVersion();
     REQUIRE(trackingVersion);
 
     auto metadata = trackingVersion->GetMetadata();
@@ -113,7 +113,7 @@ TEST_CASE("TrackingCatalog_Reinstall", "[tracking_catalog]")
 
     SearchResult resultBefore = catalog.Search(request);
     REQUIRE(resultBefore.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name) ==
+    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name) ==
         manifest.DefaultLocalization.Get<Localization::PackageName>());
 
     // Change name
@@ -124,7 +124,7 @@ TEST_CASE("TrackingCatalog_Reinstall", "[tracking_catalog]")
 
     SearchResult resultAfter = catalog.Search(request);
     REQUIRE(resultAfter.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name) ==
+    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name) ==
         newName);
 }
 
@@ -147,7 +147,7 @@ TEST_CASE("TrackingCatalog_Upgrade", "[tracking_catalog]")
 
     SearchResult resultBefore = catalog.Search(request);
     REQUIRE(resultBefore.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Version) ==
+    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version) ==
         manifest.Version);
 
     // Change name
@@ -157,7 +157,7 @@ TEST_CASE("TrackingCatalog_Upgrade", "[tracking_catalog]")
 
     SearchResult resultAfter = catalog.Search(request);
     REQUIRE(resultAfter.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Version) ==
+    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version) ==
         manifest.Version);
 }
 

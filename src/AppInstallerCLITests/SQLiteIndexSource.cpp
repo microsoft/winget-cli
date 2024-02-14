@@ -10,11 +10,11 @@ using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
-using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::SQLite;
 
 static std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
 {
-    SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
+    SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Version::Latest());
 
     TestDataFile testManifest("Manifest-Good.yaml");
     manifest = YamlParser::CreateFromPath(testManifest);
@@ -86,7 +86,7 @@ TEST_CASE("SQLiteIndexSource_Id", "[sqliteindexsource]")
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Package);
-    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion();
 
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Id).get() == manifest.Id);
 }
@@ -107,7 +107,7 @@ TEST_CASE("SQLiteIndexSource_Name", "[sqliteindexsource]")
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Package);
-    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion();
 
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Name).get() == manifest.DefaultLocalization.Get<Localization::PackageName>());
 }

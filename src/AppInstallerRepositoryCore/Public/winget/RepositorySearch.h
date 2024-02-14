@@ -6,7 +6,6 @@
 #include <AppInstallerVersions.h>
 #include <winget/LocIndependent.h>
 #include <winget/Manifest.h>
-#include <winget/Pin.h>
 
 #include <map>
 #include <memory>
@@ -95,6 +94,17 @@ namespace AppInstaller::Repository
         }
     };
 
+    // The search purpose of the search request.
+    enum class SearchPurpose
+    {
+        // Default search purpose.
+        Default,
+        // The result is used for correlation to an installed package.
+        CorrelationToInstalled,
+        // The result is used for correlation to an available package.
+        CorrelationToAvailable,
+    };
+
     // Container for data used to filter the available manifests in a source.
     // It can be thought of as:
     //  (Query || Inclusions...) && Filters...
@@ -112,6 +122,9 @@ namespace AppInstaller::Repository
 
         // Specific fields used to filter the data further.
         std::vector<PackageMatchFilter> Filters;
+
+        // The search purpose of the search request.
+        SearchPurpose Purpose = SearchPurpose::Default;
 
         // The maximum number of results to return.
         // The default of 0 will place no limit.
@@ -223,8 +236,8 @@ namespace AppInstaller::Repository
     {
         PackageVersionKey() = default;
 
-        PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel, Pinning::PinType pinnedState = Pinning::PinType::Unknown) :
-            SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)), PinnedState(pinnedState) {}
+        PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel) :
+            SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)) {}
 
         // The source id that this version came from.
         std::string SourceId;
@@ -234,10 +247,6 @@ namespace AppInstaller::Repository
 
         // The channel.
         Utility::NormalizedString Channel;
-
-        // The pin state for this package version, if it came from a list of available versions.
-        // When used to look up a package version, this field is not considered.
-        Pinning::PinType PinnedState = Pinning::PinType::Unknown;
 
         bool operator<(const PackageVersionKey& other) const
         {
@@ -303,16 +312,15 @@ namespace AppInstaller::Repository
         std::vector<InstalledStatus> Status;
     };
 
-    // Possible ways to consider pins when getting a package's available versions
-    enum class PinBehavior
+    // To allow for runtime casting from IPackage to the specific types, this enum contains all of the IPackage implementations.
+    enum class IPackageType
     {
-        // Ignore pins, returns all available versions.
-        IgnorePins,
-        // Include available versions for packages with a Pinning pin.
-        // Blocking pins and Gating pins still respected.
-        IncludePinned,
-        // Respect all the types of pins.
-        ConsiderPins,
+        TestPackage,
+        RestAvailablePackage,
+        SQLiteAvailablePackage,
+        SQLiteInstalledPackage,
+        PinnablePackage,
+        CompositePackage,
     };
 
     // A package, potentially containing information about it's local state and the available versions.
@@ -326,11 +334,6 @@ namespace AppInstaller::Repository
         // Gets the installed package information.
         virtual std::shared_ptr<IPackageVersion> GetInstalledVersion() const = 0;
 
-        // Note on pins:
-        // Pins only make sense when there is both an installed and an available version.
-        // Only for the composite source will GetAvailableVersionKeys() include pinned state,
-        // and GetLatestAvailableVersion() consider the pin behavior.
-
         // Gets all available versions of this package.
         // The versions will be returned in sorted, descending order.
         //  Ex. { 4, 3, 2, 1 }
@@ -338,22 +341,36 @@ namespace AppInstaller::Repository
         virtual std::vector<PackageVersionKey> GetAvailableVersionKeys() const = 0;
 
         // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior) const = 0;
+        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const = 0;
 
         // Gets a specific version of this package.
         virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const = 0;
 
-        virtual std::pair<std::shared_ptr<IPackageVersion>, Pinning::PinType> GetAvailableVersionAndPin(const PackageVersionKey& versionKey) const
-        {
-            return { GetAvailableVersion(versionKey), Pinning::PinType::Unknown };
-        }
-
-        // Gets a value indicating whether an available version is newer than the installed version.
-        virtual bool IsUpdateAvailable(PinBehavior pinBehavior) const = 0;
-
         // Determines if the given IPackage refers to the same package as this one.
         virtual bool IsSame(const IPackage*) const = 0;
+
+        // Gets this object as the requested type, or null if it is not the requested type.
+        virtual const void* CastTo(IPackageType type) const = 0;
     };
+
+    // Does the equivalent of a dynamic_cast, but without it to allow RTTI to be disabled.
+    // Example usage:
+    //  bool IsSame(const IPackage* other) const override
+    //  {
+    //      const MyPackage* otherAsMyType = PackageCast<const MyPackage*>(other);
+    //      ...
+    //  }
+    template <typename PackageType>
+    PackageType PackageCast(const IPackage* package)
+    {
+        static_assert(std::is_pointer_v<PackageType>, "The target type of the PackageCast must be a pointer; use the same type as if this were a dynamic_cast.");
+        if (!package)
+        {
+            return nullptr;
+        }
+        using ActualPackageType = std::remove_pointer_t<std::remove_cv_t<PackageType>>;
+        return reinterpret_cast<PackageType>(package->CastTo(ActualPackageType::PackageType));
+    }
 
     // A single result from the search.
     struct ResultMatch

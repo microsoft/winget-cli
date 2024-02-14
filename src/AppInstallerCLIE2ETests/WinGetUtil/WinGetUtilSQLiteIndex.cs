@@ -9,6 +9,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
     using System;
     using System.IO;
     using System.Runtime.InteropServices;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>

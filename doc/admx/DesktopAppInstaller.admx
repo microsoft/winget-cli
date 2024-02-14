@@ -146,5 +146,25 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="EnableWindowsPackageManagerCommandLineInterfaces" class="Machine" displayName="$(string.EnableWindowsPackageManagerCommandLineInterfaces)" explainText="$(string.EnableWindowsPackageManagerCommandLineInterfacesExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerCommandLineInterfaces">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableWindowsPackageManagerConfiguration" class="Machine" displayName="$(string.EnableWindowsPackageManagerConfiguration)" explainText="$(string.EnableWindowsPackageManagerConfigurationExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerConfiguration">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
   </policies>
 </policyDefinitions>

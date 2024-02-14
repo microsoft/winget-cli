@@ -1,21 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerRuntime.h"
+#include "CheckpointManager.h"
 #include "InstallCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/MultiQueryFlow.h"
+#include "Workflows/ResumeFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
-using namespace AppInstaller::CLI::Execution;
-using namespace AppInstaller::CLI::Workflow;
-using namespace AppInstaller::Manifest;
-using namespace AppInstaller::Utility::literals;
-
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Workflow;
+    using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::Utility::literals;
+
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
@@ -29,6 +32,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Source),
             Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::InstallArchitecture),
+            Argument::ForType(Args::Type::InstallerType),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
@@ -38,15 +42,20 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AllowReboot),
+            Argument::ForType(Args::Type::SkipDependencies),
             Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
             Argument::ForType(Args::Type::DependencySource),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::NoUpgrade),
             Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AuthenticationMode),
+            Argument::ForType(Args::Type::AuthenticationAccount),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Rename),
             Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
+            Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden},
         };
     }
 
@@ -99,6 +108,12 @@ namespace AppInstaller::CLI
         Argument::ValidateCommonArguments(execArgs);
     }
 
+    void InstallCommand::Resume(Context& context) const
+    {
+        // TODO: Load context data from checkpoint for install command.
+        ExecuteInternal(context);
+    }
+
     void InstallCommand::ExecuteInternal(Context& context) const
     {
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
@@ -110,6 +125,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
+                Workflow::Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
                 Workflow::InstallSinglePackage;
         }
         else
@@ -121,22 +137,26 @@ namespace AppInstaller::CLI
             if (!context.Args.Contains(Execution::Args::Type::Force))
             {
                 context <<
-                    Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
+                    Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context), false, Repository::CompositeSearchBehavior::AvailablePackages);
             }
 
             if (context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
+                bool skipDependencies = Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies);
                 context <<
                     Workflow::GetMultiSearchRequests <<
                     Workflow::SearchSubContextsForSingle() <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
-                    Workflow::InstallMultiplePackages(
-                        Resource::String::InstallAndUpgradeCommandsReportDependencies,
-                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+                    Workflow::ProcessMultiplePackages(
+                        Resource::String::PackageRequiresDependencies,
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED,
+                        {}, true, skipDependencies);
             }
             else
             {
-                context << Workflow::InstallOrUpgradeSinglePackage(false);
+                context <<
+                    Workflow::Checkpoint("PreInstallCheckpoint", {}) << // TODO: Capture context data
+                    Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
             }
         }
     }

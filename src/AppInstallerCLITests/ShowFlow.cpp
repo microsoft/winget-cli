@@ -53,9 +53,6 @@ TEST_CASE("ShowFlow_Dependencies", "[ShowFlow][workflow][dependencies]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
 
-    TestUserSettings settings;
-    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-
     ShowCommand show({});
     show.Execute(context);
     INFO(showOutput.str());

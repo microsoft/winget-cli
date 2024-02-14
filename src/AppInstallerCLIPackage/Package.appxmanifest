@@ -2,7 +2,7 @@
 <Package 
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3" 
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
   xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
@@ -25,7 +25,9 @@
   </Resources>
   <Applications>
     <Application Id="WinGetDev" Executable="AppInstallerCLI\winget.exe" EntryPoint="Windows.FullTrustApplication">
-      <uap:VisualElements DisplayName="WinGet Dev Client" Square150x150Logo="Images\Square150x150Logo.png" Square44x44Logo="Images\Square44x44Logo.png" Description="The WinGet dev client." BackgroundColor="#0078d7" AppListEntry="none" />
+      <uap:VisualElements DisplayName="WinGet Dev Client" Square150x150Logo="Images\MedTile.png" Square44x44Logo="Images\AppList.png" Description="The WinGet dev client." BackgroundColor="#0078d7" AppListEntry="none" >
+        <uap:DefaultTile/>
+      </uap:VisualElements >
       <Extensions>
         <uap3:Extension Category="windows.appExtensionHost">
           <uap3:AppExtensionHost>
@@ -37,16 +39,26 @@
             <uap5:ExecutionAlias Alias="WinGetDev.exe" />
           </uap5:AppExecutionAlias>
         </uap5:Extension>
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="configuration" Parameters="configure &quot;%1&quot; --wait">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.wingetdev</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:DisplayName>WinGetDev configuration file</uap:DisplayName>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
       </Extensions>
     </Application>
     <Application Id="WinGetComServer" Executable="WinGetServer\WindowsPackageManagerServer.exe" EntryPoint="Windows.FullTrustApplication">
-      <uap:VisualElements DisplayName="WinGet Dev COM Server" Square150x150Logo="Images\Square150x150Logo.png" Square44x44Logo="Images\Square44x44Logo.png" Description="The WinGet COM server." BackgroundColor="#0078d7" AppListEntry="none" />
+      <uap:VisualElements DisplayName="WinGet Dev COM Server" Square150x150Logo="Images\MedTile.png" Square44x44Logo="Images\AppList.png" Description="The WinGet COM server." BackgroundColor="#0078d7" AppListEntry="none" >
+        <uap:DefaultTile/>
+      </uap:VisualElements >
       <Extensions>
         <uap5:Extension Category="windows.appExecutionAlias">
           <uap5:AppExecutionAlias>
             <uap5:ExecutionAlias Alias="WindowsPackageManagerServerDev.exe" />
           </uap5:AppExecutionAlias>
-        </uap5:Extension>          
+        </uap5:Extension>
         <com:Extension Category="windows.comServer">
           <com:ComServer>
             <com:ExeServer Executable="WinGetServer\WindowsPackageManagerServer.exe" DisplayName="Windows Package Manager Server" LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;WD)(A;;11;;;RC)(A;;11;;;AC)(A;;11;;;AN)S:P(ML;;NX;;;S-1-16-0)">
@@ -62,12 +74,43 @@
               </com:Class>
               <com:Class Id ="AA2A5C04-1AD9-46C4-B74F-6B334AD7EB8C" DisplayName="UninstallOptions Server">
               </com:Class>
+              <com:Class Id ="C9ED7917-66AB-4E31-A92A-F65F18EF7933" DisplayName="Configuration Statics Server">
+              </com:Class>
+              <com:Class Id ="8EF324ED-367C-4880-83E5-BB2ABD0B72F6" DisplayName="DownloadOptions Server">
+              </com:Class>
+              <com:Class Id ="6484A61D-50FA-41F0-B71E-F4370C6EB37C" DisplayName="AuthenticationArguments Server">
+              </com:Class>
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
       </Extensions>
     </Application>
   </Applications>
+  <Extensions>
+    <Extension Category="windows.activatableClass.proxyStub">
+      <ProxyStub ClassId="00000355-0000-0000-C000-000000000046">
+        <Path>Microsoft.Management.Configuration.winmd</Path>
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationUnit&gt;" InterfaceId="0BB82BF3-EC6D-55DB-B399-08813A4EB204" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationSet&gt;" InterfaceId="6D54B059-3766-5DC9-81E3-83587EB3A58E" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationConflict&gt;" InterfaceId="41A1F29F-518B-5776-BCF2-E42FC9DDE32A" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationParameter&gt;" InterfaceId="4257159F-6172-5202-A45D-4C4303A6C2C2" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.IConfigurationUnitSettingDetails&gt;" InterfaceId="FC91924A-215F-50A7-9AEE-254B4D7A50CB" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationConflictSetting&gt;" InterfaceId="EB1E5A3C-A444-5394-B7B3-F1593937E31E" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.GetConfigurationUnitDetailsResult&gt;" InterfaceId="3A034399-0F2B-51C2-A9C5-4BC6E9940068" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ApplyConfigurationUnitResult&gt;" InterfaceId="0E2334B9-8431-5A9D-B3AA-62D4FB5B5749" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.TestConfigurationUnitResult&gt;" InterfaceId="73848262-86D4-5FFC-8353-8408C4E649DE" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.IApplyGroupMemberSettingsResult&gt;" InterfaceId="5086070C-F468-5B00-8352-50FB420BA8B0" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ITestSettingsResult&gt;" InterfaceId="2D28E6AA-7036-5D78-9B58-9456F1E332FE" />
+      </ProxyStub>
+    </Extension>
+    <!-- This entry forces the package registration to process the windows.activatableClass.proxyStub extension above. -->
+    <Extension Category="windows.activatableClass.inProcessServer">
+      <InProcessServer>
+        <Path>WindowsPackageManager.dll</Path>
+        <ActivatableClass ActivatableClassId="Placeholder.Activatable.Class.Do.Not.Use" ThreadingModel="STA" />
+      </InProcessServer>
+    </Extension>
+  </Extensions>
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
     <rescap:Capability Name="packageManagement" />

@@ -74,13 +74,37 @@ namespace AppInstaller::Repository::Microsoft
                 THROW_HR_IF(E_NOT_SET, !relativePathOpt);
 
                 std::optional<std::string> manifestHashString = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::ManifestSHA256Hash);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, source->RequireManifestHash() && !manifestHashString);
+
                 SHA256::HashBuffer manifestSHA256;
                 if (manifestHashString)
                 {
                     manifestSHA256 = SHA256::ConvertToBytes(manifestHashString.value());
                 }
 
-                return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value(), manifestSHA256);
+                // Try the primary location 
+                HRESULT primaryHR = S_OK;
+                try
+                {
+                    return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value(), manifestSHA256);
+                }
+                catch (...)
+                {
+                    if (source->GetDetails().AlternateArg.empty())
+                    {
+                        throw;
+                    }
+                    primaryHR = LOG_CAUGHT_EXCEPTION_MSG("GetManifest failed on primary location");
+                }
+
+                // Try alternate location
+                try
+                {
+                    return GetManifestFromArgAndRelativePath(source->GetDetails().AlternateArg, relativePathOpt.value(), manifestSHA256);
+                }
+                CATCH_LOG_MSG("GetManifest failed on alternate location");
+
+                THROW_HR(primaryHR);
             }
 
             Source GetSource() const override
@@ -118,7 +142,8 @@ namespace AppInstaller::Repository::Microsoft
                     AICLI_LOG(Repo, Info, << "Downloading manifest");
                     ProgressCallback emptyCallback;
 
-                    const int MaxRetryCount = 2;
+                    constexpr int MaxRetryCount = 2;
+                    constexpr std::chrono::seconds maximumWaitTimeAllowed = 10s;
                     for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
                     {
                         try
@@ -132,6 +157,25 @@ namespace AppInstaller::Repository::Microsoft
                             }
 
                             break;
+                        }
+                        catch (const ServiceUnavailableException& sue)
+                        {
+                            if (retryCount < MaxRetryCount - 1)
+                            {
+                                auto waitSecondsForRetry = sue.RetryAfter();
+                                if (waitSecondsForRetry > maximumWaitTimeAllowed)
+                                {
+                                    throw;
+                                }
+
+                                // TODO: Get real progress callback to allow cancelation.
+                                auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(waitSecondsForRetry);
+                                Sleep(static_cast<DWORD>(ms.count()));
+                            }
+                            else
+                            {
+                                throw;
+                            }
                         }
                         catch (...)
                         {
@@ -228,6 +272,8 @@ namespace AppInstaller::Repository::Microsoft
         {
             using PackageBase::PackageBase;
 
+            static constexpr IPackageType PackageType = IPackageType::SQLiteAvailablePackage;
+
             // Inherited via IPackage
             Utility::LocIndString GetProperty(PackageProperty property) const override
             {
@@ -242,17 +288,37 @@ namespace AppInstaller::Repository::Microsoft
             std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
             {
                 std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
-                std::vector<Utility::VersionAndChannel> versions = source->GetIndex().GetVersionKeysById(m_idId);
 
-                std::vector<PackageVersionKey> result;
-                for (const auto& vac : versions)
                 {
-                    result.emplace_back(source->GetIdentifier(), vac.GetVersion().ToString(), vac.GetChannel().ToString());
+                    auto sharedLock = m_availableVersionKeysLock.lock_shared();
+
+                    if (!m_availableVersionKeys.empty())
+                    {
+                        return m_availableVersionKeys;
+                    }
                 }
-                return result;
+
+                auto exclusiveLock = m_availableVersionKeysLock.lock_exclusive();
+
+                if (!m_availableVersionKeys.empty())
+                {
+                    return m_availableVersionKeys;
+                }
+
+                std::vector<SQLiteIndex::VersionKey> versions = source->GetIndex().GetVersionKeysById(m_idId);
+
+                for (const auto& vk : versions)
+                {
+                    std::string version = vk.VersionAndChannel.GetVersion().ToString();
+                    std::string channel = vk.VersionAndChannel.GetChannel().ToString();
+                    m_availableVersionKeys.emplace_back(source->GetIdentifier(), version, channel);
+                    m_availableVersionKeysMap.emplace(MapKey{ std::move(version), std::move(channel) }, vk.ManifestId);
+                }
+
+                return m_availableVersionKeys;
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
             {
                 return GetLatestVersionInternal();
             }
@@ -267,7 +333,23 @@ namespace AppInstaller::Repository::Microsoft
                     return {};
                 }
 
-                std::optional<SQLiteIndex::IdType> manifestId = source->GetIndex().GetManifestIdByKey(m_idId, versionKey.Version, versionKey.Channel);
+                std::optional<SQLiteIndex::IdType> manifestId;
+
+                {
+                    MapKey requested{ versionKey.Version, versionKey.Channel };
+                    auto sharedLock = m_availableVersionKeysLock.lock_shared();
+
+                    auto itr = m_availableVersionKeysMap.find(requested);
+                    if (itr != m_availableVersionKeysMap.end())
+                    {
+                        manifestId = itr->second;
+                    }
+                }
+
+                if (!manifestId)
+                {
+                    manifestId = source->GetIndex().GetManifestIdByKey(m_idId, versionKey.Version, versionKey.Channel);
+                }
 
                 if (manifestId)
                 {
@@ -277,14 +359,9 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            bool IsUpdateAvailable(PinBehavior) const override
-            {
-                return false;
-            }
-
             bool IsSame(const IPackage* other) const override
             {
-                const AvailablePackage* otherAvailable = dynamic_cast<const AvailablePackage*>(other);
+                const AvailablePackage* otherAvailable = PackageCast<const AvailablePackage*>(other);
 
                 if (otherAvailable)
                 {
@@ -293,12 +370,53 @@ namespace AppInstaller::Repository::Microsoft
 
                 return false;
             }
+
+            const void* CastTo(IPackageType type) const override
+            {
+                if (type == PackageType)
+                {
+                    return this;
+                }
+
+                return nullptr;
+            }
+
+        private:
+            // Contains the information needed to map a version key to it's rows.
+            struct MapKey
+            {
+                Utility::NormalizedString Version;
+                Utility::NormalizedString Channel;
+
+                bool operator<(const MapKey& other) const
+                {
+                    if (Version < other.Version)
+                    {
+                        return true;
+                    }
+                    else if (Version == other.Version)
+                    {
+                        return Channel < other.Channel;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            };
+
+            // To avoid removing const from the interface
+            mutable wil::srwlock m_availableVersionKeysLock;
+            mutable std::vector<PackageVersionKey> m_availableVersionKeys;
+            mutable std::map<MapKey, SQLiteIndex::IdType> m_availableVersionKeysMap;
         };
 
         // The IPackage impl for SQLiteIndexSource of Installed packages.
         struct InstalledPackage : public PackageBase, public IPackage
         {
             using PackageBase::PackageBase;
+
+            static constexpr IPackageType PackageType = IPackageType::SQLiteInstalledPackage;
 
             // Inherited via IPackage
             Utility::LocIndString GetProperty(PackageProperty property) const override
@@ -316,7 +434,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
             {
                 return {};
             }
@@ -326,14 +444,9 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            bool IsUpdateAvailable(PinBehavior) const override
-            {
-                return false;
-            }
-
             bool IsSame(const IPackage* other) const override
             {
-                const InstalledPackage* otherInstalled = dynamic_cast<const InstalledPackage*>(other);
+                const InstalledPackage* otherInstalled = PackageCast<const InstalledPackage*>(other);
 
                 if (otherInstalled)
                 {
@@ -342,11 +455,25 @@ namespace AppInstaller::Repository::Microsoft
 
                 return false;
             }
+
+            const void* CastTo(IPackageType type) const override
+            {
+                if (type == PackageType)
+                {
+                    return this;
+                }
+
+                return nullptr;
+            }
         };
     }
 
-    SQLiteIndexSource::SQLiteIndexSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
-        m_details(details), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index))
+    SQLiteIndexSource::SQLiteIndexSource(
+        const SourceDetails& details,
+        SQLiteIndex&& index,
+        bool isInstalledSource,
+        bool requireManifestHash) :
+        m_details(details), m_isInstalled(isInstalledSource), m_index(std::move(index)), m_requireManifestHash(requireManifestHash)
     {
     }
 
@@ -385,6 +512,16 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
+    void* SQLiteIndexSource::CastTo(ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
+    }
+
     bool SQLiteIndexSource::IsSame(const SQLiteIndexSource* other) const
     {
         return (other && GetIdentifier() == other->GetIdentifier());
@@ -395,9 +532,19 @@ namespace AppInstaller::Repository::Microsoft
         return const_cast<SQLiteIndexSource*>(this)->shared_from_this();
     }
 
-    SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
-        SQLiteIndexSource(details, std::move(index), std::move(lock), isInstalledSource)
+    SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, SQLiteIndex&& index, bool isInstalledSource) :
+        SQLiteIndexSource(details, std::move(index), isInstalledSource)
     {
+    }
+
+    void* SQLiteIndexWriteableSource::CastTo(ISourceType type)
+    {
+        if (type == ISourceType::IMutablePackageSource)
+        {
+            return static_cast<IMutablePackageSource*>(this);
+        }
+
+        return SQLiteIndexSource::CastTo(type);
     }
 
     void SQLiteIndexWriteableSource::AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)

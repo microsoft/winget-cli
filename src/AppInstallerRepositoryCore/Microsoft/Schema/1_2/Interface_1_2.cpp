@@ -13,9 +13,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 {
     namespace
     {
-        void AddNormalizedName(const Utility::NameNormalizer& normalizer, const Manifest::string_t& name, std::vector<Utility::NormalizedString>& out)
+        void AddNormalizedName(
+            const Utility::NameNormalizer& normalizer,
+            const Manifest::string_t& name,
+            std::vector<Utility::NormalizedString>& out,
+            Utility::NormalizationField fieldsToInclude = Utility::NormalizationField::None)
         {
-            Utility::NormalizedString value = normalizer.NormalizeName(Utility::FoldCase(name)).Name();
+            Utility::NormalizedString value = normalizer.NormalizeName(Utility::FoldCase(name)).GetNormalizedName(fieldsToInclude);
             if (std::find(out.begin(), out.end(), value) == out.end())
             {
                 out.emplace_back(std::move(value));
@@ -65,6 +69,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
                     if (!appsAndFeaturesEntry.DisplayName.empty())
                     {
                         AddNormalizedName(normalizer, appsAndFeaturesEntry.DisplayName, result);
+                        // For arp display name, also add a copy with architecture info for more accurate correlation.
+                        AddNormalizedName(normalizer, appsAndFeaturesEntry.DisplayName, result, Utility::NormalizationField::Architecture);
                     }
                 }
             }
@@ -96,13 +102,55 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 
             return result;
         }
+
+        // Update NormalizedNameAndPublisher with normalization and folding
+        // Returns true if the normalized name contains normalization field of fieldsToInclude
+        bool UpdateNormalizedNameAndPublisher(
+            PackageMatchFilter& filter,
+            const Utility::NameNormalizer& normalizer,
+            Utility::NormalizationField fieldsToInclude)
+        {
+            Utility::NormalizedName normalized = normalizer.Normalize(Utility::FoldCase(filter.Value), Utility::FoldCase(filter.Additional.value()));
+            filter.Value = normalized.GetNormalizedName(fieldsToInclude);
+            filter.Additional = normalized.Publisher();
+            return WI_AreAllFlagsSet(normalized.GetNormalizedFields(), fieldsToInclude);
+        };
+
+        // Update NormalizedNameAndPublisher with normalization and folding
+        // Returns true if any of normalized name contains normalization field of fieldsToInclude
+        bool UpdatePackageMatchFilters(
+            std::vector<PackageMatchFilter>& filters,
+            const Utility::NameNormalizer& normalizer,
+            Utility::NormalizationField normalizedNameFieldsToFilter = Utility::NormalizationField::None)
+        {
+            bool normalizedNameFieldsFound = false;
+            for (auto itr = filters.begin(); itr != filters.end();)
+            {
+                if (itr->Field == PackageMatchField::NormalizedNameAndPublisher && itr->Type == MatchType::Exact)
+                {
+                    if (!UpdateNormalizedNameAndPublisher(*itr, normalizer, normalizedNameFieldsToFilter))
+                    {
+                        // If not matched, this package match filter will be removed.
+                        // For example, if caller is trying to search with arch info only, values without arch will be removed from search.
+                        itr = filters.erase(itr);
+                        continue;
+                    }
+
+                    normalizedNameFieldsFound = true;
+                }
+
+                ++itr;
+            }
+
+            return normalizedNameFieldsFound;
+        }
     }
 
     Interface::Interface(Utility::NormalizationVersion normVersion) : m_normalizer(normVersion)
     {
     }
 
-    Schema::Version Interface::GetVersion() const
+    SQLite::Version Interface::GetVersion() const
     {
         return { 1, 2 };
     }
@@ -117,8 +165,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         // This will mean that one can match cross locale name and publisher, but the chance that this
         // leads to a confusion between packages is very small. More likely would be intentional attempts
         // to confuse the correlation, which could be fairly easily carried out even with linked values.
-        NormalizedPackageNameTable::Create(connection);
-        NormalizedPackagePublisherTable::Create(connection);
+        NormalizedPackageNameTable::Create(connection, GetOneToManyTableSchema());
+        NormalizedPackagePublisherTable::Create(connection, GetOneToManyTableSchema());
 
         savepoint.Commit();
     }
@@ -212,28 +260,58 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 
     ISQLiteIndex::SearchResult Interface::SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const
     {
-        // Update NormalizedNameAndPublisher with normalization and folding
-        auto updateIfNeeded = [&](PackageMatchFilter& filter)
+        if (request.Purpose == SearchPurpose::CorrelationToInstalled)
         {
-            if (filter.Field == PackageMatchField::NormalizedNameAndPublisher && filter.Type == MatchType::Exact)
+            // Correlate from available package to installed package
+            // For available package to installed package mapping, only one try is needed.
+            // For example, if ARP DisplayName contains arch, then the installed package's ARP DisplayName should also include arch.
+            auto candidateInclusionsWithArch = request.Inclusions;
+            if (UpdatePackageMatchFilters(candidateInclusionsWithArch, m_normalizer, Utility::NormalizationField::Architecture))
             {
-                Utility::NormalizedName normalized = m_normalizer.Normalize(Utility::FoldCase(filter.Value), Utility::FoldCase(filter.Additional.value()));
-                filter.Value = normalized.Name();
-                filter.Additional = normalized.Publisher();
+                // If DisplayNames contain arch, only use Inclusions with arch for search
+                request.Inclusions = candidateInclusionsWithArch;
             }
-        };
+            else
+            {
+                // Otherwise, just update the Inclusions with normalization
+                UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
+            }
 
-        for (auto& inclusion : request.Inclusions)
-        {
-            updateIfNeeded(inclusion);
+            return V1_1::Interface::SearchInternal(connection, request);
         }
-
-        for (auto& filter : request.Filters)
+        else if (request.Purpose == SearchPurpose::CorrelationToAvailable)
         {
-            updateIfNeeded(filter);
-        }
+            // For installed package to available package correlation,
+            // try the search with NormalizedName with Arch first, if not found, try with all values.
+            // This can be extended in the future for more granular search requests.
+            std::vector<SearchRequest> candidateSearches;
+            auto candidateSearchWithArch = request;
+            if (UpdatePackageMatchFilters(candidateSearchWithArch.Inclusions, m_normalizer, Utility::NormalizationField::Architecture))
+            {
+                candidateSearches.emplace_back(std::move(candidateSearchWithArch));
+            }
+            UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
+            candidateSearches.emplace_back(request);
 
-        return V1_1::Interface::SearchInternal(connection, request);
+            SearchResult result;
+            for (auto& candidateSearch : candidateSearches)
+            {
+                result = V1_1::Interface::SearchInternal(connection, candidateSearch);
+                if (!result.Matches.empty())
+                {
+                    break;
+                }
+            }
+
+            return result;
+        }
+        else
+        {
+            UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
+            UpdatePackageMatchFilters(request.Filters, m_normalizer);
+
+            return V1_1::Interface::SearchInternal(connection, request);
+        }
     }
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
@@ -242,8 +320,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 
         V1_1::Interface::PrepareForPackaging(connection, false);
 
-        NormalizedPackageNameTable::PrepareForPackaging(connection, true, true);
-        NormalizedPackagePublisherTable::PrepareForPackaging(connection, true, true);
+        NormalizedPackageNameTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), true, true);
+        NormalizedPackagePublisherTable::PrepareForPackaging(connection, GetOneToManyTableSchema(), true, true);
 
         savepoint.Commit();
 

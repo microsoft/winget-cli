@@ -34,6 +34,8 @@ namespace AppInstaller::Repository::Microsoft
             User,
             // Contains machine ARP and machine MSIX
             Machine,
+            // Same as None but creating the source reference causes the next Open to always update the cache
+            NoneWithForcedCacheUpdate,
         };
 
         // Converts a filter to its string.

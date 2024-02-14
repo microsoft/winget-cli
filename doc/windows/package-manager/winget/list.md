@@ -18,6 +18,9 @@ The **list** command also supports filters which can be used to limit your list 
 
 `winget list [[-q] <query>] [<options>]`
 
+The following command aliases are available: \
+`ls`
+
 ![list help command](images/list.png)
 
 ## Arguments
@@ -27,22 +30,31 @@ The following arguments are available.
 | Argument | Description |
 |-------------|-------------|  
 | **-q,--query** | The query used to search for an app. |
-| **-?, --help** | Get additional help on this command. |
 
 ## Options
 
 The options allow you to customize the list experience to meet your needs.
-
-| Option      | Description |
-|-------------|-------------|  
-| **--id** |  Limits the list to the ID of the application. |  
-| **--name** | Limits the list to the name of the application. |  
-| **--moniker** | Limits the list to the moniker listed for the application. |  
+| Option | Description |
+|--------|-------------|  
+| **--id** | Limits the list to the ID of the application. |
+| **--name** | Limits the list to the name of the application. |
+| **--moniker** | Limits the list to the moniker listed for the application. |
 | **-s, --source** | Restricts the list to the source name provided. Must be followed by the source name. |  
 | **--tag** | Filters results by tags. |  
 | **--command** | Filters results by command specified by the application. |  
 | **-n, --count** | Limits the number of apps displayed in one query. |
-| **-e, --exact** | Uses the exact string in the list query, including checking for case-sensitivity. It will not use the default behavior of a substring. |  
+| **-e, --exact** | Uses the exact string in the list query, including checking for case-sensitivity. It will not use the default behavior of a substring. |
+| **--scope** | Select installed package scope filter (user or machine). |
+| **--header** | Optional Windows-Package-Manager REST source HTTP header. |
+| **--accept-source-agreements** | Accept all source agreements during source operations. |
+| **--upgrade-available** | Lists only packages which have an upgrade available. |
+| **-u,--unknown,--include-unknown** | List packages even if their current version cannot be determined. Can only be used with the --upgrade-available argument. |
+| **--pinned,--include-pinned** | List packages even if they have a pin that prevents upgrade. Can only be used with the --upgrade-available argument. |
+| **-?,--help** | Get additional help on this command. |
+| **--wait** | Prompts the user to press any key before exiting. |
+| **--logs,--open-logs** | Open the default logs location. |
+| **--verbose,--verbose-logs** | Enables verbose logging for winget. |
+| **--disable-interactivity** | Disable interactive prompts. |
 
 ### Example queries
 

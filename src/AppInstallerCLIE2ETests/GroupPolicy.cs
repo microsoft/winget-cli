@@ -6,6 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>
@@ -42,6 +43,28 @@ namespace AppInstallerCLIE2ETests
         {
             GroupPolicyHelper.EnableWinget.Disable();
             var result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Scenario if Policy WinGet is disabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is Enabled.
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Enable();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Scenario if Policy WinGet is disabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is Not-Configured.
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.SetNotConfigured();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Scenario if Policy WinGet is enabled but Policy EnableWindowsPackageManagerCommandLineInterfaces is disabled.
+            GroupPolicyHelper.EnableWinget.Enable();
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Scenario if Policy WinGet is Not-Configured  but Policy EnableWindowsPackageManagerCommandLineInterfaces is disabled.
+            GroupPolicyHelper.EnableWinget.SetNotConfigured();
+            GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
+            result = TestCommon.RunAICLICommand("search", "foo");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
@@ -199,6 +222,20 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand(string.Empty, "--info");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.IsTrue(result.StdOut.Contains("Source Auto Update Interval In Minutes 123"));
+        }
+
+        /// <summary>
+        /// Test configuration is disabled by policy.
+        /// </summary>
+        [Test]
+        public void EnableConfiguration()
+        {
+            GroupPolicyHelper.EnableConfiguration.Disable();
+            var result = TestCommon.RunAICLICommand("configure", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
     }
 }

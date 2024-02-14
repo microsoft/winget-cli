@@ -20,72 +20,197 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory)]
+    [ValidateSet("Debug", "Release", "ReleaseStatic")]
     [string]
-    $Platform,
+    $Configuration,
 
-    [Parameter(Mandatory)]
+    [ValidateSet("Client", "DSC", "Configuration", "All")]
     [string]
-    $Configuration
+    $ModuleType = "All",
+
+    [string]
+    $BuildRoot = "",
+
+    [switch]
+    $SkipImportModule,
+
+    [switch]
+    $Clean
 )
 
 class WinGetModule
 {
     [string]$Name
     [string]$ModuleRoot
-    [bool]$HasBinary
-    [bool]$ForceWinGetDev
+    [string]$Output
+    [string[]]$ArchSpecificFiles = $null
 
-    WinGetModule([string]$n, [string]$m, [bool]$b, [bool]$d)
+    WinGetModule([string]$n, [string]$m, [string]$o)
     {
         $this.Name = $n
         $this.ModuleRoot = $m
-        $this.HasBinary = $b
-        $this.ForceWinGetDev = $d
+        $this.Output = "$o\$($this.Name)\"
+
+        if (Get-Module -Name $this.Name)
+        {
+            Remove-Module $this.Name -Force
+        }
     }
+
+    [void]PrepareScriptFiles()
+    {
+        xcopy $this.ModuleRoot $this.Output /d /s /f /y
+    }
+
+    [void]PrepareBinaryFiles([string] $buildRoot, [string] $config)
+    {
+        $copyErrors = $null
+        Copy-Item "$buildRoot\AnyCpu\$config\PowerShell\$($this.Name)\*" $this.Output -Force -Recurse -ErrorVariable copyErrors -ErrorAction SilentlyContinue
+        $copyErrors | ForEach-Object { Write-Warning $_ }
+    }
+
+    # Location is the path relative to the out module directory
+    [void]AddArchSpecificFiles([string[]] $files, [string]$location, [string] $buildRoot, [string] $config)
+    {
+        $x64Path = "$($this.Output)\$location\x64\"
+        $x86Path = "$($this.Output)\$location\x86\"
+        if (-not (Test-Path $x64Path))
+        {
+            New-Item $x64Path -ItemType directory
+        }
+
+        if (-not (Test-Path $x86Path))
+        {
+            New-Item $x86Path -ItemType directory
+        }
+
+        foreach ($f in $files)
+        {
+            $copyErrors = $null
+            Copy-Item "$buildRoot\x64\$config\$f" "$($this.Output)\$location\x64\" -Force -ErrorVariable copyErrors -ErrorAction SilentlyContinue
+            $copyErrors | ForEach-Object { Write-Warning $_ }
+            Copy-Item "$buildRoot\x86\$config\$f" "$($this.Output)\$location\x86\" -Force -ErrorVariable copyErrors -ErrorAction SilentlyContinue
+            $copyErrors | ForEach-Object { Write-Warning $_ }
+        }
+    }
+
+    [void]AddAnyCpuSpecificFilesToArch([string[]] $files, [string]$location, [string] $buildRoot, [string] $config)
+    {
+        $x64Path = "$($this.Output)\$location\x64\"
+        $x86Path = "$($this.Output)\$location\x86\"
+        if (-not (Test-Path $x64Path))
+        {
+            New-Item $x64Path -ItemType directory
+        }
+
+        if (-not (Test-Path $x86Path))
+        {
+            New-Item $x86Path -ItemType directory
+        }
+
+        foreach ($f in $files)
+        {
+            $copyErrors = $null
+            Copy-Item "$buildRoot\AnyCpu\$config\$f" "$($this.Output)\$location\x64\" -Force -ErrorVariable copyErrors -ErrorAction SilentlyContinue
+            $copyErrors | ForEach-Object { Write-Warning $_ }
+            Copy-Item "$buildRoot\AnyCpu\$config\$f" "$($this.Output)\$location\x86\" -Force -ErrorVariable copyErrors -ErrorAction SilentlyContinue
+            $copyErrors | ForEach-Object { Write-Warning $_ }
+        }
+    }
+}
+
+[Flags()] enum ModuleType
+{
+    None = 0
+    Client = 1
+    DSC = 2
+    Configuration = 4
+}
+
+$local:moduleToConfigure = [ModuleType]::None
+switch ($ModuleType)
+{
+    "Client"
+    {
+        $moduleToConfigure = [ModuleType]::Client;
+        break
+    }
+
+    "DSC"
+    {
+        $moduleToConfigure = [ModuleType]::DSC;
+        break
+    }
+
+    "Configuration"
+    {
+        $moduleToConfigure = [ModuleType]::Configuration;
+        break
+    }
+
+    "All"
+    {
+        $moduleToConfigure = [ModuleType]::Client + [ModuleType]::DSC + [ModuleType]::Configuration;
+        break
+    } 
 }
 
 # I know it makes sense, but please don't do a clean up of $moduleRootOutput. When the modules are loaded
 # there's no way to tell PowerShell to release the binary dlls that are loaded.
-$moduleRootOutput = "$PSScriptRoot\Module\"
+$local:moduleRootOutput = "$PSScriptRoot\Module\"
 
-# Add here new modules
-[WinGetModule[]]$modules = 
-    [WinGetModule]::new("Microsoft.WinGet.DSC", "$PSScriptRoot\..\Microsoft.WinGet.DSC\", $false, $false),
-    [WinGetModule]::new("Microsoft.WinGet.Client", "$PSScriptRoot\..\Microsoft.WinGet.Client\Module\", $true, $true)
-
-foreach($module in $modules)
+if ($BuildRoot -eq "")
 {
-    # Import-Module with Force just changes functions in the root module, not any nested ones. There's no way to load any
-    # updated classes. To ensure that you are running the latest version run Remove-Module
-    if (Get-Module -ListAvailable -Name $module.Name)
-    {
-        Write-Host "Removing module $($module.Name)" -ForegroundColor Green
-        Remove-Module $module.Name -Force
-    }
+    $BuildRoot = "$PSScriptRoot\..\..";
+}
 
-    # Use xcopy to copy only files that have changed.
-    if ($module.HasBinary)
-    {
-        # Copy output files from VS.
-        Write-Host "Coping binary module $($module.Name)" -ForegroundColor Green
-        xcopy "$PSScriptRoot\..\..\$Platform\$Configuration\PowerShell\$($module.Name)\" "$moduleRootOutput\$($module.Name)\" /d /s /f /y
-    }
+if ($Clean -and (Test-Path $moduleRootOutput))
+{
+    Remove-Item $moduleRootOutput -Recurse
+}
 
-    # Copy PowerShell files even for modules with binary resources.
-    # VS won't update the files if there's nothing to build...
-    Write-Host "Coping module $($module.Name)" -ForegroundColor Green
-    xcopy $module.ModuleRoot "$moduleRootOutput\$($module.Name)\" /d /s /f /y
+# Modules, they should be in dependency order so that when importing we don't pick up the release modules.
+$local:modules = @()
+if ($moduleToConfigure.HasFlag([ModuleType]::Client))
+{
+    Write-Host "Setting up Microsoft.WinGet.Client"
+    $module = [WinGetModule]::new("Microsoft.WinGet.Client", "$PSScriptRoot\..\Microsoft.WinGet.Client\ModuleFiles\", $moduleRootOutput)
+    $module.PrepareScriptFiles()
+    $module.PrepareBinaryFiles($BuildRoot, $Configuration)
+    $additionalFiles = @(
+        "Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll"
+        "Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd"
+        "WindowsPackageManager\WindowsPackageManager.dll"
+        "UndockedRegFreeWinRT\winrtact.dll"
+    )
+    $module.AddArchSpecificFiles($additionalFiles, "net6.0-windows10.0.22000.0\SharedDependencies", $BuildRoot, $Configuration)
+    $module.AddArchSpecificFiles($additionalFiles, "net48\SharedDependencies", $BuildRoot, $Configuration)
+    $modules += $module
+}
 
-    if ($module.ForceWinGetDev)
-    {
-        # This is a terrible and shouldn't be used for real things. We must consider making something smarter and prettier.
-        # We could make the build system always take the crescendo json and generated the functions from it. The
-        # build system would know if the original name to be winget.exe or wingetdev.exe, set it on the json and produce
-        # the psm1 one. We could add a VS after build task that calls powershell and does it, or we could move away
-        # from crescendo and let the internal implementation knows which one to use based on the build preprocessor macro.
-        $psm1File = "$moduleRootOutput\$($module.Name)\$($module.Name).psm1"
-        (Get-Content $psm1File).replace("winget.exe", "wingetdev") | Set-Content $psm1File
-    }
+if ($moduleToConfigure.HasFlag([ModuleType]::DSC))
+{
+    Write-Host "Setting up Microsoft.WinGet.DSC"
+    $module = [WinGetModule]::new("Microsoft.WinGet.DSC", "$PSScriptRoot\..\Microsoft.WinGet.DSC\", $moduleRootOutput)
+    $module.PrepareScriptFiles()
+    $modules += $module
+}
+
+if ($moduleToConfigure.HasFlag([ModuleType]::Configuration))
+{
+    Write-Host "Setting up Microsoft.WinGet.Configuration"
+    $module = [WinGetModule]::new("Microsoft.WinGet.Configuration", "$PSScriptRoot\..\Microsoft.WinGet.Configuration\ModuleFiles\", $moduleRootOutput)
+    $module.PrepareScriptFiles()
+    $module.PrepareBinaryFiles($BuildRoot, $Configuration)
+    $additionalFiles = @(
+        "Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll"
+    )
+    $module.AddArchSpecificFiles($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
+    $additionalFiles = @(
+        "Microsoft.Management.Configuration.Projection\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Projection.dll"
+    )
+    $module.AddAnyCpuSpecificFilesToArch($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
+    $modules += $module
 }
 
 # Add it to module path if not there.
@@ -96,8 +221,11 @@ if (-not $env:PSModulePath.Contains($moduleRootOutput))
 }
 
 # Now import modules.
-foreach($module in $modules)
+if (-not $SkipImportModule)
 {
-    Write-Host "Importing module $($module.Name)" -ForegroundColor Green
-    Import-Module $module.Name -Force
+    foreach($module in $modules)
+    {
+        Write-Host "Importing module $($module.Name)" -ForegroundColor Green
+        Import-Module "$moduleRootOutput\$($module.Name)\" -Force
+    }
 }

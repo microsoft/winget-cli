@@ -19,8 +19,11 @@ namespace AppInstaller::Repository
         SourceDetailsInternal() = default;
         SourceDetailsInternal(const SourceDetails& details) : SourceDetails(details) {}
 
-        // Copies the metadata fields from this to target.
+        // Copies the metadata fields to this target.
         void CopyMetadataFieldsTo(SourceDetailsInternal& target);
+
+        // Copies the metadata fields from this source. This only include partial metadata.
+        void CopyMetadataFieldsFrom(const SourceDetails& source);
 
         // If true, this is a tombstone, marking the deletion of a source at a lower priority origin.
         bool IsTombstone = false;

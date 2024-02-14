@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(6)]
+    [contractversion(10)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -62,6 +62,10 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
         {
             NoApplicableUpgrade,
+        },
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            PackageAgreementsNotAccepted,
         }
     };
 
@@ -146,6 +150,69 @@ namespace Microsoft.Management.Deployment
         /// This value's meaning will require knowledge of the specific uninstaller or install technology.
         UInt32 UninstallerErrorCode { get; };
     }
+
+    /// State of the download
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    enum PackageDownloadProgressState
+    {
+        /// The download is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
+        /// state will prevent the package from downloading.
+        Queued,
+        /// The installer is downloading. Cancellation of the IAsyncOperationWithProgress in this state will 
+        /// end the download.
+        Downloading,
+        /// The operation has completed.
+        Finished,
+    };
+
+    /// Status of the download call
+    /// Implementation Note: Errors mapped from AppInstallerErrors.h
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    enum DownloadResultStatus
+    {
+        Ok,
+        BlockedByPolicy,
+        CatalogError,
+        InternalError,
+        InvalidOptions,
+        DownloadError,
+        ManifestError,
+        NoApplicableInstallers,
+        PackageAgreementsNotAccepted,
+    };
+
+    /// Result of the download
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    runtimeclass DownloadResult
+    {
+        /// Used by a caller to correlate the download with a caller's data.
+        String CorrelationData { get; };
+
+        /// Batched error code.
+        DownloadResultStatus Status { get; };
+
+        /// The error code of the overall operation.
+        HRESULT ExtendedErrorCode { get; };
+    };
+
+    /// Progress object for the uninstall
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    struct PackageDownloadProgress
+    {
+        /// State of the download
+        PackageDownloadProgressState State;
+
+        /// DESIGN NOTE: BytesDownloaded may only be available for downloads done by Windows Package Manager itself.
+        /// Number of bytes downloaded if known
+        UInt64 BytesDownloaded;
+
+        /// DESIGN NOTE: BytesRequired may only be available for downloads done by Windows Package Manager itself.
+        /// Number of bytes required if known
+        UInt64 BytesRequired;
+
+        /// Download percentage completed
+        Double DownloadProgress;
+    };
 
     /// IMPLEMENTATION NOTE: SourceOrigin from winget/RepositorySource.h
     /// Defines the origin of the package catalog details.
@@ -275,11 +342,17 @@ namespace Microsoft.Management.Deployment
             String Publisher { get; };
         }
 
-        /// DESIGN NOTE:
-        /// GetManifest from IPackageVersion in winget/RepositorySearch is not implemented in V1. That class has 
-        /// a lot of fields and no one requesting it.
-        /// Gets the manifest of this package version.
-        /// virtual Manifest::Manifest GetManifest() = 0;
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            /// Gets the package catalog metadata of this package version with the default localization based on user settings.
+            CatalogPackageMetadata GetCatalogPackageMetadata();
+
+            /// Gets the package catalog metadata of this package version with the preferred locale.
+            CatalogPackageMetadata GetCatalogPackageMetadata(String preferredLocale);
+
+            /// Gets the applicable installer for this package version.
+            PackageInstallerInfo GetApplicableInstaller(InstallOptions options);
+        }
     }
 
     /// IMPLEMENTATION NOTE: PackageVersionKey from winget/RepositorySearch.h
@@ -335,6 +408,20 @@ namespace Microsoft.Management.Deployment
         System,
     };
 
+    /// The package installer elevation requirement.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    enum ElevationRequirement
+    {
+        /// Elevation requirement not declared.
+        Unknown,
+        /// Package installer requires elevation.
+        ElevationRequired,
+        /// Package installer prohibits elevation.
+        ElevationProhibited,
+        /// Package installer elevates self.
+        ElevatesSelf,
+    };
+
     /// Interface for retrieving information about a package installer.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
     runtimeclass PackageInstallerInfo
@@ -348,7 +435,13 @@ namespace Microsoft.Management.Deployment
         /// The package installer scope.
         PackageInstallerScope Scope { get; };
         /// The package installer locale.
-        String Locale{ get; };
+        String Locale { get; };
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            /// The package installer elevation requirement.
+            ElevationRequirement ElevationRequirement { get; };
+        }
     };
 
     /// The installed status type. The values need to match InstalledStatusType from winget/RepositorySearch.h.
@@ -541,7 +634,12 @@ namespace Microsoft.Management.Deployment
         BlockedByPolicy,
         CatalogError,
         InternalError,
-        InvalidOptions
+        InvalidOptions,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+        {
+            AuthenticationError,
+            AccessDenied,
+        }
     };
 
     /// IMPLEMENTATION NOTE: SearchResult from winget/RepositorySearch.h
@@ -558,7 +656,7 @@ namespace Microsoft.Management.Deployment
         /// If true, the results were truncated by the given ResultLimit
         /// USAGE NOTE: Windows Package Manager does not support result pagination, there is no way to continue 
         /// getting more results.
-        Boolean WasLimitExceeded{ get; };
+        Boolean WasLimitExceeded { get; };
     }
 
     /// Options for FindPackages
@@ -605,12 +703,69 @@ namespace Microsoft.Management.Deployment
         FindPackagesResult FindPackages(FindPackagesOptions options);
     }
 
+    /// Authentication mode
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+    enum AuthenticationMode
+    {
+        /// Always use interactive authentication flow on first authentication request, following requests may use cached result.
+        Interactive,
+        /// Try silent authentication flow first. If failed, use interactive authentication flow.
+        SilentPreferred,
+        /// Only use silent authentication flow. If failed, fail the authentication.
+        Silent,
+    };
+
+    /// Authentication related arguments
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+    runtimeclass AuthenticationArguments
+    {
+        AuthenticationArguments();
+
+        /// Choice of authentication flow behavior.
+        AuthenticationMode AuthenticationMode;
+        /// Optional. The authentication account to be used for authentication.
+        String AuthenticationAccount;
+    }
+
+    /// Authentication method
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+    enum AuthenticationType
+    {
+        Unknown,
+        None,
+        MicrosoftEntraId,
+    };
+
+    /// Microsoft Entra Id related authentication info.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+    runtimeclass MicrosoftEntraIdAuthenticationInfo
+    {
+        /// The resource identifier or resource uri.
+        String Resource { get; };
+        /// Requested scope. May be empty.
+        String Scope { get; };
+    }
+
+    /// Authentication info.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+    runtimeclass AuthenticationInfo
+    {
+        /// The authentication type.
+        AuthenticationType AuthenticationType { get; };
+        /// Microsoft Entra Id related authentication info.
+        MicrosoftEntraIdAuthenticationInfo MicrosoftEntraIdAuthenticationInfo { get; };
+    }
+
     /// Status of the Connect call
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum ConnectResultStatus
     {
         Ok,
         CatalogError,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            SourceAgreementsNotAccepted,
+        }
     };
 
     /// Result of the Connect call
@@ -618,7 +773,7 @@ namespace Microsoft.Management.Deployment
     runtimeclass ConnectResult
     {
         /// Error codes
-        ConnectResultStatus Status{ get; };
+        ConnectResultStatus Status { get; };
 
         PackageCatalog PackageCatalog { get; };
     }
@@ -630,6 +785,7 @@ namespace Microsoft.Management.Deployment
         /// Gets a value indicating whether this package catalog is a composite of other package catalogs,
         /// and thus the packages may come from disparate package catalogs as well.
         Boolean IsComposite { get; };
+
         /// The details of the package catalog if it is not a composite.
         PackageCatalogInfo Info { get; };
 
@@ -642,6 +798,39 @@ namespace Microsoft.Management.Deployment
         {
             /// A string that will be passed to the source server if using a REST source
             String AdditionalPackageCatalogArguments;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            /// Gets the required agreements for connecting to the package catalog (source).
+            Windows.Foundation.Collections.IVectorView<SourceAgreement> SourceAgreements { get; };
+
+            Boolean AcceptSourceAgreements;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 8)]
+        {
+            /// Time interval for package catalog to check for an update. Setting to zero will disable the check for update.
+            Windows.Foundation.TimeSpan PackageCatalogBackgroundUpdateInterval;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 9)]
+        {
+            /// When set to true, the opened catalog will only provide the information regarding packages installed from this catalog.
+            /// In this mode, no external resources should be required.
+            Boolean InstalledPackageInformationOnly;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 10)]
+        {
+
+            /// Authentication arguments used in authentication flow during package catalog operations if applicable.
+            /// This is user or caller input.
+            AuthenticationArguments AuthenticationArguments;
+
+            /// Authentication info from the package catalog.
+            /// This is defined by individual package catalog.
+            AuthenticationInfo AuthenticationInfo { get; };
         }
     }
 
@@ -771,6 +960,21 @@ namespace Microsoft.Management.Deployment
             /// A string that will be passed to the installer
             /// IMPLEMENTATION NOTE: maps to "--custom" in the winget cmd line
             String AdditionalInstallerArguments;
+
+            /// Accept the package agreements required for installation.
+            Boolean AcceptPackageAgreements;
+
+            /// Bypasses the Disabled Store Policy
+            Boolean BypassIsStoreClientBlockedPolicyCheck;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+        {
+            // Skip installing the dependencies for the package.
+            Boolean SkipDependencies;
+
+            /// The package installer type.
+            PackageInstallerType InstallerType;
         }
     }
 
@@ -810,6 +1014,7 @@ namespace Microsoft.Management.Deployment
 
         /// Silent, Interactive, or Default
         PackageUninstallMode PackageUninstallMode;
+
         /// Directs the logging to a log file. If provided, the installer must have write access to the file 
         String LogOutputPath;
 
@@ -824,6 +1029,183 @@ namespace Microsoft.Management.Deployment
             // The scope the uninstall will perform. Currently only applicable to msix.
             PackageUninstallScope PackageUninstallScope;
         }
+    }
+
+    /// Options when downloading a package.
+    /// Intended to allow full compatibility with the "winget download" command line interface.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    runtimeclass DownloadOptions
+    {
+        DownloadOptions();
+
+        /// Optionally specifies the version from the package to download. If unspecified the version matching 
+        /// CatalogPackage.GetLatestVersion() is used.
+        PackageVersionId PackageVersionId;
+
+        /// The package installer type.
+        PackageInstallerType InstallerType;
+
+        /// The package installer scope.
+        PackageInstallScope Scope;
+
+        /// The package installer architecture.
+        Windows.System.ProcessorArchitecture Architecture;
+
+        /// The package installer locale.
+        String Locale;
+
+        /// The directory where the installers are downloaded to.
+        String DownloadDirectory;
+
+        /// Continues the download even if the hash in the catalog does not match the linked installer.
+        Boolean AllowHashMismatch;
+
+        /// Skip downloading the dependencies for the package.
+        Boolean SkipDependencies;
+
+        /// Accept the package agreements required for download.
+        Boolean AcceptPackageAgreements;
+
+        /// Used by a caller to correlate the download with a caller's data.
+        /// The string must be JSON encoded.
+        String CorrelationData;
+    }
+
+    /// IMPLEMENTATION NOTE: Documentation from AppInstaller::Manifest::Documentation
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass Documentation
+    {
+        String DocumentLabel { get; };
+
+        String DocumentUrl { get; };
+    }
+
+    /// Icon resolution
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    enum IconResolution
+    {
+        Custom,
+        Square16,
+        Square20,
+        Square24,
+        Square30,
+        Square32,
+        Square36,
+        Square40,
+        Square48,
+        Square60,
+        Square64,
+        Square72,
+        Square80,
+        Square96,
+        Square256,
+    };
+
+    /// Icon file type
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    enum IconFileType
+    {
+        Unknown,
+        Jpeg,
+        Png,
+        Ico,
+    };
+
+    /// Icon theme
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    enum IconTheme
+    {
+        Unknown,
+        Default,
+        Light,
+        Dark,
+        HighContrast,
+    };
+
+    /// IMPLEMENTATION NOTE: Icon from AppInstaller::Manifest::Icon
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass Icon
+    {
+        String Url { get; };
+
+        IconFileType FileType{ get; };
+
+        IconResolution Resolution{ get; };
+
+        IconTheme Theme{ get; };
+
+        UInt8[] Sha256 { get; };
+    }
+
+    /// IMPLEMENTATION NOTE: SourceAgreement from AppInstaller::Manifest::SourceAgreement
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass SourceAgreement
+    {
+        String Label { get; };
+
+        String Text { get; };
+    
+        String Url { get; };
+    }
+
+    /// IMPLEMENTATION NOTE: PackageAgreement from AppInstaller::Manifest::Agreement
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass PackageAgreement
+    {
+        String Label { get; };
+
+        String Text { get; };
+
+        String Url { get; };
+    }
+
+    /// IMPLEMENTATION NOTE: CatalogPackageMetadata from AppInstaller::Manifest::Localization
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass CatalogPackageMetadata
+    {
+        String Locale { get; };
+
+        String Publisher { get; };
+
+        String PublisherUrl { get; };
+
+        String PublisherSupportUrl { get; };
+
+        String PrivacyUrl { get; };
+
+        String Author { get; };
+
+        String PackageName { get; };
+
+        String PackageUrl { get; };
+
+        String License { get; };
+
+        String LicenseUrl { get; };
+
+        String Copyright { get; };
+
+        String CopyrightUrl { get; };
+
+        String ShortDescription { get; };
+
+        String Description { get; };
+
+        Windows.Foundation.Collections.IVectorView<String> Tags { get; };
+
+        Windows.Foundation.Collections.IVectorView<PackageAgreement> Agreements { get; };
+
+        Windows.Foundation.Collections.IVectorView<Documentation> Documentations { get; };
+
+        Windows.Foundation.Collections.IVectorView<Icon> Icons { get; };
+
+        String ReleaseNotes { get; };
+
+        String ReleaseNotesUrl { get; };
+
+        String PurchaseUrl { get; };
+
+        String InstallationNotes { get; };
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -864,6 +1246,15 @@ namespace Microsoft.Management.Deployment
 
             /// Get uninstall progress
             Windows.Foundation.IAsyncOperationWithProgress<UninstallResult, UninstallProgress> GetUninstallProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+        {
+            // Download the specified package
+            Windows.Foundation.IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> DownloadPackageAsync(CatalogPackage package, DownloadOptions options);
+
+            // Get download progress
+            Windows.Foundation.IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> GetDownloadProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
         }
     }
 
@@ -918,6 +1309,10 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<UninstallOptions>;
         interface Windows.Foundation.Collections.IVector<UninstallResult>;
         interface Windows.Foundation.Collections.IVectorView<UninstallResult>;
+        interface Windows.Foundation.Collections.IVector<DownloadOptions>;
+        interface Windows.Foundation.Collections.IVectorView<DownloadOptions>;
+        interface Windows.Foundation.Collections.IVector<DownloadResult>;
+        interface Windows.Foundation.Collections.IVectorView<DownloadResult>;
         interface Windows.Foundation.Collections.IVector<MatchResult>;
         interface Windows.Foundation.Collections.IVectorView<MatchResult>;
         interface Windows.Foundation.Collections.IVector<PackageMatchFilter>;
@@ -934,5 +1329,21 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<PackageInstallerInstalledStatus>;
         interface Windows.Foundation.Collections.IVector<CheckInstalledStatusResult>;
         interface Windows.Foundation.Collections.IVectorView<CheckInstalledStatusResult>;
+        interface Windows.Foundation.Collections.IVector<SourceAgreement>;
+        interface Windows.Foundation.Collections.IVectorView<SourceAgreement>;
+        interface Windows.Foundation.Collections.IVector<PackageAgreement>;
+        interface Windows.Foundation.Collections.IVectorView<PackageAgreement>;
+        interface Windows.Foundation.Collections.IVector<Documentation>;
+        interface Windows.Foundation.Collections.IVectorView<Documentation>;
+        interface Windows.Foundation.Collections.IVector<Icon>;
+        interface Windows.Foundation.Collections.IVectorView<Icon>;
+        interface Windows.Foundation.Collections.IVector<CatalogPackageMetadata>;
+        interface Windows.Foundation.Collections.IVectorView<CatalogPackageMetadata>;
+        interface Windows.Foundation.Collections.IVector<AuthenticationArguments>;
+        interface Windows.Foundation.Collections.IVectorView<AuthenticationArguments>;
+        interface Windows.Foundation.Collections.IVector<MicrosoftEntraIdAuthenticationInfo>;
+        interface Windows.Foundation.Collections.IVectorView<MicrosoftEntraIdAuthenticationInfo>;
+        interface Windows.Foundation.Collections.IVector<AuthenticationInfo>;
+        interface Windows.Foundation.Collections.IVectorView<AuthenticationInfo>;
     }
 }

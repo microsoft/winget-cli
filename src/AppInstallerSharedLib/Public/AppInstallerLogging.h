@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
+#include <AppInstallerLanguageUtilities.h>
 #include <chrono>
 #include <filesystem>
 #include <memory>
@@ -11,11 +11,11 @@
 #include <type_traits>
 #include <vector>
 
-#define AICLI_LOG(_channel_,_level_,_outstream_) \
+#define AICLI_LOG_DIRECT(_logger_,_channel_,_level_,_outstream_) \
     do { \
         auto _aicli_log_channel = AppInstaller::Logging::Channel:: _channel_; \
         auto _aicli_log_level = AppInstaller::Logging::Level:: _level_; \
-        auto& _aicli_log_log = AppInstaller::Logging::Log(); \
+        auto& _aicli_log_log = _logger_; \
         if (_aicli_log_log.IsEnabled(_aicli_log_channel, _aicli_log_level)) \
         { \
             AppInstaller::Logging::LoggingStream _aicli_log_strstr; \
@@ -23,6 +23,8 @@
             _aicli_log_log.Write(_aicli_log_channel, _aicli_log_level, _aicli_log_strstr.str()); \
         } \
     } while (0, 0)
+
+#define AICLI_LOG(_channel_,_level_,_outstream_) AICLI_LOG_DIRECT(AppInstaller::Logging::Log(),_channel_,_level_,_outstream_)
 
 // Consider using this macro when the string might be larger than 4K.
 // The normal macro has some buffering that occurs; it can cut off larger strings and is slower.
@@ -46,18 +48,26 @@ namespace AppInstaller::Logging
     // Channels enable large groups of logs to be enabled or disabled together.
     enum class Channel : uint32_t
     {
-        Fail,
-        CLI,
-        SQL,
-        Repo,
-        YAML,
-        Core,
-        Test,
-        All,
+        Fail = 0x1,
+        CLI = 0x2,
+        SQL = 0x4,
+        Repo = 0x8,
+        YAML = 0x10,
+        Core = 0x20,
+        Test = 0x40,
+        Config = 0x80,
+        None = 0,
+        All = 0xFFFFFFFF,
+        Defaults = All & ~SQL,
     };
 
+    DEFINE_ENUM_FLAG_OPERATORS(Channel);
+
     // Gets the channel's name as a string.
-    char const* GetChannelName(Channel channel);
+    std::string_view GetChannelName(Channel channel);
+
+    // Gets the channel from it's name.
+    Channel GetChannelFromName(std::string_view channel);
 
     // Gets the maximum channel name length in characters.
     size_t GetMaxChannelNameLength();
@@ -84,7 +94,7 @@ namespace AppInstaller::Logging
         virtual void Write(Channel channel, Level level, std::string_view message) noexcept = 0;
 
         // Informs the logger of the given log with the intention that no buffering occurs (in winget code).
-        virtual void WriteDirect(std::string_view message) noexcept = 0;
+        virtual void WriteDirect(Channel channel, Level level, std::string_view message) noexcept = 0;
     };
 
     // This type contains the set of loggers that diagnostic logging will be sent to.
@@ -134,6 +144,9 @@ namespace AppInstaller::Logging
         // For example; SetLevel(Verbose) will enable all logs.
         void SetLevel(Level level);
 
+        // Gets the enabled level.
+        Level GetLevel() const;
+
         // Checks whether a given channel and level are enabled.
         bool IsEnabled(Channel channel, Level level) const;
 
@@ -147,7 +160,7 @@ namespace AppInstaller::Logging
     private:
 
         std::vector<std::unique_ptr<ILogger>> m_loggers;
-        uint64_t m_enabledChannels = 0;
+        Channel m_enabledChannels = Channel::None;
         Level m_enabledLevel = Level::Info;
     };
 
@@ -167,9 +180,18 @@ namespace AppInstaller::Logging
             return out;
         }
 
+        // Enums
+        template <typename T>
+        friend std::enable_if_t<std::is_enum_v<std::decay_t<T>>, AppInstaller::Logging::LoggingStream&>
+            operator<<(AppInstaller::Logging::LoggingStream& out, T t)
+        {
+            out.m_out << ToIntegral(t);
+            return out;
+        }
+
         // Everything else.
         template <typename T>
-        friend std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::filesystem::path>, AppInstaller::Logging::LoggingStream&>
+        friend std::enable_if_t<!std::disjunction_v<std::is_same<std::decay_t<T>, std::filesystem::path>, std::is_enum<std::decay_t<T>>>, AppInstaller::Logging::LoggingStream&>
             operator<<(AppInstaller::Logging::LoggingStream& out, T&& t)
         {
             out.m_out << std::forward<T>(t);
@@ -183,5 +205,8 @@ namespace AppInstaller::Logging
     };
 }
 
-// Enable output of system_clock time_points.
-std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time);
+namespace std
+{
+    std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time);
+    std::ostream& operator<<(std::ostream& out, const GUID& guid);
+}

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/FolderFileWatcher.h"
+#include "AppInstallerStrings.h"
 
 namespace AppInstaller::Utility
 {
@@ -26,8 +27,7 @@ namespace AppInstaller::Utility
                 case wil::FolderChangeEvent::RenameNewName:
                 {
                     std::filesystem::path path(filePath);
-                    if (!m_ext.has_value() ||
-                        (m_ext.has_value() && path.extension() == m_ext))
+                    if (!m_ext.has_value() || Utility::CaseInsensitiveEquals(path.extension().u8string(), *m_ext))
                     {
                         m_files.emplace(path);
                     }
@@ -40,8 +40,7 @@ namespace AppInstaller::Utility
                 case wil::FolderChangeEvent::RenameOldName:
                 {
                     std::filesystem::path path(filePath);
-                    if (!m_ext.has_value() ||
-                        (m_ext.has_value() && path.extension() == m_ext))
+                    if (!m_ext.has_value() || Utility::CaseInsensitiveEquals(path.extension().u8string(), *m_ext))
                     {
                         auto it = m_files.find(path);
                         if (it != m_files.cend())

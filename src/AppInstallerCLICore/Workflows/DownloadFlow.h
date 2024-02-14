@@ -66,4 +66,22 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallerPath
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
+
+    // Sets the target download directory location if applicable.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: None
+    void SetDownloadDirectory(Execution::Context& context);
+
+    // Exports the manifest yaml file for the downloaded package installer. Only applies to the 'winget download' command.
+    // Required Args: None
+    // Inputs: Manifest, Installer, DownloadDirectory
+    // Outputs: None
+    void ExportManifest(Execution::Context& context);
+
+    // This method ensures requirements of download for later offline installation.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void EnsureSupportForDownload(Execution::Context& context);
 }

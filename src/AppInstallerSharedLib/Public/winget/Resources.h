@@ -4,6 +4,7 @@
 #include <winrt/Windows.ApplicationModel.Resources.h>
 
 #include <string>
+#include <optional>
 #include <vector>
 #include "AppInstallerStrings.h"
 
@@ -27,11 +28,16 @@ namespace AppInstaller
             template<typename ...T>
             Utility::LocIndString operator()(T ... args) const;
 
+            // Creates a StringId that represents an empty resource string
+            static StringId Empty();
+
         private:
             // Resolve the string ID to its corresponding localized string
             // without replacing placeholders.
             std::string Resolve() const;
         };
+
+        inline StringId StringId::Empty() { return StringId{ {} }; }
 
         // Output resource identifier as localized string.
         std::ostream& operator<<(std::ostream& out, StringId si);
@@ -51,6 +57,8 @@ namespace AppInstaller
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyAllowedSources);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicySourceAutoUpdateInterval);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableBypassCertificatePinningForMicrosoftStore);
+            WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWindowsPackageManagerCommandLineInterfaces);
+            WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWinGetConfiguration);
 
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldFormat);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldValue);
@@ -58,6 +66,8 @@ namespace AppInstaller
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningLoadedBackupSettings);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningParseError);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningUsingDefault);
+
+            WINGET_DEFINE_RESOURCE_STRINGID(UnknownErrorCode);
         };
     }
 
@@ -87,6 +97,12 @@ namespace AppInstaller
             LocString(LocString&&) = default;
             LocString& operator=(LocString&&) = default;
         };
+    }
+
+    namespace StringResource
+    {
+        // Tries to resolve a string, returning a nullopt if it cannot.
+        std::optional<Resource::LocString> TryResolveString(std::wstring_view resKey);
     }
 
     namespace details

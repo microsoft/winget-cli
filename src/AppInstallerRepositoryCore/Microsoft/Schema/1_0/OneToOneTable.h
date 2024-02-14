@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
+#include <winget/SQLiteWrapper.h>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -113,6 +113,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Removes data that is no longer needed for an index that is to be published.
+        // Preserving the values index will improve searching when it is primarily done by equality.
         static void PrepareForPackaging(SQLite::Connection& connection, bool preserveValuesIndex = false)
         {
             details::OneToOneTablePrepareForPackaging(connection, TableInfo::TableName(), true, preserveValuesIndex);

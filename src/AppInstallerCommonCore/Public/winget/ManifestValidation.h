@@ -63,6 +63,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldMissing);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaError);
         WINGET_DEFINE_RESOURCE_STRINGID(ScopeNotSupported);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShadowManifestNotAllowed);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleManifestPackageHasDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(UnsupportedMultiFileManifestType);  
     }

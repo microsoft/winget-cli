@@ -11,6 +11,7 @@ namespace AppInstallerCLIE2ETests
     using System.IO;
     using System.Linq;
     using System.Xml.Linq;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Win32;
     using Newtonsoft.Json;
     using NUnit.Framework;
@@ -63,6 +64,11 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableWinget { get; private set; } = new GroupPolicyHelper("EnableAppInstaller");
 
         /// <summary>
+        /// Gets the Enable Windows Package Manager CommandLine Interfaces policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableWinGetCommandLineInterfaces { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManagerCommandLineInterfaces");
+
+        /// <summary>
         /// Gets the Enable settings policy.
         /// </summary>
         public static GroupPolicyHelper EnableSettings { get; private set; } = new GroupPolicyHelper("EnableSettings");
@@ -108,6 +114,11 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableAllowedSources { get; private set; } = new GroupPolicyHelper("EnableAllowedSources", "AllowedSources");
 
         /// <summary>
+        /// Gets the Enable Windows Package Manager Configuration Interfaces policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableConfiguration { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManagerConfiguration");
+
+        /// <summary>
         /// Gets the Enable auto update interval policy.
         /// </summary>
         public static GroupPolicyHelper SourceAutoUpdateInterval { get; private set; } = new GroupPolicyHelper("SourceAutoUpdateInterval", "SourceAutoUpdateInterval");
@@ -125,6 +136,8 @@ namespace AppInstallerCLIE2ETests
             EnableAdditionalSources,
             EnableAllowedSources,
             SourceAutoUpdateInterval,
+            EnableWinGetCommandLineInterfaces,
+            EnableConfiguration,
         };
 
         /// <summary>

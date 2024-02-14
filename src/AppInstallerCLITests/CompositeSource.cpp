@@ -9,6 +9,7 @@
 #include <Microsoft/PinningIndex.h>
 #include <PackageTrackingCatalogSourceFactory.h>
 #include <winget/Pin.h>
+#include <winget/PinningData.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -122,6 +123,12 @@ struct TestPackageHelper
         return *this;
     }
 
+    TestPackageHelper& WithVersion(std::string_view version)
+    {
+        m_manifest.Version = version;
+        return *this;
+    }
+
     TestPackageHelper& WithChannel(const std::string& channel)
     {
         m_manifest.Channel = channel;
@@ -146,6 +153,12 @@ struct TestPackageHelper
         return *this;
     }
 
+    TestPackageHelper& HideSRS(bool value = true)
+    {
+        m_hideSystemReferenceStrings = value;
+        return *this;
+    }
+
     operator std::shared_ptr<IPackage>()
     {
         if (!m_package)
@@ -156,7 +169,7 @@ struct TestPackageHelper
             }
             else
             {
-                m_package = TestPackage::Make(std::vector<Manifest::Manifest>{ m_manifest }, m_source);
+                m_package = TestPackage::Make(std::vector<Manifest::Manifest>{ m_manifest }, m_source, m_hideSystemReferenceStrings);
             }
         }
 
@@ -173,6 +186,7 @@ private:
     Manifest::Manifest m_manifest;
     std::shared_ptr<ISource> m_source;
     std::shared_ptr<TestPackage> m_package;
+    bool m_hideSystemReferenceStrings = false;
 };
 
 TestPackageHelper MakeInstalled()
@@ -185,7 +199,7 @@ TestPackageHelper MakeAvailable(std::shared_ptr<ISource> source)
     return { /* isInstalled */ false, source};
 }
 
-void RequireIncludes(const std::vector<PackageMatchFilter>& filters, PackageMatchField field, MatchType type, std::optional<std::string> value = {})
+bool SearchRequestIncludes(const std::vector<PackageMatchFilter>& filters, PackageMatchField field, MatchType type, std::optional<std::string> value = {})
 {
     bool found = false;
 
@@ -198,7 +212,12 @@ void RequireIncludes(const std::vector<PackageMatchFilter>& filters, PackageMatc
         }
     }
 
-    REQUIRE(found);
+    return found;
+}
+
+void RequireSearchRequestIncludes(const std::vector<PackageMatchFilter>& filters, PackageMatchField field, MatchType type, std::optional<std::string> value = {})
+{
+    REQUIRE(SearchRequestIncludes(filters, field, type, value));
 }
 
 TEST_CASE("CompositeSource_PackageFamilyName_NotAvailable", "[CompositeSource]")
@@ -224,7 +243,7 @@ TEST_CASE("CompositeSource_PackageFamilyName_Available", "[CompositeSource]")
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled().WithPFN(pfn), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(MakeAvailable(setup.Available).WithPFN(pfn), Criteria());
@@ -260,7 +279,7 @@ TEST_CASE("CompositeSource_ProductCode_Available", "[CompositeSource]")
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled().WithPC(pc), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::ProductCode, MatchType::Exact, pc);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::ProductCode, MatchType::Exact, pc);
 
         SearchResult result;
         result.Matches.emplace_back(MakeAvailable(setup.Available).WithPC(pc), Criteria());
@@ -280,7 +299,7 @@ TEST_CASE("CompositeSource_NameAndPublisher_Match", "[CompositeSource]")
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled(), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact);
 
         SearchResult result;
         result.Matches.emplace_back(MakeAvailable(setup.Available), Criteria());
@@ -313,8 +332,8 @@ TEST_CASE("CompositeSource_MultiMatch_FindsStrongMatch", "[CompositeSource]")
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
-    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name).get() == name);
-    REQUIRE(!Version(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Version)).IsUnknown());
+    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name).get() == name);
+    REQUIRE(!Version(result.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version)).IsUnknown());
 }
 
 TEST_CASE("CompositeSource_MultiMatch_DoesNotFindStrongMatch", "[CompositeSource]")
@@ -347,7 +366,7 @@ TEST_CASE("CompositeSource_FoundByBothRootSearches", "[CompositeSource]")
     setup.Installed->Everything.Matches.emplace_back(installedPackage, Criteria());
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(installedPackage, Criteria());
@@ -357,7 +376,7 @@ TEST_CASE("CompositeSource_FoundByBothRootSearches", "[CompositeSource]")
     setup.Available->Everything.Matches.emplace_back(availablePackage, Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(availablePackage, Criteria());
@@ -378,7 +397,7 @@ TEST_CASE("CompositeSource_OnlyAvailableFoundByRootSearch", "[CompositeSource]")
     CompositeTestSetup setup;
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(MakeInstalled().WithPFN(pfn), Criteria());
@@ -388,7 +407,7 @@ TEST_CASE("CompositeSource_OnlyAvailableFoundByRootSearch", "[CompositeSource]")
     setup.Available->Everything.Matches.emplace_back(MakeAvailable(setup.Available).WithPFN(pfn), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(MakeAvailable(setup.Available).WithPFN(pfn), Criteria());
@@ -410,7 +429,7 @@ TEST_CASE("CompositeSource_FoundByAvailableRootSearch_NotInstalled", "[Composite
     setup.Available->Everything.Matches.emplace_back(MakeAvailable(setup.Available).WithPFN(pfn), Criteria());
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(MakeAvailable(setup.Available).WithPFN(pfn), Criteria());
@@ -436,7 +455,7 @@ TEST_CASE("CompositeSource_UpdateWithBetterMatchCriteria", "[CompositeSource]")
 
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(availablePackage, Criteria());
@@ -453,7 +472,7 @@ TEST_CASE("CompositeSource_UpdateWithBetterMatchCriteria", "[CompositeSource]")
     // Now make the source root search find it with a better criteria
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(installedPackage, Criteria());
@@ -532,11 +551,9 @@ TEST_CASE("CompositePackage_AvailableVersions_ChannelFilteredOut", "[CompositeSo
     REQUIRE(versionKeys.size() == 1);
     REQUIRE(versionKeys[0].Channel.empty());
 
-    auto latestVersion = result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+    auto latestVersion = result.Matches[0].Package->GetLatestAvailableVersion();
     REQUIRE(latestVersion);
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Channel).get().empty());
-
-    REQUIRE(!result.Matches[0].Package->IsUpdateAvailable(PinBehavior::IgnorePins));
 }
 
 TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[CompositeSource]")
@@ -568,17 +585,14 @@ TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[Composite
     REQUIRE(versionKeys.size() == 1);
     REQUIRE(versionKeys[0].Channel == channel);
 
-    auto latestVersion = result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+    auto latestVersion = result.Matches[0].Package->GetLatestAvailableVersion();
     REQUIRE(latestVersion);
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Channel).get() == channel);
-
-    REQUIRE(result.Matches[0].Package->IsUpdateAvailable(PinBehavior::IgnorePins));
 }
 
 TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource]")
 {
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Settings::Setting::EFPinning>(true);
 
     std::string pfn = "sortof_apfn";
     std::string firstName = "Name1";
@@ -592,7 +606,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource
 
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(MakeAvailable(setup.Available).WithDefaultName(firstName), Criteria());
@@ -601,7 +615,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource
 
     secondAvailable->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(MakeAvailable(secondAvailable).WithDefaultName(secondName), Criteria());
@@ -613,7 +627,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 2);
-    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name).get() == firstName);
+    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name).get() == firstName);
 }
 
 TEST_CASE("CompositeSource_MultipleAvailableSources_MatchSecond", "[CompositeSource]")
@@ -630,7 +644,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchSecond", "[CompositeSou
 
     secondAvailable->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(MakeAvailable(setup.Available).WithDefaultName(secondName), Criteria());
@@ -642,7 +656,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchSecond", "[CompositeSou
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
-    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name).get() == secondName);
+    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name).get() == secondName);
 }
 
 TEST_CASE("CompositeSource_MultipleAvailableSources_ReverseMatchBoth", "[CompositeSource]")
@@ -657,7 +671,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_ReverseMatchBoth", "[Composi
 
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(installedPackage, Criteria());
@@ -714,7 +728,7 @@ TEST_CASE("CompositeSource_AvailableSearchFailure", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
 
-    auto pfns = result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
+    auto pfns = result.Matches[0].Package->GetLatestAvailableVersion()->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
     REQUIRE(pfns.size() == 1);
     REQUIRE(pfns[0] == pfn);
 
@@ -827,7 +841,7 @@ TEST_CASE("CompositeSource_TrackingPackageFound", "[CompositeSource]")
     setup.Installed->Everything.Matches.emplace_back(installedPackage, Criteria());
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(installedPackage, Criteria());
@@ -839,12 +853,12 @@ TEST_CASE("CompositeSource_TrackingPackageFound", "[CompositeSource]")
     {
         if (request.Filters.empty())
         {
-            RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+            RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
         }
         else
         {
             REQUIRE(request.Filters.size() == 1);
-            RequireIncludes(request.Filters, PackageMatchField::Id, MatchType::CaseInsensitive, availableID);
+            RequireSearchRequestIncludes(request.Filters, PackageMatchField::Id, MatchType::CaseInsensitive, availableID);
         }
 
         SearchResult result;
@@ -860,7 +874,7 @@ TEST_CASE("CompositeSource_TrackingPackageFound", "[CompositeSource]")
     REQUIRE(result.Matches[0].Package);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetInstalledVersion()->GetSource().GetIdentifier() == setup.Available->Details.Identifier);
-    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins));
+    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion());
 }
 
 TEST_CASE("CompositeSource_TrackingPackageFound_MetadataPopulatedFromTracking", "[CompositeSource]")
@@ -875,7 +889,7 @@ TEST_CASE("CompositeSource_TrackingPackageFound_MetadataPopulatedFromTracking", 
     setup.Installed->Everything.Matches.emplace_back(installedPackage, Criteria());
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(installedPackage, Criteria());
@@ -887,12 +901,12 @@ TEST_CASE("CompositeSource_TrackingPackageFound_MetadataPopulatedFromTracking", 
     {
         if (request.Filters.empty())
         {
-            RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+            RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
         }
         else
         {
             REQUIRE(request.Filters.size() == 1);
-            RequireIncludes(request.Filters, PackageMatchField::Id, MatchType::CaseInsensitive, availableID);
+            RequireSearchRequestIncludes(request.Filters, PackageMatchField::Id, MatchType::CaseInsensitive, availableID);
         }
 
         SearchResult result;
@@ -936,7 +950,7 @@ TEST_CASE("CompositeSource_TrackingFound_AvailableNot", "[CompositeSource]")
     setup.Installed->Everything.Matches.emplace_back(installedPackage, Criteria());
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(installedPackage, Criteria());
@@ -951,7 +965,7 @@ TEST_CASE("CompositeSource_TrackingFound_AvailableNot", "[CompositeSource]")
     REQUIRE(result.Matches[0].Package);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetInstalledVersion()->GetSource().GetIdentifier() == setup.Available->Details.Identifier);
-    REQUIRE(!result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins));
+    REQUIRE(!result.Matches[0].Package->GetLatestAvailableVersion());
 }
 
 TEST_CASE("CompositeSource_TrackingFound_AvailablePath", "[CompositeSource]")
@@ -966,7 +980,7 @@ TEST_CASE("CompositeSource_TrackingFound_AvailablePath", "[CompositeSource]")
 
     setup.Installed->SearchFunction = [&](const SearchRequest& request)
     {
-        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        RequireSearchRequestIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
 
         SearchResult result;
         result.Matches.emplace_back(installedPackage, Criteria());
@@ -977,7 +991,7 @@ TEST_CASE("CompositeSource_TrackingFound_AvailablePath", "[CompositeSource]")
     setup.Available->SearchFunction = [&](const SearchRequest& request)
     {
         REQUIRE(request.Filters.size() == 1);
-        RequireIncludes(request.Filters, PackageMatchField::Id, MatchType::CaseInsensitive, availableID);
+        RequireSearchRequestIncludes(request.Filters, PackageMatchField::Id, MatchType::CaseInsensitive, availableID);
 
         SearchResult result;
         result.Matches.emplace_back(availablePackage, Criteria());
@@ -992,7 +1006,7 @@ TEST_CASE("CompositeSource_TrackingFound_AvailablePath", "[CompositeSource]")
     REQUIRE(result.Matches[0].Package);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
     REQUIRE(result.Matches[0].Package->GetInstalledVersion()->GetSource().GetIdentifier() == setup.Available->Details.Identifier);
-    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins));
+    REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion());
 }
 
 TEST_CASE("CompositeSource_TrackingFound_NotInstalled", "[CompositeSource]")
@@ -1043,22 +1057,34 @@ struct ExpectedResultForPinBehavior
     std::optional<std::string> LatestAvailableVersion;
 };
 
+struct ExpectedPackageVersionKey : public PackageVersionKey
+{
+    ExpectedPackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel, PinType pinType) :
+        PackageVersionKey(sourceId, version, channel), PinnedState(pinType) {}
+
+    PinType PinnedState;
+};
+
 struct ExpectedResultsForPinning
 {
     std::map<PinBehavior, ExpectedResultForPinBehavior> ResultsForPinBehavior;
-    std::vector<PackageVersionKey> AvailableVersions;
+    std::vector<ExpectedPackageVersionKey> AvailableVersions;
 };
 
 void RequireExpectedResultsWithPin(std::shared_ptr<IPackage> package, const ExpectedResultsForPinning& expectedResult)
 {
+    PinningData pinningData{ PinningData::Disposition::ReadOnly };
+
     for (const auto& entry : expectedResult.ResultsForPinBehavior)
     {
         auto pinBehavior = entry.first;
         const auto& result = entry.second;
 
-        REQUIRE(package->IsUpdateAvailable(pinBehavior) == result.IsUpdateAvailable);
+        auto evaluator = pinningData.CreatePinStateEvaluator(pinBehavior, package->GetInstalledVersion());
+        auto latestAvailable = evaluator.GetLatestAvailableVersionForPins(package);
 
-        auto latestAvailable = package->GetLatestAvailableVersion(pinBehavior);
+        REQUIRE(evaluator.IsUpdate(latestAvailable) == result.IsUpdateAvailable);
+
         if (result.LatestAvailableVersion.has_value())
         {
             REQUIRE(latestAvailable);
@@ -1074,14 +1100,17 @@ void RequireExpectedResultsWithPin(std::shared_ptr<IPackage> package, const Expe
     REQUIRE(availableVersionKeys.size() == expectedResult.AvailableVersions.size());
     for (size_t i = 0; i < availableVersionKeys.size(); ++i)
     {
+        auto evaluator = pinningData.CreatePinStateEvaluator(PinBehavior::ConsiderPins, package->GetInstalledVersion());
+
+        auto packageVersion = package->GetAvailableVersion(expectedResult.AvailableVersions[i]);
+        REQUIRE(packageVersion);
         REQUIRE(availableVersionKeys[i].SourceId == expectedResult.AvailableVersions[i].SourceId);
         REQUIRE(availableVersionKeys[i].Version == expectedResult.AvailableVersions[i].Version);
-        REQUIRE(availableVersionKeys[i].PinnedState == expectedResult.AvailableVersions[i].PinnedState);
-        REQUIRE(package->GetAvailableVersion(expectedResult.AvailableVersions[i]));
+        REQUIRE(evaluator.EvaluatePinType(packageVersion) == expectedResult.AvailableVersions[i].PinnedState);
     }
 }
 
-TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
+TEST_CASE("CompositeSource_Pinning_AvailableVersionPinned", "[CompositeSource][PinFlow]")
 {
     // We use an installed package that has 3 available versions: v1.0.0, v1.0.1 and v1.1.0.
     // Installed is v1.0.1
@@ -1091,8 +1120,6 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     TestUserSettings userSettings;
-    userSettings.Set<Settings::Setting::EFPinning>(true);
-
     CompositeTestSetup setup;
 
     auto installedPackage = TestPackage::Make(MakeDefaultManifest("1.0.1"sv), TestPackage::MetadataMap{});
@@ -1104,7 +1131,7 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
         auto manifest2 = MakeDefaultManifest("1.0.1"sv);
         auto manifest3 = MakeDefaultManifest("1.1.0"sv);
         auto package = TestPackage::Make(
-            std::vector<Manifest::Manifest>{ manifest1, manifest2, manifest3 },
+            std::vector<Manifest::Manifest>{ manifest3, manifest2, manifest1 },
             setup.Available);
 
         SearchResult result;
@@ -1176,7 +1203,7 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     SECTION("Gated to 1.0.*")
     {
         pinningIndex->AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.0.*"sv }));
-        expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ false, /* LatestAvailableVersion */ "1.0.1"};
+        expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ false, /* LatestAvailableVersion */ "1.0.1" };
 
         // Gating pins are not affected by --include-pinned
         expectedResult.ResultsForPinBehavior[PinBehavior::IncludePinned] = expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins];
@@ -1196,7 +1223,7 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     RequireExpectedResultsWithPin(package, expectedResult);
 }
 
-TEST_CASE("CompositeSource_OneSourcePinned", "[CompositeSource][PinFlow]")
+TEST_CASE("CompositeSource_Pinning_OneSourcePinned", "[CompositeSource][PinFlow]")
 {
     // We use an installed package that has 2 available sources.
     // If one of them is pinned, we should still get the updates from the other one.
@@ -1204,8 +1231,6 @@ TEST_CASE("CompositeSource_OneSourcePinned", "[CompositeSource][PinFlow]")
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     TestUserSettings userSettings;
-    userSettings.Set<Settings::Setting::EFPinning>(true);
-
     CompositeTestSetup setup;
 
     auto installedPackage = TestPackage::Make(MakeDefaultManifest("1.0"sv), TestPackage::MetadataMap{});
@@ -1254,7 +1279,7 @@ TEST_CASE("CompositeSource_OneSourcePinned", "[CompositeSource][PinFlow]")
     RequireExpectedResultsWithPin(package, expectedResult);
 }
 
-TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
+TEST_CASE("CompositeSource_Pinning_OneSourceGated", "[CompositeSource][PinFlow]")
 {
     // We use an installed package that has 2 available sources.
     // If one of them has a gating pin, we should still get the updates from it
@@ -1262,8 +1287,6 @@ TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     TestUserSettings userSettings;
-    userSettings.Set<Settings::Setting::EFPinning>(true);
-
     CompositeTestSetup setup;
 
     auto installedPackage = TestPackage::Make(MakeDefaultManifest("1.0"sv), TestPackage::MetadataMap{});
@@ -1316,4 +1339,207 @@ TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
     auto package = result.Matches[0].Package;
     REQUIRE(package);
     RequireExpectedResultsWithPin(package, expectedResult);
+}
+
+TEST_CASE("CompositeSource_Pinning_MultipleInstalled", "[CompositeSource][PinFlow]")
+{
+    // Tests the case where multiple installed packages match to a single available package.
+    // If one of the two installed packages is pinned, when searching we should get
+    // two Composite packages, with only one of them pinned.
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    TestUserSettings userSettings;
+    
+    std::string packageId = "packageId";
+    std::string productCode1 = "product-code1";
+    std::string productCode2 = "product-code2";
+
+    // Installed packages differ in product code and version
+    auto installedPackage1 = MakeInstalled().WithId(productCode1).WithPC(productCode1).WithVersion("1.1"sv);
+    auto installedPackage2 = MakeInstalled().WithId(productCode2).WithPC(productCode2).WithVersion("1.2"sv);
+
+    CompositeTestSetup setup;
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+    {
+        bool isSearchById = SearchRequestIncludes(request.Inclusions, PackageMatchField::Id, MatchType::Exact, packageId);
+
+        SearchResult result;
+        if (isSearchById || SearchRequestIncludes(request.Inclusions, PackageMatchField::ProductCode, MatchType::Exact, productCode1))
+        {
+            result.Matches.emplace_back(installedPackage1, Criteria());
+        }
+
+        if (isSearchById || SearchRequestIncludes(request.Inclusions, PackageMatchField::ProductCode, MatchType::Exact, productCode2))
+        {
+            result.Matches.emplace_back(installedPackage2, Criteria());
+        }
+
+        return result;
+    };
+
+    // Available package has the same ID, no product code, and different version from both the installed packages;
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+    {
+        SearchResult result;
+        result.Matches.emplace_back(MakeAvailable(setup.Available).WithId(packageId).WithVersion("2.0"sv), Criteria());
+        return result;
+    };
+
+    // We will pin the first package only
+    PinKey pinKey = PinKey::GetPinKeyForInstalled(productCode1);
+    auto pinningIndex = PinningIndex::OpenOrCreateDefault();
+    REQUIRE(pinningIndex);
+
+    // We will check the pinning status for both installed packages
+    ExpectedResultsForPinning expectedResult1;
+    ExpectedResultsForPinning expectedResult2;
+
+    expectedResult1.ResultsForPinBehavior[PinBehavior::IgnorePins]
+        = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "2.0" };
+
+    // The second package is never pinned, so its result is always the same
+    expectedResult2.ResultsForPinBehavior[PinBehavior::IgnorePins]
+        = expectedResult2.ResultsForPinBehavior[PinBehavior::ConsiderPins]
+        = expectedResult2.ResultsForPinBehavior[PinBehavior::IncludePinned]
+        = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "2.0" };
+    expectedResult2.AvailableVersions = {
+        { "AvailableTestSource1", "2.0", "", Pinning::PinType::Unknown },
+    };
+
+    SECTION("Unpinned")
+    {
+        // If there are no pins, the result should not change if we consider them
+        expectedResult1.ResultsForPinBehavior[PinBehavior::ConsiderPins]
+            = expectedResult1.ResultsForPinBehavior[PinBehavior::IncludePinned]
+            = expectedResult1.ResultsForPinBehavior[PinBehavior::IgnorePins];
+        expectedResult1.AvailableVersions = {
+            { "AvailableTestSource1", "2.0", "", Pinning::PinType::Unknown },
+        };
+    }
+    SECTION("Pinned")
+    {
+        pinningIndex->AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
+
+        // Pinning pins are ignored with --include-pinned
+        expectedResult1.ResultsForPinBehavior[PinBehavior::IncludePinned] = expectedResult1.ResultsForPinBehavior[PinBehavior::IgnorePins];
+
+        expectedResult1.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ false, /* LatestAvailableVersion */ {} };
+        expectedResult1.AvailableVersions = {
+            { "AvailableTestSource1", "2.0", "", Pinning::PinType::Pinning },
+        };
+    }
+    SECTION("Blocked")
+    {
+        pinningIndex->AddPin(Pin::CreateBlockingPin(PinKey{ pinKey }));
+        expectedResult1.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ false, /* LatestAvailableVersion */ {} };
+
+        // Blocking pins are not affected by --include-pinned
+        expectedResult1.ResultsForPinBehavior[PinBehavior::IncludePinned] = expectedResult1.ResultsForPinBehavior[PinBehavior::ConsiderPins];
+
+        expectedResult1.AvailableVersions = {
+            { "AvailableTestSource1", "2.0", "", Pinning::PinType::Blocking },
+        };
+    }
+
+    SearchRequest searchRequest;
+    searchRequest.Inclusions.emplace_back(PackageMatchField::Id, MatchType::Exact, packageId);
+    SearchResult result = setup.Composite.Search(searchRequest);
+
+    REQUIRE(result.Matches.size() == 2);
+
+    // Here we assume that the order we return the packages in the installed source
+    // search is preserved. We'll need to change it if that stops being the case.
+    auto package1 = result.Matches[0].Package;
+    REQUIRE(package1);
+
+    auto package2 = result.Matches[1].Package;
+    REQUIRE(package2);
+
+    RequireExpectedResultsWithPin(package1, expectedResult1);
+    RequireExpectedResultsWithPin(package2, expectedResult2);
+}
+
+TEST_CASE("CompositeSource_CorrelateToInstalledContainsManifestData", "[CompositeSource]")
+{
+    CompositeTestSetup setup;
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+    {
+        if (request.Purpose == SearchPurpose::CorrelationToInstalled)
+        {
+            bool expectedSearchFound = false;
+            for (const auto& inclusion : request.Inclusions)
+            {
+                if (inclusion.Field == PackageMatchField::ProductCode && inclusion.Value == "hello")
+                {
+                    expectedSearchFound = true;
+                    break;
+                }
+            }
+
+            REQUIRE(expectedSearchFound);
+        }
+
+        SearchResult result;
+        return result;
+    };
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+    {
+        SearchResult result;
+        result.Matches.emplace_back(MakeAvailable(setup.Available).WithPC("hello"), Criteria());
+        return result;
+    };
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, "NotForEverything");
+    SearchResult result = setup.Composite.Search(request);
+}
+
+TEST_CASE("CompositeSource_Respects_FeatureFlag_ManifestMayContainAdditionalSystemReferenceStrings", "[CompositeSource]")
+{
+    std::string id = "Special test ID";
+    std::string productCode1 = "product-code1";
+
+    CompositeTestSetup setup;
+    bool productCodeSearched = false;
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+        {
+            for (const auto& inclusion : request.Inclusions)
+            {
+                if (inclusion.Field == PackageMatchField::ProductCode)
+                {
+                    productCodeSearched = true;
+                }
+            }
+
+            return SearchResult{};
+        };
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+        {
+            SearchResult result;
+            result.Matches.emplace_back(MakeAvailable(setup.Available).WithId(id).WithPC(productCode1).HideSRS(), Criteria());
+            return result;
+        };
+
+    SECTION("Feature false")
+    {
+        SearchRequest request;
+        request.Query = RequestMatch(MatchType::Exact, "NotForEverything");
+        SearchResult result = setup.Composite.Search(request);
+
+        REQUIRE(!productCodeSearched);
+    }
+    SECTION("Feature true")
+    {
+        setup.Available->QueryFeatureFlagFunction = [](SourceFeatureFlag flag)
+            {
+                return (flag == SourceFeatureFlag::ManifestMayContainAdditionalSystemReferenceStrings);
+            };
+
+        SearchRequest request;
+        request.Query = RequestMatch(MatchType::Exact, "NotForEverything");
+        SearchResult result = setup.Composite.Search(request);
+
+        REQUIRE(productCodeSearched);
+    }
 }

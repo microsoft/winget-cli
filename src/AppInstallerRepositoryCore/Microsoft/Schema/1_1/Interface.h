@@ -11,7 +11,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
     struct Interface : public V1_0::Interface
     {
         // Version 1.0
-        Schema::Version GetVersion() const override;
+        SQLite::Version GetVersion() const override;
         void CreateTables(SQLite::Connection& connection, CreateOptions options) override;
         SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
@@ -28,6 +28,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
     protected:
         std::unique_ptr<V1_0::SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const override;
         void PerformQuerySearch(V1_0::SearchResultsTable& resultsTable, const RequestMatch& query) const override;
+        V1_0::OneToManyTableSchema GetOneToManyTableSchema() const override;
+
         virtual SearchResult SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const;
         virtual void PrepareForPackaging(SQLite::Connection& connection, bool vacuum);
 

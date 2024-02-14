@@ -16,6 +16,9 @@ namespace AppInstaller::Utility
     // Converts the given UTF8 string to UTF16
     std::wstring ConvertToUTF16(std::string_view input, UINT codePage = CP_UTF8);
 
+    // Tries to convert the given UTF8 string to UTF16
+    std::optional<std::wstring> TryConvertToUTF16(std::string_view input, UINT codePage = CP_UTF8);
+
     // Converts the given UTF8 string to UTF32
     std::u32string ConvertToUTF32(std::string_view input);
 
@@ -112,6 +115,10 @@ namespace AppInstaller::Utility
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b);
 
+    // Determines if string a contains string b.
+    // Use this if one of the values is a known value, and thus ToLower is sufficient.
+    bool CaseInsensitiveContainsSubstring(std::string_view a, std::string_view b);
+
     // Compares the two UTF8 strings in a case insensitive manner, using ICU for case folding.
     bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b);
 
@@ -166,6 +173,9 @@ namespace AppInstaller::Utility
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);
 
+    // Reads the entire stream into a byte array.
+    std::vector<std::uint8_t> ReadEntireStreamAsByteArray(std::istream& stream);
+
     // Expands environment variables within the input.
     std::wstring ExpandEnvironmentVariables(const std::wstring& input);
 
@@ -177,6 +187,14 @@ namespace AppInstaller::Utility
 
     // Splits the string into words.
     std::vector<std::string> SplitIntoWords(std::string_view input);
+
+    // Splits the string into lines.
+    // Drops empty lines.
+    std::vector<std::string> SplitIntoLines(std::string_view input, size_t maximum = 0);
+
+    // Removes lines from the vector (and/or characters from the last line) so that it contains the maximum number of lines.
+    // Returns true if changes were made, false if not.
+    bool LimitOutputLines(std::vector<std::string>& lines, size_t lineWidth, size_t maximum);
 
     // Converts a container to a string representation of it.
     template <typename T, typename U>
@@ -232,6 +250,9 @@ namespace AppInstaller::Utility
     // Join a string vector using the provided separator.
     LocIndString Join(LocIndView separator, const std::vector<LocIndString>& vector);
 
+    // Splits the string using the provided separator.
+    std::vector<std::string> Split(const std::string& input, char separator);
+
     // Format an input string by replacing placeholders {index} with provided values at corresponding indices.
     // Note: After upgrading to C++20, this function should be deprecated in favor of std::format.
     template <typename ... T>
@@ -241,4 +262,10 @@ namespace AppInstaller::Utility
         (FindAndReplace(inputStr, "{" + std::to_string(index++) + "}", (std::ostringstream() << args).str()),...);
         return inputStr;
     }
+
+    // Converts the given boolean value to a string.
+    std::string_view ConvertBoolToString(bool value);
+
+    // Converts the given GUID value to a string.
+    std::string ConvertGuidToString(const GUID& value);
 }

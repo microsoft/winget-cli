@@ -6,6 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>
@@ -52,7 +53,7 @@ namespace AppInstallerCLIE2ETests
             WinGetSettingsHelper.ConfigureFeature("experimentalArg", true);
             WinGetSettingsHelper.ConfigureFeature("experimentalCmd", true);
             WinGetSettingsHelper.ConfigureFeature("directMSI", true);
-            WinGetSettingsHelper.ConfigureFeature("uninstallPreviousArgument", true);
+            WinGetSettingsHelper.ConfigureFeature("resume", true);
             var result = TestCommon.RunAICLICommand("features", string.Empty);
             Assert.True(result.StdOut.Contains("Enabled"));
         }

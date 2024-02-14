@@ -9,6 +9,7 @@ namespace AppInstallerCLIE2ETests.Interop
     using System;
     using System.IO;
     using System.Threading.Tasks;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
@@ -58,12 +59,14 @@ namespace AppInstallerCLIE2ETests.Interop
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.PackageInstallMode = PackageInstallMode.Silent;
             installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.AcceptPackageAgreements = true;
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
         }
 
         /// <summary>
@@ -188,7 +191,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task InstallMSI()
         {
-            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            if (string.IsNullOrEmpty(TestIndex.MsiInstaller))
             {
                 Assert.Ignore("MSI installer not available");
             }
@@ -515,6 +518,211 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+        }
+
+        /// <summary>
+        /// Test installing package with agreements and accepting those agreements.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallWithAgreementsAccepted()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.CatalogPackageMetadata");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.AcceptPackageAgreements = true;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+        }
+
+        /// <summary>
+        /// Test installing package with agreements and not accepting those agreements.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallWithAgreementsNotAccepted()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.CatalogPackageMetadata");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.AcceptPackageAgreements = false;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.PackageAgreementsNotAccepted, installResult.Status);
+        }
+
+        /// <summary>
+        /// Test installing a package with a package dependency and passing in the 'skip-dependencies' install option.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallWithSkipDependencies()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.AcceptPackageAgreements = true;
+            installOptions.SkipDependencies = true;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert that only the exe installer is installed and not the portable package dependency.
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+
+            string installDir = Path.Combine(Environment.GetEnvironmentVariable(Constants.LocalAppData), "Microsoft", "WinGet", "Packages");
+            string productCode = Constants.PortableExePackageDirName;
+            string commandAlias = $"{Constants.ExeInstaller}.exe";
+            string fileName = $"{Constants.ExeInstaller}.exe";
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, Constants.PortableExePackageDirName), commandAlias, fileName, productCode, false);
+        }
+
+        /// <summary>
+        /// Test installing a package with a specific installer type install option.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallWithInstallerType()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestMultipleInstallers");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.InstallerType = PackageInstallerType.Msi;
+            installOptions.AcceptPackageAgreements = true;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(this.installDir));
+        }
+
+        /// <summary>
+        /// Test to verify the GetApplicableInstaller() COM call returns the correct manifest installer metadata.
+        /// </summary>
+        [Test]
+        public void GetApplicableInstaller()
+        {
+            // Find package
+            var searchResult = this.FindAllPackages(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageInstallerInfo");
+            Assert.AreEqual(1, searchResult.Count);
+
+            // Configure installation
+            var catalogPackage = searchResult[0].CatalogPackage;
+            var packageVersionId = catalogPackage.AvailableVersions[0];
+            var packageVersionInfo = catalogPackage.GetPackageVersionInfo(packageVersionId);
+
+            // Use install options with no applicable match.
+            var badInstallOptions = this.TestFactory.CreateInstallOptions();
+            badInstallOptions.PackageInstallScope = PackageInstallScope.System;
+
+            Assert.IsNull(packageVersionInfo.GetApplicableInstaller(badInstallOptions));
+
+            // Use install options with valid applicable match.
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallScope = PackageInstallScope.User;
+            var packageInstallerInfo = packageVersionInfo.GetApplicableInstaller(installOptions);
+
+            // Assert
+            Assert.IsNotNull(packageInstallerInfo);
+            Assert.AreEqual(ElevationRequirement.ElevationRequired, packageInstallerInfo.ElevationRequirement);
+            Assert.AreEqual(Windows.System.ProcessorArchitecture.X64, packageInstallerInfo.Architecture);
+            Assert.AreEqual(PackageInstallerType.Zip, packageInstallerInfo.InstallerType);
+            Assert.AreEqual(PackageInstallerType.Exe, packageInstallerInfo.NestedInstallerType);
+            Assert.AreEqual(PackageInstallerScope.User, packageInstallerInfo.Scope);
+            Assert.AreEqual("en-US", packageInstallerInfo.Locale);
+        }
+
+        /// <summary>
+        /// Install exe and verify that we can find it as installed after.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallExe_VerifyInstalledCatalog()
+        {
+            var installedCatalogReference = this.packageManager.GetLocalPackageCatalog(LocalPackageCatalog.InstalledPackages);
+
+            // Ensure package is not installed
+            var installedResult = this.FindAllPackages(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalledDefaultProductCode);
+            Assert.IsNotNull(installedResult);
+            Assert.AreEqual(0, installedResult.Count);
+
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.AcceptPackageAgreements = true;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+
+            // Check installed catalog after
+            this.FindOnePackage(installedCatalogReference, PackageMatchField.ProductCode, PackageFieldMatchOption.Equals, Constants.ExeInstalledDefaultProductCode);
+
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+        }
+
+        /// <summary>
+        /// Install msix and verify that we can find it as installed after.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallMSIX_VerifyInstalledCatalog()
+        {
+            var installedCatalogReference = this.packageManager.GetLocalPackageCatalog(LocalPackageCatalog.InstalledPackages);
+
+            // Ensure package is not installed
+            var installedResult = this.FindAllPackages(installedCatalogReference, PackageMatchField.PackageFamilyName, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageFamilyName);
+            Assert.IsNotNull(installedResult);
+            Assert.AreEqual(0, installedResult.Count);
+
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "TestMsixInstaller");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+
+            // Check installed catalog after
+            this.FindOnePackage(installedCatalogReference, PackageMatchField.PackageFamilyName, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageFamilyName);
+
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
     }
 }

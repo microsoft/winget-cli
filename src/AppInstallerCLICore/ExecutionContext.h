@@ -6,6 +6,8 @@
 #include "ExecutionArgs.h"
 #include "ExecutionContextData.h"
 #include "CompletionData.h"
+#include "CheckpointManager.h"
+#include <winget/Checkpoint.h>
 
 #include <string_view>
 
@@ -39,6 +41,9 @@
 // Also returns the specified value from the current function.
 #define AICLI_TERMINATE_CONTEXT_RETURN(_hr_,_ret_) AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,_ret_)
 
+// Returns if the context is terminated.
+#define AICLI_RETURN_IF_TERMINATED(_context_) if ((_context_).IsTerminated()) { return; }
+
 namespace AppInstaller::CLI
 {
     struct Command;
@@ -59,15 +64,25 @@ namespace AppInstaller::CLI::Execution
         InstallerExecutionUseUpdate = 0x1,
         InstallerHashMatched = 0x2,
         InstallerTrusted = 0x4,
-        AgreementsAcceptedByCaller = 0x8,
         // Allows a failure in a single source to generate a warning rather than an error.
         // TODO: Remove when the source interface is refactored.
-        TreatSourceFailuresAsWarning = 0x10,
-        ShowSearchResultsOnPartialFailure = 0x20,
+        TreatSourceFailuresAsWarning = 0x8,
+        ShowSearchResultsOnPartialFailure = 0x10,
         DisableInteractivity = 0x40,
+        BypassIsStoreClientBlockedPolicyCheck = 0x80,
+        InstallerDownloadOnly = 0x100,
+        Resume = 0x200,
+        RebootRequired = 0x400,
+        RegisterResume = 0x800,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    HWND GetWindowHandle();
+
+    bool WaitForAppShutdownEvent();
+#endif
 
     // The context within which all commands execute.
     // Contains input/output via Execution::Reporter and
@@ -89,11 +104,14 @@ namespace AppInstaller::CLI::Execution
         // The arguments given to execute with.
         Args Args;
 
+        // Creates a empty context, inheriting 
+        Context CreateEmptyContext();
+
         // Creates a child of this context.
         virtual std::unique_ptr<Context> CreateSubContext();
 
-        // Enables reception of CTRL signals.
-        void EnableCtrlHandler(bool enabled = true);
+        // Enables reception of CTRL signals and window messages.
+        void EnableSignalTerminationHandler(bool enabled = true);
 
         // Applies changes based on the parsed args.
         void UpdateForArgs();
@@ -114,9 +132,9 @@ namespace AppInstaller::CLI::Execution
         void SetTerminationHR(HRESULT hr);
 
         // Cancel the context; this terminates it as well as informing any in progress task to stop cooperatively.
-        // Multiple attempts with exitIfStuck == true may cause the process to simply exit.
+        // Multiple attempts with CancelReason::CancelSignal may cause the process to simply exit.
         // The bypassUser indicates whether the user should be asked for cancellation (does not currently have any effect).
-        void Cancel(bool exitIfStuck = false, bool bypassUser = false);
+        void Cancel(CancelReason reason, bool bypassUser = false);
 
         // Gets context flags
         ContextFlag GetFlags() const
@@ -154,6 +172,18 @@ namespace AppInstaller::CLI::Execution
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
 
+        // Returns the resume id.
+        std::string GetResumeId();
+
+        // Called by the resume command. Loads the checkpoint manager with the resume id and returns the automatic checkpoint.
+        std::optional<AppInstaller::Checkpoints::Checkpoint<AppInstaller::Checkpoints::AutomaticCheckpointData>> LoadCheckpoint(const std::string& resumeId);
+
+        // Returns data checkpoints in the order of latest checkpoint to earliest.
+        std::vector<AppInstaller::Checkpoints::Checkpoint<Execution::Data>> GetCheckpoints();
+
+        // Creates a checkpoint for the provided context data.
+        void Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);
+
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent
         void CopyArgsToSubContext(Context* subContext);
@@ -164,7 +194,7 @@ namespace AppInstaller::CLI::Execution
         std::function<bool(const Workflow::WorkflowTask&)> m_shouldExecuteWorkflowTask;
 
     private:
-        DestructionToken m_disableCtrlHandlerOnExit = false;
+        DestructionToken m_disableSignalTerminationHandlerOnExit = false;
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;
         size_t m_CtrlSignalCount = 0;
@@ -172,5 +202,6 @@ namespace AppInstaller::CLI::Execution
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
+        std::unique_ptr<AppInstaller::Checkpoints::CheckpointManager> m_checkpointManager;
     };
 }

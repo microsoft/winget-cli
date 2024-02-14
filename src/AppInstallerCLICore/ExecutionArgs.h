@@ -41,11 +41,14 @@ namespace AppInstaller::CLI::Execution
             InstallLocation,
             InstallScope,
             InstallArchitecture,
+            InstallerType,
             HashOverride, // Ignore hash mismatches
+            SkipDependencies, // Skip dependencies
             IgnoreLocalArchiveMalwareScan, // Ignore the local malware scan on archive files
             AcceptPackageAgreements, // Accept all license agreements for packages
             Rename, // Renames the file of the executable. Only applies to the portable installerType
             NoUpgrade, // Install flow should not try to convert to upgrade flow upon finding existing installed version
+            AllowReboot, // Allows the reboot flow to proceed if applicable
 
             // Uninstall behavior
             Purge, // Removes all files and directories related to a package during an uninstall. Only applies to the portable installerType.
@@ -64,6 +67,7 @@ namespace AppInstaller::CLI::Execution
 
             //Validate Command
             ValidateManifest,
+            IgnoreWarnings,
 
             // Complete Command
             Word,
@@ -79,6 +83,9 @@ namespace AppInstaller::CLI::Execution
             IgnoreUnavailable,
             IgnoreVersions,
 
+            // Download Command
+            DownloadDirectory,
+
             // Setting Command
             AdminSettingEnable,
             AdminSettingDisable,
@@ -92,9 +99,27 @@ namespace AppInstaller::CLI::Execution
             // Show command
             ListVersions, // Used in Show command to list all available versions of an app
 
+            // List Command
+            Upgrade, // Used in List command to only show versions with upgrades
+
             // Pin command
             GatedVersion, // Differs from Version in that this supports wildcards
             BlockingPin,
+            PinInstalled,
+
+            // Error command
+            ErrorInput,
+
+            // Resume Command
+            ResumeId,
+            IgnoreResumeLimit,
+
+            // Configuration
+            ConfigurationFile,
+            ConfigurationAcceptWarning,
+            ConfigurationEnable,
+            ConfigurationDisable,
+            ConfigurationModulePath,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs
@@ -111,6 +136,9 @@ namespace AppInstaller::CLI::Execution
             DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
+
+            AuthenticationMode, // Authentication mode (silent, silentPreferred or interactive)
+            AuthenticationAccount, // Authentication account to be used
 
             ToolVersion,
 

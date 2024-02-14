@@ -2,46 +2,74 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerLogging.h"
-
+#include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDateTime.h"
 #include "Public/winget/SharedThreadGlobals.h"
 
 namespace AppInstaller::Logging
 {
-    namespace
-    {
-        template <typename E>
-        std::underlying_type_t<E> AsNum(E e)
-        {
-            return static_cast<std::underlying_type_t<E>>(e);
-        }
-
-        uint64_t ConvertChannelToBitmask(Channel channel)
-        {
-            if (channel == Channel::All)
-            {
-                return std::numeric_limits<uint64_t>::max();
-            }
-            else
-            {
-                return (1ull << AsNum(channel));
-            }
-        }
-    }
-
-    char const* GetChannelName(Channel channel)
+    std::string_view GetChannelName(Channel channel)
     {
         switch(channel)
         {
-        case Channel::Fail: return "FAIL";
-        case Channel::CLI:  return "CLI";
-        case Channel::SQL:  return "SQL";
-        case Channel::Repo: return "REPO";
-        case Channel::YAML: return "YAML";
-        case Channel::Core: return "CORE";
-        case Channel::Test: return "TEST";
-        default:            return "NONE";
+        case Channel::Fail:   return "FAIL";
+        case Channel::CLI:    return "CLI";
+        case Channel::SQL:    return "SQL";
+        case Channel::Repo:   return "REPO";
+        case Channel::YAML:   return "YAML";
+        case Channel::Core:   return "CORE";
+        case Channel::Test:   return "TEST";
+        case Channel::Config: return "CONF";
+        default:              return "NONE";
         }
+    }
+
+    Channel GetChannelFromName(std::string_view channel)
+    {
+        std::string lowerChannel = Utility::ToLower(channel);
+
+        if (lowerChannel == "fail")
+        {
+            return Channel::Fail;
+        }
+        else if (lowerChannel == "cli")
+        {
+            return Channel::CLI;
+        }
+        else if (lowerChannel == "sql")
+        {
+            return Channel::SQL;
+        }
+        else if (lowerChannel == "repo")
+        {
+            return Channel::Repo;
+        }
+        else if (lowerChannel == "yaml")
+        {
+            return Channel::YAML;
+        }
+        else if (lowerChannel == "core")
+        {
+            return Channel::Core;
+        }
+        else if (lowerChannel == "test")
+        {
+            return Channel::Test;
+        }
+        else if (lowerChannel == "conf" || lowerChannel == "config")
+        {
+            return Channel::Config;
+        }
+        else if (lowerChannel == "default" || lowerChannel == "defaults")
+        {
+            return Channel::Defaults;
+        }
+        else if (lowerChannel == "all")
+        {
+            return Channel::All;
+        }
+
+        return Channel::None;
     }
 
     size_t GetMaxChannelNameLength() { return 4; }
@@ -88,12 +116,12 @@ namespace AppInstaller::Logging
 
     void DiagnosticLogger::EnableChannel(Channel channel)
     {
-        m_enabledChannels |= ConvertChannelToBitmask(channel);
+        WI_SetAllFlags(m_enabledChannels, channel);
     }
 
     void DiagnosticLogger::DisableChannel(Channel channel)
     {
-        m_enabledChannels &= ~ConvertChannelToBitmask(channel);
+        WI_ClearAllFlags(m_enabledChannels, channel);
     }
 
     void DiagnosticLogger::SetLevel(Level level)
@@ -101,11 +129,16 @@ namespace AppInstaller::Logging
         m_enabledLevel = level;
     }
 
+    Level DiagnosticLogger::GetLevel() const
+    {
+        return m_enabledLevel;
+    }
+
     bool DiagnosticLogger::IsEnabled(Channel channel, Level level) const
     {
         return (!m_loggers.empty() &&
-                (m_enabledChannels & ConvertChannelToBitmask(channel)) != 0 &&
-                (AsNum(level) >= AsNum(m_enabledLevel)));
+                WI_IsAnyFlagSet(m_enabledChannels, channel) &&
+                (ToIntegral(level) >= ToIntegral(m_enabledLevel)));
     }
 
     void DiagnosticLogger::Write(Channel channel, Level level, std::string_view message)
@@ -129,7 +162,7 @@ namespace AppInstaller::Logging
         {
             for (auto& logger : m_loggers)
             {
-                logger->WriteDirect(message);
+                logger->WriteDirect(channel, level, message);
             }
         }
     }
@@ -154,8 +187,27 @@ namespace AppInstaller::Logging
     }
 }
 
-std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
+namespace std
 {
-    AppInstaller::Utility::OutputTimePoint(out, time);
-    return out;
+    std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
+    {
+        AppInstaller::Utility::OutputTimePoint(out, time);
+        return out;
+    }
+
+    std::ostream& operator<<(std::ostream& out, const GUID& guid)
+    {
+        wchar_t buffer[256];
+
+        if (StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)))
+        {
+            out << AppInstaller::Utility::ConvertToUTF8(buffer);
+        }
+        else
+        {
+            out << "error";
+        }
+
+        return out;
+    }
 }

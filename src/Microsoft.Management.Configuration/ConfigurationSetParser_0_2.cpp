@@ -1,0 +1,27 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#include "pch.h"
+#include "ConfigurationSetParser_0_2.h"
+#include "ParsingMacros.h"
+
+#include <AppInstallerErrors.h>
+#include <AppInstallerStrings.h>
+
+#include <sstream>
+
+namespace winrt::Microsoft::Management::Configuration::implementation
+{
+    using namespace AppInstaller::YAML;
+
+    hstring ConfigurationSetParser_0_2::GetSchemaVersion()
+    {
+        static hstring s_schemaVersion{ L"0.2" };
+        return s_schemaVersion;
+    }
+
+    void ConfigurationSetParser_0_2::ParseConfigurationUnit(ConfigurationUnit* unit, const Node& unitNode, ConfigurationUnitIntent intent)
+    {
+        CHECK_ERROR(ConfigurationSetParser_0_1::ParseConfigurationUnit(unit, unitNode, intent));
+        ValidateType(unit, unitNode, FieldName::Resource, true, false);
+    }
+}
