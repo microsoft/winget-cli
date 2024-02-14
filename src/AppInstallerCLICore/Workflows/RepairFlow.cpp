@@ -92,6 +92,7 @@ namespace AppInstaller::CLI::Workflow
 
     void RepairApplicabilityCheck(Execution::Context& context)
     {
+        // Installed Package repair applicability check
         auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
 
         const std::string installerType = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
@@ -123,10 +124,13 @@ namespace AppInstaller::CLI::Workflow
            break;
            case InstallerTypeEnum::Msix:
            case InstallerTypeEnum::MSStore:
+               return; // No check needed for these types
+           case InstallerTypeEnum::Portable:
            default:
-               return; // No check for these types
+               THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
 
+        // Selected Installer repair applicability check
         auto const& repairBehavior = context.Get<Execution::Data::Installer>()->RepairBehavior;
 
         if (repairBehavior == RepairBehaviorEnum::Unknown)
