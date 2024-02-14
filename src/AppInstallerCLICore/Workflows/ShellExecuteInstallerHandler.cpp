@@ -407,7 +407,7 @@ namespace AppInstaller::CLI::Workflow
             auto repairResult = context.Reporter.ExecuteWithProgress(
                 std::bind(InvokeShellExecute,
                     msiexecPath,
-                    GetMsiExecUninstallArgs(context, productCode),
+                    GetMsiExecRepairArgs(context, productCode),
                     std::placeholders::_1));
 
             if (!repairResult)
