@@ -1,17 +1,17 @@
 ---
-author: Roy MacLachlan RDMaclachlan/roy.maclachlan@microsoft.com, Ryan Fu ryfu-msft/
+author: Roy MacLachlan @RDMaclachlan, Ryan Fu @ryfu-msft
 created on: 2023-02-09
-last updated: 2024-02-14
+last updated: 2024-02-15
 issue id: 658
 ---
 
-# Spec Title
+# `Download` command
 
 "For [#658](https://github.com/microsoft/winget-cli/issues/658)"
 
 ## Abstract
 
-This spec describes the functionality and high-level implementation design for the downloading of applications using the Windows Package Manager.
+This spec describes the functionality and high-level implementation design for downloading package installers using the Windows Package Manager.
 
 ## Inspiration
 
@@ -46,12 +46,18 @@ The `download` command will provide users with the ability to download any insta
   --disable-interactivity      Disable interactive prompts
   ```
 
+### Selecting the installer
+A new command argument for `--installer-type` has been added to support selecting a specific installer type to download. A package installer should also be able to be selected by `--scope`, `--architecture`, and `--locale`. 
 
-An update to the existing schema is required for the inclusion of the `<boolean> isDownloadable` property. If this property is set to `True` or is not specified, then the package's installer will be considered downloadable. If the property is set to `False`, then the request to download the package's installer will be refused.
+### Downloading the installer
+Downloading the package's installer will still require that the package's installer hash be verified before becoming available to the user to interact with. By default, installers will be downloaded to a unique folder name located in the `%USERPROFILE%/Downloads` directory. The default download directory can be modified in the user's settings. The unique folder name is comprised of the package identifier and package version. The installer will be comprised of the package identifier, package version, scope, architecture, and locale. This naming pattern ensures that the installer is unique and identifiable based on the installer filters applied: 
 
-Downloading the package's installer will still require that the package's installer hash be verified before becoming available to the user to interact with. The installer will be downloaded to the device with a `*.tmp` file extension that will be removed after the installer's hash has been validated. If the hash validation fails, the package's installer will be removed from the device.
+> Example installer download path name: `%USER_PROFILE%\Downloads\Microsoft.PowerToys_0.78.0\PowerToys (Preview)_0.78.0_User_X64_burn_en-US.exe`
 
 When downloading the package's installer, if a file with the same name exists the new download will overwrite the existing file.
+
+### Downloading the manifest
+Along with downloading the installer, a merged manifest will be generated and outputted in the same installer download directory. The naming of the file will be exactly the same as the installer except for the extension which will be `.yaml`. The manifest is useful for providing information about the installer such as scope, product code, installer switches, etc.
 
 ## UI/UX Design
 
@@ -96,44 +102,30 @@ The following items will be included in the WinGet Settings Schema
 The "defaultDownloadDirectory" setting will be used as the default folder where the package installer and manifest is downloaded to.
 
 ### WinGet PowerShell Cmdlet
-WinGet PowerShell cmdlet will download the identified package's installer based on the user specified parameters. While downloading the package's installer is occurring, PowerShell will show a progress bar displaying the progress. Afterwards, it will return an item object for the files downloaded.:
+WinGet PowerShell cmdlet will download the identified package's installer and manifest based on the user specified parameters. While downloading the package's installer, PowerShell will show a progress bar displaying the progress. Afterwards, it will return the downloaded directory where the files were downloaded to.:
 
 ```PS
-PS C:\> Get-WinGetPackage Microsoft.VisualStudioCode
-
-    Directory: C:\Users\Roy\Downloads
-
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
--a----        11/23/2021  10:05 AM         410253 Microsoft.VisualStudioCode.exe
-
-```
-
-
-```PS
-PS C:\> Get-Help Get-WinGetPackage
+PS C:\> Get-Help Save-WinGetPackage
 
 NAME
-    Get-WinGetPackage
+    Save-WinGetPackage
 
 SYNOPSIS
-    Gets a package's installer or all installers from a WinGet configured source.
+    Downloads a package installer from a WinGet configured source.
 
 SYNTAX
-    Get-WinGetPackage [-ID <System.String>] [-Name <System.String>] [-Moniker <System.String>] 
+    Save-WinGetPackage [-ID <System.String>] [-Name <System.String>] [-Moniker <System.String>]
     [-Scope <System.String>] [-Locale <System.String>] [-FileName <System.String>] 
     [-Version <System.String>] [-Source <System.String>] [-Architecture <System.String>] [-Exact] 
     [-Output <System.String>] [InstallerType <System.String>] [-IgnoreSecurityHash] 
     [-AcceptPackageAgreement] [-Wait] [-Verbose]
 
 DESCRIPTION
-    Downloads an identified package's installer, either found by searching a configured source or 
+    Downloads a package installer and manifest, either found by searching a configured source or 
     directly from a manifest. By default, the query must case-insensitively match the id, name, or 
     moniker of the package. Other fields can be used by passing their appropriate option.
 
 ```
-
 
 ## Capabilities
 
@@ -157,14 +149,8 @@ There will be no breaking changes to the code. A subsection of the WinGet Instal
 
 ## Potential Issues
 
-* Update to the Schema will include the isDownloadable, this could impact services that use older versions of the schema that do not include the isDownloadable.
-* Customers could overwrite an existing file with the same name as the downloaded file.
-
 ## Future considerations
 
-* Downloading of UWP applications with install type: msstore.
 * AAD Authentication
 
 ## Resources
-
-
