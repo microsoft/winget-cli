@@ -2810,4 +2810,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="RepairOperationNotSupported" xml:space="preserve">
     <value>The installer technology in use does not support repair.</value>
   </data>
+  <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
+    <value>The package installed for user scope cannot be repaired when running with administrator privileges.</value>
+  </data>
 </root>

@@ -344,6 +344,20 @@ namespace AppInstaller::CLI::Workflow
 
         std::wstring commandUtf16 = Utility::ConvertToUTF16(context.Get<Execution::Data::RepairString>());
 
+        // When running as admin, block attempt to repair user scope installed package.
+        if (Runtime::IsRunningAsAdmin())
+        {
+           auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+           const std::string installedScopeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledScope];
+           auto scopeEnum =  ConvertToScopeEnum(installedScopeString);
+
+           if (scopeEnum == ScopeEnum::User)
+           {
+                context.Reporter.Warn() << Resource::String::NoAdminRepairForUserScopePackage << std::endl;
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
+           }
+        }
+
         // Parse the command string as application and command line for CreateProcess
         wil::unique_cotaskmem_string app = nullptr;
         wil::unique_cotaskmem_string args = nullptr;

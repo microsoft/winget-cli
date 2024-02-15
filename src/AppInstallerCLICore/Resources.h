@@ -340,6 +340,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(NoApplicableInstallers);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoAdminRepairForUserScopePackage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoExperimentalFeaturesMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(NoInstalledPackageFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageFound);
