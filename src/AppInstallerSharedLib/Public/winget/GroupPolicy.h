@@ -45,6 +45,7 @@ namespace AppInstaller::Settings
             BypassCertificatePinningForMicrosoftStore,
             WinGetCommandLineInterfaces,
             Configuration,
+            ProxyCommandLineOptions,
             Max,
         };
 

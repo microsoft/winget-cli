@@ -19,6 +19,7 @@ namespace AppInstaller::Settings
         constexpr Utility::LocIndView s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore = "BypassCertificatePinningForMicrosoftStore"_liv;
         constexpr Utility::LocIndView s_AdminSettingsYaml_InstallerHashOverride = "InstallerHashOverride"_liv;
         constexpr Utility::LocIndView s_AdminSettingsYaml_LocalArchiveMalwareScanOverride = "LocalArchiveMalwareScanOverride"_liv;
+        constexpr Utility::LocIndView s_AdminSettingsYaml_ProxyCommandLineOptions = "ProxyCommandLineOptions"_liv;
 
         // Attempts to read a single scalar value from the node.
         template<typename Value>
@@ -42,6 +43,7 @@ namespace AppInstaller::Settings
             bool BypassCertificatePinningForMicrosoftStore = false;
             bool InstallerHashOverride = false;
             bool LocalArchiveMalwareScanOverride = false;
+            bool ProxyCommandLineOptions = false;
         };
 
         struct AdminSettingsInternal
@@ -83,6 +85,9 @@ namespace AppInstaller::Settings
                 case AdminSetting::LocalArchiveMalwareScanOverride:
                     m_settingValues.LocalArchiveMalwareScanOverride = enabled;
                     break;
+                case AdminSetting::ProxyCommandLineOptions:
+                    m_settingValues.ProxyCommandLineOptions = enabled;
+                    break;
                 default:
                     return;
                 }
@@ -111,6 +116,8 @@ namespace AppInstaller::Settings
                 return m_settingValues.InstallerHashOverride;
             case AdminSetting::LocalArchiveMalwareScanOverride:
                 return m_settingValues.LocalArchiveMalwareScanOverride;
+            case AdminSetting::ProxyCommandLineOptions:
+                return m_settingValues.ProxyCommandLineOptions;
             default:
                 return false;
             }
@@ -154,6 +161,7 @@ namespace AppInstaller::Settings
             TryReadScalar<bool>(document, s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore, m_settingValues.BypassCertificatePinningForMicrosoftStore);
             TryReadScalar<bool>(document, s_AdminSettingsYaml_InstallerHashOverride, m_settingValues.InstallerHashOverride);
             TryReadScalar<bool>(document, s_AdminSettingsYaml_LocalArchiveMalwareScanOverride, m_settingValues.LocalArchiveMalwareScanOverride);
+            TryReadScalar<bool>(document, s_AdminSettingsYaml_ProxyCommandLineOptions, m_settingValues.ProxyCommandLineOptions);
         }
 
         bool AdminSettingsInternal::SaveAdminSettings()
@@ -164,6 +172,7 @@ namespace AppInstaller::Settings
             out << YAML::Key << s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore << YAML::Value << m_settingValues.BypassCertificatePinningForMicrosoftStore;
             out << YAML::Key << s_AdminSettingsYaml_InstallerHashOverride << YAML::Value << m_settingValues.InstallerHashOverride;
             out << YAML::Key << s_AdminSettingsYaml_LocalArchiveMalwareScanOverride << YAML::Value << m_settingValues.LocalArchiveMalwareScanOverride;
+            out << YAML::Key << s_AdminSettingsYaml_ProxyCommandLineOptions << YAML::Value << m_settingValues.ProxyCommandLineOptions;
             out << YAML::EndMap;
 
             return m_settingStream.Set(out.str());
@@ -190,6 +199,10 @@ namespace AppInstaller::Settings
         {
             result = AdminSetting::LocalArchiveMalwareScanOverride;
         }
+        else if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_ProxyCommandLineOptions, in))
+        {
+            result = AdminSetting::ProxyCommandLineOptions;
+        }
 
         return result;
     }
@@ -206,6 +219,8 @@ namespace AppInstaller::Settings
             return s_AdminSettingsYaml_InstallerHashOverride;
         case AdminSetting::LocalArchiveMalwareScanOverride:
             return s_AdminSettingsYaml_LocalArchiveMalwareScanOverride;
+        case AdminSetting::ProxyCommandLineOptions:
+            return s_AdminSettingsYaml_ProxyCommandLineOptions;
         default:
             return "Unknown"_liv;
         }
@@ -223,6 +238,8 @@ namespace AppInstaller::Settings
             return TogglePolicy::Policy::HashOverride;
         case AdminSetting::LocalArchiveMalwareScanOverride:
             return TogglePolicy::Policy::LocalArchiveMalwareScanOverride;
+        case AdminSetting::ProxyCommandLineOptions:
+            return TogglePolicy::Policy::ProxyCommandLineOptions;
         default:
             return TogglePolicy::Policy::None;
         }

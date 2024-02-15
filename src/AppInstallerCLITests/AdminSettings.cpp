@@ -61,3 +61,29 @@ TEST_CASE("AdminSetting_Disable", "[adminSettings]")
         }
     }
 }
+
+TEST_CASE("AdminSetting_AllSettingsAreImplemented", "[adminSettings]")
+{
+    using AdminSetting_t = std::underlying_type_t<AdminSetting>;
+
+    // Skip Unknown.
+    for (AdminSetting_t i = 1 + static_cast<AdminSetting_t>(AdminSetting::Unknown); i < static_cast<AdminSetting_t>(AdminSetting::Max); ++i)
+    {
+        auto adminSetting = static_cast<AdminSetting>(i);
+
+        // If we forget to add it to the conversion, it returns Unknown/None
+        REQUIRE(AdminSettingToString(adminSetting) != AdminSettingToString(AdminSetting::Unknown));
+        REQUIRE(StringToAdminSetting(AdminSettingToString(adminSetting)) != AdminSetting::Unknown);
+        REQUIRE(GetAdminSettingPolicy(adminSetting) != TogglePolicy::Policy::None);
+
+        GroupPolicyTestOverride policies;
+        policies.SetState(GetAdminSettingPolicy(adminSetting), PolicyState::NotConfigured);
+
+        // We should be able to configure the state.
+        // If we forget to add it, it won't persist.
+        REQUIRE(EnableAdminSetting(adminSetting));
+        REQUIRE(IsAdminSettingEnabled(adminSetting));
+        REQUIRE(DisableAdminSetting(adminSetting));
+        REQUIRE_FALSE(IsAdminSettingEnabled(adminSetting));
+    }
+}

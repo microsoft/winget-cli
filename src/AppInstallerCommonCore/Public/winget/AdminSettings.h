@@ -4,6 +4,10 @@
 
 #include <string>
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include "winget/GroupPolicy.h"
+#endif
+
 namespace AppInstaller::Settings
 {
     // Enum of admin settings.
@@ -14,6 +18,7 @@ namespace AppInstaller::Settings
         BypassCertificatePinningForMicrosoftStore,
         InstallerHashOverride,
         LocalArchiveMalwareScanOverride,
+        ProxyCommandLineOptions,
         Max,
     };
 
@@ -28,4 +33,9 @@ namespace AppInstaller::Settings
     bool IsAdminSettingEnabled(AdminSetting setting);
 
     std::vector<AdminSetting> GetAllAdminSettings();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    // Only used in tests to validate that all admin settings have a corresponding policy
+    TogglePolicy::Policy GetAdminSettingPolicy(AdminSetting setting);
+#endif
 }
