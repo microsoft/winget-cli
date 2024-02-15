@@ -5,6 +5,10 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    void ApplicabilityCheckForInstalledPackage(Execution::Context& context);
+
+    void ApplicabilityCheckForAvailablePackage(Execution::Context& context);
+
     void RepairApplicabilityCheck(Execution::Context& context);
 
     void ExecuteRepair(Execution::Context& context);
@@ -22,7 +26,6 @@ namespace AppInstaller::CLI::Workflow
     void SetPackageFamilyNamesInContext(Execution::Context& context);
 
     void RepairMsixPackage(Execution::Context& context);
-
 
     // Reports the result of the repair.
     // Required Args: None

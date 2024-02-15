@@ -90,7 +90,7 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::PackageFamilyNames>(packageFamilyNames);
     }
 
-    void RepairApplicabilityCheck(Execution::Context& context)
+    void ApplicabilityCheckForInstalledPackage(Execution::Context& context)
     {
         // Installed Package repair applicability check
         auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
@@ -98,52 +98,64 @@ namespace AppInstaller::CLI::Workflow
         const std::string installerType = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
         InstallerTypeEnum installerTypeEnum = ConvertToInstallerTypeEnum(installerType);
 
-        switch (installerTypeEnum)
+        if (installerTypeEnum == InstallerTypeEnum::Portable || installerTypeEnum == InstallerTypeEnum::Unknown)
         {
-           case InstallerTypeEnum::Burn:
-           case InstallerTypeEnum::Exe:
-           case InstallerTypeEnum::Inno:
-           case InstallerTypeEnum::Nullsoft:
-           case InstallerTypeEnum::Msi:
-           case InstallerTypeEnum::Wix:
-           {
-               IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
-
-               auto noModifyItr = packageMetadata.find(PackageVersionMetadata::NoModify);
-               std::string noModifyARPFlag = noModifyItr != packageMetadata.end() ? noModifyItr->second : std::string();
-
-               auto noRepairItr = packageMetadata.find(PackageVersionMetadata::NoRepair);
-               std::string noRepairARPFlag = noRepairItr != packageMetadata.end() ? noRepairItr->second : std::string();
-
-               if (Utility::IsDwordFlagSet(noModifyARPFlag) || Utility::IsDwordFlagSet(noRepairARPFlag))
-               {
-                   context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
-                   AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
-               }
-           }
-           break;
-           case InstallerTypeEnum::Msix:
-           case InstallerTypeEnum::MSStore:
-               return; // No check needed for these types
-           case InstallerTypeEnum::Portable:
-           default:
-               THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+            context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
         }
 
+        IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
+
+        auto noModifyItr = packageMetadata.find(PackageVersionMetadata::NoModify);
+        std::string noModifyARPFlag = noModifyItr != packageMetadata.end() ? noModifyItr->second : std::string();
+
+        auto noRepairItr = packageMetadata.find(PackageVersionMetadata::NoRepair);
+        std::string noRepairARPFlag = noRepairItr != packageMetadata.end() ? noRepairItr->second : std::string();
+
+        if (Utility::IsDwordFlagSet(noModifyARPFlag) || Utility::IsDwordFlagSet(noRepairARPFlag))
+        {
+            context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
+        }
+    }
+
+    void ApplicabilityCheckForAvailablePackage(Execution::Context& context)
+    {
         // Selected Installer repair applicability check
+        auto const& installerType = context.Get<Execution::Data::Installer>()->EffectiveInstallerType();
         auto const& repairBehavior = context.Get<Execution::Data::Installer>()->RepairBehavior;
 
-        if (repairBehavior == RepairBehaviorEnum::Unknown)
+        if (installerType == InstallerTypeEnum::Portable || installerType == InstallerTypeEnum::Unknown)
         {
-            context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+            context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
         }
-        else if (repairBehavior == RepairBehaviorEnum::Installer)
+
+        // For other installer types, we can skip this check as we expect standard repair support from platform.
+        if (installerType == InstallerTypeEnum::Burn
+            || installerType == InstallerTypeEnum::Inno
+            || installerType == InstallerTypeEnum::Nullsoft
+            || installerType == InstallerTypeEnum::Exe)
         {
-            context <<
-                Workflow::EnsureSupportForDownload <<
-                Workflow::EnsureSupportForInstall;
+            if (repairBehavior == RepairBehaviorEnum::Unknown)
+            {
+                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+            }
+            else if (repairBehavior == RepairBehaviorEnum::Installer)
+            {
+                context <<
+                    Workflow::EnsureSupportForDownload <<
+                    Workflow::EnsureSupportForInstall;
+            }
         }
+    }
+
+    void RepairApplicabilityCheck(Execution::Context& context)
+    {
+        context <<
+            ApplicabilityCheckForInstalledPackage <<
+            ApplicabilityCheckForAvailablePackage;
     }
 
     void ExecuteRepair(Execution::Context& context)
