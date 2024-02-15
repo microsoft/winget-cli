@@ -85,6 +85,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Logs a processing summary event for a configuration set.
         void LogConfigProcessingSummary(
             const guid& setIdentifier,
+            std::string_view inputHash,
             bool fromHistory,
             ConfigurationUnitIntent runIntent,
             hresult result,
