@@ -27,7 +27,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Log),                              // -o
             Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),    // -ignore-local-archive-malware-scan
             Argument::ForType(Args::Type::AcceptSourceAgreements),           // -accept-source-agreements
-            Argument::ForType(Args::Type::Locale),                           // -locale : TODO: Determine if this is needed ?
+            Argument::ForType(Args::Type::Locale),
         };
     }
 
