@@ -2764,7 +2764,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Repairs the selected package</value>
   </data>
   <data name="NoRepairInfoFound" xml:space="preserve">
-    <value>The Repair command for this package cannot be found. Please reach out to the package publisher for support.</value>
+    <value>The repair command for this package cannot be found. Please reach out to the package publisher for support.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="RepairDifferentInstallTechnology" xml:space="preserve">
