@@ -37,6 +37,9 @@ The `download` command will provide users with the ability to download any insta
   --locale                     Locale to use (BCP47 format)
   --ignore-security-hash       Ignore the installer hash check failure
   --skip-dependencies          Skips processing package dependencies and Windows features
+  --header                     Optional Windows-Package-Manager REST source HTTP header
+  --authentication-mode        Specify authentication window preference (silent, silentPreferred or interactive)
+  --authentication-account     Specify the account to be used for authentication
   --accept-package-agreements  Accept all license agreements for packages
   --accept-source-agreements   Accept all source agreements during source operations
   -?,--help                    Shows help about the selected command
