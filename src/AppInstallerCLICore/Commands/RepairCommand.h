@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct RepairCommand final : public Command
     {
-        RepairCommand(std::string_view parent) : Command("repair", {"repair"}, parent) {}
+        RepairCommand(std::string_view parent) : Command("repair", parent) {}
 
         std::vector<Argument> GetArguments() const override;
 

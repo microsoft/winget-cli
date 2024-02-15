@@ -28,7 +28,9 @@ namespace AppInstaller::CLI::Workflow
 
         // Default to silent unless it is not present or interactivity is requested
         auto uninstallCommandItr = packageMetadata.find(PackageVersionMetadata::SilentUninstallCommand);
-        if (uninstallCommandItr == packageMetadata.end() || context.Args.Contains(Execution::Args::Type::Interactive))
+
+        if ((!context.Args.Contains(Execution::Args::Type::Silent) && uninstallCommandItr == packageMetadata.end())
+            || context.Args.Contains(Execution::Args::Type::Interactive))
         {
             auto interactiveItr = packageMetadata.find(PackageVersionMetadata::StandardUninstallCommand);
             if (interactiveItr != packageMetadata.end())
@@ -90,6 +92,10 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::PackageFamilyNames>(packageFamilyNames);
     }
 
+    /// <summary>
+    /// The function performs a preliminary check on the installed package by reading its ARP registry flags for NoModify and NoRepair to confirm if the repair operation is applicable.
+    /// </summary>
+    /// <param name="context">Execution context object</param>
     void ApplicabilityCheckForInstalledPackage(Execution::Context& context)
     {
         // Installed Package repair applicability check
@@ -119,6 +125,11 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+
+    /// <summary>
+    /// This function performs a preliminary check on the available matching package by reading its manifest entries for repair behavior to determine the type of repair operation and repair switch are applicable
+    /// </summary>
+    /// <param name="context">Execution context object</param>
     void ApplicabilityCheckForAvailablePackage(Execution::Context& context)
     {
         // Selected Installer repair applicability check

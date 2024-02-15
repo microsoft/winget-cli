@@ -2764,7 +2764,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Repairs the selected package</value>
   </data>
   <data name="NoRepairInfoFound" xml:space="preserve">
-    <value>winget cannot locate the Repair command for this package. Please reach out to the package publisher for support.</value>
+    <value>The Repair command for this package cannot be found. Please reach out to the package publisher for support.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="RepairDifferentInstallTechnology" xml:space="preserve">
@@ -2783,10 +2783,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Repair operation completed successfully.</value>
   </data>
   <data name="RepairAbandoned" xml:space="preserve">
-    <value>Repair Abandoned</value>
+    <value>Repair abandoned</value>
   </data>
   <data name="RepairFlowStartingPackageRepair" xml:space="preserve">
-    <value>Starting Package Repair...</value>
+    <value>Starting package repair...</value>
   </data>
   <data name="MSStoreRepairFailed" xml:space="preserve">
     <value>Failed to repair Microsoft Store package. Error code: {0}</value>

@@ -875,9 +875,16 @@ namespace AppInstaller::Utility
             return false;
         }
 
-        DWORD dwordValue = std::stoul(value);
+        try
+        {
+            DWORD dwordValue = std::stoul(value);
 
-        // If the value is 0, then it is not set.
-        return dwordValue != 0;
+            // If the value is 0, then it is not set.
+            return dwordValue != 0;
+        }
+        catch (...)
+        {
+            return false;
+        }
     }
 }
