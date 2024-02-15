@@ -209,6 +209,12 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER, "Authentication failed. User cancelled."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT, "Authentication failed. Authenticated account is not the desired account."),
 
+            // Repair errors.
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND, "Repair command not found."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE, "Repair operation is not applicable."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED, "Repair operation failed."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED, "The installer technology in use doesn't support repair."),
+
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS, "Another installation is already in progress. Try again later."),
@@ -275,11 +281,7 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE, "The install location is not applicable."),
             WINGET_HRESULT_INFO(WINGET_INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK, "The file was found but the hash was not checked."),
 
-            // Repair errors.
-            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND, "Repair command not found."),
-            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE, "Repair operation is not applicable."),
-            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED, "The installer technology in use doesn't support repair."),
-            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED, "Repair operation failed."),
+
         };
 
         const WinGetHResultData* FindWinGetHResultData(HRESULT value)
