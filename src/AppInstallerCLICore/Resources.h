@@ -324,8 +324,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreAppBlocked);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallTryGetEntitlement);
-        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreRepairFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleExclusiveArgumentsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleNonPortableNestedInstallersSpecified);
@@ -346,8 +346,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackageSelectionArgumentProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackagesFoundInImportFile);
         WINGET_DEFINE_RESOURCE_STRINGID(Notes);
-        WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoRepairInfoFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NoUpgradeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenLogsArgumentDescription);
