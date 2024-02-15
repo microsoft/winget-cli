@@ -32,6 +32,10 @@
       <Configuration>Fuzzing</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Fuzzing|Win32">
+      <Configuration>Fuzzing</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="ReleaseStatic|ARM">
       <Configuration>ReleaseStatic</Configuration>
       <Platform>ARM</Platform>
@@ -197,6 +201,10 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Fuzzing|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
@@ -358,12 +366,12 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD;WINGET_DISABLE_FOR_FUZZING</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD;WINGET_DISABLE_FOR_FUZZING;_DISABLE_VECTOR_ANNOTATION;_DISABLE_STRING_ANNOTATION</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\PureLib\pure;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>%(AdditionalOptions) /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions) /fsanitize=address /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div</AdditionalOptions>
       <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
@@ -389,7 +397,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Authentication\WebAccountManagerAuthenticator.h" />
     <ClInclude Include="DODownloader.h" />
+    <ClInclude Include="Public\winget\Authentication.h" />
     <ClInclude Include="Public\winget\FolderFileWatcher.h" />
     <ClInclude Include="Public\winget\MsixManifest.h" />
     <ClInclude Include="Public\winget\AdminSettings.h" />
@@ -442,29 +452,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
+    <ClCompile Include="Authentication\Authentication.cpp" />
+    <ClCompile Include="Authentication\WebAccountManagerAuthenticator.cpp" />
     <ClCompile Include="Debugging.cpp" />
     <ClCompile Include="DependenciesGraph.cpp" />
     <ClCompile Include="DODownloader.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FolderFileWatcher.cpp" />
-    <ClCompile Include="Deployment.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="Deployment.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
-    <ClCompile Include="ExtensionCatalog.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="ExtensionCatalog.cpp" />
     <ClCompile Include="FileLogger.cpp" />
-    <ClCompile Include="HttpStream\HttpClientWrapper.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="HttpStream\HttpLocalCache.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="HttpStream\HttpRandomAccessStream.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="HttpStream\HttpClientWrapper.cpp" />
+    <ClCompile Include="HttpStream\HttpLocalCache.cpp" />
+    <ClCompile Include="HttpStream\HttpRandomAccessStream.cpp" />
     <ClCompile Include="Locale.cpp" />
     <ClCompile Include="Manifest\Manifest.cpp" />
     <ClCompile Include="Manifest\ManifestCommon.cpp" />
@@ -475,9 +477,7 @@
     <ClCompile Include="Manifest\YamlParser.cpp" />
     <ClCompile Include="Manifest\YamlWriter.cpp" />
     <ClCompile Include="MsiExecArguments.cpp" />
-    <ClCompile Include="MsixInfo.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="MSStore.cpp" />
     <ClCompile Include="NameNormalization.cpp" />

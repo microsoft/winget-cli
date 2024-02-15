@@ -300,6 +300,10 @@ namespace AppInstaller::Manifest
         {
             return ManifestTypeEnum::Merged;
         }
+        else if (in == "shadow")
+        {
+            return ManifestTypeEnum::Shadow;
+        }
         else
         {
             THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), "Unsupported ManifestType: %hs", in.c_str());
@@ -576,6 +580,8 @@ namespace AppInstaller::Manifest
             return "InstallLocation"sv;
         case InstallerSwitchType::Update:
             return "Upgrade"sv;
+        case InstallerSwitchType::Repair:
+            return "Repair"sv;
         }
 
         return "Unknown"sv;
@@ -647,6 +653,21 @@ namespace AppInstaller::Manifest
             return "uninstallPrevious"sv;
         case UpdateBehaviorEnum::Deny:
             return "deny"sv;
+        }
+
+        return "unknown"sv;
+    }
+
+    std::string_view RepairBehaviorToString(RepairBehaviorEnum repairBehavior)
+    {
+        switch (repairBehavior)
+        {
+        case AppInstaller::Manifest::RepairBehaviorEnum::Modify:
+            return "modify"sv;
+        case AppInstaller::Manifest::RepairBehaviorEnum::Installer:
+            return "installer"sv;
+        case AppInstaller::Manifest::RepairBehaviorEnum::Uninstaller:
+            return "uninstaller"sv;
         }
 
         return "unknown"sv;
@@ -952,14 +973,35 @@ namespace AppInstaller::Manifest
         case InstallerTypeEnum::Inno:
             return
             {
-                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/VERYSILENT /NORESTART")},
-                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/SILENT /NORESTART")},
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/SP- /SILENT /SUPPRESSMSGBOXES /NORESTART")},
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
         default:
             return {};
         }
+    }
+
+    RepairBehaviorEnum ConvertToRepairBehaviorEnum(std::string_view in)
+    {
+        std::string inStrLower = Utility::ToLower(in);
+        RepairBehaviorEnum result = RepairBehaviorEnum::Unknown;
+
+        if (inStrLower == "installer")
+        {
+            result = RepairBehaviorEnum::Installer;
+        }
+        else if (inStrLower == "uninstaller")
+        {
+            result = RepairBehaviorEnum::Uninstaller;
+        }
+        else if (inStrLower == "modify")
+        {
+            result = RepairBehaviorEnum::Modify;
+        }
+
+        return result;
     }
 
     std::map<DWORD, ExpectedReturnCodeEnum> GetDefaultKnownReturnCodes(InstallerTypeEnum installerType)

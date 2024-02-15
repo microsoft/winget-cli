@@ -6,6 +6,7 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/RepositorySearch.h>
 #include <winget/RepositorySource.h>
+#include <winget/Authentication.h>
 
 #include <string>
 #include <string_view>
@@ -77,6 +78,9 @@ namespace AppInstaller::CLI::Workflow
 
     // Helper to determine installed source to use based on context input.
     Repository::PredefinedSource DetermineInstalledSource(const Execution::Context& context);
+
+    // Helper to create authentication arguments from context input.
+    Authentication::AuthenticationArguments GetAuthenticationArguments(const Execution::Context& context);
 
     // Helper to report exceptions and return the HRESULT.
     HRESULT HandleException(Execution::Context& context, std::exception_ptr exception);
@@ -318,6 +322,22 @@ namespace AppInstaller::CLI::Workflow
 
     private:
         Execution::Args::Type m_arg;
+    };
+
+    // Ensures the local file exists and is not a directory. Or it's a Uri. Default only https is supported at the moment.
+    // Required Args: the one given
+    // Inputs: None
+    // Outputs: None
+    struct VerifyFileOrUri : public WorkflowTask
+    {
+        VerifyFileOrUri(Execution::Args::Type arg, std::vector<std::wstring> supportedSchemes = { L"https" }) :
+            WorkflowTask("VerifyFileOrUri"), m_arg(arg), m_supportedSchemes(std::move(supportedSchemes)) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Execution::Args::Type m_arg;
+        std::vector<std::wstring> m_supportedSchemes;
     };
 
     // Opens the manifest file provided on the command line.

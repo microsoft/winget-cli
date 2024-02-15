@@ -27,6 +27,8 @@ namespace LocalhostWebServer
 
         public static string LocalSourceJson { get; set; }
 
+        public static string TestDataPath { get; set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -50,6 +52,7 @@ namespace LocalhostWebServer
 
             //Add .yaml and .msix mappings
             var provider = new FileExtensionContentTypeProvider();
+            provider.Mappings[".yml"] = "application/x-yaml";
             provider.Mappings[".yaml"] = "application/x-yaml";
             provider.Mappings[".msix"] = "application/msix";
             provider.Mappings[".exe"] = "application/x-msdownload";

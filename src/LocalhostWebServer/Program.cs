@@ -14,6 +14,7 @@ namespace LocalhostWebServer
     using System.Text.Json;
     using WinGetSourceCreator.Model;
     using Microsoft.WinGetSourceCreator;
+    using System.Runtime.InteropServices;
 
     public class Program
     {
@@ -33,7 +34,8 @@ namespace LocalhostWebServer
             Startup.Port = config.GetValue<Int32>("Port", 5001);
             Startup.OutCertFile = config.GetValue<string>("OutCertFile");
             Startup.LocalSourceJson = config.GetValue<string>("LocalSourceJson");
-            
+            Startup.TestDataPath = config.GetValue<string>("TestDataPath");
+
             if (string.IsNullOrEmpty(Startup.StaticFileRoot) || 
                 string.IsNullOrEmpty(Startup.CertPath))
             {
@@ -112,6 +114,19 @@ namespace LocalhostWebServer
                 WinGetLocalSource.CreateFromLocalSourceFile(Startup.LocalSourceJson);
             }
 
+            if (!string.IsNullOrEmpty(Startup.TestDataPath))
+            {
+                if (!Directory.Exists(Startup.TestDataPath))
+                {
+                    throw new DirectoryNotFoundException(Startup.TestDataPath);
+                }
+
+                var testDataDirectory = Path.Combine(Startup.StaticFileRoot, "TestData");
+                Directory.CreateDirectory(testDataDirectory);
+
+                CopyDirectoryRecursive(Startup.TestDataPath, testDataDirectory);
+            }
+
             CreateHostBuilder(args).Build().Run();
         }
 
@@ -120,7 +135,7 @@ namespace LocalhostWebServer
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseKestrel(opt =>
-                    {   
+                    {
                         opt.ListenAnyIP(Startup.Port, listOpt =>
                         {
                             listOpt.UseHttps(ServerCertificate);
@@ -131,5 +146,27 @@ namespace LocalhostWebServer
                 });
 
         public static X509Certificate2 ServerCertificate { get; private set; }
+
+        private static void CopyDirectoryRecursive(string sourceDir, string destDir)
+        {
+            if (!Directory.Exists(destDir))
+            {
+                Directory.CreateDirectory(destDir);
+            }
+
+            string[] files = Directory.GetFiles(sourceDir);
+            foreach (string file in files)
+            {
+                string dest = Path.Combine(destDir, Path.GetFileName(file));
+                File.Copy(file, dest);
+            }
+
+            string[] directories = Directory.GetDirectories(sourceDir);
+            foreach (string dir in directories)
+            {
+                string dest = Path.Combine(destDir, Path.GetFileName(dir));
+                CopyDirectoryRecursive(dir, dest);
+            }
+        }
     }
 }

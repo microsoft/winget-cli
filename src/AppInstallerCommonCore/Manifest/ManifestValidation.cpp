@@ -62,7 +62,8 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::RelativeFilePathEscapesDirectory, "Relative file path must not point to a location outside of archive directory."sv },
                 { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error."sv },
                 { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error."sv },
-                { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash.Please verify that the input file is a valid, signed MSIX."sv }
+                { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash.Please verify that the input file is a valid, signed MSIX."sv },
+                { AppInstaller::Manifest::ManifestError::ShadowManifestNotAllowed, "Shadow manifest is not allowed."}
             };
 
             return ErrorIdToMessageMap;

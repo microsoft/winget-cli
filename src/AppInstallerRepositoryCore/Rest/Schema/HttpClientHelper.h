@@ -13,15 +13,17 @@ namespace AppInstaller::Repository::Rest::Schema
 {
     struct HttpClientHelper
     {
+        using HttpRequestHeaders = std::unordered_map<utility::string_t, utility::string_t>;
+
         HttpClientHelper(std::shared_ptr<web::http::http_pipeline_stage> = {});
 
-        pplx::task<web::http::http_response> Post(const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t> &headers = {}) const;
+        pplx::task<web::http::http_response> Post(const utility::string_t& uri, const web::json::value& body, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}) const;
 
-        std::optional<web::json::value> HandlePost(const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t>& headers = {}) const;
+        std::optional<web::json::value> HandlePost(const utility::string_t& uri, const web::json::value& body, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}) const;
 
-        pplx::task<web::http::http_response> Get(const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers = {}) const;
+        pplx::task<web::http::http_response> Get(const utility::string_t& uri, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}) const;
 
-        std::optional<web::json::value> HandleGet(const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers = {}) const;
+        std::optional<web::json::value> HandleGet(const utility::string_t& uri, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}) const;
 
         void SetPinningConfiguration(const Certificates::PinningConfiguration& configuration);
     protected:

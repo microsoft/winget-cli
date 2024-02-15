@@ -547,6 +547,14 @@ namespace AppInstaller::Repository
         }
     }
 
+    void Source::SetAuthenticationArguments(Authentication::AuthenticationArguments args)
+    {
+        for (auto& sourceReference : m_sourceReferences)
+        {
+            sourceReference->SetAuthenticationArguments(args);
+        }
+    }
+
     void Source::SetBackgroundUpdateInterval(TimeSpan interval)
     {
         m_backgroundUpdateInterval = interval;

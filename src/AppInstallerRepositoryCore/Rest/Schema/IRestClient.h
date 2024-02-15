@@ -5,6 +5,7 @@
 #include <winget/Manifest.h>
 #include <winget/RepositorySearch.h>
 #include <AppInstallerVersions.h>
+#include <winget/Authentication.h>
 #include <vector>
 
 namespace AppInstaller::Repository::Rest::Schema
@@ -73,6 +74,7 @@ namespace AppInstaller::Repository::Rest::Schema
         std::vector<std::string> RequiredPackageMatchFields;
         std::vector<std::string> UnsupportedQueryParameters;
         std::vector<std::string> RequiredQueryParameters;
+        Authentication::AuthenticationInfo Authentication;
 
         Information() {}
         Information(std::string sourceId, std::vector<std::string> versions)

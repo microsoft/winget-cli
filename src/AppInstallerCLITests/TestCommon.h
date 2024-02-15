@@ -22,12 +22,14 @@ namespace TestCommon
         ShellExecuteOnFailure,
     };
 
+    struct KeepTempFile {};
+
     // Use this to create a temporary file for testing.
     struct TempFile
     {
-        TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true);
-        TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true);
-        TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction = true);
+        TempFile(const std::string& baseName, const std::string& baseExt, std::optional<KeepTempFile> keepTempFile = {});
+        TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, std::optional<KeepTempFile> keepTempFile = {});
+        TempFile(const std::filesystem::path& filePath, std::optional<KeepTempFile> keepTempFile = {});
 
         TempFile(const TempFile&) = delete;
         TempFile& operator=(const TempFile&) = delete;

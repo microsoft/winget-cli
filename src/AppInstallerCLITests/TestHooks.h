@@ -12,6 +12,7 @@
 #include <winget/UserSettings.h>
 #include <winget/Filesystem.h>
 #include <winget/IconExtraction.h>
+#include <winget/Authentication.h>
 
 #ifdef AICLI_DISABLE_TEST_HOOKS
 static_assert(false, "Test hooks have been disabled");
@@ -74,6 +75,11 @@ namespace AppInstaller
     {
         void TestHook_SetInitiateRebootResult_Override(bool* status);
         void TestHook_SetRegisterForRestartResult_Override(bool* status);
+    }
+
+    namespace Authentication
+    {
+        void TestHook_SetAuthenticationResult_Override(Authentication::AuthenticationResult* authResult);
     }
 }
 
@@ -211,5 +217,21 @@ namespace TestHook
 
     private:
         bool m_status;
+    };
+
+    struct SetAuthenticationResult_Override
+    {
+        SetAuthenticationResult_Override(AppInstaller::Authentication::AuthenticationResult authResult) : m_authResult(authResult)
+        {
+            AppInstaller::Authentication::TestHook_SetAuthenticationResult_Override(&m_authResult);
+        }
+
+        ~SetAuthenticationResult_Override()
+        {
+            AppInstaller::Authentication::TestHook_SetAuthenticationResult_Override(nullptr);
+        }
+
+    private:
+        AppInstaller::Authentication::AuthenticationResult m_authResult;
     };
 }

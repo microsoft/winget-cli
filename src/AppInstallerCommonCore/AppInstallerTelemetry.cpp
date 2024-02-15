@@ -6,8 +6,8 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerSHA256.h"
 #include "Public/AppInstallerStrings.h"
-#include "winget/UserSettings.h"
 #include "Public/winget/ThreadGlobals.h"
+#include "winget/UserSettings.h"
 
 #define AICLI_TraceLoggingStringView(_sv_,_name_) TraceLoggingCountedUtf8String(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
 #define AICLI_TraceLoggingWStringView(_sv_,_name_) TraceLoggingCountedWideString(_sv_.data(), static_cast<ULONG>(_sv_.size()), _name_)
@@ -469,7 +469,7 @@ namespace AppInstaller::Logging
             }
         }
 
-        AICLI_LOG(CLI, Info, << "Completed installer selection.");
+        AICLI_LOG(CLI, Verbose, << "Completed installer selection.");
         AICLI_LOG(CLI, Verbose, << "Selected installer Architecture: " << arch);
         AICLI_LOG(CLI, Verbose, << "Selected installer URL: " << url);
         AICLI_LOG(CLI, Verbose, << "Selected installer InstallerType: " << installerType);

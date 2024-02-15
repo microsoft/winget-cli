@@ -79,6 +79,17 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("System is not in the described configuration state."));
         }
 
+        /// <summary>
+        /// Test from https configuration file.
+        /// </summary>
+        [Test]
+        public void ConfigureTest_HttpsConfigurationFile()
+        {
+            var result = TestCommon.RunAICLICommand(CommandAndAgreements, $"{Constants.TestSourceUrl}/TestData/Configuration/Configure_TestRepo_Location.yml");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("System is in the described configuration state."));
+        }
+
         private void DeleteTxtFiles()
         {
             // Delete all .txt files in the test directory; they are placed there by the tests

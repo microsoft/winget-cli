@@ -55,6 +55,7 @@ namespace AppInstaller::Manifest
         // Options not exposed in winget util
         bool FullValidation = false;
         bool ThrowOnWarning = false;
+        bool AllowShadowManifest = false;
     };
 
     // ManifestVer is inherited from Utility::Version and is a more restricted version.
@@ -112,6 +113,15 @@ namespace AppInstaller::Manifest
         Log,
         InstallLocation,
         Update,
+        Repair,
+    };
+
+    enum class RepairBehaviorEnum
+    {
+        Unknown,
+        Modify,
+        Installer,
+        Uninstaller,
     };
 
     enum class ScopeEnum
@@ -192,6 +202,7 @@ namespace AppInstaller::Manifest
         Locale,
         Merged,
         Preview,
+        Shadow,
     };
 
     enum class DependencyType
@@ -370,6 +381,8 @@ namespace AppInstaller::Manifest
 
     IconResolutionEnum ConvertToIconResolutionEnum(std::string_view in);
 
+    RepairBehaviorEnum ConvertToRepairBehaviorEnum(std::string_view in);
+
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
     std::string_view InstallerSwitchTypeToString(InstallerSwitchType installerSwitchType);
@@ -381,6 +394,8 @@ namespace AppInstaller::Manifest
     std::string_view UnsupportedArgumentToString(UnsupportedArgumentEnum unsupportedArgument);
 
     std::string_view UpdateBehaviorToString(UpdateBehaviorEnum updateBehavior);
+
+    std::string_view RepairBehaviorToString(RepairBehaviorEnum repairBehavior);
 
     std::string_view PlatformToString(PlatformEnum platform);
 

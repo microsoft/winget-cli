@@ -23,7 +23,7 @@ APPTERMINATION
 argumentlist
 ARMNT
 arphelper
-ASAN
+asan
 ASequence
 ashpatil
 Ashwini
@@ -78,7 +78,9 @@ corecrt
 count'th
 countof
 countryregion
+Cov
 CPIL
+craigloewen
 createmanifestmetadata
 cswinrt
 ctc
@@ -135,6 +137,8 @@ foldc
 foldcase
 FOLDERID
 FORPARSING
+foundfr
+fsanitize
 fundraiser
 fuzzer
 fzanollo
@@ -143,6 +147,7 @@ GESMBH
 GHS
 gity
 goku
+Gomu
 GRPICONDIR
 GRPICONDIRENTRY
 guiddef
@@ -155,6 +160,7 @@ HINSTANCE
 hkey
 hlocal
 hmodule
+Hostx
 hre
 hresults
 hrow
@@ -172,6 +178,7 @@ iid
 IISOn
 ilemode
 inproc
+Insta
 installinprogress
 INSTALLPROPERTY
 installshield
@@ -184,6 +191,7 @@ isable
 IServer
 ishelp
 ISQ
+issuetitle
 ISVs
 itr
 IWin
@@ -203,6 +211,7 @@ KNOWNFOLDERID
 ktf
 ldcase
 learnxinyminutes
+libfuzzer
 libsolv
 libyaml
 Linq
@@ -243,6 +252,7 @@ mdmp
 MDs
 megamorf
 meme
+microsoftentraid
 midl
 minexample
 minidump
@@ -268,6 +278,7 @@ mylog
 mysilent
 mysilentwithprogress
 nameof
+Nami
 nativehandle
 NBLGGH
 NESTEDINSTALLER
@@ -299,6 +310,7 @@ nuffing
 objbase
 objidl
 ofile
+onefuzz
 ools
 oop
 OPTOUT
@@ -314,6 +326,7 @@ PCCERT
 PCs
 pcwsz
 PDWORD
+peetdev
 PEGI
 PFM
 pfxpath
@@ -355,6 +368,7 @@ REGSAM
 relativefilepath
 remoting
 reparse
+repeatedkey
 restsource
 RGBQUAD
 rgex
@@ -364,6 +378,7 @@ riid
 roblox
 ronomon
 rosoft
+Roronoa
 rowids
 roy
 runspace
@@ -387,6 +402,10 @@ SHGDN
 SHOWNORMAL
 Sideload
 SIGNATUREHASH
+silentpreferred
+similarissues
+similaritytolerance
+Skipx
 Sku
 SMTO
 sortof
@@ -451,6 +470,7 @@ UParse
 upgradable
 upgradecode
 URLZONE
+USEDEFAULT
 userfilesetting
 userprofile
 UWP
@@ -458,6 +478,7 @@ VALUENAMECASE
 vclib
 VERSI
 VERSIE
+visualstudiocode
 vns
 vsconfig
 vstest
@@ -481,6 +502,7 @@ winreg
 winrtact
 winstring
 withstarts
+WNDCLASS
 WNDCLASSEX
 WPARAM
 wpr

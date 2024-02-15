@@ -31,6 +31,8 @@ namespace Microsoft.Management.Deployment.Projection
 
         public PackageMatchFilter CreatePackageMatchFilter() => InstanceInitializer.CreateInstance<PackageMatchFilter>();
 
+        public AuthenticationArguments CreateAuthenticationArguments() => InstanceInitializer.CreateInstance<AuthenticationArguments>();
+
         public PackageManagerSettings CreatePackageManagerSettings() => InstanceInitializer.CreateInstance<PackageManagerSettings>();
     }
 }

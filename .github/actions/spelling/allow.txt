@@ -78,6 +78,7 @@ emoji
 ENDDIALOG
 ensureandinsert
 ensurepathexists
+entra
 ENU
 EOAC
 errorlevel
@@ -305,6 +306,8 @@ subcontext
 SUBLANG
 subresource
 subselect
+substr
+SUPPRESSMSGBOXES
 SWIPECONTROL
 SYMED
 symlinktarget

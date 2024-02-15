@@ -8,6 +8,7 @@
 #include "PackageCatalog.h"
 #include "SourceAgreement.h"
 #include "ConnectResult.h"
+#include "AuthenticationInfo.h"
 #include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 #include "Microsoft/PredefinedInstalledSourceFactory.h"
@@ -102,6 +103,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     copy.SetCaller(callerName);
                     copy.SetBackgroundUpdateInterval(catalog.PackageCatalogBackgroundUpdateInterval());
                     copy.InstalledPackageInformationOnly(catalog.InstalledPackageInformationOnly());
+                    if (catalog.AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
+                    {
+                        copy.SetAuthenticationArguments(GetAuthenticationArguments(catalog.AuthenticationArguments()));
+                    }
                     copy.Open(progress);
                     remoteSources.emplace_back(std::move(copy));
                 }
@@ -136,7 +141,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
             else
             {
-                if (!m_acceptSourceAgreements && SourceAgreements().Size() != 0)
+                if (!AcceptSourceAgreements() && SourceAgreements().Size() != 0)
                 {
                     return GetConnectSourceAgreementsNotAcceptedErrorResult();
                 }
@@ -145,6 +150,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 source.SetCaller(callerName);
                 source.SetBackgroundUpdateInterval(PackageCatalogBackgroundUpdateInterval());
                 source.InstalledPackageInformationOnly(m_installedPackageInformationOnly);
+                if (AuthenticationInfo().AuthenticationType() != winrt::Microsoft::Management::Deployment::AuthenticationType::None)
+                {
+                    source.SetAuthenticationArguments(GetAuthenticationArguments(m_authenticationArguments));
+                }
                 source.Open(progress);
             }
 
@@ -224,7 +233,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_acceptSourceAgreements;
     }
-    
+
     void PackageCatalogReference::PackageCatalogBackgroundUpdateInterval(winrt::Windows::Foundation::TimeSpan const& value)
     {
         if (IsComposite())
@@ -252,5 +261,32 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
 
         m_installedPackageInformationOnly = value;
+    }
+    winrt::Microsoft::Management::Deployment::AuthenticationArguments PackageCatalogReference::AuthenticationArguments()
+    {
+        return m_authenticationArguments;
+    }
+    void PackageCatalogReference::AuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments const& value)
+    {
+        if (IsComposite())
+        {
+            throw winrt::hresult_illegal_state_change();
+        }
+
+        m_authenticationArguments = value;
+    }
+    winrt::Microsoft::Management::Deployment::AuthenticationInfo PackageCatalogReference::AuthenticationInfo()
+    {
+        std::call_once(m_authenticationInfoOnceFlag,
+            [&]()
+            {
+                if (!IsComposite())
+                {
+                    auto authenticationInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::AuthenticationInfo>>();
+                    authenticationInfo->Initialize(m_sourceReference.GetInformation().Authentication);
+                    m_authenticationInfo = *authenticationInfo;
+                }
+            });
+        return m_authenticationInfo;
     }
 }

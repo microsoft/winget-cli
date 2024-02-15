@@ -1,13 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "PortableIndex.h"
+#include "Public/winget/PortableIndex.h"
+#include "Microsoft/Schema/IPortableIndex.h"
+#include "Microsoft/Schema/Portable_1_0/PortableTable.h"
 #include <winget/SQLiteStorageBase.h>
 #include "Schema/Portable_1_0/PortableIndexInterface.h"
-#include "winget/Filesystem.h"
+#include <winget/Filesystem.h>
 
 namespace AppInstaller::Repository::Microsoft
 {
+    PortableIndex::PortableIndex(PortableIndex&&) = default;
+    PortableIndex& PortableIndex::operator=(PortableIndex&&) = default;
+
+    PortableIndex::~PortableIndex() = default;
+
     PortableIndex PortableIndex::CreateNew(const std::string& filePath, SQLite::Version version)
     {
         AICLI_LOG(Repo, Info, << "Creating new Portable Index with version [" << version << "] at '" << filePath << "'");
@@ -28,6 +35,11 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
 
         return result;
+    }
+
+    PortableIndex PortableIndex::Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile)
+    {
+        return { filePath, disposition, std::move(indexFile) };
     }
 
     PortableIndex::IdType PortableIndex::AddPortableFile(const Portable::PortableFileEntry& file)

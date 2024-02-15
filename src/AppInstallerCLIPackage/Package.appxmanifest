@@ -77,7 +77,9 @@
               <com:Class Id ="C9ED7917-66AB-4E31-A92A-F65F18EF7933" DisplayName="Configuration Statics Server">
               </com:Class>
               <com:Class Id ="8EF324ED-367C-4880-83E5-BB2ABD0B72F6" DisplayName="DownloadOptions Server">
-              </com:Class> 
+              </com:Class>
+              <com:Class Id ="6484A61D-50FA-41F0-B71E-F4370C6EB37C" DisplayName="AuthenticationArguments Server">
+              </com:Class>
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
@@ -97,6 +99,8 @@
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.GetConfigurationUnitDetailsResult&gt;" InterfaceId="3A034399-0F2B-51C2-A9C5-4BC6E9940068" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ApplyConfigurationUnitResult&gt;" InterfaceId="0E2334B9-8431-5A9D-B3AA-62D4FB5B5749" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.TestConfigurationUnitResult&gt;" InterfaceId="73848262-86D4-5FFC-8353-8408C4E649DE" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.IApplyGroupMemberSettingsResult&gt;" InterfaceId="5086070C-F468-5B00-8352-50FB420BA8B0" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ITestSettingsResult&gt;" InterfaceId="2D28E6AA-7036-5D78-9B58-9456F1E332FE" />
       </ProxyStub>
     </Extension>
     <!-- This entry forces the package registration to process the windows.activatableClass.proxyStub extension above. -->

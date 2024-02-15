@@ -222,7 +222,7 @@ jobs:
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -291,10 +291,19 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\net6.0'
+      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net6.0'
       TargetFolder:  '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy WinGetUtil to WinGetUtilInterop.UnitTests folder'
+    inputs:
+      Contents: |
+          $(buildOutDir)\WinGetUtil\WinGetUtil.dll
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
+      flattenFolders: true
     condition: succeededOrFailed()
 
   - task: VSTest@2
@@ -304,8 +313,9 @@ jobs:
       testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
       searchFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests'
       codeCoverageEnabled: true
-      platform: 'Any CPU'
+      platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
+      diagnosticsEnabled: true
     condition: succeededOrFailed()
   
   - task: VSTest@2
@@ -528,3 +538,57 @@ jobs:
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
     condition: succeededOrFailed()
+
+- job: 'Fuzzing'
+  timeoutInMinutes: 60
+  condition: not(eq(variables['Build.Reason'], 'PullRequest'))
+
+  strategy:
+    matrix:
+      x64:
+        buildConfiguration: 'Fuzzing'
+        buildPlatform: 'x64'
+      x86:
+        buildConfiguration: 'Fuzzing'
+        buildPlatform: 'x86'
+
+  variables:
+    buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
+    artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
+
+  steps:
+  - task: NuGetToolInstaller@1
+    displayName: Install Nuget
+
+  - task: NuGetCommand@2
+    displayName: Restore Solution
+    inputs:
+      restoreSolution: '$(solution)'
+
+  - task: VSBuild@1
+    displayName: Build Fuzzing Artifacts
+    inputs:
+      platform: '$(buildPlatform)'
+      solution: '$(solution)'
+      configuration: '$(buildConfiguration)'
+      msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog'
+
+  - task: CopyFiles@2
+    displayName: Copy Fuzzing Artifacts for Publishing
+    inputs:
+      SourceFolder: '$(buildOutDir)\WinGetYamlFuzzing'
+      Contents: '**'
+      TargetFolder: '$(artifactsDir)'
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Fuzzing Artifacts
+    inputs:
+      targetPath: '$(artifactsDir)'
+
+  - task: onefuzz-task@0
+    inputs:
+      onefuzzOSes: 'Windows'
+    env:
+      onefuzzDropDirectory: '$(buildOutDir)\WinGetYamlFuzzing'
+      onefuzzDropPAT: $(onefuzzDropPAT)
+      onefuzzFilingBugPAT: $(onefuzzBugFilingPAT)

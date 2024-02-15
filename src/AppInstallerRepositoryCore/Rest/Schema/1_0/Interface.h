@@ -38,7 +38,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         virtual SearchResult GetSearchResult(const web::json::value& searchResponseObject) const;
         virtual std::vector<Manifest::Manifest> GetParsedManifests(const web::json::value& manifestsResponseObject) const;
 
-        std::unordered_map<utility::string_t, utility::string_t> m_requiredRestApiHeaders;
+        // Gets auth headers if source requires authentication for access.
+        virtual HttpClientHelper::HttpRequestHeaders GetAuthHeaders() const;
+
+        HttpClientHelper::HttpRequestHeaders m_requiredRestApiHeaders;
 
     private:
         std::string m_restApiUri;

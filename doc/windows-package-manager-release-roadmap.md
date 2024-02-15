@@ -41,7 +41,8 @@ We use [GitHub milestones](https://github.com/microsoft/winget-cli/milestones) t
 
 | Milestone | Description |
 |    ---    |     ---     |
-| [v1.5-Client](https://github.com/microsoft/winget-cli/milestone/39) | Work Targeted for v1.5 |
+| [v1.7-Client](https://github.com/microsoft/winget-cli/milestone/42) | Work Targeted for v1.7 |
+| [v1.8-Client](https://github.com/microsoft/winget-cli/milestone/43) | Work Targeted for v1.8 |
 | [v.Next-Client](https://github.com/microsoft/winget-cli/milestone/34) | Triage for the next Milestone |
 | [Backlog-Client](https://github.com/microsoft/winget-cli/milestone/2) | Work not yet assigned to a milestone or release |
 

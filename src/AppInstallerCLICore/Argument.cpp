@@ -229,12 +229,18 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::DependencySource:
             return { type, "dependency-source"_liv, ArgTypeCategory::ExtendedSource };
         case Execution::Args::Type::CustomHeader:
-            return { type, "header"_liv, ArgTypeCategory::QuerySource };
+            return { type, "header"_liv, ArgTypeCategory::ExtendedSource };
         case Execution::Args::Type::AcceptSourceAgreements:
             return { type, "accept-source-agreements"_liv, ArgTypeCategory::ExtendedSource };
 
         case Execution::Args::Type::ToolVersion:
             return { type, "version"_liv, 'v' };
+
+        // Authentication arguments
+        case Execution::Args::Type::AuthenticationMode:
+            return { type, "authentication-mode"_liv };
+        case Execution::Args::Type::AuthenticationAccount:
+            return { type, "authentication-account"_liv };
 
         // Used for demonstration purposes
         case Execution::Args::Type::ExperimentalArg:
@@ -341,6 +347,10 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::HeaderArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::AcceptSourceAgreements:
             return Argument{ type, Resource::String::AcceptSourceAgreementsArgumentDescription, ArgumentType::Flag };
+        case Args::Type::AuthenticationMode:
+            return Argument{ type, Resource::String::AuthenticationModeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+        case Args::Type::AuthenticationAccount:
+            return Argument{ type, Resource::String::AuthenticationAccountArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::ExperimentalArg:
             return Argument{ type, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
         case Args::Type::Rename:
@@ -366,7 +376,7 @@ namespace AppInstaller::CLI
         case Args::Type::ResumeId:
             return Argument{ type, Resource::String::ResumeIdArgumentDescription, ArgumentType::Standard, true };
         case Args::Type::AllowReboot:
-            return Argument{ type, Resource::String::AllowRebootArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Reboot };
+            return Argument{ type, Resource::String::AllowRebootArgumentDescription, ArgumentType::Flag };
         case Args::Type::IgnoreResumeLimit:
             return Argument{ type, Resource::String::IgnoreResumeLimitArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Resume };
         default:

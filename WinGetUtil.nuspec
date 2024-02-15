@@ -24,8 +24,8 @@
     <file src="Build.x86release\src\x86\Release\WinGetUtil\WinGetUtil.dll" target="runtimes\win-x86\native\WinGetUtil.dll"/>
     <file src="Build.x86release\src\x86\Release\WinGetUtil\WinGetUtil.pdb" target="runtimes\win-x86\native\WinGetUtil.pdb"/>
     <file src="Build.x64release\schemas\JSON\manifests\**" target="content\schemas\JSON\manifests" />
-    <file src="Build.x64release\src\WinGetUtilInterop\bin\Release\netstandard2.0\WinGetUtilInterop.dll" target="lib/netstandard2.0/WinGetUtilInterop.dll" />
-    <file src="Build.x64release\src\WinGetUtilInterop\bin\Release\netstandard2.0\WinGetUtilInterop.pdb" target="lib/netstandard2.0/WinGetUtilInterop.pdb" />
+    <file src="Build.x64release\src\WinGetUtilInterop\bin\Release\netstandard2.1\WinGetUtilInterop.dll" target="lib/netstandard2.1/WinGetUtilInterop.dll" />
+    <file src="Build.x64release\src\WinGetUtilInterop\bin\Release\netstandard2.1\WinGetUtilInterop.pdb" target="lib/netstandard2.1/WinGetUtilInterop.pdb" />
     <file src="Build.x64release\src\WinGetUtilInterop\build\Microsoft.WindowsPackageManager.Utils.targets" target="build/Microsoft.WindowsPackageManager.Utils.targets" />
   </files>
 </package>

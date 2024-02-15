@@ -6,7 +6,7 @@ namespace Microsoft.WinGetSourceCreator
     using global::WinGetSourceCreator.Model;
     using System.Text.Json.Serialization;
     using System.Text.Json;
-    using WinGetUtilInterop.Helpers;
+    using Microsoft.WinGetUtil.Api;
 
     public class WinGetLocalSource
     {
@@ -113,7 +113,7 @@ namespace Microsoft.WinGetSourceCreator
         public string CreateIndex(string indexName)
         {
             string fullPath = Path.Combine(this.workingDirectory, indexName);
-            using var indexHelper = WinGetUtilIndex.CreateLatestVersion(fullPath);
+            using var indexHelper = new WinGetFactory().SQLiteIndexCreateLatestVersion(fullPath);
 
             Queue<string> filesQueue = new(Directory.EnumerateFiles(this.workingDirectory, "*.yaml", SearchOption.AllDirectories));
             while (filesQueue.Count > 0)
