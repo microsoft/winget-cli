@@ -31,7 +31,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AuthenticationMode),
             Argument::ForType(Args::Type::AuthenticationAccount),
-            Argument::ForType(Args::Type::InstallScope),
+            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::ProductCode),
             Argument::ForType(Args::Type::Force),
             Argument::ForType(Args::Type::HashOverride),
