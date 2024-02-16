@@ -2761,4 +2761,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Enable Windows Package Manager proxy command line options</value>
     <comment>Describres a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
   </data>
+  <data name="ProxyArgumentDescription" xml:space="preserve">
+    <value>Set a proxy to use for this execution</value>
+  </data>
+  <data name="ProxyArgumentDescription" xml:space="preserve">
+    <value>Disable the use of proxy for this execution</value>
+  </data>
 </root>

@@ -53,6 +53,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::SourceArg),
             Argument::ForType(Args::Type::SourceType),
             Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::Proxy),
+            Argument::ForType(Args::Type::NoProxy),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }
@@ -126,6 +128,8 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::SourceName),
+            Argument::ForType(Execution::Args::Type::Proxy),
+            Argument::ForType(Execution::Args::Type::NoProxy),
         };
     }
 

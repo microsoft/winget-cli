@@ -36,8 +36,10 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AuthenticationMode),
             Argument::ForType(Args::Type::AuthenticationAccount),
-            Argument::ForType(Execution::Args::Type::AcceptPackageAgreements),
-            Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Args::Type::Proxy),
+            Argument::ForType(Args::Type::NoProxy),
+            Argument::ForType(Args::Type::AcceptPackageAgreements),
+            Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }
 

@@ -233,6 +233,11 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::AcceptSourceAgreements:
             return { type, "accept-source-agreements"_liv, ArgTypeCategory::ExtendedSource };
 
+        case Execution::Args::Type::Proxy:
+            return { type, "proxy"_liv, ArgTypeCategory::CopyValueToSubContext, ArgTypeExclusiveSet::Proxy };
+        case Execution::Args::Type::NoProxy:
+            return { type, "no-proxy"_liv, ArgTypeCategory::CopyFlagToSubContext, ArgTypeExclusiveSet::Proxy };
+
         case Execution::Args::Type::ToolVersion:
             return { type, "version"_liv, 'v' };
 
@@ -379,6 +384,10 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::AllowRebootArgumentDescription, ArgumentType::Flag };
         case Args::Type::IgnoreResumeLimit:
             return Argument{ type, Resource::String::IgnoreResumeLimitArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Resume };
+        case Args::Type::Proxy:
+            return Argument{ type, Resource::String::ProxyArgumentDescription, ArgumentType::Standard, false };
+        case Args::Type::NoProxy:
+            return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag };
         default:
             THROW_HR(E_UNEXPECTED);
         }
