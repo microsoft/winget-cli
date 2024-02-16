@@ -25,7 +25,10 @@
 
 // TODO: See if we can get down to having just one JSON parser...
 #include <json/json.h>
+
+#ifndef WINGET_DISABLE_FOR_FUZZING
 #include <cpprest/json.h>
+#endif
 
 #pragma warning( push )
 #pragma warning ( disable : 4458 4100 4702 6031 )
@@ -73,7 +76,6 @@
 #include <wil/win32_helpers.h>
 #pragma warning( pop )
 
-#ifndef WINGET_DISABLE_FOR_FUZZING
 #include <wil/cppwinrt.h>
 
 #include <winrt/Windows.ApplicationModel.h>
@@ -94,8 +96,6 @@
 #include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
 #include <winrt/Windows.Security.Authentication.Web.Core.h>
 #include <winrt/Windows.Security.Credentials.h>
-
-#endif
 
 #include <wrl/client.h>
 #include <wrl/implements.h>

@@ -322,7 +322,8 @@
       <AdditionalIncludeDirectories>libyaml\include;$(ProjectDir)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <AdditionalOptions>/D YAML_DECLARE_STATIC /D HAVE_CONFIG_H %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D YAML_DECLARE_STATIC /D HAVE_CONFIG_H /fsanitize=address /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -357,9 +358,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>libyaml\include;$(ProjectDir)</AdditionalIncludeDirectories>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <AdditionalOptions>/D YAML_DECLARE_STATIC /D HAVE_CONFIG_H /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D YAML_DECLARE_STATIC /D HAVE_CONFIG_H /fsanitize=address /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>

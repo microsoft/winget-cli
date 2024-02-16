@@ -23,7 +23,7 @@ APPTERMINATION
 argumentlist
 ARMNT
 arphelper
-ASAN
+asan
 ASequence
 ashpatil
 Ashwini
@@ -78,6 +78,7 @@ corecrt
 count'th
 countof
 countryregion
+Cov
 CPIL
 craigloewen
 createmanifestmetadata
@@ -137,6 +138,7 @@ foldcase
 FOLDERID
 FORPARSING
 foundfr
+fsanitize
 fundraiser
 fuzzer
 fzanollo
@@ -158,6 +160,7 @@ HINSTANCE
 hkey
 hlocal
 hmodule
+Hostx
 hre
 hresults
 hrow
@@ -175,6 +178,7 @@ iid
 IISOn
 ilemode
 inproc
+Insta
 installinprogress
 INSTALLPROPERTY
 installshield
@@ -207,6 +211,7 @@ KNOWNFOLDERID
 ktf
 ldcase
 learnxinyminutes
+libfuzzer
 libsolv
 libyaml
 Linq
@@ -305,6 +310,7 @@ nuffing
 objbase
 objidl
 ofile
+onefuzz
 ools
 oop
 OPTOUT
@@ -320,6 +326,7 @@ PCCERT
 PCs
 pcwsz
 PDWORD
+peetdev
 PEGI
 PFM
 pfxpath
@@ -471,6 +478,7 @@ VALUENAMECASE
 vclib
 VERSI
 VERSIE
+visualstudiocode
 vns
 vsconfig
 vstest

@@ -97,6 +97,9 @@
     <Filter Include="Rest\Schema\1_7">
       <UniqueIdentifier>{f42acfce-4fc0-435b-a9a2-bf5528aecbcc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_7\Json">
+      <UniqueIdentifier>{7fd6c265-81c0-4c6e-87b2-24bef117e21d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -411,6 +414,9 @@
     <ClInclude Include="Public\winget\PackageVersionSelection.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Rest\Schema\1_7\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_7\Json</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -646,6 +652,9 @@
     </ClCompile>
     <ClCompile Include="PackageVersionSelection.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_7\Json\ManifestDeserializer_1_7.cpp">
+      <Filter>Rest\Schema\1_7\Json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

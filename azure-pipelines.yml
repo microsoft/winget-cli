@@ -538,3 +538,57 @@ jobs:
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
     condition: succeededOrFailed()
+
+- job: 'Fuzzing'
+  timeoutInMinutes: 60
+  condition: not(eq(variables['Build.Reason'], 'PullRequest'))
+
+  strategy:
+    matrix:
+      x64:
+        buildConfiguration: 'Fuzzing'
+        buildPlatform: 'x64'
+      x86:
+        buildConfiguration: 'Fuzzing'
+        buildPlatform: 'x86'
+
+  variables:
+    buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
+    artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
+
+  steps:
+  - task: NuGetToolInstaller@1
+    displayName: Install Nuget
+
+  - task: NuGetCommand@2
+    displayName: Restore Solution
+    inputs:
+      restoreSolution: '$(solution)'
+
+  - task: VSBuild@1
+    displayName: Build Fuzzing Artifacts
+    inputs:
+      platform: '$(buildPlatform)'
+      solution: '$(solution)'
+      configuration: '$(buildConfiguration)'
+      msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog'
+
+  - task: CopyFiles@2
+    displayName: Copy Fuzzing Artifacts for Publishing
+    inputs:
+      SourceFolder: '$(buildOutDir)\WinGetYamlFuzzing'
+      Contents: '**'
+      TargetFolder: '$(artifactsDir)'
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Fuzzing Artifacts
+    inputs:
+      targetPath: '$(artifactsDir)'
+
+  - task: onefuzz-task@0
+    inputs:
+      onefuzzOSes: 'Windows'
+    env:
+      onefuzzDropDirectory: '$(buildOutDir)\WinGetYamlFuzzing'
+      onefuzzDropPAT: $(onefuzzDropPAT)
+      onefuzzFilingBugPAT: $(onefuzzBugFilingPAT)

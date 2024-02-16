@@ -139,7 +139,6 @@ namespace AppInstaller::Runtime
         }
     }
 
-#ifndef WINGET_DISABLE_FOR_FUZZING
     LocIndString GetOSVersion()
     {
         winrt::Windows::System::Profile::AnalyticsInfo analyticsInfo{};
@@ -165,7 +164,6 @@ namespace AppInstaller::Runtime
         winrt::Windows::Globalization::GeographicRegion region;
         return Utility::ConvertToUTF8(region.CodeTwoLetter());
     }
-#endif
 
     bool IsCurrentOSVersionGreaterThanOrEqual(const Utility::Version& version)
     {
@@ -209,14 +207,5 @@ namespace AppInstaller::Runtime
     bool IsRunningAsSystem()
     {
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_LOCAL_SYSTEM_RID);
-    }
-
-    constexpr bool IsReleaseBuild()
-    {
-#ifdef WINGET_ENABLE_RELEASE_BUILD
-        return true;
-#else
-        return false;
-#endif
     }
 }
