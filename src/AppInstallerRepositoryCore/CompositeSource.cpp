@@ -394,15 +394,15 @@ namespace AppInstaller::Repository
             {
                 std::vector<PackageVersionKey> result;
 
-                auto processSinglePackage = [&](const PinnablePackage& package)
+                auto processSinglePackage = [&](const std::shared_ptr<IPackage>& package)
                     {
-                        auto versionKeys = package.GetAvailableVersionKeys();
+                        auto versionKeys = package->GetAvailableVersionKeys();
                         std::copy(versionKeys.begin(), versionKeys.end(), std::back_inserter(result));
                     };
 
                 if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide) && m_primaryAvailablePackage)
                 {
-                    processSinglePackage(m_primaryAvailablePackage.value());
+                    processSinglePackage(m_primaryAvailablePackage);
                 }
                 else
                 {
