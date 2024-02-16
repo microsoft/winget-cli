@@ -188,11 +188,23 @@
           "maxLength": 2048,
           "description": "Custom switches will be passed directly to the installer by winget"
         },
-        "Repair" : {
+        "Repair": {
           "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 512,
           "description": "The 'Repair' value must be passed to the installer, ModifyPath ARP command, or uninstaller ARP command when the user opts for a repair."
+        },
+        "ScopeUser": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "ScopeUser is the value that should be passed to the installer when user chooses a machine-scoped install"
+        },
+        "ScopeMachine": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "ScopeMachine is the value that should be passed to the installer when user chooses a machine-scoped install"
         }
       }
     },

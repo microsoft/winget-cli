@@ -114,6 +114,24 @@ namespace AppInstaller::CLI::Workflow
                 installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Log);
             }
 
+            // Manifests may specify arguments to be used in a specific scope
+            // Try and get the scope from the selected installer
+            Manifest::ScopeEnum scope = installer->Scope;
+            
+            // If the scope is unknown, default to the user scope
+            // The scope should never be unknown if the scope switch is specified, so defaulting to user is just for sanity
+            Manifest::InstallerSwitchType scopeSwitch = InstallerSwitchType::ScopeUser;
+            if (scope == ScopeEnum::Machine)
+            {
+                scopeSwitch = InstallerSwitchType::ScopeMachine;
+            }
+
+            // Construct scope arg.
+            if (installerSwitches.find(scopeSwitch) != installerSwitches.end())
+            {
+                installerArgs += ' ' + installerSwitches.at(scopeSwitch);
+            }
+
             // Construct custom arg.
             if (installerSwitches.find(InstallerSwitchType::Custom) != installerSwitches.end())
             {

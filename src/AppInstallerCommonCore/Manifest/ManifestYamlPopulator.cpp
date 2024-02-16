@@ -408,6 +408,8 @@ namespace AppInstaller::Manifest
             if (m_manifestVersion.get() >= ManifestVer{s_ManifestVersionV1_7})
             {
                 result.emplace_back("Repair", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::Repair] = value.as<std::string>(); return{}; });
+                result.emplace_back("ScopeUser", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::ScopeUser] = value.as<std::string>(); return{}; });
+                result.emplace_back("ScopeMachine", [](const YAML::Node& value, const VariantManifestPtr& v)->ValidationErrors { (*variant_ptr<std::map<InstallerSwitchType, Utility::NormalizedString>>(v))[InstallerSwitchType::ScopeMachine] = value.as<std::string>(); return{}; });
             };
         }
 
@@ -1141,7 +1143,26 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            m_manifest.get().Installers.emplace_back(std::move(installer));
+            // If the installer scope is unknown, it may apply to any scope
+            // Therefore, if there are scope-specific switches, make separate installers for each scope
+            if (installer.Scope == ScopeEnum::Unknown && 
+                (installer.Switches.find(InstallerSwitchType::ScopeUser) != installer.Switches.end() ||
+                installer.Switches.find(InstallerSwitchType::ScopeMachine) != installer.Switches.end())
+                )
+            {
+                std::vector<ScopeEnum> virtualizedScopes = { ScopeEnum::User, ScopeEnum::Machine };
+                for (ScopeEnum virtualScope : virtualizedScopes)
+                {
+                    
+                    ManifestInstaller virtualInstaller = installer;
+                    virtualInstaller.Scope = virtualScope;
+                    m_manifest.get().Installers.emplace_back(std::move(virtualInstaller));
+                }
+            }
+            else
+            {
+                m_manifest.get().Installers.emplace_back(std::move(installer));
+            }
         }
 
         // Populate additional localizations

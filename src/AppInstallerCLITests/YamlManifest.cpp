@@ -259,6 +259,8 @@ namespace
             if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
             {
                 REQUIRE(defaultSwitches.at(InstallerSwitchType::Repair) == "/repair");
+                REQUIRE(defaultSwitches.at(InstallerSwitchType::ScopeUser) == "/user");
+                REQUIRE(defaultSwitches.at(InstallerSwitchType::ScopeMachine) == "/machine");
                 REQUIRE(manifest.DefaultInstallerInfo.RepairBehavior == RepairBehaviorEnum::Modify);
             }
         }
@@ -372,6 +374,8 @@ namespace
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_7 })
         {
             REQUIRE(installer1.Switches.at(InstallerSwitchType::Repair) == "/r");
+            REQUIRE(installer1.Switches.at(InstallerSwitchType::ScopeUser) == "/usr");
+            REQUIRE(installer1.Switches.at(InstallerSwitchType::ScopeMachine) == "/mch");
             REQUIRE(installer1.RepairBehavior == RepairBehaviorEnum::Modify);
         }
 
@@ -457,6 +461,8 @@ namespace
                 {
                     REQUIRE(installer2.RepairBehavior == RepairBehaviorEnum::Uninstaller);
                     REQUIRE(installer2.Switches.at(InstallerSwitchType::Repair) == "/r");
+                    REQUIRE(installer2.Switches.at(InstallerSwitchType::ScopeUser) == "/usr");
+                    REQUIRE(installer2.Switches.at(InstallerSwitchType::ScopeMachine) == "/mch");
 
                     ManifestInstaller installer5 = manifest.Installers.at(4);
                     REQUIRE(installer5.BaseInstallerType == InstallerTypeEnum::Burn);
@@ -465,6 +471,8 @@ namespace
                     REQUIRE(installer5.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
                     REQUIRE(installer5.ProductCode == "{Bar}");
                     REQUIRE(installer5.Switches.at(InstallerSwitchType::Repair) == "/repair");
+                    REQUIRE(installer5.Switches.at(InstallerSwitchType::ScopeUser) == "/user");
+                    REQUIRE(installer5.Switches.at(InstallerSwitchType::ScopeMachine) == "/machine");
                     REQUIRE(installer5.RepairBehavior == RepairBehaviorEnum::Modify);
                 }
             }

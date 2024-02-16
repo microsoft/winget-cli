@@ -55,6 +55,8 @@ InstallerSwitches:
   InstallLocation: /dir=<INSTALLPATH>
   Upgrade: /upgrade
   Repair: /repair
+  ScopeUser: /user
+  ScopeMachine: /machine
 InstallerSuccessCodes:
   - 1
   - 0x80070005
@@ -147,6 +149,8 @@ Installers:
       InstallLocation: /d=<INSTALLPATH>
       Upgrade: /u
       Repair: /r
+      ScopeUser: /usr
+      ScopeMachine: /mch
     UpgradeBehavior: install
     Commands:
       - makemsixPreview

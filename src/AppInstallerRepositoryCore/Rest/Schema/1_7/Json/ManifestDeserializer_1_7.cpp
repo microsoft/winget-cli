@@ -13,6 +13,21 @@ namespace AppInstaller::Repository::Rest::Schema::V1_7::Json
         // Installer
         constexpr std::string_view InstallerSwitchRepair = "Repair"sv;
         constexpr std::string_view RepairBehavior = "RepairBehavior"sv;
+        constexpr std::string_view ScopeUser = "ScopeUser"sv;
+        constexpr std::string_view ScopeMachine = "ScopeMachine"sv;
+        void TryParseInstallerSwitchField(
+            std::map<InstallerSwitchType, Utility::NormalizedString>& installerSwitches,
+            InstallerSwitchType switchType,
+            const web::json::value& switchesJsonObject,
+            std::string_view switchJsonFieldName)
+        {
+            auto value = JSON::GetRawStringValueFromJsonNode(switchesJsonObject, JSON::GetUtilityString(switchJsonFieldName));
+
+            if (JSON::IsValidNonEmptyStringValue(value))
+            {
+                installerSwitches[switchType] = value.value();
+            }
+        }
     }
 
     std::optional<Manifest::ManifestInstaller> ManifestDeserializer::DeserializeInstaller(const web::json::value& installerJsonObject) const
@@ -33,12 +48,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_7::Json
     {
         auto installerSwitches = V1_6::Json::ManifestDeserializer::DeserializeInstallerSwitches(installerSwitchesJsonObject);
 
-        auto repairValue = JSON::GetRawStringValueFromJsonNode(installerSwitchesJsonObject, JSON::GetUtilityString(InstallerSwitchRepair));
-
-        if (JSON::IsValidNonEmptyStringValue(repairValue))
-        {
-            installerSwitches[Manifest::InstallerSwitchType::Repair] = repairValue.value();
-        }
+        TryParseInstallerSwitchField(installerSwitches, InstallerSwitchType::Repair, installerSwitchesJsonObject, InstallerSwitchRepair);
+        TryParseInstallerSwitchField(installerSwitches, InstallerSwitchType::ScopeUser, installerSwitchesJsonObject, ScopeUser);
+        TryParseInstallerSwitchField(installerSwitches, InstallerSwitchType::ScopeMachine, installerSwitchesJsonObject, ScopeMachine);
 
         return installerSwitches;
     }
