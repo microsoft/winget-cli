@@ -1,0 +1,70 @@
+# Code coverage pipeline required by OneFuzz
+pr: none
+trigger: none
+
+pool:
+  vmImage: windows-latest
+
+parameters:
+  - name: sasUrl
+    type: string
+    displayName: SAS URL
+  - name: branch
+    type: string
+    displayName: Branch
+  - name: jobID
+    type: string
+    displayName: OneFuzz Job ID
+  - name: buildDate
+    type: string
+    displayName: Build Date
+  - name: commitID
+    type: string
+    displayName: Commit ID
+
+variables:
+  - name: coverage-file
+    value: cobertura-coverage.xml
+  - name: job-ID 
+    value: ${{ parameters.jobID }}
+  - name: build-date 
+    value: ${{ parameters.buildDate }}
+  - name: branch
+    value: ${{ parameters.branch }}
+  - name: sas-url
+    value: ${{ parameters.sasUrl }}
+  - name: commit-ID
+    value: ${{ parameters.commitID }}
+
+jobs:
+- job: prod
+  displayName: Prod Task
+  steps:
+  # Get source code
+  - script: |
+        git clone https://github.com/microsoft/winget-cli.git
+        git checkout $(commit-ID)
+    displayName: 'Clone winget-cli'
+
+  # Get code coverage from OneFuzz for the job
+  - powershell: |
+      Write-Host "Job ID: $(job-ID), Build Date: $(build-date), Branch: $(branch)"
+      $SASUrl = [System.Uri]::new("$(sas-url)")
+      azcopy cp $SASUrl.AbsoluteUri ./ --recursive
+      $ContainerName = $SASURL.LocalPath.Split("/")[1]
+      Write-Host "##vso[task.setvariable variable=container-name;]$ContainerName"
+      cd $ContainerName
+      $size = ((Get-Item .\$(coverage-file)).length)
+      if ($size -eq 0) {
+        Write-Host "Cobertura coverage XML is empty."
+        exit 1
+      }
+    displayName: PowerShell script to get coverage
+
+  # Use Cobertura report generator
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'Cobertura'
+      summaryFileLocation: ./$(container-name)\$(coverage-file)
+      pathToSources: $(System.DefaultWorkingDirectory)
+    displayName: Built in ADO Task that uses ReportGenerator
