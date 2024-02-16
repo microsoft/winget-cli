@@ -6,11 +6,12 @@
 
 namespace AppInstaller::Repository
 {
-    // Gets an IPackage that represents the available package versions for the installed version.
+    // Gets an IPackageVersionCollection that represents the available package versions for the installed version.
+    // If we have tracking data, will remove packages not from the tracked source. Will also remove versions that do not correspond to the tracked channel.
     // This function uses the latest installed version as a temporary convenience until side-by-side is implemented.
     std::shared_ptr<IPackageVersionCollection> GetAvailableVersionsForInstalledVersion(const std::shared_ptr<ICompositePackage>& composite);
 
-    // Gets an IPackage that represents the available package versions for the given installed version.
+    // Gets an IPackageVersionCollection that represents the available package versions for the given installed version.
     std::shared_ptr<IPackageVersionCollection> GetAvailableVersionsForInstalledVersion(
         const std::shared_ptr<ICompositePackage>& composite,
         const std::shared_ptr<IPackageVersion>& installedVersion);

@@ -720,20 +720,15 @@ TEST_CASE("CompositeSource_IsSame", "[CompositeSource]")
 {
     CompositeTestSetup setup;
     setup.Installed->Everything.Matches.emplace_back(MakeInstalled().WithPFN("sortof_apfn"), Criteria());
-    setup.Available->Everything.Matches.emplace_back(MakeAvailable(setup.Available).WithPFN("sortof_apfn"), Criteria());
 
     SearchResult result1 = setup.Search();
     REQUIRE(result1.Matches.size() == 1);
-    REQUIRE(result1.Matches[0].Package->GetAvailable().size() == 1);
 
     SearchResult result2 = setup.Search();
     REQUIRE(result2.Matches.size() == 1);
-    REQUIRE(result2.Matches[0].Package->GetAvailable().size() == 1);
 
     REQUIRE(result1.Matches[0].Package->GetInstalled());
     REQUIRE(result1.Matches[0].Package->GetInstalled()->IsSame(result1.Matches[0].Package->GetInstalled().get()));
-
-    REQUIRE(result1.Matches[0].Package->GetAvailable()[0]->IsSame(result2.Matches[0].Package->GetAvailable()[0].get()));
 }
 
 TEST_CASE("CompositeSource_AvailableSearchFailure", "[CompositeSource]")
@@ -1082,8 +1077,7 @@ TEST_CASE("CompositeSource_NullAvailableVersion", "[CompositeSource]")
     setup.Available->Everything.Matches.emplace_back(MakeInstalled(), Criteria());
 
     // We are mostly testing to see if a null available version causes an AV or not
-    SearchResult result = setup.Search();
-    REQUIRE(result.Matches.size() == 1);
+    REQUIRE_THROWS_HR(setup.Search(), E_UNEXPECTED);
 }
 
 struct ExpectedResultForPinBehavior

@@ -101,8 +101,8 @@ namespace TestCommon
         std::shared_ptr<AppInstaller::Repository::IPackage> GetInstalled() override;
         std::vector<std::shared_ptr<AppInstaller::Repository::IPackage>> GetAvailable() override;
 
-        std::shared_ptr<AppInstaller::Repository::IPackage> Installed;
-        std::vector<std::shared_ptr<AppInstaller::Repository::IPackage>> Available;
+        std::shared_ptr<TestPackage> Installed;
+        std::vector<std::shared_ptr<TestPackage>> Available;
     };
 
     // An ISource implementation for use across the test code.

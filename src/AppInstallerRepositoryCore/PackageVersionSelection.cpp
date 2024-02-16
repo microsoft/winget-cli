@@ -13,7 +13,7 @@ namespace AppInstaller::Repository
         {
             for (const std::shared_ptr<IPackage>& package : packages)
             {
-                if (sourceIdentifier != package->GetSource().GetIdentifier())
+                if (sourceIdentifier == package->GetSource().GetIdentifier())
                 {
                     return package;
                 }
@@ -34,9 +34,12 @@ namespace AppInstaller::Repository
 
                 m_channel = installedVersion->GetProperty(PackageVersionProperty::Channel);
 
-                // Remove the packages not from this source.
+                // Remove the packages that are not from the installed source.
                 Source installedVersionSource = installedVersion->GetSource();
-                m_packages.erase(std::remove_if(m_packages.begin(), m_packages.end(), [&](const std::shared_ptr<IPackage>& p) { return installedVersionSource != p->GetSource(); }), m_packages.end());
+                if (installedVersionSource && installedVersionSource.ContainsAvailablePackages())
+                {
+                    m_packages.erase(std::remove_if(m_packages.begin(), m_packages.end(), [&](const std::shared_ptr<IPackage>& p) { return installedVersionSource != p->GetSource(); }), m_packages.end());
+                }
             }
 
             std::vector<PackageVersionKey> GetVersionKeys() const override

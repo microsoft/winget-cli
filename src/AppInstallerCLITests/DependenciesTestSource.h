@@ -188,9 +188,9 @@ namespace TestCommon
                 //auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(
+                        TestCompositePackage::Make(
                             manifest,
-                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            TestCompositePackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
                             std::vector<Manifest>{ manifest },
                             shared_from_this()
                         ),
@@ -200,7 +200,7 @@ namespace TestCommon
             {
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(
+                        TestCompositePackage::Make(
                             std::vector<Manifest>{ manifest },
                             shared_from_this()
                         ),

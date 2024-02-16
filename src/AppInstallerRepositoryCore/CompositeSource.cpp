@@ -40,7 +40,7 @@ namespace AppInstaller::Repository
             std::vector<std::shared_ptr<IPackage>> availablePackages = composite->GetAvailable();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-            THROW_HR_IF(E_UNEXPECTED, composite->GetInstalled() || availablePackages.size() != 1);
+            THROW_HR_IF(E_UNEXPECTED, availablePackages.size() != 1);
 #endif
 
             return std::move(availablePackages.front());
@@ -511,6 +511,11 @@ namespace AppInstaller::Repository
                 m_trackingSource = std::move(trackingSource);
                 m_trackingPackage = std::move(trackingPackage);
                 m_trackingPackageVersion = std::move(trackingPackageVersion);
+            }
+
+            const Source& GetTrackingSource() const
+            {
+                return m_trackingSource;
             }
 
         private:
@@ -1023,9 +1028,14 @@ namespace AppInstaller::Repository
                     continue;
                 }
 
-                auto compositePackage = std::make_shared<CompositePackage>(match.Package);
+                std::shared_ptr<CompositePackage> compositePackage = std::make_shared<CompositePackage>(match.Package);
+                std::shared_ptr<IPackageVersion> installedVersion;
 
-                auto installedVersion = compositePackage->GetInstalled()->GetLatestVersion();
+                auto installedPackage = compositePackage->GetInstalled();
+                if (installedPackage)
+                {
+                    installedVersion = installedPackage->GetLatestVersion();
+                }
 
                 if (!installedVersion)
                 {
@@ -1049,6 +1059,7 @@ namespace AppInstaller::Repository
                     std::shared_ptr<IPackage> trackingPackage;
                     std::shared_ptr<IPackageVersion> trackingPackageVersion;
                     std::chrono::system_clock::time_point trackingPackageTime;
+                    bool foundAvailablePackageFromTracking = false;
 
                     // Check the tracking catalog first to see if there is a correlation there.
                     // TODO: When the issue with support for multiple available packages is fixed, this should move into
@@ -1089,6 +1100,7 @@ namespace AppInstaller::Repository
                         if (availablePackage)
                         {
                             compositePackage->AddAvailablePackage(std::move(availablePackage));
+                            foundAvailablePackageFromTracking = true;
                         }
                         compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), std::move(trackingPackageVersion));
                     }
@@ -1098,6 +1110,12 @@ namespace AppInstaller::Repository
                     {
                         // Do not attempt to correlate local packages against this source
                         if (!source.GetDetails().SupportInstalledSearchCorrelation)
+                        {
+                            continue;
+                        }
+
+                        // Skip the source that the tracking correlation result came from if we found one
+                        if (foundAvailablePackageFromTracking && compositePackage->GetTrackingSource() == source)
                         {
                             continue;
                         }

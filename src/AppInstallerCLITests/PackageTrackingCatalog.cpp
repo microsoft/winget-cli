@@ -86,8 +86,9 @@ TEST_CASE("TrackingCatalog_Install", "[tracking_catalog]")
 
     SearchResult resultAfter = catalog.Search(request);
     REQUIRE(resultAfter.Matches.size() == 1);
+    REQUIRE(resultAfter.Matches[0].Package->GetAvailable().size() == 1);
 
-    auto trackingVersion = resultAfter.Matches[0].Package->GetLatestAvailableVersion();
+    auto trackingVersion = resultAfter.Matches[0].Package->GetAvailable()[0]->GetLatestVersion();
     REQUIRE(trackingVersion);
 
     auto metadata = trackingVersion->GetMetadata();
@@ -113,7 +114,8 @@ TEST_CASE("TrackingCatalog_Reinstall", "[tracking_catalog]")
 
     SearchResult resultBefore = catalog.Search(request);
     REQUIRE(resultBefore.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name) ==
+    REQUIRE(resultBefore.Matches[0].Package->GetAvailable().size() == 1);
+    REQUIRE(resultBefore.Matches[0].Package->GetAvailable()[0]->GetLatestVersion()->GetProperty(PackageVersionProperty::Name) ==
         manifest.DefaultLocalization.Get<Localization::PackageName>());
 
     // Change name
@@ -124,7 +126,8 @@ TEST_CASE("TrackingCatalog_Reinstall", "[tracking_catalog]")
 
     SearchResult resultAfter = catalog.Search(request);
     REQUIRE(resultAfter.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name) ==
+    REQUIRE(resultAfter.Matches[0].Package->GetAvailable().size() == 1);
+    REQUIRE(resultAfter.Matches[0].Package->GetAvailable()[0]->GetLatestVersion()->GetProperty(PackageVersionProperty::Name) ==
         newName);
 }
 
@@ -147,17 +150,19 @@ TEST_CASE("TrackingCatalog_Upgrade", "[tracking_catalog]")
 
     SearchResult resultBefore = catalog.Search(request);
     REQUIRE(resultBefore.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version) ==
+    REQUIRE(resultBefore.Matches[0].Package->GetAvailable().size() == 1);
+    REQUIRE(resultBefore.Matches[0].Package->GetAvailable()[0]->GetLatestVersion()->GetProperty(PackageVersionProperty::Version) ==
         manifest.Version);
 
-    // Change name
+    // Change version
     manifest.Version = "99.1.2.3";
 
     catalog.RecordInstall(manifest, manifest.Installers[0], true);
 
     SearchResult resultAfter = catalog.Search(request);
     REQUIRE(resultAfter.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version) ==
+    REQUIRE(resultAfter.Matches[0].Package->GetAvailable().size() == 1);
+    REQUIRE(resultAfter.Matches[0].Package->GetAvailable()[0]->GetLatestVersion()->GetProperty(PackageVersionProperty::Version) ==
         manifest.Version);
 }
 

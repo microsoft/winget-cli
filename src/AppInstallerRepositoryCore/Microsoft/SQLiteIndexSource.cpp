@@ -365,7 +365,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::vector<std::shared_ptr<IPackage>> GetAvailable() override
             {
-                return m_isInstalled ? std::vector<std::shared_ptr<IPackage>>{ shared_from_this() } : std::vector<std::shared_ptr<IPackage>>{};
+                return m_isInstalled ? std::vector<std::shared_ptr<IPackage>>{} : std::vector<std::shared_ptr<IPackage>>{ shared_from_this() };
             }
 
         private:

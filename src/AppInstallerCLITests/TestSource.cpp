@@ -285,7 +285,7 @@ namespace TestCommon
 
     std::vector<std::shared_ptr<AppInstaller::Repository::IPackage>> TestCompositePackage::GetAvailable()
     {
-        return Available;
+        return { Available.begin(), Available.end() };
     }
 
     const SourceDetails& TestSource::GetDetails() const
