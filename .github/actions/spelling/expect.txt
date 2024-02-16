@@ -34,6 +34,7 @@ Atest
 ATL
 AUrl
 Authenticode
+azcopy
 azurewebsites
 bcp
 BEFACEF
@@ -66,6 +67,7 @@ CLOSEAPP
 cloudapp
 clsctx
 clsid
+cobertura
 CODEOWNERS
 COINIT
 COMGLB
@@ -386,6 +388,7 @@ runtimeclass
 ryfu
 rzkzqaqjwj
 SARL
+SASURL
 schematab
 sddl
 SECUREFILEPATH
