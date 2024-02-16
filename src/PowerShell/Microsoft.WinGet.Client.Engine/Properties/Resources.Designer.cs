@@ -232,20 +232,20 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Downloading &apos;{0}&apos;.
-        /// </summary>
-        internal static string ProgressRecordActivityDownloading {
-            get {
-                return ResourceManager.GetString("ProgressRecordActivityDownloading", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Installing &apos;{0}&apos;.
         /// </summary>
         internal static string ProgressRecordActivityInstalling {
             get {
                 return ResourceManager.GetString("ProgressRecordActivityInstalling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saving &apos;{0}&apos;.
+        /// </summary>
+        internal static string ProgressRecordActivitySaving {
+            get {
+                return ResourceManager.GetString("ProgressRecordActivitySaving", resourceCulture);
             }
         }
         

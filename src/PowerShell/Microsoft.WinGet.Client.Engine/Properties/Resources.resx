@@ -240,8 +240,8 @@
     <value>Cannot find asset {0}</value>
     <comment>{Locked="{0}"} {0} - The asset name</comment>
   </data>
-  <data name="ProgressRecordActivityDownloading" xml:space="preserve">
-    <value>Downloading '{0}'</value>
-    <comment>{Locked="{0}"} {0} - The name of the package being downloaded.</comment>
+  <data name="ProgressRecordActivitySaving" xml:space="preserve">
+    <value>Saving '{0}'</value>
+    <comment>{Locked="{0}"} {0} - The name of the package being saved.</comment>
   </data>
 </root>

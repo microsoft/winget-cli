@@ -136,7 +136,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         private DownloadOptions GetDownloadOptions(PackageVersionId? version)
         {
             var options = ManagementDeploymentFactory.Instance.CreateDownloadOptions();
-
             if (version != null)
             {
                 options.PackageVersionId = version;
@@ -157,7 +156,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             CatalogPackage package,
             DownloadOptions options)
         {
-            var activity = string.Format(Resources.ProgressRecordActivityDownloading, package.Name);
+            var activity = string.Format(Resources.ProgressRecordActivitySaving, package.Name);
             var progressOperation = new DownloadOperationWithProgress(this, activity);
             return await progressOperation.ExecuteAsync(
                 () => PackageManagerWrapper.Instance.DownloadPackageAsync(package, options));
