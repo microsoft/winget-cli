@@ -28,6 +28,15 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),    // -ignore-local-archive-malware-scan
             Argument::ForType(Args::Type::AcceptSourceAgreements),           // -accept-source-agreements
             Argument::ForType(Args::Type::Locale),
+            Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AuthenticationMode),
+            Argument::ForType(Args::Type::AuthenticationAccount),
+            Argument::ForType(Args::Type::InstallScope),
+            Argument::ForType(Args::Type::ProductCode),
+            Argument::ForType(Args::Type::Force),
+            Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::Exact),
+            Argument::ForType(Args::Type::Channel),
         };
     }
 
@@ -102,10 +111,10 @@ namespace AppInstaller::CLI
                 Workflow::SearchSourceForSingle <<
                 Workflow::HandleSearchResultFailures <<
                 Workflow::EnsureOneMatchFromSearchResult(OperationType::Repair) <<
+                Workflow::ReportPackageIdentity <<
                 Workflow::GetInstalledPackageVersion <<
                 Workflow::SelectApplicablePackageVersion(true) <<
                 Workflow::EnsureApplicableInstaller <<
-                Workflow::ReportPackageIdentity <<
                 Workflow::RepairSinglePackage(OperationType::Repair);
         }
     }

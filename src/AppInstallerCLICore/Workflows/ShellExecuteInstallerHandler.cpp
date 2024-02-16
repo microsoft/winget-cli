@@ -353,7 +353,7 @@ namespace AppInstaller::CLI::Workflow
 
            if (scopeEnum == ScopeEnum::User)
            {
-                context.Reporter.Warn() << Resource::String::NoAdminRepairForUserScopePackage << std::endl;
+                context.Reporter.Error() << Resource::String::NoAdminRepairForUserScopePackage << std::endl;
                 AICLI_TERMINATE_CONTEXT(E_ABORT);
            }
         }
@@ -371,7 +371,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!repairResult)
         {
-            context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
+            context.Reporter.Error() << Resource::String::RepairAbandoned << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else
@@ -426,7 +426,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!repairResult)
             {
-                context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
+                context.Reporter.Error() << Resource::String::RepairAbandoned << std::endl;
                 AICLI_TERMINATE_CONTEXT(E_ABORT);
             }
             else

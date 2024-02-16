@@ -208,8 +208,6 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_AUTHENTICATION_INTERACTIVE_REQUIRED, "Authentication failed. Interactive authentication required."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER, "Authentication failed. User cancelled."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT, "Authentication failed. Authenticated account is not the desired account."),
-
-            // Repair errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND, "Repair command not found."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE, "Repair operation is not applicable."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED, "Repair operation failed."),

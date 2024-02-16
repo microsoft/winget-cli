@@ -748,6 +748,8 @@ namespace AppInstaller::Logging
             
             }
         }
+
+        AICLI_LOG(CLI, Error, << type << " repair failed: " << errorCode);
     }
 
     TelemetryTraceLogger::~TelemetryTraceLogger()
@@ -823,6 +825,8 @@ namespace AppInstaller::Logging
                     AICLI_TraceLoggingStringView(m_summary.ARPPublisher, "ARPPublisher"),
                     AICLI_TraceLoggingStringView(m_summary.DOUrl, "DOUrl"),
                     TraceLoggingHResult(m_summary.DOHResult, "DOHResult"),
+                    AICLI_TraceLoggingStringView(m_summary.RepairExecutionType, "RepairExecutionType"),
+                    TraceLoggingUInt32(m_summary.RepairErrorCode, "RepairErrorCode"),
                     TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
                     TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
             }
