@@ -189,7 +189,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_inputHash = std::move(inputHash);
     }
 
-    std::string ConfigurationSet::GetInputHash() const
+    const std::string& ConfigurationSet::GetInputHash() const
     {
         return m_inputHash;
     }

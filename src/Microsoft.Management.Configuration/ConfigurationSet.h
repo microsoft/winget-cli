@@ -69,7 +69,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void SetInputHash(std::string inputHash);
-        std::string GetInputHash() const;
+        const std::string& GetInputHash() const;
 
     private:
         hstring m_name;
