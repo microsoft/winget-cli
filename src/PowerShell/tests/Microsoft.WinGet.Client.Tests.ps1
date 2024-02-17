@@ -355,7 +355,7 @@ Describe 'Get-WinGetPackage' {
    }
 }
 
-Describe 'Save-WinGetPackage' {
+Describe 'Export-WinGetPackage' {
 
     BeforeAll {
         AddTestSource
@@ -363,7 +363,7 @@ Describe 'Save-WinGetPackage' {
 
     It 'Download by Id' {
         $testDirectory = GetRandomTestDirectory
-        $result = Save-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0' -DownloadDirectory $testDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0' -DownloadDirectory $testDirectory
         
         $result | Should -Not -BeNullOrEmpty
         $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
@@ -378,7 +378,7 @@ Describe 'Save-WinGetPackage' {
 
     It 'Download by Locale' {
         $testDirectory = GetRandomTestDirectory
-        $result = Save-WinGetPackage -Id AppInstallerTest.TestMultipleInstallers -Locale 'zh-CN' -DownloadDirectory $testDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestMultipleInstallers -Locale 'zh-CN' -DownloadDirectory $testDirectory
 
         $result | Should -Not -BeNullOrEmpty
         $result.Id | Should -Be "AppInstallerTest.TestMultipleInstallers"
@@ -392,7 +392,7 @@ Describe 'Save-WinGetPackage' {
 
     It 'Download by InstallerType' {
         $testDirectory = GetRandomTestDirectory
-        $result = Save-WinGetPackage -Id AppInstallerTest.TestMultipleInstallers -InstallerType 'msi' -DownloadDirectory $testDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestMultipleInstallers -InstallerType 'msi' -DownloadDirectory $testDirectory
 
         $result | Should -Not -BeNullOrEmpty
         $result.Id | Should -Be "AppInstallerTest.TestMultipleInstallers"
@@ -406,7 +406,7 @@ Describe 'Save-WinGetPackage' {
 
     It 'Download by InstallerType that does not exist' {
         $testDirectory = GetRandomTestDirectory
-        $result = Save-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0' -InstallerType 'zip' -DownloadDirectory $testDirectory
+        $result = Export-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0' -InstallerType 'zip' -DownloadDirectory $testDirectory
 
         $result | Should -Not -BeNullOrEmpty
         $result.Id | Should -Be "AppInstallerTest.TestExeInstaller"
@@ -419,7 +419,7 @@ Describe 'Save-WinGetPackage' {
 
     AfterEach {
         if (Test-Path $testDirectory) {
-            Remove-Item $testDirectory -Force -Confirm
+            Remove-Item $testDirectory -Force -Recurse
         }
     }
 }

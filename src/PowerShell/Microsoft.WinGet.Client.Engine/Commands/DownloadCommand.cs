@@ -156,7 +156,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             CatalogPackage package,
             DownloadOptions options)
         {
-            var activity = string.Format(Resources.ProgressRecordActivitySaving, package.Name);
+            var activity = string.Format(Resources.ProgressRecordActivityExporting, package.Name);
             var progressOperation = new DownloadOperationWithProgress(this, activity);
             return await progressOperation.ExecuteAsync(
                 () => PackageManagerWrapper.Instance.DownloadPackageAsync(package, options));

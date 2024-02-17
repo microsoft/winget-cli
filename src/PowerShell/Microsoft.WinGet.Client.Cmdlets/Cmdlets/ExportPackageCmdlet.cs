@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="SavePackageCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="ExportPackageCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -15,12 +15,12 @@ namespace Microsoft.WinGet.Client.Commands
     /// Downloads a package installer from the pipeline or from a configured source.
     /// </summary>
     [Cmdlet(
-        VerbsData.Save,
+        VerbsData.Export,
         Constants.WinGetNouns.Package,
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
     [OutputType(typeof(PSDownloadResult))]
-    public sealed class SavePackageCmdlet : InstallerSelectionCmdlet
+    public sealed class ExportPackageCmdlet : InstallerSelectionCmdlet
     {
         private DownloadCommand command = null;
 

@@ -95,7 +95,7 @@ CmdletsToExport = @(
     'Add-WinGetSource'
     'Remove-WinGetSource'
     'Reset-WinGetSource'
-    'Save-WinGetPackage'
+    'Export-WinGetPackage'
 )
 
 # Variables to export from this module
