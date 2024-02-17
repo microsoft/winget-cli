@@ -41,19 +41,19 @@ namespace AppInstaller::CLI::Workflow
 
         // This function performs a preliminary check on the available matching package by reading its manifest entries for repair behavior to determine the type of repair operation and repair switch are applicable
         // RequiredArgs:None
-        // Inputs:InstallerType, ReparBehavior
+        // Inputs:InstallerType, RepairBehavior
         // Outputs:None
         void ApplicabilityCheckForAvailablePackage(Execution::Context& context);
 
         // Generate the repair string based on the repair behavior and installer type.
         // RequiredArgs:None
-        // Inputs:BaseInstallerType, ReparBehavior, ModifyPath?, UninstallString?, InstallerArgs
+        // Inputs:BaseInstallerType, RepairBehavior, ModifyPath?, UninstallString?, InstallerArgs
         // Outputs:RepairString
         void GenerateRepairString(Execution::Context& context);
 
         // Execute the repair operation for RepairBehavior based installers.
         // RequiredArgs:None
-        // Inputs: ReparBehavior, RepairString
+        // Inputs: RepairBehavior, RepairString
         // Outputs:None
         void RunRepairForRepairBehaviorBasedInstallers(Execution::Context& context);
     }
