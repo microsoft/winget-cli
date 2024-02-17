@@ -348,7 +348,7 @@ namespace AppInstaller::CLI::Workflow
         std::wstring commandUtf16 = Utility::ConvertToUTF16(context.Get<Execution::Data::RepairString>());
 
         // When running as admin, block attempt to repair user scope installed package. 
-        // [NOTE:] This check is to address the security concern realted to the scenario.
+        // [NOTE:] This check is to address the security concern related to above scenario.
         if (Runtime::IsRunningAsAdmin())
         {
             auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();

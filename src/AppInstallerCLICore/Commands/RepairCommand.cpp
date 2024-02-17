@@ -103,7 +103,7 @@ namespace AppInstaller::CLI
                 Workflow::GetInstalledPackageVersion <<
                 Workflow::SelectInstaller <<
                 Workflow::EnsureApplicableInstaller <<
-                Workflow::RepairSinglePackage(OperationType::Repair);
+                Workflow::RepairSinglePackage;
         }
         else
         {
@@ -113,9 +113,9 @@ namespace AppInstaller::CLI
                 Workflow::EnsureOneMatchFromSearchResult(OperationType::Repair) <<
                 Workflow::ReportPackageIdentity <<
                 Workflow::GetInstalledPackageVersion <<
-                Workflow::SelectApplicablePackageVersion(true) <<
+                Workflow::SelectApplicablePackageVersion <<
                 Workflow::EnsureApplicableInstaller <<
-                Workflow::RepairSinglePackage(OperationType::Repair);
+                Workflow::RepairSinglePackage;
         }
     }
 }

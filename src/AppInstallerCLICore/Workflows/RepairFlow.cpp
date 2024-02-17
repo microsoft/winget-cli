@@ -98,7 +98,7 @@ namespace AppInstaller::CLI::Workflow
         void ApplicabilityCheckForInstalledPackage(Execution::Context& context)
         {
             // Installed Package repair applicability check
-            const auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+            const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
 
             const std::string installerType = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
             InstallerTypeEnum installerTypeEnum = ConvertToInstallerTypeEnum(installerType);
@@ -411,21 +411,19 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void RepairSinglePackage::operator()(Execution::Context& context) const
+    void RepairSinglePackage(Execution::Context& context)
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_operationType != OperationType::Repair);
-
         context <<
             RepairApplicabilityCheck <<
             GetRepairInfo <<
             ExecuteRepair;
     }
 
-    void SelectApplicablePackageVersion::operator()(Execution::Context& context) const
+    void SelectApplicablePackageVersion(Execution::Context& context)
     {
         auto package = context.Get<Execution::Data::Package>();
         auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
-        const bool reportVersionNotFound = m_isSinglePackage;
+        //const bool reportVersionNotFound = m_isSinglePackage;
 
         bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
 
@@ -444,7 +442,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (isRepair && installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
         {
-            if (reportVersionNotFound)
+            if (true) //reportVersionNotFound)
             {
                 context.Reporter.Info() << Resource::String::NoApplicableInstallers << std::endl;
             }
@@ -511,7 +509,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!versionFound)
         {
-            if (reportVersionNotFound)
+            if (true)//reportVersionNotFound)
             {
                 if (installedTypeInapplicable)
                 {
