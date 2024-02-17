@@ -2764,7 +2764,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ProxyArgumentDescription" xml:space="preserve">
     <value>Set a proxy to use for this execution</value>
   </data>
-  <data name="ProxyArgumentDescription" xml:space="preserve">
+  <data name="NoProxyArgumentDescription" xml:space="preserve">
     <value>Disable the use of proxy for this execution</value>
   </data>
 </root>
