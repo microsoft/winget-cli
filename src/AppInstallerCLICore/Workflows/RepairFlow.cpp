@@ -21,143 +21,213 @@ using namespace AppInstaller::Repository;
 
 namespace AppInstaller::CLI::Workflow
 {
-    void SetUninstallStringInContext(Execution::Context& context)
+    // Internal implementation details
+    namespace
     {
-        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-        IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
-
-        // Default to silent unless it is not present or interactivity is requested
-        auto uninstallCommandItr = packageMetadata.find(PackageVersionMetadata::SilentUninstallCommand);
-
-        if ((!context.Args.Contains(Execution::Args::Type::Silent) && uninstallCommandItr == packageMetadata.end())
-            || context.Args.Contains(Execution::Args::Type::Interactive))
+        void SetUninstallStringInContext(Execution::Context& context)
         {
-            auto interactiveItr = packageMetadata.find(PackageVersionMetadata::StandardUninstallCommand);
-            if (interactiveItr != packageMetadata.end())
+            const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+            IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
+
+            // Default to silent unless it is not present or interactivity is requested
+            auto uninstallCommandItr = packageMetadata.find(PackageVersionMetadata::SilentUninstallCommand);
+
+            if ((!context.Args.Contains(Execution::Args::Type::Silent) && uninstallCommandItr == packageMetadata.end())
+                || context.Args.Contains(Execution::Args::Type::Interactive))
             {
-                uninstallCommandItr = interactiveItr;
+                auto interactiveItr = packageMetadata.find(PackageVersionMetadata::StandardUninstallCommand);
+                if (interactiveItr != packageMetadata.end())
+                {
+                    uninstallCommandItr = interactiveItr;
+                }
             }
-        }
 
-        if (uninstallCommandItr == packageMetadata.end())
-        {
-            context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
-        }
-
-        context.Add<Execution::Data::UninstallString>(uninstallCommandItr->second);
-    }
-
-    void SetModifyPathInContext(Execution::Context& context)
-    {
-        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-        IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
-
-        // Default to silent unless it is not present or interactivity is requested
-        auto modifyPathItr = packageMetadata.find(PackageVersionMetadata::StandardModifyCommand);
-        if (modifyPathItr == packageMetadata.end())
-        {
-            context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
-        }
-
-        context.Add<Execution::Data::ModifyPath>(modifyPathItr->second);
-    }
-
-    void SetProductCodesInContext(Execution::Context& context)
-    {
-        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-        auto productCode = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
-
-        if (productCode.empty())
-        {
-            context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
-        }
-
-        context.Add<Execution::Data::ProductCodes>(productCode);
-    }
-
-    void SetPackageFamilyNamesInContext(Execution::Context& context)
-    {
-        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-
-        auto packageFamilyNames = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
-        if (packageFamilyNames.empty())
-        {
-            context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
-        }
-
-        context.Add<Execution::Data::PackageFamilyNames>(packageFamilyNames);
-    }
-
-    /// <summary>
-    /// The function performs a preliminary check on the installed package by reading its ARP registry flags for NoModify and NoRepair to confirm if the repair operation is applicable.
-    /// </summary>
-    /// <param name="context">Execution context object</param>
-    void ApplicabilityCheckForInstalledPackage(Execution::Context& context)
-    {
-        // Installed Package repair applicability check
-        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-
-        const std::string installerType = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
-        InstallerTypeEnum installerTypeEnum = ConvertToInstallerTypeEnum(installerType);
-
-        if (installerTypeEnum == InstallerTypeEnum::Portable || installerTypeEnum == InstallerTypeEnum::Unknown)
-        {
-            context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
-        }
-
-        IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
-
-        auto noModifyItr = packageMetadata.find(PackageVersionMetadata::NoModify);
-        std::string noModifyARPFlag = noModifyItr != packageMetadata.end() ? noModifyItr->second : std::string();
-
-        auto noRepairItr = packageMetadata.find(PackageVersionMetadata::NoRepair);
-        std::string noRepairARPFlag = noRepairItr != packageMetadata.end() ? noRepairItr->second : std::string();
-
-        if (Utility::IsDwordFlagSet(noModifyARPFlag) || Utility::IsDwordFlagSet(noRepairARPFlag))
-        {
-            context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
-        }
-    }
-
-
-    /// <summary>
-    /// This function performs a preliminary check on the available matching package by reading its manifest entries for repair behavior to determine the type of repair operation and repair switch are applicable
-    /// </summary>
-    /// <param name="context">Execution context object</param>
-    void ApplicabilityCheckForAvailablePackage(Execution::Context& context)
-    {
-        // Selected Installer repair applicability check
-        auto const& installerType = context.Get<Execution::Data::Installer>()->EffectiveInstallerType();
-        auto const& repairBehavior = context.Get<Execution::Data::Installer>()->RepairBehavior;
-
-        if (installerType == InstallerTypeEnum::Portable || installerType == InstallerTypeEnum::Unknown)
-        {
-            context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
-        }
-
-        // For other installer types, we can skip this check as we expect standard repair support from platform.
-        if (installerType == InstallerTypeEnum::Burn
-            || installerType == InstallerTypeEnum::Inno
-            || installerType == InstallerTypeEnum::Nullsoft
-            || installerType == InstallerTypeEnum::Exe)
-        {
-            if (repairBehavior == RepairBehaviorEnum::Unknown)
+            if (uninstallCommandItr == packageMetadata.end())
             {
                 context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
             }
+
+            context.Add<Execution::Data::UninstallString>(uninstallCommandItr->second);
+        }
+
+        void SetModifyPathInContext(Execution::Context& context)
+        {
+            const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+            IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
+
+            // Default to silent unless it is not present or interactivity is requested
+            auto modifyPathItr = packageMetadata.find(PackageVersionMetadata::StandardModifyCommand);
+            if (modifyPathItr == packageMetadata.end())
+            {
+                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+            }
+
+            context.Add<Execution::Data::ModifyPath>(modifyPathItr->second);
+        }
+
+        void SetProductCodesInContext(Execution::Context& context)
+        {
+            const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+            auto productCode = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+
+            if (productCode.empty())
+            {
+                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+            }
+
+            context.Add<Execution::Data::ProductCodes>(productCode);
+        }
+
+        void SetPackageFamilyNamesInContext(Execution::Context& context)
+        {
+            const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+
+            auto packageFamilyNames = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
+            if (packageFamilyNames.empty())
+            {
+                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+            }
+
+            context.Add<Execution::Data::PackageFamilyNames>(packageFamilyNames);
+        }
+
+        void ApplicabilityCheckForInstalledPackage(Execution::Context& context)
+        {
+            // Installed Package repair applicability check
+            const auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+
+            const std::string installerType = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
+            InstallerTypeEnum installerTypeEnum = ConvertToInstallerTypeEnum(installerType);
+
+            if (installerTypeEnum == InstallerTypeEnum::Portable || installerTypeEnum == InstallerTypeEnum::Unknown)
+            {
+                context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
+            }
+
+            IPackageVersion::Metadata packageMetadata = installedPackageVersion->GetMetadata();
+
+            auto noModifyItr = packageMetadata.find(PackageVersionMetadata::NoModify);
+            std::string noModifyARPFlag = noModifyItr != packageMetadata.end() ? noModifyItr->second : std::string();
+
+            auto noRepairItr = packageMetadata.find(PackageVersionMetadata::NoRepair);
+            std::string noRepairARPFlag = noRepairItr != packageMetadata.end() ? noRepairItr->second : std::string();
+
+            if (Utility::IsDwordFlagSet(noModifyARPFlag) || Utility::IsDwordFlagSet(noRepairARPFlag))
+            {
+                context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
+            }
+        }
+
+        void ApplicabilityCheckForAvailablePackage(Execution::Context& context)
+        {
+            // Selected Installer repair applicability check
+            auto installerType = context.Get<Execution::Data::Installer>()->EffectiveInstallerType();
+            auto repairBehavior = context.Get<Execution::Data::Installer>()->RepairBehavior;
+
+            if (installerType == InstallerTypeEnum::Portable || installerType == InstallerTypeEnum::Unknown)
+            {
+                context.Reporter.Error() << Resource::String::RepairOperationNotSupported << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED);
+            }
+
+            // Repair behavior is required for Burn, Inno, Nullsoft, Exe installers
+            if ((installerType == InstallerTypeEnum::Burn
+                || installerType == InstallerTypeEnum::Inno
+                || installerType == InstallerTypeEnum::Nullsoft
+                || installerType == InstallerTypeEnum::Exe)
+                && repairBehavior == RepairBehaviorEnum::Unknown)
+            {
+                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+            }
+        }
+
+        void GenerateRepairString(Execution::Context& context)
+        {
+            const auto& installer = context.Get<Execution::Data::Installer>();
+            auto installerType = installer->BaseInstallerType;
+            auto repairBehavior = installer->RepairBehavior;
+
+            std::string repairCommand;
+
+            switch (repairBehavior)
+            {
+            case RepairBehaviorEnum::Modify:
+                SetModifyPathInContext(context);
+                repairCommand.append(context.Get<Execution::Data::ModifyPath>());
+
+                break;
+            case RepairBehaviorEnum::Installer:
+                context <<
+                    ShowInstallationDisclaimer <<
+                    ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
+                    DownloadInstaller;
+
+                if (installerType == InstallerTypeEnum::Zip)
+                {
+                    context <<
+                        ScanArchiveFromLocalManifest <<
+                        ExtractFilesFromArchive <<
+                        VerifyAndSetNestedInstaller;
+                }
+
+                // [NOTE:] We will ShellExecuteInstall for this scenario which uses installer path directly.so no need for repair command generation.
+
+                break;
+            case RepairBehaviorEnum::Uninstaller:
+                SetUninstallStringInContext(context);
+                repairCommand.append(context.Get<Execution::Data::UninstallString>());
+
+                break;
+            case RepairBehaviorEnum::Unknown:
+            default:
+                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+            }
+
+            context <<
+                GetInstallerArgs;
+
+            // Following is not applicable for RepairBehaviorEnum::Installer, as we can call ShellExecuteInstall directly with repair argument.
+            if (repairBehavior != RepairBehaviorEnum::Installer)
+            {
+                if (repairCommand.empty())
+                {
+                    context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
+                }
+
+                repairCommand.append(" ");
+                repairCommand.append(context.Get<Execution::Data::InstallerArgs>());
+                context.Add<Execution::Data::RepairString>(repairCommand);
+            }
+        }
+
+        void RunRepairForRepairBehaviorBasedInstallers(Execution::Context& context)
+        {
+            const auto& installer = context.Get<Execution::Data::Installer>();
+            auto repairBehavior = installer->RepairBehavior;
+
+            if (repairBehavior == RepairBehaviorEnum::Modify || repairBehavior == RepairBehaviorEnum::Uninstaller)
+            {
+                context <<
+                    ShellExecuteRepairImpl;
+            }
             else if (repairBehavior == RepairBehaviorEnum::Installer)
             {
                 context <<
-                    Workflow::EnsureSupportForDownload <<
-                    Workflow::EnsureSupportForInstall;
+                    ShellExecuteInstallImpl;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
             }
         }
     }
@@ -198,48 +268,31 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Nullsoft:
         {
             const auto& repairBehavior = installer->RepairBehavior;
-
-            if (repairBehavior == RepairBehaviorEnum::Modify || repairBehavior == RepairBehaviorEnum::Uninstaller)
-            {
-                Workflow::ShellExecuteRepairImpl(context);
-            }
-            else if (repairBehavior == RepairBehaviorEnum::Installer)
-            {
-                Workflow::ShellExecuteInstallImpl(context);
-            }
-            else
-            {
-                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
-            }
-
-            const auto& repairBehaviorString = RepairBehaviorToString(repairBehavior);
-
-            std::string repairType(repairBehaviorString);
-            repairType.append("-Repair");
+            auto repairBehaviorString = RepairBehaviorToString(repairBehavior);
 
             context <<
-                ReportRepairResult(repairType, APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED);
+                RunRepairForRepairBehaviorBasedInstallers <<
+                ReportRepairResult(repairBehaviorString, APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED);
         }
 
         break;
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
             context <<
-                Workflow::ShellExecuteMsiExecRepair <<
+                ShellExecuteMsiExecRepair <<
                 ReportRepairResult("MsiExec", APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED);
 
             break;
         case InstallerTypeEnum::Msix:
             context <<
-                Workflow::RepairMsixPackage;
+                RepairMsixPackage;
 
             break;
         case InstallerTypeEnum::MSStore:
         {
             context <<
                 EnsureStorePolicySatisfied <<
-                Workflow::MSStoreRepair;
+                MSStoreRepair;
         }
 
         break;
@@ -251,10 +304,8 @@ namespace AppInstaller::CLI::Workflow
 
     void GetRepairInfo(Execution::Context& context)
     {
-        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-        const std::string installedTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
-
-        InstallerTypeEnum installerTypeEnum = ConvertToInstallerTypeEnum(installedTypeString);
+        const auto& installer = context.Get<Execution::Data::Installer>();
+        InstallerTypeEnum installerTypeEnum = installer->EffectiveInstallerType();
 
         switch (installerTypeEnum)
         {
@@ -269,85 +320,22 @@ namespace AppInstaller::CLI::Workflow
         break;
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
-            context << SetProductCodesInContext;
-            break;
+        {
+            context <<
+                SetProductCodesInContext;
+        }
+        break;
         case InstallerTypeEnum::Msix:
-        case InstallerTypeEnum::MSStore:
+        {
             context <<
                 SetPackageFamilyNamesInContext;
+        }
+        break;
+        case InstallerTypeEnum::MSStore:
             break;
         case InstallerTypeEnum::Portable:
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-        }
-    }
-
-    void GenerateRepairString(Execution::Context& context)
-    {
-        auto installer = context.Get<Execution::Data::Installer>();
-        auto installerType = installer->BaseInstallerType;
-
-        auto repairBehavior = installer->RepairBehavior;
-        auto repairSwitch = installer->Switches[InstallerSwitchType::Repair];
-
-        if (repairSwitch.empty())
-        {
-            context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
-        }
-
-        std::string repairCommand;
-
-        switch (repairBehavior)
-        {
-        case RepairBehaviorEnum::Modify:
-            SetModifyPathInContext(context);
-            repairCommand.append(context.Get<Execution::Data::ModifyPath>());
-
-            break;
-        case RepairBehaviorEnum::Installer:
-            context <<
-                Workflow::ShowInstallationDisclaimer <<
-                Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-                Workflow::DownloadInstaller;
-
-            if (installerType == InstallerTypeEnum::Zip)
-            {
-                context <<
-                    ScanArchiveFromLocalManifest <<
-                    ExtractFilesFromArchive <<
-                    VerifyAndSetNestedInstaller;
-            }
-
-            // [NOTE:] We will ShellExecuteInstall for this scenario which uses installer path directly.so no need for repair command generation.
-
-            break;
-        case RepairBehaviorEnum::Uninstaller:
-            SetUninstallStringInContext(context);
-            repairCommand.append(context.Get<Execution::Data::UninstallString>());
-
-            break;
-        case RepairBehaviorEnum::Unknown:
-        default:
-            context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
-        }
-
-        context <<
-            Workflow::GetInstallerArgs;
-
-        // Following is not applicable for RepairBehaviorEnum::Installer, as we can call ShellExecuteInstall directly with repair argument.
-        if (repairBehavior != RepairBehaviorEnum::Installer)
-        {
-            if (repairCommand.empty())
-            {
-                context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
-            }
-
-            repairCommand.append(" ");
-            repairCommand.append(context.Get<Execution::Data::InstallerArgs>());
-            context.Add<Execution::Data::RepairString>(repairCommand);
         }
     }
 
@@ -379,8 +367,6 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    // TODO: Do we need a different error code for repair failure?
-                    // reuse install failure for the scenario.
                     context.Reporter.Error() << Resource::String::RepairFlowReturnCodeSystemNotSupported << std::endl;
                     context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
                     AICLI_LOG(CLI, Error, << "Device wide repair for msix type is not supported.");
@@ -432,7 +418,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             RepairApplicabilityCheck <<
             GetRepairInfo <<
-            Workflow::ExecuteRepair;
+            ExecuteRepair;
     }
 
     void SelectApplicablePackageVersion::operator()(Execution::Context& context) const

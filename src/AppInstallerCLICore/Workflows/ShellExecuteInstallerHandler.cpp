@@ -116,9 +116,12 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Construct repair arg. Custom switches and othe args are not applicable for repair scenario so we can return here.
-            if (isRepair && installerSwitches.find(InstallerSwitchType::Repair) != installerSwitches.end())
+            if (isRepair)
             {
-                installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Repair);
+                if (installerSwitches.find(InstallerSwitchType::Repair) != installerSwitches.end())
+                {
+                    installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Repair);
+                }
 
                 return installerArgs;
             }
@@ -222,7 +225,7 @@ namespace AppInstaller::CLI::Workflow
             // m - Rewrite all required registry entries (This is the default option)
             // u - Rewrite all required user-specific registry entries (This is the default option)
             // s - Overwrite all existing shortcuts (This is the default option)
-            std::string args = "/f" + productCode.get();
+            std::string args = "/f " + productCode.get();
 
             // https://learn.microsoft.com/en-us/windows/win32/msi/standard-installer-command-line-options
             if (context.Args.Contains(Execution::Args::Type::Silent))
@@ -344,18 +347,19 @@ namespace AppInstaller::CLI::Workflow
 
         std::wstring commandUtf16 = Utility::ConvertToUTF16(context.Get<Execution::Data::RepairString>());
 
-        // When running as admin, block attempt to repair user scope installed package.
+        // When running as admin, block attempt to repair user scope installed package. 
+        // [NOTE:] This check is to address the security concern realted to the scenario.
         if (Runtime::IsRunningAsAdmin())
         {
-           auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-           const std::string installedScopeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledScope];
-           auto scopeEnum =  ConvertToScopeEnum(installedScopeString);
+            auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+            const std::string installedScopeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledScope];
+            auto scopeEnum = ConvertToScopeEnum(installedScopeString);
 
-           if (scopeEnum == ScopeEnum::User)
-           {
+            if (scopeEnum == ScopeEnum::User)
+            {
                 context.Reporter.Error() << Resource::String::NoAdminRepairForUserScopePackage << std::endl;
                 AICLI_TERMINATE_CONTEXT(E_ABORT);
-           }
+            }
         }
 
         // Parse the command string as application and command line for CreateProcess

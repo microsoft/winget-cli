@@ -5,25 +5,40 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    void ApplicabilityCheckForInstalledPackage(Execution::Context& context);
 
-    void ApplicabilityCheckForAvailablePackage(Execution::Context& context);
+    // Internal implementation details
+    namespace
+    {
+        void SetUninstallStringInContext(Execution::Context& context);
+
+        void SetModifyPathInContext(Execution::Context& context);
+
+        void SetProductCodesInContext(Execution::Context& context);
+
+        void SetPackageFamilyNamesInContext(Execution::Context& context);
+
+        /// <summary>
+        /// The function performs a preliminary check on the installed package by reading its ARP registry flags for NoModify and NoRepair to confirm if the repair operation is applicable.
+        /// </summary>
+        /// <param name="context">Execution context object</param>
+        void ApplicabilityCheckForInstalledPackage(Execution::Context& context);
+
+        /// <summary>
+        /// This function performs a preliminary check on the available matching package by reading its manifest entries for repair behavior to determine the type of repair operation and repair switch are applicable
+        /// </summary>
+        /// <param name="context">Execution context object</param>
+        void ApplicabilityCheckForAvailablePackage(Execution::Context& context);
+
+        void GenerateRepairString(Execution::Context& context);
+
+        void RunRepairForRepairBehaviorBasedInstallers(Execution::Context& context);
+    }
 
     void RepairApplicabilityCheck(Execution::Context& context);
 
     void ExecuteRepair(Execution::Context& context);
 
     void GetRepairInfo(Execution::Context& context);
-
-    void GenerateRepairString(Execution::Context& context);
-
-    void SetUninstallStringInContext(Execution::Context& context);
-
-    void SetModifyPathInContext(Execution::Context& context);
-
-    void SetProductCodesInContext(Execution::Context& context);
-
-    void SetPackageFamilyNamesInContext(Execution::Context& context);
 
     void RepairMsixPackage(Execution::Context& context);
 

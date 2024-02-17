@@ -287,7 +287,6 @@ namespace AppInstaller::CLI::Workflow
 
     void EnsureApplicableInstaller(Execution::Context& context)
     {
-        bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
         const auto& installer = context.Get<Execution::Data::Installer>();
 
         if (!installer.has_value())
@@ -296,13 +295,9 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
-        // We don't need download support or install support check for "repair" right away, so skip this check for repair.
-        if (!isRepair)
-        {
-            context <<
-                EnsureSupportForDownload <<
-                EnsureSupportForInstall;
-        }
+        context <<
+            EnsureSupportForDownload <<
+            EnsureSupportForInstall;
     }
 
     void CheckForUnsupportedArgs(Execution::Context& context)
@@ -616,6 +611,28 @@ namespace AppInstaller::CLI::Workflow
 
         const auto& installer = context.Get<Execution::Data::Installer>();
 
+        // This check is only necessary for the Repair workflow when operating on an installer with RepairBehavior set to Installer.
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair))
+        {
+            auto const& repairBehavior = installer->RepairBehavior;
+
+            if (repairBehavior != RepairBehaviorEnum::Installer)
+            {
+                return;
+            }
+
+            auto const& effectiveInstallerType = installer->EffectiveInstallerType();
+
+            // At present, the installer repair behavior scenario is restricted to Exe, Inno, Nullsoft, and Burn installer types.
+            if (!(effectiveInstallerType == InstallerTypeEnum::Burn
+                || effectiveInstallerType == InstallerTypeEnum::Inno
+                || effectiveInstallerType == InstallerTypeEnum::Nullsoft
+                || effectiveInstallerType == InstallerTypeEnum::Exe))
+            {
+                return;
+            }
+        }
+
         // This installer cannot be run elevated, but we are running elevated.
         // Implementation of de-elevation is complex; simply block for now.
         if (installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin())
@@ -781,7 +798,7 @@ namespace AppInstaller::CLI::Workflow
     }
     CATCH_LOG()
 
-    void ReportARPChanges(Execution::Context& context) try
+        void ReportARPChanges(Execution::Context& context) try
     {
         if (!context.Contains(Execution::Data::ARPCorrelationData))
         {
@@ -831,7 +848,7 @@ namespace AppInstaller::CLI::Workflow
             for (auto&& upgradeCode : upgradeCodes)
             {
                 AppsAndFeaturesEntry entry = baseEntry;
-                entry.UpgradeCode= std::move(upgradeCode).get();
+                entry.UpgradeCode = std::move(upgradeCode).get();
                 entries.push_back(std::move(entry));
             }
 

@@ -2759,13 +2759,13 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="RepairCommandLongDescription" xml:space="preserve">
     <value>Repairs the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <comment>{Locked="--force"}; id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="RepairCommandShortDescription" xml:space="preserve">
     <value>Repairs the selected package</value>
   </data>
   <data name="NoRepairInfoFound" xml:space="preserve">
     <value>The repair command for this package cannot be found. Please reach out to the package publisher for support.</value>
-    <comment>{Locked="winget"}</comment>
   </data>
   <data name="RepairDifferentInstallTechnology" xml:space="preserve">
     <value>The installer technology in use does not match the version currently installed.</value>
