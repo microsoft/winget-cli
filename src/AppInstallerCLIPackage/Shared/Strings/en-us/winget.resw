@@ -2798,9 +2798,6 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE" xml:space="preserve">
     <value>Repair operation is not applicable.</value>
   </data>
-  <data name="RepairFlowNoApplicableVersion" xml:space="preserve">
-    <value>A matching package version is available in a configured source, but it does not apply to your system or requirements.</value>
-  </data>
   <data name="RepairFlowNoMatchingVersion" xml:space="preserve">
     <value>No matching package versions are available from the configured sources.</value>
   </data>
