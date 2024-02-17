@@ -279,8 +279,6 @@ namespace AppInstaller
             // Errors without the error bit set
             WINGET_HRESULT_INFO(WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE, "The install location is not applicable."),
             WINGET_HRESULT_INFO(WINGET_INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK, "The file was found but the hash was not checked."),
-
-
         };
 
         const WinGetHResultData* FindWinGetHResultData(HRESULT value)

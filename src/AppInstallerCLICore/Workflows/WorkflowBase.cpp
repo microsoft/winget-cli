@@ -982,7 +982,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall  || m_operationType == OperationType::Repair)
+                if (m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall || m_operationType == OperationType::Repair)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResult;
@@ -1243,15 +1243,15 @@ namespace AppInstaller::CLI::Workflow
             auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
             if (onlyInstalledType != inapplicabilities.end())
             {
-                if (!isRepair)
-                {
-                    context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnology << std::endl;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
-                }
-                else
+                if (isRepair)
                 {
                     context.Reporter.Info() << Resource::String::RepairDifferentInstallTechnology << std::endl;
                     AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE);
+                }
+                else
+                {
+                    context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnology << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
                 }
             }
         }

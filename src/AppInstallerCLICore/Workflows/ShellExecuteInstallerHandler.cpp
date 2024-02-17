@@ -245,13 +245,13 @@ namespace AppInstaller::CLI::Workflow
     {
         bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
 
-        if (!isRepair)
+        if (isRepair)
         {
-            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+            context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
         }
         else
         {
-            context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
         }
 
         const auto& installer = context.Get<Execution::Data::Installer>();
@@ -280,13 +280,13 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installResult)
         {
-            if (!isRepair)
+            if (isRepair)
             {
-                context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
+                context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
             }
             else
             {
-                context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
+                context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
             }
 
             AICLI_TERMINATE_CONTEXT(E_ABORT);
@@ -402,7 +402,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!uninstallResult)
             {
-                context.Reporter.Warn() << Resource::String::UninstallAbandoned << std::endl;
+                context.Reporter.Error() << Resource::String::UninstallAbandoned << std::endl;
                 AICLI_TERMINATE_CONTEXT(E_ABORT);
             }
             else
@@ -438,7 +438,6 @@ namespace AppInstaller::CLI::Workflow
                 context.Add<Execution::Data::OperationReturnCode>(repairResult.value());
             }
         }
-
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

@@ -2759,7 +2759,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="RepairCommandLongDescription" xml:space="preserve">
     <value>Repairs the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
-    <comment>{Locked="--force"}; id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="RepairCommandShortDescription" xml:space="preserve">
     <value>Repairs the selected package</value>
@@ -2775,9 +2775,6 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED" xml:space="preserve">
     <value>The installer technology in use doesn't support repair.</value>
-  </data>
-  <data name="APPINSTALLER_CLI_ERROR_EXEC_REPAIR_COMMAND_FAILED" xml:space="preserve">
-    <value>Running repair command failed</value>
   </data>
   <data name="RepairFlowRepairSuccess" xml:space="preserve">
     <value>Repair operation completed successfully.</value>

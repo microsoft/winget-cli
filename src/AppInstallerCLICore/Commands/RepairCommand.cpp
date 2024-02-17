@@ -18,25 +18,26 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Manifest),                         // -m
             Argument::ForType(Args::Type::Id),                               // -id
             Argument::ForType(Args::Type::Name),                             // -n
+            Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Moniker),                          // -mn
             Argument::ForType(Args::Type::Version),                          // -v
+            Argument::ForType(Args::Type::ProductCode),
             Argument::ForType(Args::Type::InstallArchitecture),              // -arch
+            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::Source),                           // -s
             Argument::ForType(Args::Type::Interactive),                      // -i
             Argument::ForType(Args::Type::Silent),                           // -h
             Argument::ForType(Args::Type::Log),                              // -o
             Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),    // -ignore-local-archive-malware-scan
             Argument::ForType(Args::Type::AcceptSourceAgreements),           // -accept-source-agreements
+            Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AuthenticationMode),
             Argument::ForType(Args::Type::AuthenticationAccount),
-            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
-            Argument::ForType(Args::Type::ProductCode),
             Argument::ForType(Args::Type::Force),
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::Exact),
-            Argument::ForType(Args::Type::Channel),
         };
     }
 
@@ -91,7 +92,7 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            Workflow::OpenCompositeSource(DetermineInstalledSource(context));
 
         if (context.Args.Contains(Args::Type::Manifest))
         {
@@ -114,7 +115,6 @@ namespace AppInstaller::CLI
                 Workflow::ReportPackageIdentity <<
                 Workflow::GetInstalledPackageVersion <<
                 Workflow::SelectApplicablePackageVersion <<
-                Workflow::EnsureApplicableInstaller <<
                 Workflow::RepairSinglePackage;
         }
     }

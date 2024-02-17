@@ -506,7 +506,15 @@ namespace AppInstaller::CLI::Workflow
             if (FAILED(terminationHR))
             {
                 const auto& manifest = context.Get<Execution::Data::Manifest>();
-                Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, m_installerType, installResult);
+
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair))
+                {
+                    Logging::Telemetry().LogRepairFailure(manifest.Id, manifest.Version, m_installerType, installResult);
+                }
+                else
+                {
+                    Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, m_installerType, installResult);
+                }
 
                 if (m_isHResult)
                 {
@@ -614,20 +622,17 @@ namespace AppInstaller::CLI::Workflow
         // This check is only necessary for the Repair workflow when operating on an installer with RepairBehavior set to Installer.
         if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair))
         {
-            auto const& repairBehavior = installer->RepairBehavior;
-
-            if (repairBehavior != RepairBehaviorEnum::Installer)
+            if (installer->RepairBehavior != RepairBehaviorEnum::Installer)
             {
                 return;
             }
 
-            auto const& effectiveInstallerType = installer->EffectiveInstallerType();
-
             // At present, the installer repair behavior scenario is restricted to Exe, Inno, Nullsoft, and Burn installer types.
-            if (!(effectiveInstallerType == InstallerTypeEnum::Burn
-                || effectiveInstallerType == InstallerTypeEnum::Inno
-                || effectiveInstallerType == InstallerTypeEnum::Nullsoft
-                || effectiveInstallerType == InstallerTypeEnum::Exe))
+            auto effectiveInstallerType = installer->EffectiveInstallerType();
+            if (effectiveInstallerType != InstallerTypeEnum::Burn &&
+                effectiveInstallerType != InstallerTypeEnum::Inno &&
+                effectiveInstallerType != InstallerTypeEnum::Nullsoft &&
+                effectiveInstallerType != InstallerTypeEnum::Exe)
             {
                 return;
             }

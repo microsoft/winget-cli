@@ -5,64 +5,17 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Execute the repair operation for RepairBehavior based installers.
+    // RequiredArgs:None
+    // Inputs: RepairBehavior, RepairString
+    // Outputs:None
+    void RunRepairForRepairBehaviorBasedInstaller(Execution::Context& context);
 
-    // Internal implementation details
-    namespace
-    {
-        // Sets the uninstall string in the context.
-        // RequiredArgs:
-        // Inputs:InstalledPackageVersion
-        // Outputs:SilentUninstallString, UninstallString
-        void SetUninstallStringInContext(Execution::Context& context);
-
-        // Sets the modify path in the context.
-        // RequiredArgs:None
-        // Inputs:InstalledPackageVersion
-        // Outputs:ModifyPath
-        void SetModifyPathInContext(Execution::Context& context);
-
-        // Sets the product codes in the context.
-        // RequiredArgs:None
-        // Inputs:InstalledPackageVersion
-        // Outputs:ProductCodes
-        void SetProductCodesInContext(Execution::Context& context);
-
-        // Sets the package family names in the context.
-        // RequiredArgs:None
-        // Inputs:InstalledPackageVersion
-        // Outputs:PackageFamilyNames
-        void SetPackageFamilyNamesInContext(Execution::Context& context);
-
-        // The function performs a preliminary check on the installed package by reading its ARP registry flags for NoModify and NoRepair to confirm if the repair operation is applicable.
-        // RequiredArgs:None
-        // Inputs:InstalledPackageVersion, NoModify ?, NoRepair ?
-        // Outputs:None
-        void ApplicabilityCheckForInstalledPackage(Execution::Context& context);
-
-        // This function performs a preliminary check on the available matching package by reading its manifest entries for repair behavior to determine the type of repair operation and repair switch are applicable
-        // RequiredArgs:None
-        // Inputs:InstallerType, RepairBehavior
-        // Outputs:None
-        void ApplicabilityCheckForAvailablePackage(Execution::Context& context);
-
-        // Generate the repair string based on the repair behavior and installer type.
-        // RequiredArgs:None
-        // Inputs:BaseInstallerType, RepairBehavior, ModifyPath?, UninstallString?, InstallerArgs
-        // Outputs:RepairString
-        void GenerateRepairString(Execution::Context& context);
-
-        // Execute the repair operation for RepairBehavior based installers.
-        // RequiredArgs:None
-        // Inputs: RepairBehavior, RepairString
-        // Outputs:None
-        void RunRepairForRepairBehaviorBasedInstaller(Execution::Context& context);
-
-        // Execute the repair operation for MSI based installers.
-        // RequiredArgs:None
-        // Inputs: ProductCodes
-        // Outputs:None
-        void RepairMsiBasedInstaller(Execution::Context& context);
-    }
+    // Execute the repair operation for MSI based installers.
+    // RequiredArgs:None
+    // Inputs: ProductCodes
+    // Outputs:None
+    void RepairMsiBasedInstaller(Execution::Context& context);
 
     // Applicability check for repair operation.
     // RequiredArgs:None
