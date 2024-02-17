@@ -426,6 +426,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(RepairCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RepairCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RepairDifferentInstallTechnology);
+        WINGET_DEFINE_RESOURCE_STRINGID(RepairFailedWithCode);
         WINGET_DEFINE_RESOURCE_STRINGID(RepairFlowNoMatchingVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(RepairFlowRepairSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(RepairFlowReturnCodeSystemNotSupported);

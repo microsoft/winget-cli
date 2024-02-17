@@ -737,7 +737,7 @@ namespace AppInstaller::Logging
                 AICLI_TraceLoggingStringView(type, "Type"),
                 TraceLoggingUInt32(errorCode, "ErrorCode"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             if (m_useSummary)
             {

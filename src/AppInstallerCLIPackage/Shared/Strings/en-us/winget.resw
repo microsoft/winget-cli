@@ -2812,5 +2812,9 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
     <value>Repair operations involving administrator privileges are not permitted on packages installed within the user scope.</value>
+  </data>  
+  <data name="RepairFailedWithCode" xml:space="preserve">
+    <value>Repair failed with exit code: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to repair an application package fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
 </root>

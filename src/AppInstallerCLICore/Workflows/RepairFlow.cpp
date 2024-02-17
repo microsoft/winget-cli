@@ -482,13 +482,26 @@ namespace AppInstaller::CLI::Workflow
 
         if (repairResult != 0)
         {
-            const auto installerPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+            const auto& repairPackage = context.Get<Execution::Data::PackageVersion>();
 
             Logging::Telemetry().LogRepairFailure(
-                installerPackageVersion->GetProperty(PackageVersionProperty::Id),
-                installerPackageVersion->GetProperty(PackageVersionProperty::Version),
+                repairPackage->GetProperty(PackageVersionProperty::Id),
+                repairPackage->GetProperty(PackageVersionProperty::Version),
                 m_repairType,
                 repairResult);
+
+            if (m_isHResult)
+            {
+                context.Reporter.Error()
+                    << Resource::String::RepairFailedWithCode(Utility::LocIndView{ GetUserPresentableMessage(repairResult) })
+                    << std::endl;
+            }
+            else
+            {
+                context.Reporter.Error()
+                    << Resource::String::RepairFailedWithCode(repairResult)
+                    << std::endl;
+            }
 
             // Show log path if available
             if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
@@ -496,6 +509,8 @@ namespace AppInstaller::CLI::Workflow
                 auto installerLogPath = Utility::LocIndString{ context.Get<Execution::Data::LogPath>().u8string() };
                 context.Reporter.Info() << Resource::String::InstallerLogAvailable(installerLogPath) << std::endl;
             }
+
+            AICLI_TERMINATE_CONTEXT(m_hr);
         }
         else
         {
