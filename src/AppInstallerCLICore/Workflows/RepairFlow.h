@@ -55,7 +55,13 @@ namespace AppInstaller::CLI::Workflow
         // RequiredArgs:None
         // Inputs: RepairBehavior, RepairString
         // Outputs:None
-        void RunRepairForRepairBehaviorBasedInstallers(Execution::Context& context);
+        void RunRepairForRepairBehaviorBasedInstaller(Execution::Context& context);
+
+        // Execute the repair operation for MSI based installers.
+        // RequiredArgs:None
+        // Inputs: ProductCodes
+        // Outputs:None
+        void RepairMsiBasedInstaller(Execution::Context& context);
     }
 
     // Applicability check for repair operation.

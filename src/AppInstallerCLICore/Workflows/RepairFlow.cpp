@@ -209,7 +209,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        void RunRepairForRepairBehaviorBasedInstallers(Execution::Context& context)
+        void RunRepairForRepairBehaviorBasedInstaller(Execution::Context& context)
         {
             const auto& installer = context.Get<Execution::Data::Installer>();
             auto repairBehavior = installer->RepairBehavior;
@@ -229,6 +229,18 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
             }
+
+            auto repairBehaviorString = RepairBehaviorToString(repairBehavior);
+
+            context <<
+                ReportRepairResult(repairBehaviorString, APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED);
+        }
+
+        void RepairMsiBasedInstaller(Execution::Context& context)
+        {
+            context <<
+                ShellExecuteMsiExecRepair <<
+                ReportRepairResult("MsiExec", APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED);
         }
     }
 
@@ -270,27 +282,26 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Inno:
         case InstallerTypeEnum::Nullsoft:
         {
-            const auto& repairBehavior = installer->RepairBehavior;
-            auto repairBehaviorString = RepairBehaviorToString(repairBehavior);
-
             context <<
-                RunRepairForRepairBehaviorBasedInstallers <<
-                ReportRepairResult(repairBehaviorString, APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED);
+                RunRepairForRepairBehaviorBasedInstaller;
         }
 
         break;
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Wix:
+        {
             context <<
-                ShellExecuteMsiExecRepair <<
-                ReportRepairResult("MsiExec", APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED);
+                RepairMsiBasedInstaller;
+        }
 
-            break;
+        break;
         case InstallerTypeEnum::Msix:
+        {
             context <<
                 RepairMsixPackage;
+        }
 
-            break;
+        break;
         case InstallerTypeEnum::MSStore:
         {
             context <<
@@ -467,7 +478,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportRepairResult::operator()(Execution::Context& context) const
     {
-        DWORD repairResult = 0;
+        DWORD repairResult = context.Get<Execution::Data::OperationReturnCode>();
 
         if (repairResult != 0)
         {
