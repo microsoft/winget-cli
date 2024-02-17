@@ -136,6 +136,7 @@ ms.localizationpriority: medium
 | 0x8A15007A | -1978335110 | APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE | Repair operation is not applicable. |
 | 0x8A15007B | -1978335109 | APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED | Repair operation failed. |
 | 0x8A15007C | -1978335108 | APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED | The installer technology in use doesn't support repair. |
+| 0x8A15007D | -1978335107 | APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED | Repair operations involving administrator privileges are not permitted on packages installed within the user scope. |
 
 
 ## Install errors.

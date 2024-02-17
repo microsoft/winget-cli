@@ -358,7 +358,7 @@ namespace AppInstaller::CLI::Workflow
             if (scopeEnum == ScopeEnum::User)
             {
                 context.Reporter.Error() << Resource::String::NoAdminRepairForUserScopePackage << std::endl;
-                AICLI_TERMINATE_CONTEXT(E_ABORT);
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED);
             }
         }
 

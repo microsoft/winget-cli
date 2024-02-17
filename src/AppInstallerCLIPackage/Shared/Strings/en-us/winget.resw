@@ -2807,7 +2807,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="RepairOperationNotSupported" xml:space="preserve">
     <value>The installer technology in use does not support repair.</value>
   </data>
-  <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
+    <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
     <value>The package installed for user scope cannot be repaired when running with administrator privileges.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
+    <value>Repair operations involving administrator privileges are not permitted on packages installed within the user scope.</value>
   </data>
 </root>

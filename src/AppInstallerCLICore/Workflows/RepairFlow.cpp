@@ -241,6 +241,9 @@ namespace AppInstaller::CLI::Workflow
 
     void ExecuteRepair(Execution::Context& context)
     {
+        // [TODO:] At present, the repair flow necessitates a mapped available installer. 
+        // However, future refactoring should allow for msix/msi repair without the need for one.
+
         const auto& installer = context.Get<Execution::Data::Installer>();
         InstallerTypeEnum installerTypeEnum = installer->EffectiveInstallerType();
 
