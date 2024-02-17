@@ -2757,7 +2757,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The {0} source requires authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with the source for access authorization.</value>
     <comment>{Locked="{0}"}</comment>
   </data>
-  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+  <data name="PolicyEnableWinGetProxyCommandLineOptions" xml:space="preserve">
     <value>Enable Windows Package Manager proxy command line options</value>
     <comment>Describres a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
   </data>
