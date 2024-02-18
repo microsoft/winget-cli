@@ -42,11 +42,5 @@ namespace Microsoft.WinGet.Client.Commands.Common
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
         public string Version { get; set; }
-
-        /// <summary>
-        /// Gets or sets the path to the logging file.
-        /// </summary>
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        public string Log { get; set; }
     }
 }

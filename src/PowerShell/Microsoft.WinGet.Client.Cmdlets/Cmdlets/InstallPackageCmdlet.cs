@@ -11,7 +11,6 @@ namespace Microsoft.WinGet.Client.Commands
     using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Engine.Commands;
     using Microsoft.WinGet.Client.Engine.PSObjects;
-    using Microsoft.WinGet.Client.PSObjects;
 
     /// <summary>
     /// Installs a package from the pipeline or from a configured source.
@@ -25,18 +24,6 @@ namespace Microsoft.WinGet.Client.Commands
     public sealed class InstallPackageCmdlet : InstallCmdlet
     {
         private InstallerPackageCommand command = null;
-
-        /// <summary>
-        /// Gets or sets the scope to install the application under.
-        /// </summary>
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        public PSPackageInstallScope Scope { get; set; } = PSPackageInstallScope.Any;
-
-        /// <summary>
-        /// Gets or sets the architecture of the application to be installed.
-        /// </summary>
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        public PSProcessorArchitecture Architecture { get; set; } = PSProcessorArchitecture.Default;
 
         /// <summary>
         /// Installs a package from the pipeline or from a configured source.
@@ -58,8 +45,10 @@ namespace Microsoft.WinGet.Client.Commands
                         this.Name,
                         this.Moniker,
                         this.Source,
-                        this.Query);
-            this.command.Install(this.Scope.ToString(), this.Architecture.ToString(), this.MatchOption.ToString(), this.Mode.ToString());
+                        this.Query,
+                        this.SkipDependencies.ToBool());
+
+            this.command.Install(this.MatchOption.ToString(), this.Scope.ToString(), this.Architecture.ToString(), this.Mode.ToString(), this.InstallerType.ToString());
         }
 
         /// <summary>

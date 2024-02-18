@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="UninstallPackageCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="ExportPackageCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -7,59 +7,47 @@
 namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Engine.Commands;
     using Microsoft.WinGet.Client.Engine.PSObjects;
-    using Microsoft.WinGet.Client.PSObjects;
 
     /// <summary>
-    /// Uninstalls a package from the local system.
+    /// Downloads a package installer from the pipeline or from a configured source.
     /// </summary>
     [Cmdlet(
-        VerbsLifecycle.Uninstall,
+        VerbsData.Export,
         Constants.WinGetNouns.Package,
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
-    [OutputType(typeof(PSUninstallResult))]
-    public sealed class UninstallPackageCmdlet : PackageCmdlet
+    [OutputType(typeof(PSDownloadResult))]
+    public sealed class ExportPackageCmdlet : InstallerSelectionCmdlet
     {
-        private UninstallPackageCommand command = null;
+        private DownloadCommand command = null;
 
         /// <summary>
-        /// Gets or sets the desired mode for the uninstallation process.
+        /// Gets or sets the directory where the installer will be downloaded to.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        public PSPackageUninstallMode Mode { get; set; } = PSPackageUninstallMode.Default;
+        public string DownloadDirectory { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to continue upon non security related failures.
-        /// </summary>
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter Force { get; set; }
-
-        /// <summary>
-        /// Gets or sets the path to the logging file.
-        /// </summary>
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        public string Log { get; set; }
-
-        /// <summary>
-        /// Uninstalls a package from the local system.
+        /// Installs a package from the pipeline or from a configured source.
         /// </summary>
         protected override void ProcessRecord()
         {
-            this.command = new UninstallPackageCommand(
+            this.command = new DownloadCommand(
                         this,
                         this.PSCatalogPackage,
                         this.Version,
-                        this.Log,
                         this.Id,
                         this.Name,
                         this.Moniker,
                         this.Source,
-                        this.Query);
-            this.command.Uninstall(this.MatchOption.ToString(), this.Mode.ToString(), this.Force.ToBool());
+                        this.Query,
+                        this.AllowHashMismatch.ToBool(),
+                        this.SkipDependencies.ToBool(),
+                        this.Locale);
+            this.command.Download(this.DownloadDirectory, this.MatchOption.ToString(), this.Scope.ToString(), this.Architecture.ToString(), this.InstallerType.ToString());
         }
 
         /// <summary>
