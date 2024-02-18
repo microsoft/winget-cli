@@ -97,9 +97,9 @@ usage: winget download [[-q] <query>] [<options>]
 The following items will be included in the WinGet Settings Schema 
 
 ```json
-"DownloadBehavior: {
+"DownloadBehavior": {
         "defaultDownloadDirectory":"%USERPROFILE%/Downloads/"
-}"
+}
 ```
 
 The "defaultDownloadDirectory" setting will be used as the default folder where the package installer and manifest is downloaded to.
