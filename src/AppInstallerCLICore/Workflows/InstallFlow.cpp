@@ -464,6 +464,8 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportInstallerResult::operator()(Execution::Context& context) const
     {
+        bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
+
         DWORD installResult = context.Get<Execution::Data::OperationReturnCode>();
         const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->InstallerSuccessCodes;
         if (installResult != 0 && (std::find(additionalSuccessCodes.begin(), additionalSuccessCodes.end(), installResult) == additionalSuccessCodes.end()))
@@ -507,7 +509,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 const auto& manifest = context.Get<Execution::Data::Manifest>();
 
-                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair))
+                if (isRepair)
                 {
                     Logging::Telemetry().LogRepairFailure(manifest.Id, manifest.Version, m_installerType, installResult);
                 }
@@ -541,7 +543,15 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            if (isRepair)
+            {
+                context.Reporter.Info() << Resource::String::RepairFlowRepairSuccess << std::endl;
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            }
+
         }
     }
 
