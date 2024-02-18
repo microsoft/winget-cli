@@ -242,6 +242,12 @@
     <ClInclude Include="CheckpointManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\RepairCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\RepairFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -450,6 +456,12 @@
     </ClCompile>
     <ClCompile Include="Commands\ErrorCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>    
+    <ClCompile Include="Commands\RepairCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>    
+    <ClCompile Include="Workflows\RepairFlow.cpp">
+      <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

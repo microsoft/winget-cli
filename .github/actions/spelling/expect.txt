@@ -310,6 +310,7 @@ nuffing
 objbase
 objidl
 ofile
+omus
 onefuzz
 ools
 oop

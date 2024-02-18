@@ -55,6 +55,12 @@ namespace AppInstaller::Repository::Microsoft
         const std::wstring SystemComponent{ L"SystemComponent" };
         // REG_SZ
         const std::wstring DisplayIcon{ L"DisplayIcon" };
+        // REG_DWORD
+        const std::wstring NoModify{ L"NoModify" };
+        // REG_DWORD
+        const std::wstring NoRepair{ L"NoRepair" };
+        // REG_SZ
+        const std::wstring ModifyPath{ L"ModifyPath" };
 
         // Gets the registry key associated with the given scope and architecture on this platform.
         // May return an empty key if there is no valid location (bad combination or not found).

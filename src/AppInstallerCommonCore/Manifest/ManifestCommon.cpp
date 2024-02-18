@@ -899,6 +899,15 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Msix;
     }
 
+    bool DoesInstallerTypeRequireRepairBehaviorForRepair(InstallerTypeEnum installerType)
+    {
+        return
+            installerType == InstallerTypeEnum::Burn ||
+            installerType == InstallerTypeEnum::Inno ||
+            installerType == InstallerTypeEnum::Nullsoft ||
+            installerType == InstallerTypeEnum::Exe;
+    }
+
     bool IsArchiveType(InstallerTypeEnum installerType)
     {
         return (installerType == InstallerTypeEnum::Zip);

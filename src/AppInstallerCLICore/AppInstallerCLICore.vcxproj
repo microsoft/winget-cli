@@ -368,6 +368,7 @@
     <ClInclude Include="Commands\HashCommand.h" />
     <ClInclude Include="Commands\ListCommand.h" />
     <ClInclude Include="Commands\PinCommand.h" />
+    <ClInclude Include="Commands\RepairCommand.h" />
     <ClInclude Include="Commands\SearchCommand.h" />
     <ClInclude Include="Commands\ShowCommand.h" />
     <ClInclude Include="Commands\InstallCommand.h" />
@@ -413,6 +414,7 @@
     <ClInclude Include="Workflows\PinFlow.h" />
     <ClInclude Include="Workflows\PortableFlow.h" />
     <ClInclude Include="Workflows\PromptFlow.h" />
+    <ClInclude Include="Workflows\RepairFlow.h" />
     <ClInclude Include="Workflows\SettingsFlow.h" />
     <ClInclude Include="Workflows\ShellExecuteInstallerHandler.h" />
     <ClInclude Include="Workflows\InstallFlow.h" />
@@ -437,6 +439,7 @@
     <ClCompile Include="Commands\ErrorCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
+    <ClCompile Include="Commands\RepairCommand.cpp" />
     <ClCompile Include="Commands\TestCommand.cpp" />
     <ClCompile Include="ConfigurationCommon.cpp" />
     <ClCompile Include="ConfigurationContext.cpp" />
@@ -487,6 +490,7 @@
     <ClCompile Include="Workflows\PinFlow.cpp" />
     <ClCompile Include="Workflows\PortableFlow.cpp" />
     <ClCompile Include="Workflows\PromptFlow.cpp" />
+    <ClCompile Include="Workflows\RepairFlow.cpp" />
     <ClCompile Include="Workflows\SettingsFlow.cpp" />
     <ClCompile Include="Workflows\ShellExecuteInstallerHandler.cpp" />
     <ClCompile Include="Workflows\InstallFlow.cpp" />

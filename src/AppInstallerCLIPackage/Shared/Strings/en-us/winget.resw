@@ -2757,4 +2757,61 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The {0} source requires authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with the source for access authorization.</value>
     <comment>{Locked="{0}"}</comment>
   </data>
+  <data name="RepairCommandLongDescription" xml:space="preserve">
+    <value>Repairs the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+  </data>
+  <data name="RepairCommandShortDescription" xml:space="preserve">
+    <value>Repairs the selected package</value>
+  </data>
+  <data name="NoRepairInfoFound" xml:space="preserve">
+    <value>The repair command for this package cannot be found. Please reach out to the package publisher for support.</value>
+  </data>
+  <data name="RepairDifferentInstallTechnology" xml:space="preserve">
+    <value>The installer technology in use does not match the version currently installed.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND" xml:space="preserve">
+    <value>Repair command not found.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED" xml:space="preserve">
+    <value>The installer technology in use doesn't support repair.</value>
+  </data>
+  <data name="RepairFlowRepairSuccess" xml:space="preserve">
+    <value>Repair operation completed successfully.</value>
+  </data>
+  <data name="RepairAbandoned" xml:space="preserve">
+    <value>Repair abandoned</value>
+  </data>
+  <data name="RepairFlowStartingPackageRepair" xml:space="preserve">
+    <value>Starting package repair...</value>
+  </data>
+  <data name="MSStoreRepairFailed" xml:space="preserve">
+    <value>Failed to repair Microsoft Store package. Error code: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to repair. {0} is a placeholder replaced by an error code.</comment>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED" xml:space="preserve">
+    <value>Repair operation failed.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE" xml:space="preserve">
+    <value>Repair operation is not applicable.</value>
+  </data>
+  <data name="RepairFlowNoMatchingVersion" xml:space="preserve">
+    <value>No matching package versions are available from the configured sources.</value>
+  </data>
+  <data name="RepairFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>The current system configuration does not support the repair of this package.</value>
+  </data>
+  <data name="RepairOperationNotSupported" xml:space="preserve">
+    <value>The installer technology in use does not support repair.</value>
+  </data>
+    <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
+    <value>The package installed for user scope cannot be repaired when running with administrator privileges.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
+    <value>Repair operations involving administrator privileges are not permitted on packages installed within the user scope.</value>
+  </data>  
+  <data name="RepairFailedWithCode" xml:space="preserve">
+    <value>Repair failed with exit code: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to repair an application package fails. {0} is a placeholder replaced by an error code.</comment>
+  </data>
 </root>

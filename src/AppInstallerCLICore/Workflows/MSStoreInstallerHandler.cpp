@@ -146,6 +146,47 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void MSStoreRepair(Execution::Context& context)
+    {
+        auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
+        auto scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        bool isSilentMode = context.Args.Contains(Execution::Args::Type::Silent);
+        bool force = context.Args.Contains(Execution::Args::Type::Force);
+
+        auto repairOperation = MSStoreOperation(MSStoreOperationType::Repair, productId, scope, isSilentMode, force);
+
+        context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+
+        HRESULT hr = S_OK;
+        context.Reporter.ExecuteWithProgress(
+            [&](IProgressCallback& progress)
+            {
+                hr = repairOperation.StartAndWaitForOperation(progress);
+            });
+
+        if (SUCCEEDED(hr))
+        {
+            context.Reporter.Info() << Resource::String::RepairFlowRepairSuccess << std::endl;
+        }
+        else
+        {
+            if (hr == APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED)
+            {
+                context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
+                context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
+            }
+            else
+            {
+                auto errorCodeString = GetErrorCodeString(hr);
+                context.Reporter.Error() << Resource::String::MSStoreRepairFailed(errorCodeString) << std::endl;
+                context.Add<Execution::Data::OperationReturnCode>(hr);
+                AICLI_LOG(CLI, Error, << "MSStore repair failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
+            }
+
+            AICLI_TERMINATE_CONTEXT(hr);
+        }
+    }
+
     void EnsureStorePolicySatisfied(Execution::Context& context)
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);

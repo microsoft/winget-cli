@@ -530,6 +530,11 @@ namespace AppInstaller::Repository::Microsoft
                 AddMetadataIfPresent(arpKey, UninstallString, index, manifestId, PackageVersionMetadata::StandardUninstallCommand);
                 AddMetadataIfPresent(arpKey, QuietUninstallString, index, manifestId, PackageVersionMetadata::SilentUninstallCommand);
 
+                // Pick up ModifyPath for repair.
+                AddMetadataIfPresent(arpKey, ModifyPath, index, manifestId, PackageVersionMetadata::StandardModifyCommand);
+                AddMetadataIfPresent(arpKey, NoModify, index, manifestId, PackageVersionMetadata::NoModify);
+                AddMetadataIfPresent(arpKey, NoRepair, index, manifestId, PackageVersionMetadata::NoRepair);
+
                 // Pick up Language to enable proper selection of language for upgrade.
                 AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::InstalledLocale);
 
