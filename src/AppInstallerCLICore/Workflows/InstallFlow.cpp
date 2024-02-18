@@ -551,7 +551,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
             }
-
         }
     }
 
