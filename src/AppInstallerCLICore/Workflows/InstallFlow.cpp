@@ -637,11 +637,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // At present, the installer repair behavior scenario is restricted to Exe, Inno, Nullsoft, and Burn installer types.
-            auto effectiveInstallerType = installer->EffectiveInstallerType();
-            if (effectiveInstallerType != InstallerTypeEnum::Burn &&
-                effectiveInstallerType != InstallerTypeEnum::Inno &&
-                effectiveInstallerType != InstallerTypeEnum::Nullsoft &&
-                effectiveInstallerType != InstallerTypeEnum::Exe)
+            if (!DoesInstallerTypeRequireRepairBehaviorForRepair(installer->EffectiveInstallerType()))
             {
                 return;
             }

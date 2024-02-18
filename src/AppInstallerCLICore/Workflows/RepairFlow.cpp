@@ -82,15 +82,15 @@ namespace AppInstaller::CLI::Workflow
         void SetProductCodesInContext(Execution::Context& context)
         {
             const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-            auto productCode = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+            auto productCodes = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
 
-            if (productCode.empty())
+            if (productCodes.empty())
             {
                 context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
             }
 
-            context.Add<Execution::Data::ProductCodes>(productCode);
+            context.Add<Execution::Data::ProductCodes>(productCodes);
         }
 
         // Sets the package family names in the context.
@@ -161,11 +161,8 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Repair behavior is required for Burn, Inno, Nullsoft, Exe installers
-            if ((installerType == InstallerTypeEnum::Burn
-                || installerType == InstallerTypeEnum::Inno
-                || installerType == InstallerTypeEnum::Nullsoft
-                || installerType == InstallerTypeEnum::Exe)
-                && repairBehavior == RepairBehaviorEnum::Unknown)
+            if (DoesInstallerTypeRequireRepairBehaviorForRepair(installerType) &&
+                repairBehavior == RepairBehaviorEnum::Unknown)
             {
                 context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
@@ -427,7 +424,9 @@ namespace AppInstaller::CLI::Workflow
         context <<
             RepairApplicabilityCheck <<
             GetRepairInfo <<
-            ExecuteRepair;
+            ReportExecutionStage(ExecutionStage::Execution) <<
+            ExecuteRepair <<
+            ReportExecutionStage(ExecutionStage::PostExecution);
     }
 
     void SelectApplicablePackageVersion(Execution::Context& context)
@@ -437,7 +436,7 @@ namespace AppInstaller::CLI::Workflow
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         if (installedVersion.IsUnknown())
         {
-            context.Reporter.Info() << Resource::String::NoApplicableInstallers << std::endl;
+            context.Reporter.Error() << Resource::String::NoApplicableInstallers << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
