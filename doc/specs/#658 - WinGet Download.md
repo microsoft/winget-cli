@@ -107,7 +107,7 @@ The "defaultDownloadDirectory" setting will be used as the default folder where 
 ### WinGet PowerShell Cmdlet
 WinGet PowerShell cmdlet will download the identified package's installer and manifest based on the user specified parameters. While downloading the package's installer, PowerShell will show a progress bar displaying the progress. Once the download is complete, the status of the download will be shown to the user, along with the id, name, and source of the package.
 
-```PS
+```
 C:\> Export-WinGetPackage -?
 
 NAME
