@@ -48,8 +48,8 @@ If no output is displayed, it is likely that the version of WinGet on your syste
 You can check which version of WinGet is on your machine using `winget --info`. If the version is lower than `1.6.3482`, take the following troubleshooting steps.
 
 1. Install the latest version of WinGet using one of the below methods
-  * a. Through the Microsoft Store by installing the latest version of AppInstaller
-  * b. Through installing the MSIX package found in the GitHub releases
+  * a. Through the Microsoft Store by installing the latest version of [App Installer](https://apps.microsoft.com/detail/9NBLGGH4NNS1)
+  * b. Through installing the MSIX package found in the [GitHub releases](https://github.com/microsoft/winget-cli/releases)
   * c. Through installing the MSIX package from https://aka.ms/getwinget
 2. Force a source update using `winget source update`
 
