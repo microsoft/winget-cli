@@ -144,6 +144,7 @@ fuzzer
 fzanollo
 gcpi
 GESMBH
+getwinget
 GHS
 gity
 goku
