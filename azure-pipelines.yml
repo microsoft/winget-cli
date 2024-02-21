@@ -592,3 +592,4 @@ jobs:
       onefuzzDropDirectory: '$(buildOutDir)\WinGetYamlFuzzing'
       onefuzzDropPAT: $(onefuzzDropPAT)
       onefuzzFilingBugPAT: $(onefuzzBugFilingPAT)
+      onefuzzCodeCoveragePAT: $(onefuzzCodeCoveragePAT)
