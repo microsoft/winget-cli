@@ -44,7 +44,7 @@ After the package is provisioned, the users need to log into their Windows accou
 
 ### Executing `winget` exits with no message
 
-If no errors are displayed, it is likely that the version of WinGet on your system is using a retired Content Delivery Network (CDN).
+If no output is displayed, it is likely that the version of WinGet on your system is using a retired Content Delivery Network (CDN).
 You can check which version of WinGet is on your machine using `winget --info`. If the version is lower than `1.6.3482`, take the following troubleshooting steps.
 
 1. Install the latest version of WinGet using one of the below methods
