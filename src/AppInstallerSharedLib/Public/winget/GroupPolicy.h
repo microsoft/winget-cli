@@ -22,6 +22,7 @@ namespace AppInstaller::Settings
         SourceAutoUpdateIntervalInMinutes,
         AdditionalSources,
         AllowedSources,
+        DefaultProxy,
         Max,
     };
 
@@ -147,6 +148,7 @@ namespace AppInstaller::Settings
         )
 
         POLICY_MAPPING_VALUE_SPECIALIZATION(ValuePolicy::SourceAutoUpdateIntervalInMinutes, uint32_t, "SourceAutoUpdateInterval"sv, Registry::Value::Type::DWord);
+        POLICY_MAPPING_VALUE_SPECIALIZATION(ValuePolicy::DefaultProxy, std::string, "DefaultProxy"sv, Registry::Value::Type::String);
 
         POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AdditionalSources, SourceFromPolicy, "AdditionalSources"sv);
         POLICY_MAPPING_LIST_SPECIALIZATION(ValuePolicy::AllowedSources, SourceFromPolicy, "AllowedSources"sv);

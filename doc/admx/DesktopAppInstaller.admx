@@ -176,5 +176,12 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="WindowsPackageManagerDefaultProxy" class="Machine" displayName="$(string.WindowsPackageManagerDefaultProxy)" explainText="$(string.WindowsPackageManagerDefaultProxyExplanation)" presentation="$(presentation.WindowsPackageManagerDefaultProxy)" key="Software\Policies\Microsoft\Windows\AppInstaller">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <elements>
+        <text id="WindowsPackageManagerDefaultProxy" valueName="DefaultProxy"  />
+      </elements>
+    </policy>
   </policies>
 </policyDefinitions>

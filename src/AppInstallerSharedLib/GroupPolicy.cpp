@@ -224,6 +224,13 @@ namespace AppInstaller::Settings
 
     namespace details
     {
+#define POLICY_MAPPING_DEFAULT_READ(_policy_) \
+        std::optional<typename ValuePolicyMapping<_policy_>::value_t> ValuePolicyMapping<_policy_>::ReadAndValidate(const Registry::Key& policiesKey) \
+        { \
+            using Mapping = ValuePolicyMapping<_policy_>; \
+            return GetRegistryValueData<Mapping::ValueType>(policiesKey, Mapping::ValueName); \
+        }
+
 #define POLICY_MAPPING_DEFAULT_LIST_READ(_policy_) \
         std::optional<typename ValuePolicyMapping<_policy_>::value_t> ValuePolicyMapping<_policy_>::ReadAndValidate(const Registry::Key& policiesKey) \
         { \
@@ -232,6 +239,7 @@ namespace AppInstaller::Settings
 
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AdditionalSources);
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AllowedSources);
+        POLICY_MAPPING_DEFAULT_READ(ValuePolicy::DefaultProxy);
 
         std::nullopt_t ValuePolicyMapping<ValuePolicy::None>::ReadAndValidate(const Registry::Key&)
         {
