@@ -30,7 +30,7 @@
       "codeCoverage": {
         "org": "ms",
         "project": "winget-cli",
-        "pipelineId": "Pipeline ID"
+        "pipelineId": "630"
       }
     }
   ]
