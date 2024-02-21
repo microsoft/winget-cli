@@ -63,6 +63,7 @@ namespace AppInstaller::CLI::Execution
         Pins,
         ConfigurationContext,
         DownloadDirectory,
+        ProxyUri,
         Max
     };
 
@@ -266,6 +267,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::DownloadDirectory>
         {
             using value_t = std::filesystem::path;
+        };
+
+        template <>
+        struct DataMapping<Data::ProxyUri>
+        {
+            using value_t = std::optional<std::string>;
         };
     }
 }

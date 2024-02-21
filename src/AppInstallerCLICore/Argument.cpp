@@ -385,9 +385,9 @@ namespace AppInstaller::CLI
         case Args::Type::IgnoreResumeLimit:
             return Argument{ type, Resource::String::IgnoreResumeLimitArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Resume };
         case Args::Type::Proxy:
-            return Argument{ type, Resource::String::ProxyArgumentDescription, ArgumentType::Standard, false };
+            return Argument{ type, Resource::String::ProxyArgumentDescription, ArgumentType::Standard, Settings::TogglePolicy::Policy::ProxyCommandLineOptions, Settings::AdminSetting::ProxyCommandLineOptions };
         case Args::Type::NoProxy:
-            return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag };
+            return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::ProxyCommandLineOptions, Settings::AdminSetting::ProxyCommandLineOptions };
         default:
             THROW_HR(E_UNEXPECTED);
         }
