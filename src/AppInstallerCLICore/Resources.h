@@ -552,6 +552,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetListAndOverridePreamble);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetOne);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceTrustLevelArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceTypeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandLongDescription);

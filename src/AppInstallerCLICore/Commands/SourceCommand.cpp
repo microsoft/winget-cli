@@ -52,6 +52,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::SourceName).SetRequired(true),
             Argument::ForType(Args::Type::SourceArg),
             Argument::ForType(Args::Type::SourceType),
+            Argument::ForType(Args::Type::SourceTrustLevel),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
@@ -126,6 +127,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::SourceName),
+            Argument::ForType(Args::Type::SourceTrustLevel),
         };
     }
 

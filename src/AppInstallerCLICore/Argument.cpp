@@ -111,6 +111,8 @@ namespace AppInstaller::CLI
             return { type, "arg"_liv, 'a' };
         case Execution::Args::Type::ForceSourceReset:
             return { type, "force"_liv };
+        case Execution::Args::Type::SourceTrustLevel:
+            return { type, "trust-level"_liv };
 
         //Hash Command
         case Execution::Args::Type::HashFile:
@@ -331,6 +333,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::SourceArgArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::SourceType:
             return Argument{ type, Resource::String::SourceTypeArgumentDescription, ArgumentType::Positional };
+        case Args::Type::SourceTrustLevel:
+            return Argument{ type, Resource::String::SourceTrustLevelArgumentDescription, ArgumentType::Positional };
         case Args::Type::ValidateManifest:
             return Argument{ type, Resource::String::ValidateManifestArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::IgnoreWarnings:
