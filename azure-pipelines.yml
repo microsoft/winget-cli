@@ -19,10 +19,6 @@ pool:
 variables:
   solution: 'src\AppInstallerCLI.sln'
   appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
-  # Enable CodeQL/Semmle static analysis for default branch
-  # Codeql.Enabled: true
-  # TODO: Remove. Only for testing, we should use standard cadence of 72h
-  # CodeQL.Cadence: 0
 
 # Do not set the build version for a PR build.
 
@@ -60,14 +56,11 @@ jobs:
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
     buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
+    buildOutDirAnyCpu: $(Build.SourcesDirectory)\src\AnyCPU\$(buildConfiguration)
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
     packageLayoutDir: $(Build.BinariesDirectory)\WingetPackageLayout
 
   steps:
-
-  # TODO: Remove; only to test in non-default branch
-  #- task: CodeQL3000Init@0
-
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
 
@@ -77,9 +70,6 @@ jobs:
     inputs:
       restoreSolution: '$(solution)'
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
   # Restore these UAP packages as https://github.com/NuGet/Home/issues/7796 leads to all UAP packages being skipped for restore.
   # Even though they don't need any actual restore action, they need the project.assets.json file to be created and a direct restore does that.
   - task: NuGetCommand@2
@@ -87,16 +77,10 @@ jobs:
     inputs:
       restoreSolution: 'src\AppInstallerCLIPackage\AppInstallerCLIPackage.wapproj'
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
   - task: NuGetCommand@2
     displayName: Restore AppInstallerTestMsixInstaller
     inputs:
       restoreSolution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
 
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   - task: DotNetCoreCLI@2
@@ -105,9 +89,6 @@ jobs:
       command: 'restore'
       projects: '**/*.csproj'
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
   - task: PowerShell@2
     displayName: Update Binary Version
     condition: not(eq(variables['Build.Reason'], 'PullRequest'))
@@ -115,9 +96,6 @@ jobs:
       filePath: 'src\binver\Update-BinVer.ps1'
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
       workingDirectory: 'src'
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
 
   # Build all solutions in the root directory.
   - task: VSBuild@1
@@ -132,9 +110,6 @@ jobs:
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-  
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
@@ -147,86 +122,33 @@ jobs:
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
-  # Run static analysis and compliance checks for all the binaries
-  - task: ComponentGovernanceComponentDetection@0
-    displayName: Component Governance
-    inputs:
-      scanType: 'LogOnly'
-      verbosity: 'Verbose'
-      alertWarningLevel: 'High'
-      failOnAlert: true
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
-  - task: CredScan@3
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
-  - task: BinSkim@4
-    inputs:
-      InputType: 'Basic'
-      Function: 'analyze'
-      TargetPattern: 'guardianGlob'
-      AnalyzeTargetGlob: 'f|$(buildOutDir)/**.dll;f|$(buildOutDir)/**.exe;f|$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\*.dll'
-    continueOnError: true # TODO: remove once we pass these checks
-
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
-  - task: PublishSecurityAnalysisLogs@3
-    inputs:
-      ArtifactName: 'CodeAnalysisLogs'
-      ArtifactType: 'Container'
-      AllTools: true
-      ToolLogsNotFoundAction: 'Standard'
-    condition: succeededOrFailed()
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
   - task: CopyFiles@2
-    displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
+    displayName: 'Copy Symbols to artifacts folder'
     inputs:
-      Contents: '$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb'
+      Contents: |
+          $(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb
+          $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.pdb
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
 
   - task: PowerShell@2
     displayName: Install Tests Dependencies
     inputs:
       targetType: 'inline'
       script: |
-        Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\Microsoft.VCLibs.$(buildPlatform).14.00.Desktop.appx
+        Get-ChildItem AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform) -Filter *.appx | %{ Add-AppxPackage $_.FullName }
       workingDirectory: $(appxPackageDir)
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
 
   - task: VisualStudioTestPlatformInstaller@1
     displayName: Prepare VSTest for E2E Tests
     inputs:
       packageFeedSelector: 'nugetOrg'
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
   - task: DownloadSecureFile@1
     name: PsExec
     displayName: 'Download PsExec.exe'
     inputs:
       secureFile: 'PsExec.exe'
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
 
   - task: CmdLine@2
     displayName: Run Unit Tests Unpackaged Under System Context
@@ -236,9 +158,6 @@ jobs:
       workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
     continueOnError: true
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
   - task: PowerShell@2
     displayName: Create Package Layout
     inputs:
@@ -246,9 +165,6 @@ jobs:
       arguments: '-AppxRecipePath AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(packageLayoutDir) -Force -Verbose'
       workingDirectory: 'src'
     continueOnError: true
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
 
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
@@ -258,36 +174,12 @@ jobs:
       workingDirectory: 'src'
     continueOnError: true
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
   - task: PublishTestResults@2
     displayName: Publish Unit Test Results
     inputs:
       testResultsFormat: 'JUnit'
       testResultsFiles: '$(artifactsDir)\TEST-*.xml'
       failTaskOnFailedTests: true
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
-  - task: DownloadSecureFile@1
-    name: AppInstallerTest
-    displayName: 'Download Source Package Certificate'
-    inputs:
-      secureFile: 'AppInstallerTest.pfx'
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
-  - task: DownloadSecureFile@1
-    name: HTTPSDevCert
-    displayName: 'Download Kestrel Certificate'
-    inputs:
-      secureFile: 'HTTPSDevCertV2.pfx'
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
@@ -300,27 +192,6 @@ jobs:
                          /p:UapAppxPackageBuildMode=SideLoadOnly
                          /p:AppxPackageSigningEnabled=false'
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
-  - task: PowerShell@2
-    displayName: Install Root Certificate
-    inputs:
-      filePath: 'src\LocalhostWebServer\InstallDevCert.ps1'
-      arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
-  - task: PowerShell@2
-    displayName: Launch LocalhostWebServer
-    inputs:
-      filePath: 'src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
-      arguments: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
   - task: PowerShell@2
     displayName: 'Set program files directory'
     inputs:
@@ -332,9 +203,6 @@ jobs:
           Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles}"
         }
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
   # Resolves resource strings utilized by InProc E2E tests.
   - task: CopyFiles@2
     displayName: 'Copy resources.pri to dotnet directory'
@@ -342,9 +210,6 @@ jobs:
       SourceFolder: '$(buildOutDir)\AppInstallerCLI'
       TargetFolder:  '$(platformProgramFiles)\dotnet'
       Contents: resources.pri
-
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
 
   # Winmd accessed by test runner process (dotnet.exe)
   - task: CopyFiles@2
@@ -354,8 +219,10 @@ jobs:
       TargetFolder: '$(platformProgramFiles)\dotnet'
       Contents: Microsoft.Management.Deployment.winmd
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
+  - template: templates/e2e-setup.yml
+    parameters:
+      sourceDir: $(Build.SourcesDirectory)
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -363,18 +230,15 @@ jobs:
       isPackaged: true
       filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
-  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
-    condition: always()
-
   - template: templates/e2e-test.template.yml
     parameters:
-      title: "COM API E2E Tests (In-process)"
+      title: "Microsoft.Management.Deployment E2E Tests (In-process)"
       isPackaged: false
       filter: "TestCategory=InProcess"
 
   - template: templates/e2e-test.template.yml
     parameters:
-      title: "COM API E2E Tests (Out-of-process)"
+      title: "Microsoft.Management.Deployment E2E Tests (Out-of-process)"
       isPackaged: true
       filter: "TestCategory=OutOfProcess"
 
@@ -382,16 +246,65 @@ jobs:
     displayName: 'Copy E2E Tests Package Log to artifacts folder'
     inputs:
       SourceFolder: '$(temp)\E2ETestLogs'
-      TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
+      TargetFolder: '$(artifactsDir)\E2ETests\PackagedLog'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy E2E Test Source'
+    inputs:
+      SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestLocalIndex'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy TestData'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestData'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy LocalhostWebServer'
+    inputs:
+      SourceFolder: '$(buildOutDir)\LocalhostWebServer'
+      TargetFolder: '$(artifactsDir)\E2ETests\LocalhostWebServer'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Package Dependencies'
+    inputs:
+      SourceFolder: '$(appxPackageDir)\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\'
+      TargetFolder: '$(artifactsDir)\E2ETests\DevPackageDependencies'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy test scripts to artifacts'
+    inputs:
+      Contents: |
+          $(Build.SourcesDirectory)\src\PowerShell\scripts\Execute-WinGetTests.ps1
+          $(Build.SourcesDirectory)\src\PowerShell\tests\**
+          $(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1
+      TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
+      flattenFolders: true
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\net6.0'
+      SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(buildPlatform)\$(BuildConfiguration)\net6.0'
       TargetFolder:  '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy WinGetUtil to WinGetUtilInterop.UnitTests folder'
+    inputs:
+      Contents: |
+          $(buildOutDir)\WinGetUtil\WinGetUtil.dll
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
+      flattenFolders: true
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: 'Run tests: WinGetUtilInterop.UnitTests'
@@ -400,18 +313,50 @@ jobs:
       testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
       searchFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests'
       codeCoverageEnabled: true
-      platform: 'Any CPU'
+      platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
+      diagnosticsEnabled: true
+    condition: succeededOrFailed()
   
   - task: VSTest@2
-    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests'
+    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (InProc)'
     inputs:
+      testRunTitle: Microsoft.Management.Configuration.UnitTests (InProc)
       testSelector: 'testAssemblies'
       testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
       searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
+      diagnosticsEnabled: true
+    condition: and(succeededOrFailed(), eq(variables.buildPlatform, 'x86'))
+
+  - task: PowerShell@2
+    displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
+    inputs:
+      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1'
+      arguments: '-BuildOutputPath $(buildOutDir) -PackageLayoutPath $(packageLayoutDir)'
+    condition: succeededOrFailed()
+
+  - task: VSTest@2
+    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (OutOfProc)'
+    inputs:
+      testRunTitle: Microsoft.Management.Configuration.UnitTests (OutOfProc)
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
+      testFiltercriteria: 'Category=OutOfProc'
+      codeCoverageEnabled: true
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Collect logs for Microsoft.Management.Configuration.UnitTests (OutOfProc)
+    inputs:
+      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Collect-ConfigurationOOPTests.ps1'
+      arguments: '-TargetLocation $(artifactsDir)\ConfigOOPTestsLog'
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Util to artifacts folder'
@@ -423,36 +368,102 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
-    displayName: 'Copy PowerShell Module Files'
+    displayName: 'Copy native binaries for Microsoft.WinGet.Client'
     inputs:
-      SourceFolder: '$(buildOutDir)\PowerShell'
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll
+          Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
+          WindowsPackageManager\WindowsPackageManager.dll
+          UndockedRegFreeWinRT\winrtact.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net6.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy native binaries for Microsoft.WinGet.Client'
+    inputs:
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll
+          Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd
+          WindowsPackageManager\WindowsPackageManager.dll
+          UndockedRegFreeWinRT\winrtact.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net48\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy native binaries for Microsoft.WinGet.Configuration'
+    inputs:
+      SourceFolder: $(buildOutDir)
+      Contents: |
+          Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy managed binaries for Microsoft.WinGet.Configuration in arch specific'
+    inputs:
+      SourceFolder: $(buildOutDirAnyCpu)
+      Contents: |
+          Microsoft.Management.Configuration.Projection\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Projection.dll
+      TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy PowerShell AnyCPU Module Files'
+    inputs:
+      SourceFolder: '$(buildOutDirAnyCpu)\PowerShell'
       TargetFolder: '$(artifactsDir)\PowerShell'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Dev Package (Loose Files)'
     inputs:
       SourceFolder: '$(packageLayoutDir)'
       TargetFolder: '$(artifactsDir)\DevPackage'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Dev Packages'
     inputs:
       SourceFolder: '$(appxPackageDir)'
       TargetFolder: '$(artifactsDir)\AppxPackages'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
       targetPath: '$(artifactsDir)'
-    condition: always()
+    condition: succeededOrFailed()
 
+  - task: ComponentGovernanceComponentDetection@0
+    displayName: Component Governance
+    inputs:
+      scanType: 'Register'
+      verbosity: 'Verbose'
+      alertWarningLevel: 'High'
 
-  # TODO: Remove; only to test in non-default branch
-  - task: CodeQL3000Finalize@0
-    condition: always()
+  # Run BimSkim for all the binaries
+  - task: BinSkim@3
+    displayName: 'Run BinSkim '
+    inputs:
+      arguments: 'analyze
+        "$(buildOutDir)\AppInstallerCLI\winget.exe"
+        "$(buildOutDir)\WinGetUtil\WinGetUtil.dll"
+        "$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.dll"
+        "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
+        "$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\WinGetUtil*Interop.dll"
+        "$(buildOutDir)\UndockedRegFreeWinRT\winrtact.dll"
+        "$(buildOutDir)\Microsoft.WinGet.Client.Cmdlets\Microsoft.WinGet.Client*.dll"
+        "$(buildOutDir)\ConfigurationRemotingServer\ConfigurationRemoting*Server.dll"
+        "$(buildOutDir)\ConfigurationRemotingServer\ConfigurationRemoting*Server.exe"
+        "$(buildOutDir)\ConfigurationRemotingServer\Microsoft.Management.Configuration*.dll"
+        "$(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration*.dll"
+        "$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration*.dll"
+        --config default --recurse'
+
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
+    displayName: 'Publish Security Analysis Logs'
 
 - job: 'BuildPowerShellModule'
   timeoutInMinutes: 120
@@ -477,7 +488,105 @@ jobs:
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
+  - task: CopyFiles@2
+    displayName: 'Copy Microsoft.WinGet.DSC module to staging directory'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\PowerShell\Microsoft.WinGet.DSC'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.DSC'
+
+  - task: PowerShell@2
+    displayName: Install Tests Dependencies
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-ChildItem E2ETests\DevPackageDependencies -Filter *.appx | %{ Add-AppxPackage $_.FullName }
+      workingDirectory: $(Pipeline.Workspace)\Build.x64release\
+
+  - template: templates/e2e-setup.yml
+    parameters:
+      sourceDir: $(Build.SourcesDirectory)
+      localhostWebServerArgs: '-BuildRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer -StaticFileRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
+
+  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
+    workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
+    displayName: Run PowerShell 7 Tests
+  
+  - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest
+    workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
+    displayName: Run Windows PowerShell Tests
+    condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    displayName: Publish Pester Test Results PowerShell 7
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\PesterTest\Test*.xml'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    displayName: Publish Pester Test Results Windows PowerShell
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\WPPesterTest\Test*.xml'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
   - task: PublishPipelineArtifact@1
     displayName: Publish PowerShell Module Artifacts
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
+    condition: succeededOrFailed()
+
+- job: 'Fuzzing'
+  timeoutInMinutes: 60
+  condition: not(eq(variables['Build.Reason'], 'PullRequest'))
+
+  strategy:
+    matrix:
+      x64:
+        buildConfiguration: 'Fuzzing'
+        buildPlatform: 'x64'
+
+  variables:
+    buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
+    artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
+
+  steps:
+  - task: NuGetToolInstaller@1
+    displayName: Install Nuget
+
+  - task: NuGetCommand@2
+    displayName: Restore Solution
+    inputs:
+      restoreSolution: '$(solution)'
+
+  - task: VSBuild@1
+    displayName: Build Fuzzing Artifacts
+    inputs:
+      platform: '$(buildPlatform)'
+      solution: '$(solution)'
+      configuration: '$(buildConfiguration)'
+      msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog'
+
+  - task: CopyFiles@2
+    displayName: Copy Fuzzing Artifacts for Publishing
+    inputs:
+      SourceFolder: '$(buildOutDir)\WinGetYamlFuzzing'
+      Contents: '**'
+      TargetFolder: '$(artifactsDir)'
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Fuzzing Artifacts
+    inputs:
+      targetPath: '$(artifactsDir)'
+
+  - task: onefuzz-task@0
+    inputs:
+      onefuzzOSes: 'Windows'
+    env:
+      onefuzzDropDirectory: '$(buildOutDir)\WinGetYamlFuzzing'
+      onefuzzDropPAT: $(onefuzzDropPAT)
+      onefuzzFilingBugPAT: $(onefuzzBugFilingPAT)
+      onefuzzCodeCoveragePAT: $(onefuzzCodeCoveragePAT)
