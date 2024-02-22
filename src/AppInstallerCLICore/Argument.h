@@ -244,6 +244,9 @@ namespace AppInstaller::CLI
         Argument(Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
             m_argCommon(ArgumentCommon::ForType(execArgType)), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
 
+        Argument(Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::ExperimentalFeature::Feature feature, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
+            m_argCommon(ArgumentCommon::ForType(execArgType)), m_desc(std::move(desc)), m_type(type), m_feature(feature), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
+
         ArgumentCommon m_argCommon;
         Resource::StringId m_desc;
         bool m_required = false;

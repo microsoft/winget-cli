@@ -140,6 +140,7 @@ namespace AppInstaller::CLI::Execution
             AuthenticationMode, // Authentication mode (silent, silentPreferred or interactive)
             AuthenticationAccount, // Authentication account to be used
 
+            // Network Behavior
             Proxy, // Set a proxy to use in this execution
             NoProxy, // Do not use the default proxy
 
