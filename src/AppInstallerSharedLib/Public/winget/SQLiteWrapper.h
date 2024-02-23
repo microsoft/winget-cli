@@ -8,6 +8,7 @@
 #include <AppInstallerLogging.h>
 #include <AppInstallerLanguageUtilities.h>
 
+#include <memory>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -125,6 +126,23 @@ namespace AppInstaller::SQLite
 
         template <typename T>
         using ParameterSpecifics = ParameterSpecificsImpl<std::decay_t<T>>;
+
+        // Allows the connection to be shared so that it can be closed in some circumstances.
+        struct SharedConnection
+        {
+            // Disables the connection, causing an exception to be thrown by `get`.
+            void Disable();
+
+            // Gets the connection object if active.
+            sqlite3* Get() const;
+
+            // Gets the connection object for creation.
+            sqlite3** GetPtr();
+
+        private:
+            std::atomic_bool m_active = true;
+            wil::unique_any<sqlite3*, decltype(sqlite3_close_v2), sqlite3_close_v2> m_dbconn;
+        };
     }
 
     // A SQLite exception.
@@ -133,9 +151,13 @@ namespace AppInstaller::SQLite
         SQLiteException(int error) : wil::ResultException(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_SQLITE, error)) {}
     };
 
+    struct Statement;
+
     // The connection to a database.
     struct Connection
     {
+        friend Statement;
+
         // The disposition for opening a database connection.
         enum class OpenDisposition : int
         {
@@ -180,13 +202,20 @@ namespace AppInstaller::SQLite
         //. Gets the (fixed but arbitrary) identifier for this connection.
         size_t GetID() const;
 
-        operator sqlite3* () const { return m_dbconn.get(); }
+        // Sets the busy timeout for the connection.
+        void SetBusyTimeout(std::chrono::milliseconds timeout);
+
+        operator sqlite3* () const { return m_dbconn->Get(); }
+
+    protected:
+        // Gets the shared connection.
+        std::shared_ptr<details::SharedConnection> GetSharedConnection() const;
 
     private:
         Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags);
 
         size_t m_id = 0;
-        wil::unique_any<sqlite3*, decltype(sqlite3_close_v2), sqlite3_close_v2> m_dbconn;
+        std::shared_ptr<details::SharedConnection> m_dbconn;
     };
 
     // A SQL statement.
@@ -234,10 +263,10 @@ namespace AppInstaller::SQLite
         // Evaluate the statement; either retrieving the next row or executing some action.
         // Returns true if there is a row of data, or false if there is none.
         // This return value is the equivalent of 'GetState() == State::HasRow' after calling Step.
-        bool Step(bool failFastOnError = false);
+        bool Step(bool closeConnectionOnError = false, bool throwOnError = true);
 
         // Equivalent to Step, but does not ever expect a result, throwing if one is retrieved.
-        void Execute(bool failFastOnError = false);
+        void Execute(bool closeConnectionOnError = false);
 
         // Gets a boolean value that indicates whether the specified column value is null in the current row.
         // The index is 0 based.
@@ -282,6 +311,7 @@ namespace AppInstaller::SQLite
             return std::make_tuple(details::ParameterSpecifics<Values>::GetColumn(m_stmt.get(), I)...);
         }
 
+        std::shared_ptr<details::SharedConnection> m_dbconn;
         size_t m_connectionId = 0;
         size_t m_id = 0;
         wil::unique_any<sqlite3_stmt*, decltype(sqlite3_finalize), sqlite3_finalize> m_stmt;
@@ -303,7 +333,7 @@ namespace AppInstaller::SQLite
         ~Savepoint();
 
         // Rolls back the Savepoint.
-        void Rollback();
+        void Rollback(bool throwOnError = true);
 
         // Commits the Savepoint.
         void Commit();
