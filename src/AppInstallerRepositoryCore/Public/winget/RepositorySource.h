@@ -3,6 +3,7 @@
 #pragma once
 #include <winget/RepositorySearch.h>
 #include <winget/PackageTrackingCatalog.h>
+#include <AppInstallerDownloader.h>
 #include <AppInstallerProgress.h>
 #include <winget/Certificates.h>
 #include <winget/Authentication.h>
@@ -132,6 +133,9 @@ namespace AppInstaller::Repository
         // The configuration of how the server certificate will be validated.
         Certificates::PinningConfiguration CertificatePinningConfiguration;
 
+        // Proxy to use when talking to the source
+        Utility::ProxyInfo ProxyInfo = {};
+
         // This value is used as an alternative to the `Arg` value if it is failing to function properly.
         // The alternate location must point to identical data or inconsistencies may arise.
         std::string AlternateArg;
@@ -247,6 +251,9 @@ namespace AppInstaller::Repository
 
         // Set authentication arguments. Must be set before Open to have effect.
         void SetAuthenticationArguments(Authentication::AuthenticationArguments args);
+
+        // Set proxy info. Must be set before Open to have effect.
+        void SetProxyInfo(const Utility::ProxyInfo& proxyInfo);
 
         // Set background update check interval.
         void SetBackgroundUpdateInterval(TimeSpan interval);

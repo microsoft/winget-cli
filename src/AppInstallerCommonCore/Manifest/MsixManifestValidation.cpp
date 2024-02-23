@@ -78,7 +78,7 @@ namespace AppInstaller::Manifest
         try
         {
             AICLI_LOG(Core, Info, << "Fetching Msix info from installer url");
-            return std::make_shared<Msix::MsixInfo>(installerUrl);
+            return std::make_shared<Msix::MsixInfo>(installerUrl, Utility::ProxyInfo::NoProxy);
         }
         catch (...)
         {

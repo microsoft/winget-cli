@@ -139,6 +139,11 @@ namespace AppInstaller::Repository::Rest::Schema
             });
     }
 
+    void HttpClientHelper::SetProxy(const utility::string_t& uri)
+    {
+        m_clientConfig.set_proxy(web::web_proxy{ uri });
+    }
+
     web::http::client::http_client HttpClientHelper::GetClient(const utility::string_t& uri) const
     {
         web::http::client::http_client client{ uri, m_clientConfig };

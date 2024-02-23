@@ -225,8 +225,9 @@ namespace AppInstaller::Utility
         return result;
     }
 
-    std::map<std::string, std::string> GetHeaders(std::string_view url)
+    std::map<std::string, std::string> GetHeaders(std::string_view url, const ProxyInfo&)
     {
+        // TODO: Use proxy info. HttpClient does not support using a custom proxy, only using the system-wide one.
         AICLI_LOG(Core, Verbose, << "Retrieving headers from url: " << url);
 
         HttpBaseProtocolFilter filter;
@@ -505,7 +506,7 @@ namespace AppInstaller::Utility
         return aesSaveResult;
     }
 
-    Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr, const ProxyInfo&)
+    Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr, const ProxyInfo& proxyInfo)
     {
         Microsoft::WRL::ComPtr<IStream> inputStream;
         if (Utility::IsUrlRemote(uriStr))
@@ -517,7 +518,7 @@ namespace AppInstaller::Utility
 
             try
             {
-                auto randomAccessStream = httpRandomAccessStream->InitializeAsync(uri).get();
+                auto randomAccessStream = httpRandomAccessStream->InitializeAsync(uri, proxyInfo).get();
 
                 ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
                 THROW_IF_FAILED(CreateStreamOverRandomAccessStream(

@@ -20,8 +20,9 @@ using namespace winrt::Windows::Web::Http::Filters;
 // The HRESULTs will be mapped to UI error code by the appropriate component
 namespace AppInstaller::Utility::HttpStream
 {
-    std::future<std::shared_ptr<HttpClientWrapper>> HttpClientWrapper::CreateAsync(const Uri& uri)
+    std::future<std::shared_ptr<HttpClientWrapper>> HttpClientWrapper::CreateAsync(const Uri& uri, const ProxyInfo&)
     {
+        // TODO: Use proxy info. HttpClient does not support using a custom proxy, only using the system-wide one.
         std::shared_ptr<HttpClientWrapper> instance = std::make_shared<HttpClientWrapper>();
 
         // Use an HTTP filter to disable the default caching behavior and use the Most Recent caching behavior instead

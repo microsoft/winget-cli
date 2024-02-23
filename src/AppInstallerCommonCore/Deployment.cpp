@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerDeployment.h"
+#include "Public/AppInstallerDownloader.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerMsixInfo.h"
 #include "Public/AppInstallerRuntime.h"
@@ -114,7 +115,8 @@ namespace AppInstaller::Deployment
         PackageManager packageManager;
 
         // In the event of a failure we want to ensure that the package is not left on the system.
-        Msix::MsixInfo packageInfo{ uri };
+        // No need for proxy as Deployment won't use it anyways.
+        Msix::MsixInfo packageInfo{ uri, Utility::ProxyInfo::NoProxy };
         std::wstring packageFullNameWide = packageInfo.GetPackageFullNameWide();
         std::string packageFullName = Utility::ConvertToUTF8(packageFullNameWide);
         auto removePackage = wil::scope_exit([&]() {
@@ -218,7 +220,8 @@ namespace AppInstaller::Deployment
         PackageManager packageManager;
 
         // In the event of a failure we want to ensure that the package is not left on the system.
-        Msix::MsixInfo packageInfo{ uri };
+        // No need for proxy as Deployment won't use it anyways.
+        Msix::MsixInfo packageInfo{ uri, Utility::ProxyInfo::NoProxy };
         std::wstring packageFullNameWide = packageInfo.GetPackageFullNameWide();
         std::string packageFullName = Utility::ConvertToUTF8(packageFullNameWide);
         std::string packageFamilyName = Msix::GetPackageFamilyNameFromFullName(packageFullName);

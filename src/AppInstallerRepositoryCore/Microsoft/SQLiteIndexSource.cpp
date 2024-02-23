@@ -86,7 +86,7 @@ namespace AppInstaller::Repository::Microsoft
                 HRESULT primaryHR = S_OK;
                 try
                 {
-                    return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value(), manifestSHA256);
+                    return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value(), manifestSHA256, source->GetDetails().ProxyInfo);
                 }
                 catch (...)
                 {
@@ -100,7 +100,7 @@ namespace AppInstaller::Repository::Microsoft
                 // Try alternate location
                 try
                 {
-                    return GetManifestFromArgAndRelativePath(source->GetDetails().AlternateArg, relativePathOpt.value(), manifestSHA256);
+                    return GetManifestFromArgAndRelativePath(source->GetDetails().AlternateArg, relativePathOpt.value(), manifestSHA256, source->GetDetails().ProxyInfo);
                 }
                 CATCH_LOG_MSG("GetManifest failed on alternate location");
 
@@ -126,7 +126,7 @@ namespace AppInstaller::Repository::Microsoft
             }
 
         private:
-            static Manifest::Manifest GetManifestFromArgAndRelativePath(const std::string& arg, const std::string& relativePath, const SHA256::HashBuffer& expectedHash)
+            static Manifest::Manifest GetManifestFromArgAndRelativePath(const std::string& arg, const std::string& relativePath, const SHA256::HashBuffer& expectedHash, const Utility::ProxyInfo& proxyInfo)
             {
                 std::string fullPath = arg;
                 if (fullPath.back() != '/')
@@ -148,7 +148,7 @@ namespace AppInstaller::Repository::Microsoft
                     {
                         try
                         {
-                            auto downloadHash = Utility::DownloadToStream(fullPath, manifestStream, Utility::DownloadType::Manifest, emptyCallback, !expectedHash.empty());
+                            auto downloadHash = Utility::DownloadToStream(fullPath, manifestStream, Utility::DownloadType::Manifest, emptyCallback, proxyInfo, !expectedHash.empty());
 
                             if (!expectedHash.empty() &&
                                 (!downloadHash || downloadHash->size() != expectedHash.size() || !std::equal(expectedHash.begin(), expectedHash.end(), downloadHash->begin())))

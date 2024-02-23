@@ -216,7 +216,8 @@ namespace AppInstaller::CLI::Workflow
         // separately before, e.g. on COM scenarios.
         context <<
             ReportExecutionStage(ExecutionStage::Download) <<
-            CheckForExistingInstaller;
+            CheckForExistingInstaller <<
+            GetProxyInfo;
 
         if (context.IsTerminated())
         {
@@ -242,14 +243,18 @@ namespace AppInstaller::CLI::Workflow
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:
-                if (installer.SignatureSha256.empty() || installerDownloadOnly)
+                // If the signature hash is provided in the manifest and we are doing an install,
+                // we can just verify signature hash without a full download and do a streaming install.
+                // Even if we have the signature hash, we still do a full download if InstallerDownloadOnly
+                // flag is set, or if we need to use a proxy (as deployment APIs won't use proxy for us).
+                if (installer.SignatureSha256.empty()
+                    || installerDownloadOnly
+                    || context.Get<Execution::Data::NetworkProxyInfo>().ProxyUri)
                 {
-                    // If InstallerDownloadOnly flag is set, always download the installer file.
                     context << DownloadInstallerFile;
                 }
                 else
                 {
-                    // Signature hash provided. No download needed. Just verify signature hash.
                     context << GetMsixSignatureHash;
                 }
                 break;
@@ -419,7 +424,8 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& installer = context.Get<Execution::Data::Installer>().value();
 
-            Msix::MsixInfo msixInfo(installer.Url);
+            // Signature hash is only used for streaming installs, which don't use proxy
+            Msix::MsixInfo msixInfo(installer.Url, Utility::ProxyInfo::NoProxy);
             auto signatureHash = msixInfo.GetSignatureHash();
 
             context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));

@@ -117,6 +117,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     source.SetCaller("winget-cli");
                     source.SetAuthenticationArguments(GetAuthenticationArguments(context));
+                    source.SetProxyInfo(context.Get<Execution::Data::NetworkProxyInfo>());
                     return source.Open(progress);
                 };
                 auto updateFailures = context.Reporter.ExecuteWithProgress(openFunction, true);

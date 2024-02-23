@@ -61,6 +61,11 @@ namespace AppInstaller::Repository::Rest
                     [&]()
                     {
                         m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration);
+                        if (m_details.ProxyInfo.ProxyUri)
+                        {
+                            m_httpClientHelper.SetProxy(Utility::ConvertToUTF16(m_details.ProxyInfo.ProxyUri.value()));
+                        }
+
                         auto sourceInformation = RestClient::GetInformation(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
 
                         m_details.Identifier = sourceInformation.SourceIdentifier;

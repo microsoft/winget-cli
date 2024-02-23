@@ -7,6 +7,11 @@
 
 using namespace std::chrono_literals;
 
+namespace AppInstaller::Utility
+{
+    struct ProxyInfo;
+}
+
 namespace AppInstaller::Utility::HttpStream
 {
     // Provides an implementation of a random access stream over HTTP that supports
@@ -20,7 +25,8 @@ namespace AppInstaller::Utility::HttpStream
     {
     public:
         winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::Streams::IRandomAccessStream> InitializeAsync(
-            const winrt::Windows::Foundation::Uri& uri);
+            const winrt::Windows::Foundation::Uri& uri,
+            const ProxyInfo& proxyInfo);
         uint64_t Size() const;
         void Size(uint64_t value);
         uint64_t Position() const;
