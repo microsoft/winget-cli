@@ -866,7 +866,7 @@ namespace AppInstaller::CLI::Workflow
         {
             std::ostringstream stringStream;
             ProgressCallback emptyCallback;
-            Utility::DownloadToStream(argPath, stringStream, Utility::DownloadType::ConfigurationFile, emptyCallback);
+            Utility::DownloadToStream(argPath, stringStream, Utility::DownloadType::ConfigurationFile, emptyCallback, Utility::ProxyInfo::NoProxy);
 
             auto strContent = stringStream.str();
             std::vector<BYTE> byteContent{ strContent.begin(), strContent.end() };

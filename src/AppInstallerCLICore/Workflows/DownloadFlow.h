@@ -5,6 +5,12 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Gets the proxy settings according to the CLI arg, settings and group policies.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: ProxyInfo
+    void GetProxyInfo(Execution::Context& context);
+
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: Manifest, Installer

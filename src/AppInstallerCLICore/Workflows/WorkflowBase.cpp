@@ -4,6 +4,7 @@
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
+#include "DownloadFlow.h"
 #include "PromptFlow.h"
 #include "TableOutput.h"
 #include <winget/ExperimentalFeature.h>
@@ -66,6 +67,13 @@ namespace AppInstaller::CLI::Workflow
 
         Repository::Source OpenNamedSource(Execution::Context& context, Utility::LocIndView sourceName)
         {
+            // Opening a source may require updating it.
+            context << GetProxyInfo;
+            if (context.IsTerminated())
+            {
+                return {};
+            }
+
             Repository::Source source;
 
             try
@@ -1355,37 +1363,6 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ version.Version, version.Channel });
         }
         table.Complete();
-    }
-
-    void GetProxy(Execution::Context& context)
-    {
-        if (context.Contains(Execution::Data::ProxyUri))
-        {
-            // Already determined proxy to use
-            return;
-        }
-
-        // First check command line arguments. These override any default if present.
-        if (context.Args.Contains(Execution::Args::Type::NoProxy))
-        {
-            AICLI_LOG(CLI, Info, << "Proxy disabled by command line argument");
-            context.Add<Execution::Data::ProxyUri>(std::nullopt);
-            return;
-        }
-
-        if (context.Args.Contains(Execution::Args::Type::Proxy))
-        {
-            auto proxyFromArg = context.Args.GetArg(Execution::Args::Type::Proxy);
-            AICLI_LOG(CLI, Info, << "Setting proxy from command line argument: " << proxyFromArg);
-            context.Add<Execution::Data::ProxyUri>(std::string{ proxyFromArg });
-            return;
-        }
-
-        // Get the default proxy
-        std::optional<std::string> defaultProxy = GroupPolicies().GetValueRef<ValuePolicy::DefaultProxy>();
-        AICLI_LOG(CLI, Info, << "Default proxy: " << (defaultProxy ? defaultProxy.value() : "Not configured"));
-
-        context.Add<Execution::Data::ProxyUri>(defaultProxy);
     }
 }
 

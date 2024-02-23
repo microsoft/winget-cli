@@ -4,11 +4,6 @@
 #include <AppInstallerErrors.h>
 #include <AppInstallerProgress.h>
 
-#include <winrt/Windows.Web.Http.h>
-
-#include <urlmon.h>
-#include <wrl/client.h>
-
 #include <chrono>
 #include <filesystem>
 #include <map>
@@ -41,6 +36,16 @@ namespace AppInstaller::Utility
         std::string ContentId;
     };
 
+    // Details on the proxy to use for the download
+    struct ProxyInfo
+    {
+        std::optional<std::string> ProxyUri;
+
+        // Represents configuration to not use a proxy.
+        // Used to track all the places where we do not support proxy yet.
+        static const ProxyInfo NoProxy;
+    };
+
     // An exception that indicates that a remote service is too busy/unavailable and may contain data on when to try again.
     struct ServiceUnavailableException : public wil::ResultException
     {
@@ -56,30 +61,32 @@ namespace AppInstaller::Utility
     //   url: The url to be downloaded from. http->https redirection is allowed.
     //   dest: The stream to be downloaded to.
     //   computeHash: Optional. Indicates if SHA256 hash should be calculated when downloading.
-    //   downloadIdentifier: Optional. Currently only used by DO to identify the download.
+    //   downloadInfo: Optional. Currently only used by DO to identify the download.
     std::optional<std::vector<BYTE>> DownloadToStream(
         const std::string& url,
         std::ostream& dest,
         DownloadType type,
         IProgressCallback& progress,
+        const ProxyInfo& proxyInfo,
         bool computeHash = false,
-        std::optional<DownloadInfo> info = {});
+        std::optional<DownloadInfo> downloadInfo = {});
 
     // Downloads a file from the given URL and places it in the given location.
     //   url: The url to be downloaded from. http->https redirection is allowed.
     //   dest: The path to local file to be downloaded to.
     //   computeHash: Optional. Indicates if SHA256 hash should be calculated when downloading.
-    //   downloadIdentifier: Optional. Currently only used by DO to identify the download.
+    //   downloadInfo: Optional. Currently only used by DO to identify the download.
     std::optional<std::vector<BYTE>> Download(
         const std::string& url,
         const std::filesystem::path& dest,
         DownloadType type,
         IProgressCallback& progress,
+        const ProxyInfo& proxyInfo,
         bool computeHash = false,
-        std::optional<DownloadInfo> info = {});
+        std::optional<DownloadInfo> downloadInfo = {});
 
     // Gets the headers for the given URL.
-    std::map<std::string, std::string> GetHeaders(std::string_view url);
+    std::map<std::string, std::string> GetHeaders(std::string_view url, const ProxyInfo& proxyInfo);
 
     // Determines if the given url is a remote location.
     bool IsUrlRemote(std::string_view url);
@@ -100,7 +107,7 @@ namespace AppInstaller::Utility
     HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source, URLZONE zoneIfScanFailure);
 
     // Function to read-only create a stream from a uri string (url address or file system path)
-    Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr);
+    ::Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr, const ProxyInfo& proxyInfo);
 
     // Gets the retry after value in terms of a delay in seconds.
     std::chrono::seconds GetRetryAfter(const std::wstring& retryAfter);

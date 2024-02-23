@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerDownloader.h>
 #include <winget/RepositorySource.h>
 #include <winget/Manifest.h>
 #include <winget/ARPCorrelation.h>
@@ -63,7 +64,7 @@ namespace AppInstaller::CLI::Execution
         Pins,
         ConfigurationContext,
         DownloadDirectory,
-        ProxyUri,
+        NetworkProxyInfo,
         Max
     };
 
@@ -270,9 +271,9 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::ProxyUri>
+        struct DataMapping<Data::NetworkProxyInfo>
         {
-            using value_t = std::optional<std::string>;
+            using value_t = Utility::ProxyInfo;
         };
     }
 }

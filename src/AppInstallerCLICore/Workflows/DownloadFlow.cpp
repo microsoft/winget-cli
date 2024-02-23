@@ -7,6 +7,7 @@
 #include <AppInstallerRuntime.h>
 #include <AppInstallerMsixInfo.h>
 #include <winget/AdminSettings.h>
+#include <winget/GroupPolicy.h>
 #include <winget/ManifestYamlWriter.h>
 
 namespace AppInstaller::CLI::Workflow
@@ -14,6 +15,7 @@ namespace AppInstaller::CLI::Workflow
     using namespace AppInstaller::Manifest;
     using namespace AppInstaller::Repository;
     using namespace AppInstaller::Utility;
+    using namespace AppInstaller::Settings;
     using namespace std::string_view_literals;
 
     namespace
@@ -178,6 +180,35 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void GetProxyInfo(Execution::Context& context)
+    {
+        if (context.Contains(Execution::Data::NetworkProxyInfo))
+        {
+            // Already determined proxy to use
+            return;
+        }
+
+        Utility::ProxyInfo proxyInfo;
+
+        // Get the default proxy
+        proxyInfo.ProxyUri = GroupPolicies().GetValueRef<ValuePolicy::DefaultProxy>();
+        AICLI_LOG(CLI, Info, << "Default proxy: " << (proxyInfo.ProxyUri ? proxyInfo.ProxyUri.value() : "Not configured"));
+
+        // Check command line arguments. These override any default if present.
+        if (context.Args.Contains(Execution::Args::Type::NoProxy))
+        {
+            AICLI_LOG(CLI, Info, << "Proxy disabled by command line argument");
+            proxyInfo = Utility::ProxyInfo::NoProxy;
+        }
+        else if (context.Args.Contains(Execution::Args::Type::Proxy))
+        {
+            proxyInfo.ProxyUri = context.Args.GetArg(Execution::Args::Type::Proxy);
+            AICLI_LOG(CLI, Info, << "Setting proxy from command line argument: " << proxyInfo.ProxyUri.value());
+        }
+
+        context.Add<Execution::Data::NetworkProxyInfo>(proxyInfo);
+    }
+
     void DownloadInstaller(Execution::Context& context)
     {
         // Check if file was already downloaded.
@@ -289,7 +320,7 @@ namespace AppInstaller::CLI::Workflow
 
     void DownloadInstallerFile(Execution::Context& context)
     {
-        context << GetInstallerDownloadPath;
+        context << GetInstallerDownloadPath << GetProxyInfo;
         if (context.IsTerminated())
         {
             return;
@@ -297,6 +328,7 @@ namespace AppInstaller::CLI::Workflow
 
         const auto& installer = context.Get<Execution::Data::Installer>().value();
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
+        const auto& proxyInfo = context.Get<Execution::Data::NetworkProxyInfo>();
 
         Utility::DownloadInfo downloadInfo{};
         downloadInfo.DisplayName = Resource::GetFixedString(Resource::FixedString::ProductName);
@@ -319,6 +351,7 @@ namespace AppInstaller::CLI::Workflow
                     installerPath,
                     Utility::DownloadType::Installer,
                     std::placeholders::_1,
+                    proxyInfo,
                     true,
                     downloadInfo));
 

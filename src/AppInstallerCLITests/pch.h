@@ -19,6 +19,8 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.Management.Deployment.h>
+#include <winrt/Windows.Web.Http.h>
+#include <wrl/client.h>
 
 #include <wil/filesystem.h>
 #include <wil/resource.h>

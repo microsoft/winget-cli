@@ -434,12 +434,6 @@ namespace AppInstaller::CLI::Workflow
     private:
         ExecutionStage m_stage;
     };
-
-    // Gets the proxy to use according to the CLI arg, settings and policies.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: ProxyUri
-    void GetProxy(Execution::Context& context);
 }
 
 // Passes the context to the function if it has not been terminated; returns the context.

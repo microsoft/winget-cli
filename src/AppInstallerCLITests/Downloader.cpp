@@ -17,7 +17,7 @@ TEST_CASE("DownloadValidFileAndVerifyHash", "[Downloader]")
 
     // Todo: point to files from our repo when the repo goes public
     ProgressCallback callback;
-    auto result = Download("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), DownloadType::Manifest, callback, true);
+    auto result = Download("https://raw.githubusercontent.com/microsoft/msix-packaging/master/LICENSE", tempFile.GetPath(), DownloadType::Manifest, callback, ProxyInfo::NoProxy, true);
 
     REQUIRE(result.has_value());
     auto resultHash = result.value();
@@ -50,7 +50,7 @@ TEST_CASE("DownloadValidFileAndCancel", "[Downloader]")
     std::optional<std::vector<BYTE>> waitResult;
     std::thread waitThread([&]
         {
-            waitResult = Download("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), DownloadType::Installer, callback, true);
+            waitResult = Download("https://aka.ms/win32-x64-user-stable", tempFile.GetPath(), DownloadType::Installer, callback, ProxyInfo::NoProxy, true);
         });
 
     callback.Cancel();
@@ -67,7 +67,7 @@ TEST_CASE("DownloadInvalidUrl", "[Downloader]")
 
     ProgressCallback callback;
 
-    REQUIRE_THROWS(Download("blargle-flargle-fluff", tempFile.GetPath(), DownloadType::Installer, callback, true));
+    REQUIRE_THROWS(Download("blargle-flargle-fluff", tempFile.GetPath(), DownloadType::Installer, callback, ProxyInfo::NoProxy, true));
 }
 
 TEST_CASE("HttpStream_ReadLastFullPage", "[HttpStream]")
@@ -77,7 +77,7 @@ TEST_CASE("HttpStream_ReadLastFullPage", "[HttpStream]")
 
     for (size_t i = 0; i < 10; ++i)
     {
-        stream = GetReadOnlyStreamFromURI("https://cdn.winget.microsoft.com/cache/source.msix");
+        stream = GetReadOnlyStreamFromURI("https://cdn.winget.microsoft.com/cache/source.msix", ProxyInfo::NoProxy);
 
         stat = { 0 };
         REQUIRE(stream->Stat(&stat, STATFLAG_NONAME) == S_OK);
