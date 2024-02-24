@@ -152,7 +152,7 @@ namespace AppInstaller
         std::vector<E> result;
         using underlying_t = std::underlying_type_t<E>;
 
-        for (E i = 1 + static_cast<underlying_t>(initialToSkip); i < static_cast<underlying_t>(E::Max); ++i)
+        for (underlying_t i = 1 + static_cast<underlying_t>(initialToSkip); i < static_cast<underlying_t>(E::Max); ++i)
         {
             result.emplace_back(static_cast<E>(i));
         }
@@ -166,7 +166,7 @@ namespace AppInstaller
         std::vector<E> result;
         using underlying_t = std::underlying_type_t<E>;
 
-        for (E i = 1 + static_cast<underlying_t>(initialToSkip); i < static_cast<underlying_t>(E::Max); i <<= 1)
+        for (underlying_t i = 1 + static_cast<underlying_t>(initialToSkip); i < static_cast<underlying_t>(E::Max); i <<= 1)
         {
             result.emplace_back(static_cast<E>(i));
         }

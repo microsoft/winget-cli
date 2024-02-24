@@ -419,20 +419,6 @@ namespace AppInstaller::Settings
         return adminSettingsInternal.GetAdminSettingValue(setting);
     }
 
-    template<typename E>
-    std::vector<E> GetAllSequentialEnumValues(E initialToSkip)
-    {
-        std::vector<E> result;
-        using underlying_t = std::underlying_type_t<E>;
-
-        for (underlying_t i = 1 + static_cast<underlying_t>(initialToSkip); i < static_cast<underlying_t>(E::Max); ++i)
-        {
-            result.emplace_back(static_cast<E>(i));
-        }
-
-        return result;
-    }
-
     std::vector<BoolAdminSetting> GetAllBoolAdminSettings()
     {
         return GetAllSequentialEnumValues(BoolAdminSetting::Unknown);

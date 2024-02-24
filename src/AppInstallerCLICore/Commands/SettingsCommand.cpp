@@ -49,6 +49,7 @@ namespace AppInstaller::CLI
     void SettingsCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
         // Get admin setting string for all available options except Unknown
+        std::vector<Utility::LocIndString> adminSettingList;
         for (auto setting : GetAllSequentialEnumValues(BoolAdminSetting::Unknown))
         {
             adminSettingList.emplace_back(AdminSettingToString(setting));
@@ -56,12 +57,12 @@ namespace AppInstaller::CLI
 
         Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
 
-        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && BoolAdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && BoolAdminSetting::Unknown == StringToBoolAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
         {
             throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingEnable).Name, validOptions));
         }
 
-        if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && BoolAdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && BoolAdminSetting::Unknown == StringToBoolAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
         {
             throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingDisable).Name, validOptions));
         }
