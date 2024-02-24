@@ -191,7 +191,7 @@ namespace AppInstaller::CLI::Workflow
         Utility::ProxyInfo proxyInfo;
 
         // Get the default proxy
-        proxyInfo.ProxyUri = GroupPolicies().GetValueRef<ValuePolicy::DefaultProxy>();
+        proxyInfo.ProxyUri = GetAdminSetting(StringAdminSetting::DefaultProxy);
         AICLI_LOG(CLI, Info, << "Default proxy: " << (proxyInfo.ProxyUri ? proxyInfo.ProxyUri.value() : "Not configured"));
 
         // Check command line arguments. These override any default if present.

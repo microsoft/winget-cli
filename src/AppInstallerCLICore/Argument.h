@@ -212,7 +212,7 @@ namespace AppInstaller::CLI
         Argument::Visibility GetVisibility() const;
         Settings::ExperimentalFeature::Feature Feature() const { return m_feature; }
         Settings::TogglePolicy::Policy GroupPolicy() const { return m_groupPolicy; }
-        Settings::AdminSetting AdminSetting() const { return m_adminSetting; }
+        Settings::BoolAdminSetting AdminSetting() const { return m_adminSetting; }
 
         Argument& SetRequired(bool required) { m_required = required; return *this; }
         Argument& SetCountLimit(size_t countLimit) { m_countLimit = countLimit; return *this; }
@@ -238,13 +238,13 @@ namespace AppInstaller::CLI
         Argument(Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, bool required, Settings::ExperimentalFeature::Feature feature) :
             m_argCommon(ArgumentCommon::ForType(execArgType)), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required), m_feature(feature) {}
 
-        Argument(Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
+        Argument(Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::TogglePolicy::Policy groupPolicy, Settings::BoolAdminSetting adminSetting) :
             m_argCommon(ArgumentCommon::ForType(execArgType)), m_desc(std::move(desc)), m_type(type), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
 
-        Argument(Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
+        Argument(Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy, Settings::BoolAdminSetting adminSetting) :
             m_argCommon(ArgumentCommon::ForType(execArgType)), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
 
-        Argument(Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::ExperimentalFeature::Feature feature, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
+        Argument(Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::ExperimentalFeature::Feature feature, Settings::TogglePolicy::Policy groupPolicy, Settings::BoolAdminSetting adminSetting) :
             m_argCommon(ArgumentCommon::ForType(execArgType)), m_desc(std::move(desc)), m_type(type), m_feature(feature), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
 
         ArgumentCommon m_argCommon;
@@ -255,6 +255,6 @@ namespace AppInstaller::CLI
         size_t m_countLimit = 1;
         Settings::ExperimentalFeature::Feature m_feature = Settings::ExperimentalFeature::Feature::None;
         Settings::TogglePolicy::Policy m_groupPolicy = Settings::TogglePolicy::Policy::None;
-        Settings::AdminSetting m_adminSetting = Settings::BoolAdminSetting::Unknown;
+        Settings::BoolAdminSetting m_adminSetting = Settings::BoolAdminSetting::Unknown;
     };
 }
