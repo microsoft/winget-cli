@@ -390,7 +390,7 @@ TEST_CASE("SQLiteWrapper_CloseConnectionOnError", "[sqlitewrapper]")
     REQUIRE(createTable.GetState() == Statement::State::Completed);
 
     createTable.Reset();
-    REQUIRE_FALSE(createTable.Step(true, false));
+    REQUIRE_THROWS(createTable.Step(true));
 
     // Do anything that needs the connection
     REQUIRE_THROWS_HR(connection.GetLastInsertRowID(), APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED);

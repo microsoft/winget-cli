@@ -263,7 +263,7 @@ namespace AppInstaller::SQLite
         // Evaluate the statement; either retrieving the next row or executing some action.
         // Returns true if there is a row of data, or false if there is none.
         // This return value is the equivalent of 'GetState() == State::HasRow' after calling Step.
-        bool Step(bool closeConnectionOnError = false, bool throwOnError = true);
+        bool Step(bool closeConnectionOnError = false);
 
         // Equivalent to Step, but does not ever expect a result, throwing if one is retrieved.
         void Execute(bool closeConnectionOnError = false);

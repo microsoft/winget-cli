@@ -286,7 +286,7 @@ namespace AppInstaller::SQLite
         return { connection, sql };
     }
 
-    bool Statement::Step(bool closeConnectionOnError, bool throwOnError)
+    bool Statement::Step(bool closeConnectionOnError)
     {
         AICLI_LOG(SQL, Verbose, << "Stepping statement #" << m_connectionId << '-' << m_id);
         int result = sqlite3_step(m_stmt.get());
@@ -312,17 +312,7 @@ namespace AppInstaller::SQLite
                 m_dbconn->Disable();
             }
 
-            sqlite3* connection = sqlite3_db_handle(m_stmt.get());
-            if (throwOnError)
-            {
-                THROW_SQLITE(result, connection);
-            }
-            else
-            {
-                AICLI_LOG(SQL, Error, << "Statement #" << m_connectionId << '-' << m_id << " ignored error: [" << result << "] " << SQLITE_ERROR_MSG(result, connection));
-            }
-
-            return false;
+            THROW_SQLITE(result, sqlite3_db_handle(m_stmt.get()));
         }
     }
 
@@ -373,13 +363,27 @@ namespace AppInstaller::SQLite
     {
         if (m_inProgress)
         {
-            AICLI_LOG(SQL, Verbose, << "Roll back savepoint: " << m_name);
-            m_rollbackTo.Step(true, throwOnError);
-            // 'ROLLBACK TO' *DOES NOT* remove the savepoint from the transaction stack.
-            // In order to remove it, we must RELEASE. Since we just invoked a ROLLBACK TO
-            // this should have the effect of 'committing' nothing.
-            m_release.Step(true, throwOnError);
+            // Only try rollback once
             m_inProgress = false;
+
+            try
+            {
+                AICLI_LOG(SQL, Verbose, << "Roll back savepoint: " << m_name);
+                m_rollbackTo.Step(true);
+                // 'ROLLBACK TO' *DOES NOT* remove the savepoint from the transaction stack.
+                // In order to remove it, we must RELEASE. Since we just invoked a ROLLBACK TO
+                // this should have the effect of 'committing' nothing.
+                m_release.Step(true);
+            }
+            catch (...)
+            {
+                if (throwOnError)
+                {
+                    throw;
+                }
+
+                LOG_CAUGHT_EXCEPTION();
+            }
         }
     }
 
