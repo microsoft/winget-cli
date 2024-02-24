@@ -11,7 +11,7 @@
 namespace AppInstaller::Settings
 {
     // Enum of admin settings.
-    enum class AdminSetting
+    enum class BoolAdminSetting : size_t
     {
         Unknown = 0,
         LocalManifestFiles,
@@ -22,20 +22,34 @@ namespace AppInstaller::Settings
         Max,
     };
 
-    AdminSetting StringToAdminSetting(std::string_view in);
+    enum class StringAdminSetting : size_t
+    {
+        Unknown = 0,
+        DefaultProxy,
+        Max,
+    };
 
-    Utility::LocIndView AdminSettingToString(AdminSetting setting);
+    BoolAdminSetting StringToBoolAdminSetting(std::string_view in);
+    StringAdminSetting StringToStringAdminSetting(std::string_view in);
 
-    bool EnableAdminSetting(AdminSetting setting);
+    Utility::LocIndView AdminSettingToString(BoolAdminSetting setting);
+    Utility::LocIndView AdminSettingToString(StringAdminSetting setting);
 
-    bool DisableAdminSetting(AdminSetting setting);
+    // Returns true if the value is set.
+    // Group policy overriding the setting can prevent the value from being set
+    bool EnableAdminSetting(BoolAdminSetting setting);
+    bool DisableAdminSetting(BoolAdminSetting setting);
+    bool SetAdminSetting(StringAdminSetting setting, std::string_view value);
+    bool ResetAdminSetting(StringAdminSetting setting, std::string_view value);
 
-    bool IsAdminSettingEnabled(AdminSetting setting);
+    bool IsAdminSettingEnabled(BoolAdminSetting setting);
+    std::optional<std::string> GetAdminSetting(StringAdminSetting setting);
 
-    std::vector<AdminSetting> GetAllAdminSettings();
+    std::vector<BoolAdminSetting> GetAllBoolAdminSettings();
+    std::vector<StringAdminSetting> GetAllStringAdminSettings();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-    // Only used in tests to validate that all admin settings have a corresponding policy
-    TogglePolicy::Policy GetAdminSettingPolicy(AdminSetting setting);
+    // Only exposed for tests to validate that all admin settings have a corresponding policy
+    TogglePolicy::Policy GetAdminSettingPolicy(BoolAdminSetting setting);
 #endif
 }

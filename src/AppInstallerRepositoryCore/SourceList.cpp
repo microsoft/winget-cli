@@ -316,7 +316,7 @@ namespace AppInstaller::Repository
             details.TrustLevel = SourceTrustLevel::Trusted;
             details.SupportInstalledSearchCorrelation = false;
 
-            if (!Settings::IsAdminSettingEnabled(Settings::AdminSetting::BypassCertificatePinningForMicrosoftStore))
+            if (!Settings::IsAdminSettingEnabled(Settings::BoolAdminSetting::BypassCertificatePinningForMicrosoftStore))
             {
                 using namespace AppInstaller::Certificates;
 

@@ -273,7 +273,7 @@ namespace AppInstaller::CLI
         case Args::Type::MultiQuery:
             return Argument{ type, Resource::String::MultiQueryArgumentDescription, ArgumentType::Positional }.SetCountLimit(128);
         case Args::Type::Manifest:
-            return Argument{ type, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, Settings::TogglePolicy::Policy::LocalManifestFiles, Settings::AdminSetting::LocalManifestFiles };
+            return Argument{ type, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, Settings::TogglePolicy::Policy::LocalManifestFiles, Settings::BoolAdminSetting::LocalManifestFiles };
         case Args::Type::Id:
             return Argument{ type, Resource::String::IdArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Name:
@@ -313,7 +313,7 @@ namespace AppInstaller::CLI
         case Args::Type::InstallLocation:
             return Argument{ type, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
         case Args::Type::HashOverride:
-            return Argument{ type, Resource::String::HashOverrideArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride, Settings::AdminSetting::InstallerHashOverride };
+            return Argument{ type, Resource::String::HashOverrideArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride, Settings::BoolAdminSetting::InstallerHashOverride };
         case Args::Type::AcceptPackageAgreements:
             return Argument{ type, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::NoUpgrade:
@@ -329,7 +329,7 @@ namespace AppInstaller::CLI
         case Args::Type::SkipDependencies:
             return Argument{ type, Resource::String::SkipDependenciesArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::IgnoreLocalArchiveMalwareScan:
-            return Argument{ type, Resource::String::IgnoreLocalArchiveMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::LocalArchiveMalwareScanOverride, Settings::AdminSetting::LocalArchiveMalwareScanOverride };
+            return Argument{ type, Resource::String::IgnoreLocalArchiveMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::LocalArchiveMalwareScanOverride, Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride };
         case Args::Type::SourceName:
             return Argument{ type, Resource::String::SourceNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::SourceArg:
@@ -385,9 +385,9 @@ namespace AppInstaller::CLI
         case Args::Type::IgnoreResumeLimit:
             return Argument{ type, Resource::String::IgnoreResumeLimitArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Resume };
         case Args::Type::Proxy:
-            return Argument{ type, Resource::String::ProxyArgumentDescription, ArgumentType::Standard, ExperimentalFeature::Feature::Proxy, TogglePolicy::Policy::ProxyCommandLineOptions, AdminSetting::ProxyCommandLineOptions };
+            return Argument{ type, Resource::String::ProxyArgumentDescription, ArgumentType::Standard, ExperimentalFeature::Feature::Proxy, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         case Args::Type::NoProxy:
-            return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Proxy, TogglePolicy::Policy::ProxyCommandLineOptions, AdminSetting::ProxyCommandLineOptions };
+            return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Proxy, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         default:
             THROW_HR(E_UNEXPECTED);
         }

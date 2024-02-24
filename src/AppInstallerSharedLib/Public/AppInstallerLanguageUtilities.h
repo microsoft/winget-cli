@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace AppInstaller
 {
@@ -144,6 +145,34 @@ namespace AppInstaller
 
         std::map<Enum, typename Variant::variant_t> m_data;
     };
+
+    template<typename E>
+    std::vector<E> GetAllSequentialEnumValues(E initialToSkip)
+    {
+        std::vector<E> result;
+        using underlying_t = std::underlying_type_t<E>;
+
+        for (E i = 1 + static_cast<underlying_t>(initialToSkip); i < static_cast<underlying_t>(E::Max); ++i)
+        {
+            result.emplace_back(static_cast<E>(i));
+        }
+
+        return result;
+    }
+
+    template<typename E>
+    std::vector<E> GetAllExponentialEnumValues(E initialToSkip)
+    {
+        std::vector<E> result;
+        using underlying_t = std::underlying_type_t<E>;
+
+        for (E i = 1 + static_cast<underlying_t>(initialToSkip); i < static_cast<underlying_t>(E::Max); i <<= 1)
+        {
+            result.emplace_back(static_cast<E>(i));
+        }
+
+        return result;
+    }
 }
 
 // Enable enums to be output generically (as their integral value).

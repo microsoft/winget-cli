@@ -255,6 +255,6 @@ namespace AppInstaller::CLI
         size_t m_countLimit = 1;
         Settings::ExperimentalFeature::Feature m_feature = Settings::ExperimentalFeature::Feature::None;
         Settings::TogglePolicy::Policy m_groupPolicy = Settings::TogglePolicy::Policy::None;
-        Settings::AdminSetting m_adminSetting = Settings::AdminSetting::Unknown;
+        Settings::AdminSetting m_adminSetting = Settings::BoolAdminSetting::Unknown;
     };
 }

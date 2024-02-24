@@ -49,21 +49,19 @@ namespace AppInstaller::CLI
     void SettingsCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
         // Get admin setting string for all available options except Unknown
-        using AdminSetting_t = std::underlying_type_t<AdminSetting>;
-        std::vector<Utility::LocIndString> adminSettingList;
-        for (AdminSetting_t i = 1 + static_cast<AdminSetting_t>(AdminSetting::Unknown); i < static_cast<AdminSetting_t>(AdminSetting::Max); ++i)
+        for (auto setting : GetAllSequentialEnumValues(BoolAdminSetting::Unknown))
         {
-            adminSettingList.emplace_back(AdminSettingToString(static_cast<AdminSetting>(i)));
+            adminSettingList.emplace_back(AdminSettingToString(setting));
         }
 
         Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
 
-        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && BoolAdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
         {
             throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingEnable).Name, validOptions));
         }
 
-        if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && BoolAdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
         {
             throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingDisable).Name, validOptions));
         }
