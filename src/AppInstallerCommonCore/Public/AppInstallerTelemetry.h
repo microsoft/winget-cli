@@ -110,6 +110,10 @@ namespace AppInstaller::Logging
         std::string UninstallerExecutionType;
         UINT32 UninstallerErrorCode = 0;
 
+        // LogRepairFailure
+        std::string RepairExecutionType;
+        UINT32 RepairErrorCode = 0;
+
         // LogSuccessfulInstallARPChange
         UINT64 ChangesToARP = 0;
         UINT64 MatchesInARP = 0;
@@ -235,6 +239,9 @@ namespace AppInstaller::Logging
 
         // Logs a failed uninstallation attempt.
         void LogUninstallerFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode) const noexcept;
+
+        // Logs a failed repair attempt.
+        void LogRepairFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode) const noexcept;
 
         // Logs data about the changes that ocurred in the ARP entries based on an install.
         // First 4 arguments are well known values for the package that we installed.

@@ -34,6 +34,7 @@ Atest
 ATL
 AUrl
 Authenticode
+azcopy
 azurewebsites
 bcp
 BEFACEF
@@ -66,6 +67,7 @@ CLOSEAPP
 cloudapp
 clsctx
 clsid
+cobertura
 CODEOWNERS
 COINIT
 COMGLB
@@ -144,6 +146,7 @@ fuzzer
 fzanollo
 gcpi
 GESMBH
+getwinget
 GHS
 gity
 goku
@@ -310,6 +313,7 @@ nuffing
 objbase
 objidl
 ofile
+omus
 onefuzz
 ools
 oop
@@ -386,6 +390,7 @@ runtimeclass
 ryfu
 rzkzqaqjwj
 SARL
+SASURL
 schematab
 sddl
 SECUREFILEPATH
@@ -478,6 +483,7 @@ VALUENAMECASE
 vclib
 VERSI
 VERSIE
+visualstudiocode
 vns
 vsconfig
 vstest

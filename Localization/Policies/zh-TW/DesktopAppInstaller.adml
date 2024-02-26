@@ -68,11 +68,11 @@
 
 如果您停用此設定，Windows 封裝管理員的 Microsoft Store 來源將無法使用。</string>
       <string id="SourceAutoUpdateInterval">設定應用程式安裝程式來源自動更新間隔 (分鐘)</string>
-      <string id="SourceAutoUpdateIntervalExplanation">此原則可控制套件型來源的自動更新間隔。
+      <string id="SourceAutoUpdateIntervalExplanation">此原則控制封裝型來源的自動更新間隔時間。Windows 封裝管理員的預設來源設定為本機電腦上快取的套件索引。當使用者調用命令且間隔已過時，下載索引。
 
-如果停用或未設定此設定，Windows 套件管理員將使用 [設定] 中指定的預設間隔或值。
+如果您停用或不設定此設定，將會使用 Windows 封裝管理員設定中指定的預設間隔或值。
 
-如果您啟用這個設定，Windows 套件管理員將使用指定的分鐘數。</string>
+如果您啟用此設定，Windows 封裝管理員將會使用指定的分鐘數。</string>
       <string id="EnableAdditionalSources">啟用應用程式安裝程式其他來源</string>
       <string id="EnableAdditionalSourcesExplanation">此原則控制企業 IT 系統管理員提供的其他來源。
 
@@ -103,6 +103,12 @@
         如果您啟用或未設定此原則，使用者將可以執行 Windows 封裝管理員 CLI 命令和 PowerShell Cmdlet。(提供的 [啟用應用程式安裝程式] 原則將不會停用)。
 
         此原則不會覆寫 [啟用應用程式安裝程式] 原則。</string>
+      <string id="EnableWindowsPackageManagerConfiguration">啟用 Windows 封裝管理員設定</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">此原則控制使用者是否可以使用Windows 封裝管理員設定功能。
+
+如果您啟用或未設定這個設定，使用者將可以使用Windows 封裝管理員設定功能。
+
+如果您停用這個設定，使用者將無法使用Windows 封裝管理員設定功能。</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

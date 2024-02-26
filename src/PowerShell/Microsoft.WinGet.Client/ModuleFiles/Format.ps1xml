@@ -216,6 +216,58 @@
       </TableControl>
     </View>
     <View>
+      <Name>Microsoft.WinGet.Client.Engine.PSObjects.PSDownloadResult</Name>
+      <ViewSelectedBy>
+        <TypeName>Microsoft.WinGet.Client.Engine.PSObjects.PSDownloadResult</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Id</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Source</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ExtendedErrorCode</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CorrelationData</Label>
+          </TableColumnHeader>          
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.Id</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Source</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Status</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.ExtendedErrorCode</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.CorrelationData</ScriptBlock>
+              </TableColumnItem>                
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
       <Name>Microsoft.WinGet.Client.Engine.PSObjects.PSSourceResult</Name>
       <ViewSelectedBy>
         <TypeName>Microsoft.WinGet.Client.Engine.PSObjects.PSSourceResult</TypeName>

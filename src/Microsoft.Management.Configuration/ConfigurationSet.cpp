@@ -183,4 +183,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
     }
+
+    void ConfigurationSet::SetInputHash(std::string inputHash)
+    {
+        m_inputHash = std::move(inputHash);
+    }
+
+    const std::string& ConfigurationSet::GetInputHash() const
+    {
+        return m_inputHash;
+    }
 }

@@ -64,6 +64,8 @@ namespace AppInstaller::CLI::Execution
         Pins,
         ConfigurationContext,
         DownloadDirectory,
+        ModifyPath,
+        RepairString,
         NetworkProxyInfo,
         Max
     };
@@ -270,10 +272,22 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::filesystem::path;
         };
 
+        template<>
+        struct DataMapping<Data::ModifyPath>
+        {
+            using value_t = std::string;
+        };
+
+        template<>
+        struct DataMapping<Data::RepairString>
+        {
+            using value_t = std::string;
+        };
+
         template <>
         struct DataMapping<Data::NetworkProxyInfo>
         {
             using value_t = Utility::ProxyInfo;
-        };
+        }
     }
 }

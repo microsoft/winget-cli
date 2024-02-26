@@ -18,6 +18,7 @@ namespace AppInstaller::MSStore
     {
         Install,
         Update,
+        Repair,
     };
 
     struct MSStoreOperation

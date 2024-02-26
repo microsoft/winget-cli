@@ -9,7 +9,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Helpers;
-    using Windows.Foundation;
 
     /// <summary>
     /// This is the base class for all commands that parse a <see cref="FindPackagesOptions" /> result
@@ -27,6 +26,16 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to skip the installer hash validation check.
+        /// </summary>
+        protected bool AllowHashMismatch { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to skip dependencies.
+        /// </summary>
+        protected bool SkipDependencies { get; set; }
+
+        /// <summary>
         /// Gets or sets the override arguments to be passed on to the installer.
         /// </summary>
         protected string? Override { get; set; }
@@ -42,9 +51,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         protected string? Location { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to skip the installer hash validation check.
+        /// Gets or sets the path to the logging file.
         /// </summary>
-        protected bool AllowHashMismatch { get; set; }
+        protected string? Log { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to continue upon non security related failures.
@@ -69,6 +78,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         {
             InstallOptions options = ManagementDeploymentFactory.Instance.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch;
+            options.SkipDependencies = this.SkipDependencies;
             options.Force = this.Force;
             options.PackageInstallMode = PSEnumHelpers.ToPackageInstallMode(mode);
             if (version != null)
