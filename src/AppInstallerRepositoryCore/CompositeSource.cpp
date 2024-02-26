@@ -419,7 +419,7 @@ namespace AppInstaller::Repository
         // An ICompositePackage for the CompositeSource.
         struct CompositePackage : public ICompositePackage
         {
-            // The availablePackage maye only contain one available package within it, as it is expected to be the output of a search on a single source.
+            // The availablePackage may only contain one available package within it, as it is expected to be the output of a search on a single source.
             CompositePackage(const std::shared_ptr<ICompositePackage>& installedPackage, const std::shared_ptr<ICompositePackage>& availablePackage = {})
             {
                 if (installedPackage)
