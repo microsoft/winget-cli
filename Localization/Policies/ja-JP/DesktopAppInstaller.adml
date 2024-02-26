@@ -68,11 +68,11 @@
 
 この設定を無効にした場合、Windows パッケージマ ネージャーの Microsoft Store ソースは利用できなくなります。</string>
       <string id="SourceAutoUpdateInterval">アプリ インストーラー ソースの自動更新間隔を分単位で設定します</string>
-      <string id="SourceAutoUpdateIntervalExplanation">このポリシーでは、パッケージベースのソースの自動更新間隔を制御します。
+      <string id="SourceAutoUpdateIntervalExplanation">このポリシーは、パッケージ ベースのソースの自動更新間隔を制御します。Windows パッケージ マネージャーの既定のソースは、パッケージのインデックスがローカル コンピューターにキャッシュされるように構成されています。インデックスは、ユーザーがコマンドを呼び出し、間隔が過ぎたときにダウンロードされます。
 
-この設定を無効にした場合、または構成しなかった場合は、Windows パッケージマネージャーによって [設定] で指定した既定の間隔または値が使用されます。
+この設定を無効にした場合、または構成しなかった場合は、既定の間隔またはWindows パッケージ マネージャー設定で指定された値が使用されます。
 
-この設定を有効にした場合、指定した分数が Windows パッケージマネージャーによって使用されます。</string>
+この設定を有効にした場合、指定した分数がWindows パッケージ マネージャーで使用されます。</string>
       <string id="EnableAdditionalSources">アプリ インストーラーの追加ソースを有効にする</string>
       <string id="EnableAdditionalSourcesExplanation">このポリシーは、エンタープライズIT管理者によって提供される追加のソースを制御します。
 
@@ -103,6 +103,12 @@
 このポリシーを有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージ マネージャー CLI コマンドと PowerShell コマンドレットを実行できます ([アプリ インストーラーを有効にする] ポリシーが無効になっている場合に限る)。
 
 このポリシーは、[アプリ インストーラーを有効にする] ポリシーをオーバーライドしません。</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Windows パッケージ マネージャーの構成を有効にする</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">このポリシーでは、Windows パッケージ マネージャー構成機能をユーザーが使用できるかどうかを制御します。
+
+この設定を有効にした場合、または構成しなかった場合、ユーザーはWindows パッケージ マネージャー構成機能を使用できます。
+
+この設定を無効にすると、ユーザーはWindows パッケージ マネージャー構成機能を使用できなくなります。</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

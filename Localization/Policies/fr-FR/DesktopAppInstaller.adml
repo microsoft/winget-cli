@@ -68,11 +68,11 @@ Si vous activez ce paramètre, la source du Microsoft Store pour le Gestionnaire
 
 Si vous désactivez ce paramètre, la source du Microsoft Store pour le Gestionnaire de package Windows n’est pas disponible.</string>
       <string id="SourceAutoUpdateInterval">Définir l’intervalle en minutes de mise à jour automatique de source du programme d’installation de l’application</string>
-      <string id="SourceAutoUpdateIntervalExplanation">Cette stratégie contrôle l’intervalle de mise à jour automatique pour les sources basées sur un package.
+      <string id="SourceAutoUpdateIntervalExplanation">Cette stratégie contrôle l’intervalle de mise à jour automatique pour les sources basées sur les packages. La source par défaut de Gestionnaire de package Windows est configurée de sorte qu’un index des packages soit mis en cache sur l’ordinateur local. L’index est téléchargé lorsqu’un utilisateur appelle une commande et que l’intervalle est écoulé.
 
-Si vous désactivez ou ne configurez pas ce paramètre, l’intervalle par défaut ou la valeur spécifiée dans les paramètres est utilisé par le gestionnaire de packages Windows.
+Si vous désactivez ou ne configurez pas ce paramètre, l’intervalle par défaut ou la valeur spécifié dans les paramètres de Gestionnaire de package Windows sont utilisés.
 
-Si vous activez ce paramètre, le nombre de minutes spécifiées est utilisé par le gestionnaire de packages Windows.</string>
+Si vous activez ce paramètre, le nombre de minutes spécifié est utilisé par le Gestionnaire de package Windows.</string>
       <string id="EnableAdditionalSources">Activer les sources supplémentaires du Programme d’installation de l’application</string>
       <string id="EnableAdditionalSourcesExplanation">Cette stratégie contrôle les sources supplémentaires offertes par l’administrateur informatique de l’entreprise.
 
@@ -103,6 +103,12 @@ Si vous désactivez cette stratégie, les utilisateurs ne peuvent pas exécuter 
 Si vous activez ou ne configurez pas cette stratégie, les utilisateurs peuvent exécuter les commandes Gestionnaire de package Windows CLI et PowerShell. (La stratégie « Activer Programme d'installation d'application » fournie n’est pas désactivée).
 
 Cette stratégie ne remplace pas la stratégie « Activer Programme d'installation d'application ».</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Activer la configuration Gestionnaire de package Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Cette stratégie contrôle si la fonctionnalité de configuration Gestionnaire de package Windows peut être utilisée par les utilisateurs.
+
+Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent utiliser la fonctionnalité de configuration Gestionnaire de package Windows.
+
+Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas utiliser la fonctionnalité de configuration Gestionnaire de package Windows.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
