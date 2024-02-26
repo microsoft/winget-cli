@@ -106,12 +106,27 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
         auto agentWide = Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent().get());
-        wil::unique_hinternet session(InternetOpen(
-            agentWide.c_str(),
-            proxyInfo.ProxyUri ? INTERNET_OPEN_TYPE_PROXY : INTERNET_OPEN_TYPE_PRECONFIG,
-            proxyInfo.ProxyUri ? Utility::ConvertToUTF16(proxyInfo.ProxyUri.value()).c_str() : NULL,
-            NULL,
-            0));
+        wil::unique_hinternet session;
+        if (proxyInfo.ProxyUri)
+        {
+            AICLI_LOG(Core, Info, << "Using proxy " << proxyInfo.ProxyUri.value());
+            session.reset(InternetOpen(
+                agentWide.c_str(),
+                INTERNET_OPEN_TYPE_PROXY,
+                Utility::ConvertToUTF16(proxyInfo.ProxyUri.value()).c_str(),
+                NULL,
+                0));
+        }
+        else
+        {
+            session.reset(InternetOpen(
+                agentWide.c_str(),
+                INTERNET_OPEN_TYPE_PRECONFIG,
+                NULL,
+                NULL,
+                0));
+        }
+
         THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
 
         auto urlWide = Utility::ConvertToUTF16(url);
