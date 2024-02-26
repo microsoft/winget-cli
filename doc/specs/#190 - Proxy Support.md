@@ -24,9 +24,13 @@ New Group Policy will also be added for IT admins to control the use of proxies.
 The policies will be similar to those we already have for sources, so that a specific proxy can be required or only a predefined set of proxies can be allowed.
 
 Proxies will not be used for the configuration features for now.
+Proxy settings in winget will not affect the behavior of installers themselves, so an installation may still generate traffic outside of the proxy.
 
-If a proxy is configured, it will be used for accessing sources and downloading installers.
-Note that it will not affect the behavior of installers themselves, so an installation may still generate traffic outside of the proxy.
+The proxy will be used to download the installers and access the sources.
+
+Since the APIs used for Delivery Optimization and MSIX deployment do not provide a way to specify a custom proxy, if a proxy is specified, we will change the use of those APIs to accomodate the proxy.
+For Delivery Optimization, a proxy will force use of WinINet instead.
+For MSIX deployment, the packages will be fully downloaded before deploying; this will require more network traffic than a streaming install of only the required bits.
 
 ## UI/UX Design
 
@@ -91,3 +95,4 @@ Things we may want to consider in the future:
 * Add support for proxies that require authentication
 * Add the ability for admins to set multiple allowed proxies that a user can use
 * Add the ability to specify a different default proxy for each source
+* Use proxies with Delivery Optimization. This requires changes to the Delivery Optimization APIs.
