@@ -68,11 +68,11 @@ Se si abilita questa impostazione, l'origine Microsoft Store per Windows Gestion
 
 Se si disabilita questa impostazione, l'origine Microsoft Store per Windows Gestione pacchetti non sarà disponibile.</string>
       <string id="SourceAutoUpdateInterval">Imposta l'intervallo di aggiornamento automatico dell'origine del programma di installazione app in minuti</string>
-      <string id="SourceAutoUpdateIntervalExplanation">Questo criterio Controlla l'intervallo di aggiornamento automatico per le origini basate sul pacchetto.
+      <string id="SourceAutoUpdateIntervalExplanation">Questo criterio controlla l'intervallo di aggiornamento automatico per le origini basate su pacchetto. L'origine predefinita per Gestione pacchetti Windows è configurata in modo che un indice dei pacchetti venga memorizzato nella cache nel computer locale. L'indice viene scaricato quando un utente richiama un comando e l'intervallo è passato.
 
-Se si disabilita o non si configura questa impostazione, l'intervallo predefinito o il valore specificato nelle impostazioni verranno utilizzati da Windows Gestione pacchetti.
+Se si disabilita o non si configura questa impostazione, verrà utilizzato l'intervallo predefinito o il valore specificato nelle impostazioni Gestione pacchetti Windows.
 
-Se si abilita questa impostazione, il numero di minuti specificato verrà utilizzato da Windows Gestione pacchetti.</string>
+Se si abilita questa impostazione, il numero di minuti specificato verrà utilizzato dal Gestione pacchetti Windows.</string>
       <string id="EnableAdditionalSources">Abilita altre origini del programma di installazione app</string>
       <string id="EnableAdditionalSourcesExplanation">Questo criterio controlla le origini aggiuntive fornite dall'amministratore IT dell'organizzazione.
 
@@ -103,6 +103,12 @@ Se disabiliti questo criterio, gli utenti non potranno eseguire l'interfaccia de
 Se abiliti o non configuri questo criterio, gli utenti potranno eseguire i comandi dell'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell. (Il criterio "Abilita Programma di installazione app" specificato non è disabilitato).
 
 Questo criterio non esegue l'override del criterio "Abilita Programma di installazione app".</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Abilita la configurazione di Gestione pacchetti</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Questo criterio controlla se la funzionalità di configurazione Gestione pacchetti Windows può essere usata dagli utenti.
+
+Se si abilita o non si configura questa impostazione, gli utenti potranno usare la funzionalità di configurazione Gestione pacchetti Windows.
+
+Se si disabilita questa impostazione, gli utenti non potranno usare la funzionalità di configurazione Gestione pacchetti Windows.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
