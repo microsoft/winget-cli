@@ -68,9 +68,9 @@ Wenn Sie diese Einstellung aktivieren, ist die Microsoft Store-Quelle für den W
 
 Wenn Sie diese Einstellung deaktivieren, ist die Microsoft Store-Quelle für den Windows-Paket-Manager nicht verfügbar.</string>
       <string id="SourceAutoUpdateInterval">Intervall für automatische Aktualisierung der App-Installer-Quelle in Minuten festlegen</string>
-      <string id="SourceAutoUpdateIntervalExplanation">Diese Richt Linie steuert das Intervall für die automatische Aktualisierung für Paket basierte Quellen.
+      <string id="SourceAutoUpdateIntervalExplanation">Diese Richtlinie steuert das Intervall für die automatische Aktualisierung paketbasierter Quellen. Die Standardquelle für Windows-Paket-Manager ist so konfiguriert, dass ein Index der Pakete auf dem lokalen Computer zwischengespeichert wird. Der Index wird heruntergeladen, wenn ein Benutzer einen Befehl aufruft und das Intervall abgelaufen ist.
 
-Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, wird das Standard Intervall oder der in den Einstellungen angegebene Wert vom Windows-Paket-Manager verwendet.
+Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, wird das Standardintervall oder der in den Windows-Paket-Manager Einstellungen angegebene Wert verwendet.
 
 Wenn Sie diese Einstellung aktivieren, wird die angegebene Anzahl von Minuten vom Windows-Paket-Manager verwendet.</string>
       <string id="EnableAdditionalSources">Zusätzliche Quellen für den App-Installer aktivieren</string>
@@ -103,6 +103,12 @@ Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, können Benutz
         Wenn Sie diese Richtlinie aktivieren oder nicht konfigurieren, können Benutzer die Windows Package Manager CLI-Befehle und PowerShell-Cmdlets ausführen. (Vorausgesetzt, die Richtlinie "App-Installationsprogramm aktivieren" ist nicht deaktiviert).
 
         Diese Richtlinie hat keinen Einfluss auf die Richtlinie "App-Installationsprogramm aktivieren".</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Aktivieren der Windows-Paket-Manager-Konfiguration</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Diese Richtlinie steuert, ob das Windows-Paket-Manager Konfigurationsfeature von Benutzern verwendet werden kann.
+
+Wenn Sie diese Einstellung aktivieren oder nicht konfigurieren, können Benutzer das Konfigurationsfeature Windows-Paket-Manager verwenden.
+
+Wenn Sie diese Einstellung deaktivieren, können Benutzer das Konfigurationsfeature Windows-Paket-Manager nicht verwenden.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
