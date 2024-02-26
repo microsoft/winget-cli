@@ -278,6 +278,7 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::string;
         };
 
+
         template<>
         struct DataMapping<Data::RepairString>
         {
@@ -288,6 +289,6 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::NetworkProxyInfo>
         {
             using value_t = Utility::ProxyInfo;
-        }
+        };
     }
 }
