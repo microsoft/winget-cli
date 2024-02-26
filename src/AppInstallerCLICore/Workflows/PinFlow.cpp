@@ -140,7 +140,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    auto availableVersion = GetAvailableVersionsForInstalledVersion(package, nullptr)->GetVersion({ pinKey.SourceId, "", "" });
+                    auto availableVersion = GetAvailablePackageFromSource(package, pinKey.SourceId)->GetLatestVersion();
                     if (availableVersion)
                     {
                         packageNameToReport = availableVersion->GetProperty(PackageVersionProperty::Name);

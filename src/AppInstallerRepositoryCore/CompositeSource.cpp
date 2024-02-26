@@ -340,7 +340,7 @@ namespace AppInstaller::Repository
             std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
         };
 
-        // A composite package for the installed package of a CompositePackage.
+        // An IPackage for the installed package of a CompositePackage.
         // Supports only a single version of a single package at this time.
         struct CompositeInstalledPackage : public IPackage
         {
@@ -416,9 +416,10 @@ namespace AppInstaller::Repository
             std::string m_overrideVersion;
         };
 
-        // A composite package for the CompositeSource.
+        // An ICompositePackage for the CompositeSource.
         struct CompositePackage : public ICompositePackage
         {
+            // The availablePackage maye only contain one available package within it, as it is expected to be the output of a search on a single source.
             CompositePackage(const std::shared_ptr<ICompositePackage>& installedPackage, const std::shared_ptr<ICompositePackage>& availablePackage = {})
             {
                 if (installedPackage)

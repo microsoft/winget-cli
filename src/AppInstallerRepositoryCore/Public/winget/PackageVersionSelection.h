@@ -16,6 +16,10 @@ namespace AppInstaller::Repository
         const std::shared_ptr<ICompositePackage>& composite,
         const std::shared_ptr<IPackageVersion>& installedVersion);
 
+    // Equivalent to `GetAvailableVersionsForInstalledVersion(composite, nullptr)` to make the intent more clear that the caller wants to ignore any installed
+    // package information.
+    std::shared_ptr<IPackageVersionCollection> GetAllAvailableVersions(const std::shared_ptr<ICompositePackage>& composite);
+
     // Gets the installed version, or a null if there isn't one.
     std::shared_ptr<IPackageVersion> GetInstalledVersion(const std::shared_ptr<ICompositePackage>& composite);
 

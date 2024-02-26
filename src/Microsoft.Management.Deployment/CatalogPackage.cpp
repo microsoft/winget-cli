@@ -54,7 +54,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             [&]()
             {
                 // Vector hasn't been populated yet.
-                for (auto const& versionKey : ::AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(m_package, nullptr)->GetVersionKeys())
+                for (auto const& versionKey : ::AppInstaller::Repository::GetAllAvailableVersions(m_package)->GetVersionKeys())
                 {
                     auto packageVersionId = winrt::make_self<wil::details::module_count_wrapper<
                         winrt::Microsoft::Management::Deployment::implementation::PackageVersionId>>();
@@ -103,7 +103,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.PackageCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
         std::shared_ptr<::AppInstaller::Repository::IPackageVersion> availableVersion =
-            ::AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(m_package, nullptr)->GetVersion(internalVersionKey);
+            ::AppInstaller::Repository::GetAllAvailableVersions(m_package)->GetVersion(internalVersionKey);
         if (availableVersion)
         {
             auto packageVersionInfoImpl = winrt::make_self<wil::details::module_count_wrapper<

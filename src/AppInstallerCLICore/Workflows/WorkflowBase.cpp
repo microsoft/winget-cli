@@ -629,7 +629,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
-            auto latestVersion = GetAvailableVersionsForInstalledVersion(searchResult.Matches[i].Package, nullptr)->GetLatestVersion();
+            auto latestVersion = GetAllAvailableVersions(searchResult.Matches[i].Package)->GetLatestVersion();
 
             table.OutputLine({
                 latestVersion->GetProperty(PackageVersionProperty::Name),
@@ -1349,7 +1349,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowAppVersions(Execution::Context& context)
     {
-        auto versions = GetAvailableVersionsForInstalledVersion(context.Get<Execution::Data::Package>(), nullptr)->GetVersionKeys();
+        auto versions = GetAllAvailableVersions(context.Get<Execution::Data::Package>())->GetVersionKeys();
 
         Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
         for (const auto& version : versions)

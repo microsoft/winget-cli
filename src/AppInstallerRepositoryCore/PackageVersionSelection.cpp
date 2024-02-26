@@ -116,6 +116,11 @@ namespace AppInstaller::Repository
         return std::make_shared<AvailablePackageVersionCollection>(composite, installedVersion);
     }
 
+    std::shared_ptr<IPackageVersionCollection> GetAllAvailableVersions(const std::shared_ptr<ICompositePackage>& composite)
+    {
+        return GetAvailableVersionsForInstalledVersion(composite, nullptr);
+    }
+
     std::shared_ptr<IPackageVersion> GetInstalledVersion(const std::shared_ptr<ICompositePackage>& composite)
     {
         auto installedPackage = composite->GetInstalled();
