@@ -270,6 +270,11 @@
           "description": "Enable support for configuration",
           "type": "boolean",
           "default": false
+        },
+        "proxy": {
+          "description": "Enable support for proxies",
+          "type": "boolean",
+          "default": false
         }
       }
     }
