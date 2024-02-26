@@ -74,6 +74,7 @@ namespace AppInstaller::CLI::Execution
         Resume = 0x200,
         RebootRequired = 0x400,
         RegisterResume = 0x800,
+        InstallerExecutionUseRepair = 0x1000,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);

@@ -124,7 +124,7 @@ namespace AppInstaller::Deployment
                 RemovePackage(packageFullName, RemovalOptions::None, cb);
             }
             CATCH_LOG();
-        });
+            });
 
         Uri uriObject(Utility::ConvertToUTF16(uri));
 
@@ -229,7 +229,7 @@ namespace AppInstaller::Deployment
                 RemovePackage(packageFullName, RemovalOptions::RemoveForAllUsers, cb);
             }
             CATCH_LOG();
-        });
+            });
 
         Uri uriObject(Utility::ConvertToUTF16(uri));
         PartialPercentProgressCallback progress{ callback, 100 };
@@ -321,5 +321,19 @@ namespace AppInstaller::Deployment
         auto packages = packageManager.FindPackagesForUser({}, wideFamilyName);
 
         return packages.begin() != packages.end();
+    }
+
+    void RegisterPackage(
+        std::string_view packageFamilyName,
+        IProgressCallback& callback)
+    {
+        size_t id = GetDeploymentOperationId();
+        AICLI_LOG(Core, Info, << "Starting RegisterPackageByFullNameAsync operation #" << id << ": " << packageFamilyName);
+
+        PackageManager packageManager;
+        winrt::hstring packageFamilyNameWide = Utility::ConvertToUTF16(packageFamilyName).c_str();
+        auto deployOperation = packageManager.RegisterPackageByFamilyNameAsync(packageFamilyNameWide, nullptr, DeploymentOptions::None, nullptr, nullptr);
+
+        WaitForDeployment(deployOperation, id, callback);
     }
 }

@@ -47,4 +47,9 @@ namespace AppInstaller::Deployment
 
     // Calls winrt::Windows::Management::Deployment::PackageManager::FindPackagesForUser
     bool IsRegistered(std::string_view packageFamilyName);
+
+    // Calls winrt::Windows::Management::Deployment::PackageManager::RegisterPackageByFamilyNameAsync
+    void RegisterPackage(
+        std::string_view packageFamilyName,
+        IProgressCallback& callback);
 }

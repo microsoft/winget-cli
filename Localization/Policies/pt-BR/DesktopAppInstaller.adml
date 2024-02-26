@@ -68,11 +68,11 @@ Se você habilitar essa configuração, a fonte da Microsoft Store para o Gerenc
 
 Se você desabilitar esta configuração, a fonte da Microsoft Store para o Gerenciador de Pacotes do Windows não estará disponível.</string>
       <string id="SourceAutoUpdateInterval">Definir o Intervalo de Atualização Automática da Fonte do Instalador de Aplicativo em Minutos</string>
-      <string id="SourceAutoUpdateIntervalExplanation">Esta política controla o intervalo de atualização automática para origens baseadas em pacote.
+      <string id="SourceAutoUpdateIntervalExplanation">Esta política controla o intervalo de atualização automática para origens baseadas em pacote. A fonte padrão para Gerenciador de Pacotes do Windows é configurada de modo que um índice dos pacotes seja armazenado em cache no computador local. O índice é baixado quando um usuário invoca um comando e o intervalo é passado.
 
-Se você desabilitar ou não definir essa configuração, o intervalo padrão ou o valor especificado em configurações serão usados pelo Gerenciador de pacotes do Windows.
+Se você desabilitar ou não definir essa configuração, o intervalo padrão ou o valor especificado na Gerenciador de Pacotes do Windows configurações serão usadas.
 
-Se você habilitar essa configuração, o número de minutos especificado será usado pelo Gerenciador de pacotes do Windows.</string>
+Se você habilitar essa configuração, o número de minutos especificado será usado pelo Gerenciador de Pacotes do Windows.</string>
       <string id="EnableAdditionalSources">Habilitar as Fontes Adicionais do Instalador de Aplicativos</string>
       <string id="EnableAdditionalSourcesExplanation">Esta política controla as fontes adicionais fornecidas pelo administrador de TI da empresa.
 
@@ -103,6 +103,12 @@ Se você desabilitar essa política, os usuários não poderão executar o Geren
 Se você habilitar ou não configurar essa política, os usuários poderão executar os comandos Gerenciador de Pacotes do Windows CLI e os cmdlets do PowerShell. (A política "Habilitar Instalador de Aplicativo" fornecida não está desabilitada).
 
 Esta política não substitui a política "Habilitar Instalador de Aplicativo".</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Habilitar as Configurações do Gerenciador de Pacotes do Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Esta política controla se o Gerenciador de Pacotes do Windows de configuração pode ser usado pelos usuários.
+
+Se você habilitar ou não definir essa configuração, os usuários poderão usar o recurso Gerenciador de Pacotes do Windows configuração.
+
+Se você desabilitar essa configuração, os usuários não poderão usar o recurso Gerenciador de Pacotes do Windows configuração.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

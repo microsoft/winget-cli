@@ -97,37 +97,42 @@ usage: winget download [[-q] <query>] [<options>]
 The following items will be included in the WinGet Settings Schema 
 
 ```json
-"DownloadBehavior: {
+"DownloadBehavior": {
         "defaultDownloadDirectory":"%USERPROFILE%/Downloads/"
-}"
+}
 ```
 
 The "defaultDownloadDirectory" setting will be used as the default folder where the package installer and manifest is downloaded to.
 
 ### WinGet PowerShell Cmdlet
-WinGet PowerShell cmdlet will download the identified package's installer and manifest based on the user specified parameters. While downloading the package's installer, PowerShell will show a progress bar displaying the progress. Afterwards, it will return the downloaded directory where the files were downloaded to.:
+WinGet PowerShell cmdlet will download the identified package's installer and manifest based on the user specified parameters. While downloading the package's installer, PowerShell will show a progress bar displaying the progress. Once the download is complete, the status of the download will be shown to the user, along with the id, name, and source of the package.
 
-```PS
-PS C:\> Get-Help Save-WinGetPackage
+```
+C:\> Export-WinGetPackage -?
 
 NAME
-    Save-WinGetPackage
-
-SYNOPSIS
-    Downloads a package installer from a WinGet configured source.
+    Export-WinGetPackage
 
 SYNTAX
-    Save-WinGetPackage [-ID <System.String>] [-Name <System.String>] [-Moniker <System.String>]
-    [-Scope <System.String>] [-Locale <System.String>] [-FileName <System.String>] 
-    [-Version <System.String>] [-Source <System.String>] [-Architecture <System.String>] [-Exact] 
-    [-Output <System.String>] [InstallerType <System.String>] [-IgnoreSecurityHash] 
-    [-AcceptPackageAgreement] [-Wait] [-Verbose]
+    Export-WinGetPackage [[-Query] <string[]>] [-DownloadDirectory <string>] [-AllowHashMismatch] [-Architecture
+    {Default | X86 | Arm | X64 | Arm64}] [-InstallerType {Default | Inno | Wix | Msi | Nullsoft | Zip | Msix | Exe |
+    Burn | MSStore | Portable}] [-Locale <string>] [-Scope {Any | User | System | UserOrUnknown | SystemOrUnknown}]
+    [-SkipDependencies] [-Version <string>] [-Id <string>] [-Name <string>] [-Moniker <string>] [-Source <string>]
+    [-MatchOption {Equals | EqualsCaseInsensitive | StartsWithCaseInsensitive | ContainsCaseInsensitive}] [-WhatIf]
+    [-Confirm] [<CommonParameters>]
 
-DESCRIPTION
-    Downloads a package installer and manifest, either found by searching a configured source or 
-    directly from a manifest. By default, the query must case-insensitively match the id, name, or 
-    moniker of the package. Other fields can be used by passing their appropriate option.
+    Export-WinGetPackage [[-PSCatalogPackage] <PSCatalogPackage>] [-DownloadDirectory <string>] [-AllowHashMismatch]
+    [-Architecture {Default | X86 | Arm | X64 | Arm64}] [-InstallerType {Default | Inno | Wix | Msi | Nullsoft | Zip |
+    Msix | Exe | Burn | MSStore | Portable}] [-Locale <string>] [-Scope {Any | User | System | UserOrUnknown |
+    SystemOrUnknown}] [-SkipDependencies] [-Version <string>] [-WhatIf] [-Confirm] [<CommonParameters>]
 
+
+ALIASES
+    None
+
+
+REMARKS
+    None
 ```
 
 ## Capabilities

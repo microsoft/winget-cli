@@ -26,6 +26,11 @@
         "AssignedTo": "ryfu@microsoft.com",
         "AreaPath": "OS\\Windows Client and Services\\ADEPT\\E4D-Engineered for Developers\\InstaDev",
         "IterationPath": "OS"
+      },
+      "codeCoverage": {
+        "org": "ms",
+        "project": "winget-cli",
+        "pipelineId": "630"
       }
     }
   ]

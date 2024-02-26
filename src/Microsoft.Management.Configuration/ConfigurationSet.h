@@ -68,6 +68,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+        void SetInputHash(std::string inputHash);
+        const std::string& GetInputHash() const;
+
     private:
         hstring m_name;
         hstring m_origin;
@@ -81,6 +84,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Collections::IVector<ConfigurationParameter> m_parameters{ winrt::multi_threaded_vector<ConfigurationParameter>() };
         Windows::Foundation::Collections::ValueSet m_variables;
         Windows::Foundation::Uri m_schemaUri = nullptr;
+        std::string m_inputHash;
 #endif
     };
 }

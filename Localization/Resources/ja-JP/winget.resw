@@ -261,6 +261,9 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID で結果をフィルター処理</value>
   </data>
+  <data name="IgnoreWarningsArgumentDescription" xml:space="preserve">
+    <value>警告出力を非表示にします。</value>
+  </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
     <value>このアプリケーションは所有者からライセンス供与されます。</value>
   </data>
@@ -871,8 +874,8 @@
     <value>JSON ファイルでは、認識されるスキーマが指定されていません。</value>
   </data>
   <data name="InstallScopeDescription" xml:space="preserve">
-    <value>インストールの範囲 (ユーザーまたはコンピューター) の選択</value>
-    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+    <value>インストールの範囲 (user または machine) の選択</value>
+    <comment>{Locked="user","machine"} This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
     <value>'{0}' 引数に指定された値が無効です。有効な値: {1}</value>
@@ -1018,8 +1021,8 @@
     <comment>Dependency graph has loop</comment>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
-    <value>manifest: {0} {1} に適したインストーラーが見つかりません</value>
-    <comment>{Locked="{0} {1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
+    <value>マニフェストに適したインストーラーが見つかりません: {0} バージョン {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>パッケージ依存関係の処理中にエラーが発生しました。インストールを続行しますか?</value>
@@ -1611,8 +1614,8 @@
     <value>設定ファイルを読み込めませんでした。既定値を使用しています。</value>
   </data>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
-    <value>インストールされているパッケージ スコープ フィルター (ユーザーまたはコンピューター) の選択</value>
-    <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
+    <value>インストールされているパッケージ スコープ フィルター (user または machine) の選択</value>
+    <comment>{Locked="user","machine"} This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
   </data>
   <data name="PinAdded" xml:space="preserve">
     <value>ピンが正常に追加されました</value>
@@ -1696,6 +1699,9 @@
   <data name="UpgradeBlockedByPinCount" xml:space="preserve">
     <value>{0} 個のパッケージには、アップグレードする前に削除する必要があるピンがあります</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
+  </data>
+  <data name="UpgradeBlockedByManifest" xml:space="preserve">
+    <value>winget を使用してパッケージをアップグレードすることはできません。このパッケージをアップグレードするには、発行元から提供された方法を使用してください。</value>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>ブロックでないピンを持っている場合でもパッケージをアップグレードする</value>
@@ -1832,13 +1838,13 @@
 {Locked="--force"}</comment>
   </data>
   <data name="EnablingWindowsFeature" xml:space="preserve">
-    <value>{0} [{1}] を有効にしています...</value>
-    <comment>{Locked="{0}","{1}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
+    <value>[{0}] を有効にしています...</value>
+    <comment>{Locked="{0}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
   </data>
   <data name="FailedToEnableWindowsFeature" xml:space="preserve">
-    <value>{0} [{1}] 機能を有効にできませんでした。</value>
-    <comment>{Locked="{0}"} Windows Feature display name
-{Locked="{1}"} Windows Feature name</comment>
+    <value>[{0}] 機能を有効にできませんでした: {1}</value>
+    <comment>{Locked="{0}","{1}"}  An error when enabling a Windows Feature. {0} is a placeholder for the name of the Windows Feature.
+{1} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
     <value>Windows 機能を完全に有効にするには再起動が必要です。--force が原因で続行しています</value>
@@ -2068,10 +2074,744 @@
   </data>
   <data name="ConfigurationModulePath" xml:space="preserve">
     <value>モジュールを格納するローカル コンピューター上の場所を指定します。既定の %LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules</value>
-    <comment>{Locked="allusers","currentuser","default","%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
+    <comment>{Locked="%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
   </data>
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
     <value>`--module-path` 値は、`currentuser`、`allusers`、`default`、または絶対パスである必要があります。</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
+  </data>
+  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+    <value>Windows パッケージ マネージャーの構成を有効にする</value>
+  </data>
+  <data name="ErrorCommandLongDescription" xml:space="preserve">
+    <value>エラーに関する情報を取得します。指定された数値は、winget 固有のエラーの場合のシンボル名を含む、エラーに関する詳細を出力に含めます。文字列を指定すると、winget 固有のエラーがこの値で検索されます。</value>
+  </data>
+  <data name="ErrorCommandShortDescription" xml:space="preserve">
+    <value>エラーに関する情報を取得する</value>
+  </data>
+  <data name="ErrorInputArgumentDescription" xml:space="preserve">
+    <value>エラー情報内で検索する値</value>
+  </data>
+  <data name="ErrorNumberIsTooLarge" xml:space="preserve">
+    <value>指定された数値が大きすぎて HRESULT にできません。</value>
+  </data>
+  <data name="UnknownErrorCode" xml:space="preserve">
+    <value>不明なエラー コード</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INTERNAL_ERROR" xml:space="preserve">
+    <value>内部エラー</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS" xml:space="preserve">
+    <value>コマンド ラインの引数が無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_COMMAND_FAILED" xml:space="preserve">
+    <value>コマンドの実行に失敗しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MANIFEST_FAILED" xml:space="preserve">
+    <value>マニフェストを開けませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED" xml:space="preserve">
+    <value>取り消しシグナルを受信しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED" xml:space="preserve">
+    <value>ShellExecute の実行に失敗しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION" xml:space="preserve">
+    <value>マニフェストを処理できません。マニフェストのバージョンがサポートされているバージョンを超えています。クライアントを更新してください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED" xml:space="preserve">
+    <value>インストーラーのダウンロードに失敗しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX" xml:space="preserve">
+    <value>インデックスに書き込めません;上位のスキーマ バージョンです</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED" xml:space="preserve">
+    <value>インデックスが壊れています</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCES_INVALID" xml:space="preserve">
+    <value>構成されたソース情報が壊れています</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS" xml:space="preserve">
+    <value>ソース名は既に構成されています</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE" xml:space="preserve">
+    <value>ソースの種類が無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE" xml:space="preserve">
+    <value>MSIX ファイルがパッケージではなくバンドルです</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING" xml:space="preserve">
+    <value>ソースに必要なデータがありません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER" xml:space="preserve">
+    <value>現在のシステムに適用できるインストーラーはありません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH" xml:space="preserve">
+    <value>インストーラー ファイルのハッシュがマニフェストと一致しません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST" xml:space="preserve">
+    <value>ソース名が存在しません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS" xml:space="preserve">
+    <value>ソースの場所は既に別の名前で構成されています</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND" xml:space="preserve">
+    <value>パッケージが見つかりません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED" xml:space="preserve">
+    <value>ソースが構成されていません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND" xml:space="preserve">
+    <value>条件に一致するパッケージが複数見つかりました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND" xml:space="preserve">
+    <value>条件に一致するマニフェストが見つかりませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXTENSION_PUBLIC_FAILED" xml:space="preserve">
+    <value>ソース パッケージからパブリック フォルダーを取得できませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN" xml:space="preserve">
+    <value>コマンドを実行するには管理者権限が必要です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE" xml:space="preserve">
+    <value>ソースの場所がセキュリティで保護されていません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY" xml:space="preserve">
+    <value>Microsoft Store クライアントがポリシーによってブロックされています</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY" xml:space="preserve">
+    <value>Microsoft Store アプリがポリシーによってブロックされています</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED" xml:space="preserve">
+    <value>この機能は現在開発中です。winget 設定を使用して有効にできます。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED" xml:space="preserve">
+    <value>Microsoft Store アプリをインストールできませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD" xml:space="preserve">
+    <value>オート コンプリートを実行できませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED" xml:space="preserve">
+    <value>YAML パーサーの初期化に失敗しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY" xml:space="preserve">
+    <value>無効な YAML キーが見つかりました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY" xml:space="preserve">
+    <value>重複している YAML キーが見つかりました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_OPERATION" xml:space="preserve">
+    <value>YAML 操作が無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED" xml:space="preserve">
+    <value>YAML ドキュメントをビルドできませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_EMITTER_STATE" xml:space="preserve">
+    <value>YAML エミッタの状態が無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA" xml:space="preserve">
+    <value>YAML データが無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LIBYAML_ERROR" xml:space="preserve">
+    <value>LibYAML エラー</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_WARNING" xml:space="preserve">
+    <value>マニフェストの検証は成功しましたが、警告があります</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE" xml:space="preserve">
+    <value>マニフェストの検証に失敗しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_MANIFEST" xml:space="preserve">
+    <value>マニフェストが無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE" xml:space="preserve">
+    <value>適用可能な更新は見つかりませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE" xml:space="preserve">
+    <value>WinGet アップグレード -- すべて完了しましたが、エラーが発生しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED" xml:space="preserve">
+    <value>インストーラーのセキュリティ チェックに失敗しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH" xml:space="preserve">
+    <value>ダウンロード サイズが予期されたコンテンツの長さと一致しません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND" xml:space="preserve">
+    <value>アンインストール コマンドが見つかりません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED" xml:space="preserve">
+    <value>アンインストール コマンドの実行に失敗しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR" xml:space="preserve">
+    <value>ICU ブレーク反復子エラー</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR" xml:space="preserve">
+    <value>ICU ケースマップ エラー</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ICU_REGEX_ERROR" xml:space="preserve">
+    <value>ICU 正規表現エラー</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED" xml:space="preserve">
+    <value>1 つ以上のインポートされたパッケージをインストールできませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND" xml:space="preserve">
+    <value>1 つ以上の要求されたパッケージが見つかりませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE" xml:space="preserve">
+    <value>JSON ファイルが無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE" xml:space="preserve">
+    <value>ソースの場所がリモートではありません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE" xml:space="preserve">
+    <value>構成された REST ソースはサポートされていません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA" xml:space="preserve">
+    <value>REST ソースによって無効なデータが返されました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY" xml:space="preserve">
+    <value>操作はグループ ポリシーによってブロックされています</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR" xml:space="preserve">
+    <value>REST ソースの内部エラー</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL" xml:space="preserve">
+    <value>REST ソース URL が無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
+    <value>サポートされていない MIME の種類が REST ソースから返されました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION" xml:space="preserve">
+    <value>REST ソース コントラクト バージョンが無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE" xml:space="preserve">
+    <value>ソース データが壊れているか、改ざんされています</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_STREAM_READ_FAILURE" xml:space="preserve">
+    <value>ストリームからの読み込みエラー</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED" xml:space="preserve">
+    <value>パッケージ契約に同意しませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR" xml:space="preserve">
+    <value>プロンプトで入力の読み取り中にエラーが発生しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST" xml:space="preserve">
+    <value>検索要求は 1 つ以上のソースでサポートされていません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND" xml:space="preserve">
+    <value>REST ソース エンドポイントが見つかりません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED" xml:space="preserve">
+    <value>ソースを開けませんでした。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED" xml:space="preserve">
+    <value>ソース契約に同意しませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH" xml:space="preserve">
+    <value>ヘッダーのサイズが許容される上限の 1024 文字を超えています。サイズを小さくして、もう一度お試しください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE" xml:space="preserve">
+    <value>リソース ファイルがありません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED" xml:space="preserve">
+    <value>MSI インストールの実行に失敗しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT" xml:space="preserve">
+    <value>msiexec の引数が無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES" xml:space="preserve">
+    <value>1 つ以上のソースを開けませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED" xml:space="preserve">
+    <value>依存関係の検証ができませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MISSING_PACKAGE" xml:space="preserve">
+    <value>1 つ以上のパッケージが見つかりません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_TABLE_COLUMN" xml:space="preserve">
+    <value>テーブル列が無効です</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER" xml:space="preserve">
+    <value>アップグレード バージョンが、インストールされているバージョンより新しくありません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN" xml:space="preserve">
+    <value>アップグレード バージョンが不明で、オーバーライドが指定されていません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ICU_CONVERSION_ERROR" xml:space="preserve">
+    <value>ICU 変換エラー</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED" xml:space="preserve">
+    <value>ポータブル パッケージをインストールできませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED" xml:space="preserve">
+    <value>ボリュームは再パース ポイントをサポートしていません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS" xml:space="preserve">
+    <value>別のソースからのポータブル パッケージが既に存在します。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY" xml:space="preserve">
+    <value>symlink を作成できません。パスはディレクトリを指しています。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION" xml:space="preserve">
+    <value>管理者コンテキストからインストーラーを実行することはできません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED" xml:space="preserve">
+    <value>ポータブル パッケージをアンインストールできませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED" xml:space="preserve">
+    <value>インデックスに対して DisplayVersion 値を検証できませんでした。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT" xml:space="preserve">
+    <value>1 つ以上の引数がサポートされていません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL" xml:space="preserve">
+    <value>SQLite では埋め込み Null 文字は使用できません</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND" xml:space="preserve">
+    <value>入れ子になったインストーラーがアーカイブに見つかりませんでした。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED" xml:space="preserve">
+    <value>アーカイブを抽出できませんでした。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH" xml:space="preserve">
+    <value>指定された入れ子になったインストーラーへの相対ファイル パスが無効です。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH" xml:space="preserve">
+    <value>サーバー証明書が、予期された値のいずれにも一致しませんでした。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_LOCATION_REQUIRED" xml:space="preserve">
+    <value>インストールの場所を指定する必要があります。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED" xml:space="preserve">
+    <value>アーカイブのマルウェア スキャンに失敗しました。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED" xml:space="preserve">
+    <value>インストールされているパッケージのバージョンが少なくとも 1 つ見つかりました。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PIN_ALREADY_EXISTS" xml:space="preserve">
+    <value>パッケージの PIN が既に存在します。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST" xml:space="preserve">
+    <value>パッケージの PIN がありません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CANNOT_OPEN_PINNING_INDEX" xml:space="preserve">
+    <value>PIN データベースを開けません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED" xml:space="preserve">
+    <value>1 つ以上のアプリケーションをインストールできませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MULTIPLE_UNINSTALL_FAILED" xml:space="preserve">
+    <value>1 つ以上のアプリケーションをアンインストールできませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE" xml:space="preserve">
+    <value>1 つ以上のクエリで、返された結果が 1 つのみではありませんでした</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED" xml:space="preserve">
+    <value>パッケージがピン留めされているため、アップグレードできません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB" xml:space="preserve">
+    <value>現在インストールされているパッケージはスタブ パッケージです</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED" xml:space="preserve">
+    <value>アプリケーション シャットダウン シグナルを受信しました</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES" xml:space="preserve">
+    <value>パッケージの依存関係をダウンロードできませんでした。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED" xml:space="preserve">
+    <value>パッケージをダウンロードできませんでした。オフライン インストール用のダウンロードは禁止されています。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE" xml:space="preserve">
+    <value>必要なサービスがビジー状態であるか、利用できません。後でもう一度お試しください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND" xml:space="preserve">
+    <value>指定された GUID は、有効な再開状態に対応していません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH" xml:space="preserve">
+    <value>現在のクライアント バージョンは、保存された状態のクライアント バージョンと一致しませんでした。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE" xml:space="preserve">
+    <value>再開状態データが無効です。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CANNOT_OPEN_CHECKPOINT_INDEX" xml:space="preserve">
+    <value>チェックポイント データベースを開けません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED" xml:space="preserve">
+    <value>再開の上限を超えました。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO" xml:space="preserve">
+    <value>認証情報が無効です。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED" xml:space="preserve">
+    <value>認証方法がサポートされていません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED" xml:space="preserve">
+    <value>認証に失敗しました。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_INTERACTIVE_REQUIRED" xml:space="preserve">
+    <value>認証に失敗しました。対話型認証が必要です。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER" xml:space="preserve">
+    <value>認証に失敗しました。ユーザーにより取り消されました。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT" xml:space="preserve">
+    <value>認証に失敗しました。認証されたアカウントは目的のアカウントではありません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE" xml:space="preserve">
+    <value>アプリケーションは現在実行中です。アプリケーションを終了してから、もう一度お試しください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS" xml:space="preserve">
+    <value>別のインストールが既に進行中です。後でもう一度お試しください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_FILE_IN_USE" xml:space="preserve">
+    <value>1 つ以上のファイルが使用されています。アプリケーションを終了してから、もう一度お試しください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY" xml:space="preserve">
+    <value>このパッケージには、システムに依存関係がありません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_DISK_FULL" xml:space="preserve">
+    <value>PC にこれ以上空き領域がありません。空き領域を確保してから、もう一度やり直してください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_INSUFFICIENT_MEMORY" xml:space="preserve">
+    <value>インストールできるメモリが不足しています。他のアプリケーションを閉じてから、もう一度やり直してください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK" xml:space="preserve">
+    <value>このアプリケーションにはインターネット接続が必要です。ネットワークに接続してから、もう一度お試しください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT" xml:space="preserve">
+    <value>このアプリケーションのインストール中にエラーが発生しました。サポートにお問い合わせください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH" xml:space="preserve">
+    <value>PC を再起動してインストールを完了します。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL" xml:space="preserve">
+    <value>インストールに失敗しました。PC を再起動してから、もう一度お試しください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED" xml:space="preserve">
+    <value>PC が再起動してインストールが完了します。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER" xml:space="preserve">
+    <value>ユーザーがインストールを取り消しました。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_ALREADY_INSTALLED" xml:space="preserve">
+    <value>このアプリケーションの別のバージョンが既にインストールされています。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_DOWNGRADE" xml:space="preserve">
+    <value>このアプリケーションの上位バージョンは既にインストールされています。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY" xml:space="preserve">
+    <value>組織のポリシーが原因でインストールできません。管理者にお問い合わせください。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES" xml:space="preserve">
+    <value>パッケージの依存関係をインストールできませんでした。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE_BY_APPLICATION" xml:space="preserve">
+    <value>アプリケーションは現在別のアプリケーションで使用されています。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_INVALID_PARAMETER" xml:space="preserve">
+    <value>パラメーターが無効です。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED" xml:space="preserve">
+    <value>パッケージはシステムでサポートされていません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED" xml:space="preserve">
+    <value>インストーラーは既存のパッケージのアップグレードをサポートしていません。</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
+    <value>パッケージのアプリと機能エントリが見つかりませんでした。</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE" xml:space="preserve">
+    <value>インストールの場所は適用できません。</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_FOUND" xml:space="preserve">
+    <value>インストールの場所が見つかりませんでした。</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_FILE_HASH_MISMATCH" xml:space="preserve">
+    <value>既存のファイルのハッシュが一致しませんでした。</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_FILE_NOT_FOUND" xml:space="preserve">
+    <value>ファイルが見つかりませんでした。</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK" xml:space="preserve">
+    <value>ファイルは見つかりましたが、ハッシュはチェックされませんでした。</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_FILE_ACCESS_ERROR" xml:space="preserve">
+    <value>ファイルにアクセスできませんでした。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE" xml:space="preserve">
+    <value>構成ファイルが無効です。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_INVALID_YAML" xml:space="preserve">
+    <value>YAML 構文が無効です。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE" xml:space="preserve">
+    <value>構成フィールドの型が無効です。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION" xml:space="preserve">
+    <value>構成のバージョンが不明です。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_SET_APPLY_FAILED" xml:space="preserve">
+    <value>構成の適用中にエラーが発生しました。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER" xml:space="preserve">
+    <value>重複する識別子が構成に含まれています。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_MISSING_DEPENDENCY" xml:space="preserve">
+    <value>構成に依存関係がありません。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED" xml:space="preserve">
+    <value>構成に不十分な依存関係があります。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_ASSERTION_FAILED" xml:space="preserve">
+    <value>構成単位のアサーションが失敗しました。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_MANUALLY_SKIPPED" xml:space="preserve">
+    <value>この構成は手動でスキップされました。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_WARNING_NOT_ACCEPTED" xml:space="preserve">
+    <value>ユーザーが実行の続行を拒否しました。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE" xml:space="preserve">
+    <value>依存関係グラフに、解決できない循環が含まれています。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE" xml:space="preserve">
+    <value>構成に無効なフィールド値が含まれています。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_MISSING_FIELD" xml:space="preserve">
+    <value>構成にフィールドがありません。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_TEST_FAILED" xml:space="preserve">
+    <value>状態のテスト中に一部の構成ユニットが失敗しました。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_TEST_NOT_RUN" xml:space="preserve">
+    <value>構成の状態がテストされませんでした。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED" xml:space="preserve">
+    <value>構成ユニットはインストールされませんでした。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY" xml:space="preserve">
+    <value>構成単位が見つかりませんでした。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_MULTIPLE_MATCHES" xml:space="preserve">
+    <value>構成単位に一致する項目が複数見つかりました。モジュールを指定して、正しいモジュールを選択してください。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_INVOKE_GET" xml:space="preserve">
+    <value>現在のシステム状態の取得中に構成単位が失敗しました。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_INVOKE_TEST" xml:space="preserve">
+    <value>現在のシステム状態のテスト中に構成単位が失敗しました。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_INVOKE_SET" xml:space="preserve">
+    <value>必要な状態の適用中に構成単位が失敗しました。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT" xml:space="preserve">
+    <value>構成単位のモジュールは、同じバージョンの複数の場所で使用できます。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE" xml:space="preserve">
+    <value>構成単位のモジュールを読み込めませんでした。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT" xml:space="preserve">
+    <value>構成単位が実行中に予期しない結果を返しました。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT" xml:space="preserve">
+    <value>ユニットに構成ルートを必要とする設定が含まれています。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR" xml:space="preserve">
+    <value>構成プロセッサでは操作がサポートされていません。</value>
+  </data>
+  <data name="Unavailable" xml:space="preserve">
+    <value>利用不可</value>
+  </data>
+  <data name="EnableWindowsFeaturesSuccess" xml:space="preserve">
+    <value>Windows 機能の依存関係が正常に有効になりました</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN" xml:space="preserve">
+    <value>構成単位のモジュールを読み込めませんでした。実行するには管理者特権が必要です。</value>
+  </data>
+  <data name="ConfigurationUnitSettingConfigRoot" xml:space="preserve">
+    <value>ユニットに構成ルートを必要とする設定が含まれています。</value>
+  </data>
+  <data name="ConfigurationUnitImportModuleAdmin" xml:space="preserve">
+    <value>構成単位のモジュールを読み込めませんでした。実行するには管理者特権が必要です。</value>
+  </data>
+  <data name="ResumeCommandLongDescription" xml:space="preserve">
+    <value>保存されたコマンドの一意識別子を渡すことで、以前に保存されたコマンドの実行を再開します。これは、再起動のために終了した可能性のある、実行されたコマンドを再開するために使用されます。</value>
+  </data>
+  <data name="ResumeCommandShortDescription" xml:space="preserve">
+    <value>以前に保存したコマンドの実行を再開します。</value>
+  </data>
+  <data name="ResumeIdArgumentDescription" xml:space="preserve">
+    <value>再開する保存された状態の一意識別子</value>
+  </data>
+  <data name="ClientVersionMismatchError" xml:space="preserve">
+    <value>別のクライアント バージョンからの状態の再開はサポートされていません: {0}</value>
+    <comment>{Locked= "{0}"} Message displayed to inform the user that the client version of the resume state does not match the current client version. {0} is a placeholder for the client version that created the resume state.</comment>
+  </data>
+  <data name="ResumeIdNotFoundError" xml:space="preserve">
+    <value>再開状態が存在しません: {0}</value>
+    <comment>{Locked="{0}" Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
+  </data>
+  <data name="ResumeStateDataNotFoundError" xml:space="preserve">
+    <value>再開状態のデータが見つかりません。</value>
+  </data>
+  <data name="CommandDoesNotSupportResumeMessage" xml:space="preserve">
+    <value>このコマンドは再開をサポートしていません。</value>
+  </data>
+  <data name="AllowRebootArgumentDescription" xml:space="preserve">
+    <value>適用可能な場合は再起動を許可します</value>
+  </data>
+  <data name="InitiatingReboot" xml:space="preserve">
+    <value>再起動を開始して操作を完了しています...</value>
+  </data>
+  <data name="FailedToInitiateReboot" xml:space="preserve">
+    <value>再起動を開始できませんでした。</value>
+  </data>
+  <data name="ResumeLimitExceeded" xml:space="preserve">
+    <value>再開操作が、許可されている再開 {0} 制限を超えています。手動で再開するには、コマンド '{1}' を実行してください。</value>
+    <comment>{Locked="{0}", "{1}"} {0} is a placeholder that is replaced by an integer number of the number of allowed resumes. {1} is a placeholder for the command to run to perform a manual resume.</comment>
+  </data>
+  <data name="IgnoreResumeLimitArgumentDescription" xml:space="preserve">
+    <value>保存された状態の再開の制限を無視する</value>
+  </data>
+  <data name="UriSchemeNotSupported" xml:space="preserve">
+    <value>URI スキームはサポートされていません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the provided uri is not supported. {0} is a placeholder replaced by the provided uri.</comment>
+  </data>
+  <data name="UriNotWellFormed" xml:space="preserve">
+    <value>整形式の URL ではありません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the provided uri is not well formed. {0} is a placeholder replaced by the provided uri.</comment>
+  </data>
+  <data name="WinGetResourceUnitEmptyContent" xml:space="preserve">
+    <value>構成単位の設定コンテンツ {0} 解析できなかったか、設定コンテンツが空です。</value>
+    <comment>{Locked="{0}"} {0} is a placeholder replaced by the input winget configure resource unit type.</comment>
+  </data>
+  <data name="WinGetResourceUnitMissingRequiredArg" xml:space="preserve">
+    <value>{0} 構成単位に必要な引数がありません: {1}</value>
+    <comment>{Locked="{0},{1}"} {0} is a placeholder for the input winget configure resource unit type. {1} is placeholder for the missing arg.</comment>
+  </data>
+  <data name="WinGetResourceUnitMissingRecommendedArg" xml:space="preserve">
+    <value>{0} 構成単位に推奨引数がありません: {1}</value>
+    <comment>{Locked="{0},{1}"} {0} is a placeholder for the input winget configure resource unit type. {1} is placeholder for the missing arg.</comment>
+  </data>
+  <data name="WinGetResourceUnitKnownSourceConfliction" xml:space="preserve">
+    <value>WinGetSource の構成ユニットが既知のソースと競合しています: {0}</value>
+    <comment>{Locked="WinGetSource,{0}"} {0} is a placeholder for the input winget source in the configuration unit settings.</comment>
+  </data>
+  <data name="WinGetResourceUnitThirdPartySourceAssertion" xml:space="preserve">
+    <value>WinGetSource の構成ユニットがサード パーティのソースに対してアサートしています: {0}</value>
+    <comment>{Locked="WinGetSource,{0}"} {0} is a placeholder for the input winget source in the configuration unit settings.</comment>
+  </data>
+  <data name="WinGetResourceUnitBothPackageVersionAndUseLatest" xml:space="preserve">
+    <value>WinGetPackage で UseLatest と Version の両方が宣言されています。パッケージ ID: {0}</value>
+    <comment>{Locked="WinGetPackage,UseLatest,Version,{0}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitThirdPartySourceAssertionForPackage" xml:space="preserve">
+    <value>WinGetPackage 構成単位は、サード パーティのソースからのパッケージに対してアサートします。パッケージ ID: {0};ソース: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitDependencySourceNotConfigured" xml:space="preserve">
+    <value>WinGetPackage 構成単位パッケージは、以前に構成されていないサード パーティのソースに依存しています。パッケージ ID: {0};ソース: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitDependencySourceNotDeclaredAsDependency" xml:space="preserve">
+    <value>WinGetPackage 構成単位パッケージはサード パーティのソースに依存しています。uni dependsOn セクションで依存関係を宣言することをお勧めします。パッケージ ID: {0};ソース: {1}</value>
+    <comment>{Locked="WinGetPackage,dependsOn,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageSourceOpenFailed" xml:space="preserve">
+    <value>WinGetPackage 構成単位パッケージを検証できません。ソースを開けませんでした。パッケージ ID: {0};ソース: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageNotFound" xml:space="preserve">
+    <value>WinGetPackage 構成単位パッケージを検証できません。パッケージが見つかりません。パッケージ ID: {0}</value>
+    <comment>{Locked="WinGetPackage,{0}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageMultipleFound" xml:space="preserve">
+    <value>WinGetPackage 構成単位パッケージを検証できません。複数のパッケージが見つかりました。パッケージ ID: {0}</value>
+    <comment>{Locked="WinGetPackage,{0}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageVersionNotFound" xml:space="preserve">
+    <value>WinGetPackage 構成単位パッケージを検証できません。パッケージ バージョンが見つかりません。パッケージ ID: {0};バージョン {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitPackageVersionSpecifiedWithOnlyOnePackageVersion" xml:space="preserve">
+    <value>特定のバージョンで指定された WinGetPackage 構成ユニット パッケージ。使用可能なパッケージのバージョンは 1 つだけです。パッケージ ID: {0}; バージョン: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackage" xml:space="preserve">
+    <value>WinGetPackage 構成単位パッケージを検証できません。パッケージ ID: {0}</value>
+    <comment>{Locked="WinGetPackage,{0}"}</comment>
+  </data>
+  <data name="AuthenticationModeArgumentDescription" xml:space="preserve">
+    <value>認証ウィンドウの設定を指定する (silent、silentPreferred、または interactive)</value>
+    <comment>{Locked="silent","silentPreferred","interactive"} This argument allows the user to select authentication window popup behavior.</comment>
+  </data>
+  <data name="AuthenticationAccountArgumentDescription" xml:space="preserve">
+    <value>認証に使用するアカウントを指定します</value>
+  </data>
+  <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
+    <value>ソースを追加できませんでした。この winget バージョンは、ソースの認証方法をサポートしていません。最新の winget バージョンにアップグレードしてみてください。</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="SourceRequiresAuthentication" xml:space="preserve">
+    <value>{0} ソースには認証が必要です。必要に応じて認証プロンプトが表示されることがあります。認証された情報は、アクセス承認のためにソースと共有されます。</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="RepairCommandLongDescription" xml:space="preserve">
+    <value>インストールされたパッケージリスト、またはマニフェストから検索し、選択されたパッケージを修復します。既定では、クエリはパッケージのID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+  </data>
+  <data name="RepairCommandShortDescription" xml:space="preserve">
+    <value>選択したパッケージを修復します</value>
+  </data>
+  <data name="NoRepairInfoFound" xml:space="preserve">
+    <value>このパッケージの修復コマンドが見つかりません。サポートが必要な場合は、パッケージの発行元にお問い合わせください。</value>
+  </data>
+  <data name="RepairDifferentInstallTechnology" xml:space="preserve">
+    <value>使用中のインストーラー テクノロジが、現在インストールされているバージョンと一致しません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND" xml:space="preserve">
+    <value>修復コマンドが見つかりません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED" xml:space="preserve">
+    <value>使用中のインストーラー テクノロジは修復をサポートしていません。</value>
+  </data>
+  <data name="RepairFlowRepairSuccess" xml:space="preserve">
+    <value>修復操作が正常に完了しました。</value>
+  </data>
+  <data name="RepairAbandoned" xml:space="preserve">
+    <value>修復が中止されました</value>
+  </data>
+  <data name="RepairFlowStartingPackageRepair" xml:space="preserve">
+    <value>パッケージの修復を開始しています...</value>
+  </data>
+  <data name="MSStoreRepairFailed" xml:space="preserve">
+    <value>Microsoft Store パッケージを修復できませんでした。エラー コード: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to repair. {0} is a placeholder replaced by an error code.</comment>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED" xml:space="preserve">
+    <value>修復操作に失敗しました。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE" xml:space="preserve">
+    <value>修復操作は適用できません。</value>
+  </data>
+  <data name="RepairFlowNoMatchingVersion" xml:space="preserve">
+    <value>構成されたソースから入手できるパッケージ バージョンの中に、一致するものはありません。</value>
+  </data>
+  <data name="RepairFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>現在のシステム構成では、このパッケージの修復はサポートされていません。</value>
+  </data>
+  <data name="RepairOperationNotSupported" xml:space="preserve">
+    <value>使用中のインストーラー テクノロジは修復をサポートしていません。</value>
+  </data>
+  <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
+    <value>管理者特権で実行している場合、ユーザー スコープ用にインストールされたパッケージは修復できません。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
+    <value>管理者特権を含む修復操作は、ユーザースコープ内にインストールされたパッケージでは許可されていません。</value>
+  </data>
+  <data name="RepairFailedWithCode" xml:space="preserve">
+    <value>修復が終了コードで失敗しました: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to repair an application package fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
 </root>

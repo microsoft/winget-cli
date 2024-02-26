@@ -102,7 +102,7 @@ namespace AppInstaller::MSStore
         // Best effort verifying/acquiring product ownership.
         std::ignore = EnsureFreeEntitlement(m_productId, m_scope);
 
-        if (m_type == MSStoreOperationType::Install)
+        if (m_type == MSStoreOperationType::Install || m_type == MSStoreOperationType::Repair)
         {
             return InstallPackage(progress);
         }
@@ -120,6 +120,12 @@ namespace AppInstaller::MSStore
         {
             installOptions.InstallInProgressToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
             installOptions.CompletedInstallToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
+        }
+
+        if (m_type == MSStoreOperationType::Repair)
+        {
+            // Attempt to repair the installation of an app that is already installed.
+            installOptions.Repair(true);
         }
 
         if (m_scope == Manifest::ScopeEnum::Machine)

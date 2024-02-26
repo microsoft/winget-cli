@@ -76,6 +76,7 @@ namespace AppInstaller::CLI::Workflow
         std::string GetInstallerArgsTemplate(Execution::Context& context)
         {
             bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+            bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
 
             const auto& installer = context.Get<Execution::Data::Installer>();
             const auto& installerSwitches = installer->Switches;
@@ -112,6 +113,17 @@ namespace AppInstaller::CLI::Workflow
             if (installerSwitches.find(InstallerSwitchType::Log) != installerSwitches.end())
             {
                 installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Log);
+            }
+
+            // Construct repair arg. Custom switches and othe args are not applicable for repair scenario so we can return here.
+            if (isRepair)
+            {
+                if (installerSwitches.find(InstallerSwitchType::Repair) != installerSwitches.end())
+                {
+                    installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Repair);
+                }
+
+                return installerArgs;
             }
 
             // Construct custom arg.
@@ -202,11 +214,45 @@ namespace AppInstaller::CLI::Workflow
 
             return args;
         }
+
+        // Gets the arguments for repairing an MSI with MsiExec
+        std::string GetMsiExecRepairArgs(Execution::Context& context, const Utility::LocIndString& productCode)
+        {
+            // https://learn.microsoft.com/en-us/windows/win32/msi/command-line-options
+            // Available Options for '/f [p|o|e|d|c|a|u|m|s|v] <Product.msi | ProductCode>'
+            // Default parameter for '/f' is 'omus'
+            // o - Reinstall all files regardless of version
+            // m - Rewrite all required registry entries (This is the default option)
+            // u - Rewrite all required user-specific registry entries (This is the default option)
+            // s - Overwrite all existing shortcuts (This is the default option)
+            std::string args = "/f " + productCode.get();
+
+            // https://learn.microsoft.com/en-us/windows/win32/msi/standard-installer-command-line-options
+            if (context.Args.Contains(Execution::Args::Type::Silent))
+            {
+                args += " /quiet /norestart";
+            }
+            else if (!context.Args.Contains(Execution::Args::Type::Interactive))
+            {
+                args += " /passive /norestart";
+            }
+
+            return args;
+        }
     }
 
     void ShellExecuteInstallImpl(Execution::Context& context)
     {
-        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+        bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
+
+        if (isRepair)
+        {
+            context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+        }
 
         const auto& installer = context.Get<Execution::Data::Installer>();
         const std::string& installerArgs = context.Get<Execution::Data::InstallerArgs>();
@@ -234,7 +280,15 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installResult)
         {
-            context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
+            if (isRepair)
+            {
+                context.Reporter.Warn() << Resource::String::RepairAbandoned << std::endl;
+            }
+            else
+            {
+                context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
+            }
+
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else
@@ -287,6 +341,49 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void ShellExecuteRepairImpl(Execution::Context& context)
+    {
+        context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+
+        std::wstring commandUtf16 = Utility::ConvertToUTF16(context.Get<Execution::Data::RepairString>());
+
+        // When running as admin, block attempt to repair user scope installed package. 
+        // [NOTE:] This check is to address the security concern related to above scenario.
+        if (Runtime::IsRunningAsAdmin())
+        {
+            auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+            const std::string installedScopeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledScope];
+            auto scopeEnum = ConvertToScopeEnum(installedScopeString);
+
+            if (scopeEnum == ScopeEnum::User)
+            {
+                context.Reporter.Error() << Resource::String::NoAdminRepairForUserScopePackage << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED);
+            }
+        }
+
+        // Parse the command string as application and command line for CreateProcess
+        wil::unique_cotaskmem_string app = nullptr;
+        wil::unique_cotaskmem_string args = nullptr;
+        THROW_IF_FAILED(SHEvaluateSystemCommandTemplate(commandUtf16.c_str(), &app, NULL, &args));
+
+        auto repairResult = context.Reporter.ExecuteWithProgress(
+            std::bind(InvokeShellExecute,
+                std::filesystem::path(app.get()),
+                Utility::ConvertToUTF8(args.get()),
+                std::placeholders::_1));
+
+        if (!repairResult)
+        {
+            context.Reporter.Error() << Resource::String::RepairAbandoned << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
+        }
+        else
+        {
+            context.Add<Execution::Data::OperationReturnCode>(repairResult.value());
+        }
+    }
+
     void ShellExecuteMsiExecUninstall(Execution::Context& context)
     {
         const auto& productCodes = context.Get<Execution::Data::ProductCodes>();
@@ -305,12 +402,40 @@ namespace AppInstaller::CLI::Workflow
 
             if (!uninstallResult)
             {
-                context.Reporter.Warn() << Resource::String::UninstallAbandoned << std::endl;
+                context.Reporter.Error() << Resource::String::UninstallAbandoned << std::endl;
                 AICLI_TERMINATE_CONTEXT(E_ABORT);
             }
             else
             {
                 context.Add<Execution::Data::OperationReturnCode>(uninstallResult.value());
+            }
+        }
+    }
+
+    void ShellExecuteMsiExecRepair(Execution::Context& context)
+    {
+        const auto& productCodes = context.Get<Execution::Data::ProductCodes>();
+        context.Reporter.Info() << Resource::String::RepairFlowStartingPackageRepair << std::endl;
+
+        const std::filesystem::path msiexecPath{ ExpandEnvironmentVariables(L"%windir%\\system32\\msiexec.exe") };
+
+        for (const auto& productCode : productCodes)
+        {
+            AICLI_LOG(CLI, Info, << "Repairing: " << productCode);
+            auto repairResult = context.Reporter.ExecuteWithProgress(
+                std::bind(InvokeShellExecute,
+                    msiexecPath,
+                    GetMsiExecRepairArgs(context, productCode),
+                    std::placeholders::_1));
+
+            if (!repairResult)
+            {
+                context.Reporter.Error() << Resource::String::RepairAbandoned << std::endl;
+                AICLI_TERMINATE_CONTEXT(E_ABORT);
+            }
+            else
+            {
+                context.Add<Execution::Data::OperationReturnCode>(repairResult.value());
             }
         }
     }

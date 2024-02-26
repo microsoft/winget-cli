@@ -725,6 +725,33 @@ namespace AppInstaller::Logging
         }
     }
 
+    void TelemetryTraceLogger::LogRepairFailure(std::string_view id, std::string_view version, std::string_view type, uint32_t errorCode) const noexcept
+    {
+        if (IsTelemetryEnabled())
+        {
+            AICLI_TraceLoggingWriteActivity(
+                "RepairFailure",
+                TraceLoggingUInt32(m_subExecutionId, "SubExecutionId"),
+                AICLI_TraceLoggingStringView(id, "Id"),
+                AICLI_TraceLoggingStringView(version, "Version"),
+                AICLI_TraceLoggingStringView(type, "Type"),
+                TraceLoggingUInt32(errorCode, "ErrorCode"),
+                TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
+
+            if (m_useSummary)
+            {
+                m_summary.PackageIdentifier = id;
+                m_summary.PackageVersion = version;
+                m_summary.RepairExecutionType = type;
+                m_summary.RepairErrorCode = errorCode;
+            
+            }
+        }
+
+        AICLI_LOG(CLI, Error, << type << " repair failed: " << errorCode);
+    }
+
     TelemetryTraceLogger::~TelemetryTraceLogger()
     {
         if (IsTelemetryEnabled())
@@ -798,6 +825,8 @@ namespace AppInstaller::Logging
                     AICLI_TraceLoggingStringView(m_summary.ARPPublisher, "ARPPublisher"),
                     AICLI_TraceLoggingStringView(m_summary.DOUrl, "DOUrl"),
                     TraceLoggingHResult(m_summary.DOHResult, "DOHResult"),
+                    AICLI_TraceLoggingStringView(m_summary.RepairExecutionType, "RepairExecutionType"),
+                    TraceLoggingUInt32(m_summary.RepairErrorCode, "RepairErrorCode"),
                     TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance | PDT_ProductAndServiceUsage | PDT_SoftwareSetupAndInventory),
                     TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
             }

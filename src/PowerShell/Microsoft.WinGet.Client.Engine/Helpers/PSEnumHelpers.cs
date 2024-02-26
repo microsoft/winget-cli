@@ -16,6 +16,16 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     internal static class PSEnumHelpers
     {
         /// <summary>
+        /// Checks if the provided enum string value matches the 'Default' value for PS Enums.
+        /// </summary>
+        /// <param name="value">Enum string value.</param>
+        /// <returns>Boolean value.</returns>
+        public static bool IsDefaultEnum(string value)
+        {
+            return string.Equals(value, "Default", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
         /// Converts PSPackageInstallMode string value to PackageInstallMode.
         /// </summary>
         /// <param name="value">PSPackageInstallMode to string value.</param>
@@ -95,6 +105,30 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 "EqualsCaseInsensitive" => PackageFieldMatchOption.EqualsCaseInsensitive,
                 "StartsWithCaseInsensitive" => PackageFieldMatchOption.StartsWithCaseInsensitive,
                 "ContainsCaseInsensitive" => PackageFieldMatchOption.ContainsCaseInsensitive,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        /// <summary>
+        /// Converts PSPackageInstallerType string value to PackageInstallerType.
+        /// </summary>
+        /// <param name="value">PSPackageInstallerType string value.</param>
+        /// <returns>PackageInstallerType.</returns>
+        public static PackageInstallerType ToPackageInstallerType(string value)
+        {
+            return value switch
+            {
+                "Unknown" => PackageInstallerType.Unknown,
+                "Inno" => PackageInstallerType.Inno,
+                "Wix" => PackageInstallerType.Wix,
+                "Msi" => PackageInstallerType.Msi,
+                "Nullsoft" => PackageInstallerType.Nullsoft,
+                "Zip" => PackageInstallerType.Zip,
+                "Msix" => PackageInstallerType.Msix,
+                "Exe" => PackageInstallerType.Exe,
+                "Burn" => PackageInstallerType.Burn,
+                "MSStore" => PackageInstallerType.MSStore,
+                "Portable" => PackageInstallerType.Portable,
                 _ => throw new InvalidOperationException(),
             };
         }
