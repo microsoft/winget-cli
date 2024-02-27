@@ -220,6 +220,11 @@ namespace AppInstaller::Repository
         // To avoid putting try catch everywhere, we use bool operator here.
         operator bool() const;
 
+        // Determines if the sources are equivalent.
+        // Currently only works for individual sources, not composites.
+        bool operator==(const Source& other) const;
+        bool operator!=(const Source& other) const;
+
         // Gets the source's identifier; a unique identifier independent of the name
         // that will not change between a remove/add or between additional adds.
         // Must be suitable for filesystem names unless the source is internal to winget,

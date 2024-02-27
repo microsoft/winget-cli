@@ -407,14 +407,17 @@ namespace AppInstaller::YAML
 
     std::optional<int64_t> Node::try_as_dispatch(int64_t*) const
     {
-        try
-        {
-            return std::optional{ std::stoll(m_scalar) };
-        }
-        catch(...)
+        const char* begin = m_scalar.c_str();
+        char* end = nullptr;
+        errno = 0;
+        int64_t result = static_cast<int64_t>(strtoll(begin, &end, 0));
+
+        if (errno == ERANGE || static_cast<size_t>(end - begin) != m_scalar.length())
         {
             return {};
         }
+
+        return result;
     }
 
     int Node::as_dispatch(int*) const

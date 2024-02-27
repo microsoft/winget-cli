@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 #include "pch.h"
 #include "WorkflowBase.h"
 #include "DependenciesFlow.h"
@@ -8,6 +7,7 @@
 #include "UpdateFlow.h"
 #include "ManifestComparator.h"
 #include <winget/PinningData.h>
+#include <winget/PackageVersionSelection.h>
 
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
@@ -72,10 +72,11 @@ namespace AppInstaller::CLI::Workflow
         const bool includePinned = m_isSinglePackage || context.Args.Contains(Execution::Args::Type::IncludePinned);
 
         PinningData pinningData{ PinningData::Disposition::ReadOnly };
-        auto evaluator = pinningData.CreatePinStateEvaluator(includePinned ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins, package->GetInstalledVersion());
+        auto evaluator = pinningData.CreatePinStateEvaluator(includePinned ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins, GetInstalledVersion(package));
 
         // The version keys should have already been sorted by version
-        const auto& versionKeys = package->GetAvailableVersionKeys();
+        auto availableVersions = GetAvailableVersionsForInstalledVersion(package);
+        const auto& versionKeys = availableVersions->GetVersionKeys();
         // Assume that no update versions are applicable
         bool upgradeVersionAvailable = false;
         for (const auto& key : versionKeys)
@@ -89,7 +90,7 @@ namespace AppInstaller::CLI::Workflow
                     upgradeVersionAvailable = true;
                 }
 
-                auto packageVersion = package->GetAvailableVersion(key);
+                auto packageVersion = availableVersions->GetVersion(key);
 
                 // Check if the package is pinned
                 PinType pinType = evaluator.EvaluatePinType(packageVersion);
@@ -217,7 +218,7 @@ namespace AppInstaller::CLI::Workflow
             auto updateContextPtr = context.CreateSubContext();
             Execution::Context& updateContext = *updateContextPtr;
             auto previousThreadGlobals = updateContext.SetForCurrentThread();
-            auto installedVersion = match.Package->GetInstalledVersion();
+            auto installedVersion = GetInstalledVersion(match.Package);
 
             updateContext.Add<Execution::Data::Package>(match.Package);
 

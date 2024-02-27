@@ -145,19 +145,19 @@ namespace AppInstaller::Pinning
 
     PinningData::PinStateEvaluator::~PinStateEvaluator() = default;
 
-    std::shared_ptr<IPackageVersion> PinningData::PinStateEvaluator::GetLatestAvailableVersionForPins(const std::shared_ptr<IPackage>& package)
+    std::shared_ptr<IPackageVersion> PinningData::PinStateEvaluator::GetLatestAvailableVersionForPins(const std::shared_ptr<IPackageVersionCollection>& package)
     {
         if (!m_database)
         {
-            return package->GetLatestAvailableVersion();
+            return package->GetLatestVersion();
         }
 
-        auto availableVersionKeys = package->GetAvailableVersionKeys();
+        auto availableVersionKeys = package->GetVersionKeys();
 
         // Skip until we find a version that isn't pinned
         for (const auto& availableVersion : availableVersionKeys)
         {
-            std::shared_ptr<IPackageVersion> packageVersion = package->GetAvailableVersion(availableVersion);
+            std::shared_ptr<IPackageVersion> packageVersion = package->GetVersion(availableVersion);
             if (EvaluatePinType(packageVersion) == Pinning::PinType::Unknown)
             {
                 return packageVersion;

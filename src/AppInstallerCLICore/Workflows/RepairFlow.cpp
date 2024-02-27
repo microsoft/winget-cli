@@ -14,6 +14,7 @@
 #include "AppInstallerSynchronization.h"
 #include "MSStoreInstallerHandler.h"
 #include "ManifestComparator.h"
+#include <winget/PackageVersionSelection.h>
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Msix;
@@ -443,10 +444,11 @@ namespace AppInstaller::CLI::Workflow
         std::string_view requestedVersion = context.Args.Contains(Execution::Args::Type::Version) ? context.Args.GetArg(Execution::Args::Type::Version) : installedVersion.ToString();
         // If it's Store source with only one version unknown, use the unknown version for available version mapping.
         const auto& package = context.Get<Execution::Data::Package>();
-        auto versionKeys = package->GetAvailableVersionKeys();
+        auto packageVersions = GetAvailableVersionsForInstalledVersion(package, installedPackage);
+        auto versionKeys = packageVersions->GetVersionKeys();
         if (versionKeys.size() == 1)
         {
-            auto packageVersion = package->GetAvailableVersion(versionKeys.at(0));
+            auto packageVersion = packageVersions->GetVersion(versionKeys.at(0));
             if (packageVersion->GetSource().IsWellKnownSource(WellKnownSource::MicrosoftStore) &&
                 Utility::Version{ packageVersion->GetProperty(PackageVersionProperty::Version) }.IsUnknown())
             {
