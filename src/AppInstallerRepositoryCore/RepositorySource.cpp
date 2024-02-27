@@ -320,6 +320,27 @@ namespace AppInstaller::Repository
         THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
     }
 
+    SourceTrustLevel ConvertToSourceTrustLevelEnum(std::string_view trustLevelStr)
+    {
+        std::string trustLevel = Utility::ToLower(trustLevelStr);
+        if (trustLevel == "none")
+        {
+            return SourceTrustLevel::None;
+        }
+        else if (trustLevel == "trusted")
+        {
+            return SourceTrustLevel::Trusted;
+        }
+        else if (trustLevel == "storeorigin")
+        {
+            return SourceTrustLevel::StoreOrigin;
+        }
+        else
+        {
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), "Unsupported SourceTrustLevel: %hs", trustLevel.c_str());
+        }
+    }
+
     std::string_view ToString(SourceOrigin origin)
     {
         switch (origin)
@@ -369,7 +390,7 @@ namespace AppInstaller::Repository
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
-    Source::Source(std::string_view name, std::string_view arg, std::string_view type)
+    Source::Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel)
     {
         m_isSourceToBeAdded = true;
         SourceDetails details;
@@ -385,6 +406,7 @@ namespace AppInstaller::Repository
             details.Name = name;
             details.Arg = arg;
             details.Type = type;
+            details.TrustLevel = trustLevel;
         }
 
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));

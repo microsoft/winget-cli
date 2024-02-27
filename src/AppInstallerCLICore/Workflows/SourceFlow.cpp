@@ -108,7 +108,18 @@ namespace AppInstaller::CLI::Workflow
             std::string_view arg = context.Args.GetArg(Args::Type::SourceArg);
             std::string_view type = context.Args.GetArg(Args::Type::SourceType);
 
-            Repository::Source sourceToAdd{ name, arg, type };
+            Repository::Source sourceToAdd;
+
+            if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
+            {
+                std::string_view trustLevelStr = context.Args.GetArg(Execution::Args::Type::SourceTrustLevel);
+                Repository::SourceTrustLevel trustLevel = Repository::ConvertToSourceTrustLevelEnum(trustLevelStr);
+                sourceToAdd = Repository::Source{ name, arg, type, trustLevel };
+            }
+            else
+            {
+                sourceToAdd = Repository::Source{ name, arg, type };
+            }
 
             if (context.Args.Contains(Execution::Args::Type::CustomHeader))
             {
