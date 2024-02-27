@@ -68,11 +68,11 @@
 
 이 설정을 사용 중지하면 Windows 패키지 관리자용 Microsoft 스토어 원본을 사용할 수 없습니다.</string>
       <string id="SourceAutoUpdateInterval">앱 설치 관리자 원본 자동 업데이트 간격(분) 설정</string>
-      <string id="SourceAutoUpdateIntervalExplanation">이 정책은 패키지 기반 원본의 자동 업데이트 간격을 제어합니다.
+      <string id="SourceAutoUpdateIntervalExplanation">이 정책은 패키지 기반 원본의 자동 업데이트 간격을 제어합니다. 패키지의 인덱스가 로컬 컴퓨터에 캐시되도록 Windows 패키지 관리자 기본 원본이 구성됩니다. 사용자가 명령을 호출하고 간격이 지나면 인덱스가 다운로드됩니다.
 
-이 설정을 사용하지 않거나 구성하지 않으면 기본 간격이나 설정에 지정된 값이 Windows 패키지 관리자가 사용됩니다.
+이 설정을 사용하지 않거나 구성하지 않으면 Windows 패키지 관리자 설정에 지정된 기본 간격 또는 값이 사용됩니다.
 
-이 설정을 사용하면 Windows 패키지 관리자에서 지정한 시간(분)이 사용됩니다.</string>
+이 설정을 사용하면 지정한 시간(분)이 Windows 패키지 관리자 사용됩니다.</string>
       <string id="EnableAdditionalSources">앱 설치 관리자 추가 원본 사용</string>
       <string id="EnableAdditionalSourcesExplanation">이 정책은 엔터프라이즈 IT 관리자가 제공하는 추가 원본을 제어합니다.
 
@@ -103,6 +103,12 @@
          이 정책을 활성화하거나 구성하지 않으면 사용자는 Windows 패키지 관리자 CLI 명령 및 PowerShell cmdlet을 실행할 수 있습니다. ('앱 설치 프로그램 활성화' 정책이 비활성화되지 않은 경우).
 
          이 정책은 '앱 설치 프로그램 활성화' 정책보다 우선 적용되지 않습니다.</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Windows 패키지 관리자 구성 사용</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">이 정책은 사용자가 Windows 패키지 관리자 구성 기능을 사용할 수 있는지 여부를 제어합니다.
+
+이 설정을 사용하거나 구성하지 않으면 사용자가 Windows 패키지 관리자 구성 기능을 사용할 수 있습니다.
+
+이 설정을 사용하지 않으면 사용자가 Windows 패키지 관리자 구성 기능을 사용할 수 없습니다.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

@@ -68,11 +68,11 @@ Si habilita esta configuración, el origen de Microsoft Store para el Administra
 
 Si desactiva esta configuración, el origen de la Tienda Microsoft para el Administrador de paquetes de Windows no estará disponible.</string>
       <string id="SourceAutoUpdateInterval">Establecer el intervalo de actualización automática de la fuente del instalador de aplicaciones en minutos</string>
-      <string id="SourceAutoUpdateIntervalExplanation">Esta directiva controla el intervalo de actualización automática de los orígenes basados en paquetes.
+      <string id="SourceAutoUpdateIntervalExplanation">Esta directiva controla el intervalo de actualización automática para orígenes basados en paquetes. El origen predeterminado para Administrador de paquetes de Windows está configurado de forma que un índice de los paquetes se almacena en caché en el equipo local. El índice se descarga cuando un usuario invoca un comando y el intervalo ha pasado.
 
-Si deshabilitas o no estableces esta configuración, el administrador de paquetes de Windows usará el valor del intervalo predeterminado o el valor especificado en la configuración.
+Si deshabilita o no establece esta configuración, se usará el intervalo predeterminado o el valor especificado en la configuración de Administrador de paquetes de Windows.
 
-Si habilitas esta configuración, el administrador de paquetes de Windows usará el número de minutos especificado.</string>
+Si habilita esta configuración, el Administrador de paquetes de Windows usará el número de minutos especificado.</string>
       <string id="EnableAdditionalSources">Habilitar orígenes adicionales del instalador de aplicaciones</string>
       <string id="EnableAdditionalSourcesExplanation">Esta directiva controla los orígenes adicionales proporcionados por el administrador de TI de la empresa.
 
@@ -103,6 +103,12 @@ Si deshabilita esta directiva, los usuarios no podrán ejecutar la CLI de Admini
 Si habilita o no configura esta directiva, los usuarios podrán ejecutar los comandos de la CLI de Administrador de paquetes de Windows y los cmdlets de PowerShell. (La directiva "Habilitar Instalador de aplicación" proporcionada no está deshabilitada).
 
 Esta directiva no invalida la directiva "Habilitar Instalador de aplicación".</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Habilitar configuración de Administrador de paquetes de Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Esta directiva controla si los usuarios pueden usar la característica de configuración Administrador de paquetes de Windows.
+
+Si habilita o no establece esta configuración, los usuarios podrán usar la característica de configuración Administrador de paquetes de Windows.
+
+Si deshabilita esta configuración, los usuarios no podrán usar la característica de configuración Administrador de paquetes de Windows.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

@@ -261,6 +261,9 @@
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID를 기준으로 결과 필터링</value>
   </data>
+  <data name="IgnoreWarningsArgumentDescription" xml:space="preserve">
+    <value>경고 출력을 표시하지 않습니다.</value>
+  </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
     <value>이 응용 프로그램의 라이선스는 그 소유자가 사용자에게 부여했습니다.</value>
   </data>
@@ -871,8 +874,8 @@
     <value>JSON 파일에서 인식되는 스키마를 지정하지 않습니다.</value>
   </data>
   <data name="InstallScopeDescription" xml:space="preserve">
-    <value>설치 범위 선택(사용자 또는 컴퓨터)</value>
-    <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
+    <value>설치 범위 선택(user 또는 machine)</value>
+    <comment>{Locked="user","machine"} This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
     <value>'{0}' 인수에 제공된 값이 잘못되었습니다. 유효한 값: {1}</value>
@@ -1018,8 +1021,8 @@
     <comment>Dependency graph has loop</comment>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
-    <value>manifest: {0} {1} 적합한 설치 관리자를 찾을 수 없습니다.</value>
-    <comment>{Locked="{0} {1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
+    <value>매니페스트에 적합한 설치 관리자를 찾을 수 없습니다. {0} 버전 {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>패키지 종속성을 처리하는 동안 오류가 발생했습니다. 설치를 계속하시겠습니까?</value>
@@ -1611,8 +1614,8 @@
     <value>설정 파일을 로드할 수 없습니다. 기본값을 사용합니다.</value>
   </data>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
-    <value>설치된 패키지 범위 필터 선택(사용자 또는 컴퓨터)</value>
-    <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
+    <value>설치된 패키지 범위 필터 선택(user 또는 machine)</value>
+    <comment>{Locked="user","machine"} This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
   </data>
   <data name="PinAdded" xml:space="preserve">
     <value>고정이 추가됨</value>
@@ -1696,6 +1699,9 @@
   <data name="UpgradeBlockedByPinCount" xml:space="preserve">
     <value>{0} 패키지에 업그레이드 전에 제거해야 하는 PIN이 있습니다.</value>
     <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
+  </data>
+  <data name="UpgradeBlockedByManifest" xml:space="preserve">
+    <value>winget을 사용하여 패키지를 업그레이드할 수 없습니다. 게시자가 제공한 메서드를 사용하여 이 패키지를 업그레이드하세요.</value>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>차단되지 않는 PIN이 있는 경우에도 패키지 업그레이드</value>
@@ -1832,13 +1838,13 @@
 {Locked="--force"}</comment>
   </data>
   <data name="EnablingWindowsFeature" xml:space="preserve">
-    <value>{0}[{1}]을(를) 사용하도록 설정하는 중</value>
-    <comment>{Locked="{0}","{1}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
+    <value>[{0} ]활성화하는 중...</value>
+    <comment>{Locked="{0}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
   </data>
   <data name="FailedToEnableWindowsFeature" xml:space="preserve">
-    <value>{0}[{1}] 기능을 사용하도록 설정하지 못했습니다.</value>
-    <comment>{Locked="{0}"} Windows Feature display name
-{Locked="{1}"} Windows Feature name</comment>
+    <value>[{0}] 기능을 사용하도록 설정하지 못했습니다.{1}</value>
+    <comment>{Locked="{0}","{1}"}  An error when enabling a Windows Feature. {0} is a placeholder for the name of the Windows Feature.
+{1} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
     <value>Windows 기능을 완전히 사용하도록 설정하려면 다시 부팅해야 합니다. --force로 인해 계속</value>
@@ -2068,10 +2074,744 @@
   </data>
   <data name="ConfigurationModulePath" xml:space="preserve">
     <value>모듈을 저장할 로컬 컴퓨터의 위치를 지정합니다. 기본값 %LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules</value>
-    <comment>{Locked="allusers","currentuser","default","%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
+    <comment>{Locked="%LOCALAPPDATA%\Microsoft\WinGet\Configuration\Modules"}</comment>
   </data>
   <data name="ConfigurationModulePathArgError" xml:space="preserve">
     <value>'--module-path' 값은 'currentuser', 'allusers', 'default' 또는 절대 경로여야 합니다.</value>
     <comment>{Locked="{--module-path}, {currentuser}, {allusers}, {default}}</comment>
+  </data>
+  <data name="PolicyEnableWinGetConfiguration" xml:space="preserve">
+    <value>Windows 패키지 관리자 구성 사용</value>
+  </data>
+  <data name="ErrorCommandLongDescription" xml:space="preserve">
+    <value>오류에 대한 정보를 검색합니다. 숫자로 지정하면 출력에 winget 특정 오류인 경우 기호 이름을 포함하여 오류에 대한 세부 정보가 포함됩니다. 문자열이 지정되면 winget 관련 오류가 이 값을 검색합니다.</value>
+  </data>
+  <data name="ErrorCommandShortDescription" xml:space="preserve">
+    <value>오류에 대한 정보 가져오기</value>
+  </data>
+  <data name="ErrorInputArgumentDescription" xml:space="preserve">
+    <value>오류 정보 내에서 검색할 값입니다.</value>
+  </data>
+  <data name="ErrorNumberIsTooLarge" xml:space="preserve">
+    <value>주어진 숫자가 너무 커서 HRESULT가 될 수 없습니다.</value>
+  </data>
+  <data name="UnknownErrorCode" xml:space="preserve">
+    <value>알 수 없는 오류 코드</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INTERNAL_ERROR" xml:space="preserve">
+    <value>내부 오류</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS" xml:space="preserve">
+    <value>잘못된 명령줄 인수</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_COMMAND_FAILED" xml:space="preserve">
+    <value>명령을 실행하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MANIFEST_FAILED" xml:space="preserve">
+    <value>매니페스트를 열지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED" xml:space="preserve">
+    <value>취소 신호 수신됨</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED" xml:space="preserve">
+    <value>ShellExecute를 실행하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_MANIFESTVERSION" xml:space="preserve">
+    <value>매니페스트를 처리할 수 없습니다. 매니페스트 버전이 지원되는 버전보다 높습니다. 클라이언트를 업데이트하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED" xml:space="preserve">
+    <value>설치 관리자를 다운로드하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX" xml:space="preserve">
+    <value>인덱스에 쓸 수 없습니다. 상위 스키마 버전입니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED" xml:space="preserve">
+    <value>인덱스가 손상되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCES_INVALID" xml:space="preserve">
+    <value>구성된 원본 정보가 손상되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_NAME_ALREADY_EXISTS" xml:space="preserve">
+    <value>원본 이름이 이미 구성되어 있습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE" xml:space="preserve">
+    <value>원본 유형이 잘못되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE" xml:space="preserve">
+    <value>MSIX 파일은 패키지가 아닌 번들입니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_DATA_MISSING" xml:space="preserve">
+    <value>원본에 필요한 데이터가 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER" xml:space="preserve">
+    <value>현재 시스템에 적용할 수 있는 설치 관리자가 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH" xml:space="preserve">
+    <value>설치 관리자 파일의 해시가 매니페스트와 일치하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST" xml:space="preserve">
+    <value>원본 이름이 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_ARG_ALREADY_EXISTS" xml:space="preserve">
+    <value>원본 위치가 이미 다른 이름으로 구성되어 있습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND" xml:space="preserve">
+    <value>패키지를 찾을 수 없음</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_SOURCES_DEFINED" xml:space="preserve">
+    <value>원본이 구성되지 않았습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND" xml:space="preserve">
+    <value>조건과 일치하는 여러 패키지가 있습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND" xml:space="preserve">
+    <value>조건과 일치하는 매니페스트를 찾을 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXTENSION_PUBLIC_FAILED" xml:space="preserve">
+    <value>원본 패키지에서 공용 폴더를 가져오지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN" xml:space="preserve">
+    <value>명령을 실행하려면 관리자 권한이 필요합니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE" xml:space="preserve">
+    <value>원본 위치가 안전하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY" xml:space="preserve">
+    <value>Microsoft Store 클라이언트가 정책에 의해 차단됨</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY" xml:space="preserve">
+    <value>Microsoft Store 앱이 정책에 의해 차단됨</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED" xml:space="preserve">
+    <value>이 기능은 현재 개발 중입니다. winget 설정을 사용하여 사용하도록 설정할 수 있습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED" xml:space="preserve">
+    <value>Microsoft Store 앱을 설치하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_COMPLETE_INPUT_BAD" xml:space="preserve">
+    <value>자동 완성을 수행하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED" xml:space="preserve">
+    <value>YAML 파서 초기화 실패</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY" xml:space="preserve">
+    <value>잘못된 YAML 키가 발견되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_DUPLICATE_MAPPING_KEY" xml:space="preserve">
+    <value>중복된 YAML 키가 발견되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_OPERATION" xml:space="preserve">
+    <value>잘못된 YAML 작업</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED" xml:space="preserve">
+    <value>YAML 문서를 빌드하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_EMITTER_STATE" xml:space="preserve">
+    <value>잘못된 YAML 발신기 상태</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA" xml:space="preserve">
+    <value>잘못된 YAML 데이터</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LIBYAML_ERROR" xml:space="preserve">
+    <value>LibYAML 오류</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_WARNING" xml:space="preserve">
+    <value>매니페스트 유효성 검사에 성공했으나 경고가 발생했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MANIFEST_VALIDATION_FAILURE" xml:space="preserve">
+    <value>매니페스트 유효성 검사 실패</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_MANIFEST" xml:space="preserve">
+    <value>매니페스트가 잘못되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE" xml:space="preserve">
+    <value>적용 가능한 업데이트를 찾을 수 없음</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE" xml:space="preserve">
+    <value>winget 업그레이드 -- 모두 실패로 완료됨</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_SECURITY_CHECK_FAILED" xml:space="preserve">
+    <value>설치 관리자에서 보안 검사 실패</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_SIZE_MISMATCH" xml:space="preserve">
+    <value>다운로드 크기가 예상 콘텐츠 길이와 일치하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND" xml:space="preserve">
+    <value>제거 명령을 찾을 수 없음</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED" xml:space="preserve">
+    <value>제거 명령을 실행하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ICU_BREAK_ITERATOR_ERROR" xml:space="preserve">
+    <value>ICU 중단 반복기 오류</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ICU_CASEMAP_ERROR" xml:space="preserve">
+    <value>ICU casemap 오류</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ICU_REGEX_ERROR" xml:space="preserve">
+    <value>ICU regex 오류</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED" xml:space="preserve">
+    <value>가져온 패키지를 하나 이상 설치하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND" xml:space="preserve">
+    <value>요청한 패키지를 하나 이상 찾을 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE" xml:space="preserve">
+    <value>Json 파일이 잘못되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_NOT_REMOTE" xml:space="preserve">
+    <value>원본 위치가 원격이 아닙니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE" xml:space="preserve">
+    <value>구성된 rest 원본은 지원되지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA" xml:space="preserve">
+    <value>REST 원본에서 반환된 데이터가 잘못되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY" xml:space="preserve">
+    <value>작업이 그룹 정책 의해 차단되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR" xml:space="preserve">
+    <value>Rest 원본 내부 오류</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL" xml:space="preserve">
+    <value>잘못된 REST 원본 URL</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
+    <value>rest 원본에서 반환된 지원되지 않는 MIME 형식</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION" xml:space="preserve">
+    <value>잘못된 REST 원본 계약 버전</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE" xml:space="preserve">
+    <value>원본 데이터가 손상되었거나 변조되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_STREAM_READ_FAILURE" xml:space="preserve">
+    <value>스트림에서 읽는 동안 오류가 발생했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED" xml:space="preserve">
+    <value>패키지 계약이 다음에 동의하지 않았습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR" xml:space="preserve">
+    <value>프롬프트에서 입력을 읽는 동안 오류가 발생했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST" xml:space="preserve">
+    <value>하나 이상의 원본에서 검색 요청을 지원하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND" xml:space="preserve">
+    <value>나머지 원본 엔드포인트를 찾을 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED" xml:space="preserve">
+    <value>원본을 열지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED" xml:space="preserve">
+    <value>원본 계약이 다음에 동의하지 않았습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH" xml:space="preserve">
+    <value>헤더 크기가 허용되는 제한인 1024자를 초과합니다. 크기를 줄이고 다시 시도하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE" xml:space="preserve">
+    <value>누락된 리소스 파일</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED" xml:space="preserve">
+    <value>MSI 설치를 실행하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT" xml:space="preserve">
+    <value>msiexec에 대한 인수가 잘못되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_FAILED_TO_OPEN_ALL_SOURCES" xml:space="preserve">
+    <value>하나 이상의 원본을 열지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED" xml:space="preserve">
+    <value>종속성 유효성을 검사하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MISSING_PACKAGE" xml:space="preserve">
+    <value>하나 이상의 패키지가 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_TABLE_COLUMN" xml:space="preserve">
+    <value>잘못된 테이블 열</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER" xml:space="preserve">
+    <value>업그레이드 버전이 설치된 버전보다 최신 버전이 아닙니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN" xml:space="preserve">
+    <value>업그레이드 버전을 알 수 없으며 재정의가 지정되지 않았습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ICU_CONVERSION_ERROR" xml:space="preserve">
+    <value>ICU 변환 오류</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED" xml:space="preserve">
+    <value>휴대용 패키지를 설치하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED" xml:space="preserve">
+    <value>볼륨에서 다시 지점 구문 분석을 지원하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS" xml:space="preserve">
+    <value>다른 원본의 휴대용 패키지가 이미 있습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY" xml:space="preserve">
+    <value>symlink를 만들 수 없습니다. 경로가 디렉터리를 가리킵니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION" xml:space="preserve">
+    <value>관리자 컨텍스트에서 설치 관리자를 실행할 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED" xml:space="preserve">
+    <value>휴대용 패키지를 제거하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED" xml:space="preserve">
+    <value>인덱스에 대해 DisplayVersion 값의 유효성을 검사하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT" xml:space="preserve">
+    <value>하나 이상의 인수가 지원되지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL" xml:space="preserve">
+    <value>포함된 null 문자는 SQLite에 대해 허용되지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND" xml:space="preserve">
+    <value>보관함에서 중첩 설치 관리자를 찾지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED" xml:space="preserve">
+    <value>보관 파일을 추출하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH" xml:space="preserve">
+    <value>제공된 중첩 설치 관리자의 상대 파일 경로가 잘못되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH" xml:space="preserve">
+    <value>서버 인증서가 필요한 값과 일치하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_LOCATION_REQUIRED" xml:space="preserve">
+    <value>설치 위치를 제공해야 합니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED" xml:space="preserve">
+    <value>보관 맬웨어 검색에 실패했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED" xml:space="preserve">
+    <value>설치된 패키지의 버전을 하나 이상 찾았습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PIN_ALREADY_EXISTS" xml:space="preserve">
+    <value>패키지에 대한 핀이 이미 있습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST" xml:space="preserve">
+    <value>패키지에 대한 핀이 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CANNOT_OPEN_PINNING_INDEX" xml:space="preserve">
+    <value>고정 데이터베이스를 열 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED" xml:space="preserve">
+    <value>하나 이상의 응용 프로그램을 설치하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_MULTIPLE_UNINSTALL_FAILED" xml:space="preserve">
+    <value>하나 이상의 애플리케이션을 제거하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE" xml:space="preserve">
+    <value>하나 이상의 쿼리가 정확히 하나의 일치 항목을 반환하지 않았습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED" xml:space="preserve">
+    <value>패키지에 업그레이드를 방지하는 PIN이 있습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB" xml:space="preserve">
+    <value>현재 설치된 패키지는 스텁 패키지입니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED" xml:space="preserve">
+    <value>응용 프로그램 종료 신호 수신됨</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES" xml:space="preserve">
+    <value>패키지 종속성을 다운로드하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED" xml:space="preserve">
+    <value>패키지를 다운로드하지 못했습니다. 오프라인 설치를 위해 다운로드할 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SERVICE_UNAVAILABLE" xml:space="preserve">
+    <value>필요한 서비스가 사용 중이거나 사용할 수 없습니다. 나중에 다시 시도하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESUME_ID_NOT_FOUND" xml:space="preserve">
+    <value>제공된 GUID가 올바른 다시 시작 상태에 해당하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CLIENT_VERSION_MISMATCH" xml:space="preserve">
+    <value>현재 클라이언트 버전이 저장된 상태의 클라이언트 버전과 일치하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_RESUME_STATE" xml:space="preserve">
+    <value>다시 시작 상태 데이터가 잘못되었습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_CANNOT_OPEN_CHECKPOINT_INDEX" xml:space="preserve">
+    <value>검사점 데이터베이스를 열 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_RESUME_LIMIT_EXCEEDED" xml:space="preserve">
+    <value>최대 다시 시작 제한을 초과했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO" xml:space="preserve">
+    <value>잘못된 인증 정보입니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED" xml:space="preserve">
+    <value>지원되지 않는 인증 방법입니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED" xml:space="preserve">
+    <value>인증에 실패했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_INTERACTIVE_REQUIRED" xml:space="preserve">
+    <value>인증에 실패했습니다. 대화형 인증이 필요합니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER" xml:space="preserve">
+    <value>인증에 실패했습니다. 사용자가 취소했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT" xml:space="preserve">
+    <value>인증에 실패했습니다. 인증된 계정이 원하는 계정이 아닙니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE" xml:space="preserve">
+    <value>응용 프로그램이 현재 실행 중입니다. 애플리케이션을 종료한 후 다시 시도하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS" xml:space="preserve">
+    <value>다른 설치가 이미 진행 중입니다. 나중에 다시 시도하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_FILE_IN_USE" xml:space="preserve">
+    <value>하나 이상의 파일을 사용하고 있습니다. 애플리케이션을 종료한 후 다시 시도하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY" xml:space="preserve">
+    <value>이 패키지에 시스템에 종속성이 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_DISK_FULL" xml:space="preserve">
+    <value>PC에 더 이상 공간이 없습니다. 공간을 확보한 후 다시 시도하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_INSUFFICIENT_MEMORY" xml:space="preserve">
+    <value>설치할 수 있는 메모리가 부족합니다. 다른 애플리케이션을 닫은 후 다시 시도하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK" xml:space="preserve">
+    <value>이 응용 프로그램을 사용하려면 인터넷에 연결해야 합니다. 네트워크에 연결한 후 다시 시도하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT" xml:space="preserve">
+    <value>설치하는 동안 이 응용 프로그램에 오류가 발생했습니다. 고객 지원에 문의하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH" xml:space="preserve">
+    <value>PC를 다시 시작하여 설치를 완료합니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_FOR_INSTALL" xml:space="preserve">
+    <value>설치하지 못했습니다. PC를 다시 시작한 후 다시 시도하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED" xml:space="preserve">
+    <value>설치를 마치기 위해 PC가 다시 시작됩니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER" xml:space="preserve">
+    <value>설치를 취소했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_ALREADY_INSTALLED" xml:space="preserve">
+    <value>이 응용 프로그램의 다른 버전이 이미 설치되어 있습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_DOWNGRADE" xml:space="preserve">
+    <value>이 응용 프로그램의 상위 버전이 이미 설치되어 있습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY" xml:space="preserve">
+    <value>조직 정책으로 인해 설치할 수 없습니다. 관리자에게 문의하세요.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES" xml:space="preserve">
+    <value>패키지 종속성을 설치하지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE_BY_APPLICATION" xml:space="preserve">
+    <value>현재 다른 응용 프로그램에서 응용 프로그램을 사용하고 있습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_INVALID_PARAMETER" xml:space="preserve">
+    <value>잘못된 매개 변수입니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED" xml:space="preserve">
+    <value>시스템에서 패키지가 지원되지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_INSTALL_UPGRADE_NOT_SUPPORTED" xml:space="preserve">
+    <value>설치 관리자가 기존 패키지 업그레이드를 지원하지 않습니다.</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND" xml:space="preserve">
+    <value>패키지에 대한 앱 및 기능 항목을 찾을 수 없습니다.</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE" xml:space="preserve">
+    <value>설치 위치를 적용할 수 없습니다.</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_FOUND" xml:space="preserve">
+    <value>설치 위치를 찾을 수 없습니다.</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_FILE_HASH_MISMATCH" xml:space="preserve">
+    <value>기존 파일의 해시가 일치하지 않습니다.</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_FILE_NOT_FOUND" xml:space="preserve">
+    <value>파일을 찾을 수 없습니다.</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK" xml:space="preserve">
+    <value>파일을 찾았지만 해시가 확인되지 않았습니다.</value>
+  </data>
+  <data name="WINGET_INSTALLED_STATUS_FILE_ACCESS_ERROR" xml:space="preserve">
+    <value>파일에 액세스할 수 없습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE" xml:space="preserve">
+    <value>구성 파일이 잘못되었습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_INVALID_YAML" xml:space="preserve">
+    <value>YAML 구문이 잘못되었습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE" xml:space="preserve">
+    <value>구성 필드에 잘못된 형식이 있습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION" xml:space="preserve">
+    <value>구성에 알 수 없는 버전이 있습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_SET_APPLY_FAILED" xml:space="preserve">
+    <value>구성을 적용하는 동안 오류가 발생했습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER" xml:space="preserve">
+    <value>구성에 중복 식별자가 포함되어 있습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_MISSING_DEPENDENCY" xml:space="preserve">
+    <value>구성에 종속성이 없습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED" xml:space="preserve">
+    <value>구성에 만족스럽지 않은 종속성이 있습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_ASSERTION_FAILED" xml:space="preserve">
+    <value>구성 단위에 대한 어설션이 실패했습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_MANUALLY_SKIPPED" xml:space="preserve">
+    <value>구성을 수동으로 건너뛰었습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_WARNING_NOT_ACCEPTED" xml:space="preserve">
+    <value>사용자가 실행을 계속하기를 거부했습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE" xml:space="preserve">
+    <value>종속성 그래프 확인할 수 없는 주기가 포함되어 있습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE" xml:space="preserve">
+    <value>구성에 잘못된 필드 값이 있습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_MISSING_FIELD" xml:space="preserve">
+    <value>구성에 필드가 없습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_TEST_FAILED" xml:space="preserve">
+    <value>상태를 테스트하는 동안 일부 구성 단위가 실패했습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_TEST_NOT_RUN" xml:space="preserve">
+    <value>구성 상태가 테스트되지 않았습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED" xml:space="preserve">
+    <value>구성 단위가 설치되지 않았습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY" xml:space="preserve">
+    <value>구성 단위를 찾을 수 없습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_MULTIPLE_MATCHES" xml:space="preserve">
+    <value>구성 단위와 일치하는 항목이 여러 개 있습니다. 모듈을 지정하여 올바른 모듈을 선택하십시오.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_INVOKE_GET" xml:space="preserve">
+    <value>현재 시스템 상태를 가져오는 동안 구성 단위가 실패했습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_INVOKE_TEST" xml:space="preserve">
+    <value>현재 시스템 상태를 테스트하는 동안 구성 단위가 실패했습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_INVOKE_SET" xml:space="preserve">
+    <value>원하는 상태를 적용하는 동안 구성 단위가 실패했습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT" xml:space="preserve">
+    <value>구성 단위의 모듈은 같은 버전으로 여러 위치에서 사용할 수 있습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE" xml:space="preserve">
+    <value>구성 단위에 대한 모듈을 로드하지 못했습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT" xml:space="preserve">
+    <value>구성 단위가 실행 중에 예기치 않은 결과를 반환했습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT" xml:space="preserve">
+    <value>구성 루트가 필요한 설정이 단위에 포함되어 있습니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR" xml:space="preserve">
+    <value>구성 프로세서에서 지원하지 않는 작업입니다.</value>
+  </data>
+  <data name="Unavailable" xml:space="preserve">
+    <value>사용할 수 없음</value>
+  </data>
+  <data name="EnableWindowsFeaturesSuccess" xml:space="preserve">
+    <value>Windows 기능 종속성을 사용하도록 설정함</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN" xml:space="preserve">
+    <value>구성 단위를 실행하려면 관리자 권한이 필요하므로 구성 단위에 대한 모듈을 로드하지 못했습니다.</value>
+  </data>
+  <data name="ConfigurationUnitSettingConfigRoot" xml:space="preserve">
+    <value>구성 루트가 필요한 설정이 단위에 포함되어 있습니다.</value>
+  </data>
+  <data name="ConfigurationUnitImportModuleAdmin" xml:space="preserve">
+    <value>구성 단위를 실행하려면 관리자 권한이 필요하므로 구성 단위에 대한 모듈을 로드하지 못했습니다.</value>
+  </data>
+  <data name="ResumeCommandLongDescription" xml:space="preserve">
+    <value>저장된 명령의 고유 식별자를 전달하여 이전에 저장한 명령의 실행을 다시 시작합니다. 다시 부팅으로 인해 종료되었을 수 있는 실행된 명령을 다시 시작하는 데 사용됩니다.</value>
+  </data>
+  <data name="ResumeCommandShortDescription" xml:space="preserve">
+    <value>이전에 저장된 명령의 실행을 다시 시작합니다.</value>
+  </data>
+  <data name="ResumeIdArgumentDescription" xml:space="preserve">
+    <value>다시 시작할 저장된 상태의 고유 식별자입니다.</value>
+  </data>
+  <data name="ClientVersionMismatchError" xml:space="preserve">
+    <value>다른 클라이언트 버전에서 상태를 다시 시작하는 것은 지원되지 않습니다. {0}</value>
+    <comment>{Locked= "{0}"} Message displayed to inform the user that the client version of the resume state does not match the current client version. {0} is a placeholder for the client version that created the resume state.</comment>
+  </data>
+  <data name="ResumeIdNotFoundError" xml:space="preserve">
+    <value>다시 시작 상태가 없습니다. {0}</value>
+    <comment>{Locked="{0}" Error message displayed when the user provides a guid that does not correspond to a valid saved state. {0} is a placeholder replaced by the provided guid string.</comment>
+  </data>
+  <data name="ResumeStateDataNotFoundError" xml:space="preserve">
+    <value>다시 시작 상태에서 데이터를 찾을 수 없습니다.</value>
+  </data>
+  <data name="CommandDoesNotSupportResumeMessage" xml:space="preserve">
+    <value>이 명령은 다시 시작이 지원되지 않습니다.</value>
+  </data>
+  <data name="AllowRebootArgumentDescription" xml:space="preserve">
+    <value>해당하는 경우 다시 부팅 허용</value>
+  </data>
+  <data name="InitiatingReboot" xml:space="preserve">
+    <value>작업을 완료하기 위해 다시 부팅을 시작하는 중...</value>
+  </data>
+  <data name="FailedToInitiateReboot" xml:space="preserve">
+    <value>다시 부팅을 시작하지 못했습니다.</value>
+  </data>
+  <data name="ResumeLimitExceeded" xml:space="preserve">
+    <value>다시 시작 작업이 허용되는 {0} 다시 시작 제한을 초과합니다. 수동으로 다시 시작하려면 '{1}' 명령을 실행하십시오.</value>
+    <comment>{Locked="{0}", "{1}"} {0} is a placeholder that is replaced by an integer number of the number of allowed resumes. {1} is a placeholder for the command to run to perform a manual resume.</comment>
+  </data>
+  <data name="IgnoreResumeLimitArgumentDescription" xml:space="preserve">
+    <value>저장된 상태 다시 시작 시 제한 무시</value>
+  </data>
+  <data name="UriSchemeNotSupported" xml:space="preserve">
+    <value>{0} URI 체계는 지원되지 않습니다.</value>
+    <comment>{Locked="{0}"} Error message displayed when the provided uri is not supported. {0} is a placeholder replaced by the provided uri.</comment>
+  </data>
+  <data name="UriNotWellFormed" xml:space="preserve">
+    <value>URI 형식이 잘못되었습니다. {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the provided uri is not well formed. {0} is a placeholder replaced by the provided uri.</comment>
+  </data>
+  <data name="WinGetResourceUnitEmptyContent" xml:space="preserve">
+    <value>구성 단위 설정 콘텐츠 또는 설정 콘텐츠가 비어 {0} 구문 분석하지 못했습니다.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder replaced by the input winget configure resource unit type.</comment>
+  </data>
+  <data name="WinGetResourceUnitMissingRequiredArg" xml:space="preserve">
+    <value>{0} 구성 단위에 필수 인수가 없습니다. {1}</value>
+    <comment>{Locked="{0},{1}"} {0} is a placeholder for the input winget configure resource unit type. {1} is placeholder for the missing arg.</comment>
+  </data>
+  <data name="WinGetResourceUnitMissingRecommendedArg" xml:space="preserve">
+    <value>{0} 구성 단위에 권장 인수가 없습니다. {1}</value>
+    <comment>{Locked="{0},{1}"} {0} is a placeholder for the input winget configure resource unit type. {1} is placeholder for the missing arg.</comment>
+  </data>
+  <data name="WinGetResourceUnitKnownSourceConfliction" xml:space="preserve">
+    <value>WinGetSource 구성 단위가 알려진 원본과 충돌합니다. {0}</value>
+    <comment>{Locked="WinGetSource,{0}"} {0} is a placeholder for the input winget source in the configuration unit settings.</comment>
+  </data>
+  <data name="WinGetResourceUnitThirdPartySourceAssertion" xml:space="preserve">
+    <value>WinGetSource 구성 단위는 타사 원본에서 어설션합니다. {0}</value>
+    <comment>{Locked="WinGetSource,{0}"} {0} is a placeholder for the input winget source in the configuration unit settings.</comment>
+  </data>
+  <data name="WinGetResourceUnitBothPackageVersionAndUseLatest" xml:space="preserve">
+    <value>WinGetPackage가 UseLatest와 Version을 모두 선언합니다. 패키지 ID: {0}</value>
+    <comment>{Locked="WinGetPackage,UseLatest,Version,{0}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitThirdPartySourceAssertionForPackage" xml:space="preserve">
+    <value>WinGetPackage 구성 단위는 타사 소스의 패키지에 대해 어설션합니다. 패키지 ID: {0}; 원본: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitDependencySourceNotConfigured" xml:space="preserve">
+    <value>WinGetPackage 구성 단위 패키지는 이전에 구성되지 않은 타사 원본에 종속됩니다. 패키지 ID: {0}; 원본: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitDependencySourceNotDeclaredAsDependency" xml:space="preserve">
+    <value>WinGetPackage 구성 단위 패키지는 타사 원본에 종속됩니다. uni dependsOn 섹션에 종속성을 선언하는 것이 좋습니다. 패키지 ID: {0}; 원본: {1}</value>
+    <comment>{Locked="WinGetPackage,dependsOn,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageSourceOpenFailed" xml:space="preserve">
+    <value>WinGetPackage 구성 단위 패키지의 유효성을 검사할 수 없습니다. 원본을 열지 못했습니다. 패키지 ID: {0}; 원본: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageNotFound" xml:space="preserve">
+    <value>WinGetPackage 구성 단위 패키지의 유효성을 검사할 수 없습니다. 패키지를 찾을 수 없습니다. 패키지 ID: {0}</value>
+    <comment>{Locked="WinGetPackage,{0}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageMultipleFound" xml:space="preserve">
+    <value>WinGetPackage 구성 단위 패키지의 유효성을 검사할 수 없습니다. 패키지를 두 개 이상 찾았습니다. 패키지 ID: {0}</value>
+    <comment>{Locked="WinGetPackage,{0}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackageVersionNotFound" xml:space="preserve">
+    <value>WinGetPackage 구성 단위 패키지의 유효성을 검사할 수 없습니다. 패키지 버전을 찾을 수 없습니다. 패키지 ID: {0}; 버전 {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitPackageVersionSpecifiedWithOnlyOnePackageVersion" xml:space="preserve">
+    <value>WinGetPackage 구성 단위 패키지는 특정 버전으로 지정되지만 하나의 패키지 버전만 사용할 수 있습니다. 패키지 ID: {0}, 버전: {1}</value>
+    <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
+  </data>
+  <data name="WinGetResourceUnitFailedToValidatePackage" xml:space="preserve">
+    <value>WinGetPackage 구성 단위 패키지의 유효성을 검사할 수 없습니다. 패키지 ID: {0}</value>
+    <comment>{Locked="WinGetPackage,{0}"}</comment>
+  </data>
+  <data name="AuthenticationModeArgumentDescription" xml:space="preserve">
+    <value>인증 창 기본 설정 지정(silent, silentPreferred 또는 interactive)</value>
+    <comment>{Locked="silent","silentPreferred","interactive"} This argument allows the user to select authentication window popup behavior.</comment>
+  </data>
+  <data name="AuthenticationAccountArgumentDescription" xml:space="preserve">
+    <value>인증에 사용할 계정 지정</value>
+  </data>
+  <data name="SourceAddFailedAuthenticationNotSupported" xml:space="preserve">
+    <value>원본을 추가하지 못했습니다. 이 winget 버전에서는 원본의 인증 방법을 지원하지 않습니다. 최신 winget 버전으로 업그레이드해 보세요.</value>
+    <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="SourceRequiresAuthentication" xml:space="preserve">
+    <value>{0} 원본을 인증해야 합니다. 필요한 경우 인증 프롬프트가 표시될 수 있습니다. 인증된 정보는 액세스 권한 부여를 위해 원본과 공유됩니다.</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="RepairCommandLongDescription" xml:space="preserve">
+    <value>설치된 패키지 목록을 검색하거나 매니페스트에서 직접 선택한 패키지를 복구합니다. 기본적으로 쿼리는 대/소문자를 구분하지 않는 패키지의 ID, 이름 또는 모니커와 일치해야 합니다. 다른 필드는 해당 옵션을 전달하여 사용할 수 있습니다.</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+  </data>
+  <data name="RepairCommandShortDescription" xml:space="preserve">
+    <value>선택한 패키지를 복구합니다.</value>
+  </data>
+  <data name="NoRepairInfoFound" xml:space="preserve">
+    <value>이 패키지에 대한 복구 명령을 찾을 수 없습니다. 지원을 받으려면 패키지 게시자에 문의하세요.</value>
+  </data>
+  <data name="RepairDifferentInstallTechnology" xml:space="preserve">
+    <value>사용 중인 설치 관리자 기술이 현재 설치된 버전과 일치하지 않습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND" xml:space="preserve">
+    <value>복구 명령을 찾을 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED" xml:space="preserve">
+    <value>사용 중인 설치 관리자 기술이 복구를 지원하지 않습니다.</value>
+  </data>
+  <data name="RepairFlowRepairSuccess" xml:space="preserve">
+    <value>복구 작업이 완료되었습니다.</value>
+  </data>
+  <data name="RepairAbandoned" xml:space="preserve">
+    <value>복구 중단됨</value>
+  </data>
+  <data name="RepairFlowStartingPackageRepair" xml:space="preserve">
+    <value>패키지 복구를 시작하는 중...</value>
+  </data>
+  <data name="MSStoreRepairFailed" xml:space="preserve">
+    <value>Microsoft Store 패키지를 복구하지 못했습니다. 오류 코드: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to repair. {0} is a placeholder replaced by an error code.</comment>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED" xml:space="preserve">
+    <value>복구 작업에 실패했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE" xml:space="preserve">
+    <value>복구 작업은 적용할 수 없습니다.</value>
+  </data>
+  <data name="RepairFlowNoMatchingVersion" xml:space="preserve">
+    <value>구성된 원본에서 사용할 수 있는 일치하는 패키지 버전이 없습니다.</value>
+  </data>
+  <data name="RepairFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>현재 시스템 구성은 이 패키지의 복구를 지원하지 않습니다.</value>
+  </data>
+  <data name="RepairOperationNotSupported" xml:space="preserve">
+    <value>사용 중인 설치 관리자 기술이 복구를 지원하지 않습니다.</value>
+  </data>
+  <data name="NoAdminRepairForUserScopePackage" xml:space="preserve">
+    <value>관리자 권한으로 실행하는 경우 사용자 scope 위해 설치된 패키지를 복구할 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED" xml:space="preserve">
+    <value>사용자 scope 내에 설치된 패키지에서는 관리자 권한과 관련된 복구 작업이 허용되지 않습니다.</value>
+  </data>
+  <data name="RepairFailedWithCode" xml:space="preserve">
+    <value>복구하지 못했습니다. 종료 코드: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to repair an application package fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
 </root>
