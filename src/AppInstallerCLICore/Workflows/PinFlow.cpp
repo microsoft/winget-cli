@@ -6,6 +6,7 @@
 #include "TableOutput.h"
 #include <winget/PinningData.h>
 #include <winget/RepositorySearch.h>
+#include <winget/PackageVersionSelection.h>
 
 using namespace AppInstaller::Repository;
 
@@ -38,7 +39,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (context.Args.Contains(Execution::Args::Type::PinInstalled))
             {
-                auto installedVersion = package->GetInstalledVersion();
+                auto installedVersion = GetInstalledVersion(package);
                 if (installedVersion)
                 {
                     pinKeys.emplace(Pinning::PinKey::GetPinKeyForInstalled(installedVersion->GetProperty(PackageVersionProperty::Id)));
@@ -46,13 +47,12 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                auto packageVersionKeys = package->GetAvailableVersionKeys();
-                for (const auto& versionKey : packageVersionKeys)
+                auto availablePackages = package->GetAvailable();
+                for (const auto& availablePackage : availablePackages)
                 {
-                    auto availableVersion = package->GetAvailableVersion(versionKey);
                     pinKeys.emplace(
-                        availableVersion->GetProperty(PackageVersionProperty::Id).get(),
-                        availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get());
+                        availablePackage->GetProperty(PackageProperty::Id).get(),
+                        availablePackage->GetSource().GetIdentifier());
                 }
             }
 
@@ -140,7 +140,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    auto availableVersion = package->GetAvailableVersion({ pinKey.SourceId, "", "" });
+                    auto availableVersion = GetAvailablePackageFromSource(package, pinKey.SourceId)->GetLatestVersion();
                     if (availableVersion)
                     {
                         packageNameToReport = availableVersion->GetProperty(PackageVersionProperty::Name);
@@ -198,8 +198,6 @@ namespace AppInstaller::CLI::Workflow
         // Note that if a source was specified in the command line,
         // that will be the only one we get version keys from.
         // So, we remove pins from all sources unless one was provided.
-        auto packageVersionKeys = package->GetAvailableVersionKeys();
-
         for (const auto& pin : pins)
         {
             AICLI_LOG(CLI, Info, << "Removing Pin " << pin.GetKey().ToString());
@@ -255,15 +253,19 @@ namespace AppInstaller::CLI::Workflow
                 else
                 {
                     // This ensures we get the info from the right source if it exists on multiple
-                    auto availableVersion = match.Package->GetAvailableVersion({ pinKey.SourceId, "", "" });
-                    if (availableVersion)
+                    auto availablePackage = GetAvailablePackageFromSource(match.Package, pinKey.SourceId);
+                    if (availablePackage)
                     {
-                        packageName = availableVersion->GetProperty(PackageVersionProperty::Name);
-                        sourceName = availableVersion->GetProperty(PackageVersionProperty::SourceName);
+                        auto availableVersion = availablePackage->GetLatestVersion();
+                        if (availableVersion)
+                        {
+                            packageName = availableVersion->GetProperty(PackageVersionProperty::Name);
+                            sourceName = availableVersion->GetProperty(PackageVersionProperty::SourceName);
+                        }
                     }
                 }
 
-                auto installedVersion = match.Package->GetInstalledVersion();
+                auto installedVersion = GetInstalledVersion(match.Package);
                 if (installedVersion)
                 {
                     packageName = installedVersion->GetProperty(PackageVersionProperty::Name);

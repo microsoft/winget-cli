@@ -85,7 +85,7 @@ namespace TestCommon
         }
     }
 
-    TempFile::~TempFile()
+    TempFile::~TempFile() try
     {
         switch (s_TempFileDestructorBehavior)
         {
@@ -99,6 +99,7 @@ namespace TestCommon
             break;
         }
     }
+    CATCH_LOG_RETURN()
 
     void TempFile::Rename(const std::filesystem::path& newFilePath)
     {

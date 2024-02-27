@@ -11,6 +11,7 @@
 #include <AppInstallerDeployment.h>
 #include <AppInstallerSynchronization.h>
 #include <winget/Runtime.h>
+#include <winget/PackageVersionSelection.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
@@ -34,9 +35,8 @@ namespace AppInstaller::CLI::Workflow
                 std::string SourceIdentifier;
             };
 
-            void AddIfRemoteAndNotPresent(const std::shared_ptr<IPackageVersion>& packageVersion)
+            void AddIfRemoteAndNotPresent(Source&& source, const Utility::LocIndString& identifier)
             {
-                auto source = packageVersion->GetSource();
                 const auto details = source.GetDetails();
                 if (!source.ContainsAvailablePackages())
                 {
@@ -51,7 +51,17 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                Items.emplace_back(Item{ packageVersion->GetProperty(PackageVersionProperty::Id), std::move(source), details.Identifier });
+                Items.emplace_back(Item{ identifier, std::move(source), details.Identifier });
+            }
+
+            void AddIfRemoteAndNotPresent(const std::shared_ptr<IPackageVersion>& packageVersion)
+            {
+                AddIfRemoteAndNotPresent(packageVersion->GetSource(), packageVersion->GetProperty(PackageVersionProperty::Id));
+            }
+
+            void AddIfRemoteAndNotPresent(const std::shared_ptr<IPackage>& package)
+            {
+                AddIfRemoteAndNotPresent(package->GetSource(), package->GetProperty(PackageProperty::Id));
             }
 
             std::vector<Item> Items;
@@ -311,12 +321,12 @@ namespace AppInstaller::CLI::Workflow
         UninstallCorrelatedSources correlatedSources;
 
         // Start with the installed version
-        correlatedSources.AddIfRemoteAndNotPresent(package->GetInstalledVersion());
+        correlatedSources.AddIfRemoteAndNotPresent(GetInstalledVersion(package));
 
         // Then look through all available versions
-        for (const auto& versionKey : package->GetAvailableVersionKeys())
+        for (const auto& availablePackage : package->GetAvailable())
         {
-            correlatedSources.AddIfRemoteAndNotPresent(package->GetAvailableVersion(versionKey));
+            correlatedSources.AddIfRemoteAndNotPresent(availablePackage);
         }
 
         // Finally record the uninstall for each found value
