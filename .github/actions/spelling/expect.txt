@@ -23,7 +23,7 @@ APPTERMINATION
 argumentlist
 ARMNT
 arphelper
-ASAN
+asan
 ASequence
 ashpatil
 Ashwini
@@ -34,6 +34,7 @@ Atest
 ATL
 AUrl
 Authenticode
+azcopy
 azurewebsites
 bcp
 BEFACEF
@@ -66,6 +67,7 @@ CLOSEAPP
 cloudapp
 clsctx
 clsid
+cobertura
 CODEOWNERS
 COINIT
 COMGLB
@@ -78,6 +80,7 @@ corecrt
 count'th
 countof
 countryregion
+Cov
 CPIL
 craigloewen
 createmanifestmetadata
@@ -137,11 +140,13 @@ foldcase
 FOLDERID
 FORPARSING
 foundfr
+fsanitize
 fundraiser
 fuzzer
 fzanollo
 gcpi
 GESMBH
+getwinget
 GHS
 gity
 goku
@@ -158,6 +163,7 @@ HINSTANCE
 hkey
 hlocal
 hmodule
+Hostx
 hre
 hresults
 hrow
@@ -175,6 +181,7 @@ iid
 IISOn
 ilemode
 inproc
+Insta
 installinprogress
 INSTALLPROPERTY
 installshield
@@ -207,6 +214,7 @@ KNOWNFOLDERID
 ktf
 ldcase
 learnxinyminutes
+libfuzzer
 libsolv
 libyaml
 Linq
@@ -305,6 +313,8 @@ nuffing
 objbase
 objidl
 ofile
+omus
+onefuzz
 ools
 oop
 OPTOUT
@@ -320,6 +330,7 @@ PCCERT
 PCs
 pcwsz
 PDWORD
+peetdev
 PEGI
 PFM
 pfxpath
@@ -379,6 +390,7 @@ runtimeclass
 ryfu
 rzkzqaqjwj
 SARL
+SASURL
 schematab
 sddl
 SECUREFILEPATH
@@ -471,6 +483,7 @@ VALUENAMECASE
 vclib
 VERSI
 VERSIE
+visualstudiocode
 vns
 vsconfig
 vstest

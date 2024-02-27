@@ -51,7 +51,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             }
 
             this.Version = version;
-            this.Log = log;
 
             // FinderCommand
             this.Id = id;
@@ -59,17 +58,25 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
+
+            // UninstallPackageCommand
+            this.Log = log;
         }
+
+        /// <summary>
+        /// Gets or sets the path to the logging file.
+        /// </summary>
+        private string? Log { get; set; }
 
         /// <summary>
         /// Process uninstall package.
         /// </summary>
-        /// <param name="psPackageUninstallMode">PSPackageUninstallMode.</param>
         /// <param name="psPackageFieldMatchOption">PSPackageFieldMatchOption.</param>
+        /// <param name="psPackageUninstallMode">PSPackageUninstallMode.</param>
         /// <param name="force">Force.</param>
         public void Uninstall(
-            string psPackageUninstallMode,
             string psPackageFieldMatchOption,
+            string psPackageUninstallMode,
             bool force)
         {
             var result = this.Execute(

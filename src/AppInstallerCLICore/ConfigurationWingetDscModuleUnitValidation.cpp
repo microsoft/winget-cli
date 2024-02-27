@@ -358,7 +358,8 @@ namespace AppInstaller::CLI::Configuration
                    {
                        if (!package.Version.empty())
                        {
-                           auto versionKeys = searchResult.Matches.at(0).Package->GetAvailableVersionKeys();
+                           std::shared_ptr<Repository::IPackage> availablePackage = searchResult.Matches.at(0).Package->GetAvailable().at(0);
+                           auto versionKeys = availablePackage->GetVersionKeys();
                            bool foundVersion = false;
                            for (auto const& versionKey : versionKeys)
                            {

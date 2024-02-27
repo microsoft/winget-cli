@@ -63,6 +63,8 @@ namespace AppInstaller::CLI::Execution
         Pins,
         ConfigurationContext,
         DownloadDirectory,
+        ModifyPath,
+        RepairString,
         Max
     };
 
@@ -103,7 +105,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::Package>
         {
-            using value_t = std::shared_ptr<Repository::IPackage>;
+            using value_t = std::shared_ptr<Repository::ICompositePackage>;
         };
 
         template <>
@@ -266,6 +268,18 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::DownloadDirectory>
         {
             using value_t = std::filesystem::path;
+        };
+
+        template<>
+        struct DataMapping<Data::ModifyPath>
+        {
+            using value_t = std::string;
+        };
+
+        template<>
+        struct DataMapping<Data::RepairString>
+        {
+            using value_t = std::string;
         };
     }
 }

@@ -56,7 +56,7 @@ namespace TestCommon
         TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source = {}, bool hideSystemReferenceStringsOnVersion = false);
 
         // Create a package with an installed version, metadata, and optionally available versions.
-        TestPackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available = {}, std::weak_ptr<const ISource> source = {});
+        TestPackage(const Manifest& installed, MetadataMap installationMetadata, std::weak_ptr<const ISource> source = {});
 
         template <typename... Args>
         static std::shared_ptr<TestPackage> Make(Args&&... args)
@@ -65,16 +65,44 @@ namespace TestCommon
         }
 
         AppInstaller::Utility::LocIndString GetProperty(AppInstaller::Repository::PackageProperty property) const override;
-        std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetInstalledVersion() const override;
-        std::vector<AppInstaller::Repository::PackageVersionKey> GetAvailableVersionKeys() const override;
-        std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestAvailableVersion() const override;
-        std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetAvailableVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;
+        std::vector<AppInstaller::Repository::PackageVersionKey> GetVersionKeys() const override;
+        std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestVersion() const override;
+        std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;
+        AppInstaller::Repository::Source GetSource() const override;
         bool IsSame(const IPackage* other) const override;
         const void* CastTo(AppInstaller::Repository::IPackageType type) const override;
 
-        std::shared_ptr<AppInstaller::Repository::IPackageVersion> InstalledVersion;
-        std::vector<std::shared_ptr<AppInstaller::Repository::IPackageVersion>> AvailableVersions;
+        std::vector<std::shared_ptr<AppInstaller::Repository::IPackageVersion>> Versions;
+        std::weak_ptr<const ISource> Source;
         std::function<bool(const IPackage*, const IPackage*)> IsSameOverride;
+    };
+
+    // ICompositePackage for TestSource
+    struct TestCompositePackage : public AppInstaller::Repository::ICompositePackage
+    {
+        using Manifest = AppInstaller::Manifest::Manifest;
+        using ISource = AppInstaller::Repository::ISource;
+        using LocIndString = AppInstaller::Utility::LocIndString;
+        using MetadataMap = TestPackageVersion::MetadataMap;
+
+        // Create a package with only available versions using these manifests.
+        TestCompositePackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source = {}, bool hideSystemReferenceStringsOnVersion = false);
+
+        // Create a package with an installed version, metadata, and optionally available versions.
+        TestCompositePackage(const Manifest& installed, MetadataMap installationMetadata, const std::vector<Manifest>& available = {}, std::weak_ptr<const ISource> source = {});
+
+        template <typename... Args>
+        static std::shared_ptr<TestCompositePackage> Make(Args&&... args)
+        {
+            return std::make_shared<TestCompositePackage>(std::forward<Args>(args)...);
+        }
+
+        AppInstaller::Utility::LocIndString GetProperty(AppInstaller::Repository::PackageProperty property) const override;
+        std::shared_ptr<AppInstaller::Repository::IPackage> GetInstalled() override;
+        std::vector<std::shared_ptr<AppInstaller::Repository::IPackage>> GetAvailable() override;
+
+        std::shared_ptr<TestPackage> Installed;
+        std::vector<std::shared_ptr<TestPackage>> Available;
     };
 
     // An ISource implementation for use across the test code.

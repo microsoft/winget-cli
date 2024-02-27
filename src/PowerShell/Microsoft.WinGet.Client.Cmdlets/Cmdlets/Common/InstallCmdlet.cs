@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     /// This is the base class for all commands that parse a FindPackagesOptions result
     /// from the provided parameters i.e., the "install" and "upgrade" commands.
     /// </summary>
-    public abstract class InstallCmdlet : PackageCmdlet
+    public abstract class InstallCmdlet : InstallerSelectionCmdlet
     {
         private string location;
 
@@ -52,10 +52,10 @@ namespace Microsoft.WinGet.Client.Commands.Common
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to skip the installer hash validation check.
+        /// Gets or sets the path to the logging file.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter AllowHashMismatch { get; set; }
+        public string Log { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to continue upon non security related failures.

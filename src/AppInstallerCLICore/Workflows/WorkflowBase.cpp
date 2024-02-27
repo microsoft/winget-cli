@@ -11,6 +11,7 @@
 #include <winget/Pin.h>
 #include <winget/PinningData.h>
 #include <winget/Runtime.h>
+#include <winget/PackageVersionSelection.h>
 
 using namespace std::string_literals;
 using namespace AppInstaller::Utility::literals;
@@ -628,7 +629,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
-            auto latestVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion();
+            auto latestVersion = GetAllAvailableVersions(searchResult.Matches[i].Package)->GetLatestVersion();
 
             table.OutputLine({
                 latestVersion->GetProperty(PackageVersionProperty::Name),
@@ -739,10 +740,10 @@ namespace AppInstaller::CLI::Workflow
             auto package = searchResult.Matches[i].Package;
 
             std::string sourceName;
-            auto latest = package->GetLatestAvailableVersion();
-            if (latest)
+            auto available = package->GetAvailable();
+            if (!available.empty())
             {
-                auto source = latest->GetSource();
+                auto source = available[0]->GetSource();
                 if (source)
                 {
                     sourceName = source.GetDetails().Name;
@@ -799,13 +800,14 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& match : searchResult.Matches)
         {
-            auto installedVersion = match.Package->GetInstalledVersion();
+            auto installedVersion = GetInstalledVersion(match.Package);
 
             if (installedVersion)
             {
                 auto evaluator = pinningData.CreatePinStateEvaluator(pinBehavior, installedVersion);
+                auto availableVersions = GetAvailableVersionsForInstalledVersion(match.Package, installedVersion);
 
-                auto latestVersion = evaluator.GetLatestAvailableVersionForPins(match.Package);
+                auto latestVersion = evaluator.GetLatestAvailableVersionForPins(availableVersions);
                 bool updateAvailable = evaluator.IsUpdate(latestVersion);
                 bool updateIsPinned = false;
 
@@ -819,7 +821,7 @@ namespace AppInstaller::CLI::Workflow
                 if (m_onlyShowUpgrades && !updateAvailable)
                 {
                     // Reuse the evaluator to check if there is an update outside of the pinning
-                    auto unpinnedLatestVersion = match.Package->GetLatestAvailableVersion();
+                    auto unpinnedLatestVersion = availableVersions->GetLatestVersion();
                     bool updateAvailableWithoutPins = evaluator.IsUpdate(unpinnedLatestVersion);
 
                     if (updateAvailableWithoutPins)
@@ -952,6 +954,7 @@ namespace AppInstaller::CLI::Workflow
                 case OperationType::Uninstall:
                 case OperationType::Pin:
                 case OperationType::Upgrade:
+                case OperationType::Repair:
                     context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
                     break;
                 case OperationType::Completion:
@@ -981,7 +984,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall )
+                if (m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall || m_operationType == OperationType::Repair)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResult;
@@ -995,7 +998,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
             }
 
-            std::shared_ptr<IPackage> package = searchResult.Matches.at(0).Package;
+            std::shared_ptr<ICompositePackage> package = searchResult.Matches.at(0).Package;
             Logging::Telemetry().LogAppFound(package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
 
             context.Add<Execution::Data::Package>(std::move(package));
@@ -1006,8 +1009,9 @@ namespace AppInstaller::CLI::Workflow
     {
         PackageVersionKey key("", m_version, m_channel);
 
-        std::shared_ptr<IPackage> package = context.Get<Execution::Data::Package>();
+        std::shared_ptr<ICompositePackage> package = context.Get<Execution::Data::Package>();
         std::shared_ptr<IPackageVersion> requestedVersion;
+        auto availableVersions = GetAvailableVersionsForInstalledVersion(package);
 
         if (m_considerPins)
         {
@@ -1025,17 +1029,17 @@ namespace AppInstaller::CLI::Workflow
             }
 
             PinningData pinningData{ PinningData::Disposition::ReadOnly };
-            auto evaluator = pinningData.CreatePinStateEvaluator(pinBehavior, package->GetInstalledVersion());
+            auto evaluator = pinningData.CreatePinStateEvaluator(pinBehavior, GetInstalledVersion(package));
 
             // TODO: The logic here will probably have to get more difficult once we support channels
             if (Utility::IsEmptyOrWhitespace(m_version) && Utility::IsEmptyOrWhitespace(m_channel))
             {
-                requestedVersion = evaluator.GetLatestAvailableVersionForPins(package);
+                requestedVersion = evaluator.GetLatestAvailableVersionForPins(availableVersions);
 
                 if (!requestedVersion)
                 {
                     // Check whether we didn't find the latest version because it was pinned or because there wasn't one
-                    auto latestVersion = package->GetLatestAvailableVersion();
+                    auto latestVersion = availableVersions->GetLatestVersion();
                     if (latestVersion)
                     {
                         isPinned = true;
@@ -1044,7 +1048,7 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                requestedVersion = package->GetAvailableVersion(key);
+                requestedVersion = availableVersions->GetVersion(key);
                 isPinned = evaluator.EvaluatePinType(requestedVersion) != PinType::Unknown;
             }
 
@@ -1065,7 +1069,7 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             // The simple case: Just look up the requested version
-            requestedVersion = package->GetAvailableVersion(key);
+            requestedVersion = availableVersions->GetVersion(key);
         }
 
         std::optional<Manifest::Manifest> manifest;
@@ -1225,10 +1229,11 @@ namespace AppInstaller::CLI::Workflow
     void SelectInstaller(Execution::Context& context)
     {
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+        bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
 
         IPackageVersion::Metadata installationMetadata;
 
-        if (isUpdate)
+        if (isUpdate || isRepair)
         {
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
@@ -1241,8 +1246,16 @@ namespace AppInstaller::CLI::Workflow
             auto onlyInstalledType = std::find(inapplicabilities.begin(), inapplicabilities.end(), InapplicabilityFlags::InstalledType);
             if (onlyInstalledType != inapplicabilities.end())
             {
-                context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnology << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+                if (isRepair)
+                {
+                    context.Reporter.Info() << Resource::String::RepairDifferentInstallTechnology << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_REPAIR_NOT_APPLICABLE);
+                }
+                else
+                {
+                    context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnology << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+                }
             }
         }
 
@@ -1336,7 +1349,7 @@ namespace AppInstaller::CLI::Workflow
 
     void GetInstalledPackageVersion(Execution::Context& context)
     {
-        context.Add<Execution::Data::InstalledPackageVersion>(context.Get<Execution::Data::Package>()->GetInstalledVersion());
+        context.Add<Execution::Data::InstalledPackageVersion>(GetInstalledVersion(context.Get<Execution::Data::Package>()));
     }
 
     void ReportExecutionStage::operator()(Execution::Context& context) const
@@ -1346,7 +1359,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowAppVersions(Execution::Context& context)
     {
-        auto versions = context.Get<Execution::Data::Package>()->GetAvailableVersionKeys();
+        auto versions = GetAllAvailableVersions(context.Get<Execution::Data::Package>())->GetVersionKeys();
 
         Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
         for (const auto& version : versions)

@@ -22,6 +22,7 @@
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
+#include <AppInstallerSHA256.h>
 #include <winget/GroupPolicy.h>
 
 using namespace std::chrono_literals;
@@ -288,6 +289,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             auto configurationSet = parser->GetConfigurationSet();
             PropagateLifetimeWatcher(configurationSet.as<Windows::Foundation::IUnknown>());
+            configurationSet->SetInputHash(AppInstaller::Utility::SHA256::ConvertToString(AppInstaller::Utility::SHA256::ComputeHash(inputString)));
 
             result->Initialize(*configurationSet);
         }

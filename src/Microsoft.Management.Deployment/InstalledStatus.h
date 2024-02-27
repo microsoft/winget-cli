@@ -3,6 +3,7 @@
 #pragma once
 #include "InstalledStatus.g.h"
 #include <winget/RepositorySearch.h>
+#include <winget/InstalledStatus.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {

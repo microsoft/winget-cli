@@ -76,6 +76,19 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
+        /// Wrapper for DownloadPackageAsync.
+        /// </summary>
+        /// <param name="package">The package to download.</param>
+        /// <param name="options">The download options.</param>
+        /// <returns>An async operation with progress.</returns>
+        public IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> DownloadPackageAsync(CatalogPackage package, DownloadOptions options)
+        {
+            return this.Execute(
+                () => this.packageManager.DownloadPackageAsync(package, options),
+                false);
+        }
+
+        /// <summary>
         /// Wrapper for GetPackageCatalogs.
         /// </summary>
         /// <returns>A list of PackageCatalogReferences.</returns>

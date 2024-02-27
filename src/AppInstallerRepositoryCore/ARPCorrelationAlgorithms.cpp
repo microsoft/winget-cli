@@ -145,8 +145,8 @@ namespace AppInstaller::Repository::Correlation
     {
         // Name and Publisher are available as multi properties, but for ARP entries there will only be 0 or 1 values.
         NameAndPublisher arpNameAndPublisher(
-            NormalizeAndPrepareName(arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Name).get()),
-            NormalizeAndPreparePublisher(arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Publisher).get()));
+            NormalizeAndPrepareName(arpEntry.Entry->GetLatestVersion()->GetProperty(PackageVersionProperty::Name).get()),
+            NormalizeAndPreparePublisher(arpEntry.Entry->GetLatestVersion()->GetProperty(PackageVersionProperty::Publisher).get()));
 
         // Get the best score across all localizations
         double bestMatchingScore = 0;

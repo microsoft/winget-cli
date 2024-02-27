@@ -42,6 +42,19 @@ After the package is provisioned, the users need to log into their Windows accou
 
 ## Common Issues
 
+### Executing `winget` exits with no message
+
+If no output is displayed, it is likely that the version of WinGet on your system is using a retired Content Delivery Network (CDN).
+You can check which version of WinGet is on your machine using `winget --info`. If the version is lower than `1.6.3482`, take the following troubleshooting steps.
+
+1. Install the latest version of WinGet using one of the below methods
+  * a. Through the Microsoft Store by installing the latest version of [App Installer](https://apps.microsoft.com/detail/9NBLGGH4NNS1)
+  * b. Through installing the MSIX package found in the [GitHub releases](https://github.com/microsoft/winget-cli/releases)
+  * c. Through installing the MSIX package from https://aka.ms/getwinget
+2. Force a source update using `winget source update`
+
+If the above guidelines do not resolve the problem, please open an issue with details of the Windows version and App Installer version you are using.
+
 ### Executing `winget` doesn't display help
 
 The following errors are displayed when executed in CMD.

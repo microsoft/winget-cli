@@ -87,6 +87,11 @@ namespace AppInstaller::Utility::HttpStream
         }
     }
 
+#ifdef WINGET_DISABLE_FOR_FUZZING
+#pragma warning( push )
+#pragma warning( disable : 4714) // HRESULT_FROM_WIN32 marked as forceinline not inlined
+#endif
+
     std::future<IBuffer> HttpClientWrapper::SendHttpRequestAsync(
         _In_ ULONG64 startPosition,
         _In_ UINT32 requestedSizeInBytes)
@@ -166,6 +171,10 @@ namespace AppInstaller::Utility::HttpStream
 
         co_return co_await response.Content().ReadAsBufferAsync();
     }
+
+#ifdef WINGET_DISABLE_FOR_FUZZING
+#pragma warning( pop ) 
+#endif
 
     std::future<IBuffer> HttpClientWrapper::DownloadRangeAsync(
         const ULONG64 startPosition,

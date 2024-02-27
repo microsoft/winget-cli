@@ -18,7 +18,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
     /// <summary>
     /// This is the base class for commands which operate on a specific package and version i.e.,
-    /// the "install", "uninstall", and "upgrade" commands.
+    /// the "install", "uninstall", "download", and "upgrade" commands.
     /// </summary>
     public abstract class PackageCommand : FinderCommand
     {
@@ -43,11 +43,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// Gets or sets the version to install.
         /// </summary>
         protected string? Version { get; set; }
-
-        /// <summary>
-        /// Gets or sets the path to the logging file.
-        /// </summary>
-        protected string? Log { get; set; }
 
         /// <summary>
         /// Executes a command targeting a specific package version.

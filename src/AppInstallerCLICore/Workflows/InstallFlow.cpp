@@ -464,6 +464,8 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportInstallerResult::operator()(Execution::Context& context) const
     {
+        bool isRepair = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair);
+
         DWORD installResult = context.Get<Execution::Data::OperationReturnCode>();
         const auto& additionalSuccessCodes = context.Get<Execution::Data::Installer>()->InstallerSuccessCodes;
         if (installResult != 0 && (std::find(additionalSuccessCodes.begin(), additionalSuccessCodes.end(), installResult) == additionalSuccessCodes.end()))
@@ -506,7 +508,15 @@ namespace AppInstaller::CLI::Workflow
             if (FAILED(terminationHR))
             {
                 const auto& manifest = context.Get<Execution::Data::Manifest>();
-                Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, m_installerType, installResult);
+
+                if (isRepair)
+                {
+                    Logging::Telemetry().LogRepairFailure(manifest.Id, manifest.Version, m_installerType, installResult);
+                }
+                else
+                {
+                    Logging::Telemetry().LogInstallerFailure(manifest.Id, manifest.Version, manifest.Channel, m_installerType, installResult);
+                }
 
                 if (m_isHResult)
                 {
@@ -533,7 +543,14 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            if (isRepair)
+            {
+                context.Reporter.Info() << Resource::String::RepairFlowRepairSuccess << std::endl;
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            }
         }
     }
 
@@ -610,6 +627,21 @@ namespace AppInstaller::CLI::Workflow
         }
 
         const auto& installer = context.Get<Execution::Data::Installer>();
+
+        // This check is only necessary for the Repair workflow when operating on an installer with RepairBehavior set to Installer.
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseRepair))
+        {
+            if (installer->RepairBehavior != RepairBehaviorEnum::Installer)
+            {
+                return;
+            }
+
+            // At present, the installer repair behavior scenario is restricted to Exe, Inno, Nullsoft, and Burn installer types.
+            if (!DoesInstallerTypeRequireRepairBehaviorForRepair(installer->EffectiveInstallerType()))
+            {
+                return;
+            }
+        }
 
         // This installer cannot be run elevated, but we are running elevated.
         // Implementation of de-elevation is complex; simply block for now.
@@ -776,7 +808,7 @@ namespace AppInstaller::CLI::Workflow
     }
     CATCH_LOG()
 
-    void ReportARPChanges(Execution::Context& context) try
+        void ReportARPChanges(Execution::Context& context) try
     {
         if (!context.Contains(Execution::Data::ARPCorrelationData))
         {
@@ -826,7 +858,7 @@ namespace AppInstaller::CLI::Workflow
             for (auto&& upgradeCode : upgradeCodes)
             {
                 AppsAndFeaturesEntry entry = baseEntry;
-                entry.UpgradeCode= std::move(upgradeCode).get();
+                entry.UpgradeCode = std::move(upgradeCode).get();
                 entries.push_back(std::move(entry));
             }
 

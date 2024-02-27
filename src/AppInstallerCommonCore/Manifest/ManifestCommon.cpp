@@ -899,6 +899,15 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Msix;
     }
 
+    bool DoesInstallerTypeRequireRepairBehaviorForRepair(InstallerTypeEnum installerType)
+    {
+        return
+            installerType == InstallerTypeEnum::Burn ||
+            installerType == InstallerTypeEnum::Inno ||
+            installerType == InstallerTypeEnum::Nullsoft ||
+            installerType == InstallerTypeEnum::Exe;
+    }
+
     bool IsArchiveType(InstallerTypeEnum installerType)
     {
         return (installerType == InstallerTypeEnum::Zip);
@@ -973,8 +982,8 @@ namespace AppInstaller::Manifest
         case InstallerTypeEnum::Inno:
             return
             {
-                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/VERYSILENT /NORESTART")},
-                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/SILENT /NORESTART")},
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/SP- /SILENT /SUPPRESSMSGBOXES /NORESTART")},
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };

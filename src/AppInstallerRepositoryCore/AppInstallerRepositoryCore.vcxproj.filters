@@ -97,6 +97,9 @@
     <Filter Include="Rest\Schema\1_7">
       <UniqueIdentifier>{f42acfce-4fc0-435b-a9a2-bf5528aecbcc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_7\Json">
+      <UniqueIdentifier>{7fd6c265-81c0-4c6e-87b2-24bef117e21d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -318,9 +321,6 @@
     <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableTable.h">
       <Filter>Microsoft\Schema\Portable_1_0</Filter>
     </ClInclude>
-    <ClInclude Include="Microsoft\PortableIndex.h">
-      <Filter>Microsoft</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h">
       <Filter>Microsoft\Schema</Filter>
     </ClInclude>
@@ -378,9 +378,6 @@
     <ClInclude Include="Microsoft\Schema\ICheckpointDatabase.h">
       <Filter>Microsoft\Schema</Filter>
     </ClInclude>
-    <ClInclude Include="Microsoft\CheckpointDatabase.h">
-      <Filter>Microsoft</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointDataTable.h">
       <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
     </ClInclude>
@@ -401,6 +398,24 @@
     </ClInclude>
     <ClInclude Include="Rest\Schema\AuthenticationInfoParser.h">
       <Filter>Rest\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\PinningData.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\PortableIndex.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\CheckpointDatabase.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\InstalledStatus.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\PackageVersionSelection.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_7\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_7\Json</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -631,6 +646,15 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\AuthenticationInfoParser.cpp">
       <Filter>Rest\Schema</Filter>
+    </ClCompile>
+    <ClCompile Include="PinningData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageVersionSelection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_7\Json\ManifestDeserializer_1_7.cpp">
+      <Filter>Rest\Schema\1_7\Json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -12,13 +12,14 @@
 #include "CheckInstalledStatusResult.h"
 #include <wil\cppwinrt_wrl.h>
 #include <winget/PinningData.h>
+#include <winget/PackageVersionSelection.h>
 
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
     void CatalogPackage::Initialize(
         ::AppInstaller::Repository::Source source,
-        std::shared_ptr<::AppInstaller::Repository::IPackage> package)
+        std::shared_ptr<::AppInstaller::Repository::ICompositePackage> package)
     {
         m_source = std::move(source);
         m_package = std::move(package);
@@ -36,7 +37,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::call_once(m_installedVersionOnceFlag,
             [&]()
             {
-                std::shared_ptr<::AppInstaller::Repository::IPackageVersion> installedVersion = m_package.get()->GetInstalledVersion();
+                std::shared_ptr<::AppInstaller::Repository::IPackageVersion> installedVersion = GetInstalledVersion(m_package);
                 if (installedVersion)
                 {
                     auto installedVersionImpl = winrt::make_self<wil::details::module_count_wrapper<
@@ -53,7 +54,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             [&]()
             {
                 // Vector hasn't been populated yet.
-                for (auto const& versionKey : m_package.get()->GetAvailableVersionKeys())
+                for (auto const& versionKey : ::AppInstaller::Repository::GetAllAvailableVersions(m_package)->GetVersionKeys())
                 {
                     auto packageVersionId = winrt::make_self<wil::details::module_count_wrapper<
                         winrt::Microsoft::Management::Deployment::implementation::PackageVersionId>>();
@@ -72,9 +73,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 using namespace AppInstaller::Pinning;
 
                 PinningData pinningData{ PinningData::Disposition::ReadOnly };
-                auto evaluator = pinningData.CreatePinStateEvaluator(PinBehavior::ConsiderPins, m_package->GetInstalledVersion());
+                auto evaluator = pinningData.CreatePinStateEvaluator(PinBehavior::ConsiderPins, GetInstalledVersion(m_package));
 
-                std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion = evaluator.GetLatestAvailableVersionForPins(m_package);
+                std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion =
+                    evaluator.GetLatestAvailableVersionForPins(::AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(m_package));
                 if (latestVersion)
                 {
                     m_updateAvailable = evaluator.IsUpdate(latestVersion);
@@ -100,7 +102,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
 
         ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.PackageCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
-        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> availableVersion = m_package.get()->GetAvailableVersion(internalVersionKey);
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> availableVersion =
+            ::AppInstaller::Repository::GetAllAvailableVersions(m_package)->GetVersion(internalVersionKey);
         if (availableVersion)
         {
             auto packageVersionInfoImpl = winrt::make_self<wil::details::module_count_wrapper<
@@ -161,7 +164,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return CheckInstalledStatus(InstalledStatusType::AllChecks);
     }
-    std::shared_ptr<::AppInstaller::Repository::IPackage> CatalogPackage::GetRepositoryPackage()
+    std::shared_ptr<::AppInstaller::Repository::ICompositePackage> CatalogPackage::GetRepositoryPackage()
     {
         return m_package;
     }

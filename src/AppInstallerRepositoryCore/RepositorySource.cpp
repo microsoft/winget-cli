@@ -473,6 +473,19 @@ namespace AppInstaller::Repository
         }
     }
 
+    bool Source::operator==(const Source& other) const
+    {
+        SourceDetails thisDetails = GetDetails();
+        SourceDetails otherDetails = other.GetDetails();
+
+        return (thisDetails.Type == otherDetails.Type && thisDetails.Identifier == otherDetails.Identifier);
+    }
+
+    bool Source::operator!=(const Source& other) const
+    {
+        return !operator==(other);
+    }
+
     std::string Source::GetIdentifier() const
     {
         if (m_source)

@@ -68,6 +68,7 @@ namespace AppInstaller::JSON
         return std::nullopt;
     }
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
     utility::string_t GetUtilityString(std::string_view nodeName)
     {
         return utility::conversions::to_string_t(nodeName.data());
@@ -212,16 +213,6 @@ namespace AppInstaller::JSON
         return result;
     }
 
-    bool IsValidNonEmptyStringValue(std::optional<std::string>& value)
-    {
-        if (Utility::IsEmptyOrWhitespace(value.value_or("")))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
     std::string Base64Encode(const std::vector<BYTE>& input)
     {
         if (input.size() == 0)
@@ -260,5 +251,16 @@ namespace AppInstaller::JSON
         THROW_LAST_ERROR_IF(!CryptStringToBinaryW(inputWide.data(), static_cast<DWORD>(inputWide.size()), CRYPT_STRING_BASE64, result.data(), &resultSize, nullptr, nullptr));
 
         return result;
+    }
+#endif
+
+    bool IsValidNonEmptyStringValue(std::optional<std::string>& value)
+    {
+        if (Utility::IsEmptyOrWhitespace(value.value_or("")))
+        {
+            return false;
+        }
+
+        return true;
     }
 }
