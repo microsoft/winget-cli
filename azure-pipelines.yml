@@ -156,7 +156,7 @@ jobs:
       script: |
         $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
       workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
-    continueOnError: true
+    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Create Package Layout
@@ -164,7 +164,7 @@ jobs:
       filePath: 'src\AppInstallerCLIPackage\Execute-AppxRecipe.ps1'
       arguments: '-AppxRecipePath AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(packageLayoutDir) -Force -Verbose'
       workingDirectory: 'src'
-    continueOnError: true
+    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
@@ -172,7 +172,7 @@ jobs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
       arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
       workingDirectory: 'src'
-    continueOnError: true
+    condition: succeededOrFailed()
 
   - task: PublishTestResults@2
     displayName: Publish Unit Test Results
@@ -180,6 +180,7 @@ jobs:
       testResultsFormat: 'JUnit'
       testResultsFiles: '$(artifactsDir)\TEST-*.xml'
       failTaskOnFailedTests: true
+    condition: succeededOrFailed()
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
@@ -191,6 +192,7 @@ jobs:
                          /p:AppxBundle=Never
                          /p:UapAppxPackageBuildMode=SideLoadOnly
                          /p:AppxPackageSigningEnabled=false'
+    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: 'Set program files directory'
@@ -202,6 +204,7 @@ jobs:
         } else {
           Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles}"
         }
+    condition: succeededOrFailed()
 
   # Resolves resource strings utilized by InProc E2E tests.
   - task: CopyFiles@2
@@ -210,6 +213,7 @@ jobs:
       SourceFolder: '$(buildOutDir)\AppInstallerCLI'
       TargetFolder:  '$(platformProgramFiles)\dotnet'
       Contents: resources.pri
+    condition: succeededOrFailed()
 
   # Winmd accessed by test runner process (dotnet.exe)
   - task: CopyFiles@2
@@ -218,6 +222,7 @@ jobs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
       TargetFolder: '$(platformProgramFiles)\dotnet'
       Contents: Microsoft.Management.Deployment.winmd
+    condition: succeededOrFailed()
 
   - template: templates/e2e-setup.yml
     parameters:
