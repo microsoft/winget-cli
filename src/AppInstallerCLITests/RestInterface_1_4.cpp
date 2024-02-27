@@ -361,7 +361,7 @@ TEST_CASE("GetManifests_GoodResponse_V1_4", "[RestSource][Interface_1_4]")
     GoodManifest_AllFields sampleManifest;
     utility::string_t sample = sampleManifest.GetSampleManifest_AllFields();
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_4{ TestRestUriString, {}, {}, std::move(helper) };
+    Interface v1_4{ TestRestUriString, std::move(helper), {} };
     std::vector<Manifest> manifests = v1_4.GetManifests("Foo.Bar");
     REQUIRE(manifests.size() == 1);
 
@@ -404,7 +404,7 @@ TEST_CASE("Search_GoodResponse_V1_4", "[RestSource][Interface_1_4]")
         })delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_4{ TestRestUriString, {}, {}, std::move(helper) };
+    Interface v1_4{ TestRestUriString, std::move(helper), {} };
     Schema::IRestClient::SearchResult searchResponse = v1_4.Search({});
     REQUIRE(searchResponse.Matches.size() == 1);
     Schema::IRestClient::Package package = searchResponse.Matches.at(0);

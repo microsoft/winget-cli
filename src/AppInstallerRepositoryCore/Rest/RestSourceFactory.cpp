@@ -50,7 +50,7 @@ namespace AppInstaller::Repository::Rest
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 Initialize();
-                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_caller, m_authArgs, m_httpClientHelper);
+                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper, m_authArgs);
                 return std::make_shared<RestSource>(m_details, m_information, std::move(restClient));
             }
 
@@ -63,7 +63,12 @@ namespace AppInstaller::Repository::Rest
                         m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration);
                         if (m_details.ProxyInfo.ProxyUri)
                         {
+                            AICLI_LOG(Repo, Info, << "Setting proxy for REST source to " << m_details.ProxyInfo.ProxyUri.value());
                             m_httpClientHelper.SetProxy(Utility::ConvertToUTF16(m_details.ProxyInfo.ProxyUri.value()));
+                        }
+                        else
+                        {
+                            AICLI_LOG(Repo, Info, << "REST source does not use proxy");
                         }
 
                         auto sourceInformation = RestClient::GetInformation(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
