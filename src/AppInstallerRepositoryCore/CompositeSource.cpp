@@ -346,34 +346,31 @@ namespace AppInstaller::Repository
         {
             static constexpr IPackageType PackageType = IPackageType::CompositeInstalledPackage;
 
-            CompositeInstalledPackage(std::shared_ptr<IPackage> package, Source trackingSource, std::shared_ptr<IPackageVersion> trackingPackageVersion, std::string overrideVersion = {}) :
-                m_package(std::move(package)), m_trackingSource(std::move(trackingSource)), m_trackingPackageVersion(std::move(trackingPackageVersion)), m_overrideVersion(std::move(overrideVersion))
+            CompositeInstalledPackage(std::shared_ptr<IPackage> package, Source trackingSource, std::shared_ptr<IPackage> trackingPackage) :
+                m_packages({ std::move(package) }), m_trackingSource(std::move(trackingSource)), m_trackingPackage(std::move(trackingPackage))
             {}
 
             Utility::LocIndString GetProperty(PackageProperty property) const override
             {
-                return m_package->GetProperty(property);
+                // SXS_TODO: convert m_packageWithHighestVersion to be version key data[0].package index
+                return m_packages[m_packageWithHighestVersion]->GetProperty(property);
             }
 
             std::vector<PackageVersionKey> GetVersionKeys() const override
             {
-                auto result = m_package->GetVersionKeys();
-                THROW_HR_IF(E_UNEXPECTED, result.size() != 1);
-                if (!m_overrideVersion.empty())
-                {
-                    result.front().Version = m_overrideVersion;
-                }
-                return result;
+                // SXS_TODO: Create version key data, including version overrides, as new packages are added
+                // SXS_TODO: Override source with installed package ID
             }
 
             std::shared_ptr<IPackageVersion> GetVersion(const PackageVersionKey& versionKey) const
             {
+                // SXS_TODO: Possibly with version selection functions, actual mapping
                 return (GetVersionKeys().front().IsMatch(versionKey)) ? GetLatestVersion() : std::shared_ptr<IPackageVersion>{};
             }
 
             std::shared_ptr<IPackageVersion> GetLatestVersion() const override
             {
-                return std::make_shared<CompositeInstalledVersion>(m_package->GetLatestVersion(), m_trackingSource, m_trackingPackageVersion, m_overrideVersion);
+                return GetVersion({});
             }
 
             Source GetSource() const override
@@ -409,9 +406,33 @@ namespace AppInstaller::Repository
                 return nullptr;
             }
 
+            void SetTracking(
+                Source trackingSource,
+                std::shared_ptr<IPackage> trackingPackage,
+                std::chrono::system_clock::time_point trackingWriteTime)
+            {
+                m_trackingSource = std::move(trackingSource);
+                m_trackingPackage = std::move(trackingPackage);
+                m_trackingWriteTime = trackingWriteTime;
+            }
+
+            Source GetTrackingSource() const
+            {
+                return m_trackingSource;
+            }
+
+            const std::shared_ptr<IPackage>& GetTrackingPackage() const
+            {
+                return m_trackingPackage;
+            }
+
+            std::chrono::system_clock::time_point GetTrackingPackageWriteTime() const
+            {
+                return m_trackingWriteTime;
+            }
+
             bool ContainsInstalledPackage(const IPackage* installedPackage) const
             {
-                // SXS_TODO: m_packages of course
                 for (const auto& package : m_packages)
                 {
                     if (package->IsSame(installedPackage))
@@ -424,10 +445,11 @@ namespace AppInstaller::Repository
             }
 
         private:
-            std::shared_ptr<IPackage> m_package;
+            std::vector<std::shared_ptr<IPackage>> m_packages;
+            size_t m_packageWithHighestVersion = 0;
             Source m_trackingSource;
-            std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
-            std::string m_overrideVersion;
+            std::shared_ptr<IPackage> m_trackingPackage;
+            std::chrono::system_clock::time_point m_trackingWriteTime = std::chrono::system_clock::time_point::min();
         };
 
         // An ICompositePackage for the CompositeSource.
@@ -495,7 +517,7 @@ namespace AppInstaller::Repository
                 return false;
             }
 
-            std::shared_ptr<const CompositeInstalledPackage> GetInstalledPackage() const
+            const std::shared_ptr<CompositeInstalledPackage>& GetInstalledPackage() const
             {
                 return m_installedPackage;
             }
@@ -525,33 +547,6 @@ namespace AppInstaller::Repository
                         TrySetOverrideInstalledVersion(m_availablePackages.back());
                     }
                 }
-            }
-
-            void SetTracking(
-                Source trackingSource,
-                std::shared_ptr<IPackage> trackingPackage,
-                std::shared_ptr<IPackageVersion> trackingPackageVersion,
-                std::chrono::system_clock::time_point trackingWriteTime)
-            {
-                m_trackingSource = std::move(trackingSource);
-                m_trackingPackage = std::move(trackingPackage);
-                m_trackingPackageVersion = std::move(trackingPackageVersion);
-                m_trackingWriteTime = trackingWriteTime;
-            }
-
-            const Source& GetTrackingSource() const
-            {
-                return m_trackingSource;
-            }
-
-            const std::shared_ptr<IPackage>& GetTrackingPackage() const
-            {
-                return m_trackingPackage;
-            }
-
-            std::chrono::system_clock::time_point GetTrackingPackageWriteTime() const
-            {
-                return m_trackingWriteTime;
             }
 
             std::shared_ptr<IPackage>& GetPrimaryAvailablePackage()
@@ -588,12 +583,7 @@ namespace AppInstaller::Repository
                 }
             }
 
-            // SXS_TODO: Evaluate additional changes to installed package
             std::shared_ptr<CompositeInstalledPackage> m_installedPackage;
-            Source m_trackingSource;
-            std::shared_ptr<IPackage> m_trackingPackage;
-            std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
-            std::chrono::system_clock::time_point m_trackingWriteTime = std::chrono::system_clock::time_point::min();
             std::shared_ptr<IPackage> m_primaryAvailablePackage;
             std::vector<std::shared_ptr<IPackage>> m_availablePackages;
         };
