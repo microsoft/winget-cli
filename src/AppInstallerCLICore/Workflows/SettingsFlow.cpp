@@ -79,6 +79,35 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void SetAdminSetting(Execution::Context& context)
+    {
+        auto adminSettingName = context.Args.GetArg(Execution::Args::Type::SettingName);
+        auto adminSettingValue = context.Args.GetArg(Execution::Args::Type::SettingValue);
+        StringAdminSetting adminSetting = Settings::StringToStringAdminSetting(adminSettingName);
+        if (Settings::SetAdminSetting(adminSetting, adminSettingValue))
+        {
+            context.Reporter.Info() << Resource::String::SetAdminSettingSucceeded(AdminSettingToString(adminSetting), LocIndString{ adminSettingValue }) << std::endl;
+        }
+        else
+        {
+            context.Reporter.Error() << Resource::String::SetAdminSettingFailed(AdminSettingToString(adminSetting)) << std::endl;
+        }
+    }
+
+    void ResetAdminSetting(Execution::Context& context)
+    {
+        auto adminSettingName = context.Args.GetArg(Execution::Args::Type::SettingName);
+        StringAdminSetting adminSetting = Settings::StringToStringAdminSetting(adminSettingName);
+        if (Settings::ResetAdminSetting(adminSetting))
+        {
+            context.Reporter.Info() << Resource::String::ResetAdminSettingSucceeded(AdminSettingToString(adminSetting)) << std::endl;
+        }
+        else
+        {
+            context.Reporter.Error() << Resource::String::ResetAdminSettingFailed(AdminSettingToString(adminSetting)) << std::endl;
+        }
+    }
+
     void OpenUserSetting(Execution::Context& context)
     {
         // Show warnings only when the setting command is executed.

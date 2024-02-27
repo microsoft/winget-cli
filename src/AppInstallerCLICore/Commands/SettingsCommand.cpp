@@ -20,6 +20,8 @@ namespace AppInstaller::CLI
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
             std::make_unique<SettingsExportCommand>(FullName()),
+            std::make_unique<SettingsSetCommand>(FullName()),
+            std::make_unique<SettingsResetCommand>(FullName()),
             });
     }
 
@@ -108,5 +110,98 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::ExportSettings;
+    }
+
+    std::vector<Argument> SettingsSetCommand::GetArguments() const
+    {
+        return {
+            Argument { Execution::Args::Type::SettingName, Resource::String::SettingNameArgumentDescription, ArgumentType::Positional, true },
+            Argument { Execution::Args::Type::SettingValue, Resource::String::SettingValueArgumentDescription, ArgumentType::Positional, true },
+        };
+    }
+
+    Resource::LocString SettingsSetCommand::ShortDescription() const
+    {
+        return { Resource::String::SettingsSetCommandShortDescription };
+    }
+
+    Resource::LocString SettingsSetCommand::LongDescription() const
+    {
+        return { Resource::String::SettingsSetCommandLongDescription };
+    }
+
+    Utility::LocIndView SettingsSetCommand::HelpLink() const
+    {
+        return s_SettingsCommand_HelpLink;
+    }
+
+    void SettingsSetCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        // Get admin setting string for all available options except Unknown
+        std::vector<Utility::LocIndString> adminSettingList;
+        for (auto setting : GetAllSequentialEnumValues(StringAdminSetting::Unknown))
+        {
+            adminSettingList.emplace_back(AdminSettingToString(setting));
+        }
+
+        Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
+
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && StringAdminSetting::Unknown == StringToStringAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName)))
+        {
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name, validOptions));
+        }
+    }
+
+    void SettingsSetCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::EnsureRunningAsAdmin <<
+            Workflow::SetAdminSetting;
+    }
+
+    std::vector<Argument> SettingsResetCommand::GetArguments() const
+    {
+        return {
+            Argument { Execution::Args::Type::SettingName, Resource::String::SettingNameArgumentDescription, ArgumentType::Positional, true },
+        };
+    }
+
+    Resource::LocString SettingsResetCommand::ShortDescription() const
+    {
+        return { Resource::String::SettingsResetCommandShortDescription };
+    }
+
+    Resource::LocString SettingsResetCommand::LongDescription() const
+    {
+        return { Resource::String::SettingsResetCommandLongDescription };
+    }
+
+    Utility::LocIndView SettingsResetCommand::HelpLink() const
+    {
+        return s_SettingsCommand_HelpLink;
+    }
+
+    void SettingsResetCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        // Get admin setting string for all available options except Unknown
+        std::vector<Utility::LocIndString> adminSettingList;
+        for (auto setting : GetAllSequentialEnumValues(StringAdminSetting::Unknown))
+        {
+            adminSettingList.emplace_back(AdminSettingToString(setting));
+        }
+
+        Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
+
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && StringAdminSetting::Unknown == StringToStringAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName)))
+        {
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name, validOptions));
+        }
+    }
+
+    void SettingsResetCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::EnsureRunningAsAdmin <<
+            Workflow::ResetAdminSetting;
     }
 }

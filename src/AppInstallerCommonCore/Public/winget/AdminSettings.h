@@ -40,7 +40,7 @@ namespace AppInstaller::Settings
     bool EnableAdminSetting(BoolAdminSetting setting);
     bool DisableAdminSetting(BoolAdminSetting setting);
     bool SetAdminSetting(StringAdminSetting setting, std::string_view value);
-    bool ResetAdminSetting(StringAdminSetting setting, std::string_view value);
+    bool ResetAdminSetting(StringAdminSetting setting);
 
     bool IsAdminSettingEnabled(BoolAdminSetting setting);
     std::optional<std::string> GetAdminSetting(StringAdminSetting setting);

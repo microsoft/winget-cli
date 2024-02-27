@@ -89,6 +89,8 @@ namespace AppInstaller::CLI::Execution
             // Setting Command
             AdminSettingEnable,
             AdminSettingDisable,
+            SettingName,
+            SettingValue,
 
             // Upgrade command
             All, // Used in Update command to update all installed packages to latest

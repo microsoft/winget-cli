@@ -151,6 +151,10 @@ namespace AppInstaller::CLI
             return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::EnableDisable };
         case Execution::Args::Type::AdminSettingDisable:
             return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::EnableDisable };
+        case Execution::Args::Type::SettingName:
+            return { type, "setting"_liv };
+        case Execution::Args::Type::SettingValue:
+            return { type, "value"_liv };
 
         // Upgrade command
         case Execution::Args::Type::All:
