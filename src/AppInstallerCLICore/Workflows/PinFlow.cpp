@@ -31,6 +31,26 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        void GetPinKeysForInstalled(const std::shared_ptr<IPackageVersion>& installedVersion, std::set<Pinning::PinKey>& pinKeys)
+        {
+            auto installedType = Manifest::ConvertToInstallerTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::InstalledType]);
+            std::vector<Utility::LocIndString> propertyStrings;
+
+            if (Manifest::DoesInstallerTypeUsePackageFamilyName(installedType))
+            {
+                propertyStrings = installedVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
+            }
+            else if (Manifest::DoesInstallerTypeUseProductCode(installedType))
+            {
+                propertyStrings = installedVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+            }
+
+            for (const auto& value : propertyStrings)
+            {
+                pinKeys.emplace(Pinning::PinKey::GetPinKeyForInstalled(value));
+            }
+        }
+
         std::set<Pinning::PinKey> GetPinKeysForPackage(Execution::Context& context)
         {
             auto package = context.Get<Execution::Data::Package>();
@@ -42,7 +62,7 @@ namespace AppInstaller::CLI::Workflow
                 auto installedVersion = GetInstalledVersion(package);
                 if (installedVersion)
                 {
-                    pinKeys.emplace(Pinning::PinKey::GetPinKeyForInstalled(installedVersion));
+                    GetPinKeysForInstalled(installedVersion, pinKeys);
                 }
             }
             else
