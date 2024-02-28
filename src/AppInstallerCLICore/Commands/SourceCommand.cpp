@@ -162,6 +162,15 @@ namespace AppInstaller::CLI
             Workflow::UpdateSources;
     }
 
+    void SourceUpdateCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        if (execArgs.Contains(Execution::Args::Type::SourceTrustLevel) &&
+            !execArgs.Contains(Execution::Args::Type::SourceName))
+        {
+            throw CommandException(Resource::String::RequiredArgError("name"_liv));
+        }
+    }
+
     std::vector<Argument> SourceRemoveCommand::GetArguments() const
     {
         return {

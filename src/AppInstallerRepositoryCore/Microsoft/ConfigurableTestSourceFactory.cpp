@@ -108,6 +108,8 @@ namespace AppInstaller::Repository::Microsoft
 
             bool SetCustomHeader(std::optional<std::string>) override { return true; }
 
+            void SetTrustLevel(SourceTrustLevel trustLevel) override { m_details.TrustLevel = trustLevel; };
+
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 // enables `source add` with FAILED(OpenHR)

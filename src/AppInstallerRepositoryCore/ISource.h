@@ -65,7 +65,7 @@ namespace AppInstaller::Repository
         return std::shared_ptr<SourceType>(source, reinterpret_cast<SourceType*>(castResult));
     }
 
-    // Internal interface to represents source information; basically SourceDetails but with methods to enable differential behaviors.
+    // Internal interface to represent source information; basically SourceDetails but with methods to enable differential behaviors.
     struct ISourceReference
     {
         virtual ~ISourceReference() = default;
@@ -87,6 +87,9 @@ namespace AppInstaller::Repository
 
         // Set caller.
         virtual void SetCaller(std::string) {}
+
+        // Set trust level.
+        virtual void SetTrustLevel(Repository::SourceTrustLevel) {}
 
         // Set authentication arguments.
         virtual void SetAuthenticationArguments(Authentication::AuthenticationArguments) {}

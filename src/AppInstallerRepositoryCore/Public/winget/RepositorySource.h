@@ -48,6 +48,9 @@ namespace AppInstaller::Repository
     // Converts a string to the corresponding SourceTrustLevel enum.
     SourceTrustLevel ConvertToSourceTrustLevelEnum(std::string_view trustLevelStr);
 
+    // Converts a SourceTrustLevel enum tothe corresponding string.
+    std::string_view SourceTrustLevelToString(const SourceTrustLevel trustLevel);
+
     std::string_view ToString(SourceOrigin origin);
 
     // Fields that require user agreements.
@@ -203,7 +206,7 @@ namespace AppInstaller::Repository
         Source(WellKnownSource source);
 
         // Constructor for a source to be added.
-        Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel = SourceTrustLevel::None);
+        Source(std::string_view name, std::string_view arg, std::string_view type);
 
         // Constructor for creating a composite source from a list of available sources.
         Source(const std::vector<Source>& availableSources);
@@ -247,6 +250,9 @@ namespace AppInstaller::Repository
 
         // Set caller. Must be set before Open to have effect.
         void SetCaller(std::string caller);
+
+        // Set trust level. Must be set before Open to have effect.
+        void SetTrustLevel(SourceTrustLevel trustLevel);
 
         // Set authentication arguments. Must be set before Open to have effect.
         void SetAuthenticationArguments(Authentication::AuthenticationArguments args);

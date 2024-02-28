@@ -67,6 +67,7 @@ namespace AppInstaller::CLI
 
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
+        void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
     };
 
     struct SourceRemoveCommand final : public Command

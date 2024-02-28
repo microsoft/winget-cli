@@ -42,6 +42,11 @@ namespace AppInstaller::Repository::Rest
                 m_caller = std::move(caller);
             }
 
+            void SetTrustLevel(Repository::SourceTrustLevel trustLevel) override
+            {
+                m_details.TrustLevel = trustLevel;
+            }
+
             void SetAuthenticationArguments(Authentication::AuthenticationArguments authArgs) override
             {
                 m_authArgs = std::move(authArgs);

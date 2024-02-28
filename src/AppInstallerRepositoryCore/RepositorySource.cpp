@@ -341,6 +341,32 @@ namespace AppInstaller::Repository
         }
     }
 
+    std::string_view SourceTrustLevelToString(SourceTrustLevel trustLevel)
+    {
+        if (WI_IsAnyFlagSet(trustLevel, SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin))
+        {
+            bool isTrusted = WI_IsFlagSet(trustLevel, SourceTrustLevel::Trusted);
+            bool isStoreOrigin = WI_IsFlagSet(trustLevel, SourceTrustLevel::StoreOrigin);
+
+            if (isTrusted && isStoreOrigin)
+            {
+                return "Trusted | StoreOrigin"sv;
+            }
+            else if (isTrusted)
+            {
+                return "Trusted"sv;
+            }
+            else
+            {
+                return "StoreOrigin"sv;
+            }
+        }
+        else
+        {
+            return "None"sv;
+        }
+    }
+
     std::string_view ToString(SourceOrigin origin)
     {
         switch (origin)
@@ -390,7 +416,7 @@ namespace AppInstaller::Repository
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
-    Source::Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel)
+    Source::Source(std::string_view name, std::string_view arg, std::string_view type)
     {
         m_isSourceToBeAdded = true;
         SourceDetails details;
@@ -406,7 +432,6 @@ namespace AppInstaller::Repository
             details.Name = name;
             details.Arg = arg;
             details.Type = type;
-            details.TrustLevel = trustLevel;
         }
 
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
@@ -566,6 +591,14 @@ namespace AppInstaller::Repository
         for (auto& sourceReference : m_sourceReferences)
         {
             sourceReference->SetCaller(caller);
+        }
+    }
+
+    void Source::SetTrustLevel(SourceTrustLevel trustLevel)
+    {
+        for (auto& sourceReference : m_sourceReferences)
+        {
+            sourceReference->SetTrustLevel(trustLevel);
         }
     }
 

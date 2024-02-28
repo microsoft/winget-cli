@@ -57,6 +57,8 @@ namespace AppInstaller::Repository::Microsoft
 
             SourceDetails& GetDetails() override { return m_details; };
 
+            void SetTrustLevel(SourceTrustLevel trustLevel) override { m_details.TrustLevel = trustLevel; };
+
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 // Installing is the only type right now so just return the Installing source to all callers.

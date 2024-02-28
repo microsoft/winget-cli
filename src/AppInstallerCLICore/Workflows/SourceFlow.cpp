@@ -108,18 +108,7 @@ namespace AppInstaller::CLI::Workflow
             std::string_view arg = context.Args.GetArg(Args::Type::SourceArg);
             std::string_view type = context.Args.GetArg(Args::Type::SourceType);
 
-            Repository::Source sourceToAdd;
-
-            if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
-            {
-                std::string_view trustLevelStr = context.Args.GetArg(Execution::Args::Type::SourceTrustLevel);
-                Repository::SourceTrustLevel trustLevel = Repository::ConvertToSourceTrustLevelEnum(trustLevelStr);
-                sourceToAdd = Repository::Source{ name, arg, type, trustLevel };
-            }
-            else
-            {
-                sourceToAdd = Repository::Source{ name, arg, type };
-            }
+            Repository::Source sourceToAdd{ name, arg, type };
 
             if (context.Args.Contains(Execution::Args::Type::CustomHeader))
             {
@@ -128,6 +117,13 @@ namespace AppInstaller::CLI::Workflow
                 {
                     context.Reporter.Warn() << Resource::String::HeaderArgumentNotApplicableForNonRestSourceWarning << std::endl;
                 }
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
+            {
+                std::string_view trustLevelStr = context.Args.GetArg(Execution::Args::Type::SourceTrustLevel);
+                Repository::SourceTrustLevel trustLevel = Repository::ConvertToSourceTrustLevelEnum(trustLevelStr);
+                sourceToAdd.SetTrustLevel(trustLevel);
             }
 
             if (sourceToAdd.GetInformation().Authentication.Type == Authentication::AuthenticationType::Unknown)
@@ -167,6 +163,7 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ Resource::LocString(Resource::String::SourceListArg), source.Arg });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListData), source.Data });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListIdentifier), source.Identifier });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListTrustLevel), std::string{ Repository::SourceTrustLevelToString(source.TrustLevel) } });
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
             {
@@ -209,10 +206,18 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::SourceUpdateAll << std::endl;
         }
 
+        bool shouldSetTrustLevel = context.Args.Contains(Args::Type::SourceTrustLevel);
         const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
+
         for (const auto& sd : sources)
         {
             Repository::Source source{ sd.Name };
+
+            if (shouldSetTrustLevel)
+            {
+                source.SetTrustLevel(Repository::ConvertToSourceTrustLevelEnum(context.Args.GetArg(Args::Type::SourceTrustLevel)));
+            }
+
             context.Reporter.Info() << Resource::String::SourceUpdateOne(Utility::LocIndView{ sd.Name }) << std::endl;
             auto updateFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Update(progress); };
             auto sourceDetails = context.Reporter.ExecuteWithProgress(updateFunction);

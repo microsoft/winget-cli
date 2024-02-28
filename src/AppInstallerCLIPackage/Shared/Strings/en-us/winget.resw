@@ -2815,6 +2815,9 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Error message displayed when an attempt to repair an application package fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
-    <value>Trust level of the source</value>
+    <value>Trust level of the source (none, trusted or storeOrigin)</value>
+  </data>
+  <data name="SourceListTrustLevel" xml:space="preserve">
+    <value>Trust Level</value>
   </data>
 </root>

@@ -36,6 +36,24 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test source add with trust level.
+        /// </summary>
+        [Test]
+        public void SourceAddWithTrustLevel()
+        {
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level trusted");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Done"));
+
+            var listResult = TestCommon.RunAICLICommand("source list", $"-n {Constants.TestSourceName}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(listResult.StdOut.Contains("Trust Level"));
+            Assert.True(listResult.StdOut.Contains("Trusted"));
+
+            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
+        }
+
+        /// <summary>
         /// Test source add with duplicate name.
         /// </summary>
         [Test]
@@ -94,6 +112,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains(Constants.TestSourceName));
             Assert.True(result.StdOut.Contains(Constants.TestSourceUrl));
             Assert.True(result.StdOut.Contains("Microsoft.PreIndexed.Package"));
+            Assert.True(result.StdOut.Contains("Trust Level"));
             Assert.True(result.StdOut.Contains("Updated"));
         }
 
@@ -117,6 +136,22 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("source update", $"-n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
+        }
+
+        /// <summary>
+        /// Test source update with trust level.
+        /// </summary>
+        [Test]
+        public void SourceUpdateWithTrustLevel()
+        {
+            var updateResult = TestCommon.RunAICLICommand("source update", $"-n {Constants.TestSourceName} --trust-level trusted");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, updateResult.ExitCode);
+            Assert.True(updateResult.StdOut.Contains("Done"));
+
+            var listResult = TestCommon.RunAICLICommand("source list", $"-n {Constants.TestSourceName}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(listResult.StdOut.Contains("Trust Level"));
+            Assert.True(listResult.StdOut.Contains("Trusted"));
         }
 
         /// <summary>
