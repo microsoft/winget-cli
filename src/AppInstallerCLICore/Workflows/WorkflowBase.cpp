@@ -800,10 +800,16 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& match : searchResult.Matches)
         {
-            auto installedVersion = GetInstalledVersion(match.Package);
-
-            if (installedVersion)
+            auto installedPackage = match.Package->GetInstalled();
+            if (!installedPackage)
             {
+                continue;
+            }
+
+            for (const auto& installedVersionKey : installedPackage->GetVersionKeys())
+            {
+                auto installedVersion = installedPackage->GetVersion(installedVersionKey);
+
                 auto evaluator = pinningData.CreatePinStateEvaluator(pinBehavior, installedVersion);
                 auto availableVersions = GetAvailableVersionsForInstalledVersion(match.Package, installedVersion);
 

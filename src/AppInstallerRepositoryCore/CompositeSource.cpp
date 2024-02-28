@@ -505,10 +505,11 @@ namespace AppInstaller::Repository
             {
                 if (availablePackage)
                 {
+                    m_availablePackageVersionOverride = availablePackage;
+
                     for (auto& key : m_versionKeyData)
                     {
-                        auto installedType = Manifest::ConvertToInstallerTypeEnum(key.InstalledVersion->GetMetadata()[PackageVersionMetadata::InstalledType]);
-                        if (Manifest::DoesInstallerTypeSupportArpVersionRange(installedType))
+                        if (Manifest::DoesInstallerTypeSupportArpVersionRange(key.InstalledType))
                         {
                             key.Version = GetMappedInstalledVersion(key.InstalledVersion->GetProperty(PackageVersionProperty::Version), availablePackage);
                         }
@@ -523,6 +524,7 @@ namespace AppInstaller::Repository
             {
                 size_t PackageIndex;
                 std::shared_ptr<IPackageVersion> InstalledVersion;
+                Manifest::InstallerTypeEnum InstalledType;
                 Utility::VersionAndChannel VersionAndChannel;
 
                 bool operator<(const VersionKeyData& other) const
@@ -549,6 +551,12 @@ namespace AppInstaller::Repository
                     // We use the `SourceId` field to store the installed package identifier so that we can disambiguate keys is they have the same version.
                     keyData.SourceId = packageIdentifier;
 
+                    keyData.InstalledType = Manifest::ConvertToInstallerTypeEnum(keyData.InstalledVersion->GetMetadata()[PackageVersionMetadata::InstalledType]);
+                    if (m_availablePackageVersionOverride && Manifest::DoesInstallerTypeSupportArpVersionRange(keyData.InstalledType))
+                    {
+                        keyData.Version = GetMappedInstalledVersion(keyData.InstalledVersion->GetProperty(PackageVersionProperty::Version), m_availablePackageVersionOverride);
+                    }
+
                     keyData.VersionAndChannel = Utility::VersionAndChannel{ keyData.Version, keyData.Channel };
 
                     m_versionKeyData.emplace_back(std::move(keyData));
@@ -564,6 +572,7 @@ namespace AppInstaller::Repository
             Source m_trackingSource;
             std::shared_ptr<IPackage> m_trackingPackage;
             std::chrono::system_clock::time_point m_trackingWriteTime = std::chrono::system_clock::time_point::min();
+            std::shared_ptr<IPackage> m_availablePackageVersionOverride;
         };
 
         // An ICompositePackage for the CompositeSource.
