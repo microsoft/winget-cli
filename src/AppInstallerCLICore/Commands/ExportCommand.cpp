@@ -19,6 +19,7 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::Source, Resource::String::ExportSourceArgumentDescription, ArgumentType::Standard },
             Argument{ Execution::Args::Type::IncludeVersions, Resource::String::ExportIncludeVersionsArgumentDescription, ArgumentType::Flag },
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Execution::Args::Type::IgnoreWarnings),
         };
     }
 

@@ -98,6 +98,7 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& searchResult = context.Get<Execution::Data::SearchResult>();
         const bool includeVersions = context.Args.Contains(Execution::Args::Type::IncludeVersions);
+        const bool suppressWarnings = context.Args.Contains(Execution::Args::Type::IgnoreWarnings);
         PackageCollection exportedPackages;
         exportedPackages.ClientVersion = Runtime::GetClientVersion().get();
         auto& exportedSources = exportedPackages.Sources;
@@ -113,7 +114,9 @@ namespace AppInstaller::CLI::Workflow
             {
                 // Report package not found and move to next package.
                 AICLI_LOG(CLI, Warning, << "No available version of package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] was found to export");
-                context.Reporter.Warn() << Resource::String::InstalledPackageNotAvailable(installedPackageVersion->GetProperty(PackageVersionProperty::Name)) << std::endl;
+                if (!suppressWarnings) {
+                    context.Reporter.Warn() << Resource::String::InstalledPackageNotAvailable(installedPackageVersion->GetProperty(PackageVersionProperty::Name)) << std::endl;
+                }
                 continue;
             }
 
@@ -125,7 +128,9 @@ namespace AppInstaller::CLI::Workflow
             {
                 // Report that the package requires accepting license terms
                 AICLI_LOG(CLI, Warning, << "Package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] requires license agreement to install");
-                context.Reporter.Warn() << Resource::String::ExportedPackageRequiresLicenseAgreement(installedPackageVersion->GetProperty(PackageVersionProperty::Name)) << std::endl;
+                if (!suppressWarnings) {
+                    context.Reporter.Warn() << Resource::String::ExportedPackageRequiresLicenseAgreement(installedPackageVersion->GetProperty(PackageVersionProperty::Name)) << std::endl;
+                }
             }
 
             // Find the exported source for this package
