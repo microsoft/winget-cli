@@ -528,9 +528,9 @@ namespace AppInstaller::Msix
         return { std::move(certContext), std::move(certStore) };
     }
 
-    MsixInfo::MsixInfo(std::string_view uriStr, const Utility::ProxyInfo& proxyInfo)
+    MsixInfo::MsixInfo(std::string_view uriStr)
     {
-        m_stream = Utility::GetReadOnlyStreamFromURI(uriStr, proxyInfo);
+        m_stream = Utility::GetReadOnlyStreamFromURI(uriStr);
 
         if (GetBundleReader(m_stream.Get(), &m_bundleReader))
         {

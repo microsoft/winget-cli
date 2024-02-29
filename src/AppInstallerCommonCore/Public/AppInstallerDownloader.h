@@ -36,16 +36,6 @@ namespace AppInstaller::Utility
         std::string ContentId;
     };
 
-    // Details on the proxy to use for the download
-    struct ProxyInfo
-    {
-        std::optional<std::string> ProxyUri;
-
-        // Represents configuration to not use a proxy.
-        // Used to track all the places where we do not support proxy yet.
-        static const ProxyInfo NoProxy;
-    };
-
     // An exception that indicates that a remote service is too busy/unavailable and may contain data on when to try again.
     struct ServiceUnavailableException : public wil::ResultException
     {
@@ -67,7 +57,6 @@ namespace AppInstaller::Utility
         std::ostream& dest,
         DownloadType type,
         IProgressCallback& progress,
-        const ProxyInfo& proxyInfo,
         bool computeHash = false,
         std::optional<DownloadInfo> downloadInfo = {});
 
@@ -81,12 +70,11 @@ namespace AppInstaller::Utility
         const std::filesystem::path& dest,
         DownloadType type,
         IProgressCallback& progress,
-        const ProxyInfo& proxyInfo,
         bool computeHash = false,
         std::optional<DownloadInfo> downloadInfo = {});
 
     // Gets the headers for the given URL.
-    std::map<std::string, std::string> GetHeaders(std::string_view url, const ProxyInfo& proxyInfo);
+    std::map<std::string, std::string> GetHeaders(std::string_view url);
 
     // Determines if the given url is a remote location.
     bool IsUrlRemote(std::string_view url);
@@ -107,7 +95,7 @@ namespace AppInstaller::Utility
     HRESULT ApplyMotwUsingIAttachmentExecuteIfApplicable(const std::filesystem::path& filePath, const std::string& source, URLZONE zoneIfScanFailure);
 
     // Function to read-only create a stream from a uri string (url address or file system path)
-    ::Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr, const ProxyInfo& proxyInfo);
+    ::Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr);
 
     // Gets the retry after value in terms of a delay in seconds.
     std::chrono::seconds GetRetryAfter(const std::wstring& retryAfter);

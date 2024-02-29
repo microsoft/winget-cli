@@ -568,14 +568,6 @@ namespace AppInstaller::Repository
         }
     }
 
-    void Source::SetProxyInfo(const Utility::ProxyInfo& proxyInfo)
-    {
-        for (auto& sourceReference : m_sourceReferences)
-        {
-            sourceReference->GetDetails().ProxyInfo = proxyInfo;
-        }
-    }
-
     void Source::SetBackgroundUpdateInterval(TimeSpan interval)
     {
         m_backgroundUpdateInterval = interval;

@@ -831,7 +831,7 @@ namespace AppInstaller::Repository::Metadata
         {
             try
             {
-                auto downloadHash = DownloadToStream(utf8Uri, jsonStream, DownloadType::InstallerMetadataCollectionInput, emptyCallback, Utility::ProxyInfo::NoProxy);
+                auto downloadHash = DownloadToStream(utf8Uri, jsonStream, DownloadType::InstallerMetadataCollectionInput, emptyCallback);
                 break;
             }
             catch (...)

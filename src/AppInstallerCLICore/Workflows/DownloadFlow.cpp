@@ -9,6 +9,7 @@
 #include <winget/AdminSettings.h>
 #include <winget/GroupPolicy.h>
 #include <winget/ManifestYamlWriter.h>
+#include <winget/NetworkSettings.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -180,35 +181,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void GetProxyInfo(Execution::Context& context)
-    {
-        if (context.Contains(Execution::Data::NetworkProxyInfo))
-        {
-            // Already determined proxy to use
-            return;
-        }
-
-        Utility::ProxyInfo proxyInfo;
-
-        // Get the default proxy
-        proxyInfo.ProxyUri = GetAdminSetting(StringAdminSetting::DefaultProxy);
-        AICLI_LOG(CLI, Info, << "Default proxy: " << (proxyInfo.ProxyUri ? proxyInfo.ProxyUri.value() : "Not configured"));
-
-        // Check command line arguments. These override any default if present.
-        if (context.Args.Contains(Execution::Args::Type::NoProxy))
-        {
-            AICLI_LOG(CLI, Info, << "Proxy disabled by command line argument");
-            proxyInfo = Utility::ProxyInfo::NoProxy;
-        }
-        else if (context.Args.Contains(Execution::Args::Type::Proxy))
-        {
-            proxyInfo.ProxyUri = context.Args.GetArg(Execution::Args::Type::Proxy);
-            AICLI_LOG(CLI, Info, << "Setting proxy from command line argument: " << proxyInfo.ProxyUri.value());
-        }
-
-        context.Add<Execution::Data::NetworkProxyInfo>(proxyInfo);
-    }
-
     void DownloadInstaller(Execution::Context& context)
     {
         // Check if file was already downloaded.
@@ -216,8 +188,7 @@ namespace AppInstaller::CLI::Workflow
         // separately before, e.g. on COM scenarios.
         context <<
             ReportExecutionStage(ExecutionStage::Download) <<
-            CheckForExistingInstaller <<
-            GetProxyInfo;
+            CheckForExistingInstaller;
 
         if (context.IsTerminated())
         {
@@ -249,7 +220,7 @@ namespace AppInstaller::CLI::Workflow
                 // flag is set, or if we need to use a proxy (as deployment APIs won't use proxy for us).
                 if (installer.SignatureSha256.empty()
                     || installerDownloadOnly
-                    || context.Get<Execution::Data::NetworkProxyInfo>().ProxyUri)
+                    || Network().GetProxyUri())
                 {
                     context << DownloadInstallerFile;
                 }
@@ -325,7 +296,7 @@ namespace AppInstaller::CLI::Workflow
 
     void DownloadInstallerFile(Execution::Context& context)
     {
-        context << GetInstallerDownloadPath << GetProxyInfo;
+        context << GetInstallerDownloadPath;
         if (context.IsTerminated())
         {
             return;
@@ -333,7 +304,6 @@ namespace AppInstaller::CLI::Workflow
 
         const auto& installer = context.Get<Execution::Data::Installer>().value();
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        const auto& proxyInfo = context.Get<Execution::Data::NetworkProxyInfo>();
 
         Utility::DownloadInfo downloadInfo{};
         downloadInfo.DisplayName = Resource::GetFixedString(Resource::FixedString::ProductName);
@@ -356,7 +326,6 @@ namespace AppInstaller::CLI::Workflow
                     installerPath,
                     Utility::DownloadType::Installer,
                     std::placeholders::_1,
-                    proxyInfo,
                     true,
                     downloadInfo));
 
@@ -425,7 +394,7 @@ namespace AppInstaller::CLI::Workflow
             const auto& installer = context.Get<Execution::Data::Installer>().value();
 
             // Signature hash is only used for streaming installs, which don't use proxy
-            Msix::MsixInfo msixInfo(installer.Url, Utility::ProxyInfo::NoProxy);
+            Msix::MsixInfo msixInfo(installer.Url);
             auto signatureHash = msixInfo.GetSignatureHash();
 
             context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));

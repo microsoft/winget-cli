@@ -4,11 +4,6 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Web.Http.h>
 
-namespace AppInstaller::Utility
-{
-    struct ProxyInfo;
-}
-
 namespace AppInstaller::Utility::HttpStream
 {
     // Wrapper around HTTP client. When created, an object of this class will send a HTTP 
@@ -16,7 +11,7 @@ namespace AppInstaller::Utility::HttpStream
     class HttpClientWrapper
     {
     public:
-        static std::future<std::shared_ptr<HttpClientWrapper>> CreateAsync(const winrt::Windows::Foundation::Uri& uri, const ProxyInfo& proxyInfo);
+        static std::future<std::shared_ptr<HttpClientWrapper>> CreateAsync(const winrt::Windows::Foundation::Uri& uri);
 
         std::future<winrt::Windows::Storage::Streams::IBuffer> DownloadRangeAsync(
             const ULONG64 startPosition,

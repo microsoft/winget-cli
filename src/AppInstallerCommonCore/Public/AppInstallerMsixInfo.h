@@ -17,11 +17,6 @@
 #include <string_view>
 #include <vector>
 
-namespace AppInstaller::Utility
-{
-    struct ProxyInfo;
-}
-
 namespace AppInstaller::Msix
 {
     // Function to create an AppxBundle package reader given the input file name.
@@ -54,10 +49,10 @@ namespace AppInstaller::Msix
     // MsixInfo class handles all appx/msix related query.
     struct MsixInfo
     {
-        MsixInfo(std::string_view uriStr, const Utility::ProxyInfo& proxyInfo);
+        MsixInfo(std::string_view uriStr);
 
         template<typename T, std::enable_if_t<std::is_same_v<T, std::filesystem::path>, int> = 0>
-        MsixInfo(const T& path) : MsixInfo(path.u8string(), Utility::ProxyInfo::NoProxy) {}
+        MsixInfo(const T& path) : MsixInfo(path.u8string()) {}
 
         MsixInfo(const MsixInfo&) = default;
         MsixInfo& operator=(const MsixInfo&) = default;

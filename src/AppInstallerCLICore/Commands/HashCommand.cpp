@@ -50,7 +50,7 @@ namespace AppInstaller::CLI
             {
                 try
                 {
-                    Msix::MsixInfo msixInfo{ inputFile, Utility::ProxyInfo::NoProxy };
+                    Msix::MsixInfo msixInfo{ inputFile };
                     auto signatureHash = msixInfo.GetSignatureHash();
 
                     context.Reporter.Info() << "SignatureSha256: "_liv << Utility::LocIndString{ Utility::SHA256::ConvertToString(signatureHash) } << std::endl;

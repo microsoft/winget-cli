@@ -72,7 +72,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 try
                 {
-                    m_msixInfo = std::make_unique<Msix::MsixInfo>(m_packageLocation, details.ProxyInfo);
+                    m_msixInfo = std::make_unique<Msix::MsixInfo>(m_packageLocation);
                     return;
                 }
                 catch (...)
@@ -89,7 +89,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 try
                 {
-                    m_msixInfo = std::make_unique<Msix::MsixInfo>(m_packageLocation, details.ProxyInfo);
+                    m_msixInfo = std::make_unique<Msix::MsixInfo>(m_packageLocation);
                     return;
                 }
                 CATCH_LOG_MSG("PreIndexedPackageInfo failed on alternate location");
@@ -118,7 +118,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 try
                 {
-                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation, details.ProxyInfo);
+                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation);
                     return;
                 }
                 catch (...)
@@ -136,7 +136,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 try
                 {
-                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation, details.ProxyInfo);
+                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation);
                     return;
                 }
                 CATCH_LOG_MSG("PreIndexedPackageUpdateCheck failed on alternate location");
@@ -151,11 +151,11 @@ namespace AppInstaller::Repository::Microsoft
             std::string m_packageLocation;
             Msix::PackageVersion m_availableVersion;
 
-            Msix::PackageVersion GetAvailableVersionFrom(const std::string& packageLocation, const Utility::ProxyInfo& proxyInfo)
+            Msix::PackageVersion GetAvailableVersionFrom(const std::string& packageLocation)
             {
                 if (Utility::IsUrlRemote(packageLocation))
                 {
-                    std::map<std::string, std::string> headers = Utility::GetHeaders(packageLocation, proxyInfo);
+                    std::map<std::string, std::string> headers = Utility::GetHeaders(packageLocation);
                     auto itr = headers.find(std::string{ s_PreIndexedPackageSourceFactory_PackageVersionHeader });
                     if (itr != headers.end())
                     {
@@ -176,7 +176,7 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 AICLI_LOG(Repo, Verbose, << "Reading package data to determine version");
-                Msix::MsixInfo info{ packageLocation, proxyInfo };
+                Msix::MsixInfo info{ packageLocation };
                 auto manifest = info.GetAppPackageManifests();
 
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, manifest.size() > 1);
@@ -476,7 +476,6 @@ namespace AppInstaller::Repository::Microsoft
 
         private:
             SourceDetails m_details;
-            Utility::ProxyInfo m_proxyInfo;
         };
 
         // Source factory for running within a packaged context
@@ -504,7 +503,7 @@ namespace AppInstaller::Repository::Microsoft
                     localFile = Runtime::GetPathTo(Runtime::PathName::Temp);
                     localFile /= GetPackageFamilyNameFromDetails(details) + ".msix";
 
-                    Utility::Download(packageLocation, localFile, Utility::DownloadType::Index, progress, details.ProxyInfo);
+                    Utility::Download(packageLocation, localFile, Utility::DownloadType::Index, progress);
                 }
                 else
                 {
@@ -632,7 +631,6 @@ namespace AppInstaller::Repository::Microsoft
 
         private:
             SourceDetails m_details;
-            Utility::ProxyInfo m_proxyInfo;
         };
 
         // Source factory for running outside of a package.
@@ -671,7 +669,7 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (Utility::IsUrlRemote(packageLocation))
                 {
-                    AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress, details.ProxyInfo);
+                    AppInstaller::Utility::Download(packageLocation, tempPackagePath, AppInstaller::Utility::DownloadType::Index, progress);
                 }
                 else
                 {

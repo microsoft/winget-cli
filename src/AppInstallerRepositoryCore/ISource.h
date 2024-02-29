@@ -4,11 +4,6 @@
 #include "Public/winget/RepositorySource.h"
 #include <memory>
 
-namespace AppInstaller::Utility
-{
-    struct ProxyInfo;
-}
-
 namespace AppInstaller::Repository
 {
     // To allow for runtime casting from ISource to the specific types, this enum contains all of the ISource implementations.

@@ -1,0 +1,62 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#include "pch.h"
+#include "winget/NetworkSettings.h"
+#include "winget/AdminSettings.h"
+#include "AppInstallerLogging.h"
+
+namespace AppInstaller::Settings
+{
+    void NetworkSettings::SetProxyUri(const std::optional<std::string>& proxyUri)
+    {
+        AICLI_LOG(Core, Info, << "Setting proxy");
+
+        // Get the default proxy
+        m_proxyUri = GetAdminSetting(StringAdminSetting::DefaultProxy);
+        AICLI_LOG(Core, Info, << "Default proxy is " << (m_proxyUri ? m_proxyUri.value() : "not set"));
+
+        if (proxyUri)
+        {
+            m_proxyUri = proxyUri.value();
+            AICLI_LOG(Core, Info, << "New value for proxy is " << m_proxyUri.value());
+        }
+        else
+        {
+            m_proxyUri.reset();
+            AICLI_LOG(Core, Info, << "Proxy will not be used");
+        }
+    }
+
+    InstallerDownloader NetworkSettings::GetInstallerDownloader() const
+    {
+        // The default is DeliveryOptimization.
+        // We only use WinINet if specified by settings, or if we want to use proxy (as DO does not support that)
+        InstallerDownloader setting = User().Get<Setting::NetworkDownloader>();
+
+        if (setting != InstallerDownloader::WinInet && m_proxyUri)
+        {
+            AICLI_LOG(Core, Info, << "Forcing use of wininet for download as DO does not support proxy");
+            return InstallerDownloader::WinInet;
+        }
+        else // Default or DO
+        {
+            return InstallerDownloader::DeliveryOptimization;
+        }
+    }
+
+    NetworkSettings::NetworkSettings()
+    {
+        SetProxyUri(std::nullopt);
+    }
+
+    NetworkSettings& NetworkSettings::Instance()
+    {
+        static NetworkSettings networkSettings;
+        return networkSettings;
+    }
+
+    NetworkSettings& Network()
+    {
+        return NetworkSettings::Instance();
+    }
+}

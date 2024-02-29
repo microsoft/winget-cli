@@ -60,7 +60,7 @@ namespace AppInstaller::Manifest
                 AICLI_LOG(Core, Info, << "Start downloading installer");
                 auto tempFile = Runtime::GetNewTempFilePath();
                 ProgressCallback emptyCallback;
-                Utility::Download(installerUrl, tempFile, Utility::DownloadType::Installer, emptyCallback, Utility::ProxyInfo::NoProxy);
+                Utility::Download(installerUrl, tempFile, Utility::DownloadType::Installer, emptyCallback);
                 m_downloadedInstallers.push_back(tempFile);
                 return tempFile;
             }
@@ -78,7 +78,7 @@ namespace AppInstaller::Manifest
         try
         {
             AICLI_LOG(Core, Info, << "Fetching Msix info from installer url");
-            return std::make_shared<Msix::MsixInfo>(installerUrl, Utility::ProxyInfo::NoProxy);
+            return std::make_shared<Msix::MsixInfo>(installerUrl);
         }
         catch (...)
         {

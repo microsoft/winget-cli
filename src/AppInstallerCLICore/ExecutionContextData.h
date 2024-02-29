@@ -66,7 +66,6 @@ namespace AppInstaller::CLI::Execution
         DownloadDirectory,
         ModifyPath,
         RepairString,
-        NetworkProxyInfo,
         Max
     };
 
@@ -283,12 +282,6 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::RepairString>
         {
             using value_t = std::string;
-        };
-
-        template <>
-        struct DataMapping<Data::NetworkProxyInfo>
-        {
-            using value_t = Utility::ProxyInfo;
         };
     }
 }

@@ -13,13 +13,13 @@ using namespace winrt::Windows::Storage::Streams;
 // The HRESULTs will be mapped to UI error code by the appropriate component
 namespace AppInstaller::Utility::HttpStream
 {
-    IAsyncOperation<IRandomAccessStream> HttpRandomAccessStream::InitializeAsync(const Uri& uri, const Utility::ProxyInfo& proxyInfo)
+    IAsyncOperation<IRandomAccessStream> HttpRandomAccessStream::InitializeAsync(const Uri& uri)
     {
         auto strong_this{ get_strong() };
 
         try
         {
-            strong_this->m_httpHelper = co_await HttpClientWrapper::CreateAsync(uri, proxyInfo);
+            strong_this->m_httpHelper = co_await HttpClientWrapper::CreateAsync(uri);
             strong_this->m_size = strong_this->m_httpHelper->GetFullFileSize();
             strong_this->m_httpLocalCache = std::make_unique<HttpLocalCache>();
         }

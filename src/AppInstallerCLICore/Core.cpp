@@ -119,13 +119,6 @@ namespace AppInstaller::CLI
             Logging::Telemetry().LogCommand(command->FullName());
 
             command->ParseArguments(invocation, context.Args);
-
-            // Change logging level to Info if Verbose not requested
-            if (context.Args.Contains(Execution::Args::Type::VerboseLogs))
-            {
-                Logging::Log().SetLevel(Logging::Level::Verbose);
-            }
-
             context.UpdateForArgs();
             context.SetExecutingCommand(command.get());
             command->ValidateArguments(context.Args);

@@ -84,7 +84,7 @@ TEST_CASE("MsixInfo_ValidateMsixTrustInfo", "[msixinfo]")
 
     TestCommon::TempFile microsoftSigned{ "testIndex"s, ".msix"s };
     ProgressCallback callback;
-    Utility::Download("https://cdn.winget.microsoft.com/cache/source.msix", microsoftSigned.GetPath(), Utility::DownloadType::Index, callback, Utility::ProxyInfo::NoProxy);
+    Utility::Download("https://cdn.winget.microsoft.com/cache/source.msix", microsoftSigned.GetPath(), Utility::DownloadType::Index, callback);
 
     Msix::WriteLockedMsixFile microsoftSignedWriteLocked{ microsoftSigned };
     REQUIRE(microsoftSignedWriteLocked.ValidateTrustInfo(true));

@@ -116,7 +116,7 @@ namespace AppInstaller::Deployment
 
         // In the event of a failure we want to ensure that the package is not left on the system.
         // No need for proxy as Deployment won't use it anyways.
-        Msix::MsixInfo packageInfo{ uri, Utility::ProxyInfo::NoProxy };
+        Msix::MsixInfo packageInfo{ uri };
         std::wstring packageFullNameWide = packageInfo.GetPackageFullNameWide();
         std::string packageFullName = Utility::ConvertToUTF8(packageFullNameWide);
         auto removePackage = wil::scope_exit([&]() {
@@ -221,7 +221,7 @@ namespace AppInstaller::Deployment
 
         // In the event of a failure we want to ensure that the package is not left on the system.
         // No need for proxy as Deployment won't use it anyways.
-        Msix::MsixInfo packageInfo{ uri, Utility::ProxyInfo::NoProxy };
+        Msix::MsixInfo packageInfo{ uri };
         std::wstring packageFullNameWide = packageInfo.GetPackageFullNameWide();
         std::string packageFullName = Utility::ConvertToUTF8(packageFullNameWide);
         std::string packageFamilyName = Msix::GetPackageFamilyNameFromFullName(packageFullName);

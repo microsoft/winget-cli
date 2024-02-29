@@ -9,6 +9,7 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/winget/UserSettings.h"
+#include "Public/winget/NetworkSettings.h"
 #include "Public/winget/Filesystem.h"
 #include "DODownloader.h"
 #include "HttpStream/HttpRandomAccessStream.h"
@@ -90,14 +91,11 @@ namespace AppInstaller::Utility
         }
     }
 
-    const ProxyInfo ProxyInfo::NoProxy = {};
-
     std::optional<std::vector<BYTE>> WinINetDownloadToStream(
         const std::string& url,
         std::ostream& dest,
         IProgressCallback& progress,
-        bool computeHash,
-        const ProxyInfo& proxyInfo)
+        bool computeHash)
     {
         // For AICLI_LOG usages with string literals.
         #pragma warning(push)
@@ -107,13 +105,15 @@ namespace AppInstaller::Utility
 
         auto agentWide = Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent().get());
         wil::unique_hinternet session;
-        if (proxyInfo.ProxyUri)
+
+        const auto& proxyUri = Network().GetProxyUri();
+        if (proxyUri)
         {
-            AICLI_LOG(Core, Info, << "Using proxy " << proxyInfo.ProxyUri.value());
+            AICLI_LOG(Core, Info, << "Using proxy " << proxyUri.value());
             session.reset(InternetOpen(
                 agentWide.c_str(),
                 INTERNET_OPEN_TYPE_PROXY,
-                Utility::ConvertToUTF16(proxyInfo.ProxyUri.value()).c_str(),
+                Utility::ConvertToUTF16(proxyUri.value()).c_str(),
                 NULL,
                 0));
         }
@@ -240,7 +240,7 @@ namespace AppInstaller::Utility
         return result;
     }
 
-    std::map<std::string, std::string> GetHeaders(std::string_view url, const ProxyInfo&)
+    std::map<std::string, std::string> GetHeaders(std::string_view url)
     {
         // TODO: Use proxy info. HttpClient does not support using a custom proxy, only using the system-wide one.
         AICLI_LOG(Core, Verbose, << "Retrieving headers from url: " << url);
@@ -287,12 +287,11 @@ namespace AppInstaller::Utility
         std::ostream& dest,
         DownloadType,
         IProgressCallback& progress,
-        const ProxyInfo& proxyInfo,
         bool computeHash,
         std::optional<DownloadInfo>)
     {
         THROW_HR_IF(E_INVALIDARG, url.empty());
-        return WinINetDownloadToStream(url, dest, progress, computeHash, proxyInfo);
+        return WinINetDownloadToStream(url, dest, progress, computeHash);
     }
 
     std::optional<std::vector<BYTE>> Download(
@@ -300,7 +299,6 @@ namespace AppInstaller::Utility
         const std::filesystem::path& dest,
         DownloadType type,
         IProgressCallback& progress,
-        const ProxyInfo& proxyInfo,
         bool computeHash,
         std::optional<DownloadInfo> info)
     {
@@ -317,20 +315,7 @@ namespace AppInstaller::Utility
         //  - WinGetUtil :: Intentionally not using DO at this time
         if (type == DownloadType::Installer)
         {
-            // Determine whether to try DO first or not, as this is the only choice currently supported.
-            InstallerDownloader setting = User().Get<Setting::NetworkDownloader>();
-            bool useDeliveryOptimization = setting == InstallerDownloader::Default ||
-                setting == InstallerDownloader::DeliveryOptimization;
-
-            // DO does not support specifying a custom proxy.
-            // When proxy is requested, we switch to wininet
-            if (useDeliveryOptimization && proxyInfo.ProxyUri)
-            {
-                AICLI_LOG(Core, Info, << "Forcing use of wininet for download as DO does not support proxy");
-                useDeliveryOptimization = false;
-            }
-
-            if (useDeliveryOptimization)
+            if (Network().GetInstallerDownloader() == InstallerDownloader::DeliveryOptimization)
             {
                 try
                 {
@@ -376,7 +361,7 @@ namespace AppInstaller::Utility
         // Use std::ofstream::app to append to previous empty file so that it will not
         // create a new file and clear motw.
         std::ofstream outfile(dest, std::ofstream::binary | std::ofstream::app);
-        return WinINetDownloadToStream(url, outfile, progress, computeHash, proxyInfo);
+        return WinINetDownloadToStream(url, outfile, progress, computeHash);
     }
 
     using namespace std::string_view_literals;
@@ -521,7 +506,7 @@ namespace AppInstaller::Utility
         return aesSaveResult;
     }
 
-    Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr, const ProxyInfo& proxyInfo)
+    Microsoft::WRL::ComPtr<IStream> GetReadOnlyStreamFromURI(std::string_view uriStr)
     {
         Microsoft::WRL::ComPtr<IStream> inputStream;
         if (Utility::IsUrlRemote(uriStr))
@@ -533,7 +518,7 @@ namespace AppInstaller::Utility
 
             try
             {
-                auto randomAccessStream = httpRandomAccessStream->InitializeAsync(uri, proxyInfo).get();
+                auto randomAccessStream = httpRandomAccessStream->InitializeAsync(uri).get();
 
                 ::IUnknown* rasAsIUnknown = (::IUnknown*)winrt::get_abi(randomAccessStream);
                 THROW_IF_FAILED(CreateStreamOverRandomAccessStream(
