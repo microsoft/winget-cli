@@ -17,6 +17,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Common.Command;
     using Octokit;
+    using Semver;
     using static Microsoft.WinGet.Client.Engine.Common.Constants;
 
     /// <summary>
@@ -75,10 +76,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         // Xaml
         private const string XamlPackage28 = "Microsoft.UI.Xaml.2.8";
         private const string XamlReleaseTag286 = "v2.8.6";
-        private const string XamlAssetX64 = "Microsoft.UI.Xaml.2.8.x64.appx";
-        private const string XamlAssetX86 = "Microsoft.UI.Xaml.2.8.x86.appx";
-        private const string XamlAssetArm = "Microsoft.UI.Xaml.2.8.arm.appx";
-        private const string XamlAssetArm64 = "Microsoft.UI.Xaml.2.8.arm64.appx";
+        private const string MinimumWinGetReleaseTagForXaml28 = "v1.7.10514";
+
+        private const string XamlPackage27 = "Microsoft.UI.Xaml.2.7";
+        private const string XamlReleaseTag273 = "v2.7.3";
 
         private readonly PowerShellCmdlet pwshCmdlet;
         private readonly HttpClientHelper httpClientHelper;
@@ -163,7 +164,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task InstallFromGitHubReleaseAsync(string releaseTag, bool allUsers, bool isDowngrade, bool force)
         {
-            await this.InstallDependenciesAsync();
+            await this.InstallDependenciesAsync(releaseTag);
 
             if (isDowngrade)
             {
@@ -185,6 +186,25 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 {
                     await this.AddAppInstallerBundleAsync(releaseTag, false, force);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets the Xaml dependency package name and release tag based on the provided WinGet release tag.
+        /// </summary>
+        /// <param name="releaseTag">WinGet release tag.</param>
+        /// <returns>A tuple in the format of (XamlPackageName, XamlReleaseTag).</returns>
+        private static Tuple<string, string> GetXamlDependencyVersionInfo(string releaseTag)
+        {
+            var targetVersion = SemVersion.Parse(releaseTag, SemVersionStyles.AllowLowerV);
+
+            if (targetVersion.CompareSortOrderTo(SemVersion.Parse(MinimumWinGetReleaseTagForXaml28, SemVersionStyles.AllowLowerV)) >= 0)
+            {
+                return Tuple.Create(XamlPackage28, XamlReleaseTag286);
+            }
+            else
+            {
+                return Tuple.Create(XamlPackage27, XamlReleaseTag273);
             }
         }
 
@@ -269,7 +289,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 .FirstOrDefault();
         }
 
-        private async Task InstallDependenciesAsync()
+        private async Task InstallDependenciesAsync(string releaseTag)
         {
             // A better implementation would use Add-AppxPackage with -DependencyPath, but
             // the Appx module needs to be remoted into Windows PowerShell. When the string[] parameter
@@ -278,7 +298,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             // if we are in Core, then start powershell.exe and run the same command. Right now, we just
             // do Add-AppxPackage for each one.
             await this.InstallVCLibsDependenciesAsync();
-            await this.InstallUiXamlAsync();
+            await this.InstallUiXamlAsync(releaseTag);
         }
 
         private async Task InstallVCLibsDependenciesAsync()
@@ -356,32 +376,38 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private async Task InstallUiXamlAsync()
+        private async Task InstallUiXamlAsync(string releaseTag)
         {
-            var uiXamlObjs = this.GetAppxObject(XamlPackage28);
+            (string xamlPackageName, string xamlReleaseTag) = GetXamlDependencyVersionInfo(releaseTag);
+            string xamlAssetX64 = string.Format($"{0}.x64.appx", xamlPackageName);
+            string xamlAssetX86 = string.Format($"{0}.x86.appx", xamlPackageName);
+            string xamlAssetArm = string.Format($"{0}.arm.appx", xamlPackageName);
+            string xamlAssetArm64 = string.Format($"{0}.arm64.appx", xamlPackageName);
+
+            var uiXamlObjs = this.GetAppxObject(xamlPackageName);
             if (uiXamlObjs is null)
             {
                 var githubRelease = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.UiXaml);
 
-                var xamlRelease = await githubRelease.GetReleaseAsync(XamlReleaseTag286);
+                var xamlRelease = await githubRelease.GetReleaseAsync(xamlReleaseTag);
 
                 var packagesToInstall = new List<ReleaseAsset>();
                 var arch = RuntimeInformation.OSArchitecture;
                 if (arch == Architecture.X64)
                 {
-                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetX64));
+                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX64));
                 }
                 else if (arch == Architecture.X86)
                 {
-                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetX86));
+                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX86));
                 }
                 else if (arch == Architecture.Arm64)
                 {
                     // Deployment please figure out for me.
-                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetX64));
-                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetX86));
-                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetArm));
-                    packagesToInstall.Add(xamlRelease.GetAsset(XamlAssetArm64));
+                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX64));
+                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetX86));
+                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetArm));
+                    packagesToInstall.Add(xamlRelease.GetAsset(xamlAssetArm64));
                 }
                 else
                 {
