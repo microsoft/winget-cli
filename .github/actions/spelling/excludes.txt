@@ -91,5 +91,6 @@
 # Because it doesn't handle argument -Words well
 ^src/PowerShell/tests/
 ^tools/CorrelationTestbed/.*\.ps1$
+^tools/DevInSandbox/.*\.ps1$
 ^tools/COMTrace/ComTrace.wprp$
 ignore$

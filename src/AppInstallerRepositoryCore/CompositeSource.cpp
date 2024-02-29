@@ -1579,6 +1579,7 @@ namespace AppInstaller::Repository
                     // Correlate against installed (allow exceptions out as we own the installed source)
                     SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
 
+                    // SXS_TODO: If feature enabled, take all matches and filter out weak match results by doing an installed item correlation back to the source
                     auto installedPackage = GetMatchingPackage(installedCrossRef.Matches,
                         [&]() {
                             AICLI_LOG(Repo, Info,
@@ -1588,6 +1589,7 @@ namespace AppInstaller::Repository
                             AICLI_LOG(Repo, Warning, << "  Appropriate installed package could not be determined");
                         });
 
+                    // SXS_TODO: IFF none of the installed matches are present, create a new entry (maybe also allow weak matches to be thrown out this way too?)
                     if (installedPackage && !result.ContainsInstalledPackage(installedPackage->GetInstalled().get()))
                     {
                         auto compositePackage = std::make_shared<CompositePackage>(
@@ -1632,6 +1634,7 @@ namespace AppInstaller::Repository
                     // Correlate against installed (allow exceptions out as we own the installed source)
                     SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
 
+                    // SXS_TODO: Figure out how to handle first, then do tracking second
                     auto installedPackage = GetMatchingPackage(installedCrossRef.Matches,
                         [&]() {
                             AICLI_LOG(Repo, Info,
