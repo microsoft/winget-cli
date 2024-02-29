@@ -189,9 +189,9 @@
   <data name="RepairAppExecutionAliasMessage" xml:space="preserve">
     <value>The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to App execution aliases option in Apps &amp; features Settings to enable it.</value>
   </data>
-  <data name="MicrosoftUIXaml27Message" xml:space="preserve">
-    <value>Microsoft.UI.Xaml.2.7 package is not installed</value>
-    <comment>{Locked="Microsoft.UI.Xaml.2.7"}</comment>
+  <data name="MicrosoftUIXaml28Message" xml:space="preserve">
+    <value>Microsoft.UI.Xaml.2.8 package is not installed</value>
+    <comment>{Locked="Microsoft.UI.Xaml.2.8"}</comment>
   </data>
   <data name="WinGetNotSupportedMessage" xml:space="preserve">
     <value>Windows Package Manager not supported.</value>

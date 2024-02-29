@@ -73,12 +73,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string VCLibsUWPDesktopArm64 = "https://aka.ms/Microsoft.VCLibs.arm64.14.00.Desktop.appx";
 
         // Xaml
-        private const string XamlPackage27 = "Microsoft.UI.Xaml.2.7";
-        private const string XamlReleaseTag273 = "v2.7.3";
-        private const string XamlAssetX64 = "Microsoft.UI.Xaml.2.7.x64.appx";
-        private const string XamlAssetX86 = "Microsoft.UI.Xaml.2.7.x86.appx";
-        private const string XamlAssetArm = "Microsoft.UI.Xaml.2.7.arm.appx";
-        private const string XamlAssetArm64 = "Microsoft.UI.Xaml.2.7.arm64.appx";
+        private const string XamlPackage28 = "Microsoft.UI.Xaml.2.8";
+        private const string XamlReleaseTag286 = "v2.8.6";
+        private const string XamlAssetX64 = "Microsoft.UI.Xaml.2.8.x64.appx";
+        private const string XamlAssetX86 = "Microsoft.UI.Xaml.2.8.x86.appx";
+        private const string XamlAssetArm = "Microsoft.UI.Xaml.2.8.arm.appx";
+        private const string XamlAssetArm64 = "Microsoft.UI.Xaml.2.8.arm64.appx";
 
         private readonly PowerShellCmdlet pwshCmdlet;
         private readonly HttpClientHelper httpClientHelper;
@@ -358,12 +358,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         private async Task InstallUiXamlAsync()
         {
-            var uiXamlObjs = this.GetAppxObject(XamlPackage27);
+            var uiXamlObjs = this.GetAppxObject(XamlPackage28);
             if (uiXamlObjs is null)
             {
                 var githubRelease = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.UiXaml);
 
-                var xamlRelease = await githubRelease.GetReleaseAsync(XamlReleaseTag273);
+                var xamlRelease = await githubRelease.GetReleaseAsync(XamlReleaseTag286);
 
                 var packagesToInstall = new List<ReleaseAsset>();
                 var arch = RuntimeInformation.OSArchitecture;

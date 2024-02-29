@@ -214,11 +214,11 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Microsoft.UI.Xaml.2.7 package is not installed.
+        ///   Looks up a localized string similar to Microsoft.UI.Xaml.2.8 package is not installed.
         /// </summary>
-        internal static string MicrosoftUIXaml27Message {
+        internal static string MicrosoftUIXaml28Message {
             get {
-                return ResourceManager.GetString("MicrosoftUIXaml27Message", resourceCulture);
+                return ResourceManager.GetString("MicrosoftUIXaml28Message", resourceCulture);
             }
         }
         
