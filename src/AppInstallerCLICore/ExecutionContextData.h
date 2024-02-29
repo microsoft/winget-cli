@@ -105,7 +105,7 @@ namespace AppInstaller::CLI::Execution
         template <>
         struct DataMapping<Data::Package>
         {
-            using value_t = std::shared_ptr<Repository::IPackage>;
+            using value_t = std::shared_ptr<Repository::ICompositePackage>;
         };
 
         template <>

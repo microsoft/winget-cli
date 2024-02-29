@@ -55,7 +55,7 @@
           "description": "The logging channels to enable",
           "type": "array",
           "items": {
-            "uniqueItems": "true",
+            "uniqueItems": true,
             "type": "string",
             "enum": [
               "fail",
@@ -104,7 +104,7 @@
           "description": "The architecture(s) to use for a package install",
           "type": "array",
           "items": {
-            "uniqueItems": "true",
+            "uniqueItems": true,
             "type": "string",
             "enum": [
               "neutral",
@@ -121,7 +121,7 @@
           "description": "The installerType(s) to use for a package install",
           "type": "array",
           "items": {
-            "uniqueItems": "true",
+            "uniqueItems": true,
             "type": "string",
             "enum": [
               "inno",
@@ -170,7 +170,7 @@
         "defaultInstallRoot": {
           "description": "Default install location to use for packages that require it when not specified",
           "type": "string",
-          "maxLength": "32767"
+          "maxLength": 32767
         },
         "maxResumes": {
           "description": "The maximum number of resumes allowed for a single resume id. This is to prevent continuous reboots if an install that requires a reboot is not properly detected.",

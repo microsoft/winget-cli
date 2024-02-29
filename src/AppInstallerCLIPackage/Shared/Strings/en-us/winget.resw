@@ -2814,6 +2814,9 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Repair failed with exit code: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when an attempt to repair an application package fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED" xml:space="preserve">
+    <value>The SQLite connection was terminated to prevent corruption.</value>
+  </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
     <value>Trust level of the source (none, trusted or storeOrigin)</value>
   </data>

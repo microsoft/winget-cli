@@ -79,7 +79,7 @@ namespace AppInstaller::Pinning
 
             // Gets the latest available package version that fits within the pinning restrictions.
             // This should be the package object that contains available versions associated with the installed version for which this evaluator was created.
-            std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestAvailableVersionForPins(const std::shared_ptr<AppInstaller::Repository::IPackage>& package);
+            std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestAvailableVersionForPins(const std::shared_ptr<AppInstaller::Repository::IPackageVersionCollection>& package);
 
             // Determines if the given version is an update to the installed version that this object was created with.
             // This should be a version associated with the installed version for which this evaluator was created.

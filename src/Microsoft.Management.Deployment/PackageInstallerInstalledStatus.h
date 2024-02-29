@@ -3,6 +3,7 @@
 #pragma once
 #include "PackageInstallerInstalledStatus.g.h"
 #include <winget/RepositorySearch.h>
+#include <winget/InstalledStatus.h>
 #include <winrt/Windows.Foundation.Collections.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation

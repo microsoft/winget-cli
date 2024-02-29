@@ -89,7 +89,7 @@ namespace AppInstaller::Repository::Correlation
             auto score = algorithm.ComputeConfidence(arpEntry);
             AICLI_LOG(Repo, Verbose, << "Match confidence for " << arpEntry.Entry->GetProperty(PackageProperty::Id) << ": " << score);
 
-            result.Measures.emplace_back(CorrelationMeasure{ score, arpEntry.Entry->GetInstalledVersion() });
+            result.Measures.emplace_back(CorrelationMeasure{ score, arpEntry.Entry->GetLatestVersion() });
         }
 
         std::sort(result.Measures.begin(), result.Measures.end(), [](const CorrelationMeasure& a, const CorrelationMeasure& b) { return a.Measure > b.Measure; });
@@ -122,11 +122,11 @@ namespace AppInstaller::Repository::Correlation
 
         for (const auto& entry : preInstallARP.Search({}).Matches)
         {
-            auto installed = entry.Package->GetInstalledVersion();
+            auto installed = entry.Package->GetInstalled()->GetLatestVersion();
             if (installed)
             {
                 m_preInstallSnapshot.emplace_back(std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
+                    installed->GetProperty(PackageVersionProperty::Id),
                     installed->GetProperty(PackageVersionProperty::Version),
                     installed->GetProperty(PackageVersionProperty::Channel)));
             }
@@ -143,17 +143,17 @@ namespace AppInstaller::Repository::Correlation
 
         for (auto& entry : m_postInstallSnapshotSource.Search({}).Matches)
         {
-            auto installed = entry.Package->GetInstalledVersion();
+            auto installed = entry.Package->GetInstalled()->GetLatestVersion();
 
             if (installed)
             {
                 auto entryKey = std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
+                    installed->GetProperty(PackageVersionProperty::Id),
                     installed->GetProperty(PackageVersionProperty::Version),
                     installed->GetProperty(PackageVersionProperty::Channel));
 
                 auto itr = std::lower_bound(m_preInstallSnapshot.begin(), m_preInstallSnapshot.end(), entryKey);
-                m_postInstallSnapshot.emplace_back(entry.Package, itr == m_preInstallSnapshot.end() || *itr != entryKey);
+                m_postInstallSnapshot.emplace_back(entry.Package->GetInstalled(), itr == m_preInstallSnapshot.end() || *itr != entryKey);
             }
         }
     }
@@ -239,7 +239,7 @@ namespace AppInstaller::Repository::Correlation
             {
                 for (const auto& byManifest : findByManifest.Matches)
                 {
-                    if (change.Entry->IsSame(byManifest.Package.get()))
+                    if (change.Entry->IsSame(byManifest.Package->GetInstalled().get()))
                     {
                         packagesInBoth.emplace_back(change.Entry);
                         break;
@@ -266,18 +266,18 @@ namespace AppInstaller::Repository::Correlation
         // If there is only a single common package (changed and matches), it is almost certainly the correct one.
         if (settings.AllowNormalization && packagesInBoth.size() == 1)
         {
-            result.Package = packagesInBoth[0]->GetInstalledVersion();
+            result.Package = packagesInBoth[0]->GetLatestVersion();
             result.Reason = "normalization match and new/changed";
         }
         // If it wasn't changed but we still find a match, that is the best thing to report.
         else if (settings.AllowNormalization && findByManifest.Matches.size() == 1)
         {
-            result.Package = findByManifest.Matches[0].Package->GetInstalledVersion();
+            result.Package = findByManifest.Matches[0].Package->GetInstalled()->GetLatestVersion();
             result.Reason = "normalization match (not new/changed)";
         }
         else if (settings.AllowSingleChange && result.ChangesToARP == 1)
         {
-            result.Package = std::find_if(m_postInstallSnapshot.begin(), m_postInstallSnapshot.end(), [](const ARPEntry& e) { return e.IsNewOrUpdated; })->Entry->GetInstalledVersion();
+            result.Package = std::find_if(m_postInstallSnapshot.begin(), m_postInstallSnapshot.end(), [](const ARPEntry& e) { return e.IsNewOrUpdated; })->Entry->GetLatestVersion();
             result.Reason = "only new/changed value";
         }
         else

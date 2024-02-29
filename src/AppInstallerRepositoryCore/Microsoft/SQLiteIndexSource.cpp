@@ -214,17 +214,20 @@ namespace AppInstaller::Repository::Microsoft
             SQLiteIndex::IdType m_manifestId;
         };
 
-        // The base for IPackage implementations here.
-        struct PackageBase : public SourceReference
+        // The IPackage implementation here.
+        struct SQLitePackage : public std::enable_shared_from_this<SQLitePackage>, public SourceReference, public IPackage, public ICompositePackage
         {
-            PackageBase(const std::shared_ptr<SQLiteIndexSource>& source, SQLiteIndex::IdType idId) :
-                SourceReference(source), m_idId(idId) {}
+            static constexpr IPackageType PackageType = IPackageType::SQLitePackage;
 
+            SQLitePackage(const std::shared_ptr<SQLiteIndexSource>& source, SQLiteIndex::IdType idId, bool isInstalled) :
+                SourceReference(source), m_idId(idId), m_isInstalled(isInstalled) {}
+
+            // Inherited via IPackage
             Utility::LocIndString GetProperty(PackageProperty property) const
             {
                 Utility::LocIndString result;
 
-                std::shared_ptr<IPackageVersion> truth = GetLatestVersionInternal();
+                std::shared_ptr<IPackageVersion> truth = GetLatestVersion();
                 if (truth)
                 {
                     switch (property)
@@ -239,19 +242,46 @@ namespace AppInstaller::Repository::Microsoft
                 }
                 else
                 {
-                    AICLI_LOG(Repo, Verbose, << "PackageBase: No manifest was found for the package with id# '" << m_idId << "'");
+                    AICLI_LOG(Repo, Verbose, << "SQLitePackage: No manifest was found for the package with id# '" << m_idId << "'");
                 }
 
                 return result;
             }
 
-            bool IsSame(const PackageBase& other) const
+            std::vector<PackageVersionKey> GetVersionKeys() const override
             {
-                return GetReferenceSource()->IsSame(other.GetReferenceSource().get()) && m_idId == other.m_idId;
+                std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
+
+                {
+                    auto sharedLock = m_versionKeysLock.lock_shared();
+
+                    if (!m_versionKeys.empty())
+                    {
+                        return m_versionKeys;
+                    }
+                }
+
+                auto exclusiveLock = m_versionKeysLock.lock_exclusive();
+
+                if (!m_versionKeys.empty())
+                {
+                    return m_versionKeys;
+                }
+
+                std::vector<SQLiteIndex::VersionKey> versions = source->GetIndex().GetVersionKeysById(m_idId);
+
+                for (const auto& vk : versions)
+                {
+                    std::string version = vk.VersionAndChannel.GetVersion().ToString();
+                    std::string channel = vk.VersionAndChannel.GetChannel().ToString();
+                    m_versionKeys.emplace_back(source->GetIdentifier(), version, channel);
+                    m_versionKeysMap.emplace(MapKey{ std::move(version), std::move(channel) }, vk.ManifestId);
+                }
+
+                return m_versionKeys;
             }
 
-        protected:
-            std::shared_ptr<IPackageVersion> GetLatestVersionInternal() const
+            std::shared_ptr<IPackageVersion> GetLatestVersion() const override
             {
                 std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
                 std::optional<SQLiteIndex::IdType> manifestId = source->GetIndex().GetManifestIdByKey(m_idId, {}, {});
@@ -264,66 +294,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            SQLiteIndex::IdType m_idId;
-        };
-
-        // The IPackage impl for SQLiteIndexSource of Available packages.
-        struct AvailablePackage : public PackageBase, public IPackage
-        {
-            using PackageBase::PackageBase;
-
-            static constexpr IPackageType PackageType = IPackageType::SQLiteAvailablePackage;
-
-            // Inherited via IPackage
-            Utility::LocIndString GetProperty(PackageProperty property) const override
-            {
-                return PackageBase::GetProperty(property);
-            }
-
-            std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
-            {
-                return {};
-            }
-
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
-            {
-                std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
-
-                {
-                    auto sharedLock = m_availableVersionKeysLock.lock_shared();
-
-                    if (!m_availableVersionKeys.empty())
-                    {
-                        return m_availableVersionKeys;
-                    }
-                }
-
-                auto exclusiveLock = m_availableVersionKeysLock.lock_exclusive();
-
-                if (!m_availableVersionKeys.empty())
-                {
-                    return m_availableVersionKeys;
-                }
-
-                std::vector<SQLiteIndex::VersionKey> versions = source->GetIndex().GetVersionKeysById(m_idId);
-
-                for (const auto& vk : versions)
-                {
-                    std::string version = vk.VersionAndChannel.GetVersion().ToString();
-                    std::string channel = vk.VersionAndChannel.GetChannel().ToString();
-                    m_availableVersionKeys.emplace_back(source->GetIdentifier(), version, channel);
-                    m_availableVersionKeysMap.emplace(MapKey{ std::move(version), std::move(channel) }, vk.ManifestId);
-                }
-
-                return m_availableVersionKeys;
-            }
-
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
-            {
-                return GetLatestVersionInternal();
-            }
-
-            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
+            std::shared_ptr<IPackageVersion> GetVersion(const PackageVersionKey& versionKey) const override
             {
                 std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
 
@@ -337,10 +308,10 @@ namespace AppInstaller::Repository::Microsoft
 
                 {
                     MapKey requested{ versionKey.Version, versionKey.Channel };
-                    auto sharedLock = m_availableVersionKeysLock.lock_shared();
+                    auto sharedLock = m_versionKeysLock.lock_shared();
 
-                    auto itr = m_availableVersionKeysMap.find(requested);
-                    if (itr != m_availableVersionKeysMap.end())
+                    auto itr = m_versionKeysMap.find(requested);
+                    if (itr != m_versionKeysMap.end())
                     {
                         manifestId = itr->second;
                     }
@@ -359,13 +330,18 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
+            Source GetSource() const override
+            {
+                return Source{ GetReferenceSource() };
+            }
+
             bool IsSame(const IPackage* other) const override
             {
-                const AvailablePackage* otherAvailable = PackageCast<const AvailablePackage*>(other);
+                const SQLitePackage* otherSQLite = PackageCast<const SQLitePackage*>(other);
 
-                if (otherAvailable)
+                if (otherSQLite)
                 {
-                    return PackageBase::IsSame(*otherAvailable);
+                    return GetReferenceSource()->IsSame(otherSQLite->GetReferenceSource().get()) && m_idId == otherSQLite->m_idId;
                 }
 
                 return false;
@@ -379,6 +355,17 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 return nullptr;
+            }
+
+            // Inherited via ICompositePackage
+            std::shared_ptr<IPackage> GetInstalled() override
+            {
+                return m_isInstalled ? shared_from_this() : std::shared_ptr<IPackage>{};
+            }
+
+            std::vector<std::shared_ptr<IPackage>> GetAvailable() override
+            {
+                return m_isInstalled ? std::vector<std::shared_ptr<IPackage>>{} : std::vector<std::shared_ptr<IPackage>>{ shared_from_this() };
             }
 
         private:
@@ -405,66 +392,13 @@ namespace AppInstaller::Repository::Microsoft
                 }
             };
 
+            SQLiteIndex::IdType m_idId;
+            bool m_isInstalled;
+
             // To avoid removing const from the interface
-            mutable wil::srwlock m_availableVersionKeysLock;
-            mutable std::vector<PackageVersionKey> m_availableVersionKeys;
-            mutable std::map<MapKey, SQLiteIndex::IdType> m_availableVersionKeysMap;
-        };
-
-        // The IPackage impl for SQLiteIndexSource of Installed packages.
-        struct InstalledPackage : public PackageBase, public IPackage
-        {
-            using PackageBase::PackageBase;
-
-            static constexpr IPackageType PackageType = IPackageType::SQLiteInstalledPackage;
-
-            // Inherited via IPackage
-            Utility::LocIndString GetProperty(PackageProperty property) const override
-            {
-                return PackageBase::GetProperty(property);
-            }
-
-            std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
-            {
-                return GetLatestVersionInternal();
-            }
-
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
-            {
-                return {};
-            }
-
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
-            {
-                return {};
-            }
-
-            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey&) const override
-            {
-                return {};
-            }
-
-            bool IsSame(const IPackage* other) const override
-            {
-                const InstalledPackage* otherInstalled = PackageCast<const InstalledPackage*>(other);
-
-                if (otherInstalled)
-                {
-                    return PackageBase::IsSame(*otherInstalled);
-                }
-
-                return false;
-            }
-
-            const void* CastTo(IPackageType type) const override
-            {
-                if (type == PackageType)
-                {
-                    return this;
-                }
-
-                return nullptr;
-            }
+            mutable wil::srwlock m_versionKeysLock;
+            mutable std::vector<PackageVersionKey> m_versionKeys;
+            mutable std::map<MapKey, SQLiteIndex::IdType> m_versionKeysMap;
         };
     }
 
@@ -495,18 +429,9 @@ namespace AppInstaller::Repository::Microsoft
         std::shared_ptr<SQLiteIndexSource> sharedThis = NonConstSharedFromThis();
         for (auto& indexResult : indexResults.Matches)
         {
-            std::unique_ptr<IPackage> package;
-
-            if (m_isInstalled)
-            {
-                package = std::make_unique<InstalledPackage>(sharedThis, indexResult.first);
-            }
-            else
-            {
-                package = std::make_unique<AvailablePackage>(sharedThis, indexResult.first);
-            }
-
-            result.Matches.emplace_back(std::move(package), std::move(indexResult.second));
+            result.Matches.emplace_back(
+                std::make_shared<SQLitePackage>(sharedThis, indexResult.first, m_isInstalled),
+                std::move(indexResult.second));
         }
         result.Truncated = indexResults.Truncated;
         return result;

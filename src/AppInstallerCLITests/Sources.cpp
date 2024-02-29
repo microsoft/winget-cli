@@ -195,9 +195,9 @@ namespace
             PackageMatchFilter testMatchFilter1{ PackageMatchField::Id, MatchType::Exact, "test" };
             PackageMatchFilter testMatchFilter2{ PackageMatchField::Name, MatchType::Exact, "test" };
             PackageMatchFilter testMatchFilter3{ PackageMatchField::Id, MatchType::CaseInsensitive, "test" };
-            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter1);
-            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter2);
-            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter3);
+            result.Matches.emplace_back(nullptr, testMatchFilter1);
+            result.Matches.emplace_back(nullptr, testMatchFilter2);
+            result.Matches.emplace_back(nullptr, testMatchFilter3);
             return result;
         }
     };
