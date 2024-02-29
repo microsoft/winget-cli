@@ -67,6 +67,7 @@ namespace AppInstaller::CLI::Workflow
             bool checkVersion)
         {
             std::shared_ptr<IPackageVersionCollection> availableVersions = GetAvailableVersionsForInstalledVersion(package);
+            const bool suppressWarnings = context.Args.Contains(Execution::Args::Type::IgnoreWarnings);
 
             if (!checkVersion)
             {
@@ -86,7 +87,9 @@ namespace AppInstaller::CLI::Workflow
                         << "Installed package version is not available."
                         << " Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Version [" << version << "], Channel [" << channel << "]"
                         << ". Found Version [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "], Channel [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "]");
-                    context.Reporter.Warn() << Resource::String::InstalledPackageVersionNotAvailable(availablePackageVersion->GetProperty(PackageVersionProperty::Id), version, channel) << std::endl;
+                    if (!suppressWarnings) {
+                        context.Reporter.Warn() << Resource::String::InstalledPackageVersionNotAvailable(availablePackageVersion->GetProperty(PackageVersionProperty::Id), version, channel) << std::endl;
+                    }
                 }
             }
 
@@ -238,7 +241,7 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 AICLI_LOG(CLI, Error, << "Missing required source: " << requiredSource.Details.Name);
-                context.Reporter.Warn()
+                context.Reporter.Error()
                     << Resource::String::ImportSourceNotInstalled(Utility::LocIndView{ requiredSource.Details.Name })
                     << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
