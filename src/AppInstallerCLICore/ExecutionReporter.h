@@ -173,9 +173,11 @@ namespace AppInstaller::CLI::Execution
                 return;
             }
             if (setEnabled) {
+                // Add the level to the list of enabled levels
                 m_enabledLevels.push_back(reporterLevel);
             }
             else {
+                // Remove the level from the list of enabled levels
                 m_enabledLevels.erase(std::remove(m_enabledLevels.begin(), m_enabledLevels.end(), reporterLevel), m_enabledLevels.end());
             }
         }
@@ -191,7 +193,6 @@ namespace AppInstaller::CLI::Execution
         OutputStream GetBasicOutputStream();
 
         Channel m_channel = Channel::Output;
-        std::vector<Level> m_enabledLevels = { Level::Verbose, Level::Info, Level::Warning, Level::Error };
         std::shared_ptr<BaseStream> m_out;
         std::istream& m_in;
         std::optional<AppInstaller::Settings::VisualStyle> m_style;
@@ -200,6 +201,9 @@ namespace AppInstaller::CLI::Execution
         wil::srwlock m_progressCallbackLock;
         std::atomic<ProgressCallback*> m_progressCallback;
         std::atomic<IProgressSink*> m_progressSink;
+
+        // Enable all levels by default
+        std::vector<Level> m_enabledLevels = { Level::Verbose, Level::Info, Level::Warning, Level::Error };
     };
 
     // Indirection to enable change without tracking down every place

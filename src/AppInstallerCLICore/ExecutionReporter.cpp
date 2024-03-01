@@ -54,6 +54,7 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream Reporter::GetOutputStream(Level level)
     {
+        // If the level is not enabled, return a default stream which is disabled
         if (!levelEnabled(level))
         {
             return OutputStream(*m_out, false, false);
