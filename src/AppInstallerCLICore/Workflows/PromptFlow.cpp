@@ -267,7 +267,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Info() << Resource::String::InstallersRequireInstallLocation << std::endl;
                 for (auto packageContext : packagesToPrompt)
                 {
-                    *packageContext << ReportManifestIdentityWithVersion(" - "_liv,  Execution::Reporter::Level::Warning);
+                    *packageContext << ReportManifestIdentityWithVersion(" - "_liv,  Execution::ReporterLevel::Warning);
                     if (packageContext->IsTerminated())
                     {
                         AICLI_TERMINATE_CONTEXT(packageContext->GetTerminationHR());
@@ -335,7 +335,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::InstallersAbortTerminal << std::endl;
                 for (auto packageContext : packagesToPrompt)
                 {
-                    *packageContext << ReportManifestIdentityWithVersion(" - "_liv, Execution::Reporter::Level::Warning);
+                    *packageContext << ReportManifestIdentityWithVersion(" - "_liv, Execution::ReporterLevel::Warning);
                     if (packageContext->IsTerminated())
                     {
                         AICLI_TERMINATE_CONTEXT(packageContext->GetTerminationHR());
@@ -354,7 +354,7 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
 
-                bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PromptToProceed, Execution::Reporter::Level::Warning);
+                bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PromptToProceed, Execution::ReporterLevel::Warning);
                 if (accepted)
                 {
                     AICLI_LOG(CLI, Info, << "Proceeding with installation");

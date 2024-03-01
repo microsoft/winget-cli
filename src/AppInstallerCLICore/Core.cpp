@@ -129,7 +129,7 @@ namespace AppInstaller::CLI
             // Disable warnings if requested
             if (context.Args.Contains(Execution::Args::Type::IgnoreWarnings))
             {
-                context.Reporter.SetLevelEnabled(Execution::Reporter::Level::Warning, false);
+                context.Reporter.SetLevelEnabled(Execution::ReporterLevel::Warning, false);
             }
 
             context.UpdateForArgs();

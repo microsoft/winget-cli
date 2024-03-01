@@ -52,10 +52,10 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    OutputStream Reporter::GetOutputStream(Level level)
+    OutputStream Reporter::GetOutputStream(ReporterLevel level)
     {
         // If the level is not enabled, return a default stream which is disabled
-        if (!levelEnabled(level))
+        if (WI_AreAllFlagsClear(m_enabledLevels, level))
         {
             return OutputStream(*m_out, false, false);
         }
@@ -64,16 +64,16 @@ namespace AppInstaller::CLI::Execution
 
         switch (level)
         {
-        case Level::Verbose:
+        case ReporterLevel::Verbose:
             result.AddFormat(TextFormat::Default);
             break;
-        case Level::Info:
+        case ReporterLevel::Info:
             result.AddFormat(TextFormat::Default);
             break;
-        case Level::Warning:
+        case ReporterLevel::Warning:
             result.AddFormat(TextFormat::Foreground::BrightYellow);
             break;
-        case Level::Error:
+        case ReporterLevel::Error:
             result.AddFormat(TextFormat::Foreground::BrightRed);
             break;
         default:
@@ -117,7 +117,7 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level)
+    bool Reporter::PromptForBoolResponse(Resource::LocString message, ReporterLevel level)
     {
         const std::vector<BoolPromptOption> options
         {
@@ -167,14 +167,14 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    void Reporter::PromptForEnter(Level level)
+    void Reporter::PromptForEnter(ReporterLevel level)
     {
         auto out = GetOutputStream(level);
         out << std::endl << Resource::String::PressEnterToContinue << std::endl;
         m_in.get();
     }
 
-    std::filesystem::path Reporter::PromptForPath(Resource::LocString message, Level level)
+    std::filesystem::path Reporter::PromptForPath(Resource::LocString message, ReporterLevel level)
     {
         auto out = GetOutputStream(level);
 

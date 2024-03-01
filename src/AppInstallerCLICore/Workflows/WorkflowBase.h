@@ -365,9 +365,9 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct ReportManifestIdentityWithVersion : public WorkflowTask
     {
-        ReportManifestIdentityWithVersion(Utility::LocIndView prefix, Execution::Reporter::Level level = Execution::Reporter::Level::Info) :
+        ReportManifestIdentityWithVersion(Utility::LocIndView prefix, Execution::ReporterLevel level = Execution::ReporterLevel::Info) :
             WorkflowTask("ReportManifestIdentityWithVersion"), m_prefix(prefix), m_level(level) {}
-        ReportManifestIdentityWithVersion(Resource::StringId label = Resource::String::ReportIdentityFound, Execution::Reporter::Level level = Execution::Reporter::Level::Info) :
+        ReportManifestIdentityWithVersion(Resource::StringId label = Resource::String::ReportIdentityFound, Execution::ReporterLevel level = Execution::ReporterLevel::Info) :
             WorkflowTask("ReportManifestIdentityWithVersion"), m_label(label), m_level(level) {}
 
         void operator()(Execution::Context& context) const override;
@@ -375,7 +375,7 @@ namespace AppInstaller::CLI::Workflow
     private:
         Utility::LocIndView m_prefix;
         std::optional<Resource::StringId> m_label;
-        Execution::Reporter::Level m_level;
+        Execution::ReporterLevel m_level;
     };
 
     // Selects the installer from the manifest, if one is applicable.

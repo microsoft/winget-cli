@@ -23,6 +23,18 @@ namespace AppInstaller::CLI::Execution
 {
 #define WINGET_OSTREAM_FORMAT_HRESULT(hr) "0x" << Logging::SetHRFormat << hr
 
+    // The level for the Output channel.
+    enum class ReporterLevel : uint32_t
+    {
+        None = 0x0,
+        Verbose = 0x1,
+        Info = 0x2,
+        Warning = 0x4,
+        Error = 0x8,
+        All = Verbose | Info | Warning | Error,
+    };
+    DEFINE_ENUM_FLAG_OPERATORS(ReporterLevel);
+
     // One of the options available to the users when prompting for something.
     struct BoolPromptOption
     {
@@ -48,14 +60,14 @@ namespace AppInstaller::CLI::Execution
             Disabled,
         };
 
-        // The level for the Output channel.
-        enum class Level
-        {
-            Verbose,
-            Info,
-            Warning,
-            Error,
-        };
+        //// The level for the Output channel.
+        //enum class Level
+        //{
+        //    Verbose,
+        //    Info,
+        //    Warning,
+        //    Error,
+        //};
 
         Reporter(std::ostream& outStream, std::istream& inStream);
         Reporter(const Reporter&) = delete;
@@ -71,22 +83,22 @@ namespace AppInstaller::CLI::Execution
         ~Reporter();
 
         // Get a stream for verbose output.
-        OutputStream Verbose() { return GetOutputStream(Level::Verbose); }
+        OutputStream Verbose() { return GetOutputStream(ReporterLevel::Verbose); }
 
         // Get a stream for informational output.
-        OutputStream Info() { return GetOutputStream(Level::Info); }
+        OutputStream Info() { return GetOutputStream(ReporterLevel::Info); }
 
         // Get a stream for warning output.
-        OutputStream Warn() { return GetOutputStream(Level::Warning); }
+        OutputStream Warn() { return GetOutputStream(ReporterLevel::Warning); }
 
         // Get a stream for error output.
-        OutputStream Error() { return GetOutputStream(Level::Error); }
+        OutputStream Error() { return GetOutputStream(ReporterLevel::Error); }
 
         // Get a stream for outputting completion words.
         OutputStream Completion() { return OutputStream(*m_out, m_channel == Channel::Completion, false); }
 
         // Gets a stream for output of the given level.
-        OutputStream GetOutputStream(Level level);
+        OutputStream GetOutputStream(ReporterLevel level);
 
         void EmptyLine() { GetBasicOutputStream() << std::endl; }
 
@@ -98,13 +110,13 @@ namespace AppInstaller::CLI::Execution
         void SetStyle(AppInstaller::Settings::VisualStyle style);
 
         // Prompts the user, return true if they consented.
-        bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info);
+        bool PromptForBoolResponse(Resource::LocString message, ReporterLevel level = ReporterLevel::Info);
 
         // Prompts the user, continues when Enter is pressed
-        void PromptForEnter(Level level = Level::Info);
+        void PromptForEnter(ReporterLevel level = ReporterLevel::Info);
 
         // Prompts the user for a path.
-        std::filesystem::path PromptForPath(Resource::LocString message, Level level = Level::Info);
+        std::filesystem::path PromptForPath(Resource::LocString message, ReporterLevel level = ReporterLevel::Info);
 
         // Used to show indefinite progress. Currently an indefinite spinner is the form of
         // showing indefinite progress.
@@ -165,30 +177,20 @@ namespace AppInstaller::CLI::Execution
             m_progressSink = sink;
         }
 
-        void SetLevelEnabled(Level reporterLevel, bool setEnabled = true) {
-            const bool isEnabled = levelEnabled(reporterLevel);
-            // If the reporter is already in the state we want, do nothing
-            if (isEnabled == setEnabled)
+        void SetLevelEnabled(ReporterLevel reporterLevel, bool setEnabled = true)
+        {
+            if (setEnabled)
             {
-                return;
+                WI_SetAllFlags(m_enabledLevels, reporterLevel);
             }
-            if (setEnabled) {
-                // Add the level to the list of enabled levels
-                m_enabledLevels.push_back(reporterLevel);
-            }
-            else {
-                // Remove the level from the list of enabled levels
-                m_enabledLevels.erase(std::remove(m_enabledLevels.begin(), m_enabledLevels.end(), reporterLevel), m_enabledLevels.end());
+            else
+            {
+                WI_ClearAllFlags(m_enabledLevels, reporterLevel);
             }
         }
 
     private:
         Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream);
-
-        bool levelEnabled(Level reporterLevel) {
-            return std::find(m_enabledLevels.begin(), m_enabledLevels.end(), reporterLevel) != m_enabledLevels.end();
-        }
-
         // Gets a stream for output for internal use.
         OutputStream GetBasicOutputStream();
 
@@ -203,7 +205,7 @@ namespace AppInstaller::CLI::Execution
         std::atomic<IProgressSink*> m_progressSink;
 
         // Enable all levels by default
-        std::vector<Level> m_enabledLevels = { Level::Verbose, Level::Info, Level::Warning, Level::Error };
+        ReporterLevel m_enabledLevels = ReporterLevel::All;
     };
 
     // Indirection to enable change without tracking down every place
