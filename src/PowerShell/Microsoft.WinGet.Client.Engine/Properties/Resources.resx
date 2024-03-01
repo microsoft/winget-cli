@@ -189,13 +189,6 @@
   <data name="RepairAppExecutionAliasMessage" xml:space="preserve">
     <value>The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to App execution aliases option in Apps &amp; features Settings to enable it.</value>
   </data>
-  <data name="MicrosoftUIXaml28Message" xml:space="preserve">
-    <value>Microsoft.UI.Xaml.2.8 package is not installed</value>
-    <comment>{Locked="Microsoft.UI.Xaml.2.8"}</comment>
-  </data>
-  <data name="WinGetNotSupportedMessage" xml:space="preserve">
-    <value>Windows Package Manager not supported.</value>
-  </data>
   <data name="IntegrityUnexpectedVersionMessage" xml:space="preserve">
     <value>The installed winget version doesn't match the expectation. Installer version '{0}' Expected version '{1}'</value>
     <comment>{Locked="{0}","{1}"} {0} - The winget current installed winget version. {1} - The expected winget version.</comment>

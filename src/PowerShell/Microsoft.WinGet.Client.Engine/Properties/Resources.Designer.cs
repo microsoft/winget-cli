@@ -214,15 +214,6 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Microsoft.UI.Xaml.2.8 package is not installed.
-        /// </summary>
-        internal static string MicrosoftUIXaml28Message {
-            get {
-                return ResourceManager.GetString("MicrosoftUIXaml28Message", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to No packages matched the given input criteria..
         /// </summary>
         internal static string NoPackageFoundExceptionMessage {
@@ -381,15 +372,6 @@ namespace Microsoft.WinGet.Resources {
         internal static string WinGetCLITimeoutExceptionMessage {
             get {
                 return ResourceManager.GetString("WinGetCLITimeoutExceptionMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Windows Package Manager not supported..
-        /// </summary>
-        internal static string WinGetNotSupportedMessage {
-            get {
-                return ResourceManager.GetString("WinGetNotSupportedMessage", resourceCulture);
             }
         }
     }
