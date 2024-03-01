@@ -60,15 +60,6 @@ namespace AppInstaller::CLI::Execution
             Disabled,
         };
 
-        //// The level for the Output channel.
-        //enum class Level
-        //{
-        //    Verbose,
-        //    Info,
-        //    Warning,
-        //    Error,
-        //};
-
         Reporter(std::ostream& outStream, std::istream& inStream);
         Reporter(const Reporter&) = delete;
         Reporter& operator=(const Reporter&) = delete;
