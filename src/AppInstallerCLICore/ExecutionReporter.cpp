@@ -54,6 +54,11 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream Reporter::GetOutputStream(Level level)
     {
+        if (!levelEnabled(level))
+        {
+            return OutputStream(*m_out, false, false);
+        }
+
         OutputStream result = GetBasicOutputStream();
 
         switch (level)

@@ -16,7 +16,6 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Execution::Args::Type::ValidateManifest),
-            Argument::ForType(Execution::Args::Type::IgnoreWarnings),
         };
     }
 

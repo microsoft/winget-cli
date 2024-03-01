@@ -126,6 +126,12 @@ namespace AppInstaller::CLI
                 Logging::Log().SetLevel(Logging::Level::Verbose);
             }
 
+            // Disable warnings if requested
+            if (context.Args.Contains(Execution::Args::Type::IgnoreWarnings))
+            {
+                context.Reporter.SetLevelEnabled(Execution::Reporter::Level::Warning, false);
+            }
+
             context.UpdateForArgs();
             context.SetExecutingCommand(command.get());
             command->ValidateArguments(context.Args);

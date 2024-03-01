@@ -165,13 +165,33 @@ namespace AppInstaller::CLI::Execution
             m_progressSink = sink;
         }
 
+        void SetLevelEnabled(Level reporterLevel, bool setEnabled = true) {
+            const bool isEnabled = levelEnabled(reporterLevel);
+            // If the reporter is already in the state we want, do nothing
+            if (isEnabled == setEnabled)
+            {
+                return;
+            }
+            if (setEnabled) {
+                m_enabledLevels.push_back(reporterLevel);
+            }
+            else {
+                m_enabledLevels.erase(std::remove(m_enabledLevels.begin(), m_enabledLevels.end(), reporterLevel), m_enabledLevels.end());
+            }
+        }
+
     private:
         Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream);
+
+        bool levelEnabled(Level reporterLevel) {
+            return std::find(m_enabledLevels.begin(), m_enabledLevels.end(), reporterLevel) != m_enabledLevels.end();
+        }
 
         // Gets a stream for output for internal use.
         OutputStream GetBasicOutputStream();
 
         Channel m_channel = Channel::Output;
+        std::vector<Level> m_enabledLevels = { Level::Verbose, Level::Info, Level::Warning, Level::Error };
         std::shared_ptr<BaseStream> m_out;
         std::istream& m_in;
         std::optional<AppInstaller::Settings::VisualStyle> m_style;
