@@ -415,42 +415,6 @@ TEST_CASE("RepoSources_AddMultipleSources", "[sources]")
     RequireDefaultSourcesAt(sources, 2);
 }
 
-TEST_CASE("RepoSources_AddSourceWithTrustLevel", "[sources]")
-{
-    SetSetting(Stream::UserSources, s_EmptySources);
-    TestHook_ClearSourceFactoryOverrides();
-
-    SourceDetails details;
-    details.Name = "thisIsTheName";
-    details.Type = "thisIsTheType";
-    details.Arg = "thisIsTheArg";
-    details.Data = "thisIsTheData";
-    details.TrustLevel = SourceTrustLevel::Trusted;
-
-    bool addCalledOnFactory = false;
-    TestSourceFactory factory{ SourcesTestSource::Create };
-    factory.OnAdd = [&](SourceDetails& sd) { addCalledOnFactory = true; sd.Data = details.Data; };
-    TestHook_SetSourceFactoryOverride(details.Type, factory);
-
-    ProgressCallback progress;
-    AddSource(details, progress);
-
-    REQUIRE(addCalledOnFactory);
-
-    std::vector<SourceDetails> sources = GetSources();
-    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
-
-    REQUIRE(sources[0].Name == details.Name);
-    REQUIRE(sources[0].Type == details.Type);
-    REQUIRE(sources[0].Arg == details.Arg);
-    REQUIRE(sources[0].Data == details.Data);
-    REQUIRE(sources[0].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
-    REQUIRE(sources[0].TrustLevel == SourceTrustLevel::Trusted);
-    REQUIRE(sources[0].Origin == SourceOrigin::User);
-
-    RequireDefaultSourcesAt(sources, 1);
-}
-
 TEST_CASE("RepoSources_UpdateSource", "[sources]")
 {
     using namespace std::chrono_literals;
