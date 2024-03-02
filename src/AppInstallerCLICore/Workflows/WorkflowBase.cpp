@@ -46,7 +46,7 @@ namespace AppInstaller::CLI::Workflow
             std::string_view name,
             std::string_view id,
             std::string_view version = {},
-            Execution::ReporterLevel level = Execution::ReporterLevel::Info)
+            Execution::Reporter::Level level = Execution::Reporter::Level::Info)
         {
             auto out = context.Reporter.GetOutputStream(level);
             out << prefix;

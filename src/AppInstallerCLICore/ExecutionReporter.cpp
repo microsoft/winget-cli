@@ -52,7 +52,7 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    OutputStream Reporter::GetOutputStream(ReporterLevel level)
+    OutputStream Reporter::GetOutputStream(Level level)
     {
         // If the level is not enabled, return a default stream which is disabled
         if (WI_AreAllFlagsClear(m_enabledLevels, level))
@@ -64,16 +64,16 @@ namespace AppInstaller::CLI::Execution
 
         switch (level)
         {
-        case ReporterLevel::Verbose:
+        case Level::Verbose:
             result.AddFormat(TextFormat::Default);
             break;
-        case ReporterLevel::Info:
+        case Level::Info:
             result.AddFormat(TextFormat::Default);
             break;
-        case ReporterLevel::Warning:
+        case Level::Warning:
             result.AddFormat(TextFormat::Foreground::BrightYellow);
             break;
-        case ReporterLevel::Error:
+        case Level::Error:
             result.AddFormat(TextFormat::Foreground::BrightRed);
             break;
         default:
@@ -117,7 +117,7 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    bool Reporter::PromptForBoolResponse(Resource::LocString message, ReporterLevel level)
+    bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level)
     {
         const std::vector<BoolPromptOption> options
         {
@@ -167,14 +167,14 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    void Reporter::PromptForEnter(ReporterLevel level)
+    void Reporter::PromptForEnter(Level level)
     {
         auto out = GetOutputStream(level);
         out << std::endl << Resource::String::PressEnterToContinue << std::endl;
         m_in.get();
     }
 
-    std::filesystem::path Reporter::PromptForPath(Resource::LocString message, ReporterLevel level)
+    std::filesystem::path Reporter::PromptForPath(Resource::LocString message, Level level)
     {
         auto out = GetOutputStream(level);
 
@@ -324,5 +324,17 @@ namespace AppInstaller::CLI::Execution
             m_out->Disable();
         }
         m_out->RestoreDefault();
+    }
+
+    void Reporter::SetLevelMask(Level reporterLevel, bool setEnabled) {
+
+        if (setEnabled)
+        {
+            WI_SetAllFlags(m_enabledLevels, reporterLevel);
+        }
+        else
+        {
+            WI_ClearAllFlags(m_enabledLevels, reporterLevel);
+        }
     }
 }

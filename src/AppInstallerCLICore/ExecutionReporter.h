@@ -23,18 +23,6 @@ namespace AppInstaller::CLI::Execution
 {
 #define WINGET_OSTREAM_FORMAT_HRESULT(hr) "0x" << Logging::SetHRFormat << hr
 
-    // The level for the Output channel.
-    enum class ReporterLevel : uint32_t
-    {
-        None = 0x0,
-        Verbose = 0x1,
-        Info = 0x2,
-        Warning = 0x4,
-        Error = 0x8,
-        All = Verbose | Info | Warning | Error,
-    };
-    DEFINE_ENUM_FLAG_OPERATORS(ReporterLevel);
-
     // One of the options available to the users when prompting for something.
     struct BoolPromptOption
     {
@@ -60,6 +48,17 @@ namespace AppInstaller::CLI::Execution
             Disabled,
         };
 
+        // The level for the Output channel.
+        enum class Level : uint32_t
+        {
+            None = 0x0,
+            Verbose = 0x1,
+            Info = 0x2,
+            Warning = 0x4,
+            Error = 0x8,
+            All = Verbose | Info | Warning | Error,
+        };
+
         Reporter(std::ostream& outStream, std::istream& inStream);
         Reporter(const Reporter&) = delete;
         Reporter& operator=(const Reporter&) = delete;
@@ -74,22 +73,22 @@ namespace AppInstaller::CLI::Execution
         ~Reporter();
 
         // Get a stream for verbose output.
-        OutputStream Verbose() { return GetOutputStream(ReporterLevel::Verbose); }
+        OutputStream Verbose() { return GetOutputStream(Level::Verbose); }
 
         // Get a stream for informational output.
-        OutputStream Info() { return GetOutputStream(ReporterLevel::Info); }
+        OutputStream Info() { return GetOutputStream(Level::Info); }
 
         // Get a stream for warning output.
-        OutputStream Warn() { return GetOutputStream(ReporterLevel::Warning); }
+        OutputStream Warn() { return GetOutputStream(Level::Warning); }
 
         // Get a stream for error output.
-        OutputStream Error() { return GetOutputStream(ReporterLevel::Error); }
+        OutputStream Error() { return GetOutputStream(Level::Error); }
 
         // Get a stream for outputting completion words.
         OutputStream Completion() { return OutputStream(*m_out, m_channel == Channel::Completion, false); }
 
         // Gets a stream for output of the given level.
-        OutputStream GetOutputStream(ReporterLevel level);
+        OutputStream GetOutputStream(Level level);
 
         void EmptyLine() { GetBasicOutputStream() << std::endl; }
 
@@ -101,13 +100,13 @@ namespace AppInstaller::CLI::Execution
         void SetStyle(AppInstaller::Settings::VisualStyle style);
 
         // Prompts the user, return true if they consented.
-        bool PromptForBoolResponse(Resource::LocString message, ReporterLevel level = ReporterLevel::Info);
+        bool PromptForBoolResponse(Resource::LocString message, Level level);
 
         // Prompts the user, continues when Enter is pressed
-        void PromptForEnter(ReporterLevel level = ReporterLevel::Info);
+        void PromptForEnter(Level level = Level::Info);
 
         // Prompts the user for a path.
-        std::filesystem::path PromptForPath(Resource::LocString message, ReporterLevel level = ReporterLevel::Info);
+        std::filesystem::path PromptForPath(Resource::LocString message, Level level);
 
         // Used to show indefinite progress. Currently an indefinite spinner is the form of
         // showing indefinite progress.
@@ -168,16 +167,10 @@ namespace AppInstaller::CLI::Execution
             m_progressSink = sink;
         }
 
-        void SetLevelEnabled(ReporterLevel reporterLevel, bool setEnabled = true)
-        {
-            if (setEnabled)
-            {
-                WI_SetAllFlags(m_enabledLevels, reporterLevel);
-            }
-            else
-            {
-                WI_ClearAllFlags(m_enabledLevels, reporterLevel);
-            }
+        void SetLevelMask(Level reporterLevel, bool setEnabled = true);
+
+        Level GetLevelMask() {
+            return m_enabledLevels;
         }
 
     private:
@@ -196,8 +189,10 @@ namespace AppInstaller::CLI::Execution
         std::atomic<IProgressSink*> m_progressSink;
 
         // Enable all levels by default
-        ReporterLevel m_enabledLevels = ReporterLevel::All;
+        Level m_enabledLevels = Level::All;
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(Reporter::Level);
 
     // Indirection to enable change without tracking down every place
     extern const VirtualTerminal::Sequence& HelpCommandEmphasis;
