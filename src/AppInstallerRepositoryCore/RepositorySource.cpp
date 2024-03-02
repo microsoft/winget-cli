@@ -889,9 +889,17 @@ namespace AppInstaller::Repository
                 // to avoid the progress bar fill up multiple times.
                 AddOrUpdateResult updateResult = UpdateSourceFromDetails(details, progress);
 
+                // Update the trust level if it does not match what was previously recorded in the source list.
+                auto detailsInternal = sourceList.GetSource(details.Name);
+                if (detailsInternal->TrustLevel != details.TrustLevel)
+                {
+                    // Figure out how to properly update the trust level.
+                    detailsInternal->TrustLevel = details.TrustLevel;
+                    AICLI_LOG(Repo, Info, << "TrustLevel updated to: " << Repository::SourceTrustLevelToString(details.TrustLevel));
+                }
+
                 if (updateResult.MetadataWritten)
                 {
-                    auto detailsInternal = sourceList.GetSource(details.Name);
                     detailsInternal->CopyMetadataFieldsFrom(details);
                     sourceList.SaveMetadata(*detailsInternal);
                 }

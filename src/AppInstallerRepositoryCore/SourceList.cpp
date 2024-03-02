@@ -24,6 +24,7 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_SourcesYaml_Source_Data = "Data"sv;
         constexpr std::string_view s_SourcesYaml_Source_Identifier = "Identifier"sv;
         constexpr std::string_view s_SourcesYaml_Source_IsTombstone = "IsTombstone"sv;
+        constexpr std::string_view s_SourcesYaml_Source_TrustLevel = "TrustLevel"sv;
 
         constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
         constexpr std::string_view s_MetadataYaml_Source_Name = "Name"sv;
@@ -36,10 +37,12 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://cdn.winget.microsoft.com/cache"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
+        constexpr std::string_view s_Source_WingetCommunityDefault_TrustLevel = "StoreOrigin | Trusted"sv;
 
         constexpr std::string_view s_Source_MSStoreDefault_Name = "msstore"sv;
         constexpr std::string_view s_Source_MSStoreDefault_Arg = "https://storeedgefd.dsx.mp.microsoft.com/v9.0"sv;
         constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
+        constexpr std::string_view s_Source_MSStoreDefault_TrustLevel = "Trusted"sv;
 
         constexpr std::string_view s_Source_DesktopFrameworks_Name = "microsoft.builtin.desktop.frameworks"sv;
         constexpr std::string_view s_Source_DesktopFrameworks_Arg = "https://cdn.winget.microsoft.com/platform"sv;
@@ -178,6 +181,7 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
                     out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
+                    out << YAML::Key << s_SourcesYaml_Source_TrustLevel << YAML::Value << static_cast<int>(details.TrustLevel);
                     out << YAML::EndMap;
                 }
             }
@@ -634,6 +638,13 @@ namespace AppInstaller::Repository
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
+
+                    int trustLevel{};
+                    if (TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_TrustLevel, trustLevel, false))
+                    {
+                        details.TrustLevel = static_cast<Repository::SourceTrustLevel>(trustLevel);
+                    }
+
                     return true;
                 });
 
