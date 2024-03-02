@@ -170,6 +170,11 @@ namespace AppInstaller::CLI::Execution
     void Reporter::PromptForEnter(Level level)
     {
         auto out = GetOutputStream(level);
+        if (!out.IsEnabled())
+        {
+            return;
+        }
+
         out << std::endl << Resource::String::PressEnterToContinue << std::endl;
         m_in.get();
     }
