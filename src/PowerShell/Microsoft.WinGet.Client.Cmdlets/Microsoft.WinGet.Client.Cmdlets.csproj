@@ -113,6 +113,7 @@
       <ManagedDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
       <ManagedDependency Include="$(OutputPath)WinRT.Runtime.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
       <ManagedDependency Include="$(OutputPath)Microsoft.Win32.Registry.dll" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+      <ManagedDependency Include="$(OutputPath)Semver.dll" />
     </ItemGroup>
     <Message Importance="high" Text="Copying managed shared dependencies: '@(ManagedDependency)'" />
     <Copy SourceFiles="@(ManagedDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />
