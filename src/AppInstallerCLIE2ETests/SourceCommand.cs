@@ -52,7 +52,6 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
         }
 
-
         /// <summary>
         /// Test source add with store origin trust level.
         /// </summary>
