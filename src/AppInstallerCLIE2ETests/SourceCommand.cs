@@ -59,14 +59,8 @@ namespace AppInstallerCLIE2ETests
         public void SourceAddWithStoreOriginTrustLevel()
         {
             var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level storeOrigin");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Done"));
-
-            var listResult = TestCommon.RunAICLICommand("source list", $"-n SourceTest");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
-            Assert.True(listResult.StdOut.Contains("Trust Level"));
-            Assert.True(listResult.StdOut.Contains("StoreOrigin"));
-            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_DATA_INTEGRITY_FAILURE, result.ExitCode);
+            Assert.True(result.StdOut.Contains("The source data is corrupted or tampered"));
         }
 
         /// <summary>
@@ -175,8 +169,8 @@ namespace AppInstallerCLIE2ETests
 
             var listResult2 = TestCommon.RunAICLICommand("source list", $"-n SourceTest");
             Assert.AreEqual(Constants.ErrorCode.S_OK, listResult2.ExitCode);
-            Assert.True(listResult.StdOut.Contains("Trust Level"));
-            Assert.True(listResult.StdOut.Contains("Trusted"));
+            Assert.True(listResult2.StdOut.Contains("Trust Level"));
+            Assert.True(listResult2.StdOut.Contains("Trusted"));
 
             TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
         }
