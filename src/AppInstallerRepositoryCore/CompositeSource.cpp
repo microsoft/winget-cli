@@ -433,7 +433,11 @@ namespace AppInstaller::Repository
                         }
                     }
 
-                    return availablePackage->GetAvailableVersion(versionKey);
+                    auto result = availablePackage->GetAvailableVersion(versionKey);
+                    if (result)
+                    {
+                        return result;
+                    }
                 }
 
                 return {};
