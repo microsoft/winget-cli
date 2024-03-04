@@ -893,8 +893,9 @@ namespace AppInstaller::Repository
                 auto detailsInternal = sourceList.GetSource(details.Name);
                 if (detailsInternal->TrustLevel != details.TrustLevel)
                 {
-                    // Figure out how to properly update the trust level.
+                    sourceList.RemoveSource(details);
                     detailsInternal->TrustLevel = details.TrustLevel;
+                    sourceList.AddSource(details);
                     AICLI_LOG(Repo, Info, << "TrustLevel updated to: " << Repository::SourceTrustLevelToString(details.TrustLevel));
                 }
 

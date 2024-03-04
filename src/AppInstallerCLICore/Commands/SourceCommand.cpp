@@ -157,6 +157,11 @@ namespace AppInstaller::CLI
 
     void SourceUpdateCommand::ExecuteInternal(Context& context) const
     {
+        if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
+        {
+            context << Workflow::EnsureRunningAsAdmin;
+        }
+
         context <<
             Workflow::GetSourceListWithFilter <<
             Workflow::UpdateSources;

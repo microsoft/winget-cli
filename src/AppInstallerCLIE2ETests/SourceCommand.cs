@@ -45,11 +45,28 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
 
-            var listResult = TestCommon.RunAICLICommand("source list", $"-n {Constants.TestSourceName}");
+            var listResult = TestCommon.RunAICLICommand("source list", $"-n SourceTest");
             Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
             Assert.True(listResult.StdOut.Contains("Trust Level"));
             Assert.True(listResult.StdOut.Contains("Trusted"));
+            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
+        }
 
+
+        /// <summary>
+        /// Test source add with store origin trust level.
+        /// </summary>
+        [Test]
+        public void SourceAddWithStoreOriginTrustLevel()
+        {
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level storeOrigin");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Done"));
+
+            var listResult = TestCommon.RunAICLICommand("source list", $"-n SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(listResult.StdOut.Contains("Trust Level"));
+            Assert.True(listResult.StdOut.Contains("StoreOrigin"));
             TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
         }
 
@@ -144,14 +161,25 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceUpdateWithTrustLevel()
         {
-            var updateResult = TestCommon.RunAICLICommand("source update", $"-n {Constants.TestSourceName} --trust-level trusted");
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Done"));
+
+            var listResult = TestCommon.RunAICLICommand("source list", $"-n SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            Assert.True(listResult.StdOut.Contains("Trust Level"));
+            Assert.True(listResult.StdOut.Contains("None"));
+
+            var updateResult = TestCommon.RunAICLICommand("source update", $"-n SourceTest --trust-level trusted");
             Assert.AreEqual(Constants.ErrorCode.S_OK, updateResult.ExitCode);
             Assert.True(updateResult.StdOut.Contains("Done"));
 
-            var listResult = TestCommon.RunAICLICommand("source list", $"-n {Constants.TestSourceName}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
+            var listResult2 = TestCommon.RunAICLICommand("source list", $"-n SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult2.ExitCode);
             Assert.True(listResult.StdOut.Contains("Trust Level"));
             Assert.True(listResult.StdOut.Contains("Trusted"));
+
+            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
         }
 
         /// <summary>
