@@ -100,14 +100,13 @@ namespace AppInstaller::Repository
             }
         }
 
-        // For a given package from a tracking catalog, get the latest write time and its corresponding package version.
+        // For a given package from a tracking catalog, get the latest write time.
         // Look at all versions rather than just the latest to account for the potential of downgrading.
-        std::pair<std::chrono::system_clock::time_point, std::shared_ptr<IPackageVersion>> GetLatestTrackingWriteTimeAndPackageVersion(
+        std::chrono::system_clock::time_point GetLatestTrackingWriteTime(
             const std::shared_ptr<ICompositePackage>& trackingCompositePackage)
         {
             std::shared_ptr<IPackage> trackingPackage = OnlyAvailable(trackingCompositePackage);
-            std::chrono::system_clock::time_point resultTime{};
-            std::shared_ptr<IPackageVersion> resultVersion;
+            std::chrono::system_clock::time_point result{};
 
             for (const auto& key : trackingPackage->GetVersionKeys())
             {
@@ -127,16 +126,15 @@ namespace AppInstaller::Repository
 
                         std::chrono::system_clock::time_point versionTime = Utility::ConvertUnixEpochToSystemClock(unixEpoch);
 
-                        if (versionTime > resultTime)
+                        if (versionTime > result)
                         {
-                            resultTime = versionTime;
-                            resultVersion = version;
+                            result = versionTime;
                         }
                     }
                 }
             }
 
-            return { resultTime, std::move(resultVersion) };
+            return result;
         }
 
         // An installed package's version reported in ARP does not necessarily match the versions used for the manifest.
@@ -653,11 +651,11 @@ namespace AppInstaller::Repository
 
             void AddAvailablePackage(const std::shared_ptr<ICompositePackage>& availablePackage, bool setPrimary = false)
             {
-                // Disable primary if feature not enabled
-                setPrimary = setPrimary && ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide);
-
                 if (availablePackage)
                 {
+                    // Disable primary if feature not enabled
+                    setPrimary = setPrimary && ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide);
+
                     m_availablePackages.emplace_back(OnlyAvailable(availablePackage));
 
                     if (setPrimary)
@@ -942,6 +940,8 @@ namespace AppInstaller::Repository
             // *Destructively* converts the result to the standard variant.
             SearchResult ConvertToSearchResult()
             {
+                FoldResults();
+
                 SearchResult result;
 
                 result.Matches.reserve(Matches.size());
@@ -1018,7 +1018,7 @@ namespace AppInstaller::Repository
             //  2. Attempt correlation by installed data only
             //      a. We can potentially detect multiple instances of the same installed item with the same correlation logic turned back on
             //          the installed source.  This would allow for folding even when the package is not in any available source.
-            void FoldInstalledResults()
+            void FoldResults()
             {
                 if (!ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide))
                 {
@@ -1450,79 +1450,46 @@ namespace AppInstaller::Repository
                 if (!installedPackageData.SystemReferenceStrings.empty())
                 {
                     SearchRequest systemReferenceSearch = installedPackageData.CreateInclusionsSearchRequest(SearchPurpose::CorrelationToAvailable);
-                    AICLI_LOG(Repo, Info, << "Finding available package from installed package using system reference search: " << systemReferenceSearch.ToString());
-
-                    Source trackedSource;
-                    std::shared_ptr<IPackage> trackingPackage;
-                    std::chrono::system_clock::time_point trackingPackageTime;
-                    bool foundAvailablePackageFromTracking = false;
-
-                    // Check the tracking catalog first to see if there is a correlation there.
-                    // TODO: When the issue with support for multiple available packages is fixed, this should move into
-                    //       the below available sources loop as we will check all sources at that point.
-                    for (const auto& source : m_availableSources)
-                    {
-                        auto trackingCatalog = source.GetTrackingCatalog();
-                        SearchResult trackingResult = trackingCatalog.Search(systemReferenceSearch);
-
-                        std::shared_ptr<ICompositePackage> candidatePackage = GetMatchingPackage(trackingResult.Matches,
-                            [&]() {
-                                AICLI_LOG(Repo, Info,
-                                << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
-                                "] in tracking catalog for source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
-                            }, [&] {
-                                AICLI_LOG(Repo, Warning, << "  Appropriate tracking package could not be determined");
-                            });
-
-                        // Determine the candidate package with the latest install time
-                        if (candidatePackage)
-                        {
-                            auto [candidateTime, candidateVersion] = GetLatestTrackingWriteTimeAndPackageVersion(candidatePackage);
-
-                            if (!trackingPackage || candidateTime > trackingPackageTime)
-                            {
-                                trackedSource = source;
-                                trackingPackage = OnlyAvailable(candidatePackage);
-                                trackingPackageTime = candidateTime;
-                            }
-                        }
-                    }
-
-                    // Directly search for the available package from tracking information.
-                    if (trackingPackage)
-                    {
-                        auto availablePackage = GetTrackedPackageFromAvailableSource(result, trackedSource, trackingPackage->GetProperty(PackageProperty::Id));
-                        if (availablePackage)
-                        {
-                            compositePackage->AddAvailablePackage(std::move(availablePackage), true);
-                            foundAvailablePackageFromTracking = true;
-                        }
-                        compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), trackingPackageTime);
-                    }
+                    AICLI_LOG(Repo, Verbose, << "Finding available package from installed package using system reference search: " << systemReferenceSearch.ToString());
 
                     // Search sources and add to result
                     for (const auto& source : m_availableSources)
                     {
-                        // Do not attempt to correlate local packages against this source
-                        if (!source.GetDetails().SupportInstalledSearchCorrelation)
+                        AICLI_LOG(Repo, Verbose, << " ... searching source: " << source.GetDetails().Name << " [" << source.GetIdentifier() << ']');
+
+                        // Find the tracking result with the latest timestamp.
+                        auto trackingCatalog = source.GetTrackingCatalog();
+                        SearchResult trackingResult = trackingCatalog.Search(systemReferenceSearch);
+
+                        std::shared_ptr<IPackage> trackingPackage;
+                        std::chrono::system_clock::time_point trackingPackageTime;
+                        bool trackingSet = false;
+
+                        for (const auto& trackingMatch : trackingResult.Matches)
                         {
-                            continue;
+                            auto candidateTime = GetLatestTrackingWriteTime(trackingMatch.Package);
+
+                            if (!trackingPackage || candidateTime > trackingPackageTime)
+                            {
+                                trackingPackage = OnlyAvailable(trackingMatch.Package);
+                                trackingPackageTime = candidateTime;
+                            }
                         }
 
-                        // Skip the source that the tracking correlation result came from if we found one
-                        if (foundAvailablePackageFromTracking && compositePackage->GetTrackingSource() == source)
+                        if (trackingPackage && trackingPackageTime > compositePackage->GetTrackingPackageWriteTime())
                         {
-                            continue;
+                            AICLI_LOG(Repo, Verbose, << " ... setting latest tracking package to: " << trackingPackage->GetProperty(PackageProperty::Id));
+                            compositePackage->SetTracking(source, trackingPackage, trackingPackageTime);
+                            trackingSet = true;
                         }
 
-                        SearchResult availableResult = result.SearchAndHandleFailures(source, systemReferenceSearch);
-
-                        if (availableResult.Matches.empty())
+                        // Attempt to correlate local packages against this source if supported.
+                        SearchResult availableResult;
+                        if (source.GetDetails().SupportInstalledSearchCorrelation)
                         {
-                            continue;
+                            availableResult = result.SearchAndHandleFailures(source, systemReferenceSearch);
                         }
 
-                        // We will keep matching packages found from all sources, but generally we will use only the first one.
                         auto availablePackage = GetMatchingPackage(availableResult.Matches,
                             [&]() {
                                 AICLI_LOG(Repo, Info,
@@ -1532,17 +1499,37 @@ namespace AppInstaller::Repository
                                 AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined");
                             });
 
-                        // For non pinning cases. We found some matching packages here, don't keep going.
-                        compositePackage->AddAvailablePackage(availablePackage);
+                        if (trackingPackage)
+                        {
+                            auto trackingIdentifier = trackingPackage->GetProperty(PackageProperty::Id);
+
+                            // We always want to take the available search result if it exists as the package may have been updated.
+                            if (availablePackage)
+                            {
+                                auto availableIdentifier = availablePackage->GetProperty(PackageProperty::Id);
+                                if (!Utility::ICUCaseInsensitiveEquals(availableIdentifier, trackingIdentifier))
+                                {
+                                    AICLI_LOG(Repo, Verbose, << " ... overriding tracking package (" << trackingIdentifier << ") with available package (" << availableIdentifier << ")");
+                                }
+                            }
+                            else
+                            {
+                                AICLI_LOG(Repo, Verbose, << " ... using tracking package: " << trackingIdentifier);
+                                availablePackage = GetTrackedPackageFromAvailableSource(result, source, trackingIdentifier);
+                            }
+                        }
+
+                        if (availablePackage)
+                        {
+                            AICLI_LOG(Repo, Verbose, << " ... adding available package: " << availablePackage->GetProperty(PackageProperty::Id));
+                            compositePackage->AddAvailablePackage(availablePackage, trackingSet);
+                        }
                     }
                 }
 
                 // Move the installed result into the composite result
                 result.Matches.emplace_back(std::move(compositePackage), std::move(match.MatchCriteria));
             }
-
-            // Group multiple instances of installed items into a single result item
-            result.FoldInstalledResults();
 
             // Optimization for the "everything installed" case, no need to allow for reverse correlations
             if (request.IsForEverything() && m_searchBehavior == CompositeSearchBehavior::Installed)
@@ -1597,9 +1584,7 @@ namespace AppInstaller::Repository
                             GetTrackedPackageFromAvailableSource(result, source, match.Package->GetProperty(PackageProperty::Id)),
                             true);
 
-                        auto [writeTime, trackingPackageVersion] = GetLatestTrackingWriteTimeAndPackageVersion(match.Package);
-
-                        compositePackage->SetTracking(source, OnlyAvailable(match.Package), writeTime);
+                        compositePackage->SetTracking(source, OnlyAvailable(match.Package), GetLatestTrackingWriteTime(match.Package));
 
                         result.Matches.emplace_back(std::move(compositePackage), match.MatchCriteria);
                     }
