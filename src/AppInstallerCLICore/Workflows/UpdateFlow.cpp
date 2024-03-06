@@ -87,6 +87,7 @@ namespace AppInstaller::CLI::Workflow
                 // The only way to enter this portion of the statement with isUpgrade is if the version is available
                 if (isUpgrade)
                 {
+                    AICLI_LOG(CLI, Verbose, << "Updating from [" << installedVersion.ToString() << "] to [" << key.Version << "]");
                     upgradeVersionAvailable = true;
                 }
 

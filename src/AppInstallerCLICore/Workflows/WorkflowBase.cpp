@@ -806,15 +806,21 @@ namespace AppInstaller::CLI::Workflow
                 continue;
             }
 
+            // We only want to evaluate update availability for the latest version.
+            bool isFirstInstalledVersion = true;
+
             for (const auto& installedVersionKey : installedPackage->GetVersionKeys())
             {
+                bool isFirstInstalledVersionLocal = isFirstInstalledVersion;
+                isFirstInstalledVersion = false;
+
                 auto installedVersion = installedPackage->GetVersion(installedVersionKey);
 
                 auto evaluator = pinningData.CreatePinStateEvaluator(pinBehavior, installedVersion);
                 auto availableVersions = GetAvailableVersionsForInstalledVersion(match.Package, installedVersion);
 
                 auto latestVersion = evaluator.GetLatestAvailableVersionForPins(availableVersions);
-                bool updateAvailable = evaluator.IsUpdate(latestVersion);
+                bool updateAvailable = isFirstInstalledVersionLocal && evaluator.IsUpdate(latestVersion);
                 bool updateIsPinned = false;
 
                 if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown() && updateAvailable)
@@ -824,7 +830,7 @@ namespace AppInstaller::CLI::Workflow
                     continue;
                 }
 
-                if (m_onlyShowUpgrades && !updateAvailable)
+                if (m_onlyShowUpgrades && !updateAvailable && isFirstInstalledVersionLocal)
                 {
                     // Reuse the evaluator to check if there is an update outside of the pinning
                     auto unpinnedLatestVersion = availableVersions->GetLatestVersion();

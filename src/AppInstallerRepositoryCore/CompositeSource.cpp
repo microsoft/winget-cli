@@ -370,27 +370,33 @@ namespace AppInstaller::Repository
                     {
                         installedVersion = key.InstalledVersion;
                         overrideVersion = key.Version;
+                        break;
                     }
                 }
 
-                // Get the appropriate tracking version or latest if it is not found.
-                // The tracking package uses the mapped version.
-                std::shared_ptr<IPackageVersion> trackingPackageVersion;
-                if (m_trackingPackage)
+                if (installedVersion)
                 {
-                    // Remove our use of the package id as source
-                    PackageVersionKey versionKey_NoSource = versionKey;
-                    versionKey_NoSource.SourceId.clear();
-
-                    trackingPackageVersion = m_trackingPackage->GetVersion(versionKey_NoSource);
-
-                    if (!trackingPackageVersion)
+                    // Get the appropriate tracking version or latest if it is not found.
+                    // The tracking package uses the mapped version.
+                    std::shared_ptr<IPackageVersion> trackingPackageVersion;
+                    if (m_trackingPackage)
                     {
-                        trackingPackageVersion = m_trackingPackage->GetLatestVersion();
+                        // Remove our use of the package id as source
+                        PackageVersionKey versionKey_NoSource = versionKey;
+                        versionKey_NoSource.SourceId.clear();
+
+                        trackingPackageVersion = m_trackingPackage->GetVersion(versionKey_NoSource);
+
+                        if (!trackingPackageVersion)
+                        {
+                            trackingPackageVersion = m_trackingPackage->GetLatestVersion();
+                        }
                     }
+
+                    return std::make_shared<CompositeInstalledVersion>(std::move(installedVersion), m_trackingSource, std::move(trackingPackageVersion), std::move(overrideVersion));
                 }
 
-                return installedVersion ? std::make_shared<CompositeInstalledVersion>(std::move(installedVersion), m_trackingSource, std::move(trackingPackageVersion), std::move(overrideVersion)) : nullptr;
+                return nullptr;
             }
 
             std::shared_ptr<IPackageVersion> GetLatestVersion() const override
