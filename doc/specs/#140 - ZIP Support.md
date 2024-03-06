@@ -27,12 +27,12 @@ Addition of `NestedInstallerType`:
 - Enumeration of supported nested installerTypes contained inside an archive file.
 
 Addition of `NestedInstallerFile`
-- Object containing metadata about a nested installer file contained inside an archive. 
+- Object containing metadata about a nested installer file contained inside an archive.
 - Properties:
     - `RelativeFilePath`: The relative path to a nested installer file contained inside an archive.
     - `PortableCommandAlias`: The command alias to be used for calling the package. Only applies to a nested portable package.
 
-These changes would be added to the `Installer` object with `NestedInstallerFiles` representing an array of `NestedInstallerFile`. 
+These changes would be added to the `Installer` object with `NestedInstallerFiles` representing an array of `NestedInstallerFile`.
 
 ### Manifest Validation:
 - Exactly one `NestedInstallerFile` entry must be specified for a non-portable nested installer type.
@@ -41,17 +41,17 @@ These changes would be added to the `Installer` object with `NestedInstallerFile
 
 ## Supported Install Scenarios:
 The initial implementation of this feature will only support the following installation scenarios:
-- Single base installer (exe, msi, msix) contained inside an archive file. 
+- Single base installer (exe, msi, msix) contained inside an archive file.
 - Single or multiple portable exes bundled as a suite inside an archive file.
 
 ## ZIP Extraction
-The extraction of ZIPs will be done using Windows Shell APIs. ZIP files can be represented as a [ShellFolder](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellfolder) object that can be used to manage the contents of the ZIP file. File contents are represented as [ShellItems](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellitem), which can be handled using the methods exposed by the [IFileOperation interface](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifileoperation). 
+The extraction of ZIPs will be done using Windows Shell APIs. ZIP files can be represented as a [ShellFolder](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellfolder) object that can be used to manage the contents of the ZIP file. File contents are represented as [ShellItems](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellitem), which can be handled using the methods exposed by the [IFileOperation interface](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifileoperation).
 
-In our initial implementation, we will only support extracting the top level archive to a temporary location. This means that the `NestedInstallerFile` must not be contained in any nested archives. The appropriate install flow will proceed based on the specified `NestedInstallerType`. 
+In our initial implementation, we will only support extracting the top level archive to a temporary location. This means that the `NestedInstallerFile` must not be contained in any nested archives. The appropriate install flow will proceed based on the specified `NestedInstallerType`.
 
 > If the community presents enough use cases that require decompressing additional layers, then we will consider extending this functionality and adding a separate manifest entry to override the default behavior of only unzipping the top level archive.
 
-> Since we are utilizing Windows Shell APIs, we need to ensure that we are not invoking a UI during the extraction. This can be done by [setting the operation flag to not display any UI](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nf-shobjidl_core-ifileoperation-setoperationflags). 
+> Since we are utilizing Windows Shell APIs, we need to ensure that we are not invoking a UI during the extraction. This can be done by [setting the operation flag to not display any UI](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nf-shobjidl_core-ifileoperation-setoperationflags).
 
 > During implementation, we will also need to ensure that this process can work under SYSTEM context.
 
@@ -62,9 +62,9 @@ ZIP and other archive file types are known threat vectors for malware in the for
 A ZIP file containing multiple layers of nested ZIP files that achieve high compression ratios when decompressed recursively. This technique is often used to bypass compression ratio checks performed by ZIP parsers for a single layer.
 
 2. **Single-Layered (non-recursive)**
-A ZIP bomb that expands fully after a single round of decompression. The extremely high compression ratio of the ZIP bomb is achieved by overlapping files within the ZIP container. 
+A ZIP bomb that expands fully after a single round of decompression. The extremely high compression ratio of the ZIP bomb is achieved by overlapping files within the ZIP container.
 
-In order to protect our users from these possible threats, we will need to scan the ZIP file for malware using [Pure, a static analysis file format checker](https://github.com/ronomon/pure). 
+In order to protect our users from these possible threats, we will need to scan the ZIP file for malware using [Pure, a static analysis file format checker](https://github.com/ronomon/pure).
 
 > Pure is licensed under the [MIT license](https://github.com/ronomon/pure/blob/master/LICENSE).
 
@@ -76,7 +76,7 @@ To minimize unnecessary costs on performance during installation, these checks w
 -  Untrusted source (i.e. installing from a local manifest, private source or third-party REST sources)
 
 ## Supporting Nested Portable(s) in an Archive
-Currently, information regarding a single installed portable is stored in the ARP entry. In order to support installing a single or multiple portables contained inside an archive file, we will need to create a separate record that will be stored with the extracted files. This record will contain a table capturing the list of files that were created and placed down as well as various metadata to enable us to verify whether they have been modified. This table should replace most of the uninstall-related information that is stored in ARP for a given portable package. 
+Currently, information regarding a single installed portable is stored in the ARP entry. In order to support installing a single or multiple portables contained inside an archive file, we will need to create a separate record that will be stored with the extracted files. This record will contain a table capturing the list of files that were created and placed down as well as various metadata to enable us to verify whether they have been modified. This table should replace most of the uninstall-related information that is stored in ARP for a given portable package.
 
 The table will contain the following information for each item that we create or place down during installation.
 

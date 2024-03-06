@@ -103,7 +103,7 @@ At line:1 char:1
 ```
 
 These errors most commonly occur for one of following reasons. Please try out the following troubleshooting steps.
-1. The App Installer does not contain the Windows Package Manager. You should check to ensure the version of App Installer is greater than 1.11.11451. You can check by executing the following command in PowerShell: 
+1. The App Installer does not contain the Windows Package Manager. You should check to ensure the version of App Installer is greater than 1.11.11451. You can check by executing the following command in PowerShell:
 
     >`Get-AppxPackage microsoft.desktopappinstaller`
 
@@ -122,7 +122,7 @@ If the above guidelines do not resolve the problem, please open an issue with de
 
 This error is related to networking and maps to "ERROR_INTERNET_CANNOT_CONNECT". It could be related to TLS (Transport Layer Security).
 
-This issue may be resolved by enabling TLS 1.2. 
+This issue may be resolved by enabling TLS 1.2.
 
 It may also be resolved by flushing your DNS cache. Instructions are available at [Microsoft Learn](https://learn.microsoft.com/windows-server/administration/windows-commands/ipconfig).
 

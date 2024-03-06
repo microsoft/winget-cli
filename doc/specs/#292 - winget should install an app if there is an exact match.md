@@ -12,7 +12,7 @@ For [#292](https://github.com/microsoft/winget-cli/issues/292)
 ## Abstract
 
 The winget.exe client attempts to be generous with the `search` command, but is a bit too generous with `install`. The *id*
-should be the unique key to identifying a package (other than the package version). It should also be case insensitive from the perspective of command execution, but it should be case sensitive in terms of the displayed value. 
+should be the unique key to identifying a package (other than the package version). It should also be case insensitive from the perspective of command execution, but it should be case sensitive in terms of the displayed value.
 
 If a manifest was created with the *id* "Git.Git" then that is what would be displayed in the client output.
 Any combination of case in the `install` command should match.
