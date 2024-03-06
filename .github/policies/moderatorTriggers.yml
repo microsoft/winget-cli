@@ -133,14 +133,6 @@ configuration:
                 then:
                   - addLabel:
                       label: Area-Matching
-              # Zipped-Binary
-              - if:
-                  - commentContains:
-                      pattern: '\[[Pp]olicy\]\s+[zZ]ip(ped)?[\s-][bB]inary'
-                      isRegex: True
-                then:
-                  - addLabel:
-                      label: Zipped-Binary
               # Area-Output
               - if:
                   - commentContains:
