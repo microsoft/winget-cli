@@ -91,12 +91,6 @@ configuration:
               - labelAdded:
                   label: Interactive-Only-Installer
               - labelAdded:
-                  label: Issue-Bug
-              - labelAdded:
-                  label: Issue-Docs
-              - labelAdded:
-                  label: Issue-Feature
-              - labelAdded:
                   label: msstore
               - labelAdded:
                   label: Needs-Attention
