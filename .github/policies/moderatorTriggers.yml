@@ -51,8 +51,11 @@ configuration:
               - or:
                   - payloadType: Issue_Comment
                   - payloadType: Pull_Request_Review_Comment
+            # Remove the Needs-Triage label
             # Take different actions based on the comment pattern
             then:
+              - removeLabel:
+                  label: Needs-Triage
               # Area-Accessibility
               - if:
                   - commentContains:
