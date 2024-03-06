@@ -125,6 +125,11 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
             }
 
+            if (context.Args.Contains(Execution::Args::Type::SourceRequireExplicit))
+            {
+                sourceToAdd.SetRequireExplicit(true);
+            }
+
             context << Workflow::HandleSourceAgreements(sourceToAdd);
             if (context.IsTerminated())
             {
@@ -156,6 +161,7 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ Resource::LocString(Resource::String::SourceListArg), source.Arg });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListData), source.Data });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListIdentifier), source.Identifier });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListRequireExplicit), std::string{ Utility::ConvertBoolToString(source.RequireExplicit) } });
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
             {
@@ -198,10 +204,18 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::SourceUpdateAll << std::endl;
         }
 
+        bool setRequireExplicit = context.Args.Contains(Args::Type::SourceRequireExplicit);
+
         const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
         for (const auto& sd : sources)
         {
             Repository::Source source{ sd.Name };
+
+            if (setRequireExplicit)
+            {
+                source.SetRequireExplicit(true);
+            }
+
             context.Reporter.Info() << Resource::String::SourceUpdateOne(Utility::LocIndView{ sd.Name }) << std::endl;
             auto updateFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Update(progress); };
             auto sourceDetails = context.Reporter.ExecuteWithProgress(updateFunction);

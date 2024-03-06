@@ -265,6 +265,8 @@ namespace AppInstaller::Repository
 
             void SetCaller(std::string caller) override { m_wrapped->SetCaller(std::move(caller)); }
 
+            void SetRequireExplicit(bool value) override { m_wrapped->SetRequireExplicit(value); }
+
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 return std::make_shared<TrackingOnlySourceWrapper>(m_wrapped);
@@ -565,6 +567,14 @@ namespace AppInstaller::Repository
         for (auto& sourceReference : m_sourceReferences)
         {
             sourceReference->SetAuthenticationArguments(args);
+        }
+    }
+
+    void Source::SetRequireExplicit(bool value)
+    {
+        for (auto& sourceReference : m_sourceReferences)
+        {
+            sourceReference->SetRequireExplicit(value);
         }
     }
 
@@ -887,14 +897,17 @@ namespace AppInstaller::Repository
         return m_trackingCatalog;
     }
 
-    std::vector<SourceDetails> Source::GetCurrentSources()
+    std::vector<SourceDetails> Source::GetCurrentSources(bool excludeExplicitSources)
     {
         SourceList sourceList;
 
         std::vector<SourceDetails> result;
         for (auto&& source : sourceList.GetCurrentSourceRefs())
         {
-            result.emplace_back(std::move(source));
+            if (!excludeExplicitSources || source.get().RequireExplicit)
+            {
+                result.emplace_back(std::move(source));
+            }
         }
 
         return result;

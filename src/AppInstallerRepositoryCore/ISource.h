@@ -88,6 +88,9 @@ namespace AppInstaller::Repository
         // Set caller.
         virtual void SetCaller(std::string) {}
 
+        // Set boolean value indicating whether 
+        virtual void SetRequireExplicit(bool) {}
+
         // Set authentication arguments.
         virtual void SetAuthenticationArguments(Authentication::AuthenticationArguments) {}
 

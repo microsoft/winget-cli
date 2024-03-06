@@ -200,6 +200,9 @@ namespace AppInstaller::Settings
                 && readSourceAttribute("Type", &SourceFromPolicy::Type)
                 && readSourceAttribute("Data", &SourceFromPolicy::Data)
                 && readSourceAttribute("Identifier", &SourceFromPolicy::Identifier);
+
+            // Add fields for source policy.
+            
             if (!allRead)
             {
                 return std::nullopt;

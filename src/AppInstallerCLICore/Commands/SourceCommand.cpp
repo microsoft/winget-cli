@@ -54,6 +54,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::SourceType),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Args::Type::SourceRequireExplicit),
         };
     }
 
@@ -158,6 +159,15 @@ namespace AppInstaller::CLI
         context <<
             Workflow::GetSourceListWithFilter <<
             Workflow::UpdateSources;
+    }
+
+    void SourceUpdateCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        if (execArgs.Contains(Execution::Args::Type::SourceRequireExplicit) &&
+            !execArgs.Contains(Execution::Args::Type::SourceName))
+        {
+            throw CommandException(Resource::String::RequiredArgError("name"_liv));
+        }
     }
 
     std::vector<Argument> SourceRemoveCommand::GetArguments() const

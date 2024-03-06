@@ -2817,4 +2817,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED" xml:space="preserve">
     <value>The SQLite connection was terminated to prevent corruption.</value>
   </data>
+  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
+    <value>Excludes a source from discovery by default unless explicitly declared</value>
+  </data>
+  <data name="SourceListRequireExplicit" xml:space="preserve">
+    <value>RequireExplicit</value>
+  </data>
 </root>
