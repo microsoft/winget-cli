@@ -31,7 +31,7 @@ The following arguments are available:
 The following options are available:
 
 | Option | Description |
-|--------|-------------|  
+|--------|-------------|
 | **-m, --msix**  | Specifies that the hash command will also create the SHA-256 SignatureSha256 for use with MSIX installers. |
 | **-?, --help** |  Gets additional help on this command. |
 | **--wait** | Prompts the user to press any key before exiting |

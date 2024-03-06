@@ -152,7 +152,7 @@ ms.localizationpriority: medium
 | 0x8A150107 | -1978334969 | APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK | This application requires internet connectivity. Connect to a network then try again. |
 | 0x8A150108 | -1978334968 | APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT | This application encountered an error during installation. Contact support. |
 | 0x8A150109 | -1978334967 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH | Restart your PC to finish installation. |
-| 0x8A15010A | -1978334966 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL | 
+| 0x8A15010A | -1978334966 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL |
 Installation failed. Restart your PC then try again. |
 | 0x8A15010B | -1978334965 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED | Your PC will restart to finish installation. |
 | 0x8A15010C | -1978334964 | APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER | You cancelled the installation. |

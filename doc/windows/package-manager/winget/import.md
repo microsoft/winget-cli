@@ -22,7 +22,7 @@ The **import** command is often used to share your developer environment or buil
 
 The following arguments are available.
 | Argument    | Description |
-|-------------|-------------|  
+|-------------|-------------|
 | **-i, --import-file** | JSON file describing the packages to install
 
 ## Options
@@ -30,7 +30,7 @@ The following arguments are available.
 The options allow you to customize the import experience to meet your needs.
 
 | Option | Description |
-|-------------|-------------|  
+|-------------|-------------|
 | **--ignore-unavailable** | Suppresses errors if the app requested is unavailable |
 | **--ignore-versions** | Ignores versions specified in the JSON file and installs the latest available version |
 | **--no-upgrade** | Skips upgrade if an installed version already exists |
@@ -47,7 +47,7 @@ The driving force behind the **import** command is the JSON file.  You can find 
 
 The JSON file includes the following hierarchy:
 | Entry      | Description |
-|-------------|-------------|  
+|-------------|-------------|
 | **Sources**  |  The sources application manifests come from.  |
 | **Packages**  |  The collection of packages to install.  |
 | **PackageIdentifier**  |  The Windows Package Manager package identifier used to specify the package.  |

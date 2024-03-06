@@ -39,18 +39,18 @@ name: Check Spelling
 on:
   push:
     branches:
-    - "**"
+      - '**'
     tags-ignore:
-    - "**"
+      - '**'
   pull_request_target:
     branches:
-    - "**"
+      - '**'
     tags-ignore:
-    - "**"
+      - '**'
     types:
-    - 'opened'
-    - 'reopened'
-    - 'synchronize'
+      - 'opened'
+      - 'reopened'
+      - 'synchronize'
 
 jobs:
   spelling:
@@ -68,26 +68,26 @@ jobs:
       # note: If you use only_check_changed_files, you do not want cancel-in-progress
       cancel-in-progress: true
     steps:
-    - name: check-spelling
-      id: spelling
-      uses: check-spelling/check-spelling@v0.0.21
-      with:
-        suppress_push_for_open_pull_request: 1
-        checkout: true
-        check_file_names: 1
-        spell_check_this: check-spelling/spell-check-this@prerelease
-        post_comment: 0
-        use_magic_file: 1
-        extra_dictionary_limit: 10
-        extra_dictionaries:
-          cspell:cpp/src/compiler-msvc.txt
-          cspell:cpp/src/cpp.txt
-          cspell:cpp/src/stdlib-c.txt
-          cspell:cpp/src/stdlib-cpp.txt
-          cspell:filetypes/filetypes.txt
-          cspell:fullstack/fullstack.txt
-          cspell:powershell/powershell.txt
-          cspell:software-terms/src/software-terms.txt
+      - name: check-spelling
+        id: spelling
+        uses: check-spelling/check-spelling@v0.0.21
+        with:
+          suppress_push_for_open_pull_request: 1
+          checkout: true
+          check_file_names: 1
+          spell_check_this: check-spelling/spell-check-this@prerelease
+          post_comment: 0
+          use_magic_file: 1
+          extra_dictionary_limit: 10
+          extra_dictionaries:
+            cspell:cpp/src/compiler-msvc.txt
+            cspell:cpp/src/cpp.txt
+            cspell:cpp/src/stdlib-c.txt
+            cspell:cpp/src/stdlib-cpp.txt
+            cspell:filetypes/filetypes.txt
+            cspell:fullstack/fullstack.txt
+            cspell:powershell/powershell.txt
+            cspell:software-terms/src/software-terms.txt
 
   comment-push:
     name: Report (Push)
@@ -98,12 +98,12 @@ jobs:
       contents: write
     if: (success() || failure()) && needs.spelling.outputs.followup && github.event_name == 'push'
     steps:
-    - name: comment
-      uses: check-spelling/check-spelling@v0.0.21
-      with:
-        checkout: true
-        spell_check_this: check-spelling/spell-check-this@prerelease
-        task: ${{ needs.spelling.outputs.followup }}
+      - name: comment
+        uses: check-spelling/check-spelling@v0.0.21
+        with:
+          checkout: true
+          spell_check_this: check-spelling/spell-check-this@prerelease
+          task: ${{ needs.spelling.outputs.followup }}
 
   comment-pr:
     name: Report (PR)
@@ -114,9 +114,9 @@ jobs:
       pull-requests: write
     if: (success() || failure()) && needs.spelling.outputs.followup && contains(github.event_name, 'pull_request')
     steps:
-    - name: comment
-      uses: check-spelling/check-spelling@v0.0.21
-      with:
-        checkout: true
-        spell_check_this: check-spelling/spell-check-this@prerelease
-        task: ${{ needs.spelling.outputs.followup }}
+      - name: comment
+        uses: check-spelling/check-spelling@v0.0.21
+        with:
+          checkout: true
+          spell_check_this: check-spelling/spell-check-this@prerelease
+          task: ${{ needs.spelling.outputs.followup }}

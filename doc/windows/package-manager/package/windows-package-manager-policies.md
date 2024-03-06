@@ -8,7 +8,7 @@
 
 Thank you for your interest in providing a Product to the Windows Package Manager repository.
 
-"Product" means content in whatever form including, but not limited to, apps, games, titles, and any additional content sold or offered from within a Product.  
+"Product" means content in whatever form including, but not limited to, apps, games, titles, and any additional content sold or offered from within a Product.
 "Submission" means [**Pull Request**](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
  of manifest files and includes but is not limited to the "Product" and metadata about the "Product".
 
@@ -69,10 +69,10 @@ All aspects of the Product should accurately describe the functions, features an
 
 ### 1.1.3
 
-The Product must have distinct and informative metadata and must provide a valuable and quality user experience.  
+The Product must have distinct and informative metadata and must provide a valuable and quality user experience.
 
 ### 1.1.4
-The [InstallerUrl](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.4.0/manifest.defaultLocale.1.4.0.json) must be the ISVs release location for the Product.  Products from download websites will not be allowed.  
+The [InstallerUrl](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.4.0/manifest.defaultLocale.1.4.0.json) must be the ISVs release location for the Product.  Products from download websites will not be allowed.
 
 ### 1.2 Security
 
@@ -278,4 +278,3 @@ User Generated Content (UGC) is content that users contribute to an app or Produ
 - [Change history for Windows Package Manager Policy History](windows-package-manager-policies-change-history.md)
 - [Windows Package Manager Code of Conduct](https://github.com/microsoft/winget-pkgs/blob/master/CODE_OF_CONDUCT.md)
 - [Windows Package Manager Contributing requirements](https://github.com/microsoft/winget-pkgs/blob/master/README.md)
- 
