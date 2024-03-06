@@ -224,7 +224,7 @@ configuration:
                       isRegex: True
                 then:
                   - addLabel:
-                      label: command-download
+                      label: Command-Download
               # Command-Export
               - if:
                   - commentContains:
@@ -556,7 +556,7 @@ configuration:
                   - removeLabel:
                       label: Command-Configure
                   - removeLabel:
-                      label: command-download
+                      label: Command-Download
                   - removeLabel:
                       label: Command-Export
                   - removeLabel:
