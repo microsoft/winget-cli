@@ -173,6 +173,14 @@ configuration:
                 then:
                   - addLabel:
                       label: Area-Settings
+              # Area-Sorting
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][sS]orting'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Sorting
               # Area-User-Interface
               - if:
                   - commentContains:
@@ -539,6 +547,8 @@ configuration:
                       label: Area-Scope
                   - removeLabel:
                       label: Area-Settings
+                  - removeLabel:
+                      label: Area-Sorting
                   - removeLabel:
                       label: Area-User-Interface
                   - removeLabel:
