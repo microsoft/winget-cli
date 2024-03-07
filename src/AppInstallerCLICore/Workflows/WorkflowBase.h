@@ -353,6 +353,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportPackageIdentity(Execution::Context& context);
 
+    // Reports the installed package version identity.
+    // Required Args: None
+    // Inputs: InstalledPackageVersion
+    // Outputs: None
+    void ReportInstalledPackageVersionIdentity(Execution::Context& context);
+
     // Reports the manifest's identity.
     // Required Args: None
     // Inputs: Manifest

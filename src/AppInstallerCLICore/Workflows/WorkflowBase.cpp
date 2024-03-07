@@ -1226,6 +1226,13 @@ namespace AppInstaller::CLI::Workflow
         ReportIdentity(context, {}, Resource::String::ReportIdentityFound, package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
     }
 
+    void ReportInstalledPackageVersionIdentity(Execution::Context& context)
+    {
+        auto package = context.Get<Execution::Data::Package>();
+        auto version = context.Get<Execution::Data::InstalledPackageVersion>();
+        ReportIdentity(context, {}, Resource::String::ReportIdentityFound, version->GetProperty(PackageVersionProperty::Name), package ? package->GetProperty(PackageProperty::Id) : version->GetProperty(PackageVersionProperty::Id));
+    }
+
     void ReportManifestIdentity(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
@@ -1361,7 +1368,38 @@ namespace AppInstaller::CLI::Workflow
 
     void GetInstalledPackageVersion(Execution::Context& context)
     {
-        context.Add<Execution::Data::InstalledPackageVersion>(GetInstalledVersion(context.Get<Execution::Data::Package>()));
+        std::shared_ptr<IPackage> installed = context.Get<Execution::Data::Package>()->GetInstalled();
+
+        if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide))
+        {
+            if (installed)
+            {
+                // TODO: This may need to be expanded dramatically to enable targeting across a variety of dimensions (architecture, etc.)
+                //       Alternatively, if we make it easier to see the fully unique package identifiers, we may avoid that need.
+                if (context.Args.Contains(Execution::Args::Type::TargetVersion))
+                {
+                    Repository::PackageVersionKey versionKey{ "", context.Args.GetArg(Execution::Args::Type::TargetVersion) , "" };
+                    std::shared_ptr<IPackageVersion> installedVersion = installed->GetVersion(versionKey);
+
+                    if (!installedVersion)
+                    {
+                        context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound(Utility::LocIndView{ versionKey.Version }) << std::endl;
+                        // This error maintains consistency with passing an available version to commands
+                        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
+                    }
+
+                    context.Add<Execution::Data::InstalledPackageVersion>(std::move(installedVersion));
+                }
+                else
+                {
+                    context.Add<Execution::Data::InstalledPackageVersion>(installed->GetLatestVersion());
+                }
+            }
+        }
+        else
+        {
+            context.Add<Execution::Data::InstalledPackageVersion>(GetInstalledVersion(context.Get<Execution::Data::Package>()));
+        }
     }
 
     void ReportExecutionStage::operator()(Execution::Context& context) const
