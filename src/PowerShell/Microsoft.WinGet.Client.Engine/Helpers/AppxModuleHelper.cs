@@ -379,10 +379,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private async Task InstallUiXamlAsync(string releaseTag)
         {
             (string xamlPackageName, string xamlReleaseTag) = GetXamlDependencyVersionInfo(releaseTag);
-            string xamlAssetX64 = string.Format($"{0}.x64.appx", xamlPackageName);
-            string xamlAssetX86 = string.Format($"{0}.x86.appx", xamlPackageName);
-            string xamlAssetArm = string.Format($"{0}.arm.appx", xamlPackageName);
-            string xamlAssetArm64 = string.Format($"{0}.arm64.appx", xamlPackageName);
+            string xamlAssetX64 = string.Format("{0}.x64.appx", xamlPackageName);
+            string xamlAssetX86 = string.Format("{0}.x86.appx", xamlPackageName);
+            string xamlAssetArm = string.Format("{0}.arm.appx", xamlPackageName);
+            string xamlAssetArm64 = string.Format("{0}.arm64.appx", xamlPackageName);
 
             var uiXamlObjs = this.GetAppxObject(xamlPackageName);
             if (uiXamlObjs is null)
