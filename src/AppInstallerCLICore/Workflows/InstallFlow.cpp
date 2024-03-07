@@ -374,9 +374,8 @@ namespace AppInstaller::CLI::Workflow
     void ExecuteInstallerForType::operator()(Execution::Context& context) const
     {
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
-        //UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
-        //bool doUninstallPrevious = isUpdate && (updateBehavior == UpdateBehaviorEnum::UninstallPrevious || context.Args.Contains(Execution::Args::Type::UninstallPrevious));
-        bool doUninstallPrevious = false;
+        UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
+        bool doUninstallPrevious = isUpdate && (updateBehavior == UpdateBehaviorEnum::UninstallPrevious || context.Args.Contains(Execution::Args::Type::UninstallPrevious));
 
         Synchronization::CrossProcessInstallLock lock;
         if (!ExemptFromSingleInstallLocking(m_installerType))

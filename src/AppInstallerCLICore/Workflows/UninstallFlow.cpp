@@ -78,7 +78,7 @@ namespace AppInstaller::CLI::Workflow
             installedVersionKeys = installed->GetVersionKeys();
         }
 
-        // Handle 
+        // Handle multiple installed versions when we have been told to uninstall all of them.
         if (installedVersionKeys.size() > 1 && context.Args.Contains(Execution::Args::Type::AllVersions))
         {
             bool allSucceeded = true;
