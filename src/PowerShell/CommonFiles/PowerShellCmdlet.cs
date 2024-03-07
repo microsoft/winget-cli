@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PowerShellCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -281,6 +281,7 @@ namespace Microsoft.WinGet.Common.Command
                     {
                         try
                         {
+                            this.pwshThreadEdi = null;
                             this.pwshThreadAction();
                         }
                         catch (Exception e)
@@ -596,12 +597,17 @@ namespace Microsoft.WinGet.Common.Command
                 this.pwshThreadActionCompleted.WaitHandle,
             });
 
-            if (this.pwshThreadEdi != null)
+            try
             {
-                this.pwshThreadEdi.Throw();
+                if (this.pwshThreadEdi != null)
+                {
+                    this.pwshThreadEdi.Throw();
+                }
             }
-
-            this.semaphore.Release();
+            finally
+            {
+                this.semaphore.Release();
+            }
         }
 
         private class QueuedStream
