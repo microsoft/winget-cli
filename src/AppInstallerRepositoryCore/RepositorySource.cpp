@@ -265,6 +265,8 @@ namespace AppInstaller::Repository
 
             void SetCaller(std::string caller) override { m_wrapped->SetCaller(std::move(caller)); }
 
+            void SetRequireExplicit(bool value) override { m_wrapped->SetRequireExplicit(value); }
+
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 return std::make_shared<TrackingOnlySourceWrapper>(m_wrapped);
@@ -623,6 +625,14 @@ namespace AppInstaller::Repository
         }
     }
 
+    void Source::SetRequireExplicit(bool value)
+    {
+        for (auto& sourceReference : m_sourceReferences)
+        {
+            sourceReference->SetRequireExplicit(value);
+        }
+    }
+
     void Source::SetBackgroundUpdateInterval(TimeSpan interval)
     {
         m_backgroundUpdateInterval = interval;
@@ -956,7 +966,7 @@ namespace AppInstaller::Repository
         SourceList sourceList;
 
         std::vector<SourceDetails> result;
-        for (auto&& source : sourceList.GetCurrentSourceRefs())
+        for (auto&& source : sourceList.GetCurrentSourceRefs(true))
         {
             result.emplace_back(std::move(source));
         }

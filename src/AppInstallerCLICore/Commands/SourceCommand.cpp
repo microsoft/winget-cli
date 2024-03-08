@@ -55,6 +55,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::SourceTrustLevel),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Args::Type::SourceRequireExplicit),
         };
     }
 
@@ -169,7 +170,7 @@ namespace AppInstaller::CLI
 
     void SourceUpdateCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::SourceTrustLevel) &&
+        if ((execArgs.Contains(Execution::Args::Type::SourceTrustLevel) || execArgs.Contains(Execution::Args::Type::SourceRequireExplicit)) &&
             !execArgs.Contains(Execution::Args::Type::SourceName))
         {
             throw CommandException(Resource::String::RequiredArgError("name"_liv));

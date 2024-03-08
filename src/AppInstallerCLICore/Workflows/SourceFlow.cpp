@@ -132,6 +132,12 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
             }
 
+            if (context.Args.Contains(Execution::Args::Type::SourceRequireExplicit))
+            {
+                sourceToAdd.SetRequireExplicit(true);
+                AICLI_LOG(CLI, Info, << "Source added is explicit: " << name);
+            }
+
             context << Workflow::HandleSourceAgreements(sourceToAdd);
             if (context.IsTerminated())
             {
@@ -163,6 +169,7 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ Resource::LocString(Resource::String::SourceListArg), source.Arg });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListData), source.Data });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListIdentifier), source.Identifier });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListRequireExplicit), std::string{ Utility::ConvertBoolToString(source.RequireExplicit) } });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListTrustLevel), std::string{ Repository::SourceTrustLevelToString(source.TrustLevel) } });
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
@@ -206,12 +213,19 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::SourceUpdateAll << std::endl;
         }
 
+        bool setRequireExplicit = context.Args.Contains(Args::Type::SourceRequireExplicit);
         bool shouldSetTrustLevel = context.Args.Contains(Args::Type::SourceTrustLevel);
         const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
 
         for (const auto& sd : sources)
         {
             Repository::Source source{ sd.Name };
+
+            if (setRequireExplicit)
+            {
+                source.SetRequireExplicit(true);
+            }
+
 
             if (shouldSetTrustLevel)
             {

@@ -141,6 +141,9 @@ namespace AppInstaller::Repository
         // This value is used as an alternative to the `Arg` value if it is failing to function properly.
         // The alternate location must point to identical data or inconsistencies may arise.
         std::string AlternateArg;
+
+        // Whether the source should be hidden by default unless explicitly declared.
+        bool RequireExplicit = false;
     };
 
     // Individual source agreement entry. Label will be highlighted in the display as the key of the agreement entry.
@@ -261,6 +264,9 @@ namespace AppInstaller::Repository
 
         // Set authentication arguments. Must be set before Open to have effect.
         void SetAuthenticationArguments(Authentication::AuthenticationArguments args);
+
+        // Indicates whether to a source is shown by default without explicitly declaring it.
+        void SetRequireExplicit(bool value);
 
         // Set background update check interval.
         void SetBackgroundUpdateInterval(TimeSpan interval);

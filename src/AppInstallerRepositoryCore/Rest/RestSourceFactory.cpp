@@ -42,6 +42,11 @@ namespace AppInstaller::Repository::Rest
                 m_caller = std::move(caller);
             }
 
+            void SetRequireExplicit(bool value) override
+            {
+                m_requireExplicit = value;
+            }
+
             void SetTrustLevel(Repository::SourceTrustLevel trustLevel) override
             {
                 m_details.TrustLevel = trustLevel;
@@ -92,6 +97,7 @@ namespace AppInstaller::Repository::Rest
             std::string m_caller;
             Authentication::AuthenticationArguments m_authArgs;
             std::once_flag m_initializeFlag;
+            bool m_requireExplicit = false;
         };
 
         // The base class for data that comes from a rest based source.
