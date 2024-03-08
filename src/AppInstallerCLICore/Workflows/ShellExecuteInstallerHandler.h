@@ -34,4 +34,30 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest?, Installer, InstallerPath
     // Outputs: InstallerArgs
     void GetInstallerArgs(Execution::Context& context);
+
+    // Repair is done through invoking ShellExecute on downloaded installer.
+    // Required Args: None
+    // Inputs: Manifest?, InstallerPath, InstallerArgs
+    // Outputs: OperationReturnCode
+    void ShellExecuteRepairImpl(Execution::Context& context);
+
+    // Repair the MSI
+    // Required Args: None
+    // Inputs: ProductCodes
+    // Output: None
+    void ShellExecuteMsiExecRepair(Execution::Context& context);
+
+    // Enables the Windows Feature dependency by invoking ShellExecute on the DISM executable.
+    // Required Args: None
+    // Inputs: Windows Feature dependency
+    // Outputs: None
+    struct ShellExecuteEnableWindowsFeature : public WorkflowTask
+    {
+        ShellExecuteEnableWindowsFeature(std::string_view featureName) : WorkflowTask("ShellExecuteEnableWindowsFeature"), m_featureName(featureName) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        std::string_view m_featureName;
+    };
 }

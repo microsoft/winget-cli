@@ -1,0 +1,78 @@
+{
+    "$id": "https://aka.ms/schemas/dsc/configuration.schema.0.1.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "A representation of a configuration used by an orchestrator for WinDSC.",
+    "type": "object",
+    "properties": {
+        "properties": {
+            "type": "object",
+            "properties": {
+                "assertions": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/resource" }
+                },
+                "resources": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/resource" }
+                },
+                "parameters": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/resource" },
+                    "description": "Resources that retrieve information via a 'get' operation."
+                },
+                "configurationVersion": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+                    "maxLength": 128,
+                    "default": "0.1.0",
+                    "description": "The configuration syntax version."
+                }
+            },
+            "required": ["configurationVersion"]
+        }
+    },
+
+    "$defs": {
+        "resource": {
+            "type": "object",
+            "properties": {
+                "resource": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "description": "The name of the resource."
+                },
+                "id": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "description": "The identifier of this item."
+                },
+                "dependsOn": {
+                    "type": [ "array", "null" ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true,
+                    "description": "The list of resource ids identifying dependencies."
+                },
+                "directives": {
+                    "type": "object", 
+                    "properties": {
+                        "module": {
+                            "type": "string",
+                            "maxLength": 128,
+                            "description": "The name of the module."
+                        },
+                        "description": {
+                            "type": "string",
+                            "maxLength": 512,
+                            "description": "The description of the desired state."
+                        }
+                    },
+                    "additionalProperties": true
+                },
+                "settings": { "type": "object" }
+            },
+            "required": ["resource"]
+        }
+    }
+}

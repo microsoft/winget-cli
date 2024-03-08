@@ -1,0 +1,1001 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+namespace Microsoft.Management.Configuration
+{
+    [contractversion(2)]
+    apicontract Contract{};
+
+    // The current state of a configuration set.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationSetState
+    {
+        // The state of the configuration set is unknown.
+        Unknown,
+        // The configuration set is in the queue to be applied.
+        Pending,
+        // The configuration set is actively being applied.
+        InProgress,
+        // The configuration set has completed being applied.
+        Completed,
+    };
+
+    // The current state of a configuration unit.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationUnitState
+    {
+        // The state of the configuration unit is unknown.
+        Unknown,
+        // The configuration unit is in the queue to be applied.
+        Pending,
+        // The configuration unit is actively being applied.
+        InProgress,
+        // The configuration unit has completed being applied.
+        Completed,
+        // The configuration unit was not applied due to external factors.
+        Skipped,
+    };
+
+    // Defines the type of detail probing that is allowed about a configuration unit.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    [flags]
+    enum ConfigurationUnitDetailFlags
+    {
+        // For completeness.
+        None = 0,
+        // Only reads details from local data.
+        Local = 0x1,
+        // Can query the catalog information for details, but will not download any modules.
+        Catalog = 0x2,
+        // Can only read data, not write or execute.
+        ReadOnly = Local | Catalog,
+        // Can download modules, but not load them.
+        Download = 0x4,
+        // Can load modules for details.
+        Load = 0x8,
+    };
+
+    // The source of a result; for instance, the part of the system that generated a failure.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationUnitResultSource
+    {
+        // The source is not known, or more likely, there was no failure.
+        None,
+        // The result came from inside the configuration system; this is likely a bug.
+        Internal,
+        // The configuration set was ill formed. For instance, referencing a configuration unit
+        // that does not exist or a dependency that is not present.
+        ConfigurationSet,
+        // The external module that processes the configuration unit generated the result.
+        UnitProcessing,
+        // The system state is causing the error.
+        SystemState,
+        // The configuration unit was not run due to a precondition not being met.
+        // For example, if a dependency fails to be applied, this will be set.
+        Precondition,
+    };
+
+    // Information on a result for a single unit of configuration.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IConfigurationUnitResultInformation
+    {
+        // The error code of the failure.
+        HRESULT ResultCode{ get; };
+
+        // The short description of the failure.
+        String Description{ get; };
+
+        // A more detailed error message appropriate for diagnosing the root cause of an error.
+        String Details{ get; };
+
+        // The source of the result.
+        ConfigurationUnitResultSource ResultSource{ get; };
+    }
+
+    // Provides information for a specific configuration unit setting.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IConfigurationUnitSettingDetails
+    {
+        // The name of the setting.
+        String Identifier{ get; };
+        // A brief description of the setting.
+        String Title{ get; };
+        // The detailed description of the setting.
+        String Description{ get; };
+        // Whether the setting is a key. This is used to determine if different settings are in conflict.
+        Boolean IsKey{ get; };
+        // Whether a non-empty value for the setting is required.
+        Boolean IsRequired{ get; };
+        // Whether the setting should be serialized in order to be applied on another system.
+        // When the current settings are retrieved from the system, this can be used to exclude settings that are not relevant to a future application of the unit of configuration.
+        Boolean IsInformational{ get; };
+        // The data type for the value of this setting.
+        Windows.Foundation.PropertyType Type{ get; };
+
+        // The schema fragment to be used for this setting.
+        // Using a single entry of the `properties` object from a JSON schema is suggested, for instance:
+        // {
+        // "$schema": "https://json-schema.org/draft/2020-12/schema",
+        // "scope": {
+        //          "title": "Target scope",
+        //          "description": "The scope at which the configuration should be applied.",
+        //          "type": "string",
+        //          "enum": [
+        //              "machine",
+        //              "user"
+        //          ]
+        //      }
+        // }
+        String Schema{ get; };
+    }
+
+    // Provides information for a specific configuration unit within the runtime.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IConfigurationUnitProcessorDetails
+    {
+        // The type of configuration unit.
+        String UnitType{ get; };
+        // A description of the unit of configuration.
+        String UnitDescription{ get; };
+        // The URI of the documentation for the unit of configuration.
+        Windows.Foundation.Uri UnitDocumentationUri{ get; };
+        // The URI of the icon for the unit of configuration.
+        Windows.Foundation.Uri UnitIconUri{ get; };
+        // The name of the module containing the unit of configuration.
+        String ModuleName{ get; };
+        // The type of the module containing the unit of configuration.
+        String ModuleType{ get; };
+        // The source of the module containing the unit of configuration.
+        String ModuleSource{ get; };
+        // The description of the module containing the unit of configuration.
+        String ModuleDescription{ get; };
+        // The URI of the documentation for the module containing the unit of configuration.
+        Windows.Foundation.Uri ModuleDocumentationUri{ get; };
+        // The URI for the published module containing the unit of configuration.
+        Windows.Foundation.Uri PublishedModuleUri{ get; };
+        // The version of the module containing the unit of configuration.
+        String Version{ get; };
+        // The publishing date of the module containing the unit of configuration.
+        Windows.Foundation.DateTime PublishedDate{ get; };
+        // Whether the module is already present on the system.
+        Boolean IsLocal{ get; };
+        // The author of the module containing the unit of configuration.
+        String Author{ get; };
+        // The publisher of the module containing the unit of configuration.
+        String Publisher{ get; };
+        // The signing information of the module files containing the unit of configuration.
+        // May contain Windows.Security.Cryptography.Certificates.Certificate or Windows.Security.Cryptography.Certificates.CertificateChain.
+        Windows.Foundation.Collections.IVectorView<IInspectable> SigningInformation{ get; };
+        // The settings information for the unit of configuration.
+        Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails> Settings{ get; };
+        // Does it comes from a public repository
+        Boolean IsPublic{ get; };
+    }
+
+    // Provides information for a specific configuration unit within the runtime.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface IConfigurationUnitProcessorDetails2 requires IConfigurationUnitProcessorDetails
+    {
+        // Determines if this configuration unit should be treated as a group.
+        Boolean IsGroup{ get; };
+    }
+
+    // Defines how the configuration unit is to be used within the configuration system.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationUnitIntent
+    {
+        // The configuration unit will only be used to Test the current system state.
+        Assert,
+        // The configuration unit will only be used to Get the current system state.
+        Inform,
+        // The configuration unit will be used to Apply the current system state.
+        // The configuration unit will be used to Test and Get the current system state as part of that process.
+        Apply,
+        // The configuration unit's intent is unknown.
+        // Currently not supported.
+        Unknown,
+    };
+
+    // A single unit of configuration.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationUnit
+    {
+        // Creates an empty configuration unit for authoring purposes.
+        ConfigurationUnit();
+
+        // The type of the unit being configured; not a name for this instance.
+        String Type;
+
+        // An identifier used to uniquely identify the instance of a configuration unit on the system.
+        // May change upon applying a configuration unit from a historical context if some part of the set changed.
+        Guid InstanceIdentifier{ get; };
+
+        // The identifier name of this instance within the set.
+        String Identifier;
+
+        // Describes how this configuration unit will be used.
+        ConfigurationUnitIntent Intent;
+
+        // The `Identifier` values of the configuration units that this unit depends on.
+        Windows.Foundation.Collections.IVector<String> Dependencies;
+
+        // The metadata properties associated with the configuration unit.
+        // TODO: This is being used to drive processing decisions when it should not.
+        //       There is ongoing discussion about this at https://github.com/PowerShell/DSC/issues/47 and https://github.com/PowerShell/DSC/issues/92.
+        Windows.Foundation.Collections.ValueSet Metadata;
+
+        // Contains the values that are for use by the configuration unit itself.
+        Windows.Foundation.Collections.ValueSet Settings;
+
+        // Contains information on the origin of the configuration unit.
+        // May be null if ConfigurationProcessor.GetDetailsAsync has not been called yet.
+        IConfigurationUnitProcessorDetails Details{ get; };
+
+        // The current state of the configuration unit.
+        ConfigurationUnitState State{ get; };
+
+        // Contains information on the result of the latest attempt to apply the configuration unit.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // Controls whether this unit will be processed when part of a set.
+        Boolean IsActive;
+
+        // Creates a copy of this configuration unit, with the following notes:
+        //  InstanceIdentifier will be a new value
+        //  Identifier will be empty
+        //  Dependencies, Metadata, and Settings will by new containers with identical values inside
+        //  Details will be the same value (not a copy, just another reference)
+        //  State, ResultInformation, and ShouldApply will be their default constructed state
+        ConfigurationUnit Copy();
+
+        [contract(Microsoft.Management.Configuration.Contract, 2)]
+        {
+            // Determines if this configuration unit should be treated as a group.
+            // A configuration unit group treats its `Settings` as the definition of child units.
+            Boolean IsGroup;
+
+            // The configuration units that are part of this unit (if IsGroup is true).
+            Windows.Foundation.Collections.IVector<ConfigurationUnit> Units;
+        }
+    }
+
+    // The change event type that has occurred for a configuration set change.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationSetChangeEventType
+    {
+        Unknown,
+        // The change event was for the set state. Only ConfigurationSetChangeData.SetState is valid.
+        SetStateChanged,
+        // The change event was for the unit state. All ConfigurationSetChangeData properties are valid.
+        UnitStateChanged,
+    };
+
+    // The change data sent about changes to a specific set.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationSetChangeData
+    {
+        // The change event type that occurred.
+        ConfigurationSetChangeEventType Change{ get; };
+
+        // The state of the configuration set for this event (the ConfigurationSet can be used to get the current state, which may be different).
+        ConfigurationSetState SetState{ get; };
+            
+        // The state of the configuration unit for this event (the ConfigurationUnit can be used to get the current state, which may be different).
+        ConfigurationUnitState UnitState{ get; };
+
+        // Contains information on the result of the attempt to apply the configuration unit.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // The configuration unit whose state changed.
+        ConfigurationUnit Unit{ get; };
+    }
+
+    // The definition of a configuration parameter; a value that may be provided to alter the processing of a configuration set.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    runtimeclass ConfigurationParameter
+    {
+        ConfigurationParameter();
+
+        // The name of the parameter.
+        String Name;
+
+        // The description of the parameter.
+        String Description;
+
+        // The metadata properties associated with the configuration parameter.
+        Windows.Foundation.Collections.ValueSet Metadata;
+
+        // The value of the parameter should be treated as a secret; not logged our output.
+        Boolean IsSecure;
+
+        // The type of the parameter.
+        Windows.Foundation.PropertyType Type;
+
+        // The default value; may be null if no default is provided.
+        Object DefaultValue;
+
+        // The set of allowed values; a null container indicates that the values are not restricted.
+        Windows.Foundation.Collections.IVector<Object> AllowedValues;
+
+        // The minimum length for a parameter type with the concept (string, array, etc.).
+        UInt32 MinimumLength;
+
+        // The maximum length for a parameter type with the concept (string, array, etc.).
+        UInt32 MaximumLength;
+
+        // For comparable parameter types, the minimum value allowed (integrals, DateTime, etc.).
+        Object MinimumValue;
+
+        // For comparable parameter types, the maximum value allowed (integrals, DateTime, etc.).
+        Object MaximumValue;
+
+        // The input value; may be null if no value is provided.
+        Object ProvidedValue;
+    }
+
+    // A configuration set contains a collection of configuration units and details about the set.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationSet
+    {
+        // Creates an empty configuration set for authoring purposes.
+        ConfigurationSet();
+
+        // The name of the set; if from a file this could be the file name.
+        String Name;
+        // The origin of the set; if it came from a repository it could be the remote URL (ex. https://github.com/microsoft/winget-cli.git).
+        String Origin;
+        // The location of the configuration set on the local filesystem.
+        // If this set is from history, the file may no longer exist or it's contents may have been changed.
+        String Path;
+
+        // An identifier used to uniquely identify the instance of a configuration set on the system.
+        // May change upon applying a configuration set from a historical context if some part of the set changed.
+        Guid InstanceIdentifier{ get; };
+        // The state that the set is in.
+        ConfigurationSetState State{ get; };
+        // The time that this set was recorded with intent to apply.
+        Windows.Foundation.DateTime FirstApply{ get; };
+        // The time that this set was last started to be applied.
+        Windows.Foundation.DateTime ApplyBegun{ get; };
+        // The time that this set was last finished being applied (does not indicate success).
+        Windows.Foundation.DateTime ApplyEnded{ get; };
+
+        // The configuration units that are part of this set.
+        Windows.Foundation.Collections.IVector<ConfigurationUnit> Units;
+
+        // The schema version to use for the set.
+        // Will be set to the schema version when read in, and default to the latest if created manually.
+        // Setting SchemaVersion to a different value will change SchemaUri.
+        String SchemaVersion;
+
+        // Only changes for this set are sent to this event.
+        // This includes things like: start/stop of the entire set for application or test, start/stop of a unit for application or test.
+        event Windows.Foundation.TypedEventHandler<ConfigurationSet, ConfigurationSetChangeData> ConfigurationSetChange;
+
+        // Writes the configuration set to the given stream.
+        void Serialize(Windows.Storage.Streams.IOutputStream stream);
+
+        // Removes the configuration set from the recorded history, if present.
+        void Remove();
+
+        [contract(Microsoft.Management.Configuration.Contract, 2)]
+        {
+            // The metadata properties associated with the configuration set.
+            Windows.Foundation.Collections.ValueSet Metadata;
+
+            // The parameters that this configuration set supports.
+            Windows.Foundation.Collections.IVector<ConfigurationParameter> Parameters;
+
+            // The variables that this configuration set uses.
+            Windows.Foundation.Collections.ValueSet Variables;
+
+            // The schema URI to use for the set.
+            // Will be set to the schema version when read in, and default to the latest if created manually.
+            // Setting SchemaUri to a different value will change SchemaVersion.
+            Windows.Foundation.Uri SchemaUri;
+        }
+    }
+
+    // The result of applying the settings with an IConfigurationUnitProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IApplySettingsResult
+    {
+        // The configuration unit.
+        ConfigurationUnit Unit{ get; };
+
+        // Indicates whether a reboot is required after the settings were applied.
+        Boolean RebootRequired{ get; };
+
+        // The result of applying the configuration unit.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // Informs the caller of the result of running a Test.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationTestResult
+    {
+        // The result is unknown.
+        Unknown,
+        // The system is in the state described by the configuration.
+        Positive,
+        // The system is not in the state described by the configuration.
+        Negative,
+        // Running the test failed.
+        Failed,
+        // The test was not run because it was not applicable.
+        NotRun,
+    };
+
+    // The result of testing the settings with an IConfigurationUnitProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface ITestSettingsResult
+    {
+        // The configuration unit.
+        ConfigurationUnit Unit{ get; };
+
+        // The result (if any) of running Test on the configuration unit.
+        ConfigurationTestResult TestResult{ get; };
+
+        // The result of testing the configuration unit.
+        // This is not the response for the test, but rather contains information about the actual attempt to run the test.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // The result of getting the settings with an IConfigurationUnitProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IGetSettingsResult
+    {
+        // The configuration unit.
+        ConfigurationUnit Unit{ get; };
+
+        // The current state of the system for the configuration unit.
+        Windows.Foundation.Collections.ValueSet Settings{ get; };
+
+        // The result of getting the configuration unit settings.
+        // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // The result of getting the settings for all instances of a configuration unit.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface IGetAllSettingsResult
+    {
+        // The configuration unit.
+        ConfigurationUnit Unit{ get; };
+
+        // The current state of the system for all the instances of the configuration unit.
+        Windows.Foundation.Collections.IVector<Windows.Foundation.Collections.ValueSet> Settings{ get; };
+
+        // The result of getting the configuration unit settings.
+        // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // Provides access to a specific configuration unit within the runtime.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IConfigurationUnitProcessor
+    {
+        // The configuration unit that the processor was created for.
+        ConfigurationUnit Unit{ get; };
+
+        // Determines if the system is already in the state described by the configuration unit.
+        ITestSettingsResult TestSettings();
+
+        // Gets the current system state for the configuration unit.
+        IGetSettingsResult GetSettings();
+
+        // Applies the state described in the configuration unit.
+        IApplySettingsResult ApplySettings();
+    }
+
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface IGetAllSettingsConfigurationUnitProcessor requires IConfigurationUnitProcessor
+    {
+        // Gets the current system state for all the instances of the configuration unit, each of which has their own settings.
+        IGetAllSettingsResult GetAllSettings();
+    }
+
+    // Controls the lifetime of operations for a single configuration set.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IConfigurationSetProcessor
+    {
+        // Gets the configuration unit processor details for the given unit.
+        IConfigurationUnitProcessorDetails GetUnitProcessorDetails(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags);
+
+        // Creates a configuration unit processor for the given unit.
+        IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit);
+    }
+
+    // The result of applying an individual unit settings with an IConfigurationGroupProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IApplyGroupMemberSettingsResult
+    {
+        // The configuration unit.
+        ConfigurationUnit Unit{ get; };
+
+        // The state of the unit.
+        // Properties other than `Unit` are not valid unless this value is `Completed`.
+        ConfigurationUnitState State{ get; };
+
+        // Will be true if the configuration unit was in the desired state (Test returns true) prior to the apply action.
+        Boolean PreviouslyInDesiredState{ get; };
+
+        // Indicates whether a reboot is required after the settings were applied.
+        Boolean RebootRequired{ get; };
+
+        // The result of applying the configuration unit.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // The result of applying the settings with an IConfigurationGroupProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface IApplyGroupSettingsResult
+    {
+        // The configuration group object (set or unit).
+        Object Group{ get; };
+
+        // Indicates whether a reboot is required after the settings were applied.
+        Boolean RebootRequired{ get; };
+
+        // The result of applying the configuration unit group.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // Results for each configuration unit in the group.
+        Windows.Foundation.Collections.IVector<IApplyGroupMemberSettingsResult> UnitResults{ get; };
+    }
+
+    // The result of testing the settings with an IConfigurationGroupProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface ITestGroupSettingsResult
+    {
+        // The configuration group object (set or unit).
+        Object Group{ get; };
+
+        // The result (if any) of running Test on the configuration unit group.
+        ConfigurationTestResult TestResult{ get; };
+
+        // The result of testing the configuration unit group.
+        // This is not the response for the test, but rather contains information about the actual attempt to run the test.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // Results for each configuration unit in the group.
+        Windows.Foundation.Collections.IVector<ITestSettingsResult> UnitResults{ get; };
+    }
+
+    // Provides access to a specific configuration unit group within the runtime.
+    // An object returned by `CreateUnitProcessor` or `CreateSetProcessor` can implement this interface to indicate that it can take
+    // the responsibility of executing the units that it contains.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface IConfigurationGroupProcessor
+    {
+        // The configuration group object (set or unit).
+        Object Group{ get; };
+
+        // Determines if the system is already in the state described by the configuration unit group.
+        // Progress is expected for every descendant unit and finally the group unit itself.
+        Windows.Foundation.IAsyncOperation<ITestGroupSettingsResult> TestGroupSettingsAsync(Windows.Foundation.EventHandler<ITestSettingsResult> progressHandler);
+
+        // Applies the state described in the configuration unit group.
+        // Progress is expected for every descendant unit and finally the group unit itself.
+        Windows.Foundation.IAsyncOperation<IApplyGroupSettingsResult> ApplyGroupSettingsAsync(Windows.Foundation.EventHandler<IApplyGroupMemberSettingsResult> progressHandler);
+    }
+
+    // The level of the diagnostic information.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum DiagnosticLevel
+    {
+        Verbose,
+        Informational,
+        Warning,
+        Error,
+        Critical,
+    };
+
+    // Enables diagnostic information from the configuration system to be inspected/stored by callers.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IDiagnosticInformation
+    {
+        // Indicates the importance of the diagnostic information.
+        DiagnosticLevel Level{ get; };
+
+        // The diagnostic message.
+        String Message{ get; };
+    }
+
+    // Allows different runtimes to provide specialized handling of configuration processing.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IConfigurationSetProcessorFactory
+    {
+        // Creates a configuration set processor for the given set.
+        IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet configurationSet);
+
+        // Diagnostics event; useful for logging and/or verbose output.
+        event Windows.Foundation.EventHandler<IDiagnosticInformation> Diagnostics;
+
+        // Indicates the minimum importance desired for diagnostics.
+        DiagnosticLevel MinimumLevel;
+    }
+
+    // The change event type that has occurred.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationChangeEventType
+    {
+        Unknown,
+        SetAdded,
+        SetStateChanged,
+        SetRemoved,
+    };
+
+    // The change data sent about changes to sets.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationChangeData
+    {
+        // The change event type that occurred.
+        ConfigurationChangeEventType Change{ get; };
+
+        // The identifier used to uniquely identify the instance of a configuration set on the system.
+        Guid InstanceIdentifier{ get; };
+
+        // The state of the configuration set for this event (the ConfigurationSet can be used to get the current state, which may be different).
+        ConfigurationSetState State{ get; };
+    }
+
+    // The result of calling OpenConfigurationSet, containing either the set or details about the failure.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass OpenConfigurationSetResult
+    {
+        // The configuration set if successful; null otherwise.
+        ConfigurationSet Set{ get; };
+
+        // The result from opening the set.
+        HRESULT ResultCode{ get; };
+
+        // The field that is missing/invalid, if appropriate for the specific ResultCode.
+        String Field{ get; };
+
+        // The value of the field, if appropriate for the specific ResultCode.
+        String Value{ get; };
+
+        // The line number for the failure reason, if determined.
+        UInt32 Line{ get; };
+
+        // The column number for the failure reason, if determined.
+        UInt32 Column{ get; };
+    }
+
+    // The type of conflict between configuration sets that was detected.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationConflictType
+    {
+        Unknown,
+        // Indicates that the first configuration set has a matching name and origin to the second, which has already been applied.
+        // This is likely an update to the existing set, and should be applied as such, rather than an entirely new set.
+        MatchingOrigin,
+        // Indicates that the first configuration set is identical to the second, which has already been applied.
+        // This is based solely on the configuration unit settings.
+        IdenticalSetApplied,
+        // Indicates a conflict between the settings of two configuration units.
+        SettingsConflict,
+    };
+
+    // Describes a conflict between a setting of two configuration units.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationConflictSetting
+    {
+        // The name of the setting.
+        String Name{ get; };
+
+        // The value from the first configuration unit.
+        // These are the values from a `ValueSet`, and are thus required to be a `PropertyValue` or a 'ValueSet`.
+        Object FirstValue{ get; };
+
+        // The value from the second configuration unit.
+        // These are the values from a `ValueSet`, and are thus required to be a `PropertyValue` or a 'ValueSet`.
+        Object SecondValue{ get; };
+    }
+
+    // Describes a conflict between two configuration sets.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationConflict
+    {
+        // The type of conflict detected.
+        ConfigurationConflictType Conflict{ get; };
+
+        // The first of the configuration sets involved in the conflict.
+        ConfigurationSet FirstSet{ get; };
+
+        // The second of the configuration sets involved in the conflict.
+        ConfigurationSet SecondSet{ get; };
+
+        // The first of the configuration units involved in the conflict.
+        ConfigurationUnit FirstUnit{ get; };
+
+        // The second of the configuration units involved in the conflict.
+        ConfigurationUnit SecondUnit{ get; };
+
+        // Contains information about the particular settings that are conflicting.
+        Windows.Foundation.Collections.IVectorView<ConfigurationConflictSetting> Settings{ get; };
+    }
+
+    // The result of getting the configuration unit details.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass GetConfigurationUnitDetailsResult
+    {
+        // The configuration unit whose details were retrieved.
+        ConfigurationUnit Unit{ get; };
+
+        // The details, if they were able to be acquired successfully.
+        IConfigurationUnitProcessorDetails Details{ get; };
+
+        // The result of getting the configuration unit details.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // The result of getting the configuration set details.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass GetConfigurationSetDetailsResult
+    {
+        // The configuration unit whose details were retrieved.
+        Windows.Foundation.Collections.IVectorView<GetConfigurationUnitDetailsResult> UnitResults{ get; };
+    }
+
+    // Flags to control how a configuration set should be applied to the system.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    [flags]
+    enum ApplyConfigurationSetFlags
+    {
+        None = 0x0,
+        // Forces a new configuration set instance to be recorded when the set being applied matches a previous set's origin.
+        // The default behavior is to assume that the incoming set is an update to the existing set and overwrite it.
+        DoNotOverwriteMatchingOriginSet = 0x1,
+        // Does not apply the configuration set, only checks the configuration set for internal consistency.
+        PerformConsistencyCheckOnly = 0x2,
+    };
+
+    // The result of applying the settings for a configuration unit.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ApplyConfigurationUnitResult
+    {
+        // The configuration unit that was applied.
+        ConfigurationUnit Unit{ get; };
+
+        // The state of the configuration unit with regards to the current execution of ApplySet.
+        ConfigurationUnitState State{ get; };
+
+        // Will be true if the configuration unit was in the desired state (Test returns true) prior to the apply action.
+        Boolean PreviouslyInDesiredState{ get; };
+
+        // Indicates whether a reboot is required after the configuration unit was applied.
+        Boolean RebootRequired{ get; };
+
+        // The result of applying the configuration unit.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // The result of applying the settings for a configuration set.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ApplyConfigurationSetResult
+    {
+        // Results for each configuration unit in the set.
+        Windows.Foundation.Collections.IVectorView<ApplyConfigurationUnitResult> UnitResults{ get; };
+
+        // The overall result from applying the configuration set.
+        HRESULT ResultCode{ get; };
+    }
+
+    // The result of testing the settings for a configuration unit.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass TestConfigurationUnitResult
+    {
+        // The configuration unit that was tested.
+        ConfigurationUnit Unit{ get; };
+
+        // The result of testing the configuration unit.
+        // This is not the response for the test, but rather contains information about the actual attempt to run the test.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // The result (if any) of running Test on the configuration unit.
+        ConfigurationTestResult TestResult{ get; };
+    }
+
+    // The result of testing the settings for a configuration set.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass TestConfigurationSetResult
+    {
+        // Results for each configuration unit in the set.
+        Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult> UnitResults{ get; };
+
+        // The result (if any) of running Test on the configuration set.
+        // If this value is NotRun, every unit result will be NotRun.
+        // If this value is Positive, every unit result will be Positive (or NotRun with at least one being Positive).
+        // Any Negative result for a unit will result in this value being Negative.
+        // Any Failed result for a unit will result in this value being Failed (overriding the Negative statement above).
+        ConfigurationTestResult TestResult{ get; };
+    }
+
+    // The result of getting the settings for a configuration unit.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass GetConfigurationUnitSettingsResult
+    {
+        // The result of getting the configuration unit settings.
+        // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // The current state of the system for the configuration unit.
+        Windows.Foundation.Collections.ValueSet Settings { get; };
+    }
+
+    // The result of getting the settings for all the instances of a configuration unit.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    runtimeclass GetAllConfigurationUnitSettingsResult
+    {
+        // The result of getting the settings for all the instances of the configuration unit.
+        // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
+        IConfigurationUnitResultInformation ResultInformation{ get; };
+
+        // The current state of the system for all the instances of the configuration unit.
+        Windows.Foundation.Collections.IVector<Windows.Foundation.Collections.ValueSet> Settings { get; };
+    }
+
+    // The configuration processor is responsible for the interactions with the system.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationProcessor
+    {
+        ConfigurationProcessor(IConfigurationSetProcessorFactory factory);
+
+        // Diagnostics event; useful for logging and/or verbose output.
+        event Windows.Foundation.EventHandler<IDiagnosticInformation> Diagnostics;
+
+        // Indicates the minimum importance desired for diagnostics.
+        DiagnosticLevel MinimumLevel;
+
+        // Set the caller to used to identify the usage in telemetry events.
+        String Caller;
+
+        // The identifier for the current activity, enabling multiple calls into the processor to be correlated.
+        Guid ActivityIdentifier;
+
+        // If true, ETW events will be generated. Some of those events may be sent to Microsoft depending on the system settings.
+        Boolean GenerateTelemetryEvents;
+
+        // Only top level configuration changes are sent to this event.
+        // This includes things like: creation of a new set for intent to run, start/stop of a set for application or test, deletion of a not started set.
+        event Windows.Foundation.TypedEventHandler<ConfigurationSet, ConfigurationChangeData> ConfigurationChange;
+
+        // Gets the configuration sets that have already been applied or with the intent to be applied (this may include in progress sets or those that are waiting on others).
+        Windows.Foundation.Collections.IVector<ConfigurationSet> GetConfigurationHistory();
+        Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<ConfigurationSet> > GetConfigurationHistoryAsync();
+
+        // Loads a configuration set from the given stream.
+        OpenConfigurationSetResult OpenConfigurationSet(Windows.Storage.Streams.IInputStream stream);
+        Windows.Foundation.IAsyncOperation<OpenConfigurationSetResult> OpenConfigurationSetAsync(Windows.Storage.Streams.IInputStream stream);
+
+        // Checks for conflicts amongst the configuration sets provided, optionally including the configuration sets already applied to the system.
+        Windows.Foundation.Collections.IVector<ConfigurationConflict> CheckForConflicts(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
+        Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<ConfigurationConflict> > CheckForConflictsAsync(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
+
+        // Gets the details for all configuration units in a set.
+        GetConfigurationSetDetailsResult GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailFlags detailFlags);
+        Windows.Foundation.IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailFlags detailFlags);
+
+        // Gets the details for a configuration unit.
+        GetConfigurationUnitDetailsResult GetUnitDetails(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags);
+        Windows.Foundation.IAsyncOperation<GetConfigurationUnitDetailsResult> GetUnitDetailsAsync(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags);
+
+        // Applies the configuration set state.
+        ApplyConfigurationSetResult ApplySet(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);
+        Windows.Foundation.IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> ApplySetAsync(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);
+
+        // Tests the configuration set state.
+        TestConfigurationSetResult TestSet(ConfigurationSet configurationSet);
+        Windows.Foundation.IAsyncOperationWithProgress<TestConfigurationSetResult, TestConfigurationUnitResult> TestSetAsync(ConfigurationSet configurationSet);
+
+        // Gets the current configuration unit settings.
+        GetConfigurationUnitSettingsResult GetUnitSettings(ConfigurationUnit unit);
+        Windows.Foundation.IAsyncOperation<GetConfigurationUnitSettingsResult> GetUnitSettingsAsync(ConfigurationUnit unit);
+
+        [contract(Microsoft.Management.Configuration.Contract, 2)]
+        {
+            // Gets the current settings for all the instances of a configuration unit.
+            GetAllConfigurationUnitSettingsResult GetAllUnitSettings(ConfigurationUnit unit);
+            Windows.Foundation.IAsyncOperation<GetAllConfigurationUnitSettingsResult> GetAllUnitSettingsAsync(ConfigurationUnit unit);
+        }
+    }
+
+    // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IConfigurationStatics
+    {
+        // Creates an empty configuration unit.
+        ConfigurationUnit CreateConfigurationUnit();
+
+        // Creates an empty configuration set.
+        ConfigurationSet CreateConfigurationSet();
+
+        // Creates a processor factory for the given handler.
+        Windows.Foundation.IAsyncOperation<IConfigurationSetProcessorFactory> CreateConfigurationSetProcessorFactoryAsync(String handler);
+
+        // Creates a processor from the given factory.
+        ConfigurationProcessor CreateConfigurationProcessor(IConfigurationSetProcessorFactory factory);
+
+        // Whether configuration is enabled.
+        Boolean IsConfigurationAvailable{ get; };
+
+        // Enables configuration. Requires store access.
+        Windows.Foundation.IAsyncActionWithProgress<UInt32> EnsureConfigurationAvailableAsync();
+    }
+
+    // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
+    [contract(Microsoft.Management.Configuration.Contract, 2)]
+    interface IConfigurationStatics2 requires IConfigurationStatics
+    {
+        // Creates an empty configuration parameter.
+        ConfigurationParameter CreateConfigurationParameter();
+    }
+
+    // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationStaticFunctions : [default]IConfigurationStatics, IConfigurationStatics2
+    {
+        ConfigurationStaticFunctions();
+    }
+
+    /// Force midl3 to generate vector marshalling info.
+    declare
+    {
+        // Due to the way that metadata (WinMD) based marshalling works, in order for any of these to be IIterable<T>, they need to be
+        // included in the manifest of the package. Update the DumpProxyStubRegistrationsCommand to add any new types to make it easier
+        // to iterate over these collections, especially in C#.
+        interface Windows.Foundation.Collections.IVector<ConfigurationUnit>;
+        interface Windows.Foundation.Collections.IVector<ConfigurationSet>;
+        interface Windows.Foundation.Collections.IVector<ConfigurationConflict>;
+        interface Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails>;
+        interface Windows.Foundation.Collections.IVectorView<ConfigurationConflictSetting>;
+        interface Windows.Foundation.Collections.IVectorView<GetConfigurationUnitDetailsResult>;
+        interface Windows.Foundation.Collections.IVectorView<ApplyConfigurationUnitResult>;
+        interface Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult>;
+        interface Windows.Foundation.Collections.IVectorView<ConfigurationSet>;
+    }
+
+    // Provides a way to centralize the distribution of interfaces relevant to specific implementations of IConfigurationSetProcessorFactory.
+    namespace SetProcessorFactory
+    {
+        // The same as PowerShell ExecutionPolicy:
+        // https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies
+        enum PwshConfigurationProcessorPolicy
+        {
+            Unrestricted = 0,
+            RemoteSigned = 1,
+            AllSigned = 2,
+            Restricted = 3,
+            Bypass = 4,
+            Undefined = 5,
+            Default = RemoteSigned,
+        };
+
+        enum PwshConfigurationProcessorLocation
+        {
+            CurrentUser = 0,
+            AllUsers = 1,
+            WinGetModulePath = 2,
+            Custom = 3,
+            Default = WinGetModulePath,
+        };
+
+        // The properties provided by the "pwsh" processor factory.
+        interface IPwshConfigurationSetProcessorFactoryProperties
+        {
+            // The module paths to add to the processor.
+            // This will be in addition to any paths added by the processor and those inherent to PowerShell.
+            Windows.Foundation.Collections.IVectorView<String> AdditionalModulePaths;
+
+            // The execution policy to apply; must be set before taking actions with the processor.
+            PwshConfigurationProcessorPolicy Policy;
+
+            // The location to install modules. Default is WinGetModulePath
+            PwshConfigurationProcessorLocation Location;
+
+            // The custom location. Only applicable for Scope.Custom
+            String CustomLocation;
+        };
+    }
+}

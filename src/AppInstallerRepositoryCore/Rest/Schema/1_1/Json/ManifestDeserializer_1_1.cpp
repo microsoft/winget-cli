@@ -53,7 +53,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
             arpEntry.DisplayVersion = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(DisplayVersion)).value_or("");
             arpEntry.ProductCode = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(ProductCode)).value_or("");
             arpEntry.UpgradeCode = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(UpgradeCode)).value_or("");
-            arpEntry.InstallerType = Manifest::ConvertToInstallerTypeEnum(JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(InstallerType)).value_or(""));
+            arpEntry.InstallerType = ConvertToInstallerType(JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(InstallerType)).value_or(""));
 
             // Only add when at least one field is valid
             if (!arpEntry.DisplayName.empty() || !arpEntry.Publisher.empty() || !arpEntry.DisplayVersion.empty() ||
@@ -286,5 +286,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
         }
 
         return result;
+    }
+
+    Manifest::ManifestVer ManifestDeserializer::GetManifestVersion() const
+    {
+        return Manifest::s_ManifestVersionV1_1;
     }
 }

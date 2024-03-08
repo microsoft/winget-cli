@@ -31,12 +31,26 @@ Si deshabilitas esta configuración, los usuarios no podrán habilitar las carac
 Si habilitas o no configuras esta opción, los usuarios podrán instalar paquetes con manifiestos locales mediante el administrador de paquetes de Windows.
 
 Si deshabilitas esta configuración, los usuarios no podrán instalar paquetes con manifiestos locales mediante el administrador de paquetes de Windows.</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Habilitación de la omisión de validación de certificados de origen del Instalador de aplicación para Microsoft Store</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Esta directiva controla si el Administrador de paquetes de Windows validará las coincidencias del hash del certificado de Microsoft Store con un certificado de Microsoft Store conocido al iniciar una conexión con el origen de Microsoft Store. 
+Si habilita esta directiva, el Administrador de paquetes de Windows omitirá la validación del certificado de Microsoft Store. 
+
+Si deshabilita esta directiva, el Administrador de paquetes de Windows validará que el certificado de Microsoft Store usado es válido y pertenece a Microsoft Store antes de comunicarse con el origen de Microsoft Store.
+
+Si no establece esta directiva, se usará la configuración de administrador del Administrador de paquetes de Windows.</string>
       <string id="EnableHashOverride">Habilitar la anulación del hash del instalador de la aplicación</string>
       <string id="EnableHashOverrideExplanation">Esta directiva controla si se puede configurar el administrador de paquetes de Windows para que permita revertir la validación de seguridad SHA256 en la configuración.
 
 Si habilita o no configura esta directiva, los usuarios podrán habilitar la capacidad de revertir la validación de seguridad SHA256 en la configuración del administrador de paquetes de Windows.
 
 Si deshabilita esta directiva, los usuarios no podrán habilitar la capacidad de revertir la validación de seguridad SHA256 en la configuración del administrador de paquetes de Windows.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Habilitación de la omisión de detección de malware de archivos locales del Instalador de aplicación</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Esta directiva controla la capacidad de invalidar los exámenes de vulnerabilidades de malware al instalar un archivo de almacenamiento mediante un manifiesto local mediante los argumentos de la línea de comandos.
+Si habilita esta directiva, los usuarios pueden invalidar el examen de malware al realizar una instalación de manifiesto local de un archivo de almacenamiento.
+
+Si deshabilita esta directiva, los usuarios no podrán invalidar el examen de malware de un archivo de almacenamiento al instalarlo mediante un manifiesto local.
+
+Si no establece esta directiva, se cumplirá la configuración de administrador de Administrador de paquetes de Windows.</string>
       <string id="EnableDefaultSource">Habilitar el origen predeterminado del instalador de aplicaciones</string>
       <string id="EnableDefaultSourceExplanation">Esta directiva controla la fuente predeterminada incluida con el Administrador de paquetes de Windows.
 
@@ -54,11 +68,11 @@ Si habilita esta configuración, el origen de Microsoft Store para el Administra
 
 Si desactiva esta configuración, el origen de la Tienda Microsoft para el Administrador de paquetes de Windows no estará disponible.</string>
       <string id="SourceAutoUpdateInterval">Establecer el intervalo de actualización automática de la fuente del instalador de aplicaciones en minutos</string>
-      <string id="SourceAutoUpdateIntervalExplanation">Esta directiva controla el intervalo de actualización automática de los orígenes basados en paquetes.
+      <string id="SourceAutoUpdateIntervalExplanation">Esta directiva controla el intervalo de actualización automática para orígenes basados en paquetes. El origen predeterminado para Administrador de paquetes de Windows está configurado de forma que un índice de los paquetes se almacena en caché en el equipo local. El índice se descarga cuando un usuario invoca un comando y el intervalo ha pasado.
 
-Si deshabilitas o no estableces esta configuración, el administrador de paquetes de Windows usará el valor del intervalo predeterminado o el valor especificado en la configuración.
+Si deshabilita o no establece esta configuración, se usará el intervalo predeterminado o el valor especificado en la configuración de Administrador de paquetes de Windows.
 
-Si habilitas esta configuración, el administrador de paquetes de Windows usará el número de minutos especificado.</string>
+Si habilita esta configuración, el Administrador de paquetes de Windows usará el número de minutos especificado.</string>
       <string id="EnableAdditionalSources">Habilitar orígenes adicionales del instalador de aplicaciones</string>
       <string id="EnableAdditionalSourcesExplanation">Esta directiva controla los orígenes adicionales proporcionados por el administrador de TI de la empresa.
 
@@ -81,6 +95,20 @@ Si desactiva esta directiva, no se pueden configurar fuentes adicionales para el
 Si habilita esta configuración, los usuarios podrán instalar paquetes de sitios web que usen este protocolo.
 
 Si deshabilita o no establece esta configuración, los usuarios no podrán instalar paquetes de sitios web que usen este protocolo.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Habilitar Administrador de paquetes de Windows interfaces de línea de comandos</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Esta directiva determina si un usuario puede realizar una acción mediante el Administrador de paquetes de Windows a través de una interfaz de línea de comandos (CLI de WinGet o WinGet PowerShell).
+
+Si deshabilita esta directiva, los usuarios no podrán ejecutar la CLI de Administrador de paquetes de Windows ni los cmdlets de PowerShell.
+
+Si habilita o no configura esta directiva, los usuarios podrán ejecutar los comandos de la CLI de Administrador de paquetes de Windows y los cmdlets de PowerShell. (La directiva "Habilitar Instalador de aplicación" proporcionada no está deshabilitada).
+
+Esta directiva no invalida la directiva "Habilitar Instalador de aplicación".</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Habilitar configuración de Administrador de paquetes de Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Esta directiva controla si los usuarios pueden usar la característica de configuración Administrador de paquetes de Windows.
+
+Si habilita o no establece esta configuración, los usuarios podrán usar la característica de configuración Administrador de paquetes de Windows.
+
+Si deshabilita esta configuración, los usuarios no podrán usar la característica de configuración Administrador de paquetes de Windows.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

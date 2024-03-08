@@ -27,7 +27,11 @@ namespace Microsoft.Management.Deployment.Projection
 
         public UninstallOptions CreateUninstallOptions() => InstanceInitializer.CreateInstance<UninstallOptions>();
 
+        public DownloadOptions CreateDownloadOptions() => InstanceInitializer.CreateInstance<DownloadOptions>();
+
         public PackageMatchFilter CreatePackageMatchFilter() => InstanceInitializer.CreateInstance<PackageMatchFilter>();
+
+        public AuthenticationArguments CreateAuthenticationArguments() => InstanceInitializer.CreateInstance<AuthenticationArguments>();
 
         public PackageManagerSettings CreatePackageManagerSettings() => InstanceInitializer.CreateInstance<PackageManagerSettings>();
     }

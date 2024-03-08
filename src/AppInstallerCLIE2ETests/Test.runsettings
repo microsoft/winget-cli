@@ -4,33 +4,39 @@
   <!-- 
   Parameters used by tests at run time.
 
-       PackagedContext: Indicates if the test should be run under packaged context
-       VerboseLogging: Turn on/off verbose logging in the test result
-       AICLIPath: The AICLI executable under test.
-                  If using loose file registration and using Invoke-Command when
-                  AppExecutionAlias is not available, this will be relative path to package root.
-       AICLIPackagePath: Used in packaged context. Path to the package containing executable under test.
-                         If LooseFileRegistration is true, this should be path to unpackaged root.
-       LooseFileRegistration: Bool to set if loose file registration should be used.
-       InvokeCommandInDesktopPackage: Bool to indicate using Invoke-CommandInDesktopPackage for test execution.
-                                      This is used when AppExecutionAlias is not available, or disabled.
-       StaticFileRootPath: Path to the set of static test files that will be served as the source for testing purposes.
-       MsiTestInstallerPath: The Msi Installer executable under test.
-	   MsixTestInstallerPath: The MSIX (or APPX) Installer executable under test.
-	   ExeTestInstallerPath: The Exe Installer executable under test.
-	   PackageCertificatePath: Signing Certificate Path used to certify Index Source Package
+    PackagedContext: Indicates if the test should be run under packaged context
+    VerboseLogging: Turn on/off verbose logging in the test result
+    AICLIPath: The AICLI executable under test.
+               If using loose file registration and using Invoke-Command when
+               AppExecutionAlias is not available, this will be relative path to package root.
+    AICLIPackagePath: Used in packaged context. Path to the package containing executable under test.
+                      If LooseFileRegistration is true, this should be path to unpackaged root.
+    LooseFileRegistration: Bool to set if loose file registration should be used.
+    InvokeCommandInDesktopPackage: Bool to indicate using Invoke-CommandInDesktopPackage for test execution.
+                                   This is used when AppExecutionAlias is not available, or disabled.
+    StaticFileRootPath: Path to the set of static test files that will be served as the source for testing purposes.
+    MsiTestInstallerPath: The Msi Installer executable under test.
+    MsixTestInstallerPath: The MSIX (or APPX) Installer executable under test.
+    ExeTestInstallerPath: The Exe Installer executable under test.
+    PackageCertificatePath: Signing Certificate Path used to certify Index Source Package.
+    PowerShellModulePath: Path to the PowerShell module manifest file under test.
+    LocalServerCertPathParameter: The cert used for the local server.
+    SkipTestSource: I solemnly swear the test won't use the local test source or the source is already set up.
   -->
   <TestRunParameters>
-	  <Parameter name="PackagedContext" value="true" />
-	  <Parameter name="VerboseLogging" value="false" />
-	  <Parameter name="AICLIPath" value="AppInst.exe" />
-	  <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
-	  <Parameter name="LooseFileRegistration" value="false" />
-	  <Parameter name="InvokeCommandInDesktopPackage" value="false" />
-	  <Parameter name="StaticFileRootPath" value="\TestLocalIndex" />
-	  <Parameter name="MsiTestInstallerPath" value="MsiTestInstaller.msi" />
-	  <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
-	  <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
-	  <Parameter name="PackageCertificatePath" value="certificate.pfx"/>
+    <Parameter name="PackagedContext" value="true" />
+    <Parameter name="VerboseLogging" value="false" />
+    <Parameter name="AICLIPath" value="AppInst.exe" />
+    <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
+    <Parameter name="LooseFileRegistration" value="false" />
+    <Parameter name="InvokeCommandInDesktopPackage" value="false" />
+    <Parameter name="StaticFileRootPath" value="\TestLocalIndex" />
+    <Parameter name="MsiTestInstallerPath" value="MsiTestInstaller.msi" />
+    <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
+    <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
+    <Parameter name="PackageCertificatePath" value="certificate.pfx"/>
+    <Parameter name="PowerShellModulePath" value="TestPowerShellModule.psd1" />
+    <Parameter name="LocalServerCertPathParameter" value="servercert.cer" />
+    <Parameter name="SkipTestSource" value="false" />
   </TestRunParameters>
 </RunSettings>

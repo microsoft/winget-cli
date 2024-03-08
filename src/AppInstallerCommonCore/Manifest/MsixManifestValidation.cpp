@@ -9,11 +9,10 @@
 namespace AppInstaller::Manifest
 {
     std::vector<ValidationError> MsixManifestValidation::Validate(
-        const Manifest &manifest,
-        const ManifestInstaller &installer)
+        const Manifest& manifest,
+        const ManifestInstaller& installer)
     {
         std::vector<ValidationError> errors;
-        Msix::PackageVersion packageVersion(manifest.Version);
         auto msixInfo = GetMsixInfo(installer.Url);
         if (msixInfo)
         {
@@ -24,7 +23,7 @@ namespace AppInstaller::Manifest
             {
                 auto msixManifestIdentity = msixManifest.GetIdentity();
                 ValidateMsixManifestPackageFamilyName(msixManifestIdentity.GetPackageFamilyName(), installer.PackageFamilyName, errors);
-                ValidateMsixManifestPackageVersion(msixManifestIdentity.GetVersion(), packageVersion, errors);
+                ValidateMsixManifestPackageVersion(msixManifestIdentity.GetVersion(), manifest.Version, errors);
                 ValidateMsixManifestMinOSVersion(msixManifest.GetMinimumOSVersionForSupportedPlatforms(), installerMinOSVersion, installer.Url, errors);
             }
         }
@@ -147,7 +146,7 @@ namespace AppInstaller::Manifest
 
     std::optional<Msix::OSVersion> MsixManifestValidation::GetManifestInstallerMinOSVersion(
         std::string minOSVersion,
-        std::vector<ValidationError> &errors)
+        std::vector<ValidationError>& errors)
     {
         try
         {
@@ -166,7 +165,7 @@ namespace AppInstaller::Manifest
     void MsixManifestValidation::ValidateMsixManifestPackageFamilyName(
         Utility::NormalizedString msixPackageFamilyName,
         Utility::NormalizedString manifestPackageFamilyName,
-        std::vector<ValidationError> &errors)
+        std::vector<ValidationError>& errors)
     {
         if (!manifestPackageFamilyName.empty())
         {
@@ -182,11 +181,21 @@ namespace AppInstaller::Manifest
     }
 
     void MsixManifestValidation::ValidateMsixManifestPackageVersion(
-        const Msix::PackageVersion &msixPackageVersion,
-        const Msix::PackageVersion &manifestPackageVersion,
-        std::vector<ValidationError> &errors)
+        const Msix::PackageVersion& msixPackageVersion,
+        const string_t& manifestPackageVersionStr,
+        std::vector<ValidationError>& errors)
     {
-        if (msixPackageVersion != manifestPackageVersion)
+        std::optional<Msix::PackageVersion> manifestPackageVersion;
+        try
+        {
+            manifestPackageVersion = { manifestPackageVersionStr };
+        }
+        catch (...)
+        {
+            AICLI_LOG(Core, Error, << "Failed to parse package version to UINT64");
+        }
+
+        if (!manifestPackageVersion.has_value() || msixPackageVersion != manifestPackageVersion.value())
         {
             errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageVersion", msixPackageVersion.ToString());
         }
@@ -196,7 +205,7 @@ namespace AppInstaller::Manifest
         const std::optional<Msix::OSVersion>& msixMinOSVersion,
         const std::optional<Msix::OSVersion>& manifestMinOSVersion,
         std::string installerUrl,
-        std::vector<ValidationError> &errors)
+        std::vector<ValidationError>& errors)
     {
         if (!msixMinOSVersion.has_value())
         {

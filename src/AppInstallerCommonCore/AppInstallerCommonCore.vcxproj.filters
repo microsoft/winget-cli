@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Telemetry - Do Not Modify">
-      <UniqueIdentifier>{552a58eb-8d07-41b2-87b5-3e71b9fb3cfd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Public">
       <UniqueIdentifier>{5cdf3fa3-e657-4d84-81bb-f740aa476143}</UniqueIdentifier>
     </Filter>
@@ -28,45 +25,30 @@
     <Filter Include="Manifest">
       <UniqueIdentifier>{9b8e2682-3eb7-4530-bc9a-a57fafc44177}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Telemetry">
+      <UniqueIdentifier>{552a58eb-8d07-41b2-87b5-3e71b9fb3cfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Authentication">
+      <UniqueIdentifier>{9dd9ab66-00f0-4b18-90ca-6c5da3dc01c4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Telemetry\MicrosoftTelemetry.h">
-      <Filter>Telemetry - Do Not Modify</Filter>
-    </ClInclude>
     <ClInclude Include="Telemetry\TraceLogging.h">
-      <Filter>Telemetry - Do Not Modify</Filter>
-    </ClInclude>
-    <ClInclude Include="Telemetry\WinEventLogLevels.h">
-      <Filter>Telemetry - Do Not Modify</Filter>
+      <Filter>Telemetry</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerTelemetry.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerLogging.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerStrings.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="Public\AppInstallerRuntime.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerSHA256.h">
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerDownloader.h">
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerArchitecture.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerErrors.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerLanguageUtilities.h">
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="HttpStream\HttpClientWrapper.h">
@@ -84,9 +66,6 @@
     <ClInclude Include="Public\AppInstallerFileLogger.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerDateTime.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="Public\AppInstallerSynchronization.h">
       <Filter>Public</Filter>
     </ClInclude>
@@ -96,13 +75,7 @@
     <ClInclude Include="Public\AppInstallerProgress.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerVersions.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\ExtensionCatalog.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\LocIndependent.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\Settings.h">
@@ -112,12 +85,6 @@
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ExperimentalFeature.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="YamlWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\Yaml.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ManifestInstaller.h">
@@ -132,7 +99,7 @@
     <ClInclude Include="Public\winget\ManifestYamlParser.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\Registry.h">
+    <ClInclude Include="Public\winget\ManifestYamlWriter.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\NameNormalization.h">
@@ -151,15 +118,6 @@
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ManifestCommon.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\JsonSchemaValidation.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\GroupPolicy.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\Resources.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\Locale.h">
@@ -195,17 +153,8 @@
     <ClInclude Include="Public\winget\PortableFileEntry.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\JsonUtil.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\ManagedFile.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\MsixManifest.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\Certificates.h">
-      <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\FolderFileWatcher.h">
       <Filter>Public\winget</Filter>
@@ -222,33 +171,39 @@
     <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\Pin.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\SelfManagement.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\MSStore.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Reboot.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Authentication\WebAccountManagerAuthenticator.h">
+      <Filter>Authentication</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Authentication.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Telemetry\TraceLogging.cpp">
-      <Filter>Telemetry - Do Not Modify</Filter>
+      <Filter>Telemetry</Filter>
     </ClCompile>
     <ClCompile Include="AppInstallerTelemetry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AppInstallerLogging.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AppInstallerStrings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DateTime.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Runtime.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SHA256.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Downloader.cpp">
@@ -275,16 +230,7 @@
     <ClCompile Include="Deployment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Versions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Errors.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ExtensionCatalog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="JsonUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Settings.cpp">
@@ -296,20 +242,14 @@
     <ClCompile Include="ExperimentalFeature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="YamlWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Yaml.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Manifest\ManifestValidation.cpp">
       <Filter>Manifest</Filter>
     </ClCompile>
     <ClCompile Include="Manifest\YamlParser.cpp">
       <Filter>Manifest</Filter>
     </ClCompile>
-    <ClCompile Include="Registry.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Manifest\YamlWriter.cpp">
+      <Filter>Manifest</Filter>
     </ClCompile>
     <ClCompile Include="NameNormalization.cpp">
       <Filter>Source Files</Filter>
@@ -328,12 +268,6 @@
     </ClCompile>
     <ClCompile Include="Manifest\Manifest.cpp">
       <Filter>Manifest</Filter>
-    </ClCompile>
-    <ClCompile Include="JsonSchemaValidation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GroupPolicy.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Locale.cpp">
       <Filter>Source Files</Filter>
@@ -365,16 +299,7 @@
     <ClCompile Include="PortableARPEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ManagedFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MsixManifest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Certificates.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Resources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">
@@ -391,6 +316,27 @@
     </ClCompile>
     <ClCompile Include="PackageDependenciesValidationUtil.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Progress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SelfManagement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MSStore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Reboot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Authentication\Authentication.cpp">
+      <Filter>Authentication</Filter>
+    </ClCompile>
+    <ClCompile Include="Authentication\WebAccountManagerAuthenticator.cpp">
+      <Filter>Authentication</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,20 +1,33 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="InteropSetUpFixture.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests.Interop
 {
-    using NUnit.Framework;
     using System;
+    using AppInstallerCLIE2ETests.Helpers;
+    using NUnit.Framework;
 
+    /// <summary>
+    /// Interop set up fixture.
+    /// </summary>
     [SetUpFixture]
     public class InteropSetUpFixture
     {
+        /// <summary>
+        /// One time set up.
+        /// </summary>
         [OneTimeSetUp]
         public void Setup()
         {
             TestCommon.SetupTestSource();
         }
 
+        /// <summary>
+        /// Tear down.
+        /// </summary>
         [OneTimeTearDown]
         public void TearDown()
         {

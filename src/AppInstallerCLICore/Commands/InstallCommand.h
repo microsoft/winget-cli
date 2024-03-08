@@ -16,7 +16,9 @@ namespace AppInstaller::CLI
 
         void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
 
-        std::string HelpLink() const override;
+        void Resume(Execution::Context& context) const override;
+
+        Utility::LocIndView HelpLink() const override;
 
     protected:
         void ValidateArgumentsInternal(Execution::Args& execArgs) const override;

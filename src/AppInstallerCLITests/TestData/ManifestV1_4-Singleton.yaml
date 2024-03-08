@@ -34,7 +34,7 @@ Platform:
   - Windows.Desktop
   - Windows.Universal
 MinimumOSVersion: 10.0.0.0
-InstallerType: zip
+InstallerType: exe
 Scope: machine
 InstallModes:
   - interactive
@@ -156,6 +156,7 @@ Installers:
         - Preview VC Runtime
       PackageDependencies:
         - PackageIdentifier: Microsoft.MsixSdkDepPreview
+          MinimumVersion: 1.0.0
       ExternalDependencies:
         - Preview Outside dependencies
     PackageFamilyName: Microsoft.DesktopAppInstallerPreview_8wekyb3d8bbwe

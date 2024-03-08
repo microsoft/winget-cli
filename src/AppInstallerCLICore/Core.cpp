@@ -8,6 +8,7 @@
 #include <winget/UserSettings.h>
 #include "Commands/InstallCommand.h"
 #include "COMContext.h"
+#include <AppInstallerFileLogger.h>
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include <winget/Debugging.h>
@@ -62,12 +63,10 @@ namespace AppInstaller::CLI
 
         Execution::Context context{ std::cout, std::cin };
         auto previousThreadGlobals = context.SetForCurrentThread();
-        context.EnableCtrlHandler();
 
-        // Enable all logging for this phase; we will update once we have the arguments
-        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().EnableChannel(Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
         Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
-        Logging::AddFileLogger();
+        Logging::FileLogger::Add();
         Logging::EnableWilFailureTelemetry();
 
         // Set output to UTF8
@@ -76,8 +75,15 @@ namespace AppInstaller::CLI
         Logging::Telemetry().SetCaller("winget-cli");
         Logging::Telemetry().LogStartup();
 
-        // Initiate the background cleanup of the log file location.
-        Logging::BeginLogFileCleanup();
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
+#endif
+        {
+            // Initiate the background cleanup of the log file location.
+            Logging::FileLogger::BeginCleanup();
+        }
+
+        context.EnableSignalTerminationHandler();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 
@@ -136,7 +142,7 @@ namespace AppInstaller::CLI
             // Report any action blocked by Group Policy.
             auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
             AICLI_LOG(CLI, Error, << "Operation blocked by Group Policy: " << policy.RegValueName());
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << " : "_liv << policy.PolicyName() << std::endl;
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policy.PolicyName()) << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
 
@@ -151,6 +157,13 @@ namespace AppInstaller::CLI
 
     void ServerInitialize()
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+#endif
+
         AppInstaller::CLI::Execution::COMContext::SetLoggers();
     }
 }

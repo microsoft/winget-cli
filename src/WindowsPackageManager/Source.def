@@ -5,7 +5,10 @@ EXPORTS
     WindowsPackageManagerServerModuleCreate
     WindowsPackageManagerServerModuleRegister
     WindowsPackageManagerServerModuleUnregister
+    WindowsPackageManagerServerWilResultLoggingCallback
+    WindowsPackageManagerServerCreateInstance
     WindowsPackageManagerInProcModuleInitialize
     WindowsPackageManagerInProcModuleTerminate
     WindowsPackageManagerInProcModuleGetClassObject
     WindowsPackageManagerInProcModuleGetActivationFactory
+    WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization

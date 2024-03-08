@@ -43,7 +43,7 @@ TEST_CASE("UserSettingsType", "[settings]")
     // 2 - Bad settings.json file
     // 3 - No settings.json.backup file exists
     // 4 - Bad settings.json.backup file exists.
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     SECTION("No setting.json No setting.json.backup")
     {
@@ -114,7 +114,7 @@ TEST_CASE("UserSettingsType", "[settings]")
 
 TEST_CASE("UserSettingsCreateFiles", "[settings]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     auto settingsPath = UserSettings::SettingsFilePath();
     auto settingsBackupPath = GetPathTo(Stream::BackupUserSettings);
@@ -148,7 +148,7 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
 
 TEST_CASE("SettingProgressBar", "[settings]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     SECTION("Default value")
     {
@@ -204,9 +204,49 @@ TEST_CASE("SettingProgressBar", "[settings]")
     }
 }
 
+TEST_CASE("SettingsAnonymizePathForDisplay", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Default")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AnonymizePathForDisplay>() == true);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("True")
+    {
+        std::string_view json = R"({ "visual": { "anonymizeDisplayedPaths": true } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AnonymizePathForDisplay>() == true);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("False")
+    {
+        std::string_view json = R"({ "visual": { "anonymizeDisplayedPaths": false } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AnonymizePathForDisplay>() == false);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Invalid Value")
+    {
+        std::string_view json = R"({ "visual": { "anonymizeDisplayedPaths": "notBoolean" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AnonymizePathForDisplay>() == true);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}
+
 TEST_CASE("SettingLoggingLevelPreference", "[settings]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     SECTION("Default value")
     {
@@ -282,7 +322,7 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
 
 TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     constexpr static auto cinq = 5min;
     constexpr static auto cero = 0min;
@@ -361,7 +401,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
 
 TEST_CASE("SettingsExperimentalCmd", "[settings]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     SECTION("Feature off default")
     {
@@ -416,19 +456,23 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
 
 TEST_CASE("SettingsPortablePackageUserRoot", "[settings]")
 {
+    auto again = DeleteUserSettingsFiles();
+
     SECTION("Relative path")
     {
-        DeleteUserSettingsFiles();
-        std::string_view json = R"({ "installBehavior": { "portablePackageUserRoot": %LOCALAPPDATA%/Portable/Root } })";
+        std::string_view json = R"({ "installBehavior": { "portablePackageUserRoot": "%LOCALAPPDATA%/Portable/Root" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
         
         REQUIRE(userSettingTest.Get<Setting::PortablePackageUserRoot>().empty());
-        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+
+        auto warnings = userSettingTest.GetWarnings();
+        REQUIRE(warnings.size() == 1);
+        REQUIRE(warnings[0].Message == AppInstaller::StringResource::String::SettingsWarningInvalidFieldValue);
+        REQUIRE(warnings[0].Path == ".installBehavior.portablePackageUserRoot");
     }
     SECTION("Valid path")
     {
-        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "portablePackageUserRoot": "C:/Foo/Bar" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
@@ -440,24 +484,141 @@ TEST_CASE("SettingsPortablePackageUserRoot", "[settings]")
 
 TEST_CASE("SettingsPortablePackageMachineRoot", "[settings]")
 {
+    auto again = DeleteUserSettingsFiles();
+
     SECTION("Relative path")
     {
-        DeleteUserSettingsFiles();
-        std::string_view json = R"({ "installBehavior": { "portablePackageMachineRoot": %LOCALAPPDATA%/Portable/Root } })";
+        std::string_view json = R"({ "installBehavior": { "portablePackageMachineRoot": "%LOCALAPPDATA%/Portable/Root" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::PortablePackageMachineRoot>().empty());
-        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+
+        auto warnings = userSettingTest.GetWarnings();
+        REQUIRE(warnings.size() == 1);
+        REQUIRE(warnings[0].Message == AppInstaller::StringResource::String::SettingsWarningInvalidFieldValue);
+        REQUIRE(warnings[0].Path == ".installBehavior.portablePackageMachineRoot");
     }
     SECTION("Valid path")
     {
-        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "portablePackageMachineRoot": "C:/Foo/Bar" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::PortablePackageMachineRoot>() == "C:/Foo/Bar");
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+}
+
+TEST_CASE("SettingsDownloadDefaultDirectory", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Valid path")
+    {
+        std::string_view json = R"({ "downloadBehavior": { "defaultDownloadDirectory": "C:/Foo/Bar" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::DownloadDefaultDirectory>() == "C:/Foo/Bar");
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+}
+
+TEST_CASE("SettingsInstallScope", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("User scope preference")
+    {
+        std::string_view json = R"({ "installBehavior": { "preferences": { "scope": "user" } } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::InstallScopePreference>() == AppInstaller::Manifest::ScopeEnum::User);
+    }
+    SECTION("Machine scope preference")
+    {
+        std::string_view json = R"({ "installBehavior": { "preferences": { "scope": "machine" } } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::InstallScopePreference>() == AppInstaller::Manifest::ScopeEnum::Machine);
+    }
+    SECTION("User scope requirement")
+    {
+        std::string_view json = R"({ "installBehavior": { "requirements": { "scope": "user" } } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::InstallScopeRequirement>() == AppInstaller::Manifest::ScopeEnum::User);
+    }
+    SECTION("Machine scope requirement")
+    {
+        std::string_view json = R"({ "installBehavior": { "requirements": { "scope": "machine" } } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::InstallScopeRequirement>() == AppInstaller::Manifest::ScopeEnum::Machine);
+    }
+}
+
+TEST_CASE("SettingsMaxResumes", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Modify max number of resumes")
+    {
+        std::string_view json = R"({ "installBehavior": { "maxResumes": 5 } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::MaxResumes>() == 5);
+    }
+}
+
+TEST_CASE("LoggingChannels", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Not provided")
+    {
+        std::string_view json = R"({ })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == Channel::Defaults);
+    }
+    SECTION("No channels")
+    {
+        std::string_view json = R"({ "logging": { "channels": [] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == Channel::None);
+    }
+    SECTION("Default")
+    {
+        std::string_view json = R"({ "logging": { "channels": ["default"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == Channel::Defaults);
+    }
+    SECTION("Multiple")
+    {
+        std::string_view json = R"({ "logging": { "channels": ["core","Repo","YAML"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == (Channel::Core | Channel::Repo | Channel::YAML));
+    }
+    SECTION("Some invalid")
+    {
+        std::string_view json = R"({ "logging": { "channels": ["cli","sql","INVALID"] } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::LoggingChannelPreference>() == (Channel::CLI | Channel::SQL));
     }
 }

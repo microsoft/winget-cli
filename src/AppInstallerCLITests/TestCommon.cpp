@@ -8,6 +8,8 @@
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDownloader.h>
 
+using namespace AppInstaller;
+
 namespace TestCommon
 {
     namespace
@@ -48,25 +50,25 @@ namespace TestCommon
         }
     }
 
-    TempFile::TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction)
+    TempFile::TempFile(const std::string& baseName, const std::string& baseExt, std::optional<KeepTempFile> keepTempFile)
     {
         _filepath = GetTempFilePath(baseName, baseExt);
-        if (deleteFileOnConstruction)
+        if (!keepTempFile)
         {
             std::filesystem::remove(_filepath);
         }
     }
 
-    TempFile::TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction)
+    TempFile::TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, std::optional<KeepTempFile> keepTempFile)
     {
         _filepath = GetFilePath(parent, baseName, baseExt);
-        if (deleteFileOnConstruction)
+        if (!keepTempFile)
         {
             std::filesystem::remove(_filepath);
         }
     }
 
-    TempFile::TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction)
+    TempFile::TempFile(const std::filesystem::path& filePath, std::optional<KeepTempFile> keepTempFile)
     {
         if (filePath.is_relative())
         {
@@ -77,13 +79,13 @@ namespace TestCommon
         {
             _filepath = filePath;
         }
-        if (deleteFileOnConstruction)
+        if (!keepTempFile)
         {
             std::filesystem::remove(_filepath);
         }
     }
 
-    TempFile::~TempFile()
+    TempFile::~TempFile() try
     {
         switch (s_TempFileDestructorBehavior)
         {
@@ -97,6 +99,7 @@ namespace TestCommon
             break;
         }
     }
+    CATCH_LOG_RETURN()
 
     void TempFile::Rename(const std::filesystem::path& newFilePath)
     {
@@ -162,6 +165,10 @@ namespace TestCommon
         }
     }
 
+    void TestProgress::SetProgressMessage(std::string_view)
+    {
+    }
+
     void TestProgress::BeginProgress()
     {
     }
@@ -170,7 +177,7 @@ namespace TestCommon
     {
     }
 
-    bool TestProgress::IsCancelled()
+    bool TestProgress::IsCancelledBy(AppInstaller::CancelReason)
     {
         return false;
     }
@@ -325,5 +332,49 @@ namespace TestCommon
         Microsoft::WRL::ComPtr<IAppxPackageReader> packageReader;
         return  AppInstaller::Msix::GetPackageReader(stream.Get(), &packageReader)
             && SUCCEEDED(packageReader->GetManifest(manifestReader));
+    }
+
+    std::string RemoveConsoleFormat(const std::string& str)
+    {
+        // We are looking something that starts with "\x1b[0m"
+        if (!str.empty() && str[0] == '\x1b')
+        {
+            // Find first m
+            auto pos = str.find("m");
+            if (pos != std::string::npos)
+            {
+                return str.substr(pos + 1);
+            }
+        }
+
+        return str;
+    }
+
+    Json::Value ConvertToJson(const std::string& content)
+    {
+        auto contentClean = RemoveConsoleFormat(content);
+
+        Json::Value root;
+        Json::CharReaderBuilder builder;
+        const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+        std::string error;
+
+        if (!reader->parse(contentClean.c_str(), contentClean.c_str() + contentClean.size(), &root, &error))
+        {
+            throw error;
+        }
+
+        return root;
+    }
+
+    void SetTestPathOverrides()
+    {
+        // Force all tests to run against settings inside this container.
+        // This prevents test runs from trashing the users actual settings.
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::LocalState, Runtime::GetPathTo(Runtime::PathName::LocalState) / "Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::UserFileSettings, Runtime::GetPathTo(Runtime::PathName::UserFileSettings) / "Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::StandardSettings, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForRead, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "WinGet_SecureSettings_Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForWrite, Runtime::GetPathDetailsFor(Runtime::PathName::SecureSettingsForRead));
     }
 }

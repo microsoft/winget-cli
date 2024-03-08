@@ -31,12 +31,26 @@
 如果您啟用或未設定這個設定，使用者將可以使用 Windows 套件管理員來安裝具有本機資訊清單的套件。
 
 若停用此設定，使用者將無法使用 Windows 套件管理員來安裝具有本機資訊清單的套件。</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">啟用應用程式安裝程式 Microsoft Store 來源已憑證驗證旁路</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">此原則可控制 Windows 封裝管理員在起始 Microsoft Store 來源的連線時，是否要驗證與已知 Microsoft Store 憑證相符的 Microsoft Store 憑證雜湊。
+如果您啟用這個原則，Windows 封裝管理員將會略過 Microsoft Store 憑證驗證。
+
+如果停用此原則，則 Windows 封裝管理員會在與 Microsoft Store 來源通訊之前，驗證使用的 Microsoft Store 憑證有效且屬於 Microsoft Store。
+
+如果您未設定這個原則，則會遵循 Windows 封裝管理員系統管理員設定。</string>
       <string id="EnableHashOverride">啟用應用程式安裝程式雜湊覆寫</string>
       <string id="EnableHashOverrideExplanation">此原則會控制 Windows 封裝管理員是否可以設定以便啟用在設定中覆寫 SHA256 安全性驗證的能力。
 
 如果您啟用或未設定此原則，使用者就可以在 Windows 封裝管理員設定中啟用覆寫 SHA256 安全性驗證的能力。
 
 如果您停用此原則，使用者就無法在 Windows 封裝管理員設定中啟用覆寫 SHA256 安全性驗證的能力。</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">啟用應用程式安裝程式本機封存惡意程式碼掃描覆寫</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">此原則控制在使用本機資訊清單使用命令列引數安裝封存檔案時，是否可以覆寫惡意程式碼弱點掃描。
+如果您啟用這個原則，使用者可以在執行封存檔案的本機資訊清單安裝時覆寫惡意程式碼掃描。
+
+如果您停用這個原則，使用者將無法在使用本機資訊清單安裝時覆寫封存檔案的惡意程式碼掃描。
+
+如果您未設定這個原則，則會遵循Windows 封裝管理員系統管理員設定。</string>
       <string id="EnableDefaultSource">啟用應用程式安裝程式預設來源</string>
       <string id="EnableDefaultSourceExplanation">此原則控制 Windows 封裝管理員隨附的預設來源。
 
@@ -54,11 +68,11 @@
 
 如果您停用此設定，Windows 封裝管理員的 Microsoft Store 來源將無法使用。</string>
       <string id="SourceAutoUpdateInterval">設定應用程式安裝程式來源自動更新間隔 (分鐘)</string>
-      <string id="SourceAutoUpdateIntervalExplanation">此原則可控制套件型來源的自動更新間隔。
+      <string id="SourceAutoUpdateIntervalExplanation">此原則控制封裝型來源的自動更新間隔時間。Windows 封裝管理員的預設來源設定為本機電腦上快取的套件索引。當使用者調用命令且間隔已過時，下載索引。
 
-如果停用或未設定此設定，Windows 套件管理員將使用 [設定] 中指定的預設間隔或值。
+如果您停用或不設定此設定，將會使用 Windows 封裝管理員設定中指定的預設間隔或值。
 
-如果您啟用這個設定，Windows 套件管理員將使用指定的分鐘數。</string>
+如果您啟用此設定，Windows 封裝管理員將會使用指定的分鐘數。</string>
       <string id="EnableAdditionalSources">啟用應用程式安裝程式其他來源</string>
       <string id="EnableAdditionalSourcesExplanation">此原則控制企業 IT 系統管理員提供的其他來源。
 
@@ -81,6 +95,20 @@
 如果您啟用這個設定，使用者將可以從使用此通訊協定的網站安裝套件。
 
 如果您停用或未設定這個設定，使用者將無法從使用此通訊協定的網站安裝套件。</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">啟用 Windows 封裝管理員命令列介面</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">此原則決定使用者是否可以透過命令列介面 (WinGet CLI 或 WinGet PowerSh) 使用 Windows 封裝管理員執行動作。
+
+       如果您停用此原則，使用者將無法執行 Windows 封裝管理員 CLI 和 PowerShell Cmdlet。
+
+        如果您啟用或未設定此原則，使用者將可以執行 Windows 封裝管理員 CLI 命令和 PowerShell Cmdlet。(提供的 [啟用應用程式安裝程式] 原則將不會停用)。
+
+        此原則不會覆寫 [啟用應用程式安裝程式] 原則。</string>
+      <string id="EnableWindowsPackageManagerConfiguration">啟用 Windows 封裝管理員設定</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">此原則控制使用者是否可以使用Windows 封裝管理員設定功能。
+
+如果您啟用或未設定這個設定，使用者將可以使用Windows 封裝管理員設定功能。
+
+如果您停用這個設定，使用者將無法使用Windows 封裝管理員設定功能。</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

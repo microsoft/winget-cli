@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionContext.h"
+#include <winget/Manifest.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -10,6 +11,45 @@ namespace AppInstaller::CLI::Workflow
     // Token specified in installer args will be replaced by proper value.
     static constexpr std::string_view ARG_TOKEN_LOGPATH = "<LOGPATH>"sv;
     static constexpr std::string_view ARG_TOKEN_INSTALLPATH = "<INSTALLPATH>"sv;
+
+    // Determines if an installer type is allowed to install/uninstall in parallel.
+    bool ExemptFromSingleInstallLocking(AppInstaller::Manifest::InstallerTypeEnum type);
+
+    namespace details
+    {
+        // These single type install flows should remain "internal" and only ExecuteInstallerForType should be used externally
+        // so that all installs can properly handle single install locking.
+
+        // Runs the installer via ShellExecute.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath
+        // Outputs: None
+        void ShellExecuteInstall(Execution::Context& context);
+
+        // Runs an MSI installer directly via MSI APIs.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath
+        // Outputs: None
+        void DirectMSIInstall(Execution::Context& context);
+
+        // Deploys the MSIX.
+        // Required Args: None
+        // Inputs: Manifest?, Installer || InstallerPath
+        // Outputs: None
+        void MsixInstall(Execution::Context& context);
+
+        // Runs the flow for installing a Portable package.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath
+        // Outputs: None
+        void PortableInstall(Execution::Context& context);
+
+        // Runs the flow for installing a package from an archive.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath, Manifest
+        // Outputs: None
+        void ArchiveInstall(Execution::Context& context);
+    }
 
     // Ensures that there is an applicable installer.
     // Required Args: None
@@ -35,6 +75,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void CheckForUnsupportedArgs(Execution::Context& context);
 
+    // Admin is required for machine scope install for installer types like portable, msix and msstore.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void EnsureRunningAsAdminForMachineScopeInstall(Execution::Context& context);
+
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: Installer, InstallerPath
@@ -54,36 +100,6 @@ namespace AppInstaller::CLI::Workflow
     private:
         Manifest::InstallerTypeEnum m_installerType;
     };
-
-    // Runs the installer via ShellExecute.
-    // Required Args: None
-    // Inputs: Installer, InstallerPath
-    // Outputs: None
-    void ShellExecuteInstall(Execution::Context& context);
-
-    // Runs an MSI installer directly via MSI APIs.
-    // Required Args: None
-    // Inputs: Installer, InstallerPath
-    // Outputs: None
-    void DirectMSIInstall(Execution::Context& context);
-
-    // Deploys the MSIX.
-    // Required Args: None
-    // Inputs: Manifest?, Installer || InstallerPath
-    // Outputs: None
-    void MsixInstall(Execution::Context& context);
-
-    // Runs the flow for installing a Portable package.
-    // Required Args: None
-    // Inputs: Installer, InstallerPath
-    // Outputs: None
-    void PortableInstall(Execution::Context& context);
-
-    // Runs the flow for installing a package from an archive.
-    // Required Args: None
-    // Inputs: Installer, InstallerPath, Manifest
-    // Outputs: None
-    void ArchiveInstall(Execution::Context& context);
 
     // Verifies parameters for install to ensure success.
     // Required Args: None
@@ -120,17 +136,23 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportIdentityAndInstallationDisclaimer(Execution::Context& context);
 
-    // Installs a specific package installer. See also InstallSinglePackage & InstallMultiplePackages.
+    // Installs a specific package installer. See also InstallSinglePackage & ProcessMultiplePackages
     // Required Args: None
     // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
-
-    // Downloads the installer for a single package. This also does all the reporting and user interaction needed.
+    
+    // Installs the dependencies for a specific package. CreateDependencySubContexts should have been called before this task.
     // Required Args: None
+    // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
+    // Outputs: None
+    void InstallDependencies(Execution::Context& context);
+
+    // Downloads all of the package dependencies of a specific package. Only used in the 'winget download' and COM download flows.
+    // Required Args: none
     // Inputs: Manifest, Installer
-    // Outputs: InstallerPath
-    void DownloadSinglePackage(Execution::Context& context);
+    // Outputs: None
+    void DownloadPackageDependencies(Execution::Context& context);
 
     // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
@@ -139,24 +161,28 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void InstallSinglePackage(Execution::Context& context);
 
-    // Installs multiple packages. This also does the reporting and user interaction needed.
+    // Processes multiple packages by handling download and/or install. This also does the reporting and user interaction needed.
     // Required Args: None
-    // Inputs: PackagesToInstall
+    // Inputs: PackageSubContexts
     // Outputs: None
-    struct InstallMultiplePackages : public WorkflowTask
+    struct ProcessMultiplePackages : public WorkflowTask
     {
-        InstallMultiplePackages(
+        ProcessMultiplePackages(
             StringResource::StringId dependenciesReportMessage,
             HRESULT resultOnFailure,
             std::vector<HRESULT>&& ignorableInstallResults = {},
             bool ensurePackageAgreements = true,
-            bool ignoreDependencies = false) :
-            WorkflowTask("InstallMultiplePackages"),
+            bool ignoreDependencies = false,
+            bool stopOnFailure = false,
+            bool refreshPathVariable = false):
+            WorkflowTask("ProcessMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
             m_ignorableInstallResults(std::move(ignorableInstallResults)),
             m_ignorePackageDependencies(ignoreDependencies),
-            m_ensurePackageAgreements(ensurePackageAgreements) {}
+            m_ensurePackageAgreements(ensurePackageAgreements),
+            m_stopOnFailure(stopOnFailure),
+            m_refreshPathVariable(refreshPathVariable){}
 
         void operator()(Execution::Context& context) const override;
 
@@ -166,6 +192,8 @@ namespace AppInstaller::CLI::Workflow
         StringResource::StringId m_dependenciesReportMessage;
         bool m_ignorePackageDependencies;
         bool m_ensurePackageAgreements;
+        bool m_stopOnFailure;
+        bool m_refreshPathVariable;
     };
 
     // Stores the existing set of packages in ARP.

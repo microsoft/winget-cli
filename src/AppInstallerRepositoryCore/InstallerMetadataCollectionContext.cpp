@@ -6,8 +6,10 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
+#include <AppInstallerFileLogger.h>
+#include <winget/TraceLogger.h>
 #include <AppInstallerStrings.h>
-
+#include <winget/JsonUtil.h>
 #include <winget/ManifestJSONParser.h>
 
 using namespace AppInstaller::Utility;
@@ -25,6 +27,28 @@ namespace AppInstaller::Repository::Metadata
                     SchemaVersion = L"1.1";
                     Scope = L"scope";
                 }
+
+                if (::AppInstaller::Utility::Version{ "1.2" } <= version)
+                {
+                    SchemaVersion = L"1.2";
+                    InstalledFiles = L"installedFiles";
+                    DefaultInstallLocation = L"DefaultInstallLocation";
+                    InstallationMetadataFiles = L"Files";
+                    InstalledFileRelativeFilePath = L"RelativeFilePath";
+                    InstalledFileSha256 = L"FileSha256";
+                    InstalledFileType = L"FileType";
+                    InstalledFileInvocationParameter = L"InvocationParameter";
+                    InstalledFileDisplayName = L"DisplayName";
+                    InstalledStartupLinks = L"startupLinks";
+                    InstalledStartupLinkPath = L"RelativeFilePath";
+                    InstalledStartupLinkType = L"FileType";
+                    Icons = L"icons";
+                    IconContent = L"IconContent";
+                    IconSha256 = L"IconSha256";
+                    IconFileType = L"IconFileType";
+                    IconResolution = L"IconResolution";
+                    IconTheme = L"IconTheme";
+                }
             }
 
             utility::string_t SchemaVersion = L"1.0";
@@ -39,6 +63,7 @@ namespace AppInstaller::Repository::Metadata
             utility::string_t AppsAndFeaturesEntries = L"AppsAndFeaturesEntries";
             utility::string_t Historical = L"historical";
 
+            // AppsAndFeaturesEntry fields.
             utility::string_t DisplayName = L"DisplayName";
             utility::string_t Publisher = L"Publisher";
             utility::string_t DisplayVersion = L"DisplayVersion";
@@ -55,6 +80,29 @@ namespace AppInstaller::Repository::Metadata
 
             // 1.1
             utility::string_t Scope;
+
+            // 1.2
+
+            // Installed files
+            utility::string_t InstalledFiles;
+            utility::string_t DefaultInstallLocation;
+            utility::string_t InstallationMetadataFiles;
+            utility::string_t InstalledFileRelativeFilePath;
+            utility::string_t InstalledFileSha256;
+            utility::string_t InstalledFileType;
+            utility::string_t InstalledFileInvocationParameter;
+            utility::string_t InstalledFileDisplayName;
+            // Startup links
+            utility::string_t InstalledStartupLinks;
+            utility::string_t InstalledStartupLinkPath;
+            utility::string_t InstalledStartupLinkType;
+            // Icons
+            utility::string_t Icons;
+            utility::string_t IconContent;
+            utility::string_t IconSha256;
+            utility::string_t IconFileType;
+            utility::string_t IconResolution;
+            utility::string_t IconTheme;
         };
 
         struct OutputFields_1_0
@@ -69,7 +117,7 @@ namespace AppInstaller::Repository::Metadata
         
         struct DiagnosticFields
         {
-            // Eerror case
+            // Error case
             utility::string_t ErrorHR = L"errorHR";
             utility::string_t ErrorText = L"errorText";
 
@@ -186,6 +234,163 @@ namespace AppInstaller::Repository::Metadata
             {
                 json[field] = AppInstaller::JSON::GetStringValue(value);
             }
+        }
+
+        // For installed files merging, we remove conflicting entries, like scope. Indicating we are not certain some files will always be installed.
+        void MergeInstalledFilesMetadata(Manifest::InstallationMetadataInfo& existing, const Manifest::InstallationMetadataInfo& incoming)
+        {
+            if (!Utility::CaseInsensitiveEquals(existing.DefaultInstallLocation, incoming.DefaultInstallLocation))
+            {
+                existing.Clear();
+                return;
+            }
+
+            auto existingItr = existing.Files.begin();
+            while (existingItr != existing.Files.end())
+            {
+                auto itr = std::find_if(incoming.Files.begin(), incoming.Files.end(), [&](const Manifest::InstalledFile& entry)
+                    {
+                        return Utility::CaseInsensitiveEquals(existingItr->RelativeFilePath, entry.RelativeFilePath);
+                    });
+
+                if (itr == incoming.Files.end())
+                {
+                    existingItr = existing.Files.erase(existingItr);
+                }
+                else
+                {
+                    if (existingItr->InvocationParameter != itr->InvocationParameter)
+                    {
+                        existingItr->InvocationParameter.clear();
+                    }
+                    if (!Utility::CaseInsensitiveEquals(existingItr->DisplayName, itr->DisplayName))
+                    {
+                        existingItr->DisplayName.clear();
+                    }
+                    if (!Utility::SHA256::AreEqual(existingItr->FileSha256, itr->FileSha256))
+                    {
+                        existingItr->FileSha256.clear();
+                    }
+                    if (existingItr->FileType != itr->FileType)
+                    {
+                        existingItr->FileType = Manifest::InstalledFileTypeEnum::Unknown;
+                    }
+
+                    ++existingItr;
+                }
+            }
+        }
+
+        // For startup link files merging, we add non duplicate entries, like ProductCodes. Indicating possible startup links an installer could potentially add.
+        void MergeStartupLinkFilesMetadata(std::vector<Correlation::InstalledStartupLinkFile>& existing, const std::vector<Correlation::InstalledStartupLinkFile>& incoming)
+        {
+            for (auto const& incomingEntry : incoming)
+            {
+                auto itr = std::find_if(existing.begin(), existing.end(), [&](const Correlation::InstalledStartupLinkFile& entry)
+                    {
+                        return Utility::CaseInsensitiveEquals(incomingEntry.RelativeFilePath, entry.RelativeFilePath);
+                    });
+
+                if (itr == existing.end())
+                {
+                    existing.emplace_back(incomingEntry);
+                }
+                else if (itr->FileType != incomingEntry.FileType)
+                {
+                    // Set conflicting file type to Unknown.
+                    itr->FileType = AppInstaller::Manifest::InstalledFileTypeEnum::Unknown;
+                }
+            }
+        }
+
+        // TODO: This method could be moved to rest response parser and reused when winget supports launch
+        // scenarios (i.e. when startup links info are exposed in winget manifest).
+        std::optional<std::vector<Correlation::InstalledStartupLinkFile>> DeserializeInstalledStartupLinks(
+            const web::json::value& startupLinkFiles,
+            const ProductMetadataFields_1_N& fields)
+        {
+            if (startupLinkFiles.is_null() || !startupLinkFiles.is_array())
+            {
+                return {};
+            }
+
+            std::vector<Correlation::InstalledStartupLinkFile> startupLinks;
+            for (auto const& startupLink : startupLinkFiles.as_array())
+            {
+                Correlation::InstalledStartupLinkFile fileEntry;
+
+                std::optional<std::string> relativeFilePath = AppInstaller::JSON::GetRawStringValueFromJsonNode(startupLink, fields.InstalledStartupLinkPath);
+                if (!AppInstaller::JSON::IsValidNonEmptyStringValue(relativeFilePath))
+                {
+                    AICLI_LOG(Repo, Error, << "Missing RelativeFilePath in Installed Startup Link Files.");
+                    return {};
+                }
+
+                fileEntry.RelativeFilePath = std::move(*relativeFilePath);
+
+                std::optional<std::string> fileType = AppInstaller::JSON::GetRawStringValueFromJsonNode(startupLink, fields.InstalledStartupLinkType);
+                if (AppInstaller::JSON::IsValidNonEmptyStringValue(fileType))
+                {
+                    fileEntry.FileType = Manifest::ConvertToInstalledFileTypeEnum(*fileType);
+                }
+
+                startupLinks.emplace_back(std::move(fileEntry));
+            }
+
+            return startupLinks;
+        }
+
+        std::vector<ExtractedIconInfo> DeserializeExtractedIcons(
+            const web::json::value& icons,
+            const ProductMetadataFields_1_N& fields)
+        {
+            if (icons.is_null() || !icons.is_array())
+            {
+                return {};
+            }
+
+            std::vector<ExtractedIconInfo> result;
+            for (auto const& iconInfo : icons.as_array())
+            {
+                ExtractedIconInfo iconInfoEntry;
+
+                auto content = AppInstaller::JSON::GetRawStringValueFromJsonNode(iconInfo, fields.IconContent);
+                if (!AppInstaller::JSON::IsValidNonEmptyStringValue(content))
+                {
+                    AICLI_LOG(Repo, Error, << "Missing IconContent in Extracted Icons.");
+                    return {};
+                }
+
+                iconInfoEntry.IconContent = AppInstaller::JSON::Base64Decode(*content);
+
+                std::optional<std::string> sha256 = AppInstaller::JSON::GetRawStringValueFromJsonNode(iconInfo, fields.IconSha256);
+                if (AppInstaller::JSON::IsValidNonEmptyStringValue(sha256))
+                {
+                    iconInfoEntry.IconSha256 = Utility::SHA256::ConvertToBytes(*sha256);
+                }
+
+                std::optional<std::string> fileType = AppInstaller::JSON::GetRawStringValueFromJsonNode(iconInfo, fields.IconFileType);
+                if (AppInstaller::JSON::IsValidNonEmptyStringValue(fileType))
+                {
+                    iconInfoEntry.IconFileType = Manifest::ConvertToIconFileTypeEnum(*fileType);
+                }
+
+                std::optional<std::string> theme = AppInstaller::JSON::GetRawStringValueFromJsonNode(iconInfo, fields.IconTheme);
+                if (AppInstaller::JSON::IsValidNonEmptyStringValue(theme))
+                {
+                    iconInfoEntry.IconTheme = Manifest::ConvertToIconThemeEnum(*theme);
+                }
+
+                std::optional<std::string> resolution = AppInstaller::JSON::GetRawStringValueFromJsonNode(iconInfo, fields.IconResolution);
+                if (AppInstaller::JSON::IsValidNonEmptyStringValue(resolution))
+                {
+                    iconInfoEntry.IconResolution = Manifest::ConvertToIconResolutionEnum(*resolution);
+                }
+
+                result.emplace_back(std::move(iconInfoEntry));
+            }
+
+            return result;
         }
     }
 
@@ -345,8 +550,8 @@ namespace AppInstaller::Repository::Metadata
             ProductVersionMax = Version{ std::move(productVersionMaxString).value() };
         }
 
-        // The 1.0 version of metadata uses the 1.1 version of REST
-        JSON::ManifestJSONParser parser{ Version{ "1.1" } };
+        // The 1.0 version of metadata uses the 1.5 version of REST
+        JSON::ManifestJSONParser parser{ Version{ "1.5" } };
 
         std::string submissionIdentifierVerification;
 
@@ -377,6 +582,33 @@ namespace AppInstaller::Repository::Metadata
                 installerMetadata.AppsAndFeaturesEntries = parser.DeserializeAppsAndFeaturesEntries(appsAndFeatures.value());
 
                 installerMetadata.Scope = GetStringFromFutureSchema(item, fields.Scope).value_or(std::string{});
+
+                if (!fields.InstalledFiles.empty())
+                {
+                    auto installedFiles = AppInstaller::JSON::GetJsonValueFromNode(item, fields.InstalledFiles);
+                    if (installedFiles)
+                    {
+                        installerMetadata.InstalledFiles = parser.DeserializeInstallationMetadata(installedFiles->get());
+                    }
+                }
+
+                if (!fields.InstalledStartupLinks.empty())
+                {
+                    auto startupLinks = AppInstaller::JSON::GetJsonValueFromNode(item, fields.InstalledStartupLinks);
+                    if (startupLinks)
+                    {
+                        installerMetadata.StartupLinkFiles = DeserializeInstalledStartupLinks(startupLinks->get(), fields);
+                    }
+                }
+
+                if (!fields.Icons.empty())
+                {
+                    auto icons = AppInstaller::JSON::GetJsonValueFromNode(item, fields.Icons);
+                    if (icons)
+                    {
+                        installerMetadata.Icons = DeserializeExtractedIcons(icons->get(), fields);
+                    }
+                }
 
                 InstallerMetadataMap[installerHashString] = std::move(installerMetadata);
             }
@@ -422,6 +654,69 @@ namespace AppInstaller::Repository::Metadata
             itemValue[fields.InstallerHash] = AppInstaller::JSON::GetStringValue(item.first);
             itemValue[fields.SubmissionIdentifier] = AppInstaller::JSON::GetStringValue(item.second.SubmissionIdentifier);
             SetStringFromFutureSchema(itemValue, fields.Scope, item.second.Scope);
+            if (!fields.InstalledFiles.empty() && item.second.InstalledFiles.has_value())
+            {
+                web::json::value installationMetadata;
+
+                installationMetadata[fields.DefaultInstallLocation] = AppInstaller::JSON::GetStringValue(item.second.InstalledFiles->DefaultInstallLocation);
+
+                web::json::value installedFilesArray = web::json::value::array();
+                size_t installedFileIndex = 0;
+                for (const auto& entry : item.second.InstalledFiles->Files)
+                {
+                    web::json::value entryValue;
+                    AddFieldIfNotEmpty(entryValue, fields.InstalledFileRelativeFilePath, entry.RelativeFilePath);
+                    AddFieldIfNotEmpty(entryValue, fields.InstalledFileInvocationParameter, entry.InvocationParameter);
+                    AddFieldIfNotEmpty(entryValue, fields.InstalledFileDisplayName, entry.DisplayName);
+                    entryValue[fields.InstalledFileType] = AppInstaller::JSON::GetStringValue(Manifest::InstalledFileTypeToString(entry.FileType));
+                    if (!entry.FileSha256.empty())
+                    {
+                        entryValue[fields.InstalledFileSha256] = AppInstaller::JSON::GetStringValue(SHA256::ConvertToString(entry.FileSha256));
+                    }
+                    installedFilesArray[installedFileIndex++] = std::move(entryValue);
+                }
+                installationMetadata[fields.InstallationMetadataFiles] = std::move(installedFilesArray);
+
+                itemValue[fields.InstalledFiles] = std::move(installationMetadata);
+            }
+
+            if (!fields.InstalledStartupLinks.empty() && item.second.StartupLinkFiles.has_value())
+            {
+                web::json::value startupLinkFilesArray = web::json::value::array();
+                size_t startupLinkFileIndex = 0;
+                for (const auto& entry : item.second.StartupLinkFiles.value())
+                {
+                    web::json::value entryValue;
+                    entryValue[fields.InstalledStartupLinkPath] = AppInstaller::JSON::GetStringValue(entry.RelativeFilePath);
+                    entryValue[fields.InstalledStartupLinkType] = AppInstaller::JSON::GetStringValue(Manifest::InstalledFileTypeToString(entry.FileType));
+
+                    startupLinkFilesArray[startupLinkFileIndex++] = std::move(entryValue);
+                }
+
+                itemValue[fields.InstalledStartupLinks] = std::move(startupLinkFilesArray);
+            }
+
+            if (!fields.Icons.empty() && !item.second.Icons.empty())
+            {
+                web::json::value iconsArray = web::json::value::array();
+                size_t iconIndex = 0;
+                for (const auto& entry : item.second.Icons)
+                {
+                    web::json::value entryValue;
+                    entryValue[fields.IconContent] = AppInstaller::JSON::GetStringValue(AppInstaller::JSON::Base64Encode(entry.IconContent));
+                    if (!entry.IconSha256.empty())
+                    {
+                        entryValue[fields.IconSha256] = AppInstaller::JSON::GetStringValue(SHA256::ConvertToString(entry.IconSha256));
+                    }
+                    entryValue[fields.IconFileType] = AppInstaller::JSON::GetStringValue(Manifest::IconFileTypeToString(entry.IconFileType));
+                    entryValue[fields.IconTheme] = AppInstaller::JSON::GetStringValue(Manifest::IconThemeToString(entry.IconTheme));
+                    entryValue[fields.IconResolution] = AppInstaller::JSON::GetStringValue(Manifest::IconResolutionToString(entry.IconResolution));
+
+                    iconsArray[iconIndex++] = std::move(entryValue);
+                }
+
+                itemValue[fields.Icons] = std::move(iconsArray);
+            }
 
             web::json::value appsAndFeaturesArray = web::json::value::array();
             size_t appsAndFeaturesEntryIndex = 0;
@@ -482,11 +777,15 @@ namespace AppInstaller::Repository::Metadata
     }
 
     InstallerMetadataCollectionContext::InstallerMetadataCollectionContext() :
-        m_correlationData(std::make_unique<Correlation::ARPCorrelationData>())
+        m_correlationData(std::make_unique<Correlation::ARPCorrelationData>()),
+        m_installedFilesCorrelation(std::make_unique<Correlation::InstalledFilesCorrelation>())
     {}
 
-    InstallerMetadataCollectionContext::InstallerMetadataCollectionContext(std::unique_ptr<Correlation::ARPCorrelationData> correlationData, const std::wstring& json) :
-        m_correlationData(std::move(correlationData))
+    InstallerMetadataCollectionContext::InstallerMetadataCollectionContext(
+        std::unique_ptr<Correlation::ARPCorrelationData> correlationData,
+        std::unique_ptr<Correlation::InstalledFilesCorrelation> installedFilesCorrelation,
+        const std::wstring& json) :
+        m_correlationData(std::move(correlationData)), m_installedFilesCorrelation(std::move(installedFilesCorrelation))
     {
         auto threadGlobalsLifetime = InitializeLogging({});
         InitializePreinstallState(json);
@@ -590,7 +889,7 @@ namespace AppInstaller::Repository::Metadata
 
     std::wstring InstallerMetadataCollectionContext::Merge(const std::wstring& json, size_t maximumSizeInBytes, const std::filesystem::path& logFile)
     {
-        ThreadLocalStorage::ThreadGlobals threadGlobals;
+        ThreadLocalStorage::WingetThreadGlobals threadGlobals;
         auto globalsLifetime = InitializeLogging(threadGlobals, logFile);
 
         AICLI_LOG(Repo, Info, << "Parsing input JSON:\n" << ConvertToUTF8(json));
@@ -643,6 +942,7 @@ namespace AppInstaller::Repository::Metadata
             {
                 // Collect post-install system state
                 m_correlationData->CapturePostInstallSnapshot();
+                m_installedFilesCorrelation->StopFileWatcher();
 
                 ComputeOutputData();
 
@@ -676,18 +976,18 @@ namespace AppInstaller::Repository::Metadata
         outputJSON.serialize(output);
     }
 
-    std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InstallerMetadataCollectionContext::InitializeLogging(ThreadLocalStorage::ThreadGlobals& threadGlobals, const std::filesystem::path& logFile)
+    std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InstallerMetadataCollectionContext::InitializeLogging(ThreadLocalStorage::WingetThreadGlobals& threadGlobals, const std::filesystem::path& logFile)
     {
         auto threadGlobalsLifetime = threadGlobals.SetForCurrentThread();
 
         Logging::Log().SetLevel(Logging::Level::Info);
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::EnableWilFailureTelemetry();
-        Logging::AddTraceLogger();
+        Logging::TraceLogger::Add();
 
         if (!logFile.empty())
         {
-            Logging::AddFileLogger(logFile);
+            Logging::FileLogger::Add(logFile);
         }
 
         Logging::Telemetry().SetCaller("installer-metadata-collection");
@@ -738,6 +1038,7 @@ namespace AppInstaller::Repository::Metadata
 
             // Collect pre-install system state
             m_correlationData->CapturePreInstallSnapshot();
+            m_installedFilesCorrelation->StartFileWatcher();
         }
         catch (...)
         {
@@ -751,14 +1052,15 @@ namespace AppInstaller::Repository::Metadata
         m_outputMetadata.CopyFrom(m_currentMetadata, m_submissionIdentifier);
 
         Correlation::ARPCorrelationSettings settings;
+        std::string arpInstallLocation;
         // As this code is typically run in a controlled environment, we can assume that a single value change is very likely the correct value.
         settings.AllowSingleChange = true;
 
+        // ARP entry correlation
         Correlation::ARPCorrelationResult correlationResult = m_correlationData->CorrelateForNewlyInstalled(m_incomingManifest, settings);
 
         if (correlationResult.Package)
         {
-            m_outputStatus = OutputStatus::Success;
             auto& package = correlationResult.Package;
 
             // Update min and max versions based on the version of the correlated package
@@ -778,6 +1080,9 @@ namespace AppInstaller::Repository::Metadata
             Manifest::AppsAndFeaturesEntry newEntry;
             auto packageMetadata = package->GetMetadata();
 
+            // Arp installed location will be used in later installed files correlation.
+            arpInstallLocation = packageMetadata[PackageVersionMetadata::InstalledLocation];
+
             // TODO: Use some amount of normalization here to prevent things like versions being in the name from bloating the data
             newEntry.DisplayName = package->GetProperty(PackageVersionProperty::Name).get();
             newEntry.DisplayVersion = packageVersion.ToString();
@@ -795,6 +1100,9 @@ namespace AppInstaller::Repository::Metadata
 
             Manifest::ScopeEnum scope = Manifest::ConvertToScopeEnum(packageMetadata[PackageVersionMetadata::InstalledScope]);
 
+            // ARP entry icon extraction upon ARP correlation success
+            auto icons = ExtractIconFromArpEntry(newEntry.ProductCode, scope);
+
             // Add or update the metadata for the installer hash
             auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);
 
@@ -811,6 +1119,11 @@ namespace AppInstaller::Repository::Metadata
                     newMetadata.Scope = Manifest::ScopeToString(scope);
                 }
 
+                if (!icons.empty())
+                {
+                    newMetadata.Icons = std::move(icons);
+                }
+
                 m_outputMetadata.InstallerMetadataMap[m_installerHash] = std::move(newMetadata);
             }
             else
@@ -825,9 +1138,75 @@ namespace AppInstaller::Repository::Metadata
                     itr->second.Scope = Manifest::ScopeToString(Manifest::ScopeEnum::Unknown);
                 }
 
+                // We will always use the latest extracted icons upon confliction.
+                if (!icons.empty())
+                {
+                    itr->second.Icons = std::move(icons);
+                }
+
                 // Existing entry for installer hash, add/update the entry
                 FilterAndAddToEntries(std::move(newEntry), itr->second.AppsAndFeaturesEntries);
             }
+        }
+
+        // Installation files correlation
+        auto installationMetadata = m_installedFilesCorrelation->CorrelateForNewlyInstalled(m_incomingManifest, arpInstallLocation);
+
+        if (installationMetadata.InstalledFiles.HasData() || !installationMetadata.StartupLinkFiles.empty())
+        {
+            // Add or update the metadata for the installer hash
+            auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);
+
+            if (itr == m_outputMetadata.InstallerMetadataMap.end())
+            {
+                // New entry needed
+                ProductMetadata::InstallerMetadata newMetadata;
+
+                newMetadata.SubmissionIdentifier = m_submissionIdentifier;
+
+                if (installationMetadata.InstalledFiles.HasData())
+                {
+                    newMetadata.InstalledFiles = std::move(installationMetadata.InstalledFiles);
+                }
+                if (!installationMetadata.StartupLinkFiles.empty())
+                {
+                    newMetadata.StartupLinkFiles = std::move(installationMetadata.StartupLinkFiles);
+                }
+
+                m_outputMetadata.InstallerMetadataMap[m_installerHash] = std::move(newMetadata);
+            }
+            else
+            {
+                // Add new or merge with existing entry
+                if (installationMetadata.InstalledFiles.HasData())
+                {
+                    if (!itr->second.InstalledFiles.has_value())
+                    {
+                        itr->second.InstalledFiles = std::move(installationMetadata.InstalledFiles);
+                    }
+                    else
+                    {
+                        MergeInstalledFilesMetadata(*(itr->second.InstalledFiles), installationMetadata.InstalledFiles);
+                    }
+                }
+
+                if (!installationMetadata.StartupLinkFiles.empty())
+                {
+                    if (!itr->second.StartupLinkFiles.has_value())
+                    {
+                        itr->second.StartupLinkFiles = std::move(installationMetadata.StartupLinkFiles);
+                    }
+                    else
+                    {
+                        MergeStartupLinkFilesMetadata(*(itr->second.StartupLinkFiles), installationMetadata.StartupLinkFiles);
+                    }
+                }
+            }
+        }
+
+        if (correlationResult.Package)
+        {
+            m_outputStatus = OutputStatus::Success;
         }
         else
         {
@@ -895,8 +1274,8 @@ namespace AppInstaller::Repository::Metadata
 
         m_installerHash = GetRequiredString(packageDataValue.value(), installerHashFieldName);
 
-        // The 1.0 version of input uses the 1.1 version of REST
-        JSON::ManifestJSONParser parser{ Version{ "1.1" }};
+        // The 1.0 version of input uses the 1.5 version of REST
+        JSON::ManifestJSONParser parser{ Version{ "1.5" }};
 
         {
             auto defaultLocaleValue = AppInstaller::JSON::GetJsonValueFromNode(packageDataValue.value(), defaultLocaleFieldName);
@@ -1104,6 +1483,30 @@ namespace AppInstaller::Repository::Metadata
                         {
                             itr->second.Scope = Manifest::ScopeToString(Manifest::ScopeEnum::Unknown);
                         }
+                    }
+
+                    // We will always use the latest extracted icons upon confliction.
+                    if (!installerMetadata.second.Icons.empty())
+                    {
+                        itr->second.Icons = installerMetadata.second.Icons;
+                    }
+
+                    if (!itr->second.InstalledFiles.has_value())
+                    {
+                        itr->second.InstalledFiles = installerMetadata.second.InstalledFiles;
+                    }
+                    else if (installerMetadata.second.InstalledFiles.has_value())
+                    {
+                        MergeInstalledFilesMetadata(*(itr->second.InstalledFiles), *(installerMetadata.second.InstalledFiles));
+                    }
+
+                    if (!itr->second.StartupLinkFiles.has_value())
+                    {
+                        itr->second.StartupLinkFiles = installerMetadata.second.StartupLinkFiles;
+                    }
+                    else if (installerMetadata.second.StartupLinkFiles.has_value())
+                    {
+                        MergeStartupLinkFilesMetadata(*(itr->second.StartupLinkFiles), *(installerMetadata.second.StartupLinkFiles));
                     }
 
                     // Merge into existing installer data

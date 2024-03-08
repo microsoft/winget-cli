@@ -36,7 +36,6 @@ namespace
     {
         utility::string_t GetSampleManifest_AllFields()
         {
-            utility::string_t id = L"Foo.Bar";
             return _XPLATSTR(
                 R"delimiter(
         {
@@ -372,6 +371,7 @@ TEST_CASE("GetManifests_GoodResponse_V1_4", "[RestSource][Interface_1_4]")
     REQUIRE(manifest.Version == "3.0.0abc");
     REQUIRE(manifest.Moniker == "FooBarMoniker");
     REQUIRE(manifest.Channel == "");
+    REQUIRE(manifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ "1.4.0" });
     sampleManifest.VerifyLocalizations_AllFields(manifest);
     sampleManifest.VerifyInstallers_AllFields(manifest);
 }

@@ -9,14 +9,15 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Workflow;
     using namespace std::string_view_literals;
 
     std::vector<Argument> ExportCommand::GetArguments() const
     {
         return {
-            Argument{ "output", 'o', Execution::Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, ArgumentType::Positional, true },
-            Argument{ "source", 's', Execution::Args::Type::Source, Resource::String::ExportSourceArgumentDescription, ArgumentType::Standard },
-            Argument{ "include-versions", Argument::NoAlias, Execution::Args::Type::IncludeVersions, Resource::String::ExportIncludeVersionsArgumentDescription, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::Source, Resource::String::ExportSourceArgumentDescription, ArgumentType::Standard },
+            Argument{ Execution::Args::Type::IncludeVersions, Resource::String::ExportIncludeVersionsArgumentDescription, ArgumentType::Flag },
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
     }
@@ -46,9 +47,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string ExportCommand::HelpLink() const
+    Utility::LocIndView ExportCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-export";
+        return "https://aka.ms/winget-command-export"_liv;
     }
 
     void ExportCommand::ExecuteInternal(Execution::Context& context) const
@@ -56,14 +57,14 @@ namespace AppInstaller::CLI
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
 
         context <<
-            Workflow::ReportExecutionStage(Workflow::ExecutionStage::Discovery) <<
+            Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(true) <<
+            Workflow::EnsureMatchesFromSearchResult(OperationType::Export) <<
             Workflow::SelectVersionsToExport <<
-            Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
+            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::WriteImportFile;
     }
 }

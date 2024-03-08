@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Public/winget/RepositorySearch.h"
+#include "Public/winget/InstalledStatus.h"
+#include "Public/winget/PackageVersionSelection.h"
 #include <winget/Filesystem.h>
 
 using namespace AppInstaller::Settings;
@@ -77,14 +78,14 @@ namespace AppInstaller::Repository
         }
 
         std::vector<InstallerInstalledStatus> CheckInstalledStatusInternal(
-            const std::shared_ptr<IPackage>& package,
+            const std::shared_ptr<ICompositePackage>& package,
             InstalledStatusType checkTypes)
         {
             using namespace AppInstaller::Manifest;
 
             std::vector<InstallerInstalledStatus> result;
             bool checkFileHash = false;
-            std::shared_ptr<IPackageVersion> installedVersion = package->GetInstalledVersion();
+            std::shared_ptr<IPackageVersion> installedVersion = GetInstalledVersion(package);
             std::shared_ptr<IPackageVersion> availableVersion;
             FileHashMap fileHashes;
 
@@ -95,6 +96,8 @@ namespace AppInstaller::Repository
             std::string installedLocale;
             Utility::Architecture installedArchitecture = Utility::Architecture::Unknown;
             HRESULT installedLocationStatus = WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE;
+
+            std::shared_ptr<IPackageVersionCollection> availableVersions = GetAvailableVersionsForInstalledVersion(package);
 
             // Prepare installed metadata from installed version.
             // Determine the available package version to be used for installed status checking.
@@ -120,14 +123,14 @@ namespace AppInstaller::Repository
                 {
                     // Use the base version as available version if installed version is mapped to be an approximate.
                     versionKey.Version = installedVersionAsVersion.GetBaseVersion().ToString();
-                    availableVersion = package->GetAvailableVersion(versionKey);
+                    availableVersion = availableVersions->GetVersion(versionKey);
                     // It's unexpected if the installed version is already mapped to some version.
                     THROW_HR_IF(E_UNEXPECTED, !availableVersion);
                 }
                 else
                 {
                     versionKey.Version = installedVersionAsVersion.ToString();
-                    availableVersion = package->GetAvailableVersion(versionKey);
+                    availableVersion = availableVersions->GetVersion(versionKey);
                     if (availableVersion)
                     {
                         checkFileHash = true;
@@ -139,100 +142,97 @@ namespace AppInstaller::Repository
             {
                 // No installed version, or installed version not found in available versions,
                 // then attempt to check installed status using latest version.
-                availableVersion = package->GetLatestAvailableVersion();
+                availableVersion = availableVersions->GetLatestVersion();
                 THROW_HR_IF(E_UNEXPECTED, !availableVersion);
             }
 
             auto manifest = availableVersion->GetManifest();
             for (auto const& installer : manifest.Installers)
             {
-                if (installer.InstallationMetadata.HasData())
+                InstallerInstalledStatus installerStatus;
+                installerStatus.Installer = installer;
+
+                // ARP related checks
+                if (WI_IsAnyFlagSet(checkTypes, InstalledStatusType::AllAppsAndFeaturesEntryChecks))
                 {
-                    InstallerInstalledStatus installerStatus;
-                    installerStatus.Installer = installer;
+                    bool isMatchingInstaller =
+                        installedVersion &&
+                        IsInstallerTypeCompatible(installedType, installer.EffectiveInstallerType()) &&
+                        (installedScope == ScopeEnum::Unknown || installer.Scope == ScopeEnum::Unknown || installedScope == installer.Scope) &&  // Treat unknown scope as compatible
+                        (installedArchitecture == Utility::Architecture::Unknown || installer.Arch == Utility::Architecture::Neutral || installedArchitecture == installer.Arch) &&  // Treat unknown installed architecture as compatible
+                        (installedLocale.empty() || installer.Locale.empty() || !Locale::IsWellFormedBcp47Tag(installedLocale) || Locale::GetDistanceOfLanguage(installedLocale, installer.Locale) >= Locale::MinimumDistanceScoreAsCompatibleMatch);  // Treat invalid locale as compatible
 
-                    // ARP related checks
-                    if (WI_IsAnyFlagSet(checkTypes, InstalledStatusType::AllAppsAndFeaturesEntryChecks))
+                    // ARP entry status
+                    if (WI_IsFlagSet(checkTypes, InstalledStatusType::AppsAndFeaturesEntry))
                     {
-                        bool isMatchingInstaller =
-                            installedVersion &&
-                            IsInstallerTypeCompatible(installedType, installer.EffectiveInstallerType()) &&
-                            (installedScope == ScopeEnum::Unknown || installer.Scope == ScopeEnum::Unknown || installedScope == installer.Scope) &&  // Treat unknown scope as compatible
-                            (installedArchitecture == Utility::Architecture::Unknown || installer.Arch == Utility::Architecture::Neutral || installedArchitecture == installer.Arch) &&  // Treat unknown installed architecture as compatible
-                            (installedLocale.empty() || installer.Locale.empty() || !Locale::IsWellFormedBcp47Tag(installedLocale) || Locale::GetDistanceOfLanguage(installedLocale, installer.Locale) >= Locale::MinimumDistanceScoreAsCompatibleMatch);  // Treat invalid locale as compatible
-
-                        // ARP entry status
-                        if (WI_IsFlagSet(checkTypes, InstalledStatusType::AppsAndFeaturesEntry))
-                        {
-                            installerStatus.Status.emplace_back(
-                                InstalledStatusType::AppsAndFeaturesEntry,
-                                "",
-                                isMatchingInstaller ? WINGET_INSTALLED_STATUS_ARP_ENTRY_FOUND : WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND);
-                        }
-
-                        // ARP install location status
-                        if (isMatchingInstaller && WI_IsFlagSet(checkTypes, InstalledStatusType::AppsAndFeaturesEntryInstallLocation))
-                        {
-                            installerStatus.Status.emplace_back(
-                                InstalledStatusType::AppsAndFeaturesEntryInstallLocation,
-                                installedLocation.string(),
-                                installedLocationStatus);
-                        }
-
-                        // ARP install location files
-                        if (isMatchingInstaller &&
-                            installedLocationStatus == WINGET_INSTALLED_STATUS_INSTALL_LOCATION_FOUND &&
-                            WI_IsFlagSet(checkTypes, InstalledStatusType::AppsAndFeaturesEntryInstallLocationFile))
-                        {
-                            for (auto const& file : installer.InstallationMetadata.Files)
-                            {
-                                std::filesystem::path filePath = installedLocation / std::filesystem::path{ static_cast<std::string>(file.RelativeFilePath) };
-                                auto fileStatus = CheckInstalledFileStatus(filePath, checkFileHash ? file.FileSha256 : Utility::SHA256::HashBuffer{}, fileHashes);
-
-                                installerStatus.Status.emplace_back(
-                                    InstalledStatusType::AppsAndFeaturesEntryInstallLocationFile,
-                                    filePath.string(),
-                                    fileStatus);
-                            }
-                        }
+                        installerStatus.Status.emplace_back(
+                            InstalledStatusType::AppsAndFeaturesEntry,
+                            "",
+                            isMatchingInstaller ? WINGET_INSTALLED_STATUS_ARP_ENTRY_FOUND : WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND);
                     }
 
-                    // Default install location related checks
-                    if (WI_IsAnyFlagSet(checkTypes, InstalledStatusType::AllDefaultInstallLocationChecks))
+                    // ARP install location status
+                    if (isMatchingInstaller && WI_IsFlagSet(checkTypes, InstalledStatusType::AppsAndFeaturesEntryInstallLocation))
                     {
-                        auto defaultInstalledLocation = Filesystem::GetExpandedPath(installer.InstallationMetadata.DefaultInstallLocation);
-                        HRESULT defaultInstalledLocationStatus = CheckInstalledLocationStatus(defaultInstalledLocation);
+                        installerStatus.Status.emplace_back(
+                            InstalledStatusType::AppsAndFeaturesEntryInstallLocation,
+                            installedLocation.u8string(),
+                            installedLocationStatus);
+                    }
 
-                        // Default install location status
-                        if (WI_IsFlagSet(checkTypes, InstalledStatusType::DefaultInstallLocation))
+                    // ARP install location files
+                    if (isMatchingInstaller &&
+                        installedLocationStatus == WINGET_INSTALLED_STATUS_INSTALL_LOCATION_FOUND &&
+                        WI_IsFlagSet(checkTypes, InstalledStatusType::AppsAndFeaturesEntryInstallLocationFile))
+                    {
+                        for (auto const& file : installer.InstallationMetadata.Files)
                         {
+                            std::filesystem::path filePath = installedLocation / Utility::ConvertToUTF16(file.RelativeFilePath);
+                            auto fileStatus = CheckInstalledFileStatus(filePath, checkFileHash ? file.FileSha256 : Utility::SHA256::HashBuffer{}, fileHashes);
+
                             installerStatus.Status.emplace_back(
-                                InstalledStatusType::DefaultInstallLocation,
-                                defaultInstalledLocation.string(),
-                                defaultInstalledLocationStatus);
-                        }
-
-                        // Default install location files
-                        if (defaultInstalledLocationStatus == WINGET_INSTALLED_STATUS_INSTALL_LOCATION_FOUND &&
-                            WI_IsFlagSet(checkTypes, InstalledStatusType::DefaultInstallLocationFile))
-                        {
-                            for (auto const& file : installer.InstallationMetadata.Files)
-                            {
-                                std::filesystem::path filePath = defaultInstalledLocation / std::filesystem::path{ static_cast<std::string>(file.RelativeFilePath) };
-                                auto fileStatus = CheckInstalledFileStatus(filePath, checkFileHash ? file.FileSha256 : Utility::SHA256::HashBuffer{}, fileHashes);
-
-                                installerStatus.Status.emplace_back(
-                                    InstalledStatusType::DefaultInstallLocationFile,
-                                    filePath.string(),
-                                    fileStatus);
-                            }
+                                InstalledStatusType::AppsAndFeaturesEntryInstallLocationFile,
+                                filePath.u8string(),
+                                fileStatus);
                         }
                     }
+                }
 
-                    if (!installerStatus.Status.empty())
+                // Default install location related checks
+                if (WI_IsAnyFlagSet(checkTypes, InstalledStatusType::AllDefaultInstallLocationChecks) && installer.InstallationMetadata.HasData())
+                {
+                    auto defaultInstalledLocation = Filesystem::GetExpandedPath(installer.InstallationMetadata.DefaultInstallLocation);
+                    HRESULT defaultInstalledLocationStatus = CheckInstalledLocationStatus(defaultInstalledLocation);
+
+                    // Default install location status
+                    if (WI_IsFlagSet(checkTypes, InstalledStatusType::DefaultInstallLocation))
                     {
-                        result.emplace_back(std::move(installerStatus));
+                        installerStatus.Status.emplace_back(
+                            InstalledStatusType::DefaultInstallLocation,
+                            defaultInstalledLocation.u8string(),
+                            defaultInstalledLocationStatus);
                     }
+
+                    // Default install location files
+                    if (defaultInstalledLocationStatus == WINGET_INSTALLED_STATUS_INSTALL_LOCATION_FOUND &&
+                        WI_IsFlagSet(checkTypes, InstalledStatusType::DefaultInstallLocationFile))
+                    {
+                        for (auto const& file : installer.InstallationMetadata.Files)
+                        {
+                            std::filesystem::path filePath = defaultInstalledLocation / Utility::ConvertToUTF16(file.RelativeFilePath);
+                            auto fileStatus = CheckInstalledFileStatus(filePath, checkFileHash ? file.FileSha256 : Utility::SHA256::HashBuffer{}, fileHashes);
+
+                            installerStatus.Status.emplace_back(
+                                InstalledStatusType::DefaultInstallLocationFile,
+                                filePath.u8string(),
+                                fileStatus);
+                        }
+                    }
+                }
+
+                if (!installerStatus.Status.empty())
+                {
+                    result.emplace_back(std::move(installerStatus));
                 }
             }
 
@@ -240,7 +240,7 @@ namespace AppInstaller::Repository
         }
     }
 
-    std::vector<InstallerInstalledStatus> CheckPackageInstalledStatus(const std::shared_ptr<IPackage>& package, InstalledStatusType checkTypes)
+    std::vector<InstallerInstalledStatus> CheckPackageInstalledStatus(const std::shared_ptr<ICompositePackage>& package, InstalledStatusType checkTypes)
     {
         return CheckInstalledStatusInternal(package, checkTypes);
     }

@@ -31,12 +31,26 @@ Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas activer les f
 Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent installer des packages avec des manifestes locaux à l’aide du gestionnaire de packages Windows.
 
 Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas installer de packages avec des manifestes locaux à l’aide du gestionnaire de packages Windows.</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Activer Programme d'installation d'application Microsoft Store contournement de la validation du certificat source</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Cette stratégie contrôle si le Gestionnaire de package Windows validera si les correspondances de hachage de certificat Microsoft Store correspond à un certificat Microsoft Store connu lors de l’initialisation d’une connexion à la source Microsoft Store. 
+Si vous activez cette stratégie, le Gestionnaire de package Windows contourne la validation du certificat Microsoft Store. 
+
+Si vous désactivez cette stratégie, le Gestionnaire de package Windows vérifie que le certificat Microsoft Store utilisé est valide et appartient au Microsoft Store avant de communiquer avec la source Microsoft Store.
+
+Si vous ne configurez pas cette stratégie, les paramètres d’administrateur Gestionnaire de package Windows sont respectés.</string>
       <string id="EnableHashOverride">Activer le remplacement de code de hachage du Programme d’installation de l’application</string>
       <string id="EnableHashOverrideExplanation">Cette stratégie détermine si les utilisateurs peuvent configurer le Gestionnaire de package Windows ou non pour activer la fonction de remplacement de la validation de sécurité SHA256 dans les paramètres.
 
 Si vous activez ou ne configurez pas cette stratégie, les utilisateurs pourront activer la fonction de remplacement la validation de sécurité SHA256 dans les paramètres du Gestionnaire de package Windows.
 
 Si vous désactivez cette stratégie, les utilisateurs ne pourront pas activer la fonction de remplacement la validation de sécurité SHA256 dans les paramètres du Gestionnaire de package Windows.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Activer le remplacement de l’analyse des programmes malveillants des archives locales Windows Programme d'installation d'application</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Cette stratégie contrôle la possibilité de remplacer les analyses de vulnérabilités de programmes malveillants lors de l’installation d’un fichier d’archive à l’aide d’un manifeste local à l’aide des arguments de ligne de commande.
+Si vous activez ce paramètre de stratégie, les utilisateurs peuvent remplacer l’analyse des programmes malveillants lors de l’installation d’un manifeste local d’un fichier d’archive.
+
+Si vous désactivez cette stratégie, les utilisateurs ne peuvent pas remplacer l’analyse des programmes malveillants d’un fichier d’archive lors de l’installation à l’aide d’un manifeste local.
+
+Si vous ne configurez pas cette stratégie, les paramètres d’administrateur Gestionnaire de package Windows sont conformes.</string>
       <string id="EnableDefaultSource">Activer la source par défaut du Programme d'installation d'application</string>
       <string id="EnableDefaultSourceExplanation">Cette stratégie contrôle la source par défaut incluse dans le Gestionnaire de package Windows.
 
@@ -54,11 +68,11 @@ Si vous activez ce paramètre, la source du Microsoft Store pour le Gestionnaire
 
 Si vous désactivez ce paramètre, la source du Microsoft Store pour le Gestionnaire de package Windows n’est pas disponible.</string>
       <string id="SourceAutoUpdateInterval">Définir l’intervalle en minutes de mise à jour automatique de source du programme d’installation de l’application</string>
-      <string id="SourceAutoUpdateIntervalExplanation">Cette stratégie contrôle l’intervalle de mise à jour automatique pour les sources basées sur un package.
+      <string id="SourceAutoUpdateIntervalExplanation">Cette stratégie contrôle l’intervalle de mise à jour automatique pour les sources basées sur les packages. La source par défaut de Gestionnaire de package Windows est configurée de sorte qu’un index des packages soit mis en cache sur l’ordinateur local. L’index est téléchargé lorsqu’un utilisateur appelle une commande et que l’intervalle est écoulé.
 
-Si vous désactivez ou ne configurez pas ce paramètre, l’intervalle par défaut ou la valeur spécifiée dans les paramètres est utilisé par le gestionnaire de packages Windows.
+Si vous désactivez ou ne configurez pas ce paramètre, l’intervalle par défaut ou la valeur spécifié dans les paramètres de Gestionnaire de package Windows sont utilisés.
 
-Si vous activez ce paramètre, le nombre de minutes spécifiées est utilisé par le gestionnaire de packages Windows.</string>
+Si vous activez ce paramètre, le nombre de minutes spécifié est utilisé par le Gestionnaire de package Windows.</string>
       <string id="EnableAdditionalSources">Activer les sources supplémentaires du Programme d’installation de l’application</string>
       <string id="EnableAdditionalSourcesExplanation">Cette stratégie contrôle les sources supplémentaires offertes par l’administrateur informatique de l’entreprise.
 
@@ -81,6 +95,20 @@ Si vous désactivez ce paramètre de stratégie, aucune source supplémentaire n
 Si vous activez ce paramètre, les utilisateurs peuvent installer des packages à partir de sites web qui utilisent ce protocole.
 
 Si vous désactivez ou ne configurez pas ce paramètre, les utilisateurs ne peuvent pas installer de packages à partir de sites web qui utilisent ce protocole.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Activer les interfaces de ligne de commande Gestionnaire de package Windows</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Cette stratégie détermine si un utilisateur peut effectuer une action à l’aide du Gestionnaire de package Windows via une interface de ligne de commande (WinGet CLI ou WinGet PowerShell).
+
+Si vous désactivez cette stratégie, les utilisateurs ne peuvent pas exécuter l’interface CLI Gestionnaire de package Windows et les applets de commande PowerShell.
+
+Si vous activez ou ne configurez pas cette stratégie, les utilisateurs peuvent exécuter les commandes Gestionnaire de package Windows CLI et PowerShell. (La stratégie « Activer Programme d'installation d'application » fournie n’est pas désactivée).
+
+Cette stratégie ne remplace pas la stratégie « Activer Programme d'installation d'application ».</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Activer la configuration Gestionnaire de package Windows</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Cette stratégie contrôle si la fonctionnalité de configuration Gestionnaire de package Windows peut être utilisée par les utilisateurs.
+
+Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent utiliser la fonctionnalité de configuration Gestionnaire de package Windows.
+
+Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas utiliser la fonctionnalité de configuration Gestionnaire de package Windows.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

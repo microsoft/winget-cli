@@ -12,7 +12,7 @@ namespace AppInstaller::CLI
     using namespace AppInstaller::CLI::Execution;
     using namespace std::string_view_literals;
 
-    static constexpr std::string_view s_SourceCommand_HelpLink = "https://aka.ms/winget-command-source"sv;
+    Utility::LocIndView s_SourceCommand_HelpLink = "https://aka.ms/winget-command-source"_liv;
 
     std::vector<std::unique_ptr<Command>> SourceCommand::GetCommands() const
     {
@@ -36,9 +36,9 @@ namespace AppInstaller::CLI
         return { Resource::String::SourceCommandLongDescription };
     }
 
-    std::string SourceCommand::HelpLink() const
+    Utility::LocIndView SourceCommand::HelpLink() const
     {
-        return std::string{ s_SourceCommand_HelpLink };
+        return s_SourceCommand_HelpLink;
     }
 
     void SourceCommand::ExecuteInternal(Context& context) const
@@ -67,9 +67,9 @@ namespace AppInstaller::CLI
         return { Resource::String::SourceAddCommandLongDescription };
     }
 
-    std::string SourceAddCommand::HelpLink() const
+    Utility::LocIndView SourceAddCommand::HelpLink() const
     {
-        return std::string{ s_SourceCommand_HelpLink };
+        return s_SourceCommand_HelpLink;
     }
 
     void SourceAddCommand::ExecuteInternal(Context& context) const
@@ -110,9 +110,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string SourceListCommand::HelpLink() const
+    Utility::LocIndView SourceListCommand::HelpLink() const
     {
-        return std::string{ s_SourceCommand_HelpLink };
+        return s_SourceCommand_HelpLink;
     }
 
     void SourceListCommand::ExecuteInternal(Context& context) const
@@ -148,9 +148,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string SourceUpdateCommand::HelpLink() const
+    Utility::LocIndView SourceUpdateCommand::HelpLink() const
     {
-        return std::string{ s_SourceCommand_HelpLink };
+        return s_SourceCommand_HelpLink;
     }
 
     void SourceUpdateCommand::ExecuteInternal(Context& context) const
@@ -186,9 +186,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string SourceRemoveCommand::HelpLink() const
+    Utility::LocIndView SourceRemoveCommand::HelpLink() const
     {
-        return std::string{ s_SourceCommand_HelpLink };
+        return s_SourceCommand_HelpLink;
     }
 
     void SourceRemoveCommand::ExecuteInternal(Context& context) const
@@ -204,7 +204,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::SourceName),
-            Argument{ "force", Argument::NoAlias, Args::Type::ForceSourceReset, Resource::String::SourceResetForceArgumentDescription, ArgumentType::Flag },
+            Argument{ Args::Type::ForceSourceReset, Resource::String::SourceResetForceArgumentDescription, ArgumentType::Flag },
         };
     }
 
@@ -227,9 +227,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string SourceResetCommand::HelpLink() const
+    Utility::LocIndView SourceResetCommand::HelpLink() const
     {
-        return std::string{ s_SourceCommand_HelpLink };
+        return s_SourceCommand_HelpLink;
     }
 
     void SourceResetCommand::ExecuteInternal(Context& context) const
@@ -276,9 +276,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string SourceExportCommand::HelpLink() const
+    Utility::LocIndView SourceExportCommand::HelpLink() const
     {
-        return std::string{ s_SourceCommand_HelpLink };
+        return s_SourceCommand_HelpLink;
     }
 
     void SourceExportCommand::ExecuteInternal(Context& context) const

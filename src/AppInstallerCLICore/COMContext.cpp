@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "COMContext.h"
+#include <AppInstallerFileLogger.h>
+#include <winget/TraceLogger.h>
 
 namespace AppInstaller::CLI::Execution
 {
-    static constexpr std::string_view s_comLogFileNamePrefix = "WPM"sv;
+    static constexpr std::string_view s_comLogFileNamePrefix = "WinGetCOM"sv;
 
     NullStream::NullStream()
     {
@@ -39,6 +41,11 @@ namespace AppInstaller::CLI::Execution
         FireCallbacks(ReportType::Progressing, current, maximum, progressType, m_executionStage);
     }
 
+    void COMContext::SetProgressMessage(std::string_view)
+    {
+        // TODO: Consider sending message to COM progress
+    }
+
     void COMContext::EndProgress(bool)
     {
         FireCallbacks(ReportType::EndProgress, 0, 0, ProgressType::None, m_executionStage);
@@ -70,14 +77,21 @@ namespace AppInstaller::CLI::Execution
 
     void COMContext::SetLoggers()
     {
-        Logging::Log().SetLevel(Logging::Level::Info);
-        Logging::Log().EnableChannel(Logging::Channel::All);
+        Logging::Log().EnableChannel(Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
+        Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
 
         // TODO: Log to file for COM API calls only when debugging in visual studio
-        Logging::AddFileLogger(s_comLogFileNamePrefix);
-        Logging::BeginLogFileCleanup();
+        Logging::FileLogger::Add(s_comLogFileNamePrefix);
 
-        Logging::AddTraceLogger();
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
+#endif
+        {
+            // Initiate the background cleanup of the log file location.
+            Logging::FileLogger::BeginCleanup();
+        }
+
+        Logging::TraceLogger::Add();
 
         Logging::EnableWilFailureTelemetry();
     }

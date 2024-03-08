@@ -280,11 +280,11 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
 
         PinningDetails rootCert;
-        rootCert.LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1);
+        rootCert.LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2, CERTIFICATE_RESOURCE_TYPE);
         PinningDetails intermediateCert;
-        intermediateCert.LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1);
+        intermediateCert.LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2, CERTIFICATE_RESOURCE_TYPE);
         PinningDetails leafCert;
-        leafCert.LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1);
+        leafCert.LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2, CERTIFICATE_RESOURCE_TYPE);
 
         auto getBytesString = [](const PinningDetails& details)
         {
@@ -368,10 +368,14 @@ TEST_CASE("GroupPolicy_AllEnabled", "[groupPolicy]")
     SetRegistryValue(policiesKey.get(), ExperimentalFeaturesPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), LocalManifestsPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), EnableHashOverridePolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), EnableLocalArchiveMalwareScanOverridePolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), DefaultSourcePolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), MSStoreSourcePolicyValueName, 1);;
     SetRegistryValue(policiesKey.get(), AdditionalSourcesPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), AllowedSourcesPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), BypassCertificatePinningForMicrosoftStoreValueName, 1);
+    SetRegistryValue(policiesKey.get(), EnableWindowsPackageManagerCommandLineInterfaces, 1);
+    SetRegistryValue(policiesKey.get(), ConfigurationPolicyValueName, 1);
 
     GroupPolicy groupPolicy{ policiesKey.get() };
     for (const auto& policy : TogglePolicy::GetAllPolicies())

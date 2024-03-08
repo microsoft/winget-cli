@@ -92,29 +92,13 @@ namespace AppInstaller::Repository
         }
     }
 
-    std::string_view ToString(PackagePinnedState state)
+    bool PackageVersionKey::IsMatch(const PackageVersionKey& other) const
     {
-        switch (state)
-        {
-        case PackagePinnedState::PinnedByManifest: return "PinnedByManifest"sv;
-        case PackagePinnedState::NotPinned:
-        default:
-            return "Unknown";
-        }
+        return
+            ((other.SourceId.empty() || other.SourceId == SourceId) &&
+             (other.Version.empty() || Utility::ICUCaseInsensitiveEquals(other.Version, Version)) &&
+             (other.Channel.empty() || Utility::ICUCaseInsensitiveEquals(other.Channel, Channel)));
     }
-
-    PackagePinnedState ConvertToPackagePinnedStateEnum(std::string_view in)
-    {
-        if (Utility::CaseInsensitiveEquals(in, "PinnedByManifest"sv))
-        {
-            return PackagePinnedState::PinnedByManifest;
-        }
-        else
-        {
-            return PackagePinnedState::NotPinned;
-        }
-    }
-
 
     const char* UnsupportedRequestException::what() const noexcept
     {

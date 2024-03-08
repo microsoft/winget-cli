@@ -20,9 +20,31 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void MSStoreUpdate(Execution::Context& context);
 
+    // Attempt to repair the installation of an Store app that is already installed
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void MSStoreRepair(Execution::Context& context);
+
     // Ensure the Store app is not blocked by policy.
     // Required Args: None
     // Inputs: Installer
     // Outputs: None
     void EnsureStorePolicySatisfied(Execution::Context& context);
+
+    // Change stub preference to full and installs full package if needed.
+    // This should go into configuration flow once installing from the store is
+    // moved out of this work flow.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void EnableConfiguration(Execution::Context& context);
+
+    // Change stub preference to stub and installs stub package if needed.
+    // This should go into configuration flow once installing from the store is
+    // moved out of this work flow.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void DisableConfiguration(Execution::Context& context);
 }

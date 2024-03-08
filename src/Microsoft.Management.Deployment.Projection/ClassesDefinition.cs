@@ -70,6 +70,18 @@ namespace Microsoft.Management.Deployment.Projection
                 }
             },
 
+            [typeof(DownloadOptions)] = new()
+            {
+                ProjectedClassType = typeof(DownloadOptions),
+                InterfaceType = typeof(IDownloadOptions),
+                Clsids = new Dictionary<ClsidContext, Guid>()
+                {
+                    [ClsidContext.InProc] = new Guid("4288DF96-FDC9-4B68-B403-193DBBF56A24"),
+                    [ClsidContext.OutOfProc] = new Guid("4CBABE76-7322-4BE4-9CEA-2589A80682DC"),
+                    [ClsidContext.OutOfProcDev] = new Guid("8EF324ED-367C-4880-83E5-BB2ABD0B72F6"),
+                }
+            },
+
             [typeof(PackageMatchFilter)] = new()
             {
                 ProjectedClassType = typeof(PackageMatchFilter),
@@ -79,6 +91,18 @@ namespace Microsoft.Management.Deployment.Projection
                     [ClsidContext.InProc] = new Guid("57DC8962-7343-42CD-B91C-04F6A25DB1D0"),
                     [ClsidContext.OutOfProc] = new Guid("D02C9DAF-99DC-429C-B503-4E504E4AB000"),
                     [ClsidContext.OutOfProcDev] = new Guid("3F85B9F4-487A-4C48-9035-2903F8A6D9E8"),
+                }
+            },
+
+            [typeof(AuthenticationArguments)] = new()
+            {
+                ProjectedClassType = typeof(AuthenticationArguments),
+                InterfaceType = typeof(IAuthenticationArguments),
+                Clsids = new Dictionary<ClsidContext, Guid>()
+                {
+                    [ClsidContext.InProc] = new Guid("8D593114-1CF1-43B9-8722-4DBB30103296"),
+                    [ClsidContext.OutOfProc] = new Guid("BA580786-BDE3-4F6C-B8F3-44698AC8711A"),
+                    [ClsidContext.OutOfProcDev] = new Guid("6484A61D-50FA-41F0-B71E-F4370C6EB37C"),
                 }
             },
 

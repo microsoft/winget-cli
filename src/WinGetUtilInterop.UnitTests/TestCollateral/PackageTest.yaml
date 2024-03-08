@@ -1,0 +1,18 @@
+PackageIdentifier: Test.Test
+PackageVersion: 1.0
+PackageName: Test
+Publisher: Test
+PackageUrl: https://test.com
+License: Test.
+LicenseUrl: https://test.com
+ShortDescription: A test
+Installers:
+- Architecture: x64
+  InstallerUrl: https://test.com/installer.exe
+  InstallerType: exe
+  InstallerSwitches:
+    Silent: /silent
+  InstallerSha256: 00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF
+PackageLocale: en-US
+ManifestType: singleton
+ManifestVersion: 1.0.0

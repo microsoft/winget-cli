@@ -14,6 +14,9 @@ namespace AppInstaller::Repository
     {
         virtual ~ISourceFactory() = default;
 
+        // Gets the name of the source type.
+        virtual std::string_view TypeName() const = 0;
+
         // Creates a source object from the given details.
         virtual std::shared_ptr<ISourceReference> Create(const SourceDetails& details) = 0;
 

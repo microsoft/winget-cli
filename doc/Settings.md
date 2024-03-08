@@ -16,7 +16,7 @@ The `source` settings involve configuration to the WinGet source.
     "source": {
         "autoUpdateIntervalInMinutes": 3
     },
-``` 
+```
 
 ### autoUpdateIntervalInMinutes
 
@@ -31,19 +31,29 @@ To manually update the source use `winget source update`
 
 The `visual` settings involve visual elements that are displayed by WinGet
 
+### progressBar
+
+Color of the progress bar that WinGet displays when not specified by arguments.
+
+- accent (default)
+- retro
+- rainbow
+
 ```json
     "visual": {
         "progressBar": "accent"
     },
 ```
 
-### progressBar
+### anonymizeDisplayedPaths
 
-Color of the progress bar that WinGet displays when not specified by arguments. 
+Replaces some known folder paths with their respective environment variable. Defaults to true.
 
-- accent (default)
-- retro
-- rainbow
+```json
+    "visual": {
+        "anonymizeDisplayedPaths": true
+    },
+```
 
 ## Install Behavior
 
@@ -77,6 +87,15 @@ The `portablePackageMachineRoot` setting affects the default root directory wher
 ```json
     "installBehavior": {
         "portablePackageMachineRoot": "C:/Program Files/Packages/Portable"
+    },
+```
+
+### Skip Dependencies
+The 'skipDependencies' behavior affects whether dependencies are installed for a given package. Defaults to 'false' if value is not set or is invalid.
+
+```json
+    "installBehavior": {
+        "skipDependencies": true
     },
 ```
 
@@ -121,6 +140,28 @@ The `architectures` behavior affects what architectures will be selected when in
     },
 ```
 
+### Installer Types
+
+The `installerTypes` behavior affects what installer types will be selected when installing a package. The matching parameter is `--installer-type`.
+
+```json
+    "installBehavior": {
+        "preferences": {
+            "installerTypes": ["msi", "msix"]
+        }
+    },
+```
+
+### Default install root
+
+The `defaultInstallRoot` affects the install location when a package requires one. This can be overridden by the `--location` parameter. This setting is only used when a package manifest includes `InstallLocationRequired`, and the actual location is obtained by appending the package ID to the root.
+
+```json
+    "installBehavior": {
+        "defaultInstallRoot": "C:/installRoot"
+    },
+```
+
 ## Uninstall Behavior
 
 The `uninstallBehavior` settings affect the default behavior of uninstalling (where applicable) packages.
@@ -135,21 +176,11 @@ The `purgePortablePackage` behavior affects the default behavior for uninstallin
     },
 ```
 
-### Default install root
-
-The `defaultInstallRoot` affects the install location when a package requires one. This can be overridden by the `--location` parameter. This setting is only used when a package manifest includes `InstallLocationRequired`, and the actual location is obtained by appending the package ID to the root.
-
-```json
-    "installBehavior": {
-        "defaultInstallRoot": "C:\installRoot"
-    },
-```
-
 ## Telemetry
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
 
-See [details on telemetry](../README.md#datatelemetry), and our [primary privacy statement](../privacy.md).
+See [details on telemetry](../README.md#datatelemetry), and our [primary privacy statement](../PRIVACY.md).
 
 ### disable
 
@@ -163,14 +194,31 @@ If set to true, the `telemetry.disable` setting will prevent any event from bein
 
 ## Logging
 
-The `logging` settings control the level of detail in log files. `--verbose-logs` will override this setting and always creates a verbose log.
-Defaults to `info` if value is not set or is invalid
+The `logging` settings control the level of detail in log files.
 
 ### level
 
+ `--verbose-logs` will override this setting and always creates a verbose log.
+Defaults to `info` if value is not set or is invalid.
+
 ```json
     "logging": {
-        "level": ["verbose", "info", "warning", "error", "critical"]
+        "level": "verbose" | "info" | "warning" | "error" | "critical"
+    },
+```
+
+### channels
+
+The valid values in this array are defined in the function `GetChannelFromName` in the [logging code](../src/AppInstallerSharedLib/AppInstallerLogging.cpp).  These align with the ***channel identifier*** found in the log files.  For example, ***`CORE`*** in:
+```
+2023-12-06 19:17:07.988 [CORE] WinGet, version [1.7.0-preview], activity [{24A91EA8-46BE-47A1-B65C-CEBCE90B8675}]
+```
+
+In addition, there are special values that cover multiple channels.  `default` is the default set of channels, while `all` is all of the channels.  Invalid values are ignored.
+
+```json
+    "logging": {
+        "channels": ["default"]
     },
 ```
 
@@ -184,7 +232,7 @@ The `downloader` setting controls which code is used when downloading packages. 
 `wininet` uses the [WinINet](https://docs.microsoft.com/windows/win32/wininet/about-wininet) APIs, while `do` uses the
 [Delivery Optimization](https://support.microsoft.com/windows/delivery-optimization-in-windows-10-0656e53c-15f2-90de-a87a-a2172c94cf6d) service.
 
-The `doProgressTimeoutInSeconds` setting updates the number of seconds to wait without progress before fallback. The default number of seconds is 60, minimum is 1 and the maximum is 600. 
+The `doProgressTimeoutInSeconds` setting updates the number of seconds to wait without progress before fallback. The default number of seconds is 60, minimum is 1 and the maximum is 600.
 
 ```json
    "network": {
@@ -209,7 +257,7 @@ If set to true, the `interactivity.disable` setting will prevent any interactive
 
 ## Experimental Features
 
-To allow work to be done and distributed to early adopters for feedback, settings can be used to enable "experimental" features. 
+To allow work to be done and distributed to early adopters for feedback, settings can be used to enable "experimental" features.
 
 The `experimentalFeatures` settings involve the configuration of these "experimental" features. Individual features can be enabled under this node. The example below shows sample experimental features.
 
@@ -220,21 +268,10 @@ The `experimentalFeatures` settings involve the configuration of these "experime
    },
 ```
 
-### zipInstall
-
-This feature enables the Windows Package Manager to install from a zip file.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "zipInstall": true
-   },
-```
-
 ### directMSI
 
-This feature enables the Windows Package Manager to directly install MSI packages with the MSI APIs rather than through msiexec. 
-Note that when silent installation is used this is already in affect, as MSI packages that require elevation will fail in that scenario without it. 
+This feature enables the Windows Package Manager to directly install MSI packages with the MSI APIs rather than through msiexec.
+Note that when silent installation is used this is already in affect, as MSI packages that require elevation will fail in that scenario without it.
 You can enable the feature as shown below.
 
 ```json
@@ -243,22 +280,35 @@ You can enable the feature as shown below.
    },
 ```
 
-### openLogsArgument
+### configuration
 
-This feature enables the Windows Package Manager to open the default logs folder after execution by passing the `--open-logs` argument with any command. 
+This feature enables the configuration commands. These commands allow configuring the system into a desired state.
 You can enable the feature as shown below.
 
 ```json
    "experimentalFeatures": {
-       "openLogsArgument": true
+       "configuration": true
    },
 ```
-### Dependencies
 
-Experimental feature with the aim of managing dependencies, as of now it only shows package dependency information. You can enable the feature as shown below.
+### resume
+
+This feature enables support for some commands to resume.
+You can enable the feature as shown below.
 
 ```json
    "experimentalFeatures": {
-       "dependencies": true
+       "resume": true
+   },
+```
+
+### configuration03
+
+This feature enables the configuration schema 0.3.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "configuration03": true
    },
 ```

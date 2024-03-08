@@ -36,7 +36,6 @@ namespace
     {
         utility::string_t GetSampleManifest_AllFields()
         {
-            utility::string_t id = L"Foo.Bar";
             return _XPLATSTR(
                 R"delimiter(
         {
@@ -371,7 +370,7 @@ TEST_CASE("Search_BadRequest_UnsupportedPackageMatchFields", "[RestSource][Inter
               "Publisher": "git",
               "Versions": [
                 {   "PackageVersion": "1.0.0" },
-                {   "PackageVersion": "2.0.0"}]
+                {   "PackageVersion": "2.0.0" }]
             }]
         })delimiter");
 
@@ -394,7 +393,7 @@ TEST_CASE("Search_GoodRequest_OnlyMarketRequired", "[RestSource][Interface_1_1]"
               "Publisher": "git",
               "Versions": [
                 {   "PackageVersion": "1.0.0" },
-                {   "PackageVersion": "2.0.0"}]
+                {   "PackageVersion": "2.0.0" }]
             }]
         })delimiter");
 
@@ -553,6 +552,7 @@ TEST_CASE("GetManifests_GoodResponse_V1_1", "[RestSource][Interface_1_1]")
     REQUIRE(manifest.Version == "3.0.0abc");
     REQUIRE(manifest.Moniker == "FooBarMoniker");
     REQUIRE(manifest.Channel == "");
+    REQUIRE(manifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ "1.1.0" });
     sampleManifest.VerifyLocalizations_AllFields(manifest);
     sampleManifest.VerifyInstallers_AllFields(manifest);
 }

@@ -28,6 +28,15 @@
     <Filter Include="TestData\MultiFileManifestV1_4">
       <UniqueIdentifier>{52b26063-ccff-40ae-a420-243327dcca25}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TestData\MultiFileManifestV1_5">
+      <UniqueIdentifier>{488e9b7a-d72e-470c-b73a-5abcb83ca2c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestData\MultiFileManifestV1_6">
+      <UniqueIdentifier>{82dd5390-16ce-4a4c-a61a-148013890cc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestData\MultiFileManifestV1_7">
+      <UniqueIdentifier>{3e7d4dff-5513-46dd-95d2-f616c867ebe4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\CLI">
       <UniqueIdentifier>{b35e1a8b-1961-46d5-98e5-adc8e52c54a9}</UniqueIdentifier>
     </Filter>
@@ -36,6 +45,12 @@
     </Filter>
     <Filter Include="Source Files\Repository">
       <UniqueIdentifier>{13d4d227-0f04-4e57-a663-c3c535438ab3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestData\Shadow">
+      <UniqueIdentifier>{6f8102b7-ea5f-4379-bb59-067ced63d970}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TestData\Shadow\V1_5">
+      <UniqueIdentifier>{6bd68492-3f96-4023-af35-63249cd18158}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +73,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DependenciesTestSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkflowCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestConfiguration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -170,6 +191,9 @@
     <ClCompile Include="RestInterface_1_1.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
+    <ClCompile Include="ResumeFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
     <ClCompile Include="SearchRequestSerializer.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
@@ -221,10 +245,10 @@
     <ClCompile Include="Archive.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="Filesystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="PortableInstaller.cpp">
@@ -233,8 +257,92 @@
     <ClCompile Include="PackageDependenciesValidationUtil.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
-    <ClCompile Include="RestInterface_1_4.cpp">
+    <ClCompile Include="AdminSettings.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="InstallFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="ShowFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="UpdateFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="UninstallFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="ExportFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="InstallDependenciesFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="PromptFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkflowCommon.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="PinningIndex.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="PinFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="Argument.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConfiguration.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsFeature.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="Filesystem.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="RestInterface_1_4.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="RestInterface_1_5.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="IconExtraction.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="PathVariable.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="RestInterface_1_6.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="DownloadFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="Errors.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="CheckpointDatabase.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="DateTime.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="ArpHelper.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="AppShutdown.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="RestInterface_1_7.cpp">
+      <Filter>Source Files\Repository</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -471,9 +579,6 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-NoArpVersionDeclared.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-PackageFamilyNameOnExe-Ver1_2.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-SingleArpVersionDeclared.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -504,6 +609,9 @@
     <CopyFileToFolders Include="TestData\TestZip.zip">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\DownloadFlowTest_DownloadCommandProhibited.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -522,10 +630,16 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_InvalidFileCharacterUrl.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_LicenseAgreement.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_MSStore.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_MultipleDependencies.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_AbortsTerminal.yaml">
@@ -546,7 +660,13 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_UnknownVersion.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_UnsupportedArguments.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_WindowsFeatures.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_Exe.yaml">
@@ -589,6 +709,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_ExpectedReturnCodes.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix.yaml">
@@ -654,6 +777,15 @@
     <CopyFileToFolders Include="TestData\ManifestV1_4-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_5-Singleton.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_6-Singleton.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_7-Singleton.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
@@ -702,6 +834,42 @@
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_4</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_5\ManifestV1_5-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_5\ManifestV1_5-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_5\ManifestV1_5-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_5\ManifestV1_5-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_6</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_6</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_6</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_6</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_7</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -726,41 +894,86 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-MissingMsixInstallerFields.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-MsixInstaller-PackageVersion.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-NoSupportedPlatforms.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Bad-NoSupportedPlatforms.msix">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Good.msix">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Good.msixbundle">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer-Good-WithStub.msixbundle">
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Signed-Good.msix">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Signed-Good.msixbundle">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixInstallerFields.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixInstaller.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-MsixBundleInstaller.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MsixBundleInstaller-WithStub.yaml">
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentMsixBundleInstallerFields.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixBundleInstaller.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixBundleInstallerFields.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Node-Types.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\notepad.exe">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\notepad.ico">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-DefaultLocale.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale2.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow2.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Installer.yaml">
+      <Filter>TestData\Shadow\V1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Node-Merge.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Node-Merge2.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Node-Mapping.yaml">
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
 </Project>

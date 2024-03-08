@@ -4,6 +4,10 @@
 #include "Command.h"
 #include "Resources.h"
 #include <winget/UserSettings.h>
+#include <AppInstallerRuntime.h>
+#include <winget/Locale.h>
+#include <winget/Reboot.h>
+#include <winget/Authentication.h>
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility::literals;
@@ -11,18 +15,7 @@ using namespace AppInstaller::Settings;
 
 namespace AppInstaller::CLI
 {
-    constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
-
-    const Utility::LocIndString CommandException::Message() const
-    {
-        if (m_replace)
-        {
-            return Utility::LocIndString{ Utility::FindAndReplaceMessageToken(m_message, m_replace.value()) };
-        }
-
-        // Fall back to just using the message.
-        return Utility::LocIndString{ m_message.get() };
-    }
+    constexpr Utility::LocIndView s_Command_ArgName_SilentAndInteractive = "silent|interactive"_liv;
 
     Command::Command(
         std::string_view name,
@@ -30,8 +23,9 @@ namespace AppInstaller::CLI
         std::string_view parent,
         Command::Visibility visibility,
         Settings::ExperimentalFeature::Feature feature,
-        Settings::TogglePolicy::Policy groupPolicy) :
-        m_name(name), m_aliases(std::move(aliases)), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy)
+        Settings::TogglePolicy::Policy groupPolicy,
+        CommandOutputFlags outputFlags) :
+        m_name(name), m_aliases(std::move(aliases)), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy), m_outputFlags(outputFlags)
     {
         if (!parent.empty())
         {
@@ -48,9 +42,8 @@ namespace AppInstaller::CLI
 
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
-        reporter.Info() <<
-            (Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview) << " v"_liv << Runtime::GetClientVersion() << std::endl <<
-            Resource::String::MainCopyrightNotice << std::endl;
+        auto productName = Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview;
+        reporter.Info() << productName(Runtime::GetClientVersion()) << std::endl << Resource::String::MainCopyrightNotice << std::endl;
     }
 
     void Command::OutputHelp(Execution::Reporter& reporter, const CommandException* exception) const
@@ -62,29 +55,7 @@ namespace AppInstaller::CLI
         // Error if given
         if (exception)
         {
-            auto error = reporter.Error();
-            error << exception->Message();
-
-            if (!exception->Params().empty())
-            {
-                error << " :"_liv;
-                bool first = true;
-                for (const auto& param : exception->Params())
-                {
-                    if (first)
-                    {
-                        first = false;
-                    }
-                    else
-                    {
-                        error << ',';
-                    }
-                    error << " '"_liv << param << '\'';
-                }
-            }
-
-            error << std::endl <<
-                std::endl;
+            reporter.Error() << exception->Message() << std::endl << std::endl;
         }
 
         // Description
@@ -103,7 +74,7 @@ namespace AppInstaller::CLI
         }
         else
         {
-            commandChain = commandChain.substr(firstSplit);
+            commandChain = commandChain.substr(firstSplit + 1);
             for (char& c : commandChain)
             {
                 if (c == ParentSplitChar)
@@ -114,7 +85,7 @@ namespace AppInstaller::CLI
         }
 
         // Output the command preamble and command chain
-        infoOut << Resource::String::Usage << ": winget"_liv << Utility::LocIndView{ commandChain };
+        infoOut << Resource::String::Usage("winget"_liv, Utility::LocIndView{ commandChain });
 
         auto commandAliases = Aliases();
         auto commands = GetVisibleCommands();
@@ -157,7 +128,7 @@ namespace AppInstaller::CLI
 
                 infoOut << '[';
 
-                if (arg.Alias() == Argument::NoAlias)
+                if (arg.Alias() == ArgumentCommon::NoAlias)
                 {
                     infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
                 }
@@ -167,6 +138,11 @@ namespace AppInstaller::CLI
                 }
 
                 infoOut << "] <"_liv << arg.Name() << '>';
+
+                if (arg.Limit() > 1)
+                {
+                    infoOut << "..."_liv;
+                }
 
                 if (!arg.Required())
                 {
@@ -279,10 +255,10 @@ namespace AppInstaller::CLI
         }
 
         // Finally, the link to the documentation pages
-        std::string helpLink = HelpLink();
+        auto helpLink = HelpLink();
         if (!helpLink.empty())
         {
-            infoOut << std::endl << Resource::String::HelpLinkPreamble << ' ' << helpLink << std::endl;
+            infoOut << std::endl << Resource::String::HelpLinkPreamble(helpLink) << std::endl;
         }
     }
 
@@ -313,7 +289,7 @@ namespace AppInstaller::CLI
                 {
                     auto feature = ExperimentalFeature::GetFeature(command->Feature());
                     AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " without enabling feature " << feature.JsonName());
-                    throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
+                    throw CommandException(Resource::String::FeatureDisabledMessage(feature.JsonName()));
                 }
 
                 if (!Settings::GroupPolicies().IsEnabled(command->GroupPolicy()))
@@ -329,8 +305,14 @@ namespace AppInstaller::CLI
             }
         }
 
+        // The command has opted-in to be executed when it has subcommands and the next token is a positional parameter value
+        if (m_selectCurrentCommandIfUnrecognizedSubcommandFound)
+        {
+            return {};
+        }
+
         // TODO: If we get to a large number of commands, do a fuzzy search much like git
-        throw CommandException(Resource::String::UnrecognizedCommand, *itr);
+        throw CommandException(Resource::String::UnrecognizedCommand(Utility::LocIndView{ *itr }));
     }
 
     // The argument parsing state machine.
@@ -366,14 +348,14 @@ namespace AppInstaller::CLI
             const std::optional<Execution::Args::Type>& Type() const { return m_type; }
 
             // The actual argument string associated with Type.
-            const std::string& Arg() const { return m_arg; }
+            const Utility::LocIndString& Arg() const { return m_arg; }
 
             // If set, indicates that the last argument produced an error.
             const std::optional<CommandException>& Exception() const { return m_exception; }
 
         private:
             std::optional<Execution::Args::Type> m_type;
-            std::string m_arg;
+            Utility::LocIndString m_arg;
             std::optional<CommandException> m_exception;
         };
 
@@ -431,21 +413,17 @@ namespace AppInstaller::CLI
         // If the next argument was to be a value, but none was provided, convert it to an exception.
         else if (m_state.Type() && m_invocationItr == m_invocation.end())
         {
-            throw CommandException(Resource::String::MissingArgumentError, m_state.Arg());
+            throw CommandException(Resource::String::MissingArgumentError(m_state.Arg()));
         }
     }
 
     const CLI::Argument* ParseArgumentsStateMachine::NextPositional()
     {
         // Find the next appropriate positional arg if the current itr isn't one or has hit its limit.
-        if (m_positionalSearchItr != m_arguments.end() &&
+        while (m_positionalSearchItr != m_arguments.end() &&
             (m_positionalSearchItr->Type() != ArgumentType::Positional || m_executionArgs.GetCount(m_positionalSearchItr->ExecArgType()) == m_positionalSearchItr->Limit()))
         {
-            do
-            {
-                ++m_positionalSearchItr;
-            }
-            while (m_positionalSearchItr != m_arguments.end() && m_positionalSearchItr->Type() != ArgumentType::Positional);
+            ++m_positionalSearchItr;
         }
 
         if (m_positionalSearchItr == m_arguments.end())
@@ -471,7 +449,7 @@ namespace AppInstaller::CLI
     //  4. If the argument is only a double --, all further arguments are only considered as positional.
     ParseArgumentsStateMachine::State ParseArgumentsStateMachine::StepInternal()
     {
-        std::string_view currArg = *m_invocationItr;
+        auto currArg = Utility::LocIndView{ *m_invocationItr };
         ++m_invocationItr;
 
         // If the previous step indicated a value was needed, set it and forget it.
@@ -487,7 +465,7 @@ namespace AppInstaller::CLI
             const CLI::Argument* nextPositional = NextPositional();
             if (!nextPositional)
             {
-                return CommandException(Resource::String::ExtraPositionalError, currArg);
+                return CommandException(Resource::String::ExtraPositionalError(currArg));
             }
 
             m_executionArgs.AddArg(nextPositional->ExecArgType(), currArg);
@@ -495,7 +473,7 @@ namespace AppInstaller::CLI
         // The currentArg must not be empty, and starts with a -
         else if (currArg.length() == 1)
         {
-            return CommandException(Resource::String::InvalidArgumentSpecifierError, currArg);
+            return CommandException(Resource::String::InvalidArgumentSpecifierError(currArg));
         }
         // Now it must be at least 2 chars
         else if (currArg[1] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
@@ -506,7 +484,7 @@ namespace AppInstaller::CLI
             auto itr = std::find_if(m_arguments.begin(), m_arguments.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
             if (itr == m_arguments.end())
             {
-                return CommandException(Resource::String::InvalidAliasError, currArg);
+                return CommandException(Resource::String::InvalidAliasError(currArg));
             }
 
             if (itr->Type() == ArgumentType::Flag)
@@ -520,11 +498,11 @@ namespace AppInstaller::CLI
                     auto itr2 = std::find_if(m_arguments.begin(), m_arguments.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
                     if (itr2 == m_arguments.end())
                     {
-                        return CommandException(Resource::String::AdjoinedNotFoundError, currArg);
+                        return CommandException(Resource::String::AdjoinedNotFoundError(currArg));
                     }
                     else if (itr2->Type() != ArgumentType::Flag)
                     {
-                        return CommandException(Resource::String::AdjoinedNotFlagError, currArg);
+                        return CommandException(Resource::String::AdjoinedNotFlagError(currArg));
                     }
                     else
                     {
@@ -540,7 +518,7 @@ namespace AppInstaller::CLI
                 }
                 else
                 {
-                    return CommandException(Resource::String::SingleCharAfterDashError, currArg);
+                    return CommandException(Resource::String::SingleCharAfterDashError(currArg));
                 }
             }
             else
@@ -583,7 +561,7 @@ namespace AppInstaller::CLI
                     {
                         if (hasValue)
                         {
-                            return CommandException(Resource::String::FlagContainAdjoinedError, currArg);
+                            return CommandException(Resource::String::FlagContainAdjoinedError(currArg));
                         }
 
                         m_executionArgs.AddArg(arg.ExecArgType());
@@ -603,7 +581,7 @@ namespace AppInstaller::CLI
 
             if (!argFound)
             {
-                return CommandException(Resource::String::InvalidNameError, currArg);
+                return CommandException(Resource::String::InvalidNameError(currArg));
             }
         }
 
@@ -633,6 +611,9 @@ namespace AppInstaller::CLI
         {
             stateMachine.ThrowIfError();
         }
+
+        // Special handling for multi-query arguments:
+        execArgs.MoveMultiQueryToSingleQueryIfNeeded();
     }
 
     void Command::ValidateArguments(Execution::Args& execArgs) const
@@ -660,36 +641,36 @@ namespace AppInstaller::CLI
             {
                 auto setting = Settings::AdminSettingToString(arg.AdminSetting());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by admin setting " << setting);
-                throw CommandException(Resource::String::FeatureDisabledByAdminSettingMessage, Utility::LocIndView{ setting }, {});
+                throw CommandException(Resource::String::FeatureDisabledByAdminSettingMessage(setting));
             }
 
             if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
             {
                 auto feature = ExperimentalFeature::GetFeature(arg.Feature());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
-                throw CommandException(Resource::String::FeatureDisabledMessage, feature.JsonName());
+                throw CommandException(Resource::String::FeatureDisabledMessage(feature.JsonName()));
             }
 
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))
             {
-                throw CommandException(Resource::String::RequiredArgError, arg.Name());
+                throw CommandException(Resource::String::RequiredArgError(arg.Name()));
             }
 
             if (arg.Limit() < execArgs.GetCount(arg.ExecArgType()))
             {
-                throw CommandException(Resource::String::TooManyArgError, arg.Name());
+                throw CommandException(Resource::String::TooManyArgError(arg.Name()));
             }
         }
 
         if (execArgs.Contains(Execution::Args::Type::Silent) && execArgs.Contains(Execution::Args::Type::Interactive))
         {
-            throw CommandException(Resource::String::TooManyBehaviorsError, s_Command_ArgName_SilentAndInteractive);
+            throw CommandException(Resource::String::TooManyBehaviorsError(s_Command_ArgName_SilentAndInteractive));
         }
 
         if (execArgs.Contains(Execution::Args::Type::CustomHeader) && !execArgs.Contains(Execution::Args::Type::Source) &&
            !execArgs.Contains(Execution::Args::Type::SourceName))
         {
-            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource, Argument::ForType(Execution::Args::Type::CustomHeader).Name());
+            throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource(Argument::ForType(Execution::Args::Type::CustomHeader).Name()));
         }
 
         if (execArgs.Contains(Execution::Args::Type::Count))
@@ -718,7 +699,9 @@ namespace AppInstaller::CLI
                 {
                     applicableArchitectures.emplace_back(Utility::ToString(i));
                 }
-                throw CommandException(Resource::String::InvalidArgumentValueError, Argument::ForType(Execution::Args::Type::InstallArchitecture).Name(), std::forward<std::vector<Utility::LocIndString>>((applicableArchitectures)));
+
+                auto validOptions = Utility::Join(", "_liv, applicableArchitectures);
+                throw CommandException(Resource::String::InvalidArgumentValueError(Argument::ForType(Execution::Args::Type::InstallArchitecture).Name(), validOptions));
             }
         }
 
@@ -726,9 +709,38 @@ namespace AppInstaller::CLI
         {
             if (!Locale::IsWellFormedBcp47Tag(execArgs.GetArg(Execution::Args::Type::Locale)))
             {
-                throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues, Argument::ForType(Execution::Args::Type::Locale).Name(), {});
+                throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues(Argument::ForType(Execution::Args::Type::Locale).Name()));
             }
         }
+
+        if (execArgs.Contains(Execution::Args::Type::InstallScope))
+        {
+            if (Manifest::ConvertToScopeEnum(execArgs.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
+            {
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "user"_lis, "machine"_lis });
+                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::InstallScope).Name, validOptions));
+            }
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::InstallerType))
+        {
+            Manifest::InstallerTypeEnum selectedInstallerType = Manifest::ConvertToInstallerTypeEnum(std::string(execArgs.GetArg(Execution::Args::Type::InstallerType)));
+            if (selectedInstallerType == Manifest::InstallerTypeEnum::Unknown)
+            {
+                throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues(Argument::ForType(Execution::Args::Type::InstallerType).Name()));
+            }
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::AuthenticationMode))
+        {
+            if (Authentication::ConvertToAuthenticationMode(execArgs.GetArg(Execution::Args::Type::AuthenticationMode)) == Authentication::AuthenticationMode::Unknown)
+            {
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "interactive"_lis, "silentPreferred"_lis, "silent"_lis });
+                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AuthenticationMode).Name, validOptions));
+            }
+        }
+
+        Argument::ValidateExclusiveArguments(execArgs);
 
         ValidateArgumentsInternal(execArgs);
     }
@@ -802,7 +814,7 @@ namespace AppInstaller::CLI
             {
                 for (const auto& arg : stateMachine.Arguments())
                 {
-                    if (arg.Alias() != Argument::NoAlias)
+                    if (arg.Alias() != ArgumentCommon::NoAlias)
                     {
                         context.Reporter.Completion() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << std::endl;
                     }
@@ -839,7 +851,7 @@ namespace AppInstaller::CLI
 
     void Command::Complete(Execution::Context&, Execution::Args::Type) const
     {
-        // Derived commands must suppy context sensitive argument values.
+        // Derived commands must supply context sensitive argument values.
     }
 
     void Command::Execute(Execution::Context& context) const
@@ -852,6 +864,13 @@ namespace AppInstaller::CLI
             throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
         }
 
+        // Block CLI execution if WinGetCommandLineInterfaces is disabled by Policy
+        if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces))
+        {
+            AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
+            throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces);
+        }
+
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());
         if (context.Args.Contains(Execution::Args::Type::Help))
         {
@@ -862,17 +881,58 @@ namespace AppInstaller::CLI
             ExecuteInternal(context);
         }
 
-        if (context.Args.Contains(Execution::Args::Type::OpenLogs))
-        {   
-            // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
-            // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
-            ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
-        }
-
-        if (context.Args.Contains(Execution::Args::Type::Wait))
+        // NOTE: Reboot logic will still run even if the context is terminated (not including unhandled exceptions).
+        if (context.Args.Contains(Execution::Args::Type::AllowReboot) &&
+            WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RebootRequired))
         {
-            context.Reporter.PromptForEnter();
+            context.Reporter.Warn() << Resource::String::InitiatingReboot << std::endl;
+
+            if (context.Args.Contains(Execution::Args::Type::Wait))
+            {
+                context.Reporter.PromptForEnter();
+            }
+
+            if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RegisterResume))
+            {
+                // RegisterResume context flag assumes we already wrote to the RunOnce registry.
+                // Since we are about to initiate a restart, this is no longer needed as a safety net.
+                Reboot::UnregisterRestartForWER();
+
+                context.ClearFlags(Execution::ContextFlag::RegisterResume);
+            }
+
+            context.ClearFlags(Execution::ContextFlag::RebootRequired);
+
+            if (!Reboot::InitiateReboot())
+            {
+                context.Reporter.Error() << Resource::String::FailedToInitiateReboot << std::endl;
+            }
         }
+        else
+        {
+            if (context.Args.Contains(Execution::Args::Type::OpenLogs))
+            {
+                // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
+                // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
+                ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
+            }
+
+            if (context.Args.Contains(Execution::Args::Type::Wait))
+            {
+                context.Reporter.PromptForEnter();
+            }
+        }
+    }
+
+    void Command::Resume(Execution::Context& context) const
+    {
+        context.Reporter.Error() << Resource::String::CommandDoesNotSupportResumeMessage << std::endl;
+        AICLI_TERMINATE_CONTEXT(E_NOTIMPL);
+    }
+    
+    void Command::SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value)
+    {
+        m_selectCurrentCommandIfUnrecognizedSubcommandFound = value;
     }
 
     void Command::ValidateArgumentsInternal(Execution::Args&) const
@@ -929,11 +989,12 @@ namespace AppInstaller::CLI
         return arguments;
     }
 
-    int Execute(Execution::Context& context, std::unique_ptr<Command>& command)
+    void ExecuteWithoutLoggingSuccess(Execution::Context& context, Command* command)
     {
         try
         {
-            if (!Settings::User().GetWarnings().empty())
+            if (!Settings::User().GetWarnings().empty() &&
+                !WI_IsFlagSet(command->GetOutputFlags(), CommandOutputFlags::IgnoreSettingsWarnings))
             {
                 context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
             }
@@ -944,6 +1005,11 @@ namespace AppInstaller::CLI
         {
             context.SetTerminationHR(Workflow::HandleException(context, std::current_exception()));
         }
+    }
+
+    int Execute(Execution::Context& context, std::unique_ptr<Command>& command)
+    {
+        ExecuteWithoutLoggingSuccess(context, command.get());
 
         if (SUCCEEDED(context.GetTerminationHR()))
         {

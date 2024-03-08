@@ -7,9 +7,14 @@
 #include <urlmon.h>
 #include <appmodel.h>
 #include <winhttp.h>
+#include <Shlwapi.h>
+#include <Shlobj.h>
+#include <msi.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6340 6388 )
+#pragma warning ( disable : 6001 6340 6387 6388 26495 28196 )
+#include <wil/filesystem.h>
+#include <wil/registry.h>
 #include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>
@@ -39,8 +44,10 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
 #include <winrt/Windows.Storage.h>
+#include <wrl/client.h>
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -50,6 +57,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <random>
 #include <set>
 #include <string>
 #include <string_view>
@@ -58,6 +66,7 @@
 #include <thread>
 #include <tuple>
 #include <type_traits>
+#include <unordered_set>
 #include <utility>
 
 #include <json/json.h>

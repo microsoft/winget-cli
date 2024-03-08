@@ -29,12 +29,26 @@ namespace AppInstaller::Repository::Rest::Schema
 
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH, !pinningConfiguration.Validate(certContext.get()));
         }
+
+        std::chrono::seconds GetRetryAfter(const web::http::http_headers& headers)
+        {
+            auto retryAfterHeader = headers.find(web::http::header_names::retry_after);
+            if (retryAfterHeader != headers.end())
+            {
+                return AppInstaller::Utility::GetRetryAfter(retryAfterHeader->second.c_str());
+            }
+
+            return 0s;
+        }
     }
 
     HttpClientHelper::HttpClientHelper(std::shared_ptr<web::http::http_pipeline_stage> stage) : m_defaultRequestHandlerStage(std::move(stage)) {}
 
     pplx::task<web::http::http_response> HttpClientHelper::Post(
-        const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
+        const utility::string_t& uri,
+        const web::json::value& body,
+        const HttpClientHelper::HttpRequestHeaders& headers,
+        const HttpClientHelper::HttpRequestHeaders& authHeaders) const
     {
         AICLI_LOG(Repo, Info, << "Sending http POST request to: " << utility::conversions::to_utf8string(uri));
         web::http::client::http_client client = GetClient(uri);
@@ -51,14 +65,23 @@ namespace AppInstaller::Repository::Rest::Schema
 
         AICLI_LOG(Repo, Verbose, << "Http POST request details:\n" << utility::conversions::to_utf8string(request.to_string()));
 
+        // Add auth headers after logging
+        for (auto& pair : authHeaders)
+        {
+            request.headers().add(pair.first, pair.second);
+        }
+
         return client.request(request);
     }
 
     std::optional<web::json::value> HttpClientHelper::HandlePost(
-        const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
+        const utility::string_t& uri,
+        const web::json::value& body,
+        const HttpClientHelper::HttpRequestHeaders& headers,
+        const HttpClientHelper::HttpRequestHeaders& authHeaders) const
     {
         web::http::http_response httpResponse;
-        HttpClientHelper::Post(uri, body, headers).then([&httpResponse](const web::http::http_response& response)
+        HttpClientHelper::Post(uri, body, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
             {
                 httpResponse = response;
             }).wait();
@@ -67,7 +90,9 @@ namespace AppInstaller::Repository::Rest::Schema
     }
 
     pplx::task<web::http::http_response> HttpClientHelper::Get(
-        const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
+        const utility::string_t& uri,
+        const HttpClientHelper::HttpRequestHeaders& headers,
+        const HttpClientHelper::HttpRequestHeaders& authHeaders) const
     {
         AICLI_LOG(Repo, Info, << "Sending http GET request to: " << utility::conversions::to_utf8string(uri));
         web::http::client::http_client client = GetClient(uri);
@@ -83,14 +108,22 @@ namespace AppInstaller::Repository::Rest::Schema
 
         AICLI_LOG(Repo, Verbose, << "Http GET request details:\n" << utility::conversions::to_utf8string(request.to_string()));
 
+        // Add auth headers after logging
+        for (auto& pair : authHeaders)
+        {
+            request.headers().add(pair.first, pair.second);
+        }
+
         return client.request(request);
     }
 
     std::optional<web::json::value> HttpClientHelper::HandleGet(
-        const utility::string_t& uri, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
+        const utility::string_t& uri,
+        const HttpClientHelper::HttpRequestHeaders& headers,
+        const HttpClientHelper::HttpRequestHeaders& authHeaders) const
     {
         web::http::http_response httpResponse;
-        Get(uri, headers).then([&httpResponse](const web::http::http_response& response)
+        Get(uri, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
             {
                 httpResponse = response;
             }).wait();
@@ -135,7 +168,6 @@ namespace AppInstaller::Repository::Rest::Schema
 
         case web::http::status_codes::NotFound:
             THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
-            break;
 
         case web::http::status_codes::NoContent:
             result = {};
@@ -143,11 +175,13 @@ namespace AppInstaller::Repository::Rest::Schema
 
         case web::http::status_codes::BadRequest:
             THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR);
-            break;
+
+        case web::http::status_codes::TooManyRequests:
+        case web::http::status_codes::ServiceUnavailable:
+            THROW_EXCEPTION(AppInstaller::Utility::ServiceUnavailableException(GetRetryAfter(response.headers())));
 
         default:
             THROW_HR(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_HTTP, response.status_code()));
-            break;
         }
 
         return result;

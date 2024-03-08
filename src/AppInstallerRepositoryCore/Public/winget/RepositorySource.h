@@ -5,6 +5,7 @@
 #include <winget/PackageTrackingCatalog.h>
 #include <AppInstallerProgress.h>
 #include <winget/Certificates.h>
+#include <winget/Authentication.h>
 
 #include <chrono>
 #include <filesystem>
@@ -17,6 +18,9 @@
 
 namespace AppInstaller::Repository
 {
+    // The interval is of 100 nano seconds precision.This is used by file date period and the Windows::Foundation::TimeSpan exposed in COM api.
+    using TimeSpan = std::chrono::duration<int64_t, std::ratio_multiply<std::ratio<100>, std::nano>>;
+
     struct ISourceReference;
     struct ISource;
 
@@ -56,10 +60,18 @@ namespace AppInstaller::Repository
     // These sources are not under the direct control of the user, such as packages installed on the system.
     enum class PredefinedSource
     {
+        // Default behavior. Contains ARP packages installed as for user and for machine, MSIX packages for current user.
         Installed,
+        // Only contains packages installed as for user
+        InstalledUser,
+        // Only contains packages installed as for machine
+        InstalledMachine,
         ARP,
         MSIX,
         Installing,
+        // Same as `Installed`, but creating the source reference for this is sufficient to cause the cache to be updated
+        // on next Open of any `Installed` or `InstalledForceCacheUpdate`.
+        InstalledForceCacheUpdate,
     };
 
     // A well known source.
@@ -111,22 +123,31 @@ namespace AppInstaller::Repository
         // The last time that this source was updated.
         std::chrono::system_clock::time_point LastUpdateTime = {};
 
+        // Stores the earliest time that a background update should be attempted.
+        std::chrono::system_clock::time_point DoNotUpdateBefore = {};
+
         // Whether the source supports InstalledSource correlation.
         bool SupportInstalledSearchCorrelation = true;
 
         // The configuration of how the server certificate will be validated.
         Certificates::PinningConfiguration CertificatePinningConfiguration;
+
+        // This value is used as an alternative to the `Arg` value if it is failing to function properly.
+        // The alternate location must point to identical data or inconsistencies may arise.
+        std::string AlternateArg;
     };
 
     // Individual source agreement entry. Label will be highlighted in the display as the key of the agreement entry.
     struct SourceAgreement
     {
-        std::string Label;
-        std::string Text;
-        std::string Url;
+        SourceAgreement() = default;
 
         SourceAgreement(std::string label, std::string text, std::string url) :
             Label(std::move(label)), Text(std::move(text)), Url(std::move(url)) {}
+
+        std::string Label;
+        std::string Text;
+        std::string Url;
     };
 
     // Interface for retrieving information about a source after opening the source.
@@ -149,6 +170,18 @@ namespace AppInstaller::Repository
 
         // Required query parameters in get manifest request.
         std::vector<std::string> RequiredQueryParameters;
+
+        // Source authentication info.
+        Authentication::AuthenticationInfo Authentication;
+    };
+
+    // Allows calling code to inquire about specific features of an ISource implementation.
+    // The default state of any new flag is false.
+    enum class SourceFeatureFlag
+    {
+        // If true, the manifests for this source may contain more data than is available from just the
+        // version information found from a search.
+        ManifestMayContainAdditionalSystemReferenceStrings,
     };
 
     // Represents a source which would be interacted from outside of repository lib.
@@ -187,6 +220,11 @@ namespace AppInstaller::Repository
         // To avoid putting try catch everywhere, we use bool operator here.
         operator bool() const;
 
+        // Determines if the sources are equivalent.
+        // Currently only works for individual sources, not composites.
+        bool operator==(const Source& other) const;
+        bool operator!=(const Source& other) const;
+
         // Gets the source's identifier; a unique identifier independent of the name
         // that will not change between a remove/add or between additional adds.
         // Must be suitable for filesystem names unless the source is internal to winget,
@@ -199,11 +237,31 @@ namespace AppInstaller::Repository
         // Get the source's information.
         SourceInformation GetInformation() const;
 
+        // Query the value of the given feature flag.
+        // The default state of any new flag is false.
+        bool QueryFeatureFlag(SourceFeatureFlag flag) const;
+
         // Returns true if the origin type can contain available packages.
         bool ContainsAvailablePackages() const;
 
-        // Set custom header.
+        // Set custom header. Must be set before Open to have effect.
         bool SetCustomHeader(std::optional<std::string> header);
+
+        // Set caller. Must be set before Open to have effect.
+        void SetCaller(std::string caller);
+
+        // Set authentication arguments. Must be set before Open to have effect.
+        void SetAuthenticationArguments(Authentication::AuthenticationArguments args);
+
+        // Set background update check interval.
+        void SetBackgroundUpdateInterval(TimeSpan interval);
+
+        // Indicates that we are only interested in the PackageTrackingCatalog for the source.
+        // Must be set before Open to have effect, and will prevent the underlying source from being updated or opened.
+        void InstalledPackageInformationOnly(bool value);
+
+        // Determines if this source refers to the given well known source.
+        bool IsWellKnownSource(WellKnownSource wellKnownSource);
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;
@@ -266,6 +324,8 @@ namespace AppInstaller::Repository
         std::shared_ptr<ISource> m_source;
         bool m_isSourceToBeAdded = false;
         bool m_isComposite = false;
+        std::optional<TimeSpan> m_backgroundUpdateInterval;
+        bool m_installedPackageInformationOnly = false;
         mutable PackageTrackingCatalog m_trackingCatalog;
     };
 }

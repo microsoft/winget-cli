@@ -5,9 +5,11 @@
 #include <AppInstallerArchitecture.h>
 #include <winget/Registry.h>
 #include <winget/ManifestInstaller.h>
+#include <wil/registry.h>
 #include <wil/resource.h>
 
 #include <string>
+#include <vector>
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -51,10 +53,22 @@ namespace AppInstaller::Repository::Microsoft
         const std::wstring WindowsInstaller{ L"WindowsInstaller" };
         // REG_DWORD (bool)
         const std::wstring SystemComponent{ L"SystemComponent" };
+        // REG_SZ
+        const std::wstring DisplayIcon{ L"DisplayIcon" };
+        // REG_DWORD
+        const std::wstring NoModify{ L"NoModify" };
+        // REG_DWORD
+        const std::wstring NoRepair{ L"NoRepair" };
+        // REG_SZ
+        const std::wstring ModifyPath{ L"ModifyPath" };
 
         // Gets the registry key associated with the given scope and architecture on this platform.
         // May return an empty key if there is no valid location (bad combination or not found).
         Registry::Key GetARPKey(Manifest::ScopeEnum scope, Utility::Architecture architecture) const;
+
+        // Gets the arp registry key associated with the given scope and product code.
+        // May return an empty key if not found.
+        Registry::Key FindARPEntry(const std::string& productCode, AppInstaller::Manifest::ScopeEnum scope = AppInstaller::Manifest::ScopeEnum::Unknown) const;
 
         // Returns true IFF the value exists and contains a non-zero DWORD.
         static bool GetBoolValue(const Registry::Key& arpKey, const std::wstring& name);
@@ -80,5 +94,8 @@ namespace AppInstaller::Repository::Microsoft
         // This entry point is primarily to allow unit tests to operate of arbitrary keys;
         // product code should use PopulateIndexFromARP.
         void PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture, const std::map<std::string, std::string>& upgradeCodes = {}) const;
+
+        // Creates registry watchers for the given scope
+        std::vector<wil::unique_registry_watcher> CreateRegistryWatchers(Manifest::ScopeEnum scope, std::function<void(Manifest::ScopeEnum, Utility::Architecture, wil::RegistryChangeKind)> callback);
     };
 }

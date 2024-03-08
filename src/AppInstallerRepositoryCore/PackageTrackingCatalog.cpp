@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "winget/PackageTrackingCatalog.h"
 #include "PackageTrackingCatalogSourceFactory.h"
+#include "winget/Pin.h"
 #include "winget/RepositorySource.h"
 #include "Microsoft/SQLiteIndexSource.h"
 #include "AppInstallerDateTime.h"
@@ -17,9 +18,9 @@ namespace AppInstaller::Repository
     {
         constexpr std::string_view c_PackageTrackingFileName = "installed.db";
 
-        std::string CreateNameForCPRWL(const std::string& pathName)
+        std::string CreateNameForCPL(const std::string& pathName)
         {
-            return "PackageTrackingCPRWL_"s + pathName;
+            return "PackageTrackingCPL_"s + pathName;
         }
 
         std::filesystem::path GetPackageTrackingFilePath(const std::string& pathName)
@@ -28,6 +29,22 @@ namespace AppInstaller::Repository
             result /= pathName;
             result /= c_PackageTrackingFileName;
             return result;
+        }
+
+        // Call while holding the CrossProcessLock
+        SQLiteIndex CreateOrOpenTrackingIndex(const std::filesystem::path& trackingDB)
+        {
+            if (!std::filesystem::exists(trackingDB))
+            {
+                std::filesystem::create_directories(trackingDB.parent_path());
+                return SQLiteIndex::CreateNew(trackingDB.u8string(), SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
+            }
+            else
+            {
+                // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
+                //       Could write this all now but it will be better tested when there is a new schema.
+                return SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
+            }
         }
 
         struct PackageTrackingCatalogSourceReference : public ISourceReference
@@ -44,32 +61,18 @@ namespace AppInstaller::Repository
                 return m_details.Identifier;
             }
 
-            std::shared_ptr<ISource> Open(IProgressCallback&) override
+            std::shared_ptr<ISource> Open(IProgressCallback& callback) override
             {
                 m_details.Arg = Utility::MakeSuitablePathPart(m_details.Data);
                 std::filesystem::path trackingDB = GetPackageTrackingFilePath(m_details.Arg);
 
-                std::string lockName = CreateNameForCPRWL(m_details.Arg);
-
-                if (!std::filesystem::exists(trackingDB))
+                Synchronization::CrossProcessLock lock(CreateNameForCPL(m_details.Arg));
+                if (!lock.Acquire(callback))
                 {
-                    auto exclusiveLock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName);
-
-                    if (!std::filesystem::exists(trackingDB))
-                    {
-                        std::filesystem::create_directories(trackingDB.parent_path());
-                        SQLiteIndex::CreateNew(trackingDB.u8string(), Schema::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
-                    }
+                    return {};
                 }
 
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(lockName);
-
-                SQLiteIndex index = SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
-
-                // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
-                //       Could write this all now but it will be better tested when there is a new schema.
-
-                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock));
+                return std::make_shared<SQLiteIndexSource>(m_details, CreateOrOpenTrackingIndex(trackingDB));
             }
 
         private:
@@ -79,6 +82,11 @@ namespace AppInstaller::Repository
 
         struct PackageTrackingCatalogSourceFactoryImpl : public ISourceFactory
         {
+            std::string_view TypeName() const override final
+            {
+                return PackageTrackingCatalogSourceFactory::Type();
+            }
+
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, PackageTrackingCatalogSourceFactory::Type()));
@@ -102,10 +110,8 @@ namespace AppInstaller::Repository
 
                 std::string pathName = Utility::MakeSuitablePathPart(details.Data);
 
-                std::string lockName = CreateNameForCPRWL(pathName);
-                auto lock = Synchronization::CrossProcessReaderWriteLock::LockExclusive(lockName, progress);
-
-                if (!lock)
+                Synchronization::CrossProcessLock lock(CreateNameForCPL(pathName));
+                if (!lock.Acquire(progress))
                 {
                     return false;
                 }
@@ -155,7 +161,7 @@ namespace AppInstaller::Repository
 
         PackageTrackingCatalog result;
         result.m_implementation = std::make_shared<PackageTrackingCatalog::implementation>();
-        result.m_implementation->Source = std::dynamic_pointer_cast<SQLiteIndexSource>(ISourceFactory::GetForType(details.Type)->Create(details)->Open(dummyProgress));
+        result.m_implementation->Source = SourceCast<SQLiteIndexSource>(ISourceFactory::GetForType(details.Type)->Create(details)->Open(dummyProgress));
 
         return result;
     }
@@ -238,7 +244,7 @@ namespace AppInstaller::Repository
 
         if (installer.RequireExplicitUpgrade)
         {
-            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::PinnedState, ToString(PackagePinnedState::PinnedByManifest));
+            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::PinnedState, ToString(Pinning::PinType::PinnedByManifest));
         }
 
         // Record installed architecture and locale if applicable
@@ -267,12 +273,7 @@ namespace AppInstaller::Repository
 
             for (const auto& version : versions)
             {
-                auto manifestId = index.GetManifestIdByKey(match.first, version.GetVersion().ToString(), version.GetChannel().ToString());
-
-                if (manifestId)
-                {
-                    index.RemoveManifestById(manifestId.value());
-                }
+                index.RemoveManifestById(version.ManifestId);
             }
         }
     }

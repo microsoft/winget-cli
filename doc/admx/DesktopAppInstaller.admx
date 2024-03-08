@@ -53,7 +53,27 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="EnableBypassCertificatePinningForMicrosoftStore" class="Machine" displayName="$(string.EnableBypassCertificatePinningForMicrosoftStore)" explainText="$(string.EnableBypassCertificatePinningForMicrosoftStoreExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableBypassCertificatePinningForMicrosoftStore">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
     <policy name="EnableHashOverride" class="Machine" displayName="$(string.EnableHashOverride)" explainText="$(string.EnableHashOverrideExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableHashOverride">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableLocalArchiveMalwareScanOverride" class="Machine" displayName="$(string.EnableLocalArchiveMalwareScanOverride)" explainText="$(string.EnableLocalArchiveMalwareScanOverrideExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableLocalArchiveMalwareScanOverride">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
       <enabledValue>
@@ -117,6 +137,26 @@
       </elements>
     </policy>
     <policy name="EnableMSAppInstallerProtocol" class="Machine" displayName="$(string.EnableMSAppInstallerProtocol)" explainText="$(string.EnableMSAppInstallerProtocolExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableMSAppInstallerProtocol">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableWindowsPackageManagerCommandLineInterfaces" class="Machine" displayName="$(string.EnableWindowsPackageManagerCommandLineInterfaces)" explainText="$(string.EnableWindowsPackageManagerCommandLineInterfacesExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerCommandLineInterfaces">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="EnableWindowsPackageManagerConfiguration" class="Machine" displayName="$(string.EnableWindowsPackageManagerConfiguration)" explainText="$(string.EnableWindowsPackageManagerConfigurationExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerConfiguration">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
       <enabledValue>

@@ -1,16 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "PortableIndex.h"
-#include "SQLiteStorageBase.h"
+#include "Public/winget/PortableIndex.h"
+#include "Microsoft/Schema/IPortableIndex.h"
+#include "Microsoft/Schema/Portable_1_0/PortableTable.h"
+#include <winget/SQLiteStorageBase.h>
 #include "Schema/Portable_1_0/PortableIndexInterface.h"
-#include "winget/Filesystem.h"
+#include <winget/Filesystem.h>
 
 namespace AppInstaller::Repository::Microsoft
 {
-    PortableIndex PortableIndex::CreateNew(const std::string& filePath, Schema::Version version)
+    PortableIndex::PortableIndex(PortableIndex&&) = default;
+    PortableIndex& PortableIndex::operator=(PortableIndex&&) = default;
+
+    PortableIndex::~PortableIndex() = default;
+
+    PortableIndex PortableIndex::CreateNew(const std::string& filePath, SQLite::Version version)
     {
-        AICLI_LOG(Repo, Info, << "Creating new Portable Index [" << version << "] at '" << filePath << "'");
+        AICLI_LOG(Repo, Info, << "Creating new Portable Index with version [" << version << "] at '" << filePath << "'");
         PortableIndex result{ filePath, version };
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "portableindex_createnew");
@@ -28,6 +35,11 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
 
         return result;
+    }
+
+    PortableIndex PortableIndex::Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile)
+    {
+        return { filePath, disposition, std::move(indexFile) };
     }
 
     PortableIndex::IdType PortableIndex::AddPortableFile(const Portable::PortableFileEntry& file)
@@ -108,7 +120,7 @@ namespace AppInstaller::Repository::Microsoft
 
     std::unique_ptr<Schema::IPortableIndex> PortableIndex::CreateIPortableIndex() const
     {
-        if (m_version == Schema::Version{ 1, 0 } ||
+        if (m_version == SQLite::Version{ 1, 0 } ||
             m_version.MajorVersion == 1 ||
             m_version.IsLatest())
         {
@@ -126,7 +138,7 @@ namespace AppInstaller::Repository::Microsoft
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
 
-    PortableIndex::PortableIndex(const std::string& target, Schema::Version version) : SQLiteStorageBase(target, version)
+    PortableIndex::PortableIndex(const std::string& target, SQLite::Version version) : SQLiteStorageBase(target, version)
     {
         m_interface = CreateIPortableIndex();
         m_version = m_interface->GetVersion();

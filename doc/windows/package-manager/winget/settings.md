@@ -9,7 +9,7 @@ ms.localizationpriority: medium
 # settings command (winget)
 
 The **settings** command of the [winget](index.md) tool allows you to customize your Windows Package Manager client experience.  You can change defaults and try out experimental features that are enabled in your client.
-The **settings** command will launch your default JSON editor. Windows by default will launch Notepad as an option. We recommend using a tool like [Visual Studio code](https://code.visualstudio.com/).  
+The **settings** command will launch your default JSON editor. Windows by default will launch Notepad as an option. We recommend using a tool like [Visual Studio code](https://code.visualstudio.com/).
 
 > You can easily install Visual Studio Code, by typing `winget install Microsoft.VisualStudioCode`
 
@@ -35,7 +35,7 @@ The `source` settings involve configuration to the WinGet source.
     "source": {
         "autoUpdateIntervalInMinutes": 3
     },
-``` 
+```
 
 #### autoUpdateIntervalInMinutes
 
@@ -58,7 +58,7 @@ The `visual` settings involve visual elements that are displayed by WinGet
 
 #### progressBar
 
-Color of the progress bar that WinGet displays when not specified by arguments. 
+Color of the progress bar that WinGet displays when not specified by arguments.
 
 - accent (default)
 - retro
@@ -102,7 +102,7 @@ The `locale` behavior affects the choice of installer based on installer locale.
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
 
-See [details on telemetry](https://github.com/microsoft/winget-cli/blob/master/README.md#datatelemetry), and our [primary privacy statement](https://github.com/microsoft/winget-cli/blob/master/privacy.md).
+See [details on telemetry](https://github.com/microsoft/winget-cli/blob/master/README.md#datatelemetry), and our [primary privacy statement](https://github.com/microsoft/winget-cli/blob/master/PRIVACY.md).
 
 #### disable
 

@@ -195,9 +195,9 @@ namespace
             PackageMatchFilter testMatchFilter1{ PackageMatchField::Id, MatchType::Exact, "test" };
             PackageMatchFilter testMatchFilter2{ PackageMatchField::Name, MatchType::Exact, "test" };
             PackageMatchFilter testMatchFilter3{ PackageMatchField::Id, MatchType::CaseInsensitive, "test" };
-            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter1);
-            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter2);
-            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter3);
+            result.Matches.emplace_back(nullptr, testMatchFilter1);
+            result.Matches.emplace_back(nullptr, testMatchFilter2);
+            result.Matches.emplace_back(nullptr, testMatchFilter3);
             return result;
         }
     };
@@ -575,6 +575,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     bool updateCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
     factory.OnUpdate = [&](const SourceDetails&) { updateCalledOnFactory = true; };
+    factory.ShouldUpdateBeforeOpenResult = true;
     TestHook_SetSourceFactoryOverride(type, factory);
 
     SetSetting(Stream::UserSources, s_SingleSource);
@@ -1264,4 +1265,39 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
         REQUIRE(storeAfterAdd);
         REQUIRE(storeAfterAdd.GetDetails().CertificatePinningConfiguration.IsEmpty());
     }
+}
+
+TEST_CASE("RepoSources_GroupPolicy_BypassCertificatePinningForMicrosoftStore", "[sources][groupPolicy]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+
+    SECTION("Not configured")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::NotConfigured);
+        Source source(WellKnownSource::MicrosoftStore);
+        REQUIRE_FALSE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+
+    SECTION("Enabled")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::Enabled);
+        Source source(WellKnownSource::MicrosoftStore);
+        REQUIRE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+
+    SECTION("Disabled")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::Disabled);
+        Source source(WellKnownSource::MicrosoftStore);
+        REQUIRE_FALSE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+}
+
+TEST_CASE("RepoSources_BuiltInDesktopFrameworkSourceAlwaysCreatable", "[sources]")
+{
+    Source source(WellKnownSource::DesktopFrameworks);
+    REQUIRE(source);
 }

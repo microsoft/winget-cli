@@ -13,16 +13,21 @@ namespace AppInstaller::CLI
 
     namespace
     {
-        constexpr Utility::LocIndView s_ArgumentName_Enable = "enable"_liv;
-        constexpr Utility::LocIndView s_ArgumentName_Disable = "disable"_liv;
-        constexpr Utility::LocIndView s_ArgName_EnableAndDisable = "enable|disable"_liv;
+        Utility::LocIndView s_SettingsCommand_HelpLink = "https://aka.ms/winget-settings"_liv;
+    }
+
+    std::vector<std::unique_ptr<Command>> SettingsCommand::GetCommands() const
+    {
+        return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
+            std::make_unique<SettingsExportCommand>(FullName()),
+            });
     }
 
     std::vector<Argument> SettingsCommand::GetArguments() const
     {
         return {
-            Argument{ s_ArgumentName_Enable, Argument::NoAlias, Execution::Args::Type::AdminSettingEnable, Resource::String::AdminSettingEnableDescription, ArgumentType::Standard, Argument::Visibility::Help },
-            Argument{ s_ArgumentName_Disable, Argument::NoAlias, Execution::Args::Type::AdminSettingDisable, Resource::String::AdminSettingDisableDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::AdminSettingEnable, Resource::String::AdminSettingEnableDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::AdminSettingDisable, Resource::String::AdminSettingDisableDescription, ArgumentType::Standard, Argument::Visibility::Help },
         };
     }
 
@@ -36,26 +41,31 @@ namespace AppInstaller::CLI
         return { Resource::String::SettingsCommandLongDescription };
     }
 
-    std::string SettingsCommand::HelpLink() const
+    Utility::LocIndView SettingsCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-settings";
+        return s_SettingsCommand_HelpLink;
     }
 
     void SettingsCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && execArgs.Contains(Execution::Args::Type::AdminSettingDisable))
+        // Get admin setting string for all available options except Unknown
+        using AdminSetting_t = std::underlying_type_t<AdminSetting>;
+        std::vector<Utility::LocIndString> adminSettingList;
+        for (AdminSetting_t i = 1 + static_cast<AdminSetting_t>(AdminSetting::Unknown); i < static_cast<AdminSetting_t>(AdminSetting::Max); ++i)
         {
-            throw CommandException(Resource::String::TooManyAdminSettingArgumentsError, s_ArgName_EnableAndDisable);
+            adminSettingList.emplace_back(AdminSettingToString(static_cast<AdminSetting>(i)));
         }
+
+        Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
 
         if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
         {
-            throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Enable, { "LocalManifestFiles"_lis });
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingEnable).Name, validOptions));
         }
 
         if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
         {
-            throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Disable, { "LocalManifestFiles"_lis });
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingDisable).Name, validOptions));
         }
     }
 
@@ -78,5 +88,26 @@ namespace AppInstaller::CLI
         {
             context << Workflow::OpenUserSetting;
         }
+    }
+
+    Resource::LocString SettingsExportCommand::ShortDescription() const
+    {
+        return { Resource::String::SettingsExportCommandShortDescription };
+    }
+
+    Resource::LocString SettingsExportCommand::LongDescription() const
+    {
+        return { Resource::String::SettingsExportCommandLongDescription };
+    }
+
+    Utility::LocIndView SettingsExportCommand::HelpLink() const
+    {
+        return s_SettingsCommand_HelpLink;
+    }
+
+    void SettingsExportCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::ExportSettings;
     }
 }

@@ -7,10 +7,12 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDownloader.h"
+#include "Public/AppInstallerRuntime.h"
 
 using namespace winrt::Windows::Storage::Streams;
 using namespace Microsoft::WRL;
 using namespace AppInstaller::Utility::HttpStream;
+using namespace winrt::Windows::Management::Deployment;
 
 namespace AppInstaller::Msix
 {
@@ -57,7 +59,7 @@ namespace AppInstaller::Msix
 
                 UINT64 totalBytesRead = 0;
 
-                while (!progress.IsCancelled())
+                while (!progress.IsCancelledBy(CancelReason::Any))
                 {
                     ULONG bytesRead = 0;
                     HRESULT hr = stream->Read(buffer.get(), bufferSize, &bytesRead);
@@ -132,7 +134,7 @@ namespace AppInstaller::Msix
 
             UINT64 totalBytesRead = 0;
 
-            while (!progress.IsCancelled())
+            while (!progress.IsCancelledBy(CancelReason::Any))
             {
                 ULONG bytesRead = 0;
                 HRESULT hr = stream->Read(buffer.get(), bufferSize, &bytesRead);
@@ -363,42 +365,66 @@ namespace AppInstaller::Msix
 
     std::optional<std::string> GetPackageFullNameFromFamilyName(std::string_view familyName)
     {
+        PackageManager packageManager;
+
         std::wstring pfn = Utility::ConvertToUTF16(familyName);
-        UINT32 fullNameCount = 0;
-        UINT32 bufferLength = 0;
-        UINT32 properties = 0;
 
-        LONG findResult = FindPackagesByPackageFamily(pfn.c_str(), PACKAGE_FILTER_HEAD, &fullNameCount, nullptr, &bufferLength, nullptr, &properties);
-        if (findResult == ERROR_SUCCESS || fullNameCount == 0)
+        // PackageManager.FindPackages() can find all packages (including provisioned ones) but requires admin.
+        // For non admin callers, use FindPackagesByPackageFamily where only packages registered to current user will be found.
+        if (Runtime::IsRunningAsAdmin())
         {
-            // No package found
-            return {};
-        }
-        else if (findResult != ERROR_INSUFFICIENT_BUFFER)
-        {
-            THROW_WIN32(findResult);
-        }
-        else if (fullNameCount != 1)
-        {
-            // Don't directly error, let caller deal with it
-            AICLI_LOG(Core, Error, << "Multiple packages found for family name: " << fullNameCount);
-            return {};
-        }
+            auto packages = packageManager.FindPackages(pfn);
 
-        // fullNameCount == 1 at this point
-        PWSTR fullNamePtr;
-        std::wstring buffer(static_cast<size_t>(bufferLength) + 1, L'\0');
+            std::optional<std::string> result;
+            for (const auto& package : packages)
+            {
+                if (result.has_value())
+                {
+                    // More than 1 package found. Don't directly error, let caller deal with it.
+                    AICLI_LOG(Core, Error, << "Multiple packages found for family name: " << familyName);
+                    return {};
+                }
 
-        THROW_IF_WIN32_ERROR(FindPackagesByPackageFamily(pfn.c_str(), PACKAGE_FILTER_HEAD, &fullNameCount, &fullNamePtr, &bufferLength, &buffer[0], &properties));
-        if (fullNameCount != 1 || bufferLength == 0)
-        {
-            // Something changed in between, abandon
-            AICLI_LOG(Core, Error, << "Packages found for family name: " << fullNameCount);
-            return {};
+                result = Utility::ConvertToUTF8(package.Id().FullName());
+            }
+
+            return result;
         }
+        else
+        {
+            UINT32 fullNameCount = 0;
+            UINT32 bufferLength = 0;
+            UINT32 properties = 0;
+            LONG findResult = FindPackagesByPackageFamily(pfn.c_str(), PACKAGE_FILTER_HEAD, &fullNameCount, nullptr, &bufferLength, nullptr, &properties);
+            if (findResult == ERROR_SUCCESS || fullNameCount == 0)
+            {
+                // No package found
+                return {};
+            }
+            else if (findResult != ERROR_INSUFFICIENT_BUFFER)
+            {
+                THROW_WIN32(findResult);
+            }
+            else if (fullNameCount != 1)
+            {
+                // Don't directly error, let caller deal with it
+                AICLI_LOG(Core, Error, << "Multiple packages found for family name: " << fullNameCount);
+                return {};
+            }
 
-        buffer.resize(bufferLength - 1);
-        return Utility::ConvertToUTF8(buffer);
+            // fullNameCount == 1 at this point
+            PWSTR fullNamePtr;
+            std::wstring buffer(static_cast<size_t>(bufferLength) + 1, '\0');
+            THROW_IF_WIN32_ERROR(FindPackagesByPackageFamily(pfn.c_str(), PACKAGE_FILTER_HEAD, &fullNameCount, &fullNamePtr, &bufferLength, &buffer[0], &properties));
+            if (fullNameCount != 1 || bufferLength == 0)
+            {
+                // Something changed in between, abandon
+                AICLI_LOG(Core, Error, << "Packages found for family name: " << fullNameCount);
+                return {};
+            }
+            buffer.resize(bufferLength - 1);
+            return Utility::ConvertToUTF8(buffer);
+        }
     }
 
     std::string GetPackageFamilyNameFromFullName(std::string_view fullName)
@@ -505,6 +531,7 @@ namespace AppInstaller::Msix
     MsixInfo::MsixInfo(std::string_view uriStr)
     {
         m_stream = Utility::GetReadOnlyStreamFromURI(uriStr);
+
         if (GetBundleReader(m_stream.Get(), &m_bundleReader))
         {
             m_isBundle = true;
@@ -597,7 +624,7 @@ namespace AppInstaller::Msix
         return Utility::ConvertToUTF8(GetPackageFullNameWide());
     }
 
-    std::vector<ComPtr<IAppxPackageReader>> MsixInfo::GetAppPackages() const
+    std::vector<ComPtr<IAppxPackageReader>> MsixInfo::GetAppPackages(bool includeStub) const
     {
         if (!m_isBundle)
         {
@@ -622,11 +649,19 @@ namespace AppInstaller::Msix
             APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE packageType;
             THROW_IF_FAILED(packageInfo->GetPackageType(&packageType));
 
+            // Check flat bundle case.
             UINT64 offset;
             THROW_IF_FAILED(packageInfo->GetOffset(&offset));
-            const bool isContained = offset != 0;
+            bool isContained = offset != 0;
 
-            if (isContained && packageType == APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE::APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE_APPLICATION)
+            // Check stub package case.
+            ComPtr<IAppxBundleManifestPackageInfo4> packageInfo4;
+            THROW_IF_FAILED(packageInfo.As(&packageInfo4));
+            BOOL isStub = FALSE;
+            THROW_IF_FAILED(packageInfo4->GetIsStub(&isStub));
+
+            if (isContained && (includeStub || !isStub) &&
+                packageType == APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE::APPX_BUNDLE_PAYLOAD_PACKAGE_TYPE_APPLICATION)
             {
                 wil::unique_cotaskmem_string fileName;
                 THROW_IF_FAILED(packageInfo->GetFileName(&fileName));
@@ -654,10 +689,10 @@ namespace AppInstaller::Msix
         return packages;
     }
 
-    std::vector<MsixPackageManifest> MsixInfo::GetAppPackageManifests() const
+    std::vector<MsixPackageManifest> MsixInfo::GetAppPackageManifests(bool includeStub) const
     {
         std::vector<MsixPackageManifest> manifests;
-        auto packages = GetAppPackages();
+        auto packages = GetAppPackages(includeStub);
         for (const auto& package : packages)
         {
             ComPtr<IAppxManifestReader> manifestReader;

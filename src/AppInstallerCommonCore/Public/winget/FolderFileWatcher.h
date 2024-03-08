@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
+#include <unordered_set>
+#pragma warning( push )
+#pragma warning ( disable : 6387 28196 )
+#include <wil/filesystem.h>
+#pragma warning( pop )
 
 namespace AppInstaller::Utility
 {
@@ -14,13 +18,14 @@ namespace AppInstaller::Utility
         FolderFileWatcher(const FolderFileWatcher&) = delete;
         FolderFileWatcher& operator=(const FolderFileWatcher&) = delete;
 
-        FolderFileWatcher(FolderFileWatcher&&) = delete;
-        FolderFileWatcher& operator=(FolderFileWatcher&&) = delete;
+        FolderFileWatcher(FolderFileWatcher&&) = default;
+        FolderFileWatcher& operator=(FolderFileWatcher&&) = default;
 
         void Start();
         void Stop();
 
-        const std::unordered_set<std::filesystem::path>& files() { return m_files; }
+        const std::unordered_set<std::filesystem::path>& Files() { return m_files; }
+        const std::filesystem::path& FolderPath() { return m_path; }
 
     private:
         std::filesystem::path m_path;

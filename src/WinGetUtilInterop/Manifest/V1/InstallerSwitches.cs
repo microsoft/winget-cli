@@ -1,8 +1,8 @@
-﻿// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="InstallerSwitches.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.Models.V1
 {
@@ -47,6 +47,11 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets the install location switch.
         /// </summary>
         public string InstallLocation { get; set; }
+
+        /// <summary>
+        /// Gets or sets the repair switch.
+        /// </summary>
+        public string Repair { get; set; }
 
         /// <summary>
         /// Override op_Equality.
@@ -111,7 +116,8 @@ namespace Microsoft.WinGetUtil.Models.V1
                    (this.Interactive == other.Interactive) &&
                    (this.Upgrade == other.Upgrade) &&
                    (this.Log == other.Log) &&
-                   (this.InstallLocation == other.InstallLocation);
+                   (this.InstallLocation == other.InstallLocation) &&
+                   (this.Repair == other.Repair);
         }
 
         /// <summary>
@@ -127,7 +133,8 @@ namespace Microsoft.WinGetUtil.Models.V1
                     this.Interactive,
                     this.Upgrade,
                     this.Log,
-                    this.InstallLocation).GetHashCode();
+                    this.InstallLocation,
+                    this.Repair).GetHashCode();
         }
     }
 }

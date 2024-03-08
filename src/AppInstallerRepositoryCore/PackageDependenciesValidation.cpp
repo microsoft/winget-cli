@@ -33,7 +33,7 @@ namespace AppInstaller::Repository
             return depList;
         }
 
-        std::optional<std::pair<SQLite::rowid_t, Utility::Version>> GetPackageLatestVersion(
+        std::optional<SQLiteIndex::VersionKey> GetPackageLatestVersion(
             SQLiteIndex* index, Manifest::string_t packageId, std::set<Utility::Version> exclusions = {})
         {
             SearchRequest request;
@@ -54,31 +54,28 @@ namespace AppInstaller::Repository
                 return {};
             }
 
-            Utility::VersionAndChannel maxVersion(Utility::Version::CreateUnknown(), Utility::Channel(""));
+            SQLiteIndex::VersionKey maxVersion{ Utility::VersionAndChannel{ Utility::Version::CreateUnknown(), Utility::Channel("") } };
 
             for (auto& v : vac)
             {
-                auto currentVersion = v.GetVersion();
+                auto currentVersion = v.VersionAndChannel.GetVersion();
                 if (exclusions.find(currentVersion) != exclusions.end())
                 {
                     continue;
                 }
 
-                if (currentVersion > maxVersion.GetVersion())
+                if (currentVersion > maxVersion.VersionAndChannel.GetVersion())
                 {
                     maxVersion = v;
                 }
             }
 
-            if (maxVersion.GetVersion().IsUnknown())
+            if (maxVersion.VersionAndChannel.GetVersion().IsUnknown())
             {
                 return {};
             }
 
-            auto manifestRowId = index->GetManifestIdByKey(
-                packageRowId, maxVersion.GetVersion().ToString(), maxVersion.GetChannel().ToString());
-
-            return std::make_pair(manifestRowId.value(), maxVersion.GetVersion());
+            return maxVersion;
         }
     
         void ThrowOnManifestValidationFailed(
@@ -116,28 +113,28 @@ namespace AppInstaller::Repository
             [&](const Dependency& node)
             {
                 DependencyList depList;
-                if (node.Id == rootId.Id)
+                if (node.Id() == rootId.Id())
                 {
                     return GetDependencies(manifest, DependencyType::Package);
                 }
 
-                auto packageLatest = GetPackageLatestVersion(index, node.Id);
+                auto packageLatest = GetPackageLatestVersion(index, node.Id());
                 if (!packageLatest.has_value())
                 {
                     dependenciesError.emplace_back(
-                        ManifestError::MissingManifestDependenciesNode, "PackageIdentifier", node.Id);
+                        ManifestError::MissingManifestDependenciesNode, "PackageIdentifier", node.Id());
                     foundErrors = true;
                     return depList;
                 }
 
-                if (node.MinVersion > packageLatest.value().second)
+                if (node.MinVersion > packageLatest->VersionAndChannel.GetVersion())
                 {
-                    dependenciesError.emplace_back(ManifestError::NoSuitableMinVersionDependency, "PackageIdentifier", node.Id);
+                    dependenciesError.emplace_back(ManifestError::NoSuitableMinVersionDependency, "PackageIdentifier", node.Id());
                     foundErrors = true;
                     return depList;
                 }
 
-                auto packageLatestDependencies = index->GetDependenciesByManifestRowId(packageLatest.value().first);
+                auto packageLatestDependencies = index->GetDependenciesByManifestRowId(packageLatest->ManifestId);
                 std::for_each(
                     packageLatestDependencies.begin(),
                     packageLatestDependencies.end(),
@@ -201,13 +198,13 @@ namespace AppInstaller::Repository
             THROW_HR(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE);
         }
 
-        if (Utility::Version(manifest.Version) < packageLatest.value().second)
+        if (Utility::Version(manifest.Version) < packageLatest->VersionAndChannel.GetVersion())
         {
             // all good, since it's min version the criteria is still satisfied.
             return true;
         }
 
-        auto nextLatestAfterDelete = GetPackageLatestVersion(index, manifest.Id, { packageLatest.value().second });
+        auto nextLatestAfterDelete = GetPackageLatestVersion(index, manifest.Id, { packageLatest->VersionAndChannel.GetVersion() });
 
         if (!nextLatestAfterDelete.has_value())
         {
@@ -224,7 +221,7 @@ namespace AppInstaller::Repository
             std::back_inserter(breakingManifests),
             [&](std::pair<DependentManifestInfo, Utility::Version> current)
             {
-                return current.second > nextLatestAfterDelete.value().second;
+                return current.second > nextLatestAfterDelete->VersionAndChannel.GetVersion();
             }
         );
 

@@ -9,8 +9,11 @@
 #include <objbase.h>
 #include <urlmon.h>
 #include <Msi.h>
+#include <KnownFolders.h>
 
 #include <catch.hpp>
+
+#include <json/json.h>
 
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>

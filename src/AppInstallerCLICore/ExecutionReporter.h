@@ -13,6 +13,7 @@
 #include <atomic>
 #include <iomanip>
 #include <istream>
+#include <memory>
 #include <optional>
 #include <ostream>
 #include <string>
@@ -113,30 +114,49 @@ namespace AppInstaller::CLI::Execution
         // IProgressSink
         void BeginProgress() override;
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
+        void SetProgressMessage(std::string_view message) override;
         void EndProgress(bool hideProgressWhenDone) override;
+
+        // Contains the objects used for async progress and the lifetime of said progress.
+        struct AsyncProgressScope
+        {
+            AsyncProgressScope(Reporter& reporter, IProgressSink* sink, bool hideProgressWhenDone);
+            ~AsyncProgressScope();
+
+            AsyncProgressScope(const AsyncProgressScope&) = delete;
+            AsyncProgressScope& operator=(const AsyncProgressScope&) = delete;
+
+            AsyncProgressScope(AsyncProgressScope&&) = delete;
+            AsyncProgressScope& operator=(AsyncProgressScope&&) = delete;
+
+            ProgressCallback& Callback();
+            IProgressCallback* operator->();
+
+            bool HideProgressWhenDone() const;
+            void HideProgressWhenDone(bool value);
+
+        private:
+            std::reference_wrapper<Reporter> m_reporter;
+            ProgressCallback m_callback;
+            std::atomic_bool m_hideProgressWhenDone;
+        };
 
         // Runs the given callable of type: auto(IProgressCallback&)
         template <typename F>
         auto ExecuteWithProgress(F&& f, bool hideProgressWhenDone = false)
         {
-            IProgressSink* sink = m_progressSink.load();
-            ProgressCallback callback(sink);
-            SetProgressCallback(&callback);
-            sink->BeginProgress();
-
-            auto hideProgress = wil::scope_exit([this, hideProgressWhenDone]()
-                {
-                    SetProgressCallback(nullptr);
-                    m_progressSink.load()->EndProgress(hideProgressWhenDone);
-                });
-            return f(callback);
+            auto progressScope = BeginAsyncProgress(hideProgressWhenDone);
+            return f(progressScope->Callback());
         }
+
+        // Begins an asynchronous progress operation.
+        std::unique_ptr<AsyncProgressScope> BeginAsyncProgress(bool hideProgressWhenDone = false);
 
         // Sets the in progress callback.
         void SetProgressCallback(ProgressCallback* callback);
 
         // Cancels the in progress task.
-        void CancelInProgressTask(bool force);
+        void CancelInProgressTask(bool force, CancelReason reason);
 
         void CloseOutputStream(bool forceDisable = false);
 
@@ -172,4 +192,7 @@ namespace AppInstaller::CLI::Execution
     extern const VirtualTerminal::Sequence& UrlEmphasis;
     extern const VirtualTerminal::Sequence& PromptEmphasis;
     extern const VirtualTerminal::Sequence& ConvertToUpgradeFlowEmphasis;
+    extern const VirtualTerminal::Sequence& ConfigurationIntentEmphasis;
+    extern const VirtualTerminal::Sequence& ConfigurationUnitEmphasis;
+    extern const VirtualTerminal::Sequence& AuthenticationEmphasis;
 }

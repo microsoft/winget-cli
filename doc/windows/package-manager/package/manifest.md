@@ -52,7 +52,7 @@ For a complete list and descriptions of items in a manifest, see the [manifest s
 
 #### [Minimal required schema](#tab/minschema/)
 
-As specified in the [singleton JSON schema](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.2.0/manifest.singleton.1.2.0.json),
+As specified in the [singleton JSON schema](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.4.0/manifest.singleton.1.4.0.json),
 only a number of fields are required.  The minimal supported YAML file would look like the example below. The singleton format is only valid for packages containing
 a single installer and a single locale. If more than one installer or locale is provided, the multiple YAML file format and schema must be used.
 
@@ -67,13 +67,13 @@ Publisher:          # The name of the publisher.
 PackageName:        # The name of the application.
 License:            # The license of the application.
 ShortDescription:   # The description of the application.
-Installers: 
+Installers:
  - Architecture:    # Enumeration of supported architectures.
    InstallerType:   # Enumeration of supported installer types (exe, msi, msix, inno, wix, nullsoft, appx).
    InstallerUrl:    # Path to download installation file.
    InstallerSha256: # SHA256 calculated from installer.
 ManifestType:       # The manifest file type
-ManifestVersion: 1.2.0
+ManifestVersion: 1.4.0
 ```
 
 #### [Example](#tab/minexample/)
@@ -88,24 +88,24 @@ Publisher: Microsoft
 PackageName: Windows Terminal
 License: MIT
 ShortDescription: The new Windows Terminal, a tabbed command line experience for Windows.
-Installers: 
+Installers:
  - Architecture: x64
    InstallerType: msix
    InstallerUrl: https://github.com/microsoft/terminal/releases/download/v1.6.10571.0/Microsoft.WindowsTerminal_1.6.10571.0_8wekyb3d8bbwe.msixbundle
    InstallerSha256: 092aa89b1881e058d31b1a8d88f31bb298b5810afbba25c5cb341cfa4904d843
    SignatureSha256: e53f48473621390c8243ada6345826af7c713cf1f4bbbf0d030599d1e4c175ee
 ManifestType: singleton
-ManifestVersion: 1.2.0
+ManifestVersion: 1.4.0
 ```
 
 #### Multiple File Example
 In order to provide the best user experience, manifests should contain as much meta-data as possible. In order to separate concerns for validating installers
 and providing localized meta-data manifests will be split into multiple files. The minimum number of YAML files for this kind of manifest is three. Additional
-locales should also be provided. 
-* A [version](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.2.0/manifest.version.1.2.0.json) file
-* The [default locale](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.2.0/manifest.defaultLocale.1.2.0.json) file
-* An [installer](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.2.0/manifest.installer.1.2.0.json) file
-* Additional [locale](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.2.0/manifest.locale.1.2.0.json) files
+locales should also be provided.
+* A [version](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.4.0/manifest.version.1.4.0.json) file
+* The [default locale](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.4.0/manifest.defaultLocale.1.4.0.json) file
+* An [installer](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.4.0/manifest.installer.1.4.0.json) file
+* Additional [locale](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.4.0/manifest.locale.1.4.0.json) files
 
 The example below shows many optional meta-data fields and multiple locales. Note the default locale has more requirements than additional locales. In the show
 command, any required fields that aren't provided for additional locales will display fields from the default locale.
@@ -117,7 +117,7 @@ PackageIdentifier: Microsoft.WindowsTerminal
 PackageVersion: 1.6.10571.0
 DefaultLocale: en-US
 ManifestType: version
-ManifestVersion: 1.2.0
+ManifestVersion: 1.4.0
 ```
 
 Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / Microsoft.WindowsTerminal.locale.en-US.yaml
@@ -134,7 +134,7 @@ PackageURL: https://docs.microsoft.com/windows/terminal/
 License: MIT
 LicenseURL: https://github.com/microsoft/terminal/blob/master/LICENSE
 ShortDescription: The new Windows Terminal, a tabbed command line experience for Windows.
-Tags: 
+Tags:
 - console
 - command-line
 - shell
@@ -148,7 +148,7 @@ Tags:
 - ps
 - terminal
 ManifestType: defaultLocale
-ManifestVersion: 1.2.0
+ManifestVersion: 1.4.0
 ```
 
 Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / Microsoft.WindowsTerminal.locale.fr-FR.yaml
@@ -160,7 +160,7 @@ PackageLocale: fr-FR
 Publisher: Microsoft
 ShortDescription: Le nouveau terminal Windows, une expérience de ligne de commande à onglets pour Windows.
 ManifestType: locale
-ManifestVersion: 1.2.0
+ManifestVersion: 1.4.0
 ```
 
 Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / Microsoft.WindowsTerminal.installer.yaml
@@ -168,14 +168,14 @@ Path: manifests / m / Microsoft / WindowsTerminal / 1.6.10571.0 / Microsoft.Wind
 ```YAML
 PackageIdentifier: Microsoft.WindowsTerminal
 PackageVersion: 1.6.10571.0
-Platform: 
+Platform:
  - Windows.Desktop
 MinimumOSVersion: 10.0.18362.0
 InstallerType: msix
-InstallModes: 
+InstallModes:
  - silent
 PackageFamilyName: Microsoft.WindowsTerminal_8wekyb3d8bbwe
-Installers: 
+Installers:
  - Architecture: x64
    InstallerUrl: https://github.com/microsoft/terminal/releases/download/v1.6.10571.0/Microsoft.WindowsTerminal_1.6.10571.0_8wekyb3d8bbwe.msixbundle
    InstallerSha256: 092aa89b1881e058d31b1a8d88f31bb298b5810afbba25c5cb341cfa4904d843
@@ -189,7 +189,7 @@ Installers:
    InstallerSha256: 092aa89b1881e058d31b1a8d88f31bb298b5810afbba25c5cb341cfa4904d843
    SignatureSha256: e53f48473621390c8243ada6345826af7c713cf1f4bbbf0d030599d1e4c175ee
 ManifestType: installer
-ManifestVersion: 1.2.0
+ManifestVersion: 1.4.0
 ```
 
 * * *
@@ -200,8 +200,8 @@ ManifestVersion: 1.2.0
 
 You can often figure out what silent `Switches` are available for an installer by passing in a `-?` to the installer from the command line. Here are some common silent `Switches` that can be used for different installer types.
 
-| Installer | Command  | Documentation |  
-| :--- | :-- | :--- |  
+| Installer | Command  | Documentation |
+| :--- | :-- | :--- |
 | MSI | `/q` | [MSI Command-Line Options](https://docs.microsoft.com/windows/win32/msi/command-line-options) |
 | InstallShield | `/s`  | [InstallShield Command-Line Parameters](https://docs.flexera.com/installshield19helplib/helplibrary/IHelpSetup_EXECmdLine.htm) |
 | Inno Setup | `/SILENT or /VERYSILENT` | [Inno Setup documentation](https://jrsoftware.org/ishelp/) |

@@ -36,16 +36,33 @@ namespace AppInstaller::CLI::Workflow
 
     // Shows all the prompts required for multiple package, e.g. for package agreements
     // Required Args: None
-    // Inputs: PackagesToInstall
+    // Inputs: PackageSubContexts
     // Outputs: None
     struct ShowPromptsForMultiplePackages : public WorkflowTask
     {
-        ShowPromptsForMultiplePackages(bool ensureAgreementsAcceptance) :
-            WorkflowTask("ShowPromptsForMultiplePackages"), m_ensureAgreementsAcceptance(ensureAgreementsAcceptance) {}
+        ShowPromptsForMultiplePackages(bool ensureAgreementsAcceptance, bool installerDownloadOnly) :
+            WorkflowTask("ShowPromptsForMultiplePackages"), m_ensureAgreementsAcceptance(ensureAgreementsAcceptance),
+            m_installerDownloadOnly(installerDownloadOnly) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         bool m_ensureAgreementsAcceptance;
+        bool m_installerDownloadOnly;
+    };
+
+    // If the context is not interactive, terminate it with the given HRESULT.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    struct RequireInteractivity : public WorkflowTask
+    {
+        RequireInteractivity(HRESULT nonInteractiveError) :
+            WorkflowTask("RequireInteractivity"), m_nonInteractiveError(nonInteractiveError) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        HRESULT m_nonInteractiveError;
     };
 }

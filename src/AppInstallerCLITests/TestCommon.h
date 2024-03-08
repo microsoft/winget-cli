@@ -22,12 +22,14 @@ namespace TestCommon
         ShellExecuteOnFailure,
     };
 
+    struct KeepTempFile {};
+
     // Use this to create a temporary file for testing.
     struct TempFile
     {
-        TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true);
-        TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true);
-        TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction = true);
+        TempFile(const std::string& baseName, const std::string& baseExt, std::optional<KeepTempFile> keepTempFile = {});
+        TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, std::optional<KeepTempFile> keepTempFile = {});
+        TempFile(const std::filesystem::path& filePath, std::optional<KeepTempFile> keepTempFile = {});
 
         TempFile(const TempFile&) = delete;
         TempFile& operator=(const TempFile&) = delete;
@@ -100,10 +102,13 @@ namespace TestCommon
         void BeginProgress() override;
         
         void OnProgress(uint64_t current, uint64_t maximum, AppInstaller::ProgressType type) override;
-        
+
+        void SetProgressMessage(std::string_view message) override;
+
         void EndProgress(bool) override;
 
-        bool IsCancelled() override;
+        bool IsCancelledBy(AppInstaller::CancelReason) override;
+
         CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
 
         std::function<void(uint64_t, uint64_t, AppInstaller::ProgressType)> m_OnProgress;
@@ -145,4 +150,13 @@ namespace TestCommon
 
     // Get manifest reader from a msix file path
     bool GetMsixPackageManifestReader(std::string_view testFileName, IAppxManifestReader** manifestReader);
+
+    // Removes console format
+    std::string RemoveConsoleFormat(const std::string& str);
+
+    // Convert to Json::Value
+    Json::Value ConvertToJson(const std::string& content);
+
+    // Sets up the test path overrides.
+    void SetTestPathOverrides();
 }

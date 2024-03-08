@@ -31,12 +31,26 @@ Se si disabilita questa impostazione, gli utenti non saranno in grado di abilita
 Se si Abilita o non si configura questa impostazione, gli utenti potranno installare pacchetti con manifesti locali tramite Windows Gestione pacchetti.
 
 Se si disabilita questa impostazione, gli utenti non saranno in grado di installare pacchetti con manifesti locali tramite Windows Gestione pacchetti.</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Abilita il bypass del certificato di origine del programma di installazione app Microsoft Store</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Questo criterio consente di stabilire se Gestione pacchetti Windows convaliderà la corrispondenza dell'hash del certificato Microsoft Store con un certificato Microsoft Store noto quando si avvia una connessione all'origine Microsoft Store. 
+Se si abilita questo criterio, Gestione pacchetti Windows ignorerà la convalida del certificato Microsoft Store. 
+
+Se si disabilita questo criterio, Gestione pacchetti Windows convaliderà il certificato Microsoft Store usato affinché sia valido e appartenga a Microsoft Store prima di comunicare con l'origine Microsoft Store.
+
+Se non si configura questo criterio, verranno rispettate le impostazioni dell'amministratore di Gestione pacchetti Windows.</string>
       <string id="EnableHashOverride">Abilita sostituzione hash del programma di installazione app</string>
       <string id="EnableHashOverrideExplanation">Questa impostazione dei criteri consente di specificare se Windows Gestione pacchetti può essere configurato per abilitare la possibilità di ignorare la convalida di sicurezza SHA256 nelle impostazioni.
 
 Se si Abilita o non si configura questa impostazione dei criteri, gli utenti potranno abilitare la funzionalità di poter ignorare la convalida della sicurezza SHA256 nelle impostazioni di Windows Gestione pacchetti.
 
 Se si disabilita questa impostazione dei criteri, gli utenti non potranno abilitare la funzionalità di ignorare la convalida della sicurezza SHA256 nelle impostazioni di Windows Gestione pacchetti.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Abilita l'override dell’analisi malware dell'archivio locale</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Questo criterio consente di controllare la possibilità di eseguire l'override delle analisi di vulnerabilità malware durante l'installazione di un file di archivio usando un manifesto locale usando gli argomenti della riga di comando.
+Se si abilita questo criterio, gli utenti potranno eseguire l'override dell'analisi antimalware durante l'installazione di un manifesto locale di un file di archivio.
+
+Se si disabilita questo criterio, gli utenti non potranno eseguire l'override dell'analisi malware di un file di archivio durante l'installazione con un manifesto locale.
+
+Se non si configura questo criterio, le impostazioni dell'amministratore di Gestione pacchetti Windows saranno conformi.</string>
       <string id="EnableDefaultSource">Abilita origine predefinita del programma di installazione app</string>
       <string id="EnableDefaultSourceExplanation">Questo criterio controlla l'origine predefinita inclusa in Gestione pacchetti Windows.
 
@@ -54,11 +68,11 @@ Se si abilita questa impostazione, l'origine Microsoft Store per Windows Gestion
 
 Se si disabilita questa impostazione, l'origine Microsoft Store per Windows Gestione pacchetti non sarà disponibile.</string>
       <string id="SourceAutoUpdateInterval">Imposta l'intervallo di aggiornamento automatico dell'origine del programma di installazione app in minuti</string>
-      <string id="SourceAutoUpdateIntervalExplanation">Questo criterio Controlla l'intervallo di aggiornamento automatico per le origini basate sul pacchetto.
+      <string id="SourceAutoUpdateIntervalExplanation">Questo criterio controlla l'intervallo di aggiornamento automatico per le origini basate su pacchetto. L'origine predefinita per Gestione pacchetti Windows è configurata in modo che un indice dei pacchetti venga memorizzato nella cache nel computer locale. L'indice viene scaricato quando un utente richiama un comando e l'intervallo è passato.
 
-Se si disabilita o non si configura questa impostazione, l'intervallo predefinito o il valore specificato nelle impostazioni verranno utilizzati da Windows Gestione pacchetti.
+Se si disabilita o non si configura questa impostazione, verrà utilizzato l'intervallo predefinito o il valore specificato nelle impostazioni Gestione pacchetti Windows.
 
-Se si abilita questa impostazione, il numero di minuti specificato verrà utilizzato da Windows Gestione pacchetti.</string>
+Se si abilita questa impostazione, il numero di minuti specificato verrà utilizzato dal Gestione pacchetti Windows.</string>
       <string id="EnableAdditionalSources">Abilita altre origini del programma di installazione app</string>
       <string id="EnableAdditionalSourcesExplanation">Questo criterio controlla le origini aggiuntive fornite dall'amministratore IT dell'organizzazione.
 
@@ -81,6 +95,20 @@ Se si disabilita questo criterio, non sarà possibile configurare altre origini 
 Se si abilita questa impostazione, gli utenti potranno installare pacchetti da siti Web che utilizzano questo protocollo.
 
 Se si disabilita o non si configura questa impostazione, gli utenti non potranno installare pacchetti da siti Web che utilizzano questo protocollo.</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfaces">Abilita Gestione interfacce della riga di comando dei pacchetti Windows</string>
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Questo criterio determina se un utente può eseguire un'azione usando la Gestione pacchetti Windows tramite un'interfaccia della riga di comando (interfaccia della riga di comando di WinGet o WinGet PowerShell).
+
+Se disabiliti questo criterio, gli utenti non potranno eseguire l'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell.
+
+Se abiliti o non configuri questo criterio, gli utenti potranno eseguire i comandi dell'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell. (Il criterio "Abilita Programma di installazione app" specificato non è disabilitato).
+
+Questo criterio non esegue l'override del criterio "Abilita Programma di installazione app".</string>
+      <string id="EnableWindowsPackageManagerConfiguration">Abilita la configurazione di Gestione pacchetti</string>
+      <string id="EnableWindowsPackageManagerConfigurationExplanation">Questo criterio controlla se la funzionalità di configurazione Gestione pacchetti Windows può essere usata dagli utenti.
+
+Se si abilita o non si configura questa impostazione, gli utenti potranno usare la funzionalità di configurazione Gestione pacchetti Windows.
+
+Se si disabilita questa impostazione, gli utenti non potranno usare la funzionalità di configurazione Gestione pacchetti Windows.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">

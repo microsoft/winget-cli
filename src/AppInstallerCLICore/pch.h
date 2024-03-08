@@ -17,6 +17,7 @@
 #pragma warning( pop )
 
 #include <array>
+#include <atomic>
 #include <iostream>
 #include <fstream>
 #include <future>
@@ -37,28 +38,16 @@
 #include <winrt/Windows.ApplicationModel.Resources.h>
 #include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Windows.Security.Cryptography.Certificates.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6285 6340 6388 )
 #include <wil/result.h>
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
+#include <wil/com.h>
 #pragma warning( pop )
 
 #include <wrl/client.h>
 #include <AppxPackaging.h>
-
-#include <AppInstallerArchitecture.h>
-#include <AppInstallerDateTime.h>
-#include <AppInstallerDownloader.h>
-#include <AppInstallerErrors.h>
-#include <AppInstallerLogging.h>
-#include <AppInstallerRuntime.h>
-#include <AppInstallerSHA256.h>
-#include <AppInstallerStrings.h>
-#include <AppInstallerTelemetry.h>
-#include <winget/ExperimentalFeature.h>
-#include <winget/Locale.h>
-#include <winget/LocIndependent.h>
-#include <winget/ManifestYamlParser.h>
-#include <winget/RepositorySource.h>

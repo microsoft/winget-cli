@@ -8,6 +8,7 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Workflow;
     using namespace std::string_view_literals;
 
     std::vector<Argument> ListCommand::GetArguments() const
@@ -22,8 +23,14 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Command),
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
+            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Execution::Args::Type::CustomHeader),
+            Argument::ForType(Execution::Args::Type::AuthenticationMode),
+            Argument::ForType(Execution::Args::Type::AuthenticationAccount),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
+            Argument{ Execution::Args::Type::Upgrade, Resource::String::UpgradeArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::IncludeUnknown, Resource::String::IncludeUnknownInListArgumentDescription, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::IncludePinned, Resource::String::IncludePinnedInListArgumentDescription, ArgumentType::Flag},
         };
     }
 
@@ -63,9 +70,15 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string ListCommand::HelpLink() const
+    Utility::LocIndView ListCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-list";
+        return "https://aka.ms/winget-command-list"_liv;
+    }
+
+    void ListCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludeUnknown, Execution::Args::Type::Upgrade);
+        Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludePinned, Execution::Args::Type::Upgrade);
     }
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const
@@ -74,10 +87,10 @@ namespace AppInstaller::CLI
 
         context <<
             Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(true) <<
-            Workflow::ReportListResult();
+            Workflow::EnsureMatchesFromSearchResult(OperationType::List) <<
+            Workflow::ReportListResult(context.Args.Contains(Execution::Args::Type::Upgrade));
     }
 }

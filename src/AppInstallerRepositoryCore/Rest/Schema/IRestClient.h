@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Microsoft/Schema/Version.h"
+#include <winget/SQLiteVersion.h>
 #include <winget/Manifest.h>
 #include <winget/RepositorySearch.h>
 #include <AppInstallerVersions.h>
+#include <winget/Authentication.h>
 #include <vector>
 
 namespace AppInstaller::Repository::Rest::Schema
@@ -24,6 +25,8 @@ namespace AppInstaller::Repository::Rest::Schema
         : PackageIdentifier(std::move(packageIdentifier)), PackageName(std::move(packageName)), Publisher(std::move(publisher)) {}
     };
 
+    // NOTE: When changes are made to VersionInfo struct, remember to update the OptimizedSearch path in RestInterface1_0
+    // where VersionInfo struct was directly created from manifest.
     struct VersionInfo
     {
         AppInstaller::Utility::VersionAndChannel VersionAndChannel;
@@ -71,6 +74,7 @@ namespace AppInstaller::Repository::Rest::Schema
         std::vector<std::string> RequiredPackageMatchFields;
         std::vector<std::string> UnsupportedQueryParameters;
         std::vector<std::string> RequiredQueryParameters;
+        Authentication::AuthenticationInfo Authentication;
 
         Information() {}
         Information(std::string sourceId, std::vector<std::string> versions)

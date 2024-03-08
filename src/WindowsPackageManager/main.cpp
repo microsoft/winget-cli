@@ -10,6 +10,11 @@
 #include "WindowsPackageManager.h"
 
 #include <AppInstallerCLICore.h>
+#include <AppInstallerFileLogger.h>
+#include <AppInstallerStrings.h>
+#include <AppInstallerTelemetry.h>
+#include <AppInstallerErrors.h>
+#include <winget/GroupPolicy.h>
 #include <ComClsids.h>
 
 using namespace winrt::Microsoft::Management::Deployment;
@@ -20,8 +25,13 @@ CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions);
 CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions);
 CoCreatableClassWrlCreatorMapInclude(InstallOptions);
 CoCreatableClassWrlCreatorMapInclude(UninstallOptions);
+CoCreatableClassWrlCreatorMapInclude(DownloadOptions);
 CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);
+CoCreatableClassWrlCreatorMapInclude(AuthenticationArguments);
 CoCreatableClassWrlCreatorMapInclude(PackageManagerSettings);
+
+// Shim for configuration static functions
+CoCreatableClassWrlCreatorMapInclude(ConfigurationStaticFunctionsShim);
 
 extern "C"
 {
@@ -58,6 +68,21 @@ extern "C"
     }
     CATCH_RETURN();
 
+    void WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerServerWilResultLoggingCallback(const wil::FailureInfo& failure) noexcept try
+    {
+        AppInstaller::Logging::Telemetry().LogFailure(failure);
+    }
+    CATCH_LOG();
+
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(REFCLSID rclsid, REFIID riid, void** out) try
+    {
+        RETURN_HR_IF_NULL(E_POINTER, out);
+        ::Microsoft::WRL::ComPtr<IClassFactory> factory;
+        RETURN_IF_FAILED(::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::GetModule().GetClassObject(rclsid, IID_PPV_ARGS(&factory)));
+        RETURN_HR(factory->CreateInstance(nullptr, riid, out));
+    }
+    CATCH_RETURN();
+
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleInitialize() try
     {
         ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::Create();
@@ -90,6 +115,8 @@ extern "C"
 
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetActivationFactory(HSTRING classId, void** factory) try
     {
+        RETURN_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet));
+
         return WINRT_GetActivationFactory(classId, factory);
     }
     CATCH_RETURN();
