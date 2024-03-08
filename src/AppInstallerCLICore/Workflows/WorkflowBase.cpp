@@ -74,7 +74,7 @@ namespace AppInstaller::CLI::Workflow
 
                 if (!source)
                 {
-                    std::vector<SourceDetails> sources = Source::GetCurrentSources(true /* excludeExplicitSources */);
+                    std::vector<SourceDetails> sources = Source::GetCurrentSources();
 
                     if (!sourceName.empty() && !sources.empty())
                     {

@@ -47,7 +47,7 @@ namespace AppInstaller::Repository
 
         // Get a list of current sources references which can be used to update the contents in place.
         // e.g. update the LastTimeUpdated value of sources.
-        std::vector<std::reference_wrapper<SourceDetailsInternal>> GetCurrentSourceRefs();
+        std::vector<std::reference_wrapper<SourceDetailsInternal>> GetCurrentSourceRefs(bool includeExplicitSources = false);
 
         // Current source means source that's not in tombstone
         SourceDetailsInternal* GetCurrentSource(std::string_view name);

@@ -128,6 +128,7 @@ namespace AppInstaller::CLI::Workflow
             if (context.Args.Contains(Execution::Args::Type::SourceRequireExplicit))
             {
                 sourceToAdd.SetRequireExplicit(true);
+                AICLI_LOG(CLI, Info, << "Source added is explicit: " << name);
             }
 
             context << Workflow::HandleSourceAgreements(sourceToAdd);

@@ -897,17 +897,14 @@ namespace AppInstaller::Repository
         return m_trackingCatalog;
     }
 
-    std::vector<SourceDetails> Source::GetCurrentSources(bool excludeExplicitSources)
+    std::vector<SourceDetails> Source::GetCurrentSources()
     {
         SourceList sourceList;
 
         std::vector<SourceDetails> result;
-        for (auto&& source : sourceList.GetCurrentSourceRefs())
+        for (auto&& source : sourceList.GetCurrentSourceRefs(true))
         {
-            if (!excludeExplicitSources || source.get().RequireExplicit)
-            {
-                result.emplace_back(std::move(source));
-            }
+            result.emplace_back(std::move(source));
         }
 
         return result;

@@ -581,6 +581,8 @@ namespace AppInstaller::Repository::Microsoft
 
             SourceDetails& GetDetails() override { return m_details; };
 
+            void SetRequireExplicit(bool value) override { m_details.RequireExplicit = value; };
+
             bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>& requestedUpdateInterval) override
             {
                 return CheckForUpdateBeforeOpen(m_details, DesktopContextGetCurrentVersion(m_details), requestedUpdateInterval);
