@@ -3,7 +3,6 @@
 #pragma once
 #include <winget/RepositorySearch.h>
 #include <winget/PackageTrackingCatalog.h>
-#include <AppInstallerDownloader.h>
 #include <AppInstallerProgress.h>
 #include <winget/Certificates.h>
 #include <winget/Authentication.h>

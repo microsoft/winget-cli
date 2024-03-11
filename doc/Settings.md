@@ -312,3 +312,14 @@ You can enable the feature as shown below.
        "configuration03": true
    },
 ```
+
+### proxy
+
+This feature enables the use of web proxies.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "proxy": true
+   },
+```

@@ -10,6 +10,8 @@ namespace AppInstaller::Settings
 {
     // Network related settings.
     // Merges information from user settings, admin settings, command line, and group policy.
+    // TODO: This is currently a process global. It should be converted to a thread local
+    //       (like telemetry) once we expose configuring a proxy through the COM API
     struct NetworkSettings
     {
         static NetworkSettings& Instance();
