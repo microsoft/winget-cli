@@ -4,7 +4,6 @@
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
-#include "DownloadFlow.h"
 #include "PromptFlow.h"
 #include "TableOutput.h"
 #include <winget/ExperimentalFeature.h>
@@ -13,7 +12,6 @@
 #include <winget/PinningData.h>
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
-#include <winget/GroupPolicy.h>
 
 using namespace std::string_literals;
 using namespace AppInstaller::Utility::literals;

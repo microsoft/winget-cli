@@ -86,25 +86,30 @@ namespace AppInstaller::CLI::Workflow
         StringAdminSetting adminSetting = Settings::StringToStringAdminSetting(adminSettingName);
         if (Settings::SetAdminSetting(adminSetting, adminSettingValue))
         {
-            context.Reporter.Info() << Resource::String::SetAdminSettingSucceeded(AdminSettingToString(adminSetting), LocIndString{ adminSettingValue }) << std::endl;
+            context.Reporter.Info() << Resource::String::SetAdminSettingSucceeded(adminSettingName, LocIndString{ adminSettingValue }) << std::endl;
         }
         else
         {
-            context.Reporter.Error() << Resource::String::SetAdminSettingFailed(AdminSettingToString(adminSetting)) << std::endl;
+            context.Reporter.Error() << Resource::String::SetAdminSettingFailed(adminSettingName) << std::endl;
         }
     }
 
     void ResetAdminSetting(Execution::Context& context)
     {
         auto adminSettingName = context.Args.GetArg(Execution::Args::Type::SettingName);
-        StringAdminSetting adminSetting = Settings::StringToStringAdminSetting(adminSettingName);
-        if (Settings::ResetAdminSetting(adminSetting))
+
+        // Try as both bool and string setting as we don't know the type
+        auto boolAdminSetting = Settings::StringToBoolAdminSetting(adminSettingName);
+        auto stringAdminSetting = Settings::StringToStringAdminSetting(adminSettingName);
+
+        if ((boolAdminSetting != Settings::BoolAdminSetting::Unknown && Settings::DisableAdminSetting(boolAdminSetting))
+            || (stringAdminSetting != Settings::StringAdminSetting::Unknown && Settings::ResetAdminSetting(stringAdminSetting)))
         {
-            context.Reporter.Info() << Resource::String::ResetAdminSettingSucceeded(AdminSettingToString(adminSetting)) << std::endl;
+            context.Reporter.Info() << Resource::String::ResetAdminSettingSucceeded(adminSettingName) << std::endl;
         }
-        else
+        else if (stringAdminSetting != Settings::StringAdminSetting::Unknown)
         {
-            context.Reporter.Error() << Resource::String::ResetAdminSettingFailed(AdminSettingToString(adminSetting)) << std::endl;
+            context.Reporter.Error() << Resource::String::ResetAdminSettingFailed(adminSettingName) << std::endl;
         }
     }
 
