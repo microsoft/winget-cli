@@ -11,10 +11,6 @@ namespace AppInstaller::Settings
     {
         AICLI_LOG(Core, Info, << "Setting proxy");
 
-        // Get the default proxy
-        m_proxyUri = GetAdminSetting(StringAdminSetting::DefaultProxy);
-        AICLI_LOG(Core, Info, << "Default proxy is " << (m_proxyUri ? m_proxyUri.value() : "not set"));
-
         if (proxyUri)
         {
             m_proxyUri = proxyUri.value();
@@ -46,7 +42,9 @@ namespace AppInstaller::Settings
 
     NetworkSettings::NetworkSettings()
     {
-        SetProxyUri(std::nullopt);
+        // Get the default proxy
+        m_proxyUri = GetAdminSetting(StringAdminSetting::DefaultProxy);
+        AICLI_LOG(Core, Info, << "Default proxy is " << (m_proxyUri ? m_proxyUri.value() : "not set"));
     }
 
     NetworkSettings& NetworkSettings::Instance()

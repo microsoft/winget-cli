@@ -136,7 +136,6 @@ If you enable this setting, the specified proxy will be used by default.</string
       <presentation id="WindowsPackageManagerDefaultProxy">
         <textBox refId="WindowsPackageManagerDefaultProxy">
           <label>Default Proxy</label>
-
         </textBox>
       </presentation>
     </presentationTable>
