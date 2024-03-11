@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "HttpClientHelper.h"
+#include <winget/NetworkSettings.h>
 
 namespace AppInstaller::Repository::Rest::Schema
 {
@@ -42,7 +43,20 @@ namespace AppInstaller::Repository::Rest::Schema
         }
     }
 
-    HttpClientHelper::HttpClientHelper(std::shared_ptr<web::http::http_pipeline_stage> stage) : m_defaultRequestHandlerStage(std::move(stage)) {}
+    HttpClientHelper::HttpClientHelper(std::shared_ptr<web::http::http_pipeline_stage> stage)
+        : m_defaultRequestHandlerStage(std::move(stage))
+    {
+        const auto& proxyUri = Settings::Network().GetProxyUri();
+        if (proxyUri)
+        {
+            AICLI_LOG(Repo, Info, << "Setting proxy for REST HTTP Client helper to " << proxyUri.value());
+            m_clientConfig.set_proxy(web::web_proxy{ Utility::ConvertToUTF16(proxyUri.value()) });
+        }
+        else
+        {
+            AICLI_LOG(Repo, Info, << "REST HTTP Client helper does not use proxy");
+        }
+    }
 
     pplx::task<web::http::http_response> HttpClientHelper::Post(
         const utility::string_t& uri,
@@ -137,11 +151,6 @@ namespace AppInstaller::Repository::Rest::Schema
             {
                 NativeHandleServerCertificateValidation(handle, pinConfig);
             });
-    }
-
-    void HttpClientHelper::SetProxy(const utility::string_t& uri)
-    {
-        m_clientConfig.set_proxy(web::web_proxy{ uri });
     }
 
     web::http::client::http_client HttpClientHelper::GetClient(const utility::string_t& uri) const

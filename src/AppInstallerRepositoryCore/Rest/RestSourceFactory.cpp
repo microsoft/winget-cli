@@ -4,7 +4,6 @@
 #include "RestSourceFactory.h"
 #include "RestClient.h"
 #include "RestSource.h"
-#include <winget/NetworkSettings.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -62,17 +61,6 @@ namespace AppInstaller::Repository::Rest
                     [&]()
                     {
                         m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration);
-                        const auto& proxyUri = Settings::Network().GetProxyUri();
-                        if (proxyUri)
-                        {
-                            AICLI_LOG(Repo, Info, << "Setting proxy for REST source to " << proxyUri.value());
-                            m_httpClientHelper.SetProxy(Utility::ConvertToUTF16(proxyUri.value()));
-                        }
-                        else
-                        {
-                            AICLI_LOG(Repo, Info, << "REST source does not use proxy");
-                        }
-
                         auto sourceInformation = RestClient::GetInformation(m_details.Arg, m_customHeader, m_caller, m_httpClientHelper);
 
                         m_details.Identifier = sourceInformation.SourceIdentifier;
