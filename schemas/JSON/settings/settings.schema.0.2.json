@@ -266,8 +266,8 @@
           "type": "boolean",
           "default": false
         },
-        "configuration": {
-          "description": "Enable support for configuration",
+        "configuration03": {
+          "description": "Enable support for configuration schema 0.3",
           "type": "boolean",
           "default": false
         },
