@@ -86,11 +86,11 @@ namespace AppInstaller::CLI::Workflow
         StringAdminSetting adminSetting = Settings::StringToStringAdminSetting(adminSettingName);
         if (Settings::SetAdminSetting(adminSetting, adminSettingValue))
         {
-            context.Reporter.Info() << Resource::String::SetAdminSettingSucceeded(adminSettingName, LocIndString{ adminSettingValue }) << std::endl;
+            context.Reporter.Info() << Resource::String::SetAdminSettingSucceeded(LocIndString{ adminSettingName }, LocIndString{ adminSettingValue }) << std::endl;
         }
         else
         {
-            context.Reporter.Error() << Resource::String::SetAdminSettingFailed(adminSettingName) << std::endl;
+            context.Reporter.Error() << Resource::String::SetAdminSettingFailed(LocIndString{ adminSettingName }) << std::endl;
         }
     }
 
@@ -105,11 +105,11 @@ namespace AppInstaller::CLI::Workflow
         if ((boolAdminSetting != Settings::BoolAdminSetting::Unknown && Settings::DisableAdminSetting(boolAdminSetting))
             || (stringAdminSetting != Settings::StringAdminSetting::Unknown && Settings::ResetAdminSetting(stringAdminSetting)))
         {
-            context.Reporter.Info() << Resource::String::ResetAdminSettingSucceeded(adminSettingName) << std::endl;
+            context.Reporter.Info() << Resource::String::ResetAdminSettingSucceeded(LocIndString{ adminSettingName }) << std::endl;
         }
         else if (stringAdminSetting != Settings::StringAdminSetting::Unknown)
         {
-            context.Reporter.Error() << Resource::String::ResetAdminSettingFailed(adminSettingName) << std::endl;
+            context.Reporter.Error() << Resource::String::ResetAdminSettingFailed(LocIndString{ adminSettingName }) << std::endl;
         }
     }
 
