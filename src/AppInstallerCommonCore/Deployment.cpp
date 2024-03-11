@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerDeployment.h"
-#include "Public/AppInstallerDownloader.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerMsixInfo.h"
 #include "Public/AppInstallerRuntime.h"
