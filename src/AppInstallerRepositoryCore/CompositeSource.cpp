@@ -541,6 +541,13 @@ namespace AppInstaller::Repository
             // Note that it may tied for highest version if, for instance, the same version is installed for different architectures.
             void AddPackageAndVersionKeyData(std::shared_ptr<IPackage> package)
             {
+                // We don't want this to happen, but it could. Rather than a crash, we will log it and move on.
+                if (!package)
+                {
+                    AICLI_LOG(Repo, Verbose, << "AddPackageAndVersionKeyData called with an empty package");
+                    return;
+                }
+
                 size_t packageIndex = m_packages.size();
                 std::string packageIdentifier = package->GetProperty(PackageProperty::Id);
 
