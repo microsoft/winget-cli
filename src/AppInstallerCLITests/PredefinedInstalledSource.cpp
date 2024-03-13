@@ -147,6 +147,11 @@ std::shared_ptr<ISource> CreatePredefinedInstalledSource(Factory::Filter filter 
     return factory->Create(details)->Open(progress);
 }
 
+SQLiteIndex CreateMemoryIndex()
+{
+    return SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless);
+}
+
 TEST_CASE("ARPHelper_GetARPForArchitecture", "[arphelper][list]")
 {
     auto systemArch = GetSystemArchitecture();
@@ -296,7 +301,7 @@ TEST_CASE("ARPHelper_PopulateIndexFromKey_Single", "[arphelper][list]")
 
     AddARPEntryToKey(root.get(), helper, entry);
 
-    auto index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET);
+    auto index = CreateMemoryIndex();
     helper.PopulateIndexFromKey(index, key, s_TestScope, "TestArchitecture");
 
     auto result = index.Search({});
@@ -332,7 +337,7 @@ TEST_CASE("ARPHelper_PopulateIndexFromKey_SingleValid", "[arphelper][list]")
         { "Nothing" },
         });
 
-    auto index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET);
+    auto index = CreateMemoryIndex();
     helper.PopulateIndexFromKey(index, key, s_TestScope, "TestArchitecture");
 
     auto result = index.Search({});
@@ -368,7 +373,7 @@ TEST_CASE("ARPHelper_PopulateIndexFromKey_Two", "[arphelper][list]")
     AddARPEntryToKey(root.get(), helper, entry1);
     AddARPEntryToKey(root.get(), helper, entry2);
 
-    auto index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET);
+    auto index = CreateMemoryIndex();
     helper.PopulateIndexFromKey(index, key, s_TestScope, "TestArchitecture");
 
     REQUIRE(index.Search({}).Matches.size() == 2);

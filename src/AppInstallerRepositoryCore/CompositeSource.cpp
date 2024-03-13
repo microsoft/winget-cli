@@ -350,6 +350,8 @@ namespace AppInstaller::Repository
 
             Utility::LocIndString GetProperty(PackageProperty property) const override
             {
+                THROW_HR_IF(E_UNEXPECTED, m_packages.empty() || m_versionKeyData.empty());
+
                 // Use the highest version for package properties
                 return m_packages[m_versionKeyData[0].PackageIndex]->GetProperty(property);
             }
@@ -520,6 +522,11 @@ namespace AppInstaller::Repository
                 }
             }
 
+            bool IsEmpty() const
+            {
+                return m_versionKeyData.empty();
+            }
+
         private:
             // Contains information about all of the version keys.
             // We use the `SourceId` field to store the installed package identifier so that we can disambiguate keys is they have the same version.
@@ -558,6 +565,12 @@ namespace AppInstaller::Repository
                     keyData.PackageIndex = packageIndex;
                     keyData.InstalledVersion = package->GetVersion(versionKey);
 
+                    if (!keyData.InstalledVersion)
+                    {
+                        AICLI_LOG(Repo, Verbose, << "AddPackageAndVersionKeyData: Package [" << packageIdentifier << "] did not return a version for [" << versionKey.Version << "]");
+                        continue;
+                    }
+
                     // We use the `SourceId` field to store the installed package identifier so that we can disambiguate keys is they have the same version.
                     keyData.SourceId = packageIdentifier;
 
@@ -594,6 +607,12 @@ namespace AppInstaller::Repository
                 if (installedPackage)
                 {
                     m_installedPackage = std::make_shared<CompositeInstalledPackage>(installedPackage->GetInstalled());
+
+                    // If the installed package result existed, but didn't actually create any installed versions, drop it.
+                    if (m_installedPackage->IsEmpty())
+                    {
+                        m_installedPackage.reset();
+                    }
                 }
 
                 AddAvailablePackage(availablePackage, setPrimary);
@@ -1685,7 +1704,13 @@ namespace AppInstaller::Repository
                         {
                             // TODO: Needs a whole separate change to fix the fact that we don't support multiple available packages and what the different search behaviors mean
                             foundInstalledMatch = true;
-                            result.Matches.emplace_back(std::make_shared<CompositePackage>(installedPackage, std::move(match.Package)), match.MatchCriteria);
+                            auto compositePackage = std::make_shared<CompositePackage>(installedPackage, std::move(match.Package));
+                            if (trackingPackage)
+                            {
+                                auto trackingPackageTime = GetLatestTrackingWriteTime(trackingPackage);
+                                compositePackage->SetTracking(source, std::move(trackingPackage), trackingPackageTime);
+                            }
+                            result.Matches.emplace_back(std::move(compositePackage), match.MatchCriteria);
                         }
                     }
                 }
