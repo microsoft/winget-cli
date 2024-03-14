@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
@@ -119,7 +119,6 @@ namespace AppInstaller::CLI
             Logging::Telemetry().LogCommand(command->FullName());
 
             command->ParseArguments(invocation, context.Args);
-
             context.UpdateForArgs();
             context.SetExecutingCommand(command.get());
             command->ValidateArguments(context.Args);
