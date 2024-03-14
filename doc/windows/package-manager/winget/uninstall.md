@@ -27,7 +27,7 @@ The following command aliases are available: \
 The following arguments are available.
 
 | Argument | Description |
-|-------------|-------------|  
+|-------------|-------------|
 | **-q,--query**  |  The query used to search for an app. |
 
 ## Options
@@ -35,7 +35,7 @@ The following arguments are available.
 The options allow you to customize the uninstall experience to meet your needs.
 
 | Option | Description |
-|--------|-------------|  
+|--------|-------------|
 | **-m, --manifest** | Must be followed by the path to the manifest (YAML) file. You can use the manifest to run the uninstall experience from a [local YAML file](#local-uninstall). |
 | **--id** | Limits the uninstall to the ID of the application. |
 | **--name** | Limits the search to the name of the application. |
@@ -63,7 +63,7 @@ Once you have successfully identified the application intended to uninstall, win
 
 ![uninstall command](images/uninstall-execute.png)
 
- 
+
 ### Example queries
 
 The following example uninstalls a specific version of an application.

@@ -1,0 +1,22 @@
+# top-most EditorConfig file
+root=true
+
+# Apply Windows-style newlines with a newline ending on every file, using UTF-8, and removing extra whitespace before newlines
+[*]
+end_of_line = crlf
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+
+# Overrides for Yaml Files - Use two spaces for indents
+# editorconfig/editorconfig#329
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Overrides for Markdown Files - Use tab for indents (accessibility)
+[*.md]
+indent_style = tab
+
+[{allow.txt,excludes.txt,patterns.txt}]
+end_of_line = lf

@@ -505,7 +505,7 @@ namespace ConfigurationSample
             fileOperation.AsTask().Wait();
             var file = fileOperation.GetResults();
             OpenConfigurationSetResult result = processor.OpenConfigurationSet(file);
-            
+
             if (result.Set != null)
             {
                 return result.Set;

@@ -29,7 +29,7 @@ Users should be able to specify the location for where the program is “install
 
 Some packages like GitLab Runner have a file name including extra metadata (gitlab-runner-windows-386.exe). The installation instructions suggest renaming the file after it has been downloaded. In that vein, a "--rename" argument should be added so the user can choose a value they prefer. To have the upgrade scenario honor the custom name, this information should be recorded in the installed packages data store.
 
-Portable / standalone executables should have their “command” value specified so the Windows Package Manager can determine the default value to use when creating a new entry in the "App Paths" registry during installation. If no command value is provided, then the entry will use the filename of the exe. 
+Portable / standalone executables should have their “command” value specified so the Windows Package Manager can determine the default value to use when creating a new entry in the "App Paths" registry during installation. If no command value is provided, then the entry will use the filename of the exe.
 
 Some portable applications generate or consume other files. An additional argument "--purge" will be added for the uninstall scenario to remove all files and subsequently the directory if the user wishes. The corollary argument "--preserve" will be used to preserve files if the default setting has been modified.
 
@@ -50,7 +50,7 @@ A related setting for the uninstall scenario will be able to specify the default
 
 ### Install
 
-When the portable application is being installed by the Windows Package Manager, an entry will be created in Windows Apps & Features so the user will be able to see that the application is installed. 
+When the portable application is being installed by the Windows Package Manager, an entry will be created in Windows Apps & Features so the user will be able to see that the application is installed.
 
 Once the portable application is copied to the appropriate install location based on the preferences of the user, a symlink will be created that points to the portable application. The locations where these symlinks will be stored are "%LOCALAPPDATA%/Microsoft/WinGet/Links/" for user based installs, "Program Files/WinGet/Links/" for machine wide x64 installs and "Program Files (x86)/WinGet/Links/" for machine wide x86 installs. We will then append these paths to the PATH environment variable if they do not exist already.
 
@@ -71,7 +71,7 @@ By default, portable apps will be installed with the "User" scope unless specifi
 
 #### Installation from multiple sources:
 
-If the user chooses to install the same package but from a secondary source, the Windows Package Manager will append the source name to subdirectory. For example, if GitLabRunner is installed a second time but from the msstore, then the full path would be "%LOCALAPPDATA%/Microsoft/WinGet/Packages/GitLab.GitLabRunner_msstore/". 
+If the user chooses to install the same package but from a secondary source, the Windows Package Manager will append the source name to subdirectory. For example, if GitLabRunner is installed a second time but from the msstore, then the full path would be "%LOCALAPPDATA%/Microsoft/WinGet/Packages/GitLab.GitLabRunner_msstore/".
 
 The same behavior will be applied when creating a symlink in order to avoid overwriting an existing symlink of the same package but from a different source. Using the same example, the generated symlink for GitLabRunner from the msstore will have a full path of "%LOCALAPPDATA%/Microsoft/WinGet/Links/GitLab.GitLabRunner_msstore.exe/"
 
@@ -79,7 +79,7 @@ The same behavior will be applied when creating a symlink in order to avoid over
 
 The package is upgraded in the same path as the installed version. The first step the Windows Package Manager will perform is to download the executable to a temporary location, and attempt to copy the exe to the specified install location. If an exe with the same name already exists, the Windows Package Manager will attempt to overwrite the file. If that process fails because the file is currently in use, the user will be informed the package is running so they can shut it down. Optionally, the user may specify "--force" to forcefully shut the application down for upgrade. Once the exe has successfully been copied to the specified install location, the entry in "Apps & Features" will be updated accordingly and the symlink will be overwritten to point to the latest portable exe.
 
-If the "UninstallPrevious" field is specified in the manifest, then the Windows Package Manager will perform an uninstall of the previous version of the package prior to installing the newer version. 
+If the "UninstallPrevious" field is specified in the manifest, then the Windows Package Manager will perform an uninstall of the previous version of the package prior to installing the newer version.
 
 A new Windows Apps & Features entry is created to correctly report the upgraded version for future potential upgrades.
 
@@ -91,7 +91,7 @@ The executable and the symlink should be removed along with the entry in Apps & 
 
 >Note: The default behavior for uninstalling a portable application with Windows Apps & Features will be to execute uninstall without "--purge" so any files created by the portable application will be remain if they are located in the portable applications directory. An additional argument for "--wait" will be added that will prompt the user to press any key to exit. This is intended to support this scenario so that the user is aware of any remaining files if they choose to uninstall through Windows Apps & Features.
 
-If the directory is empty after removing the portable application, the directory should also be deleted. If the directory is not empty, the user should be informed that other files exist in the directory so it will not be removed. 
+If the directory is empty after removing the portable application, the directory should also be deleted. If the directory is not empty, the user should be informed that other files exist in the directory so it will not be removed.
 
 ### Manifest Validation
 
@@ -149,7 +149,7 @@ Package in use. Either exit the program or use "--force" to upgrade.
 ### Uninstalling a portable package
 
 ```text
-winget uninstall NuGet 
+winget uninstall NuGet
 Found NuGet [Microsoft.NuGet]
 Starting package uninstall...
 Successfully uninstalled
@@ -158,11 +158,11 @@ Successfully uninstalled
 If the portable application created files in the portable application's directory, the user will be informed.
 
 ```text
-winget uninstall NuGet 
+winget uninstall NuGet
 Found NuGet [Microsoft.NuGet]
 Starting package uninstall...
-The "--purge" argument was not specified. 
-Files still exist in "%LOCALAPPDATA%/WinGet_Packages/User/Microsoft.NuGet/". 
+The "--purge" argument was not specified.
+Files still exist in "%LOCALAPPDATA%/WinGet_Packages/User/Microsoft.NuGet/".
 Successfully uninstalled
 ```
 

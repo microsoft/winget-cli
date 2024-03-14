@@ -17,7 +17,7 @@ jobs:
         with:
           issuetitle: ${{ github.event.issue.title }}
           repo: ${{ github.repository }}
-          similaritytolerance: "0.7"
+          similaritytolerance: '0.75'
   add-comment:
     needs: getSimilarIssues
     runs-on: ubuntu-latest

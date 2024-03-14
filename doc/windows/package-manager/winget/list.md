@@ -1,6 +1,6 @@
 ---
 title: features Command
-description: Displays the list of listed apps and if an update is available. 
+description: Displays the list of listed apps and if an update is available.
 ms.date: 05/5/2021
 ms.topic: overview
 ms.localizationpriority: medium
@@ -12,7 +12,7 @@ The **list** command of the [winget](index.md) tool displays a list of the appli
 
 In addition, the **list** command will also display if an update is available for an app, and you can use the [**upgrade**](upgrade.md) command to update the app.
 
-The **list** command also supports filters which can be used to limit your list query. 
+The **list** command also supports filters which can be used to limit your list query.
 
 ## Usage
 
@@ -28,20 +28,20 @@ The following command aliases are available: \
 The following arguments are available.
 
 | Argument | Description |
-|-------------|-------------|  
+|-------------|-------------|
 | **-q,--query** | The query used to search for an app. |
 
 ## Options
 
 The options allow you to customize the list experience to meet your needs.
 | Option | Description |
-|--------|-------------|  
+|--------|-------------|
 | **--id** | Limits the list to the ID of the application. |
 | **--name** | Limits the list to the name of the application. |
 | **--moniker** | Limits the list to the moniker listed for the application. |
-| **-s, --source** | Restricts the list to the source name provided. Must be followed by the source name. |  
-| **--tag** | Filters results by tags. |  
-| **--command** | Filters results by command specified by the application. |  
+| **-s, --source** | Restricts the list to the source name provided. Must be followed by the source name. |
+| **--tag** | Filters results by tags. |
+| **--command** | Filters results by command specified by the application. |
 | **-n, --count** | Limits the number of apps displayed in one query. |
 | **-e, --exact** | Uses the exact string in the list query, including checking for case-sensitivity. It will not use the default behavior of a substring. |
 | **--scope** | Select installed package scope filter (user or machine). |
