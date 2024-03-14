@@ -332,6 +332,8 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     details.Type = "thisIsTheType";
     details.Arg = "thisIsTheArg";
     details.Data = "thisIsTheData";
+    details.TrustLevel = Repository::SourceTrustLevel::None;
+    details.Explicit = false;
 
     bool addCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
@@ -352,6 +354,8 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     REQUIRE(sources[0].Data == details.Data);
     REQUIRE(sources[0].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
     REQUIRE(sources[0].Origin == SourceOrigin::User);
+    REQUIRE(sources[0].TrustLevel == details.TrustLevel);
+    REQUIRE(sources[0].Explicit == details.Explicit);
 
     RequireDefaultSourcesAt(sources, 1);
 }
