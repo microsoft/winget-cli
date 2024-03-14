@@ -91,7 +91,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!accepted && IsInteractivityAllowed(context))
             {
-                accepted = context.Reporter.PromptForBoolResponse(Resource::String::SourceAgreementsPrompt, Reporter::Level::Info, false);
+                accepted = context.Reporter.PromptForBoolResponse(Resource::String::SourceAgreementsPrompt);
             }
 
             if (accepted)
@@ -296,6 +296,10 @@ namespace AppInstaller::CLI::Workflow
 
                 AICLI_LOG(CLI, Info, << "Prompting for install root.");
                 m_installLocation = context.Reporter.PromptForPath(Resource::String::PromptForInstallRoot);
+                if (m_installLocation.empty())
+                {
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_LOCATION_REQUIRED);
+                }
                 AICLI_LOG(CLI, Info, << "Proceeding with installation using install root: " << m_installLocation);
             }
 
@@ -355,7 +359,7 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
 
-                bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PromptToProceed, Reporter::Level::Warning);
+                bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PromptToProceed, Reporter::Level::Warning, true);
                 if (accepted)
                 {
                     AICLI_LOG(CLI, Info, << "Proceeding with installation");
