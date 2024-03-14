@@ -19,6 +19,9 @@ namespace AppInstaller::Settings
         constexpr Utility::LocIndView s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore = "BypassCertificatePinningForMicrosoftStore"_liv;
         constexpr Utility::LocIndView s_AdminSettingsYaml_InstallerHashOverride = "InstallerHashOverride"_liv;
         constexpr Utility::LocIndView s_AdminSettingsYaml_LocalArchiveMalwareScanOverride = "LocalArchiveMalwareScanOverride"_liv;
+        constexpr Utility::LocIndView s_AdminSettingsYaml_ProxyCommandLineOptions = "ProxyCommandLineOptions"_liv;
+
+        constexpr Utility::LocIndView s_AdminSettingsYaml_DefaultProxy = "DefaultProxy"_liv;
 
         // Attempts to read a single scalar value from the node.
         template<typename Value>
@@ -42,19 +45,29 @@ namespace AppInstaller::Settings
             bool BypassCertificatePinningForMicrosoftStore = false;
             bool InstallerHashOverride = false;
             bool LocalArchiveMalwareScanOverride = false;
+            bool ProxyCommandLineOptions = false;
+
+            std::optional<std::string> DefaultProxy;
         };
 
         struct AdminSettingsInternal
         {
             AdminSettingsInternal();
 
-            void SetAdminSetting(AdminSetting setting, bool enabled);
+            void SetAdminSetting(BoolAdminSetting setting, bool enabled);
+            void SetAdminSetting(StringAdminSetting setting, const std::optional<std::string>& value);
 
-            bool GetAdminSettingBoolValue(AdminSetting setting) const;
+            bool GetAdminSettingValue(BoolAdminSetting setting) const;
+            std::optional<std::string> GetAdminSettingValue(StringAdminSetting setting) const;
 
         private:
             void LoadAdminSettings();
             [[nodiscard]] bool SaveAdminSettings();
+
+            // Sets the value of an admin setting using the given function and then saves the changes.
+            // Encapsulates the retry and reload logic.
+            // Stops if the value cannot be set, as indicated by the return value of setValue()
+            void SetAdminSettingAndSave(std::function<bool()> setValue);
 
             Stream m_settingStream;
             AdminSettingValues m_settingValues;
@@ -65,25 +78,12 @@ namespace AppInstaller::Settings
             LoadAdminSettings();
         }
 
-        void AdminSettingsInternal::SetAdminSetting(AdminSetting setting, bool enabled)
+        void AdminSettingsInternal::SetAdminSettingAndSave(std::function<bool()> setValue)
         {
             for (size_t i = 0; i < 10; ++i)
             {
-                switch (setting)
+                if (!setValue())
                 {
-                case AdminSetting::LocalManifestFiles:
-                    m_settingValues.LocalManifestFiles = enabled;
-                    break;
-                case AdminSetting::BypassCertificatePinningForMicrosoftStore:
-                    m_settingValues.BypassCertificatePinningForMicrosoftStore = enabled;
-                    break;
-                case AdminSetting::InstallerHashOverride:
-                    m_settingValues.InstallerHashOverride = enabled;
-                    break;
-                case AdminSetting::LocalArchiveMalwareScanOverride:
-                    m_settingValues.LocalArchiveMalwareScanOverride = enabled;
-                    break;
-                default:
                     return;
                 }
 
@@ -99,20 +99,75 @@ namespace AppInstaller::Settings
             THROW_HR_MSG(E_UNEXPECTED, "Too many attempts at SaveAdminSettings");
         }
 
-        bool AdminSettingsInternal::GetAdminSettingBoolValue(AdminSetting setting) const
+        void AdminSettingsInternal::SetAdminSetting(BoolAdminSetting setting, bool enabled)
+        {
+            SetAdminSettingAndSave([&]()
+                {
+                    switch (setting)
+                    {
+                    case BoolAdminSetting::LocalManifestFiles:
+                        m_settingValues.LocalManifestFiles = enabled;
+                        return true;
+                    case BoolAdminSetting::BypassCertificatePinningForMicrosoftStore:
+                        m_settingValues.BypassCertificatePinningForMicrosoftStore = enabled;
+                        return true;
+                    case BoolAdminSetting::InstallerHashOverride:
+                        m_settingValues.InstallerHashOverride = enabled;
+                        return true;
+                    case BoolAdminSetting::LocalArchiveMalwareScanOverride:
+                        m_settingValues.LocalArchiveMalwareScanOverride = enabled;
+                        return true;
+                    case BoolAdminSetting::ProxyCommandLineOptions:
+                        m_settingValues.ProxyCommandLineOptions = enabled;
+                        return true;
+                    default:
+                        return false;
+                    }
+                });
+        }
+
+        void AdminSettingsInternal::SetAdminSetting(StringAdminSetting setting, const std::optional<std::string>& value)
+        {
+            SetAdminSettingAndSave([&]()
+                {
+                    switch (setting)
+                    {
+                    case StringAdminSetting::DefaultProxy:
+                        m_settingValues.DefaultProxy = value;
+                        return true;
+                    default:
+                        return false;
+                    }
+                });
+        }
+
+        bool AdminSettingsInternal::GetAdminSettingValue(BoolAdminSetting setting) const
         {
             switch (setting)
             {
-            case AdminSetting::LocalManifestFiles:
+            case BoolAdminSetting::LocalManifestFiles:
                 return m_settingValues.LocalManifestFiles;
-            case AdminSetting::BypassCertificatePinningForMicrosoftStore:
+            case BoolAdminSetting::BypassCertificatePinningForMicrosoftStore:
                 return m_settingValues.BypassCertificatePinningForMicrosoftStore;
-            case AdminSetting::InstallerHashOverride:
+            case BoolAdminSetting::InstallerHashOverride:
                 return m_settingValues.InstallerHashOverride;
-            case AdminSetting::LocalArchiveMalwareScanOverride:
+            case BoolAdminSetting::LocalArchiveMalwareScanOverride:
                 return m_settingValues.LocalArchiveMalwareScanOverride;
+            case BoolAdminSetting::ProxyCommandLineOptions:
+                return m_settingValues.ProxyCommandLineOptions;
             default:
                 return false;
+            }
+        }
+
+        std::optional<std::string> AdminSettingsInternal::GetAdminSettingValue(StringAdminSetting setting) const
+        {
+            switch (setting)
+            {
+            case StringAdminSetting::DefaultProxy:
+                return m_settingValues.DefaultProxy;
+            default:
+                return std::nullopt;
             }
         }
 
@@ -154,6 +209,13 @@ namespace AppInstaller::Settings
             TryReadScalar<bool>(document, s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore, m_settingValues.BypassCertificatePinningForMicrosoftStore);
             TryReadScalar<bool>(document, s_AdminSettingsYaml_InstallerHashOverride, m_settingValues.InstallerHashOverride);
             TryReadScalar<bool>(document, s_AdminSettingsYaml_LocalArchiveMalwareScanOverride, m_settingValues.LocalArchiveMalwareScanOverride);
+            TryReadScalar<bool>(document, s_AdminSettingsYaml_ProxyCommandLineOptions, m_settingValues.ProxyCommandLineOptions);
+
+            std::string defaultProxy;
+            if (TryReadScalar<std::string>(document, s_AdminSettingsYaml_DefaultProxy, defaultProxy))
+            {
+                m_settingValues.DefaultProxy.emplace(std::move(defaultProxy));
+            }
         }
 
         bool AdminSettingsInternal::SaveAdminSettings()
@@ -164,74 +226,128 @@ namespace AppInstaller::Settings
             out << YAML::Key << s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore << YAML::Value << m_settingValues.BypassCertificatePinningForMicrosoftStore;
             out << YAML::Key << s_AdminSettingsYaml_InstallerHashOverride << YAML::Value << m_settingValues.InstallerHashOverride;
             out << YAML::Key << s_AdminSettingsYaml_LocalArchiveMalwareScanOverride << YAML::Value << m_settingValues.LocalArchiveMalwareScanOverride;
+            out << YAML::Key << s_AdminSettingsYaml_ProxyCommandLineOptions << YAML::Value << m_settingValues.ProxyCommandLineOptions;
+
+            if (m_settingValues.DefaultProxy)
+            {
+                out << YAML::Key << s_AdminSettingsYaml_DefaultProxy << YAML::Value << m_settingValues.DefaultProxy.value();
+            }
+
             out << YAML::EndMap;
 
             return m_settingStream.Set(out.str());
         }
+
+        auto GetPolicyStateForSetting(BoolAdminSetting setting)
+        {
+            auto policy = GetAdminSettingPolicy(setting);
+            return GroupPolicies().GetState(policy);
+        }
+
+        std::optional<std::reference_wrapper<const std::string>> GetPolicyStateForSetting(StringAdminSetting setting)
+        {
+            switch (setting)
+            {
+            case AppInstaller::Settings::StringAdminSetting::DefaultProxy:
+                return GroupPolicies().GetValueRef<ValuePolicy::DefaultProxy>();
+            default:
+                return std::nullopt;
+            }
+        }
     }
 
-    AdminSetting StringToAdminSetting(std::string_view in)
+    BoolAdminSetting StringToBoolAdminSetting(std::string_view in)
     {
-        AdminSetting result = AdminSetting::Unknown;
+        BoolAdminSetting result = BoolAdminSetting::Unknown;
 
         if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_LocalManifestFiles, in))
         {
-            result = AdminSetting::LocalManifestFiles;
+            result = BoolAdminSetting::LocalManifestFiles;
         }
         else if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore, in))
         {
-            result = AdminSetting::BypassCertificatePinningForMicrosoftStore;
+            result = BoolAdminSetting::BypassCertificatePinningForMicrosoftStore;
         }
         else if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_InstallerHashOverride, in))
         {
-            result = AdminSetting::InstallerHashOverride;
+            result = BoolAdminSetting::InstallerHashOverride;
         }
         else if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_LocalArchiveMalwareScanOverride, in))
         {
-            result = AdminSetting::LocalArchiveMalwareScanOverride;
+            result = BoolAdminSetting::LocalArchiveMalwareScanOverride;
+        }
+        else if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_ProxyCommandLineOptions, in))
+        {
+            result = BoolAdminSetting::ProxyCommandLineOptions;
         }
 
         return result;
     }
 
-    Utility::LocIndView AdminSettingToString(AdminSetting setting)
+    StringAdminSetting StringToStringAdminSetting(std::string_view in)
+    {
+        StringAdminSetting result = StringAdminSetting::Unknown;
+
+        if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_DefaultProxy, in))
+        {
+            result = StringAdminSetting::DefaultProxy;
+        }
+
+        return result;
+    }
+
+    Utility::LocIndView AdminSettingToString(BoolAdminSetting setting)
     {
         switch (setting)
         {
-        case AdminSetting::LocalManifestFiles:
+        case BoolAdminSetting::LocalManifestFiles:
             return s_AdminSettingsYaml_LocalManifestFiles;
-        case AdminSetting::BypassCertificatePinningForMicrosoftStore:
+        case BoolAdminSetting::BypassCertificatePinningForMicrosoftStore:
             return s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore;
-        case AdminSetting::InstallerHashOverride:
+        case BoolAdminSetting::InstallerHashOverride:
             return s_AdminSettingsYaml_InstallerHashOverride;
-        case AdminSetting::LocalArchiveMalwareScanOverride:
+        case BoolAdminSetting::LocalArchiveMalwareScanOverride:
             return s_AdminSettingsYaml_LocalArchiveMalwareScanOverride;
+        case BoolAdminSetting::ProxyCommandLineOptions:
+            return s_AdminSettingsYaml_ProxyCommandLineOptions;
         default:
             return "Unknown"_liv;
         }
     }
 
-    TogglePolicy::Policy GetAdminSettingPolicy(AdminSetting setting)
+    Utility::LocIndView AdminSettingToString(StringAdminSetting setting)
     {
         switch (setting)
         {
-        case AdminSetting::LocalManifestFiles:
+        case StringAdminSetting::DefaultProxy:
+            return s_AdminSettingsYaml_DefaultProxy;
+        default:
+            return "Unknown"_liv;
+        }
+    }
+
+    TogglePolicy::Policy GetAdminSettingPolicy(BoolAdminSetting setting)
+    {
+        switch (setting)
+        {
+        case BoolAdminSetting::LocalManifestFiles:
             return TogglePolicy::Policy::LocalManifestFiles;
-        case AdminSetting::BypassCertificatePinningForMicrosoftStore:
+        case BoolAdminSetting::BypassCertificatePinningForMicrosoftStore:
             return TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore;
-        case AdminSetting::InstallerHashOverride:
+        case BoolAdminSetting::InstallerHashOverride:
             return TogglePolicy::Policy::HashOverride;
-        case AdminSetting::LocalArchiveMalwareScanOverride:
+        case BoolAdminSetting::LocalArchiveMalwareScanOverride:
             return TogglePolicy::Policy::LocalArchiveMalwareScanOverride;
+        case BoolAdminSetting::ProxyCommandLineOptions:
+            return TogglePolicy::Policy::ProxyCommandLineOptions;
         default:
             return TogglePolicy::Policy::None;
         }
     }
 
-    bool EnableAdminSetting(AdminSetting setting)
+    bool EnableAdminSetting(BoolAdminSetting setting)
     {
-        auto policy = GetAdminSettingPolicy(setting);
-        if (GroupPolicies().GetState(policy) == PolicyState::Disabled)
+        if (GetPolicyStateForSetting(setting) == PolicyState::Disabled)
         {
             return false;
         }
@@ -241,10 +357,9 @@ namespace AppInstaller::Settings
         return true;
     }
 
-    bool DisableAdminSetting(AdminSetting setting)
+    bool DisableAdminSetting(BoolAdminSetting setting)
     {
-        auto policy = GetAdminSettingPolicy(setting);
-        if (GroupPolicies().GetState(policy) == PolicyState::Enabled)
+        if (GetPolicyStateForSetting(setting) == PolicyState::Enabled)
         {
             return false;
         }
@@ -254,31 +369,64 @@ namespace AppInstaller::Settings
         return true;
     }
 
-    bool IsAdminSettingEnabled(AdminSetting setting)
+    bool IsAdminSettingEnabled(BoolAdminSetting setting)
     {
         // Check for a policy that overrides this setting.
-        auto policy = GetAdminSettingPolicy(setting);
-        auto policyState = GroupPolicies().GetState(policy);
+        auto policyState = GetPolicyStateForSetting(setting);
         if (policyState != PolicyState::NotConfigured)
         {
             return policyState == PolicyState::Enabled;
         }
 
         AdminSettingsInternal adminSettingsInternal;
-        return adminSettingsInternal.GetAdminSettingBoolValue(setting);
+        return adminSettingsInternal.GetAdminSettingValue(setting);
     }
 
-    std::vector<AdminSetting> GetAllAdminSettings()
+    bool SetAdminSetting(StringAdminSetting setting, std::string_view value)
     {
-        std::vector<AdminSetting> result;
-        using AdminSetting_t = std::underlying_type_t<AdminSetting>;
-
-        // Skip Unknown.
-        for (AdminSetting_t i = 1 + static_cast<AdminSetting_t>(AdminSetting::Unknown); i < static_cast<AdminSetting_t>(AdminSetting::Max); ++i)
+        if (GetPolicyStateForSetting(setting))
         {
-            result.emplace_back(static_cast<AdminSetting>(i));;
+            return false;
         }
 
-        return result;
+        AdminSettingsInternal adminSettingsInternal;
+        adminSettingsInternal.SetAdminSetting(setting, std::string{ value });
+        return true;
     }
+
+    bool ResetAdminSetting(StringAdminSetting setting)
+    {
+        if (GetPolicyStateForSetting(setting))
+        {
+            return false;
+        }
+
+        AdminSettingsInternal adminSettingsInternal;
+        adminSettingsInternal.SetAdminSetting(setting, std::nullopt);
+        return true;
+    }
+
+    std::optional<std::string> GetAdminSetting(StringAdminSetting setting)
+    {
+        // Check for a policy that overrides this setting.
+        auto policyState = GetPolicyStateForSetting(setting);
+        if (policyState)
+        {
+            return policyState.value();
+        }
+
+        AdminSettingsInternal adminSettingsInternal;
+        return adminSettingsInternal.GetAdminSettingValue(setting);
+    }
+
+    std::vector<BoolAdminSetting> GetAllBoolAdminSettings()
+    {
+        return GetAllSequentialEnumValues(BoolAdminSetting::Unknown);
+    }
+
+    std::vector<StringAdminSetting> GetAllStringAdminSettings()
+    {
+        return GetAllSequentialEnumValues(StringAdminSetting::Unknown);
+    }
+
 }

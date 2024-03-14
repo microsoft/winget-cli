@@ -9,6 +9,7 @@
 #include <winget/Checkpoint.h>
 #include <winget/Reboot.h>
 #include <winget/UserSettings.h>
+#include <winget/NetworkSettings.h>
 
 using namespace AppInstaller::Checkpoints;
 
@@ -349,6 +350,23 @@ namespace AppInstaller::CLI::Execution
 
     void Context::UpdateForArgs()
     {
+        // Change logging level to Info if Verbose not requested
+        if (Args.Contains(Args::Type::VerboseLogs))
+        {
+            Logging::Log().SetLevel(Logging::Level::Verbose);
+        }
+
+        // Set proxy
+        if (Args.Contains(Args::Type::Proxy))
+        {
+            Network().SetProxyUri(std::string{ Args.GetArg(Args::Type::Proxy) });
+        }
+        else if (Args.Contains(Args::Type::NoProxy))
+        {
+            Network().SetProxyUri(std::nullopt);
+        }
+
+        // Set visual style
         if (Args.Contains(Args::Type::NoVT))
         {
             Reporter.SetStyle(VisualStyle::NoVT);

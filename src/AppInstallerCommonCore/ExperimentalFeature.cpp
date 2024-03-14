@@ -44,6 +44,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFResume>();
             case ExperimentalFeature::Feature::Configuration03:
                 return userSettings.Get<Setting::EFConfiguration03>();
+            case ExperimentalFeature::Feature::Proxy:
+                return userSettings.Get<Setting::EFProxy>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -77,6 +79,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Resume", "resume", "https://aka.ms/winget-settings", Feature::Resume };
         case Feature::Configuration03:
             return ExperimentalFeature{ "Configuration Schema 0.3", "configuration03", "https://aka.ms/winget-settings", Feature::Configuration03 };
+        case Feature::Proxy:
+            return ExperimentalFeature{ "Proxy", "proxy", "https://aka.ms/winget-settings", Feature::Proxy };
         default:
             THROW_HR(E_UNEXPECTED);
         }

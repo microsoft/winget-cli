@@ -59,8 +59,8 @@ namespace AppInstaller::Manifest
             {
                 AICLI_LOG(Core, Info, << "Start downloading installer");
                 auto tempFile = Runtime::GetNewTempFilePath();
-                ProgressCallback callback;
-                Utility::Download(installerUrl, tempFile, Utility::DownloadType::Installer, callback);
+                ProgressCallback emptyCallback;
+                Utility::Download(installerUrl, tempFile, Utility::DownloadType::Installer, emptyCallback);
                 m_downloadedInstallers.push_back(tempFile);
                 return tempFile;
             }

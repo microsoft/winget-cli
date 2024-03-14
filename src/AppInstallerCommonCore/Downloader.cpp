@@ -9,6 +9,7 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerTelemetry.h"
 #include "Public/winget/UserSettings.h"
+#include "Public/winget/NetworkSettings.h"
 #include "Public/winget/Filesystem.h"
 #include "DODownloader.h"
 #include "HttpStream/HttpRandomAccessStream.h"
@@ -103,12 +104,29 @@ namespace AppInstaller::Utility
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
         auto agentWide = Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent().get());
-        wil::unique_hinternet session(InternetOpen(
-            agentWide.c_str(),
-            INTERNET_OPEN_TYPE_PRECONFIG,
-            NULL,
-            NULL,
-            0));
+        wil::unique_hinternet session;
+
+        const auto& proxyUri = Network().GetProxyUri();
+        if (proxyUri)
+        {
+            AICLI_LOG(Core, Info, << "Using proxy " << proxyUri.value());
+            session.reset(InternetOpen(
+                agentWide.c_str(),
+                INTERNET_OPEN_TYPE_PROXY,
+                Utility::ConvertToUTF16(proxyUri.value()).c_str(),
+                NULL,
+                0));
+        }
+        else
+        {
+            session.reset(InternetOpen(
+                agentWide.c_str(),
+                INTERNET_OPEN_TYPE_PRECONFIG,
+                NULL,
+                NULL,
+                0));
+        }
+
         THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
 
         auto urlWide = Utility::ConvertToUTF16(url);
@@ -224,6 +242,7 @@ namespace AppInstaller::Utility
 
     std::map<std::string, std::string> GetHeaders(std::string_view url)
     {
+        // TODO: Use proxy info. HttpClient does not support using a custom proxy, only using the system-wide one.
         AICLI_LOG(Core, Verbose, << "Retrieving headers from url: " << url);
 
         HttpBaseProtocolFilter filter;
@@ -296,11 +315,7 @@ namespace AppInstaller::Utility
         //  - WinGetUtil :: Intentionally not using DO at this time
         if (type == DownloadType::Installer)
         {
-            // Determine whether to try DO first or not, as this is the only choice currently supported.
-            InstallerDownloader setting = User().Get<Setting::NetworkDownloader>();
-
-            if (setting == InstallerDownloader::Default ||
-                setting == InstallerDownloader::DeliveryOptimization)
+            if (Network().GetInstallerDownloader() == InstallerDownloader::DeliveryOptimization)
             {
                 try
                 {

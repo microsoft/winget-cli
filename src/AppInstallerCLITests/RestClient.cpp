@@ -47,11 +47,11 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     IRestClient::Information info{ "TestId", { "1.0.0" } };
 
     Version version{ "1.0.0" };
-    REQUIRE(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, version)->GetVersion() == version);
+    REQUIRE(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, version, {})->GetVersion() == version);
 
     // Update this test to next version so that we don't forget to add to supported versions before rest e2e tests are available.
     Version invalid{ "1.8.0" };
-    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, invalid), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
+    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, info, {}, invalid, {}), APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
 
     Authentication::AuthenticationArguments authArgs;
     authArgs.Mode = Authentication::AuthenticationMode::Silent;
@@ -60,12 +60,12 @@ TEST_CASE("GetSupportedInterface", "[RestSource]")
     // GetSupportedInterface throws on unknown authentication type.
     IRestClient::Information infoWithUnknownAuthenticationType{ "TestId", { "1.7.0" } };
     infoWithUnknownAuthenticationType.Authentication.Type = Authentication::AuthenticationType::Unknown;
-    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, infoWithUnknownAuthenticationType, authArgs, version_1_7), APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, infoWithUnknownAuthenticationType, authArgs, version_1_7, {}), APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
 
     // GetSupportedInterface throws on invalid authentication info.
     IRestClient::Information infoWithInvalidAuthenticationInfo{ "TestId", { "1.7.0" } };
     infoWithInvalidAuthenticationInfo.Authentication.Type = Authentication::AuthenticationType::MicrosoftEntraId;
-    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, infoWithInvalidAuthenticationInfo, authArgs, version_1_7), APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO);
+    REQUIRE_THROWS_HR(RestClient::GetSupportedInterface(TestRestUri, {}, infoWithInvalidAuthenticationInfo, authArgs, version_1_7, {}), APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO);
 }
 
 TEST_CASE("GetInformation_Success", "[RestSource]")
@@ -277,7 +277,7 @@ TEST_CASE("RestClientCreate_UnsupportedVersion", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
+    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, std::move(helper)), APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE);
 }
 
 TEST_CASE("RestClientCreate_UnsupportedAuthenticationMethod", "[RestSource]")
@@ -297,7 +297,7 @@ TEST_CASE("RestClientCreate_UnsupportedAuthenticationMethod", "[RestSource]")
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
     Authentication::AuthenticationArguments authArgs;
     authArgs.Mode = Authentication::AuthenticationMode::Silent;
-    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, std::move(authArgs), std::move(helper)), APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
+    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, std::move(helper), std::move(authArgs)), APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
 }
 
 TEST_CASE("RestClientCreate_InvalidAuthenticationArguments", "[RestSource]")
@@ -320,7 +320,7 @@ TEST_CASE("RestClientCreate_InvalidAuthenticationArguments", "[RestSource]")
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
     Authentication::AuthenticationArguments authArgs;
     authArgs.Mode = Authentication::AuthenticationMode::Unknown;
-    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, std::move(authArgs), std::move(helper)), E_UNEXPECTED);
+    REQUIRE_THROWS_HR(RestClient::Create("https://restsource.com/api", {}, {}, std::move(helper), std::move(authArgs)), E_UNEXPECTED);
 }
 
 TEST_CASE("RestClientCreate_1.0_Success", "[RestSource]")
@@ -335,7 +335,7 @@ TEST_CASE("RestClientCreate_1.0_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(TestRestUri, {}, {}, {}, std::move(helper));
+    RestClient client = RestClient::Create(TestRestUri, {}, {}, std::move(helper), {});
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }
 
@@ -372,7 +372,7 @@ TEST_CASE("RestClientCreate_1.1_Success", "[RestSource]")
         }})delimiter");
 
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(TestRestUri, {}, {}, {}, std::move(helper));
+    RestClient client = RestClient::Create(TestRestUri, {}, {}, std::move(helper));
     REQUIRE(client.GetSourceIdentifier() == "Source123");
     auto information = client.GetSourceInformation();
     REQUIRE(information.SourceAgreementsIdentifier == "agreementV1");
@@ -438,7 +438,7 @@ TEST_CASE("RestClientCreate_1.7_Success", "[RestSource]")
     Authentication::AuthenticationArguments authArgs;
     authArgs.Mode = Authentication::AuthenticationMode::Silent;
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, sample) };
-    RestClient client = RestClient::Create(TestRestUri, {}, {}, std::move(authArgs), std::move(helper));
+    RestClient client = RestClient::Create(TestRestUri, {}, {}, std::move(helper), std::move(authArgs));
     REQUIRE(client.GetSourceIdentifier() == "Source123");
     auto information = client.GetSourceInformation();
     REQUIRE(information.SourceAgreementsIdentifier == "agreementV1");

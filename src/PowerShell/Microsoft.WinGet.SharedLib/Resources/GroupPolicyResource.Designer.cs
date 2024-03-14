@@ -151,6 +151,15 @@ namespace Microsoft.WinGet.SharedLib.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enable Windows Package Manager proxy command line options.
+        /// </summary>
+        internal static string PolicyEnableProxyCommandLineOptions {
+            get {
+                return ResourceManager.GetString("PolicyEnableProxyCommandLineOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable Windows Package Manager command line interfaces.
         /// </summary>
         internal static string PolicyEnableWindowsPackageManagerCommandLineInterfaces {

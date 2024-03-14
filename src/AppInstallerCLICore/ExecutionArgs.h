@@ -89,6 +89,8 @@ namespace AppInstaller::CLI::Execution
             // Setting Command
             AdminSettingEnable,
             AdminSettingDisable,
+            SettingName,
+            SettingValue,
 
             // Upgrade command
             All, // Used in Update command to update all installed packages to latest
@@ -139,6 +141,10 @@ namespace AppInstaller::CLI::Execution
 
             AuthenticationMode, // Authentication mode (silent, silentPreferred or interactive)
             AuthenticationAccount, // Authentication account to be used
+
+            // Network Behavior
+            Proxy, // Set a proxy to use in this execution
+            NoProxy, // Do not use the default proxy
 
             ToolVersion,
 

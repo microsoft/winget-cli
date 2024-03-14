@@ -7,13 +7,16 @@
 #include <AppInstallerRuntime.h>
 #include <AppInstallerMsixInfo.h>
 #include <winget/AdminSettings.h>
+#include <winget/GroupPolicy.h>
 #include <winget/ManifestYamlWriter.h>
+#include <winget/NetworkSettings.h>
 
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Manifest;
     using namespace AppInstaller::Repository;
     using namespace AppInstaller::Utility;
+    using namespace AppInstaller::Settings;
     using namespace std::string_view_literals;
 
     namespace
@@ -211,14 +214,18 @@ namespace AppInstaller::CLI::Workflow
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:
-                if (installer.SignatureSha256.empty() || installerDownloadOnly)
+                // If the signature hash is provided in the manifest and we are doing an install,
+                // we can just verify signature hash without a full download and do a streaming install.
+                // Even if we have the signature hash, we still do a full download if InstallerDownloadOnly
+                // flag is set, or if we need to use a proxy (as deployment APIs won't use proxy for us).
+                if (installer.SignatureSha256.empty()
+                    || installerDownloadOnly
+                    || Network().GetProxyUri())
                 {
-                    // If InstallerDownloadOnly flag is set, always download the installer file.
                     context << DownloadInstallerFile;
                 }
                 else
                 {
-                    // Signature hash provided. No download needed. Just verify signature hash.
                     context << GetMsixSignatureHash;
                 }
                 break;
@@ -386,6 +393,7 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& installer = context.Get<Execution::Data::Installer>().value();
 
+            // Signature hash is only used for streaming installs, which don't use proxy
             Msix::MsixInfo msixInfo(installer.Url);
             auto signatureHash = msixInfo.GetSignatureHash();
 
@@ -422,7 +430,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Error() << Resource::String::InstallerHashMismatchAdminBlock << std::endl;
             }
-            else if (!Settings::IsAdminSettingEnabled(Settings::AdminSetting::InstallerHashOverride))
+            else if (!Settings::IsAdminSettingEnabled(Settings::BoolAdminSetting::InstallerHashOverride))
             {
                 context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
             }

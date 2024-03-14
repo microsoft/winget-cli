@@ -16,8 +16,26 @@
           "description": "Enable installing local manifests.",
           "type": "boolean",
           "default": false
+        },
+        "InstallerHashOverride": {
+          "description": "Enable overriding installer hash validation.",
+          "type": "boolean",
+          "default": false
+        },
+        "LocalArchiveMalwareScanOverride": {
+          "description": "Enable overriding malware scan for local archives.",
+          "type": "boolean",
+          "default": false
+        },
+        "ProxyCommandLineOptions": {
+          "description": "Enable using command line options for proxy.",
+          "type": "boolean",
+          "default": false
+        },
+        "DefaultProxy": {
+          "description": "Default proxy.",
+          "type": "string"
         }
-      }
     },
     "UserSettingsFile": {
       "description": "Path for the winget's user settings file.",

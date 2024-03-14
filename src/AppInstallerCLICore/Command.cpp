@@ -637,7 +637,7 @@ namespace AppInstaller::CLI
                 throw GroupPolicyException(arg.GroupPolicy());
             }
 
-            if (arg.AdminSetting() != AdminSetting::Unknown && !Settings::IsAdminSettingEnabled(arg.AdminSetting()) && execArgs.Contains(arg.ExecArgType()))
+            if (arg.AdminSetting() != BoolAdminSetting::Unknown && !Settings::IsAdminSettingEnabled(arg.AdminSetting()) && execArgs.Contains(arg.ExecArgType()))
             {
                 auto setting = Settings::AdminSettingToString(arg.AdminSetting());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by admin setting " << setting);

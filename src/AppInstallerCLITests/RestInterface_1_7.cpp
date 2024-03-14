@@ -457,7 +457,7 @@ TEST_CASE("GetManifests_GoodRequest_Authentication", "[RestSource][Interface_1_7
 
     // GetManifest should succeed with expected value.
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, SampleGetManifestResponse, { web::http::header_names::authorization, JSON::GetUtilityString(CreateBearerToken(expectedToken)) }, web::http::status_codes::Unauthorized) };
-    Interface v1_7{ TestRestUriString, GetTestSourceInformation(), {}, GetTestAuthenticationArguments(), std::move(helper) };
+    Interface v1_7{ TestRestUriString, std::move(helper), GetTestSourceInformation(), {}, GetTestAuthenticationArguments() };
     auto manifestResult = v1_7.GetManifestByVersion("Foo.Bar", "5.0.0", "");
     REQUIRE(manifestResult.has_value());
     const auto& manifest = manifestResult.value();
@@ -482,7 +482,7 @@ TEST_CASE("GetManifests_BadRequest_AuthenticationFailed", "[RestSource][Interfac
 
     // GetManifest should fail with authentication failure
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, SampleGetManifestResponse, { web::http::header_names::authorization, JSON::GetUtilityString(CreateBearerToken(expectedToken)) }, web::http::status_codes::Unauthorized) };
-    Interface v1_7{ TestRestUriString, GetTestSourceInformation(), {}, GetTestAuthenticationArguments(), std::move(helper) };
+    Interface v1_7{ TestRestUriString, std::move(helper), GetTestSourceInformation(), {}, GetTestAuthenticationArguments() };
     REQUIRE_THROWS_HR(v1_7.GetManifestByVersion("Foo.Bar", "5.0.0", ""), APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED);
 }
 
@@ -504,7 +504,7 @@ TEST_CASE("GetManifests_BadRequest_InvalidAuthenticationToken", "[RestSource][In
 
     // GetManifest should fail with access denied
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, SampleGetManifestResponse, { web::http::header_names::authorization, JSON::GetUtilityString(CreateBearerToken(expectedToken)) }, web::http::status_codes::Unauthorized) };
-    Interface v1_7{ TestRestUriString, GetTestSourceInformation(), {}, GetTestAuthenticationArguments(), std::move(helper) };
+    Interface v1_7{ TestRestUriString, std::move(helper), GetTestSourceInformation(), {}, GetTestAuthenticationArguments() };
     REQUIRE_THROWS_HR(v1_7.GetManifestByVersion("Foo.Bar", "5.0.0", ""), HTTP_E_STATUS_DENIED);
 }
 
@@ -526,7 +526,7 @@ TEST_CASE("Search_GoodRequest_Authentication", "[RestSource][Interface_1_7]")
 
     // Search should succeed with expected value.
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, SampleSearchResponse, { web::http::header_names::authorization, JSON::GetUtilityString(CreateBearerToken(expectedToken)) }, web::http::status_codes::Unauthorized) };
-    Interface v1_7{ TestRestUriString, GetTestSourceInformation(), {}, GetTestAuthenticationArguments(), std::move(helper) };
+    Interface v1_7{ TestRestUriString, std::move(helper), GetTestSourceInformation(), {}, GetTestAuthenticationArguments() };
     SearchRequest request;
     PackageMatchFilter filter{ PackageMatchField::Name, MatchType::Exact, "package" };
     request.Filters.emplace_back(std::move(filter));
@@ -553,7 +553,7 @@ TEST_CASE("Search_BadRequest_AuthenticationFailed", "[RestSource][Interface_1_7]
 
     // Search should fail with authentication failure
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, SampleSearchResponse, { web::http::header_names::authorization, JSON::GetUtilityString(CreateBearerToken(expectedToken)) }, web::http::status_codes::Unauthorized) };
-    Interface v1_7{ TestRestUriString, GetTestSourceInformation(), {}, GetTestAuthenticationArguments(), std::move(helper) };
+    Interface v1_7{ TestRestUriString, std::move(helper), GetTestSourceInformation(), {}, GetTestAuthenticationArguments() };
     SearchRequest request;
     PackageMatchFilter filter{ PackageMatchField::Name, MatchType::Exact, "package" };
     request.Filters.emplace_back(std::move(filter));
@@ -578,7 +578,7 @@ TEST_CASE("Search_BadRequest_InvalidAuthenticationToken", "[RestSource][Interfac
 
     // Search should fail with access denied
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, SampleSearchResponse, { web::http::header_names::authorization, JSON::GetUtilityString(CreateBearerToken(expectedToken)) }, web::http::status_codes::Unauthorized) };
-    Interface v1_7{ TestRestUriString, GetTestSourceInformation(), {}, GetTestAuthenticationArguments(), std::move(helper) };
+    Interface v1_7{ TestRestUriString, std::move(helper), GetTestSourceInformation(), {}, GetTestAuthenticationArguments() };
     SearchRequest request;
     PackageMatchFilter filter{ PackageMatchField::Name, MatchType::Exact, "package" };
     request.Filters.emplace_back(std::move(filter));
@@ -590,7 +590,7 @@ TEST_CASE("GetManifests_GoodResponse_V1_7", "[RestSource][Interface_1_7]")
     GoodManifest_AllFields sampleManifest;
     utility::string_t sample = sampleManifest.GetSampleManifest_AllFields();
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_7{ TestRestUriString, {}, {}, {}, std::move(helper) };
+    Interface v1_7{ TestRestUriString, std::move(helper), {} };
     std::vector<AppInstaller::Manifest::Manifest> manifests = v1_7.GetManifests("Foo.Bar");
     REQUIRE(manifests.size() == 1);
 
