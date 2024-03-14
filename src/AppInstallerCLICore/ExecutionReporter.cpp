@@ -132,7 +132,6 @@ namespace AppInstaller::CLI::Execution
             BoolPromptOption{ Resource::String::PromptOptionNo, 'N', false },
         };
 
-        auto out = GetOutputStream(level);
         out << message << std::endl;
 
         // Try prompting until we get a recognized option
