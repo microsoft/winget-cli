@@ -190,6 +190,11 @@ namespace AppInstaller::CLI::Execution
     {
         auto out = GetOutputStream(level);
 
+        if (!out.IsEnabled())
+        {
+            return resultIfDisabled;
+        }
+
         // Try prompting until we get a valid answer
         for (;;)
         {
