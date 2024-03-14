@@ -182,7 +182,7 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
                     out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
-                    out << YAML::Key << s_SourcesYaml_Source_RequireExplicit << YAML::Value << details.RequireExplicit;
+                    out << YAML::Key << s_SourcesYaml_Source_RequireExplicit << YAML::Value << details.Explicit;
                     out << YAML::Key << s_SourcesYaml_Source_TrustLevel << YAML::Value << static_cast<int>(details.TrustLevel);
                     out << YAML::EndMap;
                 }
@@ -204,7 +204,7 @@ namespace AppInstaller::Repository
 
         bool ShouldBeHidden(const SourceDetailsInternal& details, bool allowExplicitSources)
         {
-            return details.IsTombstone || details.Origin == SourceOrigin::Metadata || !details.IsVisible || (!allowExplicitSources && details.RequireExplicit);
+            return details.IsTombstone || details.Origin == SourceOrigin::Metadata || !details.IsVisible || (!allowExplicitSources && details.Explicit);
         }
     }
 
@@ -639,7 +639,7 @@ namespace AppInstaller::Repository
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
-                    if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_RequireExplicit, details.RequireExplicit)) { return false; }
+                    if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_RequireExplicit, details.Explicit)) { return false; }
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
 
                     int trustLevel{};

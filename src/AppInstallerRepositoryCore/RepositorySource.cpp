@@ -265,7 +265,7 @@ namespace AppInstaller::Repository
 
             void SetCaller(std::string caller) override { m_wrapped->SetCaller(std::move(caller)); }
 
-            void SetRequireExplicit(bool value) override { m_wrapped->SetRequireExplicit(value); }
+            void SetExplicit() override { m_wrapped->SetExplicit(); }
 
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
@@ -322,51 +322,86 @@ namespace AppInstaller::Repository
         THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
     }
 
-    SourceTrustLevel ConvertToSourceTrustLevelEnum(std::string_view trustLevelStr)
+    std::string GetSourceTrustLevelName(SourceTrustLevel trustLevel)
     {
-        std::string trustLevel = Utility::ToLower(trustLevelStr);
-        if (trustLevel == "none")
+        switch (trustLevel)
         {
-            return SourceTrustLevel::None;
-        }
-        else if (trustLevel == "trusted")
-        {
-            return SourceTrustLevel::Trusted;
-        }
-        else if (trustLevel == "storeorigin")
-        {
-            return SourceTrustLevel::StoreOrigin;
-        }
-        else
-        {
-            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), "Unsupported SourceTrustLevel: %hs", trustLevel.c_str());
+        case SourceTrustLevel::StoreOrigin:     return "StoreOrigin";
+        case SourceTrustLevel::Trusted:         return "Trusted";
+        default:                                return "None";
         }
     }
 
-    std::string_view SourceTrustLevelToString(SourceTrustLevel trustLevel)
+    SourceTrustLevel GetSourceTrustLevelFromName(std::string_view trustLevel)
     {
-        if (WI_IsAnyFlagSet(trustLevel, SourceTrustLevel::Trusted | SourceTrustLevel::StoreOrigin))
-        {
-            bool isTrusted = WI_IsFlagSet(trustLevel, SourceTrustLevel::Trusted);
-            bool isStoreOrigin = WI_IsFlagSet(trustLevel, SourceTrustLevel::StoreOrigin);
+        std::string lowerTrustLevel = Utility::ToLower(trustLevel);
 
-            if (isTrusted && isStoreOrigin)
-            {
-                return "Trusted | StoreOrigin"sv;
-            }
-            else if (isTrusted)
-            {
-                return "Trusted"sv;
-            }
-            else
-            {
-                return "StoreOrigin"sv;
-            }
+        if (lowerTrustLevel == "storeorigin")
+        {
+            return SourceTrustLevel::StoreOrigin;
+        }
+        else if (lowerTrustLevel == "trusted")
+        {
+            return SourceTrustLevel::Trusted;
+        }
+        else if (lowerTrustLevel == "none")
+        {
+            return SourceTrustLevel::None;
         }
         else
         {
-            return "None"sv;
+            THROW_HR(E_UNEXPECTED);
         }
+    }
+
+    std::vector<std::string> GetSourceTrustLevelAsStringVector(SourceTrustLevel trustLevel)
+    {
+        if (trustLevel == Repository::SourceTrustLevel::None)
+        {
+            return { GetSourceTrustLevelName(Repository::SourceTrustLevel::None) };
+        }
+        else
+        {
+            std::vector<std::string> result;
+
+            if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::Trusted))
+            {
+                result.emplace_back(Repository::GetSourceTrustLevelName(Repository::SourceTrustLevel::Trusted));
+            }
+            if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::StoreOrigin))
+            {
+                result.emplace_back(Repository::GetSourceTrustLevelName(Repository::SourceTrustLevel::StoreOrigin));
+            }
+
+            return result;
+        }
+    }
+
+    std::string GetSourceTrustLevelStringForDisplay(SourceTrustLevel trustLevel)
+    {
+        std::string result;
+        if (trustLevel == Repository::SourceTrustLevel::None)
+        {
+            result = Repository::GetSourceTrustLevelName(Repository::SourceTrustLevel::None);
+        }
+        else
+        {
+            if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::Trusted))
+            {
+                result += Repository::GetSourceTrustLevelName(Repository::SourceTrustLevel::Trusted);
+            }
+            if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::StoreOrigin))
+            {
+                if (!result.empty())
+                {
+                    result += " | ";
+                }
+
+                result += Repository::GetSourceTrustLevelName(Repository::SourceTrustLevel::StoreOrigin);
+            }
+        }
+
+        return result;
     }
 
     std::string_view ToString(SourceOrigin origin)
@@ -625,11 +660,11 @@ namespace AppInstaller::Repository
         }
     }
 
-    void Source::SetRequireExplicit(bool value)
+    void Source::SetExplicit()
     {
         for (auto& sourceReference : m_sourceReferences)
         {
-            sourceReference->SetRequireExplicit(value);
+            sourceReference->SetExplicit();
         }
     }
 
@@ -906,7 +941,7 @@ namespace AppInstaller::Repository
                     sourceList.RemoveSource(details);
                     detailsInternal->TrustLevel = details.TrustLevel;
                     sourceList.AddSource(details);
-                    AICLI_LOG(Repo, Info, << "TrustLevel updated to: " << Repository::SourceTrustLevelToString(details.TrustLevel));
+                    AICLI_LOG(Repo, Info, << "TrustLevel updated to: " << Repository::GetSourceTrustLevelStringForDisplay(details.TrustLevel));
                 }
 
                 if (updateResult.MetadataWritten)

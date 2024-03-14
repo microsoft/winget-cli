@@ -42,9 +42,9 @@ namespace AppInstaller::Repository::Rest
                 m_caller = std::move(caller);
             }
 
-            void SetRequireExplicit(bool value) override
+            void SetExplicit() override
             {
-                m_requireExplicit = value;
+                m_requireExplicit = true;
             }
 
             void SetTrustLevel(Repository::SourceTrustLevel trustLevel) override

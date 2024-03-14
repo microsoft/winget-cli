@@ -64,6 +64,27 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test source add with explicit flag. Packages should only appear if the source is explicitly declared.
+        /// </summary>
+        [Test]
+        public void SourceAddWithExplicit()
+        {
+            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --explicit");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Done"));
+
+            var searchResult = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, searchResult.ExitCode);
+            Assert.True(searchResult.StdOut.Contains("No package found matching input criteria."));
+
+            var searchResult2 = TestCommon.RunAICLICommand("search", "TestExampleInstaller --source SourceTest");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, searchResult2.ExitCode);
+            Assert.True(searchResult2.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(searchResult2.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
+        }
+
+        /// <summary>
         /// Test source add with duplicate name.
         /// </summary>
         [Test]
@@ -146,33 +167,6 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("source update", $"-n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
-        }
-
-        /// <summary>
-        /// Test source update with trust level.
-        /// </summary>
-        [Test]
-        public void SourceUpdateWithTrustLevel()
-        {
-            var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Done"));
-
-            var listResult = TestCommon.RunAICLICommand("source list", $"-n SourceTest");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult.ExitCode);
-            Assert.True(listResult.StdOut.Contains("Trust Level"));
-            Assert.True(listResult.StdOut.Contains("None"));
-
-            var updateResult = TestCommon.RunAICLICommand("source update", $"-n SourceTest --trust-level trusted");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, updateResult.ExitCode);
-            Assert.True(updateResult.StdOut.Contains("Done"));
-
-            var listResult2 = TestCommon.RunAICLICommand("source list", $"-n SourceTest");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, listResult2.ExitCode);
-            Assert.True(listResult2.StdOut.Contains("Trust Level"));
-            Assert.True(listResult2.StdOut.Contains("Trusted"));
-
-            TestCommon.RunAICLICommand("source remove", $"-n SourceTest");
         }
 
         /// <summary>

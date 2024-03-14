@@ -108,7 +108,7 @@ namespace AppInstaller::Repository::Microsoft
 
             bool SetCustomHeader(std::optional<std::string>) override { return true; }
 
-            void SetRequireExplicit(bool value) override { m_details.RequireExplicit = value; };
+            void SetExplicit() override { m_details.Explicit = true; };
 
             void SetTrustLevel(SourceTrustLevel trustLevel) override { m_details.TrustLevel = trustLevel; };
 

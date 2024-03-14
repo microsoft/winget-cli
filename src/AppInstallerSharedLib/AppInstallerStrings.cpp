@@ -856,9 +856,9 @@ namespace AppInstaller::Utility
         return result;
     }
 
-    std::string_view ConvertBoolToString(bool value)
+    std::string ConvertBoolToString(bool value)
     {
-        return value ? "true"sv : "false"sv;
+        return value ? "true" : "false";
     }
 
     std::string ConvertGuidToString(const GUID& value)

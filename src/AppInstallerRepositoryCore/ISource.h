@@ -88,8 +88,8 @@ namespace AppInstaller::Repository
         // Set caller.
         virtual void SetCaller(std::string) {}
 
-        // Set boolean value indicating whether 
-        virtual void SetRequireExplicit(bool) {}
+        // Require the source to be explicitly declared. Source must be removed for this to be reset.
+        virtual void SetExplicit() {}
 
         // Set trust level.
         virtual void SetTrustLevel(Repository::SourceTrustLevel) {}

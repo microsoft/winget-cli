@@ -45,11 +45,16 @@ namespace AppInstaller::Repository
 
     DEFINE_ENUM_FLAG_OPERATORS(SourceTrustLevel);
 
-    // Converts a string to the corresponding SourceTrustLevel enum.
-    SourceTrustLevel ConvertToSourceTrustLevelEnum(std::string_view trustLevelStr);
+    // Converts a string_view to the corresponding SourceTrustLevel enum.
+    SourceTrustLevel GetSourceTrustLevelFromName(std::string_view trustLevel);
 
     // Converts a SourceTrustLevel enum to the corresponding string.
-    std::string_view SourceTrustLevelToString(const SourceTrustLevel trustLevel);
+    std::string GetSourceTrustLevelName(SourceTrustLevel trustLevel);
+
+    std::vector<std::string> GetSourceTrustLevelAsStringVector(SourceTrustLevel trustLevel);
+
+    // Gets the full trust level string name for display.
+    std::string GetSourceTrustLevelStringForDisplay(SourceTrustLevel trustLevel);
 
     std::string_view ToString(SourceOrigin origin);
 
@@ -143,7 +148,7 @@ namespace AppInstaller::Repository
         std::string AlternateArg;
 
         // Whether the source should be hidden by default unless explicitly declared.
-        bool RequireExplicit = false;
+        bool Explicit = false;
     };
 
     // Individual source agreement entry. Label will be highlighted in the display as the key of the agreement entry.
@@ -265,8 +270,8 @@ namespace AppInstaller::Repository
         // Set authentication arguments. Must be set before Open to have effect.
         void SetAuthenticationArguments(Authentication::AuthenticationArguments args);
 
-        // Indicates whether to a source is shown by default without explicitly declaring it.
-        void SetRequireExplicit(bool value);
+        // Require a source to be explicitly declared.
+        void SetExplicit();
 
         // Set background update check interval.
         void SetBackgroundUpdateInterval(TimeSpan interval);

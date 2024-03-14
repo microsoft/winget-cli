@@ -195,11 +195,45 @@ namespace AppInstaller::Settings
                 }
             };
 
+            auto readSourceBoolAttribute = [&](const std::string& name, bool SourceFromPolicy::* member)
+                {
+                    if (sourceJson.isMember(name) && sourceJson[name].isBool())
+                    {
+                        source.*member = sourceJson[name].asBool();
+                        return true;
+                    }
+                    else
+                    {
+                        AICLI_LOG(Core, Warning, << "Source JSON does not contain a bool value for " << name);
+                        return false;
+                    }
+                };
+
+            auto readSourceStringArrayAttribute = [&](const std::string& name, std::vector<std::string> SourceFromPolicy::* member)
+                {
+                    if (sourceJson.isMember(name) && sourceJson[name].isArray())
+                    {
+                        const Json::Value in = sourceJson[name];
+                        std::vector<std::string> result;
+                        result.reserve(in.size());
+                        std::transform(in.begin(), in.end(), std::back_inserter(result), [](const auto& e) { return e.asString(); });
+                        source.*member = result;
+                        return true;
+                    }
+                    else
+                    {
+                        AICLI_LOG(Core, Warning, << "Source JSON does not contain an array value for " << name);
+                        return false;
+                    }
+                };
+
             bool allRead = readSourceAttribute("Name", &SourceFromPolicy::Name)
                 && readSourceAttribute("Arg", &SourceFromPolicy::Arg)
                 && readSourceAttribute("Type", &SourceFromPolicy::Type)
                 && readSourceAttribute("Data", &SourceFromPolicy::Data)
-                && readSourceAttribute("Identifier", &SourceFromPolicy::Identifier);
+                && readSourceAttribute("Identifier", &SourceFromPolicy::Identifier)
+                && readSourceStringArrayAttribute("TrustLevel", &SourceFromPolicy::TrustLevel)
+                && readSourceBoolAttribute("Explicit", &SourceFromPolicy::Explicit);
 
             // Add fields for source policy.
             
@@ -329,6 +363,15 @@ namespace AppInstaller::Settings
         json["Arg"] = Arg;
         json["Data"] = Data;
         json["Identifier"] = Identifier;
+        json["Explicit"] = Explicit;
+
+        // Trust level is represented as an array of trust level strings since there can be multiple flags set.
+        int i = 0;
+        for (std::string entry : TrustLevel)
+        {
+            json["TrustLevel"][i] = entry;
+            i++;
+        }
 
         Json::StreamWriterBuilder writerBuilder;
         writerBuilder.settings_["indentation"] = "";

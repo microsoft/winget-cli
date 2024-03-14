@@ -2820,8 +2820,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
     <value>Excludes a source from discovery by default unless explicitly declared</value>
   </data>
-  <data name="SourceListRequireExplicit" xml:space="preserve">
-    <value>RequireExplicit</value>
+  <data name="SourceListExplicit" xml:space="preserve">
+    <value>Explicit</value>
   </data>
   <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
     <value>Trust level of the source (none, trusted or storeOrigin)</value>

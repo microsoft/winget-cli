@@ -55,7 +55,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::SourceTrustLevel),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
-            Argument::ForType(Args::Type::SourceRequireExplicit),
+            Argument::ForType(Args::Type::SourceExplicit),
         };
     }
 
@@ -128,7 +128,6 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::SourceName),
-            Argument::ForType(Args::Type::SourceTrustLevel),
         };
     }
 
@@ -158,23 +157,9 @@ namespace AppInstaller::CLI
 
     void SourceUpdateCommand::ExecuteInternal(Context& context) const
     {
-        if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
-        {
-            context << Workflow::EnsureRunningAsAdmin;
-        }
-
         context <<
             Workflow::GetSourceListWithFilter <<
             Workflow::UpdateSources;
-    }
-
-    void SourceUpdateCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
-    {
-        if ((execArgs.Contains(Execution::Args::Type::SourceTrustLevel) || execArgs.Contains(Execution::Args::Type::SourceRequireExplicit)) &&
-            !execArgs.Contains(Execution::Args::Type::SourceName))
-        {
-            throw CommandException(Resource::String::RequiredArgError("name"_liv));
-        }
     }
 
     std::vector<Argument> SourceRemoveCommand::GetArguments() const
