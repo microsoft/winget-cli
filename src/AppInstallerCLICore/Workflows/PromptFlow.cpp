@@ -298,6 +298,8 @@ namespace AppInstaller::CLI::Workflow
                 m_installLocation = context.Reporter.PromptForPath(Resource::String::PromptForInstallRoot);
                 if (m_installLocation.empty())
                 {
+                    AICLI_LOG(CLI, Error, << "Install location is required but the provided path was empty.");
+                    context.Reporter.Error() << Resource::String::InstallLocationNotProvided << std::endl;
                     AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_LOCATION_REQUIRED);
                 }
                 AICLI_LOG(CLI, Info, << "Proceeding with installation using install root: " << m_installLocation);
