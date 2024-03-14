@@ -548,7 +548,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveOne);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRequiresAuthentication);
-        WINGET_DEFINE_RESOURCE_STRINGID(SourceRequireExplicitArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceExplicitArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandShortDescription);

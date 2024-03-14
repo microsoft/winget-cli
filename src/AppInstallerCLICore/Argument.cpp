@@ -336,7 +336,7 @@ namespace AppInstaller::CLI
         case Args::Type::SourceType:
             return Argument{ type, Resource::String::SourceTypeArgumentDescription, ArgumentType::Positional };
         case Args::Type::SourceExplicit:
-            return Argument{ type, Resource::String::SourceRequireExplicitArgumentDescription, ArgumentType::Flag };
+            return Argument{ type, Resource::String::SourceExplicitArgumentDescription, ArgumentType::Flag };
         case Args::Type::SourceTrustLevel:
             return Argument{ type, Resource::String::SourceTrustLevelArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::ValidateManifest:

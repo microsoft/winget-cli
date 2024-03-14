@@ -24,7 +24,7 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_SourcesYaml_Source_Data = "Data"sv;
         constexpr std::string_view s_SourcesYaml_Source_Identifier = "Identifier"sv;
         constexpr std::string_view s_SourcesYaml_Source_IsTombstone = "IsTombstone"sv;
-        constexpr std::string_view s_SourcesYaml_Source_RequireExplicit = "RequireExplicit"sv;
+        constexpr std::string_view s_SourcesYaml_Source_Explicit = "Explicit"sv;
         constexpr std::string_view s_SourcesYaml_Source_TrustLevel = "TrustLevel"sv;
 
         constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
@@ -182,7 +182,7 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
                     out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
-                    out << YAML::Key << s_SourcesYaml_Source_RequireExplicit << YAML::Value << details.Explicit;
+                    out << YAML::Key << s_SourcesYaml_Source_Explicit << YAML::Value << details.Explicit;
                     out << YAML::Key << s_SourcesYaml_Source_TrustLevel << YAML::Value << static_cast<int>(details.TrustLevel);
                     out << YAML::EndMap;
                 }
@@ -639,7 +639,7 @@ namespace AppInstaller::Repository
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
-                    if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_RequireExplicit, details.Explicit)) { return false; }
+                    if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Explicit, details.Explicit)) { return false; }
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
 
                     int trustLevel{};
