@@ -107,7 +107,8 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Info() << Resource::String::ResetAdminSettingSucceeded(LocIndString{ adminSettingName }) << std::endl;
         }
-        else if (stringAdminSetting != Settings::StringAdminSetting::Unknown)
+        else
+
         {
             context.Reporter.Error() << Resource::String::ResetAdminSettingFailed(LocIndString{ adminSettingName }) << std::endl;
         }
