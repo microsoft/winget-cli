@@ -13,21 +13,6 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        bool IsInteractivityAllowed(Execution::Context& context, Reporter::Level reporterLevel) {
-            // Interactivity can be disabled for several reasons:
-            //   * We are running in a non-interactive context (e.g., COM call)
-            //   * It is disabled in the settings
-            //   * It was disabled from the command line
-            //   * The output level required has been disabled
-            if (WI_AreAllFlagsClear(context.Reporter.GetLevelMask(), reporterLevel))
-            {
-                AICLI_LOG(CLI, Verbose, << "Skipping prompt. Interactivity is disabled due to reporter level being suppressed");
-                return false;
-            }
-
-            return IsInteractivityAllowed(context);
-        }
-
         bool IsInteractivityAllowed(Execution::Context& context)
         {
             // Interactivity can be disabled for several reasons:
@@ -104,9 +89,9 @@ namespace AppInstaller::CLI::Workflow
 
             bool accepted = context.Args.Contains(Execution::Args::Type::AcceptSourceAgreements);
 
-            if (!accepted && IsInteractivityAllowed(context, Reporter::Level::Info))
+            if (!accepted && IsInteractivityAllowed(context))
             {
-                accepted = context.Reporter.PromptForBoolResponse(Resource::String::SourceAgreementsPrompt, Reporter::Level::Info);
+                accepted = context.Reporter.PromptForBoolResponse(Resource::String::SourceAgreementsPrompt, Reporter::Level::Info, false);
             }
 
             if (accepted)
@@ -214,9 +199,9 @@ namespace AppInstaller::CLI::Workflow
                 if (showPrompt)
                 {
                     AICLI_LOG(CLI, Verbose, << "Prompting to accept package agreements");
-                    if (IsInteractivityAllowed(context, Reporter::Level::Info))
+                    if (IsInteractivityAllowed(context))
                     {
-                        bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PackageAgreementsPrompt, Reporter::Level::Info);
+                        bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PackageAgreementsPrompt);
                         if (accepted)
                         {
                             AICLI_LOG(CLI, Info, << "Package agreements accepted in prompt");
@@ -302,7 +287,7 @@ namespace AppInstaller::CLI::Workflow
         private:
             void PromptForInstallRoot(Execution::Context& context)
             {
-                if (!IsInteractivityAllowed(context, Reporter::Level::Info))
+                if (!IsInteractivityAllowed(context))
                 {
                     AICLI_LOG(CLI, Error, << "Install location is required but was not provided.");
                     context.Reporter.Error() << Resource::String::InstallLocationNotProvided << std::endl;
@@ -310,7 +295,7 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 AICLI_LOG(CLI, Info, << "Prompting for install root.");
-                m_installLocation = context.Reporter.PromptForPath(Resource::String::PromptForInstallRoot, Reporter::Level::Info);
+                m_installLocation = context.Reporter.PromptForPath(Resource::String::PromptForInstallRoot);
                 AICLI_LOG(CLI, Info, << "Proceeding with installation using install root: " << m_installLocation);
             }
 
@@ -365,7 +350,7 @@ namespace AppInstaller::CLI::Workflow
             void PromptToProceed(Execution::Context& context)
             {
                 AICLI_LOG(CLI, Info, << "Prompting before proceeding with installer that aborts terminal.");
-                if (!IsInteractivityAllowed(context, Reporter::Level::Warning))
+                if (!IsInteractivityAllowed(context))
                 {
                     return;
                 }

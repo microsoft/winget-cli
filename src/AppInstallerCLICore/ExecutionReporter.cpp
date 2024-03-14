@@ -117,8 +117,15 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level)
+    bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level, bool resultIfDisabled)
     {
+        auto out = GetOutputStream(level);
+
+        if (!out.IsEnabled())
+        {
+            return resultIfDisabled;
+        }
+
         const std::vector<BoolPromptOption> options
         {
             BoolPromptOption{ Resource::String::PromptOptionYes, 'Y', true },
@@ -179,7 +186,7 @@ namespace AppInstaller::CLI::Execution
         m_in.get();
     }
 
-    std::filesystem::path Reporter::PromptForPath(Resource::LocString message, Level level)
+    std::filesystem::path Reporter::PromptForPath(Resource::LocString message, Level level, std::filesystem::path resultIfDisabled)
     {
         auto out = GetOutputStream(level);
 

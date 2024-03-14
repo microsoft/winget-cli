@@ -100,13 +100,13 @@ namespace AppInstaller::CLI::Execution
         void SetStyle(AppInstaller::Settings::VisualStyle style);
 
         // Prompts the user, return true if they consented.
-        bool PromptForBoolResponse(Resource::LocString message, Level level);
+        bool PromptForBoolResponse(Resource::LocString message, Level level = Level::Info, bool resultIfDisabled = false);
 
         // Prompts the user, continues when Enter is pressed
         void PromptForEnter(Level level = Level::Info);
 
         // Prompts the user for a path.
-        std::filesystem::path PromptForPath(Resource::LocString message, Level level);
+        std::filesystem::path PromptForPath(Resource::LocString message, Level level = Level::Info);
 
         // Used to show indefinite progress. Currently an indefinite spinner is the form of
         // showing indefinite progress.
@@ -167,11 +167,12 @@ namespace AppInstaller::CLI::Execution
             m_progressSink = sink;
         }
 
-        void SetLevelMask(Level reporterLevel, bool setEnabled = true);
-
-        Level GetLevelMask() {
-            return m_enabledLevels;
+        bool IsLevelEnabled(Level reporterLevel)
+        {
+            return WI_AreAllFlagsSet(m_enabledLevels, reporterLevel);
         }
+
+        void SetLevelMask(Level reporterLevel, bool setEnabled = true);
 
     private:
         Reporter(std::shared_ptr<BaseStream> outStream, std::istream& inStream);
