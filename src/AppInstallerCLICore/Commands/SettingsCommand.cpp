@@ -147,7 +147,6 @@ namespace AppInstaller::CLI
         Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
 
         if (StringAdminSetting::Unknown == StringToStringAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName))
-
         {
             throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name, validOptions));
         }
@@ -198,8 +197,7 @@ namespace AppInstaller::CLI
 
         Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
 
-        if (execArgs.Contains(Execution::Args::Type::SettingName)
-            && StringAdminSetting::Unknown == StringToStringAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName))
+        if (StringAdminSetting::Unknown == StringToStringAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName))
             && BoolAdminSetting::Unknown == StringToBoolAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName)))
         {
             throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name, validOptions));
