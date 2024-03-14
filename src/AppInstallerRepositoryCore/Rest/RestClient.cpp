@@ -148,37 +148,38 @@ namespace AppInstaller::Repository::Rest
         const HttpClientHelper::HttpRequestHeaders& additionalHeaders,
         const IRestClient::Information& information,
         const Authentication::AuthenticationArguments& authArgs,
-        const Version& version)
+        const Version& version,
+        const HttpClientHelper& helper)
     {
         if (version == Version_1_0_0)
         {
-            return std::make_unique<Schema::V1_0::Interface>(api);
+            return std::make_unique<Schema::V1_0::Interface>(api, helper);
         }
         else if (version == Version_1_1_0)
         {
-            return std::make_unique<Schema::V1_1::Interface>(api, information, additionalHeaders);
+            return std::make_unique<Schema::V1_1::Interface>(api, helper, information, additionalHeaders);
         }
         else if (version == Version_1_4_0)
         {
-            return std::make_unique<Schema::V1_4::Interface>(api, information, additionalHeaders);
+            return std::make_unique<Schema::V1_4::Interface>(api, helper, information, additionalHeaders);
         }
         else if (version == Version_1_5_0)
         {
-            return std::make_unique<Schema::V1_5::Interface>(api, information, additionalHeaders);
+            return std::make_unique<Schema::V1_5::Interface>(api, helper, information, additionalHeaders);
         }
         else if (version == Version_1_6_0)
         {
-            return std::make_unique<Schema::V1_6::Interface>(api, information, additionalHeaders);
+            return std::make_unique<Schema::V1_6::Interface>(api, helper, information, additionalHeaders);
         }
         else if (version == Version_1_7_0)
         {
-            return std::make_unique<Schema::V1_7::Interface>(api, information, additionalHeaders, authArgs);
+            return std::make_unique<Schema::V1_7::Interface>(api, helper, information, additionalHeaders, authArgs);
         }
 
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
     }
 
-    RestClient RestClient::Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Authentication::AuthenticationArguments& authArgs, const HttpClientHelper& helper)
+    RestClient RestClient::Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const HttpClientHelper& helper, const Authentication::AuthenticationArguments& authArgs)
     {
         utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
@@ -189,7 +190,7 @@ namespace AppInstaller::Repository::Rest
         std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information.ServerSupportedVersions, WingetSupportedContracts);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !latestCommonVersion);
 
-        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), headers, information, authArgs, latestCommonVersion.value());
+        std::unique_ptr<Schema::IRestClient> supportedInterface = GetSupportedInterface(utility::conversions::to_utf8string(restEndpoint), headers, information, authArgs, latestCommonVersion.value(), helper);
         return RestClient{ std::move(supportedInterface), information.SourceIdentifier };
     }
 }

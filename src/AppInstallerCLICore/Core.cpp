@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
@@ -119,18 +119,6 @@ namespace AppInstaller::CLI
             Logging::Telemetry().LogCommand(command->FullName());
 
             command->ParseArguments(invocation, context.Args);
-
-            // Change logging level to Info if Verbose not requested
-            if (context.Args.Contains(Execution::Args::Type::VerboseLogs))
-            {
-                Logging::Log().SetLevel(Logging::Level::Verbose);
-            }
-
-            // Disable warnings if requested
-            if (context.Args.Contains(Execution::Args::Type::IgnoreWarnings))
-            {
-                context.Reporter.SetLevelMask(Execution::Reporter::Level::Warning, false);
-            }
 
             context.UpdateForArgs();
             context.SetExecutingCommand(command.get());

@@ -276,6 +276,7 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::string;
         };
 
+
         template<>
         struct DataMapping<Data::RepairString>
         {

@@ -23,10 +23,20 @@ namespace AppInstaller::CLI::Workflow
                 root["userSettingsFile"] = UserSettings::SettingsFilePath().u8string();
             }
 
-            void AddAdminSetting(AdminSetting setting)
+            void AddAdminSetting(BoolAdminSetting setting)
             {
                 auto str = std::string{ Settings::AdminSettingToString(setting) };
                 root["adminSettings"][str] = Settings::IsAdminSettingEnabled(setting);
+            }
+
+            void AddAdminSetting(StringAdminSetting setting)
+            {
+                auto name = std::string{ Settings::AdminSettingToString(setting) };
+                auto value = Settings::GetAdminSetting(setting);
+                if (value)
+                {
+                    root["adminSettings"][name] = value.value();
+                }
             }
 
             std::string ToJsonString() const
@@ -44,7 +54,7 @@ namespace AppInstaller::CLI::Workflow
     void EnableAdminSetting(Execution::Context& context)
     {
         auto adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingEnable);
-        AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
+        BoolAdminSetting adminSetting = Settings::StringToBoolAdminSetting(adminSettingString);
         if (Settings::EnableAdminSetting(adminSetting))
         {
             context.Reporter.Info() << Resource::String::AdminSettingEnabled(AdminSettingToString(adminSetting)) << std::endl;
@@ -58,7 +68,7 @@ namespace AppInstaller::CLI::Workflow
     void DisableAdminSetting(Execution::Context& context)
     {
         auto adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingDisable);
-        AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
+        BoolAdminSetting adminSetting = Settings::StringToBoolAdminSetting(adminSettingString);
         if (Settings::DisableAdminSetting(adminSetting))
         {
             context.Reporter.Info() << Resource::String::AdminSettingDisabled(AdminSettingToString(adminSetting)) << std::endl;
@@ -66,6 +76,40 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context.Reporter.Error() << Resource::String::DisableAdminSettingFailed(AdminSettingToString(adminSetting)) << std::endl;
+        }
+    }
+
+    void SetAdminSetting(Execution::Context& context)
+    {
+        auto adminSettingName = context.Args.GetArg(Execution::Args::Type::SettingName);
+        auto adminSettingValue = context.Args.GetArg(Execution::Args::Type::SettingValue);
+        StringAdminSetting adminSetting = Settings::StringToStringAdminSetting(adminSettingName);
+        if (Settings::SetAdminSetting(adminSetting, adminSettingValue))
+        {
+            context.Reporter.Info() << Resource::String::SetAdminSettingSucceeded(LocIndString{ adminSettingName }, LocIndString{ adminSettingValue }) << std::endl;
+        }
+        else
+        {
+            context.Reporter.Error() << Resource::String::SetAdminSettingFailed(LocIndString{ adminSettingName }) << std::endl;
+        }
+    }
+
+    void ResetAdminSetting(Execution::Context& context)
+    {
+        auto adminSettingName = context.Args.GetArg(Execution::Args::Type::SettingName);
+
+        // Try as both bool and string setting as we don't know the type
+        auto boolAdminSetting = Settings::StringToBoolAdminSetting(adminSettingName);
+        auto stringAdminSetting = Settings::StringToStringAdminSetting(adminSettingName);
+
+        if ((boolAdminSetting != Settings::BoolAdminSetting::Unknown && Settings::DisableAdminSetting(boolAdminSetting))
+            || (stringAdminSetting != Settings::StringAdminSetting::Unknown && Settings::ResetAdminSetting(stringAdminSetting)))
+        {
+            context.Reporter.Info() << Resource::String::ResetAdminSettingSucceeded(LocIndString{ adminSettingName }) << std::endl;
+        }
+        else
+        {
+            context.Reporter.Error() << Resource::String::ResetAdminSettingFailed(LocIndString{ adminSettingName }) << std::endl;
         }
     }
 
@@ -129,7 +173,12 @@ namespace AppInstaller::CLI::Workflow
     {
         ExportSettingsJson exportSettingsJson;
 
-        for (const auto& setting : GetAllAdminSettings())
+        for (const auto& setting : GetAllBoolAdminSettings())
+        {
+            exportSettingsJson.AddAdminSetting(setting);
+        }
+
+        for (const auto& setting : GetAllStringAdminSettings())
         {
             exportSettingsJson.AddAdminSetting(setting);
         }

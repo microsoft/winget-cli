@@ -450,7 +450,7 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingDisabled", "[InstallF
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::IgnoreLocalArchiveMalwareScan);
 
-    DisableAdminSetting(AppInstaller::Settings::AdminSetting::LocalArchiveMalwareScanOverride);
+    DisableAdminSetting(AppInstaller::Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride);
 
     TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(false);
 
@@ -478,7 +478,7 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingEnabled", "[InstallFl
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::IgnoreLocalArchiveMalwareScan);
 
-    EnableAdminSetting(AppInstaller::Settings::AdminSetting::LocalArchiveMalwareScanOverride);
+    EnableAdminSetting(AppInstaller::Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride);
 
     TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(false);
 
