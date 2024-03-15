@@ -44,7 +44,7 @@ Both of these arguments will be disabled by default and require admin privileges
 > winget install Contoso.App --no-proxy
 ```
 
-To configure the default proxy, new `set` and `reset` subcommands will be added to the `settings` command, , with options to `set` and `reset` the default.
+To configure the default proxy, new `set` and `reset` subcommands will be added to the `settings` command.
 This will require admin privileges and does not require `ProxyCommandLineArgument` to be enabled.
 
 ```
