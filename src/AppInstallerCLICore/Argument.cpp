@@ -406,6 +406,7 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::RainbowStyle));
         args.push_back(ForType(Args::Type::RetroStyle));
         args.push_back(ForType(Args::Type::VerboseLogs));
+        args.push_back(ForType(Args::Type::IgnoreWarnings));
         args.emplace_back(Args::Type::DisableInteractivity, Resource::String::DisableInteractivityArgumentDescription, ArgumentType::Flag, false);
         args.push_back(ForType(Args::Type::Proxy));
         args.push_back(ForType(Args::Type::NoProxy));

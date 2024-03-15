@@ -356,6 +356,12 @@ namespace AppInstaller::CLI::Execution
             Logging::Log().SetLevel(Logging::Level::Verbose);
         }
 
+        // Disable warnings if requested
+        if (Args.Contains(Args::Type::IgnoreWarnings))
+        {
+            Reporter.SetLevelMask(Reporter::Level::Warning, false);
+        }
+
         // Set proxy
         if (Args.Contains(Args::Type::Proxy))
         {

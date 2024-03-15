@@ -54,6 +54,12 @@ namespace AppInstaller::CLI::Execution
 
     OutputStream Reporter::GetOutputStream(Level level)
     {
+        // If the level is not enabled, return a default stream which is disabled
+        if (WI_AreAllFlagsClear(m_enabledLevels, level))
+        {
+            return OutputStream(*m_out, false, false);
+        }
+
         OutputStream result = GetBasicOutputStream();
 
         switch (level)
@@ -111,15 +117,21 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level)
+    bool Reporter::PromptForBoolResponse(Resource::LocString message, Level level, bool resultIfDisabled)
     {
+        auto out = GetOutputStream(level);
+
+        if (!out.IsEnabled())
+        {
+            return resultIfDisabled;
+        }
+
         const std::vector<BoolPromptOption> options
         {
             BoolPromptOption{ Resource::String::PromptOptionYes, 'Y', true },
             BoolPromptOption{ Resource::String::PromptOptionNo, 'N', false },
         };
 
-        auto out = GetOutputStream(level);
         out << message << std::endl;
 
         // Try prompting until we get a recognized option
@@ -164,13 +176,23 @@ namespace AppInstaller::CLI::Execution
     void Reporter::PromptForEnter(Level level)
     {
         auto out = GetOutputStream(level);
+        if (!out.IsEnabled())
+        {
+            return;
+        }
+
         out << std::endl << Resource::String::PressEnterToContinue << std::endl;
         m_in.get();
     }
 
-    std::filesystem::path Reporter::PromptForPath(Resource::LocString message, Level level)
+    std::filesystem::path Reporter::PromptForPath(Resource::LocString message, Level level, std::filesystem::path resultIfDisabled)
     {
         auto out = GetOutputStream(level);
+
+        if (!out.IsEnabled())
+        {
+            return resultIfDisabled;
+        }
 
         // Try prompting until we get a valid answer
         for (;;)
@@ -318,5 +340,17 @@ namespace AppInstaller::CLI::Execution
             m_out->Disable();
         }
         m_out->RestoreDefault();
+    }
+
+    void Reporter::SetLevelMask(Level reporterLevel, bool setEnabled) {
+
+        if (setEnabled)
+        {
+            WI_SetAllFlags(m_enabledLevels, reporterLevel);
+        }
+        else
+        {
+            WI_ClearAllFlags(m_enabledLevels, reporterLevel);
+        }
     }
 }
