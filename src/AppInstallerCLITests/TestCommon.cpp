@@ -249,6 +249,23 @@ namespace TestCommon
         AppInstaller::Settings::SetUserSettingsOverride(nullptr);
     }
 
+    std::unique_ptr<TestUserSettings> TestUserSettings::EnableExperimentalFeature(Settings::ExperimentalFeature::Feature feature, bool keepFileSettings)
+    {
+        std::unique_ptr<TestUserSettings> result = std::make_unique<TestUserSettings>(keepFileSettings);
+
+        // Due to the template usage, this needs to be updated for any features that want to use it.
+        switch (feature)
+        {
+        case Settings::ExperimentalFeature::Feature::SideBySide:
+            result->Set<Settings::Setting::EFSideBySide>(true);
+            break;
+        default:
+            THROW_HR(E_NOTIMPL);
+        }
+
+        return result;
+    }
+
     bool InstallCertFromSignedPackage(const std::filesystem::path& package)
     {
         auto [certContext, certStore] = AppInstaller::Msix::GetCertContextFromMsix(package);

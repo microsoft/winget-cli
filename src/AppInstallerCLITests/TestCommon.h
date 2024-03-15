@@ -5,10 +5,12 @@
 #include <AppInstallerProgress.h>
 #include <AppxPackaging.h>
 #include <winget/UserSettings.h>
+#include <winget/ExperimentalFeature.h>
 #include <wil/result.h>
 
 #include <filesystem>
 #include <functional>
+#include <memory>
 #include <string>
 
 #define REQUIRE_THROWS_HR(_expr_, _hr_)     REQUIRE_THROWS_MATCHES(_expr_, wil::ResultException, ::TestCommon::ResultExceptionHRMatcher(_hr_))
@@ -141,6 +143,8 @@ namespace TestCommon
         {
             m_settings[S].emplace<AppInstaller::Settings::details::SettingIndex(S)>(std::move(value));
         }
+
+        static std::unique_ptr<TestUserSettings> EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature feature, bool keepFileSettings = false);
     };
 
     // Below cert installation/uninstallation methods require admin privilege,

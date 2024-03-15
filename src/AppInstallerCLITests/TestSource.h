@@ -74,6 +74,7 @@ namespace TestCommon
 
         std::vector<std::shared_ptr<AppInstaller::Repository::IPackageVersion>> Versions;
         std::weak_ptr<const ISource> Source;
+        size_t DefaultIsSameIdentity = 0;
         std::function<bool(const IPackage*, const IPackage*)> IsSameOverride;
     };
 

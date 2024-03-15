@@ -120,7 +120,7 @@ struct TestPackageHelper
         return *this;
     }
 
-    operator std::shared_ptr<ICompositePackage>()
+    std::shared_ptr<TestCompositePackage> ToPackage()
     {
         if (!m_package)
         {
@@ -135,6 +135,11 @@ struct TestPackageHelper
         }
 
         return m_package;
+    }
+
+    operator std::shared_ptr<ICompositePackage>()
+    {
+        return ToPackage();
     }
 
     operator const Manifest::Manifest& () const
@@ -1588,4 +1593,225 @@ TEST_CASE("CompositeSource_Respects_FeatureFlag_ManifestMayContainAdditionalSyst
 
         REQUIRE(productCodeSearched);
     }
+}
+
+TEST_CASE("CompositeSource_SxS_TwoVersions_NoAvailable", "[CompositeSource][SideBySide]")
+{
+    auto enableFeature = TestUserSettings::EnableExperimentalFeature(Settings::ExperimentalFeature::Feature::SideBySide);
+
+    std::string productCode1 = "PC1";
+    std::string productCode2 = "PC2";
+
+    CompositeTestSetup setup;
+    auto availablePackage = setup.MakeAvailable();
+
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion("1.0").WithPC(productCode1), Criteria());
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion("2.0").WithPC(productCode2), Criteria());
+
+    SearchResult result = setup.Search();
+
+    REQUIRE(result.Matches.size() == 2);
+}
+
+TEST_CASE("CompositeSource_SxS_TwoVersions_DifferentAvailable", "[CompositeSource][SideBySide]")
+{
+    auto enableFeature = TestUserSettings::EnableExperimentalFeature(Settings::ExperimentalFeature::Feature::SideBySide);
+
+    std::string productCode1 = "PC1";
+    std::string productCode2 = "PC2";
+
+    CompositeTestSetup setup;
+    auto availablePackage1 = setup.MakeAvailable().ToPackage();
+    auto availablePackage2 = setup.MakeAvailable().ToPackage();
+
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion("1.0").WithPC(productCode1), Criteria());
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion("2.0").WithPC(productCode2), Criteria());
+
+    setup.Available->SearchFunction = [&](const SearchRequest& request)
+        {
+            SearchResult result;
+
+            std::string productCode;
+            for (const auto& item : request.Inclusions)
+            {
+                if (item.Field == PackageMatchField::ProductCode)
+                {
+                    productCode = item.Value;
+                    break;
+                }
+            }
+
+            if (productCode == productCode1)
+            {
+                result.Matches.emplace_back(availablePackage1, Criteria());
+            }
+            else if (productCode == productCode1)
+            {
+                result.Matches.emplace_back(availablePackage2, Criteria());
+            }
+
+            return result;
+        };
+
+    SearchResult result = setup.Search();
+
+    REQUIRE(result.Matches.size() == 2);
+}
+
+TEST_CASE("CompositeSource_SxS_TwoVersions_SameAvailable", "[CompositeSource][SideBySide]")
+{
+    auto enableFeature = TestUserSettings::EnableExperimentalFeature(Settings::ExperimentalFeature::Feature::SideBySide);
+
+    std::string version1 = "1.0";
+    std::string version2 = "2.0";
+    std::string productCode1 = "PC1";
+    std::string productCode2 = "PC2";
+
+    CompositeTestSetup setup;
+    auto availablePackage = setup.MakeAvailable().ToPackage();
+
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion(version1).WithPC(productCode1), Criteria());
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion(version2).WithPC(productCode2), Criteria());
+
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+        {
+            SearchResult result;
+            result.Matches.emplace_back(availablePackage, Criteria());
+            return result;
+        };
+
+    SearchResult result = setup.Search();
+
+    REQUIRE(result.Matches.size() == 1);
+    auto package = result.Matches[0].Package;
+    REQUIRE(package);
+    auto installedPackage = package->GetInstalled();
+    REQUIRE(installedPackage);
+    auto installedVersions = installedPackage->GetVersionKeys();
+    REQUIRE(installedVersions.size() == 2);
+    REQUIRE(std::any_of(installedVersions.begin(), installedVersions.end(), [&](const PackageVersionKey& key) { return key.Version == version1; }));
+    REQUIRE(std::any_of(installedVersions.begin(), installedVersions.end(), [&](const PackageVersionKey& key) { return key.Version == version2; }));
+    auto availablePackages = package->GetAvailable();
+    REQUIRE(availablePackages.size() == 1);
+    REQUIRE(availablePackages[0]->IsSame(availablePackage->Available[0].get()));
+}
+
+TEST_CASE("CompositeSource_SxS_ThreeVersions_SameAvailable", "[CompositeSource][SideBySide]")
+{
+    auto enableFeature = TestUserSettings::EnableExperimentalFeature(Settings::ExperimentalFeature::Feature::SideBySide);
+
+    std::string version1 = "1.0";
+    std::string version2 = "2.0";
+    std::string version3 = "3.0";
+    std::string productCode1 = "PC1";
+    std::string productCode2 = "PC2";
+    std::string productCode3 = "PC3";
+
+    CompositeTestSetup setup;
+    auto availablePackage = setup.MakeAvailable().ToPackage();
+
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion(version1).WithPC(productCode1), Criteria());
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion(version2).WithPC(productCode2), Criteria());
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion(version3).WithPC(productCode3), Criteria());
+
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+        {
+            SearchResult result;
+            result.Matches.emplace_back(availablePackage, Criteria());
+            return result;
+        };
+
+    SearchResult result = setup.Search();
+
+    REQUIRE(result.Matches.size() == 1);
+    auto package = result.Matches[0].Package;
+    REQUIRE(package);
+    auto installedPackage = package->GetInstalled();
+    REQUIRE(installedPackage);
+    auto installedVersions = installedPackage->GetVersionKeys();
+    REQUIRE(installedVersions.size() == 3);
+    REQUIRE(std::any_of(installedVersions.begin(), installedVersions.end(), [&](const PackageVersionKey& key) { return key.Version == version1; }));
+    REQUIRE(std::any_of(installedVersions.begin(), installedVersions.end(), [&](const PackageVersionKey& key) { return key.Version == version2; }));
+    REQUIRE(std::any_of(installedVersions.begin(), installedVersions.end(), [&](const PackageVersionKey& key) { return key.Version == version3; }));
+    auto availablePackages = package->GetAvailable();
+    REQUIRE(availablePackages.size() == 1);
+    REQUIRE(availablePackages[0]->IsSame(availablePackage->Available[0].get()));
+}
+
+TEST_CASE("CompositeSource_SxS_TwoVersions_SameAvailable_Tracking", "[CompositeSource][SideBySide]")
+{
+    auto enableFeature = TestUserSettings::EnableExperimentalFeature(Settings::ExperimentalFeature::Feature::SideBySide);
+
+    std::string version1 = "1.0";
+    std::string version2 = "2.0";
+    std::string productCode1 = "PC1";
+    std::string productCode2 = "PC2";
+
+    CompositeWithTrackingTestSetup setup;
+    auto installedPackage1 = setup.MakeInstalled().WithVersion(version1).WithPC(productCode1);
+    auto availablePackage = setup.MakeAvailable().ToPackage();
+
+    setup.Installed->Everything.Matches.emplace_back(installedPackage1, Criteria());
+    setup.Installed->Everything.Matches.emplace_back(setup.MakeInstalled().WithVersion(version2).WithPC(productCode2), Criteria());
+    setup.Tracking->GetIndex().AddManifest(installedPackage1);
+
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+        {
+            SearchResult result;
+            result.Matches.emplace_back(availablePackage, Criteria());
+            return result;
+        };
+
+    SearchResult result = setup.Search();
+
+    REQUIRE(result.Matches.size() == 1);
+    auto package = result.Matches[0].Package;
+    REQUIRE(package);
+    auto installedPackage = package->GetInstalled();
+    REQUIRE(installedPackage);
+    auto installedVersions = installedPackage->GetVersionKeys();
+    REQUIRE(installedVersions.size() == 2);
+    REQUIRE(std::any_of(installedVersions.begin(), installedVersions.end(), [&](const PackageVersionKey& key) { return key.Version == version1; }));
+    REQUIRE(std::any_of(installedVersions.begin(), installedVersions.end(), [&](const PackageVersionKey& key) { return key.Version == version2; }));
+    auto availablePackages = package->GetAvailable();
+    REQUIRE(availablePackages.size() == 1);
+    REQUIRE(availablePackages[0]->IsSame(availablePackage->Available[0].get()));
+}
+
+TEST_CASE("CompositeSource_SxS_Available_TwoVersions_SameAvailable", "[CompositeSource][SideBySide]")
+{
+    auto enableFeature = TestUserSettings::EnableExperimentalFeature(Settings::ExperimentalFeature::Feature::SideBySide);
+
+    std::string version1 = "1.0";
+    std::string version2 = "2.0";
+    std::string productCode1 = "PC1";
+    std::string productCode2 = "PC2";
+
+    CompositeTestSetup setup;
+    auto availablePackage = setup.MakeAvailable().ToPackage();
+
+    setup.Installed->SearchFunction = [&](const SearchRequest&)
+        {
+            SearchResult result;
+            result.Matches.emplace_back(setup.MakeInstalled().WithVersion(version1).WithPC(productCode1), Criteria());
+            result.Matches.emplace_back(setup.MakeInstalled().WithVersion(version2).WithPC(productCode2), Criteria());
+            return result;
+        };
+
+    setup.Available->Everything.Matches.emplace_back(availablePackage, Criteria());
+
+    SearchResult result = setup.Search();
+
+    REQUIRE(result.Matches.size() == 1);
+    auto package = result.Matches[0].Package;
+    REQUIRE(package);
+    auto installedPackage = package->GetInstalled();
+    REQUIRE(installedPackage);
+    auto installedVersions = installedPackage->GetVersionKeys();
+    REQUIRE(installedVersions.size() == 2);
+    REQUIRE(std::any_of(installedVersions.begin(), installedVersions.end(), [&](const PackageVersionKey& key) { return key.Version == version1; }));
+    REQUIRE(std::any_of(installedVersions.begin(), installedVersions.end(), [&](const PackageVersionKey& key) { return key.Version == version2; }));
+    auto availablePackages = package->GetAvailable();
+    REQUIRE(availablePackages.size() == 1);
+    REQUIRE(availablePackages[0]->IsSame(availablePackage->Available[0].get()));
 }
