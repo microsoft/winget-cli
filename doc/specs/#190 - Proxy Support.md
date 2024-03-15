@@ -44,12 +44,12 @@ Both of these arguments will be disabled by default and require admin privileges
 > winget install Contoso.App --no-proxy
 ```
 
-To configure the default proxy, a new `proxy` subcommand will be added to the `settings` command, with options to `set` and `reset` the default.
+To configure the default proxy, new `set` and `reset` subcommands will be added to the `settings` command, , with options to `set` and `reset` the default.
 This will require admin privileges and does not require `ProxyCommandLineArgument` to be enabled.
 
 ```
-> winget settings proxy set https://127.0.0.1:2345
-> winget settings proxy reset
+> winget settings set DefaultProxy https://127.0.0.1:2345
+> winget settings reset DefaultProxy
 ```
 
 The current default proxy will be added to the output `winget --info`.
