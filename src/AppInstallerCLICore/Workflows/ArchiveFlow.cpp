@@ -29,7 +29,7 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 if (context.Args.Contains(Execution::Args::Type::IgnoreLocalArchiveMalwareScan) &&
-                    Settings::IsAdminSettingEnabled(Settings::AdminSetting::LocalArchiveMalwareScanOverride))
+                    Settings::IsAdminSettingEnabled(Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride))
                 {
                     AICLI_LOG(CLI, Warning, << "Archive scan detected malware. Proceeding due to --ignore-local-archive-malware-scan");
                     context.Reporter.Warn() << Resource::String::ArchiveFailedMalwareScanOverridden << std::endl;

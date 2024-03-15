@@ -27,7 +27,7 @@ The following arguments are available.
 The options allow you to customize the export experience to meet your needs.
 
 | Option | Description |
-|--------|-------------|  
+|--------|-------------|
 | **-?, --help** | Get additional help on this command. |
 | **--wait** | Prompts the user to press any key before exiting. |
 | **--logs, --open-logs** | Open the default logs location. |

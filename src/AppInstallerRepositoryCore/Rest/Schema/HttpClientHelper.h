@@ -26,6 +26,7 @@ namespace AppInstaller::Repository::Rest::Schema
         std::optional<web::json::value> HandleGet(const utility::string_t& uri, const HttpRequestHeaders& headers = {}, const HttpRequestHeaders& authHeaders = {}) const;
 
         void SetPinningConfiguration(const Certificates::PinningConfiguration& configuration);
+
     protected:
         std::optional<web::json::value> ValidateAndExtractResponse(const web::http::http_response& response) const;
 

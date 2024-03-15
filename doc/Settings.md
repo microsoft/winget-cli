@@ -16,7 +16,7 @@ The `source` settings involve configuration to the WinGet source.
     "source": {
         "autoUpdateIntervalInMinutes": 3
     },
-``` 
+```
 
 ### autoUpdateIntervalInMinutes
 
@@ -33,7 +33,7 @@ The `visual` settings involve visual elements that are displayed by WinGet
 
 ### progressBar
 
-Color of the progress bar that WinGet displays when not specified by arguments. 
+Color of the progress bar that WinGet displays when not specified by arguments.
 
 - accent (default)
 - retro
@@ -232,7 +232,7 @@ The `downloader` setting controls which code is used when downloading packages. 
 `wininet` uses the [WinINet](https://docs.microsoft.com/windows/win32/wininet/about-wininet) APIs, while `do` uses the
 [Delivery Optimization](https://support.microsoft.com/windows/delivery-optimization-in-windows-10-0656e53c-15f2-90de-a87a-a2172c94cf6d) service.
 
-The `doProgressTimeoutInSeconds` setting updates the number of seconds to wait without progress before fallback. The default number of seconds is 60, minimum is 1 and the maximum is 600. 
+The `doProgressTimeoutInSeconds` setting updates the number of seconds to wait without progress before fallback. The default number of seconds is 60, minimum is 1 and the maximum is 600.
 
 ```json
    "network": {
@@ -257,7 +257,7 @@ If set to true, the `interactivity.disable` setting will prevent any interactive
 
 ## Experimental Features
 
-To allow work to be done and distributed to early adopters for feedback, settings can be used to enable "experimental" features. 
+To allow work to be done and distributed to early adopters for feedback, settings can be used to enable "experimental" features.
 
 The `experimentalFeatures` settings involve the configuration of these "experimental" features. Individual features can be enabled under this node. The example below shows sample experimental features.
 
@@ -270,8 +270,8 @@ The `experimentalFeatures` settings involve the configuration of these "experime
 
 ### directMSI
 
-This feature enables the Windows Package Manager to directly install MSI packages with the MSI APIs rather than through msiexec. 
-Note that when silent installation is used this is already in affect, as MSI packages that require elevation will fail in that scenario without it. 
+This feature enables the Windows Package Manager to directly install MSI packages with the MSI APIs rather than through msiexec.
+Note that when silent installation is used this is already in affect, as MSI packages that require elevation will fail in that scenario without it.
 You can enable the feature as shown below.
 
 ```json
@@ -299,6 +299,17 @@ You can enable the feature as shown below.
 ```json
    "experimentalFeatures": {
        "configuration03": true
+   },
+```
+
+### proxy
+
+This feature enables the use of web proxies.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "proxy": true
    },
 ```
 

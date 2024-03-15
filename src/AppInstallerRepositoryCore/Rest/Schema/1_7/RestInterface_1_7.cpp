@@ -11,10 +11,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_7
 {
     Interface::Interface(
         const std::string& restApi,
+        const HttpClientHelper& httpClientHelper,
         IRestClient::Information information,
         const HttpClientHelper::HttpRequestHeaders& additionalHeaders,
-        Authentication::AuthenticationArguments authArgs,
-        const HttpClientHelper& httpClientHelper) : V1_6::Interface(restApi, std::move(information), additionalHeaders, httpClientHelper), m_authArgs(std::move(authArgs))
+        Authentication::AuthenticationArguments authArgs) : V1_6::Interface(restApi, httpClientHelper, std::move(information), additionalHeaders), m_authArgs(std::move(authArgs))
     {
         m_requiredRestApiHeaders[JSON::GetUtilityString(ContractVersion)] = JSON::GetUtilityString(Version_1_7_0.ToString());
 

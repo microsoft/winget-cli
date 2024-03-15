@@ -20,23 +20,6 @@
 #include <wil/result_macros.h>
 #pragma warning( pop )
 
-#include <AppInstallerDateTime.h>
-#include <AppInstallerDownloader.h>
-#include <AppInstallerErrors.h>
-#include <AppInstallerLogging.h>
-#include <AppInstallerRuntime.h>
-#include <AppInstallerSHA256.h>
-#include <AppInstallerStrings.h>
-#include <AppInstallerSynchronization.h>
-#include <AppInstallerTelemetry.h>
-#include <AppInstallerVersions.h>
-#include <winget/ExtensionCatalog.h>
-#include <winget/ExperimentalFeature.h>
-#include <winget/Locale.h>
-#include <winget/Settings.h>
-#include <winget/UserSettings.h>
-#include <winget/Yaml.h>
-
 #include <winsqlite/winsqlite3.h>
 
 #include <winrt/Windows.ApplicationModel.h>
@@ -44,6 +27,7 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
 #include <winrt/Windows.Storage.h>
+#include <winrt/Windows.Web.Http.h>
 #include <wrl/client.h>
 
 #include <algorithm>
@@ -78,3 +62,20 @@
 #include <cpprest/json.h>
 #include <cpprest/uri_builder.h>
 #pragma warning( pop )
+
+#include <AppInstallerDateTime.h>
+#include <AppInstallerDownloader.h>
+#include <AppInstallerErrors.h>
+#include <AppInstallerLogging.h>
+#include <AppInstallerRuntime.h>
+#include <AppInstallerSHA256.h>
+#include <AppInstallerStrings.h>
+#include <AppInstallerSynchronization.h>
+#include <AppInstallerTelemetry.h>
+#include <AppInstallerVersions.h>
+#include <winget/ExtensionCatalog.h>
+#include <winget/ExperimentalFeature.h>
+#include <winget/Locale.h>
+#include <winget/Settings.h>
+#include <winget/UserSettings.h>
+#include <winget/Yaml.h>

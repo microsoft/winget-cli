@@ -1,11 +1,11 @@
-name: "🐛 Bug Report"
+name: '🐛 Bug Report'
 description: Report errors or unexpected behavior.
 body:
   - type: markdown
     attributes:
       value: |
         > This bug tracker is monitored by Windows Package Manager development team and other technical folks.
-        > 
+        >
         > **Important: When reporting BSODs or security issues, DO NOT attach memory dumps, logs, or traces to GitHub issues**.
         > Instead, send dumps/traces to secure@microsoft.com, referencing this GitHub issue.
         >

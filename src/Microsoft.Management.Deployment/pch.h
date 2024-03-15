@@ -4,6 +4,7 @@
 #include <unknwn.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Web.Http.h>
 
 #include <ostream>
 #include <string>

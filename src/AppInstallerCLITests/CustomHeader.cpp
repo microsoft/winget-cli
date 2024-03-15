@@ -54,7 +54,7 @@ TEST_CASE("RestClient_CustomHeader", "[RestSource][CustomHeader]")
     std::optional<std::string> customHeader = "Testing custom header";
     auto header = std::make_pair<>(CustomHeaderName, JSON::GetUtilityString(customHeader.value()));
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, sample, header) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), customHeader, {}, {}, std::move(helper));
+    RestClient client = RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), customHeader, {}, std::move(helper), {});
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }
 
@@ -66,7 +66,7 @@ TEST_CASE("RestSourceSearch_CustomHeader", "[RestSource][CustomHeader]")
     std::unordered_map<utility::string_t, utility::string_t> headers;
     headers.emplace(CustomHeaderName, customHeader);
 
-    V1_1::Interface v1_1{ "https://restsource.com/api", {}, headers, std::move(helper) };
+    V1_1::Interface v1_1{ "https://restsource.com/api", std::move(helper) , {}, headers};
     Schema::IRestClient::SearchResult searchResponse = v1_1.Search({});
     REQUIRE(searchResponse.Matches.size() == 1);
     Schema::IRestClient::Package package = searchResponse.Matches.at(0);
@@ -80,7 +80,7 @@ TEST_CASE("RestSourceSearch_WhitespaceCustomHeader", "[RestSource][CustomHeader]
     std::unordered_map<utility::string_t, utility::string_t> headers;
     headers.emplace(CustomHeaderName, customHeader);
 
-    V1_1::Interface v1_1{ "https://restsource.com/api", {}, headers, std::move(helper) };
+    V1_1::Interface v1_1{ "https://restsource.com/api", std::move(helper), {}, headers };
     Schema::IRestClient::SearchResult searchResponse = v1_1.Search({});
     REQUIRE(searchResponse.Matches.size() == 1);
 }
@@ -93,7 +93,7 @@ TEST_CASE("RestSourceSearch_NoCustomHeader", "[RestSource][CustomHeader]")
     std::unordered_map<utility::string_t, utility::string_t> headers;
     headers.emplace(CustomHeaderName, customHeader);
 
-    V1_1::Interface v1_1{ "https://restsource.com/api", {}, {}, std::move(helper) };
+    V1_1::Interface v1_1{ "https://restsource.com/api", std::move(helper), {}, {} };
     REQUIRE_THROWS_HR(v1_1.Search({}), APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR);
 }
 
@@ -103,7 +103,7 @@ TEST_CASE("RestSourceSearch_CustomHeaderExceedingSize", "[RestSource][CustomHead
     auto header = std::make_pair<>(CustomHeaderName, JSON::GetUtilityString(customHeader));
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, sampleSearchResponse, header) };
 
-    REQUIRE_THROWS_HR(RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), customHeader, {}, {}, std::move(helper)),
+    REQUIRE_THROWS_HR(RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), customHeader, {}, std::move(helper), {}),
         APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH);
 }
 
@@ -121,7 +121,7 @@ TEST_CASE("RestClient_CustomUserAgentHeader", "[RestSource][CustomHeader]")
     std::string testCaller = "TestCaller";
     auto header = std::make_pair<>(web::http::header_names::user_agent, JSON::GetUtilityString(Runtime::GetUserAgent(testCaller)));
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, sample, header) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), {}, testCaller, {}, std::move(helper));
+    RestClient client = RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), {}, testCaller, std::move(helper), {});
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }
 
@@ -138,6 +138,6 @@ TEST_CASE("RestClient_DefaultUserAgentHeader", "[RestSource][CustomHeader]")
 
     auto header = std::make_pair<>(web::http::header_names::user_agent, JSON::GetUtilityString(Runtime::GetDefaultUserAgent()));
     HttpClientHelper helper{ GetHeaderVerificationHandler(web::http::status_codes::OK, sample, header) };
-    RestClient client = RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), {}, {}, {}, std::move(helper));
+    RestClient client = RestClient::Create(utility::conversions::to_utf8string("https://restsource.com/api"), {}, {}, std::move(helper), {});
     REQUIRE(client.GetSourceIdentifier() == "Source123");
 }

@@ -5,6 +5,7 @@
 #include "ShowFlow.h"
 #include <winget/UserSettings.h>
 
+using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility::literals;
 
@@ -295,6 +296,12 @@ namespace AppInstaller::CLI::Workflow
 
                 AICLI_LOG(CLI, Info, << "Prompting for install root.");
                 m_installLocation = context.Reporter.PromptForPath(Resource::String::PromptForInstallRoot);
+                if (m_installLocation.empty())
+                {
+                    AICLI_LOG(CLI, Error, << "Install location is required but the provided path was empty.");
+                    context.Reporter.Error() << Resource::String::InstallLocationNotProvided << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_LOCATION_REQUIRED);
+                }
                 AICLI_LOG(CLI, Info, << "Proceeding with installation using install root: " << m_installLocation);
             }
 
@@ -354,7 +361,7 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
 
-                bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PromptToProceed, Execution::Reporter::Level::Warning);
+                bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PromptToProceed, Reporter::Level::Warning, true);
                 if (accepted)
                 {
                     AICLI_LOG(CLI, Info, << "Proceeding with installation");

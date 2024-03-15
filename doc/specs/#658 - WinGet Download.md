@@ -16,7 +16,7 @@ This spec describes the functionality and high-level implementation design for d
 ## Inspiration
 
 This is inspired by customer feedback, and a need for broader application deployments:
-* Customers want to share the installer with an offline device. 
+* Customers want to share the installer with an offline device.
 
 ## Solution Design
 
@@ -50,10 +50,10 @@ The `download` command will provide users with the ability to download any insta
   ```
 
 ### Selecting the installer
-A new command argument for `--installer-type` has been added to support selecting a specific installer type to download. A package installer should also be able to be selected by `--scope`, `--architecture`, and `--locale`. 
+A new command argument for `--installer-type` has been added to support selecting a specific installer type to download. A package installer should also be able to be selected by `--scope`, `--architecture`, and `--locale`.
 
 ### Downloading the installer
-Downloading the package's installer will still require that the package's installer hash be verified before becoming available to the user to interact with. By default, installers will be downloaded to a unique folder name located in the `%USERPROFILE%/Downloads` directory. The default download directory can be modified in the user's settings. The unique folder name is comprised of the package identifier and package version. The installer will be comprised of the package identifier, package version, scope, architecture, and locale. This naming pattern ensures that the installer is unique and identifiable based on the installer filters applied: 
+Downloading the package's installer will still require that the package's installer hash be verified before becoming available to the user to interact with. By default, installers will be downloaded to a unique folder name located in the `%USERPROFILE%/Downloads` directory. The default download directory can be modified in the user's settings. The unique folder name is comprised of the package identifier and package version. The installer will be comprised of the package identifier, package version, scope, architecture, and locale. This naming pattern ensures that the installer is unique and identifiable based on the installer filters applied:
 
 > Example installer download path name: `%USER_PROFILE%\Downloads\Microsoft.PowerToys_0.78.0\PowerToys (Preview)_0.78.0_User_X64_burn_en-US.exe`
 
@@ -94,7 +94,7 @@ usage: winget download [[-q] <query>] [<options>]
 
 ### WinGet Setting - Default Download Output
 
-The following items will be included in the WinGet Settings Schema 
+The following items will be included in the WinGet Settings Schema
 
 ```json
 "DownloadBehavior": {
@@ -143,7 +143,7 @@ Accessibility should not be impacted by this change. There will be a new column 
 
 ### Security
 
-Security of the Windows Package Manager should not be impacted by this change. 
+Security of the Windows Package Manager should not be impacted by this change.
 
 ### Reliability
 

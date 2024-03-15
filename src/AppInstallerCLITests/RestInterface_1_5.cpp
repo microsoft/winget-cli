@@ -387,7 +387,7 @@ TEST_CASE("GetManifests_GoodResponse_V1_5", "[RestSource][Interface_1_5]")
     GoodManifest_AllFields sampleManifest;
     utility::string_t sample = sampleManifest.GetSampleManifest_AllFields();
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_5{ TestRestUriString, {}, {}, std::move(helper) };
+    Interface v1_5{ TestRestUriString, std::move(helper), {} };
     std::vector<Manifest> manifests = v1_5.GetManifests("Foo.Bar");
     REQUIRE(manifests.size() == 1);
 
