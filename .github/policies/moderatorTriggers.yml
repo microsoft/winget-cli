@@ -404,6 +404,14 @@ configuration:
                 then:
                   - addLabel:
                       label: Needs-Author-Feedback
+              # Needs-Repro
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[Nn]eeds[\s-][Rr]epro'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Needs-Repro
               # Portable
               - if:
                   - commentContains:
