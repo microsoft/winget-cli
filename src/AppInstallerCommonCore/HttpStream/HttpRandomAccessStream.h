@@ -19,8 +19,7 @@ namespace AppInstaller::Utility::HttpStream
         winrt::Windows::Storage::Streams::IInputStream>
     {
     public:
-        winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::Streams::IRandomAccessStream> InitializeAsync(
-            const winrt::Windows::Foundation::Uri& uri);
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::Streams::IRandomAccessStream> InitializeAsync(const winrt::Windows::Foundation::Uri& uri);
         uint64_t Size() const;
         void Size(uint64_t value);
         uint64_t Position() const;

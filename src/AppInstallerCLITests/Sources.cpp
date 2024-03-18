@@ -183,7 +183,7 @@ Sources:
     IsTombstone: false
     TrustLevel:
     - Trusted
-      StoreOrigin
+    - StoreOrigin
     Explicit: true
 )"sv;
 

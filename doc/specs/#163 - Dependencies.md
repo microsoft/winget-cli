@@ -42,9 +42,9 @@ Do you have these dependencies installed [y/n]?
 ```
 If the user chooses "yes", the installation will proceed.
 
-Note: This is essentially the complete implementation for External Dependencies. It is not required at this stage to deal with nested dependencies. 
+Note: This is essentially the complete implementation for External Dependencies. It is not required at this stage to deal with nested dependencies.
 
-In addition, the consumes and provides concept is not in scope with this implementation. 
+In addition, the consumes and provides concept is not in scope with this implementation.
 
 ### Windows Features
 These include items like .NET Frameworks, Internet Information Services, and Windows Subsystem for Linux. In some cases, turning these features on may require a reboot.
@@ -72,7 +72,7 @@ Several different package installers exist and treat dependencies differently.
 
 MSIX installers have an internal mechanism to identify dependencies.
 
-MSI and .exe installers may include dependencies. 
+MSI and .exe installers may include dependencies.
 
 ### Accessibility
 

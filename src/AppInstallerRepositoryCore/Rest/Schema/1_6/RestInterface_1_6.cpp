@@ -11,9 +11,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_6
 {
     Interface::Interface(
         const std::string& restApi,
+        const HttpClientHelper& httpClientHelper,
         IRestClient::Information information,
-        const HttpClientHelper::HttpRequestHeaders& additionalHeaders,
-        const HttpClientHelper& httpClientHelper) : V1_5::Interface(restApi, std::move(information), additionalHeaders, httpClientHelper)
+        const HttpClientHelper::HttpRequestHeaders& additionalHeaders) : V1_5::Interface(restApi, httpClientHelper, std::move(information), additionalHeaders)
     {
         m_requiredRestApiHeaders[JSON::GetUtilityString(ContractVersion)] = JSON::GetUtilityString(Version_1_6_0.ToString());
     }

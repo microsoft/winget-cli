@@ -100,7 +100,7 @@ If you disable or do not configure this setting, users will not be able to insta
 
         If you disable this policy, users will not be able execute the Windows Package Manager CLI, and PowerShell cmdlets.
 
-        If you enable, or do not configuring this policy, users will be able to execute the Windows Package Manager CLI commands, and PowerShell cmdlets. (Provided “Enable App Installer” policy is not disabled).
+        If you enable, or do not configure this policy, users will be able to execute the Windows Package Manager CLI commands, and PowerShell cmdlets. (Provided “Enable App Installer” policy is not disabled).
 
         This policy does not override the “Enable App Installer” policy.</string>
       <string id="EnableWindowsPackageManagerConfiguration">Enable Windows Package Manager Configuration</string>
@@ -109,6 +109,19 @@ If you disable or do not configure this setting, users will not be able to insta
 If you enable or do not configure this setting, users will be able to use the Windows Package Manager configuration feature.
 
 If you disable this setting, users will not be able to use the Windows Package Manager configuration feature.</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptions">Enable Windows Package Manager Proxy command line options</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
+        This policy controls whether the Windows Package Manager usage of proxy can be configured by users through the command line.
+
+        If you enable this setting, users will be able to configure the Windows Package Manager's use of proxy through the command line.
+
+        If you disable or do not configure this setting, users will not be able to to configure the Windows Package Manager's use of proxy through the command line.</string>
+      <string id="WindowsPackageManagerDefaultProxy">Set Windows Package Manager Default Proxy</string>
+      <string id="WindowsPackageManagerDefaultProxyExplanation">This policy controls the default proxy used by the Windows Package Manager.
+
+If you disable or do not configure this setting, no proxy will be used by default.
+
+If you enable this setting, the specified proxy will be used by default.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -119,6 +132,11 @@ If you disable this setting, users will not be able to use the Windows Package M
       </presentation>
       <presentation id="AllowedSources">
         <listBox refId="AllowedSources" required="false">Allowed Sources: </listBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerDefaultProxy">
+        <textBox refId="WindowsPackageManagerDefaultProxy">
+          <label>Default Proxy</label>
+        </textBox>
       </presentation>
     </presentationTable>
   </resources>

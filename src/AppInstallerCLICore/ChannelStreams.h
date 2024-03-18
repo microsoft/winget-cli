@@ -94,6 +94,10 @@ namespace AppInstaller::CLI::Execution
         OutputStream& operator<<(const VirtualTerminal::ConstructedSequence& sequence);
         OutputStream& operator<<(const std::filesystem::path& path);
 
+        inline bool IsEnabled() {
+            return m_enabled;
+        }
+
     private:
         // Applies the format for the stream.
         void ApplyFormat();

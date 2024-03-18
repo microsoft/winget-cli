@@ -189,6 +189,9 @@
     <ClInclude Include="Public\winget\Authentication.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\NetworkSettings.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -337,6 +340,9 @@
     </ClCompile>
     <ClCompile Include="Authentication\WebAccountManagerAuthenticator.cpp">
       <Filter>Authentication</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkSettings.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

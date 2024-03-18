@@ -10,7 +10,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     // Interface to this schema version exposed through IRestClient.
     struct Interface : public IRestClient
     {
-        Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper = {});
+        Interface(const std::string& restApi, const Schema::HttpClientHelper& helper);
 
         Interface(const Interface&) = delete;
         Interface& operator=(const Interface&) = delete;

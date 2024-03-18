@@ -34,7 +34,7 @@ configuration:
                           permission: Write
         then:
           - addReply:
-              reply:  >-
+              reply: >-
                 Hello @${issueAuthor},
 
 

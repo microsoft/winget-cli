@@ -34,4 +34,36 @@ namespace AppInstaller::CLI
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
+
+    struct SettingsSetCommand final : public Command
+    {
+        SettingsSetCommand(std::string_view parent) : Command("set", {}, parent, Settings::TogglePolicy::Policy::Settings) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        virtual Resource::LocString ShortDescription() const override;
+        virtual Resource::LocString LongDescription() const override;
+
+        Utility::LocIndView HelpLink() const override;
+
+    protected:
+        void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
+
+    struct SettingsResetCommand final : public Command
+    {
+        SettingsResetCommand(std::string_view parent) : Command("reset", {}, parent, Settings::TogglePolicy::Policy::Settings) {}
+
+        std::vector<Argument> GetArguments() const override;
+
+        virtual Resource::LocString ShortDescription() const override;
+        virtual Resource::LocString LongDescription() const override;
+
+        Utility::LocIndView HelpLink() const override;
+
+    protected:
+        void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
 }

@@ -1064,7 +1064,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             auto promptString = m_isApply ? Resource::String::ConfigurationWarningPromptApply : Resource::String::ConfigurationWarningPromptTest;
-            if (!context.Reporter.PromptForBoolResponse(promptString, Reporter::Level::Warning))
+            if (!context.Reporter.PromptForBoolResponse(promptString, Reporter::Level::Warning, false))
             {
                 AICLI_TERMINATE_CONTEXT(WINGET_CONFIG_ERROR_WARNING_NOT_ACCEPTED);
             }

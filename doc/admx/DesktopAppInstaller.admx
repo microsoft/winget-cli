@@ -166,5 +166,22 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="EnableWindowsPackageManagerProxyCommandLineOptions" class="Machine" displayName="$(string.EnableWindowsPackageManagerProxyCommandLineOptions)" explainText="$(string.EnableWindowsPackageManagerProxyCommandLineOptionsExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableWindowsPackageManagerProxyCommandLineOptions">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="WindowsPackageManagerDefaultProxy" class="Machine" displayName="$(string.WindowsPackageManagerDefaultProxy)" explainText="$(string.WindowsPackageManagerDefaultProxyExplanation)" presentation="$(presentation.WindowsPackageManagerDefaultProxy)" key="Software\Policies\Microsoft\Windows\AppInstaller">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <elements>
+        <text id="WindowsPackageManagerDefaultProxy" valueName="DefaultProxy"  />
+      </elements>
+    </policy>
   </policies>
 </policyDefinitions>
