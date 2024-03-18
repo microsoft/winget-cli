@@ -183,7 +183,15 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
                     out << YAML::Key << s_SourcesYaml_Source_Explicit << YAML::Value << details.Explicit;
-                    out << YAML::Key << s_SourcesYaml_Source_TrustLevel << YAML::Value << static_cast<int>(details.TrustLevel);
+
+                    out << YAML::Key << s_SourcesYaml_Source_TrustLevel;
+                    out << YAML::BeginSeq;
+                    for (const auto& trustLevel : Repository::GetSourceTrustLevelAsStringVector(details.TrustLevel))
+                    {
+                        out << trustLevel;
+                    }
+                    out << YAML::EndSeq;
+
                     out << YAML::EndMap;
                 }
             }
@@ -639,14 +647,19 @@ namespace AppInstaller::Repository
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
-                    if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Explicit, details.Explicit)) { return false; }
-                    TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
+                    TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Explicit, details.Explicit, false);
 
-                    int trustLevel{};
-                    if (TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_TrustLevel, trustLevel, false))
+                    YAML::Node valueNode = source[std::string{ s_SourcesYaml_Source_TrustLevel }];
+                    if (valueNode && valueNode.IsSequence())
                     {
-                        details.TrustLevel = static_cast<Repository::SourceTrustLevel>(trustLevel);
+                        std::vector<std::string> trustLevels;
+                        const std::vector<YAML::Node> entries = valueNode.Sequence();
+                        trustLevels.reserve(entries.size());
+                        std::transform(entries.begin(), entries.end(), std::back_inserter(trustLevels), [](const auto& e) { return e.as<std::string>(); });
+                        details.TrustLevel = Repository::GetSourceTrustLevelFromList(trustLevels);
                     }
+
+                    TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
 
                     return true;
                 });

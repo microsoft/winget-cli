@@ -30,6 +30,8 @@ constexpr std::string_view s_SourcesYaml_Source_Name = "Name"sv;
 constexpr std::string_view s_SourcesYaml_Source_Type = "Type"sv;
 constexpr std::string_view s_SourcesYaml_Source_Arg = "Arg"sv;
 constexpr std::string_view s_SourcesYaml_Source_Data = "Data"sv;
+constexpr std::string_view s_SourcesYaml_Source_TrustLevel = "TrustLevel"sv;
+constexpr std::string_view s_SourcesYaml_Source_Explicit = "Explicit"sv;
 constexpr std::string_view s_SourcesYaml_Source_LastUpdate = "LastUpdate"sv;
 
 constexpr std::string_view s_EmptySources = R"(
@@ -172,6 +174,19 @@ Sources:
     IsTombstone: false
 )"sv;
 
+constexpr std::string_view s_SingleSource_TrustLevels_Explicit= R"(
+Sources:
+  - Name: testName
+    Type: testType
+    Arg: testArg
+    Data: testData
+    IsTombstone: false
+    TrustLevel:
+    - Trusted
+      StoreOrigin
+    Explicit: true
+)"sv;
+
 namespace
 {
     // Helper to create a simple source.
@@ -281,6 +296,27 @@ TEST_CASE("RepoSources_SingleSource", "[sources]")
     REQUIRE(sources[0].Arg == "testArg");
     REQUIRE(sources[0].Data == "testData");
     REQUIRE(sources[0].Origin == SourceOrigin::User);
+    REQUIRE(sources[0].LastUpdateTime == ConvertUnixEpochToSystemClock(0));
+
+    RequireDefaultSourcesAt(sources, 1);
+}
+
+TEST_CASE("RepoSources_SingleSource_TrustLevel_Explicit", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_SingleSource_TrustLevels_Explicit);
+    RemoveSetting(Stream::SourcesMetadata);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
+
+    REQUIRE(sources[0].Name == "testName");
+    REQUIRE(sources[0].Type == "testType");
+    REQUIRE(sources[0].Arg == "testArg");
+    REQUIRE(sources[0].Data == "testData");
+    REQUIRE(sources[0].Origin == SourceOrigin::User);
+    REQUIRE(sources[0].Explicit == true);
+    REQUIRE(WI_IsFlagSet(sources[0].TrustLevel, SourceTrustLevel::Trusted));
+    REQUIRE(WI_IsFlagSet(sources[0].TrustLevel, SourceTrustLevel::StoreOrigin));
     REQUIRE(sources[0].LastUpdateTime == ConvertUnixEpochToSystemClock(0));
 
     RequireDefaultSourcesAt(sources, 1);

@@ -128,21 +128,7 @@ namespace AppInstaller::CLI::Workflow
             if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
             {
                 std::string trustLevelArg = std::string{ context.Args.GetArg(Execution::Args::Type::SourceTrustLevel) };
-                Repository::SourceTrustLevel desiredTrustLevel = Repository::SourceTrustLevel::None;
-
-                for(auto trustLevel : Utility::Split(trustLevelArg, '|'))
-                {
-                    switch (Repository::GetSourceTrustLevelFromName(trustLevel))
-                    {
-                    case Repository::SourceTrustLevel::StoreOrigin:
-                        WI_SetFlag(desiredTrustLevel, Repository::SourceTrustLevel::StoreOrigin);
-                        break;
-                    case Repository::SourceTrustLevel::Trusted:
-                        WI_SetFlag(desiredTrustLevel, Repository::SourceTrustLevel::Trusted);
-                        break;
-                    }
-                }
-
+                Repository::SourceTrustLevel desiredTrustLevel = Repository::GetSourceTrustLevelFromList(Utility::Split(trustLevelArg, '|'));
                 sourceToAdd.SetTrustLevel(desiredTrustLevel);
             }
 

@@ -332,6 +332,33 @@ namespace AppInstaller::Repository
         }
     }
 
+    SourceTrustLevel GetSourceTrustLevelFromList(std::vector<std::string> trustLevels)
+    {
+        Repository::SourceTrustLevel result = Repository::SourceTrustLevel::None;
+        for (auto& trustLevel : trustLevels)
+        {
+            Repository::SourceTrustLevel trustLevelEnum = GetSourceTrustLevelFromName(trustLevel);
+            if (trustLevelEnum == Repository::SourceTrustLevel::None)
+            {
+                return Repository::SourceTrustLevel::None;
+            }
+            else if (trustLevelEnum == Repository::SourceTrustLevel::Trusted)
+            {
+                WI_SetFlag(result, Repository::SourceTrustLevel::Trusted);
+            }
+            else if (trustLevelEnum == Repository::SourceTrustLevel::StoreOrigin)
+            {
+                WI_SetFlag(result, Repository::SourceTrustLevel::StoreOrigin);
+            }
+            else
+            {
+                THROW_HR_MSG(E_UNEXPECTED, "Invalid source trust level.");
+            }
+        }
+
+        return result;
+    }
+
     SourceTrustLevel GetSourceTrustLevelFromName(std::string_view trustLevel)
     {
         std::string lowerTrustLevel = Utility::ToLower(trustLevel);

@@ -48,6 +48,9 @@ namespace AppInstaller::Repository
     // Converts a string_view to the corresponding SourceTrustLevel enum.
     SourceTrustLevel GetSourceTrustLevelFromName(std::string_view trustLevel);
 
+    // Converts a vector of trust level strings to the corresponding SourceTrustLevel enum flag.
+    SourceTrustLevel GetSourceTrustLevelFromList(std::vector<std::string> values);
+
     // Converts a SourceTrustLevel enum to the corresponding string.
     std::string GetSourceTrustLevelName(SourceTrustLevel trustLevel);
 
