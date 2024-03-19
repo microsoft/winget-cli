@@ -696,6 +696,8 @@ namespace AppInstaller::Repository
                         details.Data = additionalSource.Data;
                         details.Identifier = additionalSource.Identifier;
                         details.Origin = SourceOrigin::GroupPolicy;
+                        details.TrustLevel = Repository::ConvertToSourceTrustLevelEnum(additionalSource.TrustLevel);
+                        details.Explicit = additionalSource.Explicit;
 #ifndef AICLI_DISABLE_TEST_HOOKS
                         details.CertificatePinningConfiguration = additionalSource.PinningConfiguration;
 #endif
