@@ -186,7 +186,7 @@ namespace AppInstaller::Repository
 
                     out << YAML::Key << s_SourcesYaml_Source_TrustLevel;
                     out << YAML::BeginSeq;
-                    for (const auto& trustLevel : Repository::GetSourceTrustLevelAsStringVector(details.TrustLevel))
+                    for (const auto& trustLevel : Repository::SourceTrustLevelToList(details.TrustLevel))
                     {
                         out << trustLevel;
                     }
@@ -656,7 +656,7 @@ namespace AppInstaller::Repository
                         const std::vector<YAML::Node> entries = valueNode.Sequence();
                         trustLevels.reserve(entries.size());
                         std::transform(entries.begin(), entries.end(), std::back_inserter(trustLevels), [](const auto& e) { return e.as<std::string>(); });
-                        details.TrustLevel = Repository::GetSourceTrustLevelFromList(trustLevels);
+                        details.TrustLevel = Repository::ConvertToSourceTrustLevelEnum(trustLevels);
                     }
 
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);

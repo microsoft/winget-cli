@@ -127,8 +127,15 @@ namespace AppInstaller::CLI::Workflow
 
             if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
             {
-                std::string trustLevelArg = std::string{ context.Args.GetArg(Execution::Args::Type::SourceTrustLevel) };
-                Repository::SourceTrustLevel desiredTrustLevel = Repository::GetSourceTrustLevelFromList(Utility::Split(trustLevelArg, '|'));
+                std::vector<std::string> trustLevelArgs = Utility::Split(std::string{ context.Args.GetArg(Execution::Args::Type::SourceTrustLevel) }, '|');
+                std::vector<std::string> trustLevels;
+
+                for (auto trustLevelArg : trustLevelArgs)
+                {
+                    trustLevels.emplace_back(Utility::Trim(trustLevelArg));
+                }
+
+                Repository::SourceTrustLevel desiredTrustLevel = Repository::ConvertToSourceTrustLevelEnum(trustLevels);
                 sourceToAdd.SetTrustLevel(desiredTrustLevel);
             }
 
@@ -169,7 +176,7 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ Resource::LocString(Resource::String::SourceListArg), source.Arg });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListData), source.Data });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListIdentifier), source.Identifier });
-            table.OutputLine({ Resource::LocString(Resource::String::SourceListTrustLevel), Repository::GetSourceTrustLevelStringForDisplay(source.TrustLevel) });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListTrustLevel), Repository::GetSourceTrustLevelForDisplay(source.TrustLevel) });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), Utility::ConvertBoolToString(source.Explicit) });
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
@@ -319,7 +326,7 @@ namespace AppInstaller::CLI::Workflow
                 s.Arg = source.Arg;
                 s.Data = source.Data;
                 s.Identifier = source.Identifier;
-                s.TrustLevel = Repository::GetSourceTrustLevelAsStringVector(source.TrustLevel);
+                s.TrustLevel = Repository::SourceTrustLevelToList(source.TrustLevel);
                 s.Explicit = source.Explicit;
                 context.Reporter.Info() << s.ToJsonString() << std::endl;
             }

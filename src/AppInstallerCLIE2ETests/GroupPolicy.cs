@@ -183,6 +183,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Test additional sources with trust levels and explicit are enabled by policy.
         /// </summary>
+        [Test]
         public void EnableAdditionalSources_TrustLevel_Explicit()
         {
             // Remove the test source, then add it with policy.
@@ -201,8 +202,8 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Trusted"));
 
             var searchResult = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, searchResult.ExitCode);
-            Assert.True(searchResult.StdOut.Contains("No package found matching input criteria."));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_SOURCES_DEFINED, searchResult.ExitCode);
+            Assert.True(searchResult.StdOut.Contains("No sources defined; add one with 'source add' or reset to defaults with 'source reset'"));
         }
 
         /// <summary>

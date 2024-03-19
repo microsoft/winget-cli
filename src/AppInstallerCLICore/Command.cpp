@@ -748,7 +748,7 @@ namespace AppInstaller::CLI
 
                 for (auto trustLevel : Utility::Split(trustLevelArg, '|'))
                 {
-                    Repository::GetSourceTrustLevelFromName(trustLevel);
+                    Repository::ConvertToSourceTrustLevelEnum(Utility::Trim(trustLevel));
                 }
             }
             catch (...)

@@ -322,44 +322,7 @@ namespace AppInstaller::Repository
         THROW_HR(APPINSTALLER_CLI_ERROR_INVALID_SOURCE_TYPE);
     }
 
-    std::string GetSourceTrustLevelName(SourceTrustLevel trustLevel)
-    {
-        switch (trustLevel)
-        {
-        case SourceTrustLevel::StoreOrigin:     return "StoreOrigin";
-        case SourceTrustLevel::Trusted:         return "Trusted";
-        default:                                return "None";
-        }
-    }
-
-    SourceTrustLevel GetSourceTrustLevelFromList(std::vector<std::string> trustLevels)
-    {
-        Repository::SourceTrustLevel result = Repository::SourceTrustLevel::None;
-        for (auto& trustLevel : trustLevels)
-        {
-            Repository::SourceTrustLevel trustLevelEnum = GetSourceTrustLevelFromName(trustLevel);
-            if (trustLevelEnum == Repository::SourceTrustLevel::None)
-            {
-                return Repository::SourceTrustLevel::None;
-            }
-            else if (trustLevelEnum == Repository::SourceTrustLevel::Trusted)
-            {
-                WI_SetFlag(result, Repository::SourceTrustLevel::Trusted);
-            }
-            else if (trustLevelEnum == Repository::SourceTrustLevel::StoreOrigin)
-            {
-                WI_SetFlag(result, Repository::SourceTrustLevel::StoreOrigin);
-            }
-            else
-            {
-                THROW_HR_MSG(E_UNEXPECTED, "Invalid source trust level.");
-            }
-        }
-
-        return result;
-    }
-
-    SourceTrustLevel GetSourceTrustLevelFromName(std::string_view trustLevel)
+    SourceTrustLevel ConvertToSourceTrustLevelEnum(std::string_view trustLevel)
     {
         std::string lowerTrustLevel = Utility::ToLower(trustLevel);
 
@@ -381,11 +344,53 @@ namespace AppInstaller::Repository
         }
     }
 
-    std::vector<std::string> GetSourceTrustLevelAsStringVector(SourceTrustLevel trustLevel)
+    std::string SourceTrustLevelToString(SourceTrustLevel trustLevel)
+    {
+        switch (trustLevel)
+        {
+        case SourceTrustLevel::StoreOrigin:
+            return "StoreOrigin";
+        case SourceTrustLevel::Trusted:
+            return "Trusted";
+        case SourceTrustLevel::None:
+            return "None";
+        }
+
+        return "Unknown";
+    }
+
+    SourceTrustLevel ConvertToSourceTrustLevelEnum(std::vector<std::string> trustLevels)
+    {
+        Repository::SourceTrustLevel result = Repository::SourceTrustLevel::None;
+        for (auto& trustLevel : trustLevels)
+        {
+            Repository::SourceTrustLevel trustLevelEnum = ConvertToSourceTrustLevelEnum(trustLevel);
+            if (trustLevelEnum == Repository::SourceTrustLevel::None)
+            {
+                return Repository::SourceTrustLevel::None;
+            }
+            else if (trustLevelEnum == Repository::SourceTrustLevel::Trusted)
+            {
+                WI_SetFlag(result, Repository::SourceTrustLevel::Trusted);
+            }
+            else if (trustLevelEnum == Repository::SourceTrustLevel::StoreOrigin)
+            {
+                WI_SetFlag(result, Repository::SourceTrustLevel::StoreOrigin);
+            }
+            else
+            {
+                THROW_HR_MSG(E_UNEXPECTED, "Invalid source trust level.");
+            }
+        }
+
+        return result;
+    }
+
+    std::vector<std::string> SourceTrustLevelToList(SourceTrustLevel trustLevel)
     {
         if (trustLevel == Repository::SourceTrustLevel::None)
         {
-            return { GetSourceTrustLevelName(Repository::SourceTrustLevel::None) };
+            return { SourceTrustLevelToString(Repository::SourceTrustLevel::None) };
         }
         else
         {
@@ -393,29 +398,29 @@ namespace AppInstaller::Repository
 
             if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::Trusted))
             {
-                result.emplace_back(Repository::GetSourceTrustLevelName(Repository::SourceTrustLevel::Trusted));
+                result.emplace_back(Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::Trusted));
             }
             if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::StoreOrigin))
             {
-                result.emplace_back(Repository::GetSourceTrustLevelName(Repository::SourceTrustLevel::StoreOrigin));
+                result.emplace_back(Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::StoreOrigin));
             }
 
             return result;
         }
     }
 
-    std::string GetSourceTrustLevelStringForDisplay(SourceTrustLevel trustLevel)
+    std::string GetSourceTrustLevelForDisplay(SourceTrustLevel trustLevel)
     {
         std::string result;
         if (trustLevel == Repository::SourceTrustLevel::None)
         {
-            result = Repository::GetSourceTrustLevelName(Repository::SourceTrustLevel::None);
+            result = Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::None);
         }
         else
         {
             if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::Trusted))
             {
-                result += Repository::GetSourceTrustLevelName(Repository::SourceTrustLevel::Trusted);
+                result += Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::Trusted);
             }
             if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::StoreOrigin))
             {
@@ -424,7 +429,7 @@ namespace AppInstaller::Repository
                     result += " | ";
                 }
 
-                result += Repository::GetSourceTrustLevelName(Repository::SourceTrustLevel::StoreOrigin);
+                result += Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::StoreOrigin);
             }
         }
 
@@ -968,7 +973,7 @@ namespace AppInstaller::Repository
                     sourceList.RemoveSource(details);
                     detailsInternal->TrustLevel = details.TrustLevel;
                     sourceList.AddSource(details);
-                    AICLI_LOG(Repo, Info, << "TrustLevel updated to: " << Repository::GetSourceTrustLevelStringForDisplay(details.TrustLevel));
+                    AICLI_LOG(Repo, Info, << "TrustLevel updated to: " << Repository::GetSourceTrustLevelForDisplay(details.TrustLevel));
                 }
 
                 if (updateResult.MetadataWritten)
