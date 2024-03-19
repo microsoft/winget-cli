@@ -195,45 +195,11 @@ namespace AppInstaller::Settings
                 }
             };
 
-            auto readSourceBoolAttribute = [&](const std::string& name, bool SourceFromPolicy::* member)
-                {
-                    if (sourceJson.isMember(name) && sourceJson[name].isBool())
-                    {
-                        source.*member = sourceJson[name].asBool();
-                        return true;
-                    }
-                    else
-                    {
-                        AICLI_LOG(Core, Warning, << "Source JSON does not contain a bool value for " << name);
-                        return false;
-                    }
-                };
-
-            auto readSourceStringArrayAttribute = [&](const std::string& name, std::vector<std::string> SourceFromPolicy::* member)
-                {
-                    if (sourceJson.isMember(name) && sourceJson[name].isArray())
-                    {
-                        const Json::Value in = sourceJson[name];
-                        std::vector<std::string> result;
-                        result.reserve(in.size());
-                        std::transform(in.begin(), in.end(), std::back_inserter(result), [](const auto& e) { return e.asString(); });
-                        source.*member = result;
-                        return true;
-                    }
-                    else
-                    {
-                        AICLI_LOG(Core, Warning, << "Source JSON does not contain an array value for " << name);
-                        return false;
-                    }
-                };
-
             bool allRead = readSourceAttribute("Name", &SourceFromPolicy::Name)
                 && readSourceAttribute("Arg", &SourceFromPolicy::Arg)
                 && readSourceAttribute("Type", &SourceFromPolicy::Type)
                 && readSourceAttribute("Data", &SourceFromPolicy::Data)
-                && readSourceAttribute("Identifier", &SourceFromPolicy::Identifier)
-                && readSourceStringArrayAttribute("TrustLevel", &SourceFromPolicy::TrustLevel)
-                && readSourceBoolAttribute("Explicit", &SourceFromPolicy::Explicit);
+                && readSourceAttribute("Identifier", &SourceFromPolicy::Identifier);
 
             // Add fields for source policy.
             
@@ -254,6 +220,22 @@ namespace AppInstaller::Settings
                 }
             }
 #endif
+            // TrustLevel and Explicit are optional policy fields with default values.
+            const std::string trustLevelName = "TrustLevel";
+            if (sourceJson.isMember(trustLevelName) && sourceJson[trustLevelName].isArray())
+            {
+                const Json::Value in = sourceJson[trustLevelName];
+                std::vector<std::string> result;
+                result.reserve(in.size());
+                std::transform(in.begin(), in.end(), std::back_inserter(result), [](const auto& e) { return e.asString(); });
+                source.TrustLevel = result;
+            }
+
+            const std::string explicitName = "Explicit";
+            if (sourceJson.isMember(explicitName) && sourceJson[explicitName].isBool())
+            {
+                source.Explicit = sourceJson[explicitName].asBool();
+            }
 
             return source;
         }

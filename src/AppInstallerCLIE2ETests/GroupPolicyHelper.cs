@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="GroupPolicyHelper.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -385,6 +385,16 @@ namespace AppInstallerCLIE2ETests
             /// Gets or sets certificate pinning.
             /// </summary>
             public GroupPolicyCertificatePinning CertificatePinning { get; set; }
+
+            /// <summary>
+            /// Gets or sets the source trust levels.
+            /// </summary>
+            public string[] TrustLevel { get; set; }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether the source is explicit.
+            /// </summary>
+            public bool Explicit { get; set; }
         }
 
         /// <summary>

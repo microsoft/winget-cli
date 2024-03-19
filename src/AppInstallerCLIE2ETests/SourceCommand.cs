@@ -69,6 +69,9 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void SourceAddWithExplicit()
         {
+            // Remove the test source.
+            TestCommon.RunAICLICommand("source remove", "TestSource");
+
             var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --explicit");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
