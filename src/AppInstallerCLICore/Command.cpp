@@ -613,6 +613,7 @@ namespace AppInstaller::CLI
         }
 
         // Special handling for multi-query arguments:
+        execArgs.MakeMultiQueryContainUniqueValues();
         execArgs.MoveMultiQueryToSingleQueryIfNeeded();
     }
 
