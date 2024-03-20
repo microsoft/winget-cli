@@ -1304,7 +1304,7 @@ private:
      *
      * Multiple methods can be used in the same dependency constraint.
      *
-     * If the format of any part of the the dependency node does not match one
+     * If the format of any part of the dependency node does not match one
      * of these formats, an exception will be thrown.
      *
      * @param   rootSchema    The Schema instance, and root subschema, through
@@ -1465,7 +1465,7 @@ private:
     {
         constraints::LinearItemsConstraint constraint;
 
-        // Construct a Schema object for the the additionalItems constraint,
+        // Construct a Schema object for the additionalItems constraint,
         // if the additionalItems property is present
         if (additionalItems) {
             if (additionalItems->maybeBool()) {

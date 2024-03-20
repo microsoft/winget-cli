@@ -592,7 +592,7 @@ local unzFile unzOpenInternal (const void *path,
 
     uLong number_disk;          /* number of the current dist, used for
                                    spaning ZIP, unsupported, always 0*/
-    uLong number_disk_with_CD;  /* number the the disk with central dir, used
+    uLong number_disk_with_CD;  /* number the disk with central dir, used
                                    for spaning ZIP, unsupported, always 0*/
     ZPOS64_T number_entry_CD;      /* total number of entries in
                                    the central dir

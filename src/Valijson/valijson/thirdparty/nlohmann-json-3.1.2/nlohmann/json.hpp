@@ -872,7 +872,7 @@ enum class value_t : std::uint8_t
     number_integer,   ///< number value (signed integer)
     number_unsigned,  ///< number value (unsigned integer)
     number_float,     ///< number value (floating-point)
-    discarded         ///< discarded by the the parser callback function
+    discarded         ///< discarded by the parser callback function
 };
 
 /*!
@@ -16445,7 +16445,7 @@ class basic_json
 
     Uses a JSON pointer to retrieve a reference to the respective JSON value.
     No bound checking is performed. The function does not change the JSON
-    value; no `null` values are created. In particular, the the special value
+    value; no `null` values are created. In particular, the special value
     `-` yields an exception.
 
     @param[in] ptr  JSON pointer to the desired element

@@ -2396,7 +2396,7 @@ inline void _TaskEventLogger::_LogTaskCompleted()
 /// <summary>
 ///     The implementation of a first-class task. This structure contains the task group used to execute
 ///     the task function and handles the scheduling. The _Task_impl is created as a shared_ptr
-///     member of the the public task class, so its destruction is handled automatically.
+///     member of the public task class, so its destruction is handled automatically.
 /// </summary>
 /// <typeparam name="_ReturnType">
 ///     The result type of this task.

@@ -935,7 +935,7 @@ Internet-Draft              JSON Hyper-Schema              February 2013
    of an object, the user agent SHOULD NOT consider the representation
    to be the authoritative representation of the resource denoted by the
    target URI if the target URI is not equivalent to or a sub-path of
-   the the URI used to request the resource representation which
+   the URI used to request the resource representation which
    contains the target URI with the "self" link.
 
 

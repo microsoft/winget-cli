@@ -860,7 +860,7 @@ Internet-Draft           JSON Schema Media Type            November 2010
    of the schema, and can be parameterized by the instance values.  The
    link description format can be used on its own in regular (non-schema
    documents), and use of this format can be declared by referencing the
-   normative link description schema as the the schema for the data
+   normative link description schema as the schema for the data
    structure that uses the links.  The URI of the normative link
    description schema is: http://json-schema.org/links (latest version)
    or http://json-schema.org/draft-03/links (draft-03 version).

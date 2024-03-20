@@ -16,7 +16,7 @@ is http://zlib.net/ .  Before reporting a problem, please check this site to
 verify that you have the latest version of zlib; otherwise get the latest
 version and check whether the problem still exists or not.
 
-PLEASE read DLL_FAQ.txt, and the the zlib FAQ http://zlib.net/zlib_faq.html
+PLEASE read DLL_FAQ.txt, and the zlib FAQ http://zlib.net/zlib_faq.html
 before asking for help.
 
 
