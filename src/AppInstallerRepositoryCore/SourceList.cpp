@@ -145,7 +145,10 @@ namespace AppInstaller::Repository
             else
             {
                 std::vector<SourceDetailsInternal> result;
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCES_INVALID, !TryReadSourceDetails(setting.GetName(), *sourcesStream, rootName, parse, result));
+                if (!TryReadSourceDetails(setting.GetName(), *sourcesStream, rootName, parse, result))
+                {
+                    AICLI_LOG(YAML, Error, << "Ignoring corrupted source data.");
+                }
                 return result;
             }
         }
