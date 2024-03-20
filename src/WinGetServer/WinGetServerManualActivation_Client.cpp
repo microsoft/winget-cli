@@ -77,7 +77,7 @@ HRESULT LaunchWinGetServerWithManualActivation()
 
     // Wait for manual reset event from server before proceeding with COM activation.
     wil::unique_event manualResetEvent = CreateOrOpenServerStartEvent();
-    manualResetEvent.wait();
+    manualResetEvent.wait(10000);
 
     return S_OK;
 }
