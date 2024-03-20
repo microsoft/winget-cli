@@ -75,6 +75,7 @@ namespace AppInstaller::CLI::Execution
         RebootRequired = 0x400,
         RegisterResume = 0x800,
         InstallerExecutionUseRepair = 0x1000,
+        WinGetCOMApiCall = 0x2000,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);

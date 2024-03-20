@@ -11,6 +11,8 @@ namespace AppInstaller::CLI
         constexpr static std::string_view CommandName = "download"sv;
         COMDownloadCommand(std::string_view parent) : Command(CommandName, parent) {}
 
+        void Execute(Execution::Context& context) const override;
+
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
@@ -21,6 +23,8 @@ namespace AppInstaller::CLI
         constexpr static std::string_view CommandName = "install"sv;
         COMInstallCommand(std::string_view parent) : Command(CommandName, parent) {}
 
+        void Execute(Execution::Context& context) const override;
+
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
@@ -30,6 +34,8 @@ namespace AppInstaller::CLI
     {
         constexpr static std::string_view CommandName = "uninstall"sv;
         COMUninstallCommand(std::string_view parent) : Command(CommandName, parent) {}
+
+        void Execute(Execution::Context& context) const override;
 
     protected:
         void ExecuteInternal(Execution::Context& context) const override;

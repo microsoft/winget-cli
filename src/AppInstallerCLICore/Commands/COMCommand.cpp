@@ -30,6 +30,12 @@ namespace AppInstaller::CLI
             Workflow::DownloadInstaller;
     }
 
+    void COMDownloadCommand::Execute(Context& context) const
+    {
+        context.SetFlags(Execution::ContextFlag::WinGetCOMApiCall);
+        Command::Execute(context);
+    }
+
     // IMPORTANT: To use this command, the caller should have already executed the COMDownloadCommand
     void COMInstallCommand::ExecuteInternal(Context& context) const
     {
@@ -39,10 +45,22 @@ namespace AppInstaller::CLI
             Workflow::InstallPackageInstaller;
     }
 
+    void COMInstallCommand::Execute(Context& context) const
+    {
+        context.SetFlags(Execution::ContextFlag::WinGetCOMApiCall);
+        Command::Execute(context);
+    }
+
     // IMPORTANT: To use this command, the caller should have already retrieved the InstalledPackageVersion and added it to the Context Data
     void COMUninstallCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
             Workflow::UninstallSinglePackage;
+    }
+
+    void COMUninstallCommand::Execute(Execution::Context& context) const
+    {
+        context.SetFlags(Execution::ContextFlag::WinGetCOMApiCall);
+        Command::Execute(context);
     }
 }

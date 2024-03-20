@@ -164,7 +164,7 @@ namespace AppInstaller::CLI
         if (!commandAliases.empty())
         {
             infoOut << Resource::String::AvailableCommandAliases << std::endl;
-            
+
             for (const auto& commandAlias : commandAliases)
             {
                 infoOut << "  "_liv << Execution::HelpCommandEmphasis << commandAlias << std::endl;
@@ -283,7 +283,7 @@ namespace AppInstaller::CLI
             if (
                 Utility::CaseInsensitiveEquals(*itr, command->Name()) ||
                 Utility::CaseInsensitiveContains(command->Aliases(), *itr)
-            )
+                )
             {
                 if (!ExperimentalFeature::IsEnabled(command->Feature()))
                 {
@@ -555,7 +555,7 @@ namespace AppInstaller::CLI
                 if (
                     Utility::CaseInsensitiveEquals(argName, arg.Name()) ||
                     Utility::CaseInsensitiveEquals(argName, arg.AlternateName())
-                   )
+                    )
                 {
                     if (arg.Type() == ArgumentType::Flag)
                     {
@@ -668,7 +668,7 @@ namespace AppInstaller::CLI
         }
 
         if (execArgs.Contains(Execution::Args::Type::CustomHeader) && !execArgs.Contains(Execution::Args::Type::Source) &&
-           !execArgs.Contains(Execution::Args::Type::SourceName))
+            !execArgs.Contains(Execution::Args::Type::SourceName))
         {
             throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource(Argument::ForType(Execution::Args::Type::CustomHeader).Name()));
         }
@@ -864,8 +864,12 @@ namespace AppInstaller::CLI
             throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
         }
 
-        // Block CLI execution if WinGetCommandLineInterfaces is disabled by Policy
-        if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces))
+        bool comApiCall = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::WinGetCOMApiCall);
+
+        // Block command-line interface operations if WinGetCommandLineInterfaces is turned off by policy,
+        // but maintain access to COM API calls.
+        if (!comApiCall &&
+            !Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces))
         {
             AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
             throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces);
@@ -929,7 +933,7 @@ namespace AppInstaller::CLI
         context.Reporter.Error() << Resource::String::CommandDoesNotSupportResumeMessage << std::endl;
         AICLI_TERMINATE_CONTEXT(E_NOTIMPL);
     }
-    
+
     void Command::SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value)
     {
         m_selectCurrentCommandIfUnrecognizedSubcommandFound = value;
