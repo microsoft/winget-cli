@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/winget/Archive.h"
+#include "bit7z\include\bit7z\bit7z.hpp"
 
 // TODO: Move include statement to pch.h and resolve build errors
 #pragma warning( push )
