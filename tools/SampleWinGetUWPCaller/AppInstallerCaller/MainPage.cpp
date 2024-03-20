@@ -139,12 +139,15 @@ namespace winrt::AppInstallerCaller::implementation
         return packageManager.InstallPackageAsync(package, installOptions);
     }
 
-    IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> MainPage::DownloadPackage(CatalogPackage package)
+    IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> MainPage::DownloadPackage(CatalogPackage package, std::wstring downloadDirectory)
     {
         PackageManager packageManager = CreatePackageManager();
         DownloadOptions downloadOptions = CreateDownloadOptions();
 
-
+        if (!downloadDirectory.empty())
+        {
+            downloadOptions.DownloadDirectory(downloadDirectory);
+        }
 
         return packageManager.DownloadPackageAsync(package, downloadOptions);
     }
@@ -176,6 +179,33 @@ namespace winrt::AppInstallerCaller::implementation
             break;
         case PackageInstallProgressState::Finished:
             statusText.Text(L"Finished install.");
+            progressBar.IsIndeterminate(false);
+            break;
+        default:
+            statusText.Text(L"");
+        }
+    }
+
+    IAsyncAction UpdateUIDownloadProgress(
+        PackageDownloadProgress progress,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
+        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        co_await winrt::resume_foreground(progressBar.Dispatcher());
+        progressBar.Value(progress.DownloadProgress * 100);
+
+        std::wstring downloadText{ L"Downloading. " };
+        switch (progress.State)
+        {
+        case PackageDownloadProgressState::Queued:
+            statusText.Text(L"Queued");
+            break;
+        case PackageDownloadProgressState::Downloading:
+            downloadText += std::to_wstring(progress.BytesDownloaded) + L" bytes of " + std::to_wstring(progress.BytesRequired);
+            statusText.Text(downloadText);
+            break;
+        case PackageDownloadProgressState::Finished:
+            statusText.Text(L"Finished download.");
             progressBar.IsIndeterminate(false);
             break;
         default:
@@ -259,11 +289,69 @@ namespace winrt::AppInstallerCaller::implementation
     // This method is called from a background thread.
     IAsyncAction UpdateUIForDownload(
         IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> operation,
-        winrt::Windows::UI::Xaml::Controls::Button button,
+        winrt::Windows::UI::Xaml::Controls::Button downloadButton,
         winrt::Windows::UI::Xaml::Controls::Button cancelButton,
         winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
+        operation.Progress([=](
+            IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> const& /* sender */,
+            PackageDownloadProgress const& progress)
+            {
+                UpdateUIDownloadProgress(progress, progressBar, statusText).get();
+            });
+
+        winrt::hresult downloadOperationHr = S_OK;
+        std::wstring errorMessage{ L"Unknown Error" };
+        DownloadResult downloadResult{ nullptr };
+        try
+        {
+            downloadResult = co_await operation;
+        }
+        catch (hresult_canceled const&)
+        {
+            errorMessage = L"Cancelled";
+            OutputDebugString(L"Operation was cancelled");
+        }
+        catch (...)
+        {
+            // Operation failed
+            // Example: HRESULT_FROM_WIN32(ERROR_DISK_FULL).
+            downloadOperationHr = winrt::to_hresult();
+            // Example: "There is not enough space on the disk."
+            errorMessage = winrt::to_message();
+            OutputDebugString(L"Operation failed");
+        }
+
+        // Switch back to ui thread context.
+        co_await winrt::resume_foreground(progressBar.Dispatcher());
+
+        cancelButton.IsEnabled(false);
+        downloadButton.IsEnabled(true);
+        progressBar.IsIndeterminate(false);
+
+        if (operation.Status() == AsyncStatus::Canceled)
+        {
+            downloadButton.Content(box_value(L"Retry"));
+            statusText.Text(L"Download cancelled.");
+        }
+        if (operation.Status() == AsyncStatus::Error || downloadResult == nullptr)
+        {
+            downloadButton.Content(box_value(L"Retry"));
+            statusText.Text(errorMessage);
+        }
+        else if (downloadResult.Status() == DownloadResultStatus::Ok)
+        {
+            downloadButton.Content(box_value(L"Download"));
+            statusText.Text(L"Finished.");
+        }
+        else
+        {
+            std::wostringstream failText;
+            failText << L"Download failed: " << downloadResult.ExtendedErrorCode();
+            downloadButton.Content(box_value(L"Download"));
+            statusText.Text(failText.str());
+        }
     }
 
     IAsyncAction MainPage::GetSources(winrt::Windows::UI::Xaml::Controls::Button button)
@@ -475,13 +563,14 @@ namespace winrt::AppInstallerCaller::implementation
         winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
         if (matches.Size() > 0)
         {
-            m_downloadPackageOperation = DownloadPackage(matches.GetAt(0).CatalogPackage());
+            m_downloadPackageOperation = DownloadPackage(matches.GetAt(0).CatalogPackage(), m_downloadDirectory);
             UpdateUIForDownload(m_downloadPackageOperation, button, cancelButton, progressBar, statusText);
         }
     }
 
     IAsyncAction MainPage::FindPackage(
         winrt::Windows::UI::Xaml::Controls::Button installButton,
+        winrt::Windows::UI::Xaml::Controls::Button downloadButton,
         winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
@@ -530,7 +619,8 @@ namespace winrt::AppInstallerCaller::implementation
             {
                 co_await winrt::resume_foreground(installButton.Dispatcher());
                 installButton.IsEnabled(true);
-                statusText.Text(L"Found the package to install.");
+                downloadButton.IsEnabled(true);
+                statusText.Text(L"Found the package to install or download.");
             }
         }
         else
@@ -546,9 +636,10 @@ namespace winrt::AppInstallerCaller::implementation
     {
         m_installAppId = catalogIdTextBox().Text();
         installButton().IsEnabled(false);
+        downloadButton().IsEnabled(false);
         cancelButton().IsEnabled(false);
         installStatusText().Text(L"Looking for package.");
-        FindPackage(installButton(), installProgressBar(), installStatusText());
+        FindPackage(installButton(), downloadButton(), installProgressBar(), installStatusText());
     }
 
     void MainPage::InstallButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
@@ -569,6 +660,8 @@ namespace winrt::AppInstallerCaller::implementation
 
     void MainPage::DownloadButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
+        m_downloadDirectory = downloadDirectoryTextBox().Text();
+
         if (m_downloadPackageOperation == nullptr || m_downloadPackageOperation.Status() != AsyncStatus::Started)
         {
             StartDownload(downloadButton(), downloadCancelButton(), downloadProgressBar(), downloadStatusText());

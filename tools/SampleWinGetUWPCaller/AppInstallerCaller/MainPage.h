@@ -45,6 +45,7 @@ namespace winrt::AppInstallerCaller::implementation
             winrt::Windows::UI::Xaml::Controls::TextBlock statusText);
         Windows::Foundation::IAsyncAction FindPackage(
             winrt::Windows::UI::Xaml::Controls::Button installButton,
+            winrt::Windows::UI::Xaml::Controls::Button downloadButton,
             winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
             winrt::Windows::UI::Xaml::Controls::TextBlock statusText);
 
@@ -59,7 +60,7 @@ namespace winrt::AppInstallerCaller::implementation
         Windows::Foundation::IAsyncOperation<Deployment::FindPackagesResult> TryFindPackageInCatalogAsync(Deployment::PackageCatalog catalog, std::wstring packageId);
         Windows::Foundation::IAsyncOperation<Deployment::CatalogPackage> FindPackageInCatalogAsync(Deployment::PackageCatalog catalog, std::wstring packageId);
         Windows::Foundation::IAsyncOperationWithProgress<Deployment::InstallResult, Deployment::InstallProgress> InstallPackage(Deployment::CatalogPackage package);
-        Windows::Foundation::IAsyncOperationWithProgress<Deployment::DownloadResult, Deployment::PackageDownloadProgress> DownloadPackage(Deployment::CatalogPackage package);
+        Windows::Foundation::IAsyncOperationWithProgress<Deployment::DownloadResult, Deployment::PackageDownloadProgress> DownloadPackage(Deployment::CatalogPackage package, std::wstring downloadDirectory);
         Windows::Foundation::IAsyncOperation<Deployment::PackageCatalog> FindSourceAsync(std::wstring packageSource);
 
         Windows::Foundation::Collections::IObservableVector<Deployment::PackageCatalogReference> m_packageCatalogs;
@@ -68,6 +69,7 @@ namespace winrt::AppInstallerCaller::implementation
         Windows::Foundation::IAsyncOperationWithProgress<Deployment::InstallResult, Deployment::InstallProgress> m_installPackageOperation;
         Windows::Foundation::IAsyncOperationWithProgress<Deployment::DownloadResult, Deployment::PackageDownloadProgress> m_downloadPackageOperation;
         std::wstring m_installAppId;
+        std::wstring m_downloadDirectory;
         Deployment::PackageManager m_packageManager{ nullptr };
         bool m_useDev = false;
     };

@@ -66,7 +66,7 @@
             <ProgressBar x:Name="installProgressBar" Value="0" Maximum="100" Width="200px"/>
             <TextBlock x:Name="installStatusText" Text="" HorizontalAlignment="Center"/>
 
-            <TextBox x:Name="downloadPathTextBox" Header="Download Location:" PlaceholderText="Existing path to download to"></TextBox>
+            <TextBox x:Name="downloadDirectoryTextBox" Header="Download Location:" PlaceholderText="Existing directory path to download to"></TextBox>
             <StackPanel Orientation="Horizontal">
                 <Button x:Name="downloadButton" Click="DownloadButtonClickHandler" IsEnabled="False">Download</Button>
                 <Button x:Name="downloadCancelButton" Click="DownloadCancelButtonClickHandler" IsEnabled="False">Cancel</Button>
