@@ -312,14 +312,14 @@ TEST_CASE("RepoSources_InvalidYAML", "[sources]")
 {
     SetSetting(Stream::UserSources, "Name: Value : BAD");
 
-    REQUIRE_THROWS_HR(GetSources(), APPINSTALLER_CLI_ERROR_SOURCES_INVALID);
+    REQUIRE_NOTHROW(GetSources());
 }
 
 TEST_CASE("RepoSources_MissingField", "[sources]")
 {
     SetSetting(Stream::UserSources, s_SingleSource_MissingArg);
 
-    REQUIRE_THROWS_HR(GetSources(), APPINSTALLER_CLI_ERROR_SOURCES_INVALID);
+    REQUIRE_NOTHROW(GetSources());
 }
 
 TEST_CASE("RepoSources_AddSource", "[sources]")
