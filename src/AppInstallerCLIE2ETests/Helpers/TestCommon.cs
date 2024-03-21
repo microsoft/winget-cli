@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestCommon.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -659,6 +659,33 @@ namespace AppInstallerCLIE2ETests.Helpers
                 RegistryKey entry = uninstallRegistryKey.OpenSubKey(productCode, true);
                 entry.SetValue(name, value);
             }
+        }
+
+        /// <summary>
+        /// Gets the first element in a list that matches the condition.
+        /// Cannot use foreach or Linq for out-of-process IVector. Bug: https://github.com/microsoft/CsWinRT/issues/1205.
+        /// </summary>
+        /// <typeparam name="T">Element type.</typeparam>
+        /// <param name="list">List of elements.</param>
+        /// <param name="condition">Matching condition function.</param>
+        /// <returns>The first element that matches the condition.</returns>
+        public static T First<T>(IReadOnlyList<T> list, Func<T, bool> condition)
+        {
+            if (list == null || condition == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            for (int i = 0; i < list.Count; ++i)
+            {
+                var item = list[i];
+                if (condition(item))
+                {
+                    return item;
+                }
+            }
+
+            throw new InvalidOperationException("No element satisfies the condition");
         }
 
         /// <summary>

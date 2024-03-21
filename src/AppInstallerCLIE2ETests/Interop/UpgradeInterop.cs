@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="UpgradeInterop.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -7,7 +7,6 @@
 namespace AppInstallerCLIE2ETests.Interop
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
     using AppInstallerCLIE2ETests.Helpers;
@@ -70,7 +69,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Configure install options
             var installOptions = this.TestFactory.CreateInstallOptions();
-            installOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
+            installOptions.PackageVersionId = TestCommon.First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
@@ -82,7 +81,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Configure upgrade options
             var upgradeOptions = this.TestFactory.CreateInstallOptions();
-            upgradeOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "2.0.0.0");
+            upgradeOptions.PackageVersionId = TestCommon.First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "2.0.0.0");
 
             // Upgrade
             var upgradeResult = await this.packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);
@@ -113,7 +112,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Configure install options
             var installOptions = this.TestFactory.CreateInstallOptions();
-            installOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
+            installOptions.PackageVersionId = TestCommon.First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
@@ -128,7 +127,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Configure upgrade options
             var upgradeOptions = this.TestFactory.CreateInstallOptions();
-            upgradeOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "2.0.0.0");
+            upgradeOptions.PackageVersionId = TestCommon.First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "2.0.0.0");
 
             // Upgrade
             var upgradeResult = await this.packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);
@@ -160,7 +159,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Configure install options
             var installOptions = this.TestFactory.CreateInstallOptions();
-            installOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
+            installOptions.PackageVersionId = TestCommon.First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
@@ -176,7 +175,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Configure upgrade options
             var upgradeOptions = this.TestFactory.CreateInstallOptions();
-            upgradeOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "2.0.0.0");
+            upgradeOptions.PackageVersionId = TestCommon.First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "2.0.0.0");
             upgradeOptions.Force = true;
 
             // Upgrade
@@ -208,7 +207,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Configure install options
             var installOptions = this.TestFactory.CreateInstallOptions();
-            installOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
+            installOptions.PackageVersionId = TestCommon.First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
@@ -220,7 +219,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Configure upgrade options
             var upgradeOptions = this.TestFactory.CreateInstallOptions();
-            upgradeOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "3.0.0.0");
+            upgradeOptions.PackageVersionId = TestCommon.First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "3.0.0.0");
 
             // Upgrade
             var upgradeResult = await this.packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);
@@ -230,27 +229,6 @@ namespace AppInstallerCLIE2ETests.Interop
             searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
             Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "3.0.0.0");
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
-        }
-
-        // Cannot use foreach or Linq for out-of-process IVector
-        // Bug: https://github.com/microsoft/CsWinRT/issues/1205
-        private static T First<T>(IReadOnlyList<T> list, Func<T, bool> condition)
-        {
-            if (list == null || condition == null)
-            {
-                throw new ArgumentNullException();
-            }
-
-            for (int i = 0; i < list.Count; ++i)
-            {
-                var item = list[i];
-                if (condition(item))
-                {
-                    return item;
-                }
-            }
-
-            throw new InvalidOperationException("No element satisfies the condition");
         }
     }
 }
