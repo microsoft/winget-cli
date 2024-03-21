@@ -225,7 +225,7 @@ namespace AppInstaller::CLI::Execution
         {
             auto itr = m_parsedArgs.find(Type::MultiQuery);
             
-            // If there is not a value in MultiQuery, or there is only one value, it is already presumed to be unique
+            // If there is not a value in MultiQuery, or there is only one value, it is presumed to be unique
             if (itr == m_parsedArgs.end() || itr->second.size() == 1)
             {
                 return;
