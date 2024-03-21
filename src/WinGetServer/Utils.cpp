@@ -38,14 +38,11 @@ wil::unique_event CreateOrOpenServerStartEvent()
 {
     wil::unique_event result;
 
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; !result && i < 2; ++i)
     {
         if (!result.try_create(wil::EventOptions::ManualReset, L"WinGetServerStartEvent"))
         {
-            if (result.try_open(L"WinGetServerStartEvent"))
-            {
-                break;
-            }
+            result.try_open(L"WinGetServerStartEvent");
         }
     }
 
