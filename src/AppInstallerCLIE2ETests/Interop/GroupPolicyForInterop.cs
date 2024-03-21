@@ -128,6 +128,10 @@ namespace AppInstallerCLIE2ETests.Interop
             var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
+            // Find package again, but this time it should detect the installed version
+            searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.ExeInstallerPackageId);
+            Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
+
             // Uninstall
             var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
