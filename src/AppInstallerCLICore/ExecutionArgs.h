@@ -4,7 +4,6 @@
 #include <string>
 #include <string_view>
 #include <map>
-#include <unordered_set>
 #include <vector>
 
 namespace AppInstaller::CLI::Execution
@@ -232,11 +231,10 @@ namespace AppInstaller::CLI::Execution
                 return;
             }
 
-            std::unordered_set<std::string> queryStrings;
-            for (auto query : itr->second)
-            {
-                queryStrings.insert(query);
-            }
+            std::set<std::string> querySet;
+            std::vector<std::string> queryStrings = itr->second;
+
+            queryStrings.erase(std::remove_if(queryStrings.begin(), queryStrings.end(), [&](const std::string value) { return !querySet.insert(value).second; }), queryStrings.end());
             m_parsedArgs[Type::MultiQuery].assign(queryStrings.begin(), queryStrings.end());
         }
 
