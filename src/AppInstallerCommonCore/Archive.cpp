@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/winget/Archive.h"
+#include <bitfileextractor.hpp>
 
 // TODO: Move include statement to pch.h and resolve build errors
 #pragma warning( push )
@@ -13,9 +14,17 @@ namespace AppInstaller::Archive
 {
     using unique_pidlist_absolute = wil::unique_any<PIDLIST_ABSOLUTE, decltype(&::CoTaskMemFree), ::CoTaskMemFree>;
     using unique_lpitemidlist = wil::unique_any<LPITEMIDLIST, decltype(&::CoTaskMemFree), ::CoTaskMemFree>;
+    
 
     HRESULT TryExtractArchive(const std::filesystem::path& archivePath, const std::filesystem::path& destPath)
     {
+        try {
+            using namespace bit7z;
+            Bit7zLibrary lib{ "7za.dll" };
+            BitFileExtractor extractor{ lib, BitFormat::SevenZip };
+            extractor.extract(archivePath.string(), destPath.string());
+        }catch (const bit7z::BitException& ex) { /* do something with ex.what()...*/ }
+
         wil::com_ptr<IFileOperation> pFileOperation;
         RETURN_IF_FAILED(CoCreateInstance(CLSID_FileOperation, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileOperation)));
         RETURN_IF_FAILED(pFileOperation->SetOperationFlags(FOF_NO_UI));
@@ -47,7 +56,7 @@ namespace AppInstaller::Archive
 
         RETURN_IF_FAILED(pFileOperation->PerformOperations());
         return S_OK;
-    }
+    } */
 
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
