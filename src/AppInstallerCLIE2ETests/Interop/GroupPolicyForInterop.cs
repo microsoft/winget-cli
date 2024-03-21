@@ -14,6 +14,7 @@ namespace AppInstallerCLIE2ETests.Interop
     using Microsoft.Management.Deployment.Projection;
     using Microsoft.WinGet.SharedLib.Exceptions;
     using NUnit.Framework;
+    using Windows.System;
 
     /// <summary>
     /// Group Policy Tests for COM/WinRT Interop classes.
@@ -103,14 +104,8 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             GroupPolicyHelper.EnableWinGetCommandLineInterfaces.Disable();
 
-            // Go through the entire install, upgrade, and uninstall flow to verify that COM calls are still supported.
             PackageManager packageManager = this.TestFactory.CreatePackageManager();
-            string installDir = Path.Combine(Environment.GetEnvironmentVariable(Constants.LocalAppData), "Microsoft", "WinGet", "Packages");
-            string packageId = Constants.PortableExePackageId;
-            string packageDirName = Constants.PortableExePackageDirName;
-            string productCode = Constants.PortableExePackageDirName;
-            string commandAlias = Constants.AppInstallerTestExeInstallerExe;
-            string fileName = Constants.AppInstallerTestExeInstallerExe;
+            string installDir = TestCommon.GetRandomTestDir();
 
             // Create composite package catalog source
             var options = this.TestFactory.CreateCreateCompositePackageCatalogOptions();
@@ -121,32 +116,29 @@ namespace AppInstallerCLIE2ETests.Interop
             PackageCatalogReference compositeSource = packageManager.CreateCompositePackageCatalog(options);
 
             // Find package
-            var searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
+            var searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.ExeInstallerPackageId);
 
-            // Configure install options
+            // Configure installation
             var installOptions = this.TestFactory.CreateInstallOptions();
-            installOptions.PackageVersionId = TestCommon.First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "1.0.0.0");
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = installDir;
+            installOptions.AcceptPackageAgreements = true;
 
             // Install
             var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
-            // Find package and verify older version was installed.
-            searchResult = this.FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
-            Assert.AreEqual(searchResult.CatalogPackage.InstalledVersion?.Version, "1.0.0.0");
-
-            // Configure upgrade options
-            var upgradeOptions = this.TestFactory.CreateInstallOptions();
-            upgradeOptions.PackageVersionId = TestCommon.First(searchResult.CatalogPackage.AvailableVersions, i => i.Version == "2.0.0.0");
-
-            // Upgrade
-            var upgradeResult = await packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);
-            Assert.AreEqual(InstallResultStatus.Ok, upgradeResult.Status);
-
             // Uninstall
             var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateUninstallOptions());
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
+            Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
+
+            // Download
+            var downloadResult = await packageManager.DownloadPackageAsync(searchResult.CatalogPackage, this.TestFactory.CreateDownloadOptions());
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            var packageVersion = "2.0.0.0";
+            string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ExeInstallerPackageId}_{packageVersion}");
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "TestExeInstaller", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.Unknown, PackageInstallerType.Exe));
         }
     }
 }
