@@ -338,7 +338,6 @@ namespace AppInstaller::Repository
         };
 
         // An IPackage for the installed package of a CompositePackage.
-        // Supports only a single version of a single package at this time.
         struct CompositeInstalledPackage : public IPackage
         {
             static constexpr IPackageType PackageType = IPackageType::CompositeInstalledPackage;
@@ -557,6 +556,7 @@ namespace AppInstaller::Repository
 
                 size_t packageIndex = m_packages.size();
                 std::string packageIdentifier = package->GetProperty(PackageProperty::Id);
+                bool versionAdded = false;
 
                 for (const auto& versionKey : package->GetVersionKeys())
                 {
@@ -571,7 +571,7 @@ namespace AppInstaller::Repository
                         continue;
                     }
 
-                    // We use the `SourceId` field to store the installed package identifier so that we can disambiguate keys is they have the same version.
+                    // We use the `SourceId` field to store the installed package identifier so that we can disambiguate keys if they have the same version.
                     keyData.SourceId = packageIdentifier;
 
                     keyData.InstalledType = Manifest::ConvertToInstallerTypeEnum(keyData.InstalledVersion->GetMetadata()[PackageVersionMetadata::InstalledType]);
@@ -583,11 +583,15 @@ namespace AppInstaller::Repository
                     keyData.VersionAndChannel = Utility::VersionAndChannel{ keyData.Version, keyData.Channel };
 
                     m_versionKeyData.emplace_back(std::move(keyData));
+                    versionAdded = true;
                 }
 
-                m_packages.emplace_back(std::move(package));
+                if (versionAdded)
+                {
+                    m_packages.emplace_back(std::move(package));
 
-                std::sort(m_versionKeyData.begin(), m_versionKeyData.end());
+                    std::sort(m_versionKeyData.begin(), m_versionKeyData.end());
+                }
             }
 
             std::vector<std::shared_ptr<IPackage>> m_packages;

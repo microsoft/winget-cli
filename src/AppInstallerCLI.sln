@@ -181,9 +181,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.WinGet.SharedLib", "PowerShell\Microsoft.WinGet.SharedLib\Microsoft.WinGet.SharedLib.csproj", "{272B2B0E-40D4-4F0F-B187-519A6EF89B10}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "schema", "schema", "{46E419FD-C77F-4EFC-A0FC-2BAD93E60D12}"
-	ProjectSection(SolutionItems) = preProject
-		..\schemas\JSON\settings\settings.schema.0.2.json = ..\schemas\JSON\settings\settings.schema.0.2.json
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
