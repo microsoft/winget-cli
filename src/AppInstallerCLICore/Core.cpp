@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerCLICore.h"
@@ -46,10 +46,24 @@ namespace AppInstaller::CLI
         private:
             UINT m_previousCP = 0;
         };
+
+        void __CRTDECL abort_signal_handler(int)
+        {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+            {
+                Debugging::WriteMinidump();
+            }
+#endif
+
+            std::_Exit(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
+        }
     }
 
     int CoreMain(int argc, wchar_t const** argv) try
     {
+        std::signal(SIGABRT, abort_signal_handler);
+
         init_apartment();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -110,6 +124,13 @@ namespace AppInstaller::CLI
 
         try
         {
+            // Block CLI execution if WinGetCommandLineInterfaces is disabled by Policy
+            if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces))
+            {
+                AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
+                throw Settings::GroupPolicyException(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces);
+            }
+
             std::unique_ptr<Command> subCommand = command->FindSubCommand(invocation);
             while (subCommand)
             {

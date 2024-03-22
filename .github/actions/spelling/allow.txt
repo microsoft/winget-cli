@@ -51,6 +51,7 @@ createnew
 createpintable
 createportabletable
 createtables
+CRTDECL
 CTLs
 curated
 CURSORPOSITON
@@ -105,6 +106,7 @@ FILEOS
 FILESINUSE
 FILESUBTYPE
 FILEVERSION
+florelis
 FLUSHEACHLINE
 forcerestart
 gdi

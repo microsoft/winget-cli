@@ -1,4 +1,4 @@
-﻿<!-- Copyright (c) Microsoft Corporation.
+<!-- Copyright (c) Microsoft Corporation.
      Licensed under the MIT License. -->
 <Page
     x:Class="AppInstallerCaller.MainPage"
@@ -65,6 +65,15 @@
 
             <ProgressBar x:Name="installProgressBar" Value="0" Maximum="100" Width="200px"/>
             <TextBlock x:Name="installStatusText" Text="" HorizontalAlignment="Center"/>
+
+            <TextBox x:Name="downloadDirectoryTextBox" Header="Download Location:" PlaceholderText="Existing directory path to download to"></TextBox>
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="downloadButton" Click="DownloadButtonClickHandler" IsEnabled="False">Download</Button>
+                <Button x:Name="downloadCancelButton" Click="DownloadCancelButtonClickHandler" IsEnabled="False">Cancel</Button>
+            </StackPanel>
+
+            <ProgressBar x:Name="downloadProgressBar" Value="0" Maximum="100" Width="200px"/>
+            <TextBlock x:Name="downloadStatusText" Text="" HorizontalAlignment="Center"/>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Margin="3">
