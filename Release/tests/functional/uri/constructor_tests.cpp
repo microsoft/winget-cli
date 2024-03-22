@@ -24,6 +24,11 @@ namespace uri_tests
 {
 SUITE(constructor_tests)
 {
+    TEST(not_really_a_loopback_uri)
+    {
+        uri u(uri::encode_uri(U("https://127.evil.com")));
+        VERIFY_IS_FALSE(u.is_host_loopback());
+    }
     TEST(parsing_constructor_char)
     {
         uri u(uri::encode_uri(U("net.tcp://steve:@testname.com:81/bleh%?qstring#goo")));

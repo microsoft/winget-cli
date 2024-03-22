@@ -82,7 +82,7 @@ SUITE(diagnostic_tests)
         VERIFY_IS_FALSE(uri(U("http://bleh/?qstring")).is_host_loopback());
         VERIFY_IS_FALSE(uri(U("http://+*/?qstring")).is_host_loopback());
         VERIFY_IS_TRUE(uri(U("http://127.0.0.1/")).is_host_loopback());
-        VERIFY_IS_TRUE(uri(U("http://127.155.0.1/")).is_host_loopback());
+        VERIFY_IS_FALSE(uri(U("http://127.155.0.1/")).is_host_loopback());
         VERIFY_IS_FALSE(uri(U("http://128.0.0.1/")).is_host_loopback());
     }
 

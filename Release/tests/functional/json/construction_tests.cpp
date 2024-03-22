@@ -50,6 +50,61 @@ SUITE(construction_tests)
         VERIFY_ARE_EQUAL(U("null"), arr[1].serialize());
     }
 
+    TEST(int_assignment_op)
+    {
+        json::value v;
+        v = static_cast<int>(1);
+        VERIFY_ARE_EQUAL(U("1"), v.serialize());
+
+        v = static_cast<unsigned>(1);
+        VERIFY_ARE_EQUAL(U("1"), v.serialize());
+
+        v = static_cast<long>(1);
+        VERIFY_ARE_EQUAL(U("1"), v.serialize());
+
+        v = static_cast<unsigned long>(1);
+        VERIFY_ARE_EQUAL(U("1"), v.serialize());
+
+        v = static_cast<long long >(1);
+        VERIFY_ARE_EQUAL(U("1"), v.serialize());
+
+        v = static_cast<unsigned long long>(1);
+        VERIFY_ARE_EQUAL(U("1"), v.serialize());
+    }
+
+    TEST(int_ctor)
+    {
+        {
+            json::value v(static_cast<int>(1));
+            VERIFY_ARE_EQUAL(U("1"), v.serialize());
+        }
+
+        {
+            json::value v(static_cast<unsigned>(1));
+            VERIFY_ARE_EQUAL(U("1"), v.serialize());
+        }
+
+        {
+            json::value v(static_cast<long>(1));
+            VERIFY_ARE_EQUAL(U("1"), v.serialize());
+        }
+
+        {
+            json::value v(static_cast<unsigned long>(1));
+            VERIFY_ARE_EQUAL(U("1"), v.serialize());
+        }
+
+        {
+            json::value v(static_cast<long long>(1));
+            VERIFY_ARE_EQUAL(U("1"), v.serialize());
+        }
+
+        {
+            json::value v(static_cast<unsigned long long>(1));
+            VERIFY_ARE_EQUAL(U("1"), v.serialize());
+        }
+    }
+
     TEST(copy_ctor_array)
     {
         json::value arr = json::value::array();

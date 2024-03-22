@@ -285,6 +285,21 @@ public:
     }
 
     /// <summary>
+    /// Fetches an access token from the token endpoint using client credentials grant type.
+    /// The task creates an HTTP request to the token_endpoint() using
+    /// client authentication as the authorization grant.
+    /// See: http://tools.ietf.org/html/rfc6749#section-4.4
+    /// </summary>
+    /// <returns>Task that fetches token(s) using client credentials.</returns>
+    pplx::task<void> token_from_client_credentials()
+    {
+        uri_builder ub;
+        ub.append_query(
+            details::oauth2_strings::grant_type, details::oauth2_strings::client_credentials, false);
+        return _request_token(ub);
+    }
+
+    /// <summary>
     /// Returns enabled state of the configuration.
     /// The oauth2_handler will perform OAuth 2.0 authentication only if
     /// this method returns true.
