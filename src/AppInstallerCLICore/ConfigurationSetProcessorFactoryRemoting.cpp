@@ -5,6 +5,7 @@
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerRuntime.h>
+#include <AppInstallerStrings.h>
 #include <winget/ILifetimeWatcher.h>
 #include <winrt/Microsoft.Management.Configuration.Processor.h>
 #include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
@@ -43,10 +44,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         // The executable file name for the remote server process.
         constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
 
+        // The string used to divide the arguments sent to the remote server
+        constexpr std::wstring_view s_ArgumentsDivider = L"---";
+
         // Represents a remote factory object that was created from a specific process.
         struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
         {
-            RemoteFactory()
+            RemoteFactory(const std::string& properties, const std::string& restrictions)
             {
                 AICLI_LOG(Config, Verbose, << "Launching process for configuration processing...");
 
@@ -82,7 +86,15 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 std::wostringstream argumentsStream;
                 argumentsStream << s_RemoteServerFileName << L' ' << reinterpret_cast<INT_PTR>(memoryHandle.get()) << L' ' << reinterpret_cast<INT_PTR>(initEvent.get())
                     << L' ' << reinterpret_cast<INT_PTR>(m_completionEvent.get()) << L' ' << reinterpret_cast<INT_PTR>(thisProcessHandle.get());
+
+                if (!properties.empty() && !restrictions.empty())
+                {
+                    argumentsStream << s_ArgumentsDivider << Utility::ConvertToUTF16(properties) << s_ArgumentsDivider << Utility::ConvertToUTF16(restrictions);
+                }
+
                 std::wstring arguments = argumentsStream.str();
+                // Per documentation, the maximum length is 32767 *counting* the null.
+                THROW_WIN32_IF(ERROR_BUFFER_OVERFLOW, arguments.length() > 32766);
 
                 std::filesystem::path serverPath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
                 serverPath /= s_RemoteServerFileName;
@@ -152,10 +164,10 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_internalAdditionalModulePaths.emplace_back(externalModules.wstring());
                 m_remoteAdditionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::vector<winrt::hstring>{ m_internalAdditionalModulePaths });
 
-                auto properties = m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>();
+                auto factoryProperties = m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>();
                 AICLI_LOG(Config, Verbose, << "Applying built in additional module path: " << externalModules.u8string());
-                properties.AdditionalModulePaths(m_remoteAdditionalModulePaths.GetView());
-                properties.ProcessorType(Processor::PowerShellConfigurationProcessorType::Hosted);
+                factoryProperties.AdditionalModulePaths(m_remoteAdditionalModulePaths.GetView());
+                factoryProperties.ProcessorType(Processor::PowerShellConfigurationProcessorType::Hosted);
 
                 completeEventIfFailureDuringConstruction.release();
             }
@@ -281,9 +293,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         };
     }
 
-    IConfigurationSetProcessorFactory CreateOutOfProcessFactory()
+    IConfigurationSetProcessorFactory CreateOutOfProcessFactory(const std::string& properties, const std::string& restrictions)
     {
-        return winrt::make<RemoteFactory>();
+        return winrt::make<RemoteFactory>(properties, restrictions);
     }
 }
 

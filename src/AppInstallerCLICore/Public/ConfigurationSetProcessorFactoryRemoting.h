@@ -7,7 +7,7 @@
 namespace AppInstaller::CLI::ConfigurationRemoting
 {
     // Creates a factory in another process
-    winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateOutOfProcessFactory();
+    winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateOutOfProcessFactory(const std::string& properties = {}, const std::string& restrictions = {});
 
     // Creates a factory that can route configurations to the appropriate internal factory.
     winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateDynamicRuntimeFactory();
