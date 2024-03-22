@@ -232,10 +232,9 @@ namespace AppInstaller::CLI::Execution
             }
 
             std::set<std::string> querySet;
-            std::vector<std::string> queryStrings = itr->second;
+            std::vector<std::string>& queryStrings = itr->second;
 
             queryStrings.erase(std::remove_if(queryStrings.begin(), queryStrings.end(), [&](const std::string value) { return !querySet.insert(value).second; }), queryStrings.end());
-            m_parsedArgs[Type::MultiQuery].assign(queryStrings.begin(), queryStrings.end());
         }
 
         // If we get a single value for multi-query, we remove the argument and add it back as a single query.
