@@ -437,10 +437,6 @@ namespace AppInstaller::Repository::Microsoft
 
             SourceDetails& GetDetails() override { return m_details; };
 
-            void SetExplicit() override { m_details.Explicit = true; };
-
-            void SetTrustLevel(SourceTrustLevel trustLevel) override { m_details.TrustLevel = trustLevel; };
-
             bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>& requestedUpdateInterval) override
             {
                 return CheckForUpdateBeforeOpen(m_details, PackagedContextGetCurrentVersion(m_details), requestedUpdateInterval);
@@ -582,10 +578,6 @@ namespace AppInstaller::Repository::Microsoft
             std::string GetIdentifier() override { return m_details.Identifier; }
 
             SourceDetails& GetDetails() override { return m_details; };
-
-            void SetExplicit() override { m_details.Explicit = true; };
-
-            void SetTrustLevel(SourceTrustLevel trustLevel) override { m_details.TrustLevel = trustLevel; };
 
             bool ShouldUpdateBeforeOpen(const std::optional<TimeSpan>& requestedUpdateInterval) override
             {

@@ -61,8 +61,6 @@ namespace AppInstaller::Repository
                 return m_details.Identifier;
             }
 
-            void SetTrustLevel(SourceTrustLevel trustLevel) override { m_details.TrustLevel = trustLevel; };
-
             std::shared_ptr<ISource> Open(IProgressCallback& callback) override
             {
                 m_details.Arg = Utility::MakeSuitablePathPart(m_details.Data);

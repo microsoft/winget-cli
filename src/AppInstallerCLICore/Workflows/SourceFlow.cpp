@@ -107,8 +107,23 @@ namespace AppInstaller::CLI::Workflow
             std::string_view name = context.Args.GetArg(Args::Type::SourceName);
             std::string_view arg = context.Args.GetArg(Args::Type::SourceArg);
             std::string_view type = context.Args.GetArg(Args::Type::SourceType);
+            bool isExplicit = context.Args.Contains(Args::Type::SourceExplicit);
 
-            Repository::Source sourceToAdd{ name, arg, type };
+            Repository::SourceTrustLevel trustLevel = Repository::SourceTrustLevel::None;
+            if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
+            {
+                std::vector<std::string> trustLevelArgs = Utility::Split(std::string{ context.Args.GetArg(Execution::Args::Type::SourceTrustLevel) }, '|');
+                std::vector<std::string> trustLevels;
+
+                for (auto trustLevelArg : trustLevelArgs)
+                {
+                    trustLevels.emplace_back(Utility::Trim(trustLevelArg));
+                }
+
+                trustLevel = Repository::ConvertToSourceTrustLevelEnum(trustLevels);
+            }
+
+            Repository::Source sourceToAdd{ name, arg, type, trustLevel, isExplicit};
 
             if (context.Args.Contains(Execution::Args::Type::CustomHeader))
             {
@@ -123,26 +138,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Error() << Resource::String::SourceAddFailedAuthenticationNotSupported << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED);
-            }
-
-            if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
-            {
-                std::vector<std::string> trustLevelArgs = Utility::Split(std::string{ context.Args.GetArg(Execution::Args::Type::SourceTrustLevel) }, '|');
-                std::vector<std::string> trustLevels;
-
-                for (auto trustLevelArg : trustLevelArgs)
-                {
-                    trustLevels.emplace_back(Utility::Trim(trustLevelArg));
-                }
-
-                Repository::SourceTrustLevel desiredTrustLevel = Repository::ConvertToSourceTrustLevelEnum(trustLevels);
-                sourceToAdd.SetTrustLevel(desiredTrustLevel);
-            }
-
-            if (context.Args.Contains(Execution::Args::Type::SourceExplicit))
-            {
-                sourceToAdd.SetExplicit();
-                AICLI_LOG(CLI, Info, << "Source added is explicit: " << name);
             }
 
             context << Workflow::HandleSourceAgreements(sourceToAdd);
@@ -176,8 +171,8 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({ Resource::LocString(Resource::String::SourceListArg), source.Arg });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListData), source.Data });
             table.OutputLine({ Resource::LocString(Resource::String::SourceListIdentifier), source.Identifier });
-            table.OutputLine({ Resource::LocString(Resource::String::SourceListTrustLevel), Repository::GetSourceTrustLevelForDisplay(source.TrustLevel) });
-            table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), Utility::ConvertBoolToString(source.Explicit) });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListTrustLevel), Repository::GetSourceTrustLevelForDisplay(source.TrustLevel)});
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListExplicit), std::string{ Utility::ConvertBoolToString(source.Explicit) }});
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
             {
@@ -206,7 +201,7 @@ namespace AppInstaller::CLI::Workflow
                 Execution::TableOutput<3> table(context.Reporter, { Resource::String::SourceListName, Resource::String::SourceListArg, Resource::String::SourceListExplicit });
                 for (const auto& source : sources)
                 {
-                    table.OutputLine({ source.Name, source.Arg, Utility::ConvertBoolToString(source.Explicit) });
+                    table.OutputLine({ source.Name, source.Arg, std::string{ Utility::ConvertBoolToString(source.Explicit) }});
                 }
                 table.Complete();
             }
@@ -326,7 +321,9 @@ namespace AppInstaller::CLI::Workflow
                 s.Arg = source.Arg;
                 s.Data = source.Data;
                 s.Identifier = source.Identifier;
-                s.TrustLevel = Repository::SourceTrustLevelToList(source.TrustLevel);
+
+                std::vector<std::string_view> sourceTrustLevels = Repository::SourceTrustLevelToList(source.TrustLevel);
+                s.TrustLevel = std::vector<std::string>(sourceTrustLevels.begin(), sourceTrustLevels.end());
                 s.Explicit = source.Explicit;
                 context.Reporter.Info() << s.ToJsonString() << std::endl;
             }

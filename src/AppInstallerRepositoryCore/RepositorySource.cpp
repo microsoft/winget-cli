@@ -265,8 +265,6 @@ namespace AppInstaller::Repository
 
             void SetCaller(std::string caller) override { m_wrapped->SetCaller(std::move(caller)); }
 
-            void SetExplicit() override { m_wrapped->SetExplicit(); }
-
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 return std::make_shared<TrackingOnlySourceWrapper>(m_wrapped);
@@ -344,19 +342,19 @@ namespace AppInstaller::Repository
         }
     }
 
-    std::string SourceTrustLevelToString(SourceTrustLevel trustLevel)
+    std::string_view SourceTrustLevelToString(SourceTrustLevel trustLevel)
     {
         switch (trustLevel)
         {
         case SourceTrustLevel::StoreOrigin:
-            return "StoreOrigin";
+            return "StoreOrigin"sv;
         case SourceTrustLevel::Trusted:
-            return "Trusted";
+            return "Trusted"sv;
         case SourceTrustLevel::None:
-            return "None";
+            return "None"sv;
         }
 
-        return "Unknown";
+        return "Unknown"sv;
     }
 
     SourceTrustLevel ConvertToSourceTrustLevelEnum(std::vector<std::string> trustLevels)
@@ -386,27 +384,20 @@ namespace AppInstaller::Repository
         return result;
     }
 
-    std::vector<std::string> SourceTrustLevelToList(SourceTrustLevel trustLevel)
+    std::vector<std::string_view> SourceTrustLevelToList(SourceTrustLevel trustLevel)
     {
-        if (trustLevel == Repository::SourceTrustLevel::None)
-        {
-            return { SourceTrustLevelToString(Repository::SourceTrustLevel::None) };
-        }
-        else
-        {
-            std::vector<std::string> result;
+        std::vector<std::string_view> result;
 
-            if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::Trusted))
-            {
-                result.emplace_back(Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::Trusted));
-            }
-            if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::StoreOrigin))
-            {
-                result.emplace_back(Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::StoreOrigin));
-            }
-
-            return result;
+        if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::Trusted))
+        {
+            result.emplace_back(Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::Trusted));
         }
+        if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::StoreOrigin))
+        {
+            result.emplace_back(Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::StoreOrigin));
+        }
+
+        return result;
     }
 
     std::string GetSourceTrustLevelForDisplay(SourceTrustLevel trustLevel)
@@ -485,7 +476,7 @@ namespace AppInstaller::Repository
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
 
-    Source::Source(std::string_view name, std::string_view arg, std::string_view type)
+    Source::Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, bool isExplicit)
     {
         m_isSourceToBeAdded = true;
         SourceDetails details;
@@ -501,6 +492,8 @@ namespace AppInstaller::Repository
             details.Name = name;
             details.Arg = arg;
             details.Type = type;
+            details.TrustLevel = trustLevel;
+            details.Explicit = isExplicit;
         }
 
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
@@ -558,8 +551,15 @@ namespace AppInstaller::Repository
             }
             else if (currentSources.size() == 1)
             {
-                AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
-                InitializeSourceReference(currentSources[0].get().Name);
+                if (!currentSources[0].get().Explicit)
+                {
+                    AICLI_LOG(Repo, Info, << "Default source requested, only 1 source available, using the only source: " << currentSources[0].get().Name);
+                    InitializeSourceReference(currentSources[0].get().Name);
+                }
+                else
+                {
+                    AICLI_LOG(Repo, Info, << "Skipping explicit source reference " << currentSources[0].get().Name);
+                }
             }
             else
             {
@@ -567,8 +567,15 @@ namespace AppInstaller::Repository
 
                 for (auto& source : currentSources)
                 {
-                    AICLI_LOG(Repo, Info, << "Adding to source references " << source.get().Name);
-                    m_sourceReferences.emplace_back(CreateSourceFromDetails(source));
+                    if (!source.get().Explicit)
+                    {
+                        AICLI_LOG(Repo, Info, << "Adding to source references " << source.get().Name);
+                        m_sourceReferences.emplace_back(CreateSourceFromDetails(source));
+                    }
+                    else
+                    {
+                        AICLI_LOG(Repo, Info, << "Skipping explicit source reference " << source.get().Name);
+                    }
                 }
 
                 m_isComposite = true;
@@ -676,27 +683,11 @@ namespace AppInstaller::Repository
         }
     }
 
-    void Source::SetTrustLevel(SourceTrustLevel trustLevel)
-    {
-        for (auto& sourceReference : m_sourceReferences)
-        {
-            sourceReference->SetTrustLevel(trustLevel);
-        }
-    }
-
     void Source::SetAuthenticationArguments(Authentication::AuthenticationArguments args)
     {
         for (auto& sourceReference : m_sourceReferences)
         {
             sourceReference->SetAuthenticationArguments(args);
-        }
-    }
-
-    void Source::SetExplicit()
-    {
-        for (auto& sourceReference : m_sourceReferences)
-        {
-            sourceReference->SetExplicit();
         }
     }
 
@@ -966,18 +957,9 @@ namespace AppInstaller::Repository
                 // to avoid the progress bar fill up multiple times.
                 AddOrUpdateResult updateResult = UpdateSourceFromDetails(details, progress);
 
-                // Update the trust level if it does not match what was previously recorded in the source list.
-                auto detailsInternal = sourceList.GetSource(details.Name);
-                if (detailsInternal->TrustLevel != details.TrustLevel)
-                {
-                    sourceList.RemoveSource(details);
-                    detailsInternal->TrustLevel = details.TrustLevel;
-                    sourceList.AddSource(details);
-                    AICLI_LOG(Repo, Info, << "TrustLevel updated to: " << Repository::GetSourceTrustLevelForDisplay(details.TrustLevel));
-                }
-
                 if (updateResult.MetadataWritten)
                 {
+                    auto detailsInternal = sourceList.GetSource(details.Name);
                     detailsInternal->CopyMetadataFieldsFrom(details);
                     sourceList.SaveMetadata(*detailsInternal);
                 }
@@ -1033,7 +1015,7 @@ namespace AppInstaller::Repository
         SourceList sourceList;
 
         std::vector<SourceDetails> result;
-        for (auto&& source : sourceList.GetCurrentSourceRefs(true))
+        for (auto&& source : sourceList.GetCurrentSourceRefs())
         {
             result.emplace_back(std::move(source));
         }

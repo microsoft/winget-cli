@@ -1287,7 +1287,7 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
 
     SECTION("with well known name")
     {
-        Source addStoreBack{ details.Name, details.Arg, details.Type };
+        Source addStoreBack{ details.Name, details.Arg, details.Type, Repository::SourceTrustLevel::None, false };
         REQUIRE(addStoreBack.Add(progress));
 
         Source storeAfterAdd{ details.Name };
@@ -1298,7 +1298,7 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
     SECTION("with different name")
     {
         std::string newName = details.Name + "_new";
-        Source addStoreBack{ newName, details.Arg, details.Type };
+        Source addStoreBack{ newName, details.Arg, details.Type, Repository::SourceTrustLevel::None, false };
         REQUIRE(addStoreBack.Add(progress));
 
         Source storeAfterAdd{ newName };

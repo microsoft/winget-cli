@@ -210,9 +210,9 @@ namespace AppInstaller::Repository
                 Utility::CaseInsensitiveEquals(left.Type, right.Type);
         }
 
-        bool ShouldBeHidden(const SourceDetailsInternal& details, bool allowExplicitSources)
+        bool ShouldBeHidden(const SourceDetailsInternal& details)
         {
-            return details.IsTombstone || details.Origin == SourceOrigin::Metadata || !details.IsVisible || (!allowExplicitSources && details.Explicit);
+            return details.IsTombstone || details.Origin == SourceOrigin::Metadata || !details.IsVisible;
         }
     }
 
@@ -381,13 +381,13 @@ namespace AppInstaller::Repository
         OverwriteMetadata();
     }
 
-    std::vector<std::reference_wrapper<SourceDetailsInternal>> SourceList::GetCurrentSourceRefs(bool includeExplicitSources)
+    std::vector<std::reference_wrapper<SourceDetailsInternal>> SourceList::GetCurrentSourceRefs()
     {
         std::vector<std::reference_wrapper<SourceDetailsInternal>> result;
 
         for (auto& s : m_sourceList)
         {
-            if (!ShouldBeHidden(s, includeExplicitSources))
+            if (!ShouldBeHidden(s))
             {
                 result.emplace_back(std::ref(s));
             }
@@ -406,7 +406,7 @@ namespace AppInstaller::Repository
             [name, includeHidden](const SourceDetailsInternal& sd)
             {
                 return Utility::ICUCaseInsensitiveEquals(sd.Name, name) &&
-                    (includeHidden || !ShouldBeHidden(sd, true));
+                    (includeHidden || !ShouldBeHidden(sd));
             });
     }
 

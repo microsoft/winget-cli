@@ -5,6 +5,7 @@
 #include <winget/PackageTrackingCatalog.h>
 #include <AppInstallerProgress.h>
 #include <winget/Certificates.h>
+#include <winget/LocIndependent.h>
 #include <winget/Authentication.h>
 
 #include <chrono>
@@ -48,14 +49,14 @@ namespace AppInstaller::Repository
     // Converts a string_view to the corresponding SourceTrustLevel enum.
     SourceTrustLevel ConvertToSourceTrustLevelEnum(std::string_view trustLevel);
 
-    // Converts a SourceTrustLevel enum to the corresponding string.
-    std::string SourceTrustLevelToString(SourceTrustLevel trustLevel);
-
     // Converts a vector of trust level strings to the corresponding SourceTrustLevel enum flag.
     SourceTrustLevel ConvertToSourceTrustLevelEnum(std::vector<std::string> values);
 
     // Converts a SourceTrustLevel enum to a list of trust level strings.
-    std::vector<std::string> SourceTrustLevelToList(SourceTrustLevel trustLevel);
+    std::vector<std::string_view> SourceTrustLevelToList(SourceTrustLevel trustLevel);
+
+    // Converts a SourceTrustLevel enum to the corresponding string.
+    std::string_view SourceTrustLevelToString(SourceTrustLevel trustLevel);
 
     // Gets the full trust level string name for display.
     std::string GetSourceTrustLevelForDisplay(SourceTrustLevel trustLevel);
@@ -218,7 +219,7 @@ namespace AppInstaller::Repository
         Source(WellKnownSource source);
 
         // Constructor for a source to be added.
-        Source(std::string_view name, std::string_view arg, std::string_view type);
+        Source(std::string_view name, std::string_view arg, std::string_view type, SourceTrustLevel trustLevel, bool isExplicit);
 
         // Constructor for creating a composite source from a list of available sources.
         Source(const std::vector<Source>& availableSources);
@@ -268,14 +269,8 @@ namespace AppInstaller::Repository
         // Set caller. Must be set before Open to have effect.
         void SetCaller(std::string caller);
 
-        // Set trust level. Must be set before Open to have effect.
-        void SetTrustLevel(SourceTrustLevel trustLevel);
-
         // Set authentication arguments. Must be set before Open to have effect.
         void SetAuthenticationArguments(Authentication::AuthenticationArguments args);
-
-        // Require a source to be explicitly declared.
-        void SetExplicit();
 
         // Set background update check interval.
         void SetBackgroundUpdateInterval(TimeSpan interval);

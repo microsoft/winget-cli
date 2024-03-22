@@ -753,8 +753,10 @@ namespace AppInstaller::CLI
             }
             catch (...)
             {
-                auto validOptions = Utility::Join("|"_liv, std::vector<Utility::LocIndString>{ "none"_lis, "trusted"_lis, "storeOrigin"_lis });
-                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SourceTrustLevel).Name, validOptions));
+                auto validOptions = std::vector<Utility::LocIndString>{
+                    Utility::LocIndString{ Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::None) },
+                    Utility::LocIndString{ Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::Trusted) }};
+                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SourceTrustLevel).Name, Utility::Join(","_liv, validOptions)));
             }
         }
 

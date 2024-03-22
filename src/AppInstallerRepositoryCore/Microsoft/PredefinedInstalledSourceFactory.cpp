@@ -304,10 +304,6 @@ namespace AppInstaller::Repository::Microsoft
 
             SourceDetails& GetDetails() override { return m_details; };
 
-            void SetExplicit() override { m_details.Explicit = true; };
-
-            void SetTrustLevel(SourceTrustLevel trustLevel) override { m_details.TrustLevel = trustLevel; };
-
             std::shared_ptr<ISource> Open(IProgressCallback& progress) override
             {
                 // TODO: Maybe we do need to use it?
