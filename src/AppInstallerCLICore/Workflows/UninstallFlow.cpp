@@ -70,8 +70,81 @@ namespace AppInstaller::CLI::Workflow
 
     void UninstallSinglePackage(Execution::Context& context)
     {
+        std::shared_ptr<ICompositePackage> package = context.Get<Execution::Data::Package>();
+        std::shared_ptr<IPackage> installed = package->GetInstalled();
+        std::vector<Repository::PackageVersionKey> installedVersionKeys;
+        if (installed)
+        {
+            installedVersionKeys = installed->GetVersionKeys();
+        }
+
+        // Handle multiple installed versions when we have been told to uninstall all of them.
+        if (installedVersionKeys.size() > 1 && context.Args.Contains(Execution::Args::Type::AllVersions))
+        {
+            bool allSucceeded = true;
+            size_t versionsCount = installedVersionKeys.size();
+            size_t versionsProgress = 0;
+
+            for (const auto& key : installedVersionKeys)
+            {
+                context.Reporter.Info() << '(' << ++versionsProgress << '/' << versionsCount << ") "_liv;
+
+                // We want to do best effort to uninstall all versions regardless of previous failures
+                auto subContextPtr = context.CreateSubContext();
+                Execution::Context& uninstallContext = *subContextPtr;
+                auto previousThreadGlobals = uninstallContext.SetForCurrentThread();
+
+                uninstallContext.Add<Execution::Data::Package>(package);
+                uninstallContext.Add<Execution::Data::InstalledPackageVersion>(installed->GetVersion(key));
+
+                // Prevent individual exceptions from breaking out of the loop
+                try
+                {
+                    uninstallContext <<
+                        Workflow::UninstallSinglePackageVersion;
+                }
+                catch (...)
+                {
+                    uninstallContext.SetTerminationHR(Workflow::HandleException(uninstallContext, std::current_exception()));
+                }
+
+                uninstallContext.Reporter.Info() << std::endl;
+
+                if (uninstallContext.IsTerminated())
+                {
+                    if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
+                    {
+                        // This means that the subcontext being terminated is due to an overall abort
+                        context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                        return;
+                    }
+
+                    allSucceeded = false;
+                }
+            }
+
+            if (!allSucceeded)
+            {
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_UNINSTALL_FAILED);
+            }
+        }
+        else if (installedVersionKeys.size() > 1 && !context.Args.Contains(Execution::Args::Type::TargetVersion))
+        {
+            context.Reporter.Error() << Resource::String::UninstallFailedDueToMultipleVersions << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND);
+        }
+        else
+        {
+            context <<
+                Workflow::GetInstalledPackageVersion <<
+                Workflow::UninstallSinglePackageVersion;
+        }
+    }
+
+    void UninstallSinglePackageVersion(Execution::Context& context)
+    {
         context <<
-            Workflow::GetInstalledPackageVersion <<
+            Workflow::ReportInstalledPackageVersionIdentity <<
             Workflow::EnsureSupportForUninstall <<
             Workflow::GetUninstallInfo <<
             Workflow::GetDependenciesInfoForUninstall <<

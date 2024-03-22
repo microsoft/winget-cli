@@ -29,8 +29,7 @@ namespace AppInstaller::Repository::Microsoft
             return { filePath, disposition, std::move(indexFile) };
         }
 
-        // Opens or creates a PinningIndex database on the default path.
-        // openDisposition is only used when opening an existing database.
+        // Opens the PinningIndex database on the default path if it exists.
         // Returns nullptr in case of error.
         static std::shared_ptr<PinningIndex> OpenIfExists(OpenDisposition openDisposition = OpenDisposition::Read);
 

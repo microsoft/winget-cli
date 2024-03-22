@@ -9,6 +9,15 @@ using namespace AppInstaller::Repository;
 
 namespace TestCommon
 {
+    namespace
+    {
+        size_t GetNextTestPackageId()
+        {
+            static std::atomic_size_t packageId(0);
+            return ++packageId;
+        }
+    }
+
     TestPackageVersion::TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata, std::weak_ptr<const ISource> source) :
         VersionManifest(manifest), Metadata(std::move(installationMetadata)), Source(source) {}
 
@@ -120,6 +129,7 @@ namespace TestCommon
     TestPackage::TestPackage(const std::vector<Manifest>& available, std::weak_ptr<const ISource> source, bool hideSystemReferenceStringsOnVersion) :
         Source(source)
     {
+        DefaultIsSameIdentity = GetNextTestPackageId();
         for (const auto& manifest : available)
         {
             Versions.emplace_back(TestPackageVersion::Make(manifest, source, hideSystemReferenceStringsOnVersion));
@@ -129,6 +139,7 @@ namespace TestCommon
     TestPackage::TestPackage(const Manifest& installed, MetadataMap installationMetadata, std::weak_ptr<const ISource> source) :
         Source(source)
     {
+        DefaultIsSameIdentity = GetNextTestPackageId();
         Versions.emplace_back(TestPackageVersion::Make(installed, std::move(installationMetadata), source));
     }
 
@@ -203,23 +214,14 @@ namespace TestCommon
             return IsSameOverride(this, other);
         }
 
-        const TestPackage* otherAvailable = PackageCast<const TestPackage*>(other);
+        const TestPackage* otherPackage = PackageCast<const TestPackage*>(other);
 
-        if (!otherAvailable ||
-            Versions.size() != otherAvailable->Versions.size())
+        if (otherPackage && DefaultIsSameIdentity == otherPackage->DefaultIsSameIdentity)
         {
-            return false;
+            return true;
         }
 
-        for (size_t i = 0; i < Versions.size(); ++i)
-        {
-            if (Versions[i].get() != otherAvailable->Versions[i].get())
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return false;
     }
 
     const void* TestPackage::CastTo(IPackageType type) const

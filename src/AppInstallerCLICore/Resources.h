@@ -574,6 +574,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(StateHeader);
         WINGET_DEFINE_RESOURCE_STRINGID(SystemArchitecture);
         WINGET_DEFINE_RESOURCE_STRINGID(TagArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(TargetVersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ThankYou);
         WINGET_DEFINE_RESOURCE_STRINGID(ThirdPartSoftwareNotices);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolDescription);
@@ -585,9 +586,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Unavailable);
         WINGET_DEFINE_RESOURCE_STRINGID(UnexpectedErrorExecutingCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallAbandoned);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallAllVersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallFailedDueToMultipleVersions);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFailedWithCode);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowStartingPackageUninstall);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);

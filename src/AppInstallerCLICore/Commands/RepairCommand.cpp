@@ -20,7 +20,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Name),                             // -n
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Moniker),                          // -mn
-            Argument::ForType(Args::Type::Version),                          // -v
+            Argument::ForType(Args::Type::TargetVersion),                    // -v
             Argument::ForType(Args::Type::ProductCode),
             Argument::ForType(Args::Type::InstallArchitecture),              // -arch
             Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
@@ -60,12 +60,16 @@ namespace AppInstaller::CLI
             return;
         }
 
+        context <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+
         switch (valueType)
         {
         case Execution::Args::Type::Id:
         case Execution::Args::Type::Name:
         case Execution::Args::Type::Moniker:
-        case Execution::Args::Type::Version:
+        case Execution::Args::Type::TargetVersion:
         case Execution::Args::Type::Channel:
         case Execution::Args::Type::Source:
             context <<

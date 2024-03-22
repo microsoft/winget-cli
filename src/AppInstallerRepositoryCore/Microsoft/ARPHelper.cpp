@@ -403,7 +403,19 @@ namespace AppInstaller::Repository::Microsoft
                 //       `Publisher.DisplayName`. We would need to ensure that there are no matches
                 //       against the rest of the data however (might happen if same package is
                 //       installed for multiple architectures/languages).
-                manifest.Id = productCode;
+                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SideBySide))
+                {
+                    char separator = '\\';
+
+                    std::ostringstream stream;
+                    stream << "ARP" << separator << scope << separator << architecture << separator << productCode;
+
+                    manifest.Id = stream.str();
+                }
+                else
+                {
+                    manifest.Id = productCode;
+                }
 
                 manifest.Installers.emplace_back();
                 // TODO: This likely needs some cleanup applied, as it looks like INNO tends to append an "_is#"
@@ -491,7 +503,7 @@ namespace AppInstaller::Repository::Microsoft
                 try
                 {
                     // Use the ProductCode as a unique key for the path
-                    manifestIdOpt = index.AddManifest(manifest, Utility::ConvertToUTF16(manifest.Installers[0].ProductCode));
+                    manifestIdOpt = index.AddManifest(manifest);
                 }
                 catch (...)
                 {

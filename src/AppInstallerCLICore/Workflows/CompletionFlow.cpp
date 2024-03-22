@@ -82,6 +82,25 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void CompleteWithSearchResultInstalledVersions(Execution::Context& context)
+    {
+        const std::string& word = context.Get<Data::CompletionData>().Word();
+        auto stream = context.Reporter.Completion();
+
+        auto installedPackage = context.Get<Execution::Data::Package>()->GetInstalled();
+
+        if (installedPackage)
+        {
+            for (const auto& vc : installedPackage->GetVersionKeys())
+            {
+                if (word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Version, word))
+                {
+                    OutputCompletionString(stream, vc.Version);
+                }
+            }
+        }
+    }
+
     void CompleteWithSearchResultChannels(Execution::Context& context)
     {
         const std::string& word = context.Get<Data::CompletionData>().Word();
@@ -173,6 +192,13 @@ namespace AppInstaller::CLI::Workflow
                 Workflow::SearchSourceForSingle <<
                 Workflow::EnsureOneMatchFromSearchResult(OperationType::Completion) <<
                 Workflow::CompleteWithSearchResultVersions;
+            break;
+        case Execution::Args::Type::TargetVersion:
+            // Here we require that the standard search finds a single entry, and we list the installed versions.
+            context <<
+                Workflow::SearchSourceForSingle <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Completion) <<
+                Workflow::CompleteWithSearchResultInstalledVersions;
             break;
         case Execution::Args::Type::Channel:
             // Here we require that the standard search finds a single entry, and we list those channels.

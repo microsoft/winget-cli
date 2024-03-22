@@ -9,6 +9,7 @@
 
 #include <winget/Registry.h>
 #include <AppInstallerArchitecture.h>
+#include <winget/ExperimentalFeature.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -100,9 +101,17 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 auto packageId = package.Id();
+                Utility::NormalizedString fullName = Utility::ConvertToUTF8(packageId.FullName());
                 Utility::NormalizedString familyName = Utility::ConvertToUTF8(packageId.FamilyName());
 
-                manifest.Id = familyName;
+                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SideBySide))
+                {
+                    manifest.Id = "MSIX\\" + fullName;
+                }
+                else
+                {
+                    manifest.Id = familyName;
+                }
 
                 // Get version
                 std::ostringstream strstr;
@@ -142,11 +151,11 @@ namespace AppInstaller::Repository::Microsoft
                     catch (const winrt::hresult_error& hre)
                     {
                         AICLI_LOG(Repo, Warning, << "winrt::hresult_error[0x" << Logging::SetHRFormat << hre.code() << ": " <<
-                            Utility::ConvertToUTF8(hre.message()) << "] exception thrown when getting DisplayName for " << familyName);
+                            Utility::ConvertToUTF8(hre.message()) << "] exception thrown when getting DisplayName for " << fullName);
                     }
                     catch (...)
                     {
-                        AICLI_LOG(Repo, Warning, << "Unknown exception thrown when getting DisplayName for " << familyName);
+                        AICLI_LOG(Repo, Warning, << "Unknown exception thrown when getting DisplayName for " << fullName);
                     }
                 }
 
@@ -160,17 +169,28 @@ namespace AppInstaller::Repository::Microsoft
                 try
                 {
                     // Use the full name as a unique key for the path
-                    auto manifestId = index.AddManifest(manifest, std::filesystem::path{ packageId.FullName().c_str() });
+                    auto manifestId = index.AddManifest(manifest);
 
                     index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType,
                         Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msix));
+
+                    auto architecture = Utility::ConvertToArchitectureEnum(packageId.Architecture());
+                    if (architecture)
+                    {
+                        index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture,
+                            ToString(architecture.value()));
+                    }
                 }
                 catch (const wil::ResultException& resultException)
                 {
                     if (HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS) == resultException.GetErrorCode() && package.IsFramework())
                     {
-                        // There may be multiple packages with same package family name for framework packages.
-                        continue;
+                        // This should not be needed with the SxS changes
+                        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SideBySide))
+                        {
+                            // There may be multiple packages with same package family name for framework packages.
+                            continue;
+                        }
                     }
 
                     throw;
@@ -183,7 +203,7 @@ namespace AppInstaller::Repository::Microsoft
             AICLI_LOG(Repo, Verbose, << "Creating PredefinedInstalledSource with filter [" << PredefinedInstalledSourceFactory::FilterToString(filter) << ']');
 
             // Create an in memory index
-            SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, SQLite::Version::Latest());
+            SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless);
 
             // Put installed packages into the index
             if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP ||

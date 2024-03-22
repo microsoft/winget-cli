@@ -2817,6 +2817,16 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED" xml:space="preserve">
     <value>The SQLite connection was terminated to prevent corruption.</value>
   </data>
+  <data name="UninstallAllVersionsArgumentDescription" xml:space="preserve">
+    <value>Uninstall all versions</value>
+  </data>
+  <data name="TargetVersionArgumentDescription" xml:space="preserve">
+    <value>The version to act upon</value>
+  </data>
+  <data name="UninstallFailedDueToMultipleVersions" xml:space="preserve">
+    <value>Multiple versions of this package are installed. Either refine the search, pass the `--version` argument to select one, or pass the `--all-versions` flag to uninstall all of them.</value>
+    <comment>{Locked="--version,--all-versions"}</comment>
+  </data>
   <data name="PolicyEnableProxyCommandLineOptions" xml:space="preserve">
     <value>Enable Windows Package Manager proxy command line options</value>
     <comment>Describes a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
