@@ -51,6 +51,7 @@ createnew
 createpintable
 createportabletable
 createtables
+CRTDECL
 CTLs
 curated
 CURSORPOSITON
