@@ -772,6 +772,7 @@ namespace AppInstaller::CLI::Workflow
         std::vector<InstalledPackagesTableLine> lines;
         std::vector<InstalledPackagesTableLine> linesForExplicitUpgrade;
         std::vector<InstalledPackagesTableLine> linesForPins;
+        std::vector<InstalledPackagesTableLine> linesForUpgradeDeny;
 
         int availableUpgradesCount = 0;
 
@@ -848,7 +849,7 @@ namespace AppInstaller::CLI::Workflow
                 if (updateAvailable || !m_onlyShowUpgrades)
                 {
                     Utility::LocIndString availableVersion, sourceName;
-
+                    auto pinnedState = ConvertToPinTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
                     if (latestVersion)
                     {
                         // Always show the source for correlated packages
@@ -857,7 +858,10 @@ namespace AppInstaller::CLI::Workflow
                         if (updateAvailable)
                         {
                             availableVersion = latestVersion->GetProperty(PackageVersionProperty::Version);
-                            availableUpgradesCount++;
+                            if (pinnedState != PinType::BlockedByManifest)
+                            {
+                                availableUpgradesCount++;
+                            }
                         }
                     }
 
@@ -872,8 +876,11 @@ namespace AppInstaller::CLI::Workflow
                          shouldShowSource ? sourceName : Utility::LocIndString()
                     );
 
-                    auto pinnedState = ConvertToPinTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
-                    if (updateIsPinned)
+                    if (pinnedState == PinType::BlockedByManifest)
+                    {
+                        linesForUpgradeDeny.push_back(std::move(line));
+                    }
+                    else if (updateIsPinned)
                     {
                         linesForPins.push_back(std::move(line));
                     }
@@ -920,18 +927,24 @@ namespace AppInstaller::CLI::Workflow
             OutputInstalledPackagesTable(context, linesForPins);
         }
 
+        if (!linesForUpgradeDeny.empty())
+        {
+            context.Reporter.Info() << std::endl << Resource::String::UpgradeBehaviorDenyCount(linesForUpgradeDeny.size()) << std::endl;
+            OutputInstalledPackagesTable(context, linesForUpgradeDeny);
+        }
+
         if (m_onlyShowUpgrades)
         {
             if (packagesWithUnknownVersionSkipped > 0)
             {
                 AICLI_LOG(CLI, Info, << packagesWithUnknownVersionSkipped << " package(s) skipped due to unknown installed version");
-                context.Reporter.Info() << Resource::String::UpgradeUnknownVersionCount(packagesWithUnknownVersionSkipped) << std::endl;
+                context.Reporter.Info() << std::endl << Resource::String::UpgradeUnknownVersionCount(packagesWithUnknownVersionSkipped) << std::endl;
             }
 
             if (packagesWithUserPinsSkipped > 0)
             {
                 AICLI_LOG(CLI, Info, << packagesWithUserPinsSkipped << " package(s) skipped due to user pins");
-                context.Reporter.Info() << Resource::String::UpgradePinnedByUserCount(packagesWithUserPinsSkipped) << std::endl;
+                context.Reporter.Info() << std::endl << Resource::String::UpgradePinnedByUserCount(packagesWithUserPinsSkipped) << std::endl;
             }
         }
     }

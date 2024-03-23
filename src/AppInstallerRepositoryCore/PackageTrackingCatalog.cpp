@@ -242,7 +242,11 @@ namespace AppInstaller::Repository
         strstr << Utility::GetCurrentUnixEpoch();
         index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::TrackingWriteTime, strstr.str());
 
-        if (installer.RequireExplicitUpgrade)
+        if (installer.UpdateBehavior == Manifest::UpdateBehaviorEnum::Deny)
+        {
+            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::PinnedState, ToString(Pinning::PinType::BlockedByManifest));
+        }
+        else if (installer.RequireExplicitUpgrade)
         {
             index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::PinnedState, ToString(Pinning::PinType::PinnedByManifest));
         }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -1723,6 +1723,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="UpgradePinnedByUserCount" xml:space="preserve">
     <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
+  </data>
+  <data name="UpgradeBehaviorDenyCount" xml:space="preserve">
+    <value>{0} package(s) cannot be upgraded using winget. Please use the method provided by the publisher for upgrading these packages.</value>
+    <comment>{0} is a placeholder replaced by an integer number of packages</comment>
   </data>
   <data name="ConfigureCommandLongDescription" xml:space="preserve">
     <value>Ensures that the system matches the desired state as described by the provided configuration. May download/execute processors in order to achieve the desired state. The configuration and the processors should be checked to ensure that they are trustworthy before applying them.</value>

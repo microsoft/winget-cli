@@ -24,6 +24,9 @@ namespace AppInstaller::Pinning
         // The package is blocked from 'upgrade --all' and 'upgrade <package>'.
         // User has to unblock to allow update.
         Blocking,
+        // The package is blocked from 'upgrade --all' and 'upgrade <package>'.
+        // The user cannot unblock the package
+        BlockedByManifest,
     };
 
     std::string_view ToString(PinType type);

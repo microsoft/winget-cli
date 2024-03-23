@@ -211,6 +211,7 @@ namespace AppInstaller::CLI::Workflow
         bool updateAllFoundUpdate = false;
         int packagesWithUnknownVersionSkipped = 0;
         int packagesThatRequireExplicitSkipped = 0;
+        int packagesWithUpgradeBehaviorDeny = 0;
 
         for (const auto& match : matches)
         {
@@ -246,17 +247,32 @@ namespace AppInstaller::CLI::Workflow
             // User-defined pins are handled when selecting the version to use.
             auto installedMetadata = updateContext.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
             auto pinnedState = ConvertToPinTypeEnum(installedMetadata[PackageVersionMetadata::PinnedState]);
-            if (pinnedState == PinType::PinnedByManifest)
+
+            switch (pinnedState)
             {
-                // Note that for packages pinned by the manifest
-                // this does not consider whether the update to be installed has
-                // RequireExplicitUpgrade. While this has the downside of not working with
-                // packages installed from another source, it ensures consistency with the
-                // list of available updates (there we don't have the selected installer)
-                // and at most we will update each package like this once.
-                AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as it requires explicit upgrade");
-                ++packagesThatRequireExplicitSkipped;
-                continue;
+                
+                case AppInstaller::Pinning::PinType::PinnedByManifest:
+                    // Note that for packages pinned by the manifest
+                    // this does not consider whether the update to be installed has
+                    // RequireExplicitUpgrade. While this has the downside of not working with
+                    // packages installed from another source, it ensures consistency with the
+                    // list of available updates (there we don't have the selected installer)
+                    // and at most we will update each package like this once.
+                    AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as it requires explicit upgrade");
+                    ++packagesThatRequireExplicitSkipped;
+                    continue;
+                case AppInstaller::Pinning::PinType::BlockedByManifest:
+                    // Note that for packages blocked by the manifest
+                    // this does not consider whether the update to be installed has
+                    // UpgradeBehaviorDeny. However, this property is also evaluated
+                    // when the manifest is downloaded. The pin here is simply an
+                    // attempt to filter out the package before it gets to the point
+                    // of showing the upgrade denied error message.
+                    AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as the upgrade behavior is set to deny");
+                    ++packagesWithUpgradeBehaviorDeny;
+                    continue;
+                default:
+                    break;
             }
 
             updateAllFoundUpdate = true;
@@ -287,6 +303,12 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_LOG(CLI, Info, << packagesThatRequireExplicitSkipped << " package(s) skipped due to requiring explicit upgrade");
             context.Reporter.Info() << Resource::String::UpgradeRequireExplicitCount(packagesThatRequireExplicitSkipped) << std::endl;
+        }
+
+        if (packagesWithUpgradeBehaviorDeny > 0)
+        {
+            AICLI_LOG(CLI, Info, << packagesWithUpgradeBehaviorDeny << " package(s) skipped due to having UpgradeBehavior set to deny");
+            context.Reporter.Info() << Resource::String::UpgradeBehaviorDenyCount(packagesWithUpgradeBehaviorDeny) << std::endl;
         }
     }
 
