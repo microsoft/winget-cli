@@ -35,6 +35,10 @@ namespace AppInstaller::Pinning
         {
             return PinType::PinnedByManifest;
         }
+        else if (Utility::CaseInsensitiveEquals(in, "BlockedByManifest"sv))
+        {
+            return PinType::BlockedByManifest;
+        }
         else
         {
             return PinType::Unknown;
@@ -53,6 +57,8 @@ namespace AppInstaller::Pinning
             return "Gating"sv;
         case PinType::PinnedByManifest:
             return "PinnedByManifest"sv;
+        case PinType::BlockedByManifest:
+            return "BlockedByManifest"sv;
         case PinType::Unknown:
         default:
             return "Unknown";
