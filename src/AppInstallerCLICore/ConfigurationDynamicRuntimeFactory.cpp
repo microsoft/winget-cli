@@ -110,7 +110,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // If we got here, the only option is that the current integrity level is not High.
                 if (integrityLevel == Security::IntegrityLevel::High)
                 {
-                    factory = CreateOutOfProcessFactory(SerializeSetProperties(), SerializeHighIntegrityLevelSet());
+                    factory = CreateOutOfProcessFactory(true, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
                 }
                 else
                 {

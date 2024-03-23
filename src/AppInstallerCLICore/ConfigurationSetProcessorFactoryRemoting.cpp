@@ -45,23 +45,18 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
 
         // The string used to divide the arguments sent to the remote server
-        constexpr std::wstring_view s_ArgumentsDivider = L"---";
+        constexpr std::wstring_view s_ArgumentsDivider = L"\n---\n";
 
         // Represents a remote factory object that was created from a specific process.
         struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
         {
-            RemoteFactory(const std::string& properties, const std::string& restrictions)
+            RemoteFactory(bool useRunAs, const std::string& properties, const std::string& restrictions)
             {
                 AICLI_LOG(Config, Verbose, << "Launching process for configuration processing...");
 
-                // Security attributes to set handles as inherited.
-                SECURITY_ATTRIBUTES securityAttributes{};
-                securityAttributes.nLength = sizeof(securityAttributes);
-                securityAttributes.bInheritHandle = TRUE;
-                securityAttributes.lpSecurityDescriptor = nullptr;
-
                 // Create file mapping backed by page file.
-                wil::unique_handle memoryHandle{ CreateFileMappingW(INVALID_HANDLE_VALUE, &securityAttributes, PAGE_READWRITE, 0, details::MappedMemoryValue::s_MemorySize, nullptr) };
+                std::wstring fileMappingName = Utility::CreateNewGuidWString();
+                wil::unique_handle memoryHandle{ CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, details::MappedMemoryValue::s_MemorySize, fileMappingName.c_str()) };
                 THROW_LAST_ERROR_IF_NULL(memoryHandle);
 
                 // Map the memory into the process.
@@ -71,21 +66,19 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 mappedMemory->Result = E_FAIL;
 
                 // Create an event that the remote process will signal to indicate it has completed creating the object.
+                std::wstring initEventName = Utility::CreateNewGuidWString();
                 wil::unique_event initEvent;
-                initEvent.create(wil::EventOptions::None, nullptr, &securityAttributes);
+                initEvent.create(wil::EventOptions::None, initEventName.c_str());
 
                 // Create the event that the remote process will wait on to keep the object alive.
-                m_completionEvent.create(wil::EventOptions::None, nullptr, &securityAttributes);
+                std::wstring completionEventName = Utility::CreateNewGuidWString();
+                m_completionEvent.create(wil::EventOptions::None, completionEventName.c_str());
                 auto completeEventIfFailureDuringConstruction = wil::scope_exit([&]() { m_completionEvent.SetEvent(); });
 
-                wil::unique_process_handle thisProcessHandle;
-                THROW_IF_WIN32_BOOL_FALSE(DuplicateHandle(GetCurrentProcess(), GetCurrentProcess(), GetCurrentProcess(), &thisProcessHandle, 0, TRUE, DUPLICATE_SAME_ACCESS));
-
                 // Arguments are:
-                // server.exe <mapped memory handle> <event handle> <mutex handle> <parent process handle>
+                // server.exe <mapped memory name> <init event name> <completion event name> <this process id>
                 std::wostringstream argumentsStream;
-                argumentsStream << s_RemoteServerFileName << L' ' << reinterpret_cast<INT_PTR>(memoryHandle.get()) << L' ' << reinterpret_cast<INT_PTR>(initEvent.get())
-                    << L' ' << reinterpret_cast<INT_PTR>(m_completionEvent.get()) << L' ' << reinterpret_cast<INT_PTR>(thisProcessHandle.get());
+                argumentsStream << s_RemoteServerFileName << L' ' << fileMappingName << L' ' << initEventName << L' ' << completionEventName << L' ' << GetCurrentProcessId();
 
                 if (!properties.empty() && !restrictions.empty())
                 {
@@ -98,6 +91,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 std::filesystem::path serverPath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
                 serverPath /= s_RemoteServerFileName;
+
+                // TODO: Convert to ShellExecute and use runas when requested
 
                 STARTUPINFOW startupInfo{};
                 startupInfo.cb = sizeof(startupInfo);
@@ -293,9 +288,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         };
     }
 
-    IConfigurationSetProcessorFactory CreateOutOfProcessFactory(const std::string& properties, const std::string& restrictions)
+    IConfigurationSetProcessorFactory CreateOutOfProcessFactory(bool useRunAs, const std::string& properties, const std::string& restrictions)
     {
-        return winrt::make<RemoteFactory>(properties, restrictions);
+        return winrt::make<RemoteFactory>(useRunAs, properties, restrictions);
     }
 }
 
