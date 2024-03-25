@@ -112,15 +112,8 @@ namespace AppInstaller::CLI::Workflow
             Repository::SourceTrustLevel trustLevel = Repository::SourceTrustLevel::None;
             if (context.Args.Contains(Execution::Args::Type::SourceTrustLevel))
             {
-                std::vector<std::string> trustLevelArgs = Utility::Split(std::string{ context.Args.GetArg(Execution::Args::Type::SourceTrustLevel) }, '|');
-                std::vector<std::string> trustLevels;
-
-                for (auto trustLevelArg : trustLevelArgs)
-                {
-                    trustLevels.emplace_back(Utility::Trim(trustLevelArg));
-                }
-
-                trustLevel = Repository::ConvertToSourceTrustLevelEnum(trustLevels);
+                std::vector<std::string> trustLevelArgs = Utility::Split(std::string{ context.Args.GetArg(Execution::Args::Type::SourceTrustLevel) }, '|', true);
+                trustLevel = Repository::ConvertToSourceTrustLevelFlag(trustLevelArgs);
             }
 
             Repository::Source sourceToAdd{ name, arg, type, trustLevel, isExplicit};
@@ -322,7 +315,7 @@ namespace AppInstaller::CLI::Workflow
                 s.Data = source.Data;
                 s.Identifier = source.Identifier;
 
-                std::vector<std::string_view> sourceTrustLevels = Repository::SourceTrustLevelToList(source.TrustLevel);
+                std::vector<std::string_view> sourceTrustLevels = Repository::SourceTrustLevelFlagToList(source.TrustLevel);
                 s.TrustLevel = std::vector<std::string>(sourceTrustLevels.begin(), sourceTrustLevels.end());
                 s.Explicit = source.Explicit;
                 context.Reporter.Info() << s.ToJsonString() << std::endl;

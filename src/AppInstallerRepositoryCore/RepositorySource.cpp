@@ -21,6 +21,7 @@
 
 using namespace AppInstaller::Settings;
 using namespace std::chrono_literals;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::Repository
 {
@@ -338,11 +339,11 @@ namespace AppInstaller::Repository
         }
         else
         {
-            THROW_HR(E_UNEXPECTED);
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
     }
 
-    std::string_view SourceTrustLevelToString(SourceTrustLevel trustLevel)
+    std::string_view SourceTrustLevelEnumToString(SourceTrustLevel trustLevel)
     {
         switch (trustLevel)
         {
@@ -357,7 +358,7 @@ namespace AppInstaller::Repository
         return "Unknown"sv;
     }
 
-    SourceTrustLevel ConvertToSourceTrustLevelEnum(std::vector<std::string> trustLevels)
+    SourceTrustLevel ConvertToSourceTrustLevelFlag(std::vector<std::string> trustLevels)
     {
         Repository::SourceTrustLevel result = Repository::SourceTrustLevel::None;
         for (auto& trustLevel : trustLevels)
@@ -377,24 +378,24 @@ namespace AppInstaller::Repository
             }
             else
             {
-                THROW_HR_MSG(E_UNEXPECTED, "Invalid source trust level.");
+                THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED), "Invalid source trust level.");
             }
         }
 
         return result;
     }
 
-    std::vector<std::string_view> SourceTrustLevelToList(SourceTrustLevel trustLevel)
+    std::vector<std::string_view> SourceTrustLevelFlagToList(SourceTrustLevel trustLevel)
     {
         std::vector<std::string_view> result;
 
         if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::Trusted))
         {
-            result.emplace_back(Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::Trusted));
+            result.emplace_back(Repository::SourceTrustLevelEnumToString(Repository::SourceTrustLevel::Trusted));
         }
         if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::StoreOrigin))
         {
-            result.emplace_back(Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::StoreOrigin));
+            result.emplace_back(Repository::SourceTrustLevelEnumToString(Repository::SourceTrustLevel::StoreOrigin));
         }
 
         return result;
@@ -402,29 +403,9 @@ namespace AppInstaller::Repository
 
     std::string GetSourceTrustLevelForDisplay(SourceTrustLevel trustLevel)
     {
-        std::string result;
-        if (trustLevel == Repository::SourceTrustLevel::None)
-        {
-            result = Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::None);
-        }
-        else
-        {
-            if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::Trusted))
-            {
-                result += Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::Trusted);
-            }
-            if (WI_IsFlagSet(trustLevel, Repository::SourceTrustLevel::StoreOrigin))
-            {
-                if (!result.empty())
-                {
-                    result += " | ";
-                }
-
-                result += Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::StoreOrigin);
-            }
-        }
-
-        return result;
+        std::vector<std::string_view> trustLevelList = Repository::SourceTrustLevelFlagToList(trustLevel);
+        std::vector<Utility::LocIndString> locIndList(trustLevelList.begin(), trustLevelList.end());
+        return Utility::Join("|"_liv, locIndList);
     }
 
     std::string_view ToString(SourceOrigin origin)

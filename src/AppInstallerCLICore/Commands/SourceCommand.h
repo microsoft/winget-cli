@@ -32,6 +32,7 @@ namespace AppInstaller::CLI
         Utility::LocIndView HelpLink() const override;
 
     protected:
+        void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
         void ExecuteInternal(Execution::Context& context) const override;
     };
 

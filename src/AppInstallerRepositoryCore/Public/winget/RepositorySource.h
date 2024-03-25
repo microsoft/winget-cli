@@ -5,7 +5,6 @@
 #include <winget/PackageTrackingCatalog.h>
 #include <AppInstallerProgress.h>
 #include <winget/Certificates.h>
-#include <winget/LocIndependent.h>
 #include <winget/Authentication.h>
 
 #include <chrono>
@@ -50,13 +49,13 @@ namespace AppInstaller::Repository
     SourceTrustLevel ConvertToSourceTrustLevelEnum(std::string_view trustLevel);
 
     // Converts a vector of trust level strings to the corresponding SourceTrustLevel enum flag.
-    SourceTrustLevel ConvertToSourceTrustLevelEnum(std::vector<std::string> values);
+    SourceTrustLevel ConvertToSourceTrustLevelFlag(std::vector<std::string> values);
 
-    // Converts a SourceTrustLevel enum to a list of trust level strings.
-    std::vector<std::string_view> SourceTrustLevelToList(SourceTrustLevel trustLevel);
+    // Converts a SourceTrustLevel flag to a list of trust level strings.
+    std::vector<std::string_view> SourceTrustLevelFlagToList(SourceTrustLevel trustLevel);
 
     // Converts a SourceTrustLevel enum to the corresponding string.
-    std::string_view SourceTrustLevelToString(SourceTrustLevel trustLevel);
+    std::string_view SourceTrustLevelEnumToString(SourceTrustLevel trustLevel);
 
     // Gets the full trust level string name for display.
     std::string GetSourceTrustLevelForDisplay(SourceTrustLevel trustLevel);

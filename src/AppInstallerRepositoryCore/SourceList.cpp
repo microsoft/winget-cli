@@ -38,12 +38,10 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_Source_WingetCommunityDefault_Arg = "https://cdn.winget.microsoft.com/cache"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Data = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
         constexpr std::string_view s_Source_WingetCommunityDefault_Identifier = "Microsoft.Winget.Source_8wekyb3d8bbwe"sv;
-        constexpr std::string_view s_Source_WingetCommunityDefault_TrustLevel = "StoreOrigin | Trusted"sv;
 
         constexpr std::string_view s_Source_MSStoreDefault_Name = "msstore"sv;
         constexpr std::string_view s_Source_MSStoreDefault_Arg = "https://storeedgefd.dsx.mp.microsoft.com/v9.0"sv;
         constexpr std::string_view s_Source_MSStoreDefault_Identifier = "StoreEdgeFD"sv;
-        constexpr std::string_view s_Source_MSStoreDefault_TrustLevel = "Trusted"sv;
 
         constexpr std::string_view s_Source_DesktopFrameworks_Name = "microsoft.builtin.desktop.frameworks"sv;
         constexpr std::string_view s_Source_DesktopFrameworks_Arg = "https://cdn.winget.microsoft.com/platform"sv;
@@ -183,15 +181,7 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
                     out << YAML::Key << s_SourcesYaml_Source_Explicit << YAML::Value << details.Explicit;
-
-                    out << YAML::Key << s_SourcesYaml_Source_TrustLevel;
-                    out << YAML::BeginSeq;
-                    for (const auto& trustLevel : Repository::SourceTrustLevelToList(details.TrustLevel))
-                    {
-                        out << trustLevel;
-                    }
-                    out << YAML::EndSeq;
-
+                    out << YAML::Key << s_SourcesYaml_Source_TrustLevel << YAML::Value << static_cast<int64_t>(details.TrustLevel);
                     out << YAML::EndMap;
                 }
             }
@@ -648,18 +638,13 @@ namespace AppInstaller::Repository
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Explicit, details.Explicit, false);
-
-                    YAML::Node valueNode = source[std::string{ s_SourcesYaml_Source_TrustLevel }];
-                    if (valueNode && valueNode.IsSequence())
-                    {
-                        std::vector<std::string> trustLevels;
-                        const std::vector<YAML::Node> entries = valueNode.Sequence();
-                        trustLevels.reserve(entries.size());
-                        std::transform(entries.begin(), entries.end(), std::back_inserter(trustLevels), [](const auto& e) { return e.as<std::string>(); });
-                        details.TrustLevel = Repository::ConvertToSourceTrustLevelEnum(trustLevels);
-                    }
-
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
+
+                    int64_t trustLevelValue;
+                    if (TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_TrustLevel, trustLevelValue, false))
+                    {
+                        details.TrustLevel = static_cast<Repository::SourceTrustLevel>(trustLevelValue);
+                    }
 
                     return true;
                 });
@@ -696,11 +681,20 @@ namespace AppInstaller::Repository
                         details.Data = additionalSource.Data;
                         details.Identifier = additionalSource.Identifier;
                         details.Origin = SourceOrigin::GroupPolicy;
-                        details.TrustLevel = Repository::ConvertToSourceTrustLevelEnum(additionalSource.TrustLevel);
                         details.Explicit = additionalSource.Explicit;
 #ifndef AICLI_DISABLE_TEST_HOOKS
                         details.CertificatePinningConfiguration = additionalSource.PinningConfiguration;
 #endif
+                        try
+                        {
+                            details.TrustLevel = Repository::ConvertToSourceTrustLevelFlag(additionalSource.TrustLevel);
+                        }
+                        catch (...)
+                        {
+                            details.TrustLevel = Repository::SourceTrustLevel::None;
+                            AICLI_LOG(Repo, Verbose, << "Invalid source trust level from policy. Trust level set to None.");
+                        }
+
                         result.emplace_back(std::move(details));
                     }
                 }

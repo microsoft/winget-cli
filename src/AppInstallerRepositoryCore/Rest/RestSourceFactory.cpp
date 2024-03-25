@@ -87,7 +87,6 @@ namespace AppInstaller::Repository::Rest
             std::string m_caller;
             Authentication::AuthenticationArguments m_authArgs;
             std::once_flag m_initializeFlag;
-            bool m_explicit = false;
         };
 
         // The base class for data that comes from a rest based source.

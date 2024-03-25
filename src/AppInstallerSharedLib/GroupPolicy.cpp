@@ -195,14 +195,13 @@ namespace AppInstaller::Settings
                 }
             };
 
+            // All required fields should be read here.
             bool allRead = readSourceAttribute("Name", &SourceFromPolicy::Name)
                 && readSourceAttribute("Arg", &SourceFromPolicy::Arg)
                 && readSourceAttribute("Type", &SourceFromPolicy::Type)
                 && readSourceAttribute("Data", &SourceFromPolicy::Data)
                 && readSourceAttribute("Identifier", &SourceFromPolicy::Identifier);
 
-            // Add fields for source policy.
-            
             if (!allRead)
             {
                 return std::nullopt;

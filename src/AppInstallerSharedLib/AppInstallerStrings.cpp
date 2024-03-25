@@ -839,7 +839,7 @@ namespace AppInstaller::Utility
         return LocIndString{ ssJoin.str() };
     }
 
-    std::vector<std::string> Split(const std::string& input, char separator)
+    std::vector<std::string> Split(const std::string& input, char separator, bool trim)
     {
         std::vector<std::string> result;
         size_t startIndex = 0;
@@ -848,6 +848,12 @@ namespace AppInstaller::Utility
         while ((endIndex = input.find(separator, startIndex)) != std::string::npos)
         {
             std::string substring = input.substr(startIndex, endIndex - startIndex);
+
+            if (trim)
+            {
+                Utility::Trim(substring);
+            }
+
             result.push_back(substring);
             startIndex = endIndex + 1;
         }

@@ -740,26 +740,6 @@ namespace AppInstaller::CLI
             }
         }
 
-        if (execArgs.Contains(Execution::Args::Type::SourceTrustLevel))
-        {
-            try
-            {
-                std::string trustLevelArg = std::string{ execArgs.GetArg(Execution::Args::Type::SourceTrustLevel) };
-
-                for (auto trustLevel : Utility::Split(trustLevelArg, '|'))
-                {
-                    Repository::ConvertToSourceTrustLevelEnum(Utility::Trim(trustLevel));
-                }
-            }
-            catch (...)
-            {
-                auto validOptions = std::vector<Utility::LocIndString>{
-                    Utility::LocIndString{ Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::None) },
-                    Utility::LocIndString{ Repository::SourceTrustLevelToString(Repository::SourceTrustLevel::Trusted) }};
-                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SourceTrustLevel).Name, Utility::Join(","_liv, validOptions)));
-            }
-        }
-
         Argument::ValidateExclusiveArguments(execArgs);
 
         ValidateArgumentsInternal(execArgs);
