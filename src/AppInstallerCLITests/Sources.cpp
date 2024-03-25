@@ -181,9 +181,7 @@ Sources:
     Arg: testArg
     Data: testData
     IsTombstone: false
-    TrustLevel:
-    - Trusted
-    - StoreOrigin
+    TrustLevel: 3
     Explicit: true
 )"sv;
 

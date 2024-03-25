@@ -858,7 +858,7 @@ namespace AppInstaller::Utility
             startIndex = endIndex + 1;
         }
 
-        result.push_back(input.substr(startIndex));
+        result.push_back(trim ? Utility::Trim(input.substr(startIndex)) : input.substr(startIndex));
         return result;
     }
 
