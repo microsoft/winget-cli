@@ -23,40 +23,12 @@ namespace AppInstaller::Archive
             Bit7zLibrary lib{ "7za.dll" };
             BitFileExtractor extractor{ lib, BitFormat::SevenZip };
             extractor.extract(archivePath.string(), destPath.string());
-        }catch (const bit7z::BitException& ex) { /* do something with ex.what()...*/ }
-
-        wil::com_ptr<IFileOperation> pFileOperation;
-        RETURN_IF_FAILED(CoCreateInstance(CLSID_FileOperation, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileOperation)));
-        RETURN_IF_FAILED(pFileOperation->SetOperationFlags(FOF_NO_UI));
-
-        wil::com_ptr<IShellItem> pShellItemTo;
-        RETURN_IF_FAILED(SHCreateItemFromParsingName(destPath.c_str(), NULL, IID_PPV_ARGS(&pShellItemTo)));
-
-        unique_pidlist_absolute pidlFull;
-        RETURN_IF_FAILED(SHParseDisplayName(archivePath.c_str(), NULL, &pidlFull, 0, NULL));
-
-        wil::com_ptr<IShellFolder> pArchiveShellFolder;
-        RETURN_IF_FAILED(SHBindToObject(NULL, pidlFull.get(), NULL, IID_PPV_ARGS(&pArchiveShellFolder)));
-
-        wil::com_ptr<IEnumIDList> pEnumIdList;
-        RETURN_IF_FAILED(pArchiveShellFolder->EnumObjects(nullptr, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS, &pEnumIdList));
-
-        unique_lpitemidlist pidlChild;
-        ULONG nFetched;
-        while (pEnumIdList->Next(1, wil::out_param_ptr<LPITEMIDLIST*>(pidlChild), &nFetched) == S_OK && nFetched == 1)
-        {
-            wil::com_ptr<IShellItem> pShellItemFrom;
-            STRRET strFolderName;
-            WCHAR szFolderName[MAX_PATH];
-            RETURN_IF_FAILED(pArchiveShellFolder->GetDisplayNameOf(pidlChild.get(), SHGDN_INFOLDER | SHGDN_FORPARSING, &strFolderName));
-            RETURN_IF_FAILED(StrRetToBuf(&strFolderName, pidlChild.get(), szFolderName, MAX_PATH));
-            RETURN_IF_FAILED(SHCreateItemWithParent(pidlFull.get(), pArchiveShellFolder.get(), pidlChild.get(), IID_PPV_ARGS(&pShellItemFrom)));
-            RETURN_IF_FAILED(pFileOperation->CopyItem(pShellItemFrom.get(), pShellItemTo.get(), NULL, NULL));
+        }catch (const bit7z::BitException& ex) {
+            RETURN_IF_FAILED(ex.hresultCode());
         }
-
-        RETURN_IF_FAILED(pFileOperation->PerformOperations());
         return S_OK;
-    } */
+        
+    } 
 
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
