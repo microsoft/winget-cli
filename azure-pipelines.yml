@@ -383,6 +383,7 @@ jobs:
           UndockedRegFreeWinRT\winrtact.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net6.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy native binaries for Microsoft.WinGet.Client'
@@ -395,6 +396,7 @@ jobs:
           UndockedRegFreeWinRT\winrtact.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net48\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy native binaries for Microsoft.WinGet.Configuration'
@@ -404,6 +406,7 @@ jobs:
           Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy managed binaries for Microsoft.WinGet.Configuration in arch specific'
@@ -413,6 +416,7 @@ jobs:
           Microsoft.Management.Configuration.Projection\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Projection.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy PowerShell AnyCPU Module Files'

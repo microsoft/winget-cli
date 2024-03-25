@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "WinGetServer.h"
 #include "Utils.h"
@@ -76,11 +76,8 @@ HRESULT LaunchWinGetServerWithManualActivation()
     RETURN_LAST_ERROR_IF(!CreateProcessW(NULL, &commandLineInput[0], NULL, NULL, FALSE, 0, NULL, NULL, &info, &process));
 
     // Wait for manual reset event from server before proceeding with COM activation.
-    wil::unique_event manualResetEvent;
-    if (manualResetEvent.try_open(L"WinGetServerStartEvent"))
-    {
-        manualResetEvent.wait();
-    }
+    wil::unique_event manualResetEvent = CreateOrOpenServerStartEvent();
+    manualResetEvent.wait(10000);
 
     return S_OK;
 }
