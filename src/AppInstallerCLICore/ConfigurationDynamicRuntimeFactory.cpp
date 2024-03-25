@@ -13,18 +13,26 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 {
     namespace anonymous
     {
+        struct DynamicProcessorInfo
+        {
+            IConfigurationSetProcessorFactory Factory;
+            IConfigurationSetProcessor Processor;
+        };
+
         struct DynamicSetProcessor : winrt::implements<DynamicSetProcessor, IConfigurationSetProcessor>
         {
-            DynamicSetProcessor(IConfigurationSetProcessor defaultRemoteSetProcessor, const ConfigurationSet& configurationSet) : m_configurationSet(configurationSet)
+            using ProcessorMap = std::map<Security::IntegrityLevel, DynamicProcessorInfo>;
+
+            DynamicSetProcessor(IConfigurationSetProcessorFactory defaultRemoteFactory, IConfigurationSetProcessor defaultRemoteSetProcessor, const ConfigurationSet& configurationSet) : m_configurationSet(configurationSet)
             {
                 m_currentIntegrityLevel = Security::GetEffectiveIntegrityLevel();
-                m_setProcessors.emplace(m_currentIntegrityLevel, defaultRemoteSetProcessor);
+                m_setProcessors.emplace(m_currentIntegrityLevel, DynamicProcessorInfo{ defaultRemoteFactory, defaultRemoteSetProcessor });
             }
 
             IConfigurationUnitProcessorDetails GetUnitProcessorDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailFlags detailFlags)
             {
                 // Always get processor details from the current integrity level
-                return m_setProcessors[m_currentIntegrityLevel].GetUnitProcessorDetails(unit, detailFlags);
+                return m_setProcessors[m_currentIntegrityLevel].Processor.GetUnitProcessorDetails(unit, detailFlags);
             }
 
             // Creates a configuration unit processor for the given unit.
@@ -41,7 +49,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     itr = CreateSetProcessorForIntegrityLevel(requiredIntegrityLevel);
                 }
 
-                return itr->second.CreateUnitProcessor(unit);
+                return itr->second.Processor.CreateUnitProcessor(unit);
             }
 
         private:
@@ -94,16 +102,18 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             // Serializes the set properties to be sent to the remote server
             std::string SerializeSetProperties()
             {
-
+                // TODO: Serialize any properties to JSON that do not get serialized to the file stream
+                return {};
             }
 
             // Serializes a version of the set that only contains the units that require high integrity level
             std::string SerializeHighIntegrityLevelSet()
             {
-
+                // TODO: Extract only the units that require high integrity and place them in a new set, then serialize it
+                return {};
             }
 
-            std::map<Security::IntegrityLevel, IConfigurationSetProcessor>::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)
+            ProcessorMap::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)
             {
                 IConfigurationSetProcessorFactory factory;
 
@@ -117,11 +127,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     THROW_WIN32(ERROR_NOT_SUPPORTED);
                 }
 
-                return m_setProcessors.emplace(integrityLevel, factory).first;
+                return m_setProcessors.emplace(integrityLevel, DynamicProcessorInfo{ factory, factory.CreateSetProcessor(m_configurationSet) }).first;
             }
 
             Security::IntegrityLevel m_currentIntegrityLevel;
-            std::map<Security::IntegrityLevel, IConfigurationSetProcessor> m_setProcessors;
+            ProcessorMap m_setProcessors;
             ConfigurationSet m_configurationSet;
         };
 
@@ -136,7 +146,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             IConfigurationSetProcessor CreateSetProcessor(const ConfigurationSet& configurationSet)
             {
-                return winrt::make<DynamicSetProcessor>(m_defaultRemoteFactory.CreateSetProcessor(configurationSet), configurationSet);
+                return winrt::make<DynamicSetProcessor>(m_defaultRemoteFactory, m_defaultRemoteFactory.CreateSetProcessor(configurationSet), configurationSet);
             }
 
             winrt::event_token Diagnostics(const EventHandler<IDiagnosticInformation>&)
@@ -158,6 +168,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             void MinimumLevel(DiagnosticLevel value)
             {
                 m_minimumLevel = value;
+            }
+
+            HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
+            {
+                return WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
             }
 
         private:

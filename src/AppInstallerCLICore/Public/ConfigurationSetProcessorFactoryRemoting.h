@@ -14,4 +14,4 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 }
 
 // Export for use by the out of process factory server to report its initialization.
-HRESULT WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(HRESULT result, void* factory, uint64_t memoryHandle, uint64_t initEventHandle, uint64_t completionMutexHandle);
+HRESULT WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(HRESULT result, void* factory, LPWSTR staticsCallback, LPWSTR completionEventName, DWORD parentProcessId);

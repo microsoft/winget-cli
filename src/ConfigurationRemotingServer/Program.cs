@@ -11,28 +11,32 @@ namespace ConfigurationRemotingServer
     {
         static int Main(string[] args)
         {
-            ulong memoryHandle = ulong.Parse(args[0]);
+            string staticsCallback = args[0];
 
             try
             {
-                ulong initEventHandle = ulong.Parse(args[1]);
-                ulong completionEventHandle = ulong.Parse(args[2]);
-                ulong parentProcessHandle = ulong.Parse(args[3]);
+                string completionEventName = args[1];
+                uint parentProcessId = uint.Parse(args[2]);
 
                 PowerShellConfigurationSetProcessorFactory factory = new PowerShellConfigurationSetProcessorFactory();
 
                 IObjectReference factoryInterface = MarshalInterface<global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
 
-                return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, memoryHandle, initEventHandle, completionEventHandle, parentProcessHandle);
+                return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, staticsCallback, completionEventName, parentProcessId);
             }
             catch(Exception ex)
             {
-                WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(ex.HResult, IntPtr.Zero, memoryHandle, 0, 0, 0);
+                WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(ex.HResult, IntPtr.Zero, staticsCallback, null, 0);
                 return ex.HResult;
             }
         }
 
         [DllImport("WindowsPackageManager.dll")]
-        private static extern int WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(int result, IntPtr factory, ulong memoryHandle, ulong initEventHandle, ulong completionMutexHandle, ulong parentProcessHandle);
+        private static extern int WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(
+            int result,
+            IntPtr factory,
+            [MarshalAs(UnmanagedType.LPWStr)]string staticsCallback,
+            [MarshalAs(UnmanagedType.LPWStr)]string? completionEventName,
+            uint parentProcessId);
     }
 }

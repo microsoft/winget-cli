@@ -863,22 +863,20 @@ namespace AppInstaller::Utility
 
     std::string ConvertGuidToString(const GUID& value)
     {
-        wchar_t buffer[256];
+        wchar_t buffer[40];
         THROW_HR_IF(E_UNEXPECTED, !StringFromGUID2(value, buffer, ARRAYSIZE(buffer)));
         return ConvertToUTF8(buffer);
     }
 
-    std::wstring CreateNewGuidWString()
+    std::wstring CreateNewGuidNameWString()
     {
         GUID guid;
         THROW_IF_FAILED(CoCreateGuid(&guid));
 
-        std::wstring result{ 256, '\0' };
-        int characters = StringFromGUID2(guid, &result[0], result.length());
-        THROW_HR_IF(E_UNEXPECTED, !characters);
+        wchar_t buffer[40];
+        THROW_HR_IF(E_UNEXPECTED, StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)) != 39);
 
-        result.resize(characters - 1);
-        return result;
+        return std::wstring{ &buffer[1], 36 };
     }
 
     bool IsDwordFlagSet(const std::string& value)
