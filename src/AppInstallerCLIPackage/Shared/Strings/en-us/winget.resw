@@ -2871,4 +2871,16 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="SettingsSetCommandShortDescription" xml:space="preserve">
     <value>Sets the value of an admin setting.</value>
   </data>
+  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
+    <value>Excludes a source from discovery unless specified</value>
+  </data>
+  <data name="SourceListExplicit" xml:space="preserve">
+    <value>Explicit</value>
+  </data>
+  <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
+    <value>Trust level of the source (none or trusted)</value>
+  </data>
+  <data name="SourceListTrustLevel" xml:space="preserve">
+    <value>Trust Level</value>
+  </data>
 </root>

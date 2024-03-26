@@ -52,8 +52,10 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::SourceName).SetRequired(true),
             Argument::ForType(Args::Type::SourceArg),
             Argument::ForType(Args::Type::SourceType),
+            Argument::ForType(Args::Type::SourceTrustLevel),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Args::Type::SourceExplicit),
         };
     }
 
@@ -70,6 +72,29 @@ namespace AppInstaller::CLI
     Utility::LocIndView SourceAddCommand::HelpLink() const
     {
         return s_SourceCommand_HelpLink;
+    }
+
+    void SourceAddCommand::ValidateArgumentsInternal(Args& execArgs) const
+    {
+        if (execArgs.Contains(Execution::Args::Type::SourceTrustLevel))
+        {
+            try
+            {
+                std::string trustLevelArg = std::string{ execArgs.GetArg(Execution::Args::Type::SourceTrustLevel) };
+
+                for (auto trustLevel : Utility::Split(trustLevelArg, '|', true))
+                {
+                    Repository::ConvertToSourceTrustLevelEnum(trustLevel);
+                }
+            }
+            catch (...)
+            {
+                auto validOptions = std::vector<Utility::LocIndString>{
+                    Utility::LocIndString{ Repository::SourceTrustLevelEnumToString(Repository::SourceTrustLevel::None) },
+                    Utility::LocIndString{ Repository::SourceTrustLevelEnumToString(Repository::SourceTrustLevel::Trusted) } };
+                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SourceTrustLevel).Name, Utility::Join(","_liv, validOptions)));
+            }
+        }
     }
 
     void SourceAddCommand::ExecuteInternal(Context& context) const

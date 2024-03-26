@@ -701,6 +701,8 @@ namespace AppInstallerCLIE2ETests.Helpers
                                 },
                             },
                         },
+                        TrustLevel = new string[] { "None" },
+                        Explicit = false,
                     },
                 });
             }

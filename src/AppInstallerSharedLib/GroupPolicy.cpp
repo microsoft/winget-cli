@@ -195,11 +195,13 @@ namespace AppInstaller::Settings
                 }
             };
 
+            // All required fields should be read here.
             bool allRead = readSourceAttribute("Name", &SourceFromPolicy::Name)
                 && readSourceAttribute("Arg", &SourceFromPolicy::Arg)
                 && readSourceAttribute("Type", &SourceFromPolicy::Type)
                 && readSourceAttribute("Data", &SourceFromPolicy::Data)
                 && readSourceAttribute("Identifier", &SourceFromPolicy::Identifier);
+
             if (!allRead)
             {
                 return std::nullopt;
@@ -217,6 +219,22 @@ namespace AppInstaller::Settings
                 }
             }
 #endif
+            // TrustLevel and Explicit are optional policy fields with default values.
+            const std::string trustLevelName = "TrustLevel";
+            if (sourceJson.isMember(trustLevelName) && sourceJson[trustLevelName].isArray())
+            {
+                const Json::Value in = sourceJson[trustLevelName];
+                std::vector<std::string> result;
+                result.reserve(in.size());
+                std::transform(in.begin(), in.end(), std::back_inserter(result), [](const auto& e) { return e.asString(); });
+                source.TrustLevel = result;
+            }
+
+            const std::string explicitName = "Explicit";
+            if (sourceJson.isMember(explicitName) && sourceJson[explicitName].isBool())
+            {
+                source.Explicit = sourceJson[explicitName].asBool();
+            }
 
             return source;
         }
@@ -336,6 +354,14 @@ namespace AppInstaller::Settings
         json["Arg"] = Arg;
         json["Data"] = Data;
         json["Identifier"] = Identifier;
+        json["Explicit"] = Explicit;
+
+        // Trust level is represented as an array of trust level strings since there can be multiple flags set.
+        int trustLevelLength = static_cast<int>(TrustLevel.size());
+        for (int i = 0; i < trustLevelLength; ++i)
+        {
+            json["TrustLevel"][i] = TrustLevel[i];
+        }
 
         Json::StreamWriterBuilder writerBuilder;
         writerBuilder.settings_["indentation"] = "";

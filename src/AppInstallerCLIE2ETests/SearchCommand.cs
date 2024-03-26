@@ -197,6 +197,8 @@ namespace AppInstallerCLIE2ETests
                                 },
                             },
                         },
+                        TrustLevel = new string[] { "None" },
+                        Explicit = false,
                     },
             });
 

@@ -62,6 +62,8 @@ namespace AppInstaller::CLI::Execution
             SourceType,
             SourceArg,
             ForceSourceReset,
+            SourceExplicit,
+            SourceTrustLevel,
 
             //Hash Command
             HashFile,

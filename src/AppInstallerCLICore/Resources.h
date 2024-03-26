@@ -545,6 +545,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListName);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoneFound);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoSources);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListExplicit);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListTrustLevel);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListType);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListUpdated);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListUpdatedNever);
@@ -558,12 +560,14 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveOne);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRequiresAuthentication);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceExplicitArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetListAndOverridePreamble);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetOne);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceTrustLevelArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceTypeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandLongDescription);

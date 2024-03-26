@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="GroupPolicy.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -178,6 +178,32 @@ namespace AppInstallerCLIE2ETests
 
             result = TestCommon.RunAICLICommand("source list", "TestSource");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+        }
+
+        /// <summary>
+        /// Test additional sources with trust levels and explicit are enabled by policy.
+        /// </summary>
+        [Test]
+        public void EnableAdditionalSources_TrustLevel_Explicit()
+        {
+            // Remove the test source, then add it with policy.
+            TestCommon.RunAICLICommand("source remove", "TestSource");
+            var result = TestCommon.RunAICLICommand("source list", "TestSource");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+
+            GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new string[]
+            {
+                "{\"Arg\":\"https://localhost:5001/TestKit\",\"Data\":\"WingetE2E.Tests_8wekyb3d8bbwe\",\"Identifier\":\"WingetE2E.Tests_8wekyb3d8bbwe\",\"Name\":\"TestSource\",\"Type\":\"Microsoft.PreIndexed.Package\",\"TrustLevel\":[\"Trusted\"],\"Explicit\":true}",
+            });
+
+            result = TestCommon.RunAICLICommand("source list", "TestSource");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Trust Level"));
+            Assert.True(result.StdOut.Contains("Trusted"));
+
+            var searchResult = TestCommon.RunAICLICommand("search", "TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_SOURCES_DEFINED, searchResult.ExitCode);
+            Assert.True(searchResult.StdOut.Contains("No sources defined; add one with 'source add' or reset to defaults with 'source reset'"));
         }
 
         /// <summary>
