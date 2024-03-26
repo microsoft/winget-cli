@@ -357,7 +357,8 @@ namespace AppInstaller::Settings
         json["Explicit"] = Explicit;
 
         // Trust level is represented as an array of trust level strings since there can be multiple flags set.
-        for (int i = 0; i < TrustLevel.size(); ++i)
+        int trustLevelLength = static_cast<int>(TrustLevel.size());
+        for (int i = 0; i < trustLevelLength; ++i)
         {
             json["TrustLevel"][i] = TrustLevel[i];
         }
