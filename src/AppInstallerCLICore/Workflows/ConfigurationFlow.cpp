@@ -86,8 +86,11 @@ namespace AppInstaller::CLI::Workflow
             }
 #endif
 
-            auto factory = ConfigurationRemoting::CreateOutOfProcessFactory();
-            Configuration::SetModulePath(context, factory);
+            //auto factory = ConfigurationRemoting::CreateOutOfProcessFactory();
+            // TESTING!
+            auto factory = ConfigurationRemoting::CreateDynamicRuntimeFactory();
+            UNREFERENCED_PARAMETER(context);
+            //Configuration::SetModulePath(context, factory);
             return factory;
         }
 

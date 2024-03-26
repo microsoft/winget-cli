@@ -171,15 +171,39 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 }
 
                 std::wstring arguments = argumentsStream.str();
-                // Per documentation, the maximum length is 32767 *counting* the null.
-                THROW_WIN32_IF(ERROR_BUFFER_OVERFLOW, arguments.length() > 32766);
 
                 std::filesystem::path serverPath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
                 serverPath /= s_RemoteServerFileName;
+                std::wstring serverPathString = serverPath.wstring();
 
-                // TODO: Convert to ShellExecute and use runas when requested
-                UNREFERENCED_PARAMETER(useRunAs);
+                // Per documentation, the maximum length is 32767 *counting* the null.
+                THROW_WIN32_IF(ERROR_BUFFER_OVERFLOW, serverPathString.length() > 32766);
+                THROW_WIN32_IF(ERROR_BUFFER_OVERFLOW, arguments.length() > 32766);
+                // Overflow safe since we verify that each of the individual strings is also small.
+                // +1 for the space between the path and args.
+                THROW_WIN32_IF(ERROR_BUFFER_OVERFLOW, serverPathString.length() + 1 + arguments.length() > 32766);
 
+                SHELLEXECUTEINFOW execInfo = { 0 };
+                execInfo.cbSize = sizeof(execInfo);
+                execInfo.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_FLAG_NO_UI | SEE_MASK_NO_CONSOLE;
+                execInfo.lpFile = serverPath.c_str();
+                execInfo.lpParameters = arguments.c_str();
+                execInfo.nShow = SW_HIDE;
+
+                if (useRunAs)
+                {
+                    execInfo.lpVerb = L"runas";
+                }
+
+                THROW_LAST_ERROR_IF(!ShellExecuteExW(&execInfo) || !execInfo.hProcess);
+
+                wil::unique_process_handle process{ execInfo.hProcess };
+                AICLI_LOG(Config, Verbose, << "  Configuration remote PID is " << GetProcessId(process.get()));
+
+                m_remoteFactory = callback->Wait(process.get());
+                AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
+
+#if 0
                 STARTUPINFOW startupInfo{};
                 startupInfo.cb = sizeof(startupInfo);
                 wil::unique_process_information processInformation;
@@ -189,6 +213,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 m_remoteFactory = callback->Wait(processInformation.hProcess);
                 AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
+#endif
 
                 // The additional modules path is a direct child directory to the package root
                 std::filesystem::path externalModules = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot) / s_ExternalModulesName;

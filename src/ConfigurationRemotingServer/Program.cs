@@ -11,12 +11,12 @@ namespace ConfigurationRemotingServer
     {
         static int Main(string[] args)
         {
-            string staticsCallback = args[0];
+            string staticsCallback = args[1];
 
             try
             {
-                string completionEventName = args[1];
-                uint parentProcessId = uint.Parse(args[2]);
+                string completionEventName = args[2];
+                uint parentProcessId = uint.Parse(args[3]);
 
                 PowerShellConfigurationSetProcessorFactory factory = new PowerShellConfigurationSetProcessorFactory();
 

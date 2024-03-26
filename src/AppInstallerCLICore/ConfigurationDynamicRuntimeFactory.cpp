@@ -103,14 +103,23 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             std::string SerializeSetProperties()
             {
                 // TODO: Serialize any properties to JSON that do not get serialized to the file stream
-                return {};
+                return R"({
+  "filePath": "E:\Temp\PSGallery_NoModule_NoSettings.yml"
+})";
             }
 
             // Serializes a version of the set that only contains the units that require high integrity level
             std::string SerializeHighIntegrityLevelSet()
             {
                 // TODO: Extract only the units that require high integrity and place them in a new set, then serialize it
-                return {};
+                return R"(properties:
+    configurationVersion: 0.1
+    resources:
+      - resource: XmlFileContentResource
+        directives:
+          description: Set XML file contents
+          SecurityContext: elevated
+)";
             }
 
             ProcessorMap::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)
