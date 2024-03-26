@@ -167,7 +167,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 if (!properties.empty() && !restrictions.empty())
                 {
-                    argumentsStream << s_ArgumentsDivider << Utility::ConvertToUTF16(properties) << s_ArgumentsDivider << Utility::ConvertToUTF16(restrictions);
+                    argumentsStream << L' ' << s_ArgumentsDivider << Utility::ConvertToUTF16(properties) << s_ArgumentsDivider << Utility::ConvertToUTF16(restrictions);
                 }
 
                 std::wstring arguments = argumentsStream.str();
@@ -214,6 +214,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_remoteFactory = callback->Wait(processInformation.hProcess);
                 AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
 #endif
+
+                // TODO_YAO: Move these to defaults set by the host exe and blocked from being set when run with restrictions.
 
                 // The additional modules path is a direct child directory to the package root
                 std::filesystem::path externalModules = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot) / s_ExternalModulesName;

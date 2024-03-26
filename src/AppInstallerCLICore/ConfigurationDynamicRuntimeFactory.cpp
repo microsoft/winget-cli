@@ -39,7 +39,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             IConfigurationUnitProcessor CreateUnitProcessor(const ConfigurationUnit& unit)
             {
                 // TODO: Inspect the configuration set to determine the complete set of integrity levels we will need and create the set processors for all of them.
-                //       We would do this here to avoid creating them if the only call is going to be for details.
+                //       We would do this here to avoid creating them if the only call is going to be for details (ex. `configure show` shouldn't need to elevate)
                 //       We want to do this now to prevent a UAC from showing much later than the start of the operation.
 
                 Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(unit);
@@ -103,6 +103,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             std::string SerializeSetProperties()
             {
                 // TODO: Serialize any properties to JSON that do not get serialized to the file stream
+                //       Currently the only one is `Path`.
+                //       This should be the path to sending properties set via SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties
                 return R"({
   "filePath": "E:\Temp\PSGallery_NoModule_NoSettings.yml"
 })";
@@ -112,6 +114,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             std::string SerializeHighIntegrityLevelSet()
             {
                 // TODO: Extract only the units that require high integrity and place them in a new set, then serialize it
+                // TODO: Implement ConfigurationSet::Serialize
                 return R"(properties:
     configurationVersion: 0.1
     resources:
@@ -146,6 +149,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
         // This is implemented completely in the packaged context for now, if we want to make it more configurable, we will probably want to move it to configuration and
         // have this implementation leverage that one with an event handler for the packaged specifics.
+        // TODO: Add SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties and pass values along to sets on creation
+        //       In turn, any properties must only be set via the command line (or eventual UI requests to the user).
         struct DynamicFactory : winrt::implements<DynamicFactory, IConfigurationSetProcessorFactory, winrt::cloaked<WinRT::ILifetimeWatcher>>, WinRT::LifetimeWatcherBase
         {
             DynamicFactory()

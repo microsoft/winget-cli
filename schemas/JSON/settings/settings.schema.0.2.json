@@ -275,6 +275,11 @@
           "description": "Enable support for proxies",
           "type": "boolean",
           "default": false
+        },
+        "configureSelfElevate": {
+          "description": "Enable configure commands request elevation as needed",
+          "type": "boolean",
+          "default": false
         }
       }
     }
