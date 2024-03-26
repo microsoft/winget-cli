@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationSetProcessor.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -24,16 +24,25 @@ namespace Microsoft.Management.Configuration.Processor.Set
     internal sealed class ConfigurationSetProcessor : IConfigurationSetProcessor
     {
         private readonly ConfigurationSet? configurationSet;
+        private readonly bool isLimitMode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationSetProcessor"/> class.
         /// </summary>
         /// <param name="processorEnvironment">The processor environment.</param>
         /// <param name="configurationSet">Configuration set.</param>
-        public ConfigurationSetProcessor(IProcessorEnvironment processorEnvironment, ConfigurationSet? configurationSet)
+        /// <param name="isLimitMode">Whether the set processor should work in limitation mode.</param>
+        public ConfigurationSetProcessor(IProcessorEnvironment processorEnvironment, ConfigurationSet? configurationSet, bool isLimitMode = false)
         {
             this.ProcessorEnvironment = processorEnvironment;
             this.configurationSet = configurationSet;
+            this.isLimitMode = isLimitMode;
+
+            // In limit mode, configurationSet is the limitation set to be used. It cannot be null.
+            if (this.isLimitMode && this.configurationSet == null)
+            {
+                throw new ArgumentNullException(nameof(this.configurationSet), "configurationSet is required in limit mode.");
+            }
         }
 
         /// <summary>
