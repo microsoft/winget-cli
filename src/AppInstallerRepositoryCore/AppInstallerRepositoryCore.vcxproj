@@ -437,7 +437,6 @@
     <ClInclude Include="Rest\Schema\1_7\Json\ManifestDeserializer.h" />
     <ClInclude Include="Rest\Schema\AuthenticationInfoParser.h" />
     <ClInclude Include="Rest\Schema\CommonRestConstants.h" />
-    <ClInclude Include="Rest\Schema\HttpClientHelper.h" />
     <ClInclude Include="Rest\Schema\InformationResponseDeserializer.h" />
     <ClInclude Include="Rest\Schema\IRestClient.h" />
     <ClInclude Include="Rest\Schema\RestHelper.h" />
@@ -522,7 +521,6 @@
     <ClCompile Include="Rest\Schema\1_7\Json\ManifestDeserializer_1_7.cpp" />
     <ClCompile Include="Rest\Schema\1_7\RestInterface_1_7.cpp" />
     <ClCompile Include="Rest\Schema\AuthenticationInfoParser.cpp" />
-    <ClCompile Include="Rest\Schema\HttpClientHelper.cpp" />
     <ClCompile Include="Rest\Schema\InformationResponseDeserializer.cpp" />
     <ClCompile Include="Rest\Schema\RestHelper.cpp" />
     <ClCompile Include="Rest\Schema\SearchRequestComposer.cpp" />

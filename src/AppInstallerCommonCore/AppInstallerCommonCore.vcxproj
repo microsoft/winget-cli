@@ -421,6 +421,7 @@
     <ClInclude Include="Public\winget\Archive.h" />
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
+    <ClInclude Include="Public\winget\HttpClientHelper.h" />
     <ClInclude Include="Public\winget\Locale.h" />
     <ClInclude Include="Public\winget\Manifest.h" />
     <ClInclude Include="Public\winget\ManifestInstaller.h" />
@@ -465,6 +466,7 @@
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="ExtensionCatalog.cpp" />
     <ClCompile Include="FileLogger.cpp" />
+    <ClCompile Include="HttpClientHelper.cpp" />
     <ClCompile Include="HttpStream\HttpClientWrapper.cpp" />
     <ClCompile Include="HttpStream\HttpLocalCache.cpp" />
     <ClCompile Include="HttpStream\HttpRandomAccessStream.cpp" />

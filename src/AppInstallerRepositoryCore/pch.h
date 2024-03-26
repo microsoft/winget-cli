@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
 
@@ -6,7 +6,6 @@
 #include <windows.h>
 #include <urlmon.h>
 #include <appmodel.h>
-#include <winhttp.h>
 #include <Shlwapi.h>
 #include <Shlobj.h>
 #include <msi.h>

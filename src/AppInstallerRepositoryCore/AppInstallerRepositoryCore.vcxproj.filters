@@ -243,9 +243,6 @@
     <ClInclude Include="Rest\Schema\InformationResponseDeserializer.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
-    <ClInclude Include="Rest\Schema\HttpClientHelper.h">
-      <Filter>Rest\Schema</Filter>
-    </ClInclude>
     <ClInclude Include="Rest\Schema\1_1\Interface.h">
       <Filter>Rest\Schema\1_1</Filter>
     </ClInclude>
@@ -514,9 +511,6 @@
     </ClCompile>
     <ClCompile Include="Microsoft\PredefinedWriteableSourceFactory.cpp">
       <Filter>Microsoft</Filter>
-    </ClCompile>
-    <ClCompile Include="Rest\Schema\HttpClientHelper.cpp">
-      <Filter>Rest\Schema</Filter>
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_1\RestInterface_1_1.cpp">
       <Filter>Rest\Schema\1_1</Filter>

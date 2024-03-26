@@ -1,17 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "HttpClientHelper.h"
+#include <AppInstallerDownloader.h>
+#include <AppInstallerRuntime.h>
+#include <winget/HttpClientHelper.h>
 #include <winget/NetworkSettings.h>
 
-namespace AppInstaller::Repository::Rest::Schema
+namespace AppInstaller::Http
 {
     namespace
     {
         // If the caller does not pass in a user agent header, put the default one on the request.
         void EnsureDefaultUserAgent(web::http::http_request& request)
         {
-            static utility::string_t c_defaultUserAgent = Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent());
+            static utility::string_t c_defaultUserAgent = Utility::ConvertToUTF16(AppInstaller::Runtime::GetDefaultUserAgent());
 
             if (!request.headers().has(web::http::header_names::user_agent))
             {
