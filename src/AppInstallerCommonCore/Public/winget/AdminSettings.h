@@ -3,10 +3,7 @@
 #pragma once
 
 #include <string>
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
 #include "winget/GroupPolicy.h"
-#endif
 
 namespace AppInstaller::Settings
 {
