@@ -74,6 +74,7 @@ class WinGetModule
     {
         $x64Path = "$($this.Output)\$location\x64\"
         $x86Path = "$($this.Output)\$location\x86\"
+        $arm64Path = "$($this.Output)\$location\arm64\"
         if (-not (Test-Path $x64Path))
         {
             New-Item $x64Path -ItemType directory
@@ -83,6 +84,11 @@ class WinGetModule
         {
             New-Item $x86Path -ItemType directory
         }
+
+        if (-not (Test-Path $arm64Path))
+        {
+            New-Item $arm64Path -ItemType directory
+        }        
 
         foreach ($f in $files)
         {
@@ -91,6 +97,8 @@ class WinGetModule
             $copyErrors | ForEach-Object { Write-Warning $_ }
             Copy-Item "$buildRoot\x86\$config\$f" "$($this.Output)\$location\x86\" -Force -ErrorVariable copyErrors -ErrorAction SilentlyContinue
             $copyErrors | ForEach-Object { Write-Warning $_ }
+            Copy-Item "$buildRoot\arm64\$config\$f" "$($this.Output)\$location\arm64\" -Force -ErrorVariable copyErrors -ErrorAction SilentlyContinue
+            $copyErrors | ForEach-Object { Write-Warning $_ }            
         }
     }
 
@@ -98,6 +106,7 @@ class WinGetModule
     {
         $x64Path = "$($this.Output)\$location\x64\"
         $x86Path = "$($this.Output)\$location\x86\"
+        $arm64Path = "$($this.Output)\$location\arm64\"        
         if (-not (Test-Path $x64Path))
         {
             New-Item $x64Path -ItemType directory
@@ -108,12 +117,19 @@ class WinGetModule
             New-Item $x86Path -ItemType directory
         }
 
+        if (-not (Test-Path $arm64Path))
+        {
+            New-Item $arm64Path -ItemType directory
+        }
+
         foreach ($f in $files)
         {
             $copyErrors = $null
             Copy-Item "$buildRoot\AnyCpu\$config\$f" "$($this.Output)\$location\x64\" -Force -ErrorVariable copyErrors -ErrorAction SilentlyContinue
             $copyErrors | ForEach-Object { Write-Warning $_ }
             Copy-Item "$buildRoot\AnyCpu\$config\$f" "$($this.Output)\$location\x86\" -Force -ErrorVariable copyErrors -ErrorAction SilentlyContinue
+            $copyErrors | ForEach-Object { Write-Warning $_ }
+            Copy-Item "$buildRoot\AnyCpu\$config\$f" "$($this.Output)\$location\arm64\" -Force -ErrorVariable copyErrors -ErrorAction SilentlyContinue
             $copyErrors | ForEach-Object { Write-Warning $_ }
         }
     }

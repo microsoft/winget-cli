@@ -23,7 +23,7 @@ namespace Microsoft.WinGet.Resolver
     /// </summary>
     public class ModuleInit : IModuleAssemblyInitializer, IModuleAssemblyCleanup
     {
-        private static readonly IEnumerable<Architecture> ValidArchs = new Architecture[] { Architecture.X86, Architecture.X64 };
+        private static readonly IEnumerable<Architecture> ValidArchs = new Architecture[] { Architecture.X86, Architecture.X64, Architecture.Arm64 };
 
         /// <inheritdoc/>
         public void OnImport()
