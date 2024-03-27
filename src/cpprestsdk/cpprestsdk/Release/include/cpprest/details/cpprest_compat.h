@@ -71,12 +71,20 @@
 
 #ifdef _NO_ASYNCRTIMP
 #define _ASYNCRTIMP
+#define _ASYNCRTIMP_TYPEINFO
 #else // ^^^ _NO_ASYNCRTIMP ^^^ // vvv !_NO_ASYNCRTIMP vvv
 #ifdef _ASYNCRT_EXPORT
 #define _ASYNCRTIMP __declspec(dllexport)
 #else // ^^^ _ASYNCRT_EXPORT ^^^ // vvv !_ASYNCRT_EXPORT vvv
 #define _ASYNCRTIMP __declspec(dllimport)
 #endif // _ASYNCRT_EXPORT
+
+#if defined(_WIN32)
+#define _ASYNCRTIMP_TYPEINFO
+#else // ^^^ _WIN32 ^^^ // vvv !_WIN32 vvv
+#define _ASYNCRTIMP_TYPEINFO __attribute__((visibility("default")))
+#endif // _WIN32
+
 #endif // _NO_ASYNCRTIMP
 
 #ifdef CASABLANCA_DEPRECATION_NO_WARNINGS

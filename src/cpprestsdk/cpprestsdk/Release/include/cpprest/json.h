@@ -100,25 +100,37 @@ public:
     /// Constructor creating a JSON number value
     /// </summary>
     /// <param name="value">The C++ value to create a JSON value from</param>
-    _ASYNCRTIMP value(int32_t value);
+    _ASYNCRTIMP value(int value);
 
     /// <summary>
     /// Constructor creating a JSON number value
     /// </summary>
     /// <param name="value">The C++ value to create a JSON value from</param>
-    _ASYNCRTIMP value(uint32_t value);
+    _ASYNCRTIMP value(unsigned value);
 
     /// <summary>
     /// Constructor creating a JSON number value
     /// </summary>
     /// <param name="value">The C++ value to create a JSON value from</param>
-    _ASYNCRTIMP value(int64_t value);
+    _ASYNCRTIMP value(long value);
 
     /// <summary>
     /// Constructor creating a JSON number value
     /// </summary>
     /// <param name="value">The C++ value to create a JSON value from</param>
-    _ASYNCRTIMP value(uint64_t value);
+    _ASYNCRTIMP value(unsigned long value);
+
+    /// <summary>
+    /// Constructor creating a JSON number value
+    /// </summary>
+    /// <param name="value">The C++ value to create a JSON value from</param>
+    _ASYNCRTIMP value(long long value);
+
+    /// <summary>
+    /// Constructor creating a JSON number value
+    /// </summary>
+    /// <param name="value">The C++ value to create a JSON value from</param>
+    _ASYNCRTIMP value(unsigned long long value);
 
     /// <summary>
     /// Constructor creating a JSON number value
@@ -222,28 +234,42 @@ public:
     /// </summary>
     /// <param name="value">The C++ value to create a JSON value from</param>
     /// <returns>A JSON number value</returns>
-    static _ASYNCRTIMP value __cdecl number(int32_t value);
+    static _ASYNCRTIMP value __cdecl number(int value);
 
     /// <summary>
     /// Creates a number value
     /// </summary>
     /// <param name="value">The C++ value to create a JSON value from</param>
     /// <returns>A JSON number value</returns>
-    static _ASYNCRTIMP value __cdecl number(uint32_t value);
+    static _ASYNCRTIMP value __cdecl number(unsigned value);
 
     /// <summary>
     /// Creates a number value
     /// </summary>
     /// <param name="value">The C++ value to create a JSON value from</param>
     /// <returns>A JSON number value</returns>
-    static _ASYNCRTIMP value __cdecl number(int64_t value);
+    static _ASYNCRTIMP value __cdecl number(long value);
 
     /// <summary>
     /// Creates a number value
     /// </summary>
     /// <param name="value">The C++ value to create a JSON value from</param>
     /// <returns>A JSON number value</returns>
-    static _ASYNCRTIMP value __cdecl number(uint64_t value);
+    static _ASYNCRTIMP value __cdecl number(unsigned long value);
+
+    /// <summary>
+    /// Creates a number value
+    /// </summary>
+    /// <param name="value">The C++ value to create a JSON value from</param>
+    /// <returns>A JSON number value</returns>
+    static _ASYNCRTIMP value __cdecl number(long long value);
+
+    /// <summary>
+    /// Creates a number value
+    /// </summary>
+    /// <param name="value">The C++ value to create a JSON value from</param>
+    /// <returns>A JSON number value</returns>
+    static _ASYNCRTIMP value __cdecl number(unsigned long long value);
 
     /// <summary>
     /// Creates a Boolean value
@@ -1218,10 +1244,12 @@ class number
     // convert to unsigned int64). This helps handling number objects e.g. comparing two numbers.
 
     number(double value) : m_value(value), m_type(double_type) {}
-    number(int32_t value) : m_intval(value), m_type(value < 0 ? signed_type : unsigned_type) {}
-    number(uint32_t value) : m_intval(value), m_type(unsigned_type) {}
-    number(int64_t value) : m_intval(value), m_type(value < 0 ? signed_type : unsigned_type) {}
-    number(uint64_t value) : m_uintval(value), m_type(unsigned_type) {}
+    number(int value) : m_intval(value), m_type(value < 0 ? signed_type : unsigned_type) {}
+    number(unsigned value) : m_intval(value), m_type(unsigned_type) {}
+    number(long value) : m_intval(value), m_type(value < 0 ? signed_type : unsigned_type) {}
+    number(unsigned long value) : m_uintval(value), m_type(unsigned_type) {}
+    number(long long value) : m_intval(value), m_type(value < 0 ? signed_type : unsigned_type) {}
+    number(unsigned long long value) : m_uintval(value), m_type(unsigned_type) {}
 
 public:
     /// <summary>
@@ -1438,10 +1466,12 @@ class _Number : public _Value
 {
 public:
     _Number(double value) : m_number(value) {}
-    _Number(int32_t value) : m_number(value) {}
-    _Number(uint32_t value) : m_number(value) {}
-    _Number(int64_t value) : m_number(value) {}
-    _Number(uint64_t value) : m_number(value) {}
+    _Number(int value) : m_number(value) {}
+    _Number(unsigned value) : m_number(value) {}
+    _Number(long value) : m_number(value) {}
+    _Number(unsigned long value) : m_number(value) {}
+    _Number(long long value) : m_number(value) {}
+    _Number(unsigned long long value) : m_number(value) {}
 
     virtual std::unique_ptr<_Value> _copy_value() { return utility::details::make_unique<_Number>(*this); }
 

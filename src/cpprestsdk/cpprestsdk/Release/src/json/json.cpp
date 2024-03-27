@@ -38,7 +38,7 @@ web::json::value::value()
 {
 }
 
-web::json::value::value(int32_t value)
+web::json::value::value(int value)
     : m_value(utility::details::make_unique<web::json::details::_Number>(value))
 #ifdef ENABLE_JSON_VALUE_VISUALIZER
     , m_kind(value::Number)
@@ -46,7 +46,7 @@ web::json::value::value(int32_t value)
 {
 }
 
-web::json::value::value(uint32_t value)
+web::json::value::value(unsigned value)
     : m_value(utility::details::make_unique<web::json::details::_Number>(value))
 #ifdef ENABLE_JSON_VALUE_VISUALIZER
     , m_kind(value::Number)
@@ -54,7 +54,8 @@ web::json::value::value(uint32_t value)
 {
 }
 
-web::json::value::value(int64_t value)
+
+web::json::value::value(long value)
     : m_value(utility::details::make_unique<web::json::details::_Number>(value))
 #ifdef ENABLE_JSON_VALUE_VISUALIZER
     , m_kind(value::Number)
@@ -62,7 +63,23 @@ web::json::value::value(int64_t value)
 {
 }
 
-web::json::value::value(uint64_t value)
+web::json::value::value(unsigned long value)
+    : m_value(utility::details::make_unique<web::json::details::_Number>(value))
+#ifdef ENABLE_JSON_VALUE_VISUALIZER
+    , m_kind(value::Number)
+#endif
+{
+}
+
+web::json::value::value(long long value)
+    : m_value(utility::details::make_unique<web::json::details::_Number>(value))
+#ifdef ENABLE_JSON_VALUE_VISUALIZER
+    , m_kind(value::Number)
+#endif
+{
+}
+
+web::json::value::value(unsigned long long value)
     : m_value(utility::details::make_unique<web::json::details::_Number>(value))
 #ifdef ENABLE_JSON_VALUE_VISUALIZER
     , m_kind(value::Number)
@@ -162,13 +179,17 @@ web::json::value web::json::value::null() { return web::json::value(); }
 
 web::json::value web::json::value::number(double value) { return web::json::value(value); }
 
-web::json::value web::json::value::number(int32_t value) { return web::json::value(value); }
+web::json::value web::json::value::number(int value) { return web::json::value(value); }
 
-web::json::value web::json::value::number(uint32_t value) { return web::json::value(value); }
+web::json::value web::json::value::number(unsigned value) { return web::json::value(value); }
 
-web::json::value web::json::value::number(int64_t value) { return web::json::value(value); }
+web::json::value web::json::value::number(long value) { return web::json::value(value); }
 
-web::json::value web::json::value::number(uint64_t value) { return web::json::value(value); }
+web::json::value web::json::value::number(unsigned long value) { return web::json::value(value); }
+
+web::json::value web::json::value::number(long long value) { return web::json::value(value); }
+
+web::json::value web::json::value::number(unsigned long long value) { return web::json::value(value); }
 
 web::json::value web::json::value::boolean(bool value) { return web::json::value(value); }
 

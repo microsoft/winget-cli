@@ -584,7 +584,7 @@ private:
             // If front block is not empty - we are done
             if (m_blocks.front()->rd_chars_left() > 0) break;
 
-            // The block has no more data to be read. Relase the block
+            // The block has no more data to be read. Release the block
             m_blocks.pop_front();
         }
     }

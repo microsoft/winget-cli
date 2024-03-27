@@ -296,13 +296,14 @@ public:
     /// A loopback URI is one which refers to a hostname or ip address with meaning only on the local machine.
     /// </summary>
     /// <remarks>
-    /// Examples include "localhost", or ip addresses in the loopback range (127.0.0.0/24).
+    /// Examples include "localhost", or "127.0.0.1". The only URIs for which this method returns true are "127.0.0.1", and "localhost",
+    /// all other URIs return false
     /// </remarks>
     /// <returns><c>true</c> if this URI references the local host, <c>false</c> otherwise.</returns>
     bool is_host_loopback() const
     {
         return !is_empty() &&
-               ((host() == _XPLATSTR("localhost")) || (host().size() > 4 && host().substr(0, 4) == _XPLATSTR("127.")));
+               ((host() == _XPLATSTR("localhost")) || (host() == _XPLATSTR("127.0.0.1")));
     }
 
     /// <summary>
