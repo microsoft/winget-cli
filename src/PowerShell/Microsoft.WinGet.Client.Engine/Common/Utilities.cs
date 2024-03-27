@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="Utilities.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -9,9 +9,12 @@ namespace Microsoft.WinGet.Client.Engine.Common
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Management.Automation;
+    using System.Runtime.InteropServices;
     using System.Security.Principal;
+    using System.Text;
     using System.Threading;
     using Microsoft.WinGet.Resources;
     using Newtonsoft.Json;
@@ -22,6 +25,20 @@ namespace Microsoft.WinGet.Client.Engine.Common
     /// </summary>
     internal static class Utilities
     {
+        /// <summary>
+        /// Gets a value indicating whether the current PowerShell process is executing as a packaged app or not.
+        /// </summary>
+        public static bool ExecutingAsPackagedApp
+        {
+            get
+            {
+                int length = 0;
+                StringBuilder sb = new StringBuilder(length);
+                int result = GetPackageFullName(Process.GetCurrentProcess().Handle, ref length, sb);
+                return length > 0;
+            }
+        }
+
         /// <summary>
         /// Gets a value indicating whether the current assembly is executing in an administrative context.
         /// </summary>
@@ -55,7 +72,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
         {
             get
             {
-                return ExecutingAsSystem;
+                return ExecutingAsSystem || ExecutingAsPackagedApp;
             }
         }
 
@@ -221,5 +238,8 @@ namespace Microsoft.WinGet.Client.Engine.Common
 
             return result;
         }
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern int GetPackageFullName(IntPtr hProcess, ref int packageFullNameLength, StringBuilder packageFullName);
     }
 }
