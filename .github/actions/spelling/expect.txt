@@ -154,6 +154,7 @@ Gomu
 GRPICONDIR
 GRPICONDIRENTRY
 guiddef
+Gumbalapura
 Hackathon
 helplib
 helplibrary
@@ -244,6 +245,7 @@ LTDA
 luffy
 Luffytaro
 maclachlan
+Madhusudhan
 malware
 mapdatafolding
 mapview
@@ -369,6 +371,7 @@ REFIID
 REGDB
 regexes
 REGSAM
+REINSTALLMODE
 relativefilepath
 remoting
 reparse
@@ -427,6 +430,7 @@ storeorigin
 STRRET
 stylecop
 subdir
+Sudarshan
 superstring
 swervy
 SYD
