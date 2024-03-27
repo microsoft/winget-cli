@@ -40,7 +40,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         }
     }
 
-    Interface::Interface(const std::string& restApi) : m_restApiUri(restApi)
+    Interface::Interface(const std::string& restApi, const Http::HttpClientHelper& httpClientHelper) : m_restApiUri(restApi), m_httpClientHelper(httpClientHelper)
     {
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(AppInstaller::JSON::GetUtilityString(restApi)));
 
@@ -82,8 +82,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 searchHeaders.insert_or_assign(AppInstaller::JSON::GetUtilityString(ContinuationToken), continuationToken);
             }
 
-            Http::HttpClientHelper httpClientHelper;
-            std::optional<web::json::value> jsonObject = httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders, GetAuthHeaders());
+            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders, GetAuthHeaders());
 
             utility::string_t ct;
             if (jsonObject)
@@ -210,8 +209,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         std::vector<Manifest::Manifest> results;
         utility::string_t continuationToken;
         Http::HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;
-        Http::HttpClientHelper httpClientHelper;
-        std::optional<web::json::value> jsonObject = httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), searchHeaders, GetAuthHeaders());
+        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), searchHeaders, GetAuthHeaders());
 
         if (!jsonObject)
         {

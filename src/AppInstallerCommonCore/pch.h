@@ -6,8 +6,7 @@
 #include <Windows.h>
 #include <AclAPI.h>
 #include <appmodel.h>
-#include <winhttp.h>
-#include <WinInet.h>
+#include <wininet.h>
 #include <sddl.h>
 #include <Shlobj.h>
 #include <Shlwapi.h>
