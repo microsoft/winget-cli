@@ -330,6 +330,8 @@ TEXTINCLUDE
 Threadpool
 tpl
 TRACELOGGING
+Trenly
+trenlymc
 triaged
 TRUSTEDPEOPLE
 UAC
