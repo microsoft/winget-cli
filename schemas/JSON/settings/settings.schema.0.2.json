@@ -276,6 +276,11 @@
           "type": "boolean",
           "default": false
         },
+        "sideBySide": {
+          "description": "Enable support for improved side-by-side handling",
+          "type": "boolean",
+          "default": false
+        },
         "configureSelfElevate": {
           "description": "Enable configure commands request elevation as needed",
           "type": "boolean",

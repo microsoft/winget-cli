@@ -154,11 +154,7 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
 
             RETURN_IF_FAILED(WindowsPackageManagerServerInitializeRPCServer());
 
-            if (!manualResetEvent.try_create(wil::EventOptions::ManualReset, L"WinGetServerStartEvent"))
-            {
-                manualResetEvent.open(L"WinGetServerStartEvent");
-            }
-
+            manualResetEvent = CreateOrOpenServerStartEvent();
             manualResetEvent.SetEvent();
         }
 

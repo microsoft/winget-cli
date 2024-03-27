@@ -441,7 +441,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
-        std::string_view requestedVersion = context.Args.Contains(Execution::Args::Type::Version) ? context.Args.GetArg(Execution::Args::Type::Version) : installedVersion.ToString();
+        std::string_view requestedVersion = context.Args.Contains(Execution::Args::Type::TargetVersion) ? context.Args.GetArg(Execution::Args::Type::TargetVersion) : installedVersion.ToString();
         // If it's Store source with only one version unknown, use the unknown version for available version mapping.
         const auto& package = context.Get<Execution::Data::Package>();
         auto packageVersions = GetAvailableVersionsForInstalledVersion(package, installedPackage);

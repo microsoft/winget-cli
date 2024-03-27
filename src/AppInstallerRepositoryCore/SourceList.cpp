@@ -24,6 +24,8 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_SourcesYaml_Source_Data = "Data"sv;
         constexpr std::string_view s_SourcesYaml_Source_Identifier = "Identifier"sv;
         constexpr std::string_view s_SourcesYaml_Source_IsTombstone = "IsTombstone"sv;
+        constexpr std::string_view s_SourcesYaml_Source_Explicit = "Explicit"sv;
+        constexpr std::string_view s_SourcesYaml_Source_TrustLevel = "TrustLevel"sv;
 
         constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
         constexpr std::string_view s_MetadataYaml_Source_Name = "Name"sv;
@@ -145,7 +147,10 @@ namespace AppInstaller::Repository
             else
             {
                 std::vector<SourceDetailsInternal> result;
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCES_INVALID, !TryReadSourceDetails(setting.GetName(), *sourcesStream, rootName, parse, result));
+                if (!TryReadSourceDetails(setting.GetName(), *sourcesStream, rootName, parse, result))
+                {
+                    AICLI_LOG(YAML, Error, << "Ignoring corrupted source data.");
+                }
                 return result;
             }
         }
@@ -178,6 +183,8 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
                     out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
+                    out << YAML::Key << s_SourcesYaml_Source_Explicit << YAML::Value << details.Explicit;
+                    out << YAML::Key << s_SourcesYaml_Source_TrustLevel << YAML::Value << static_cast<int64_t>(details.TrustLevel);
                     out << YAML::EndMap;
                 }
             }
@@ -633,7 +640,15 @@ namespace AppInstaller::Repository
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
+                    TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Explicit, details.Explicit, false);
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
+
+                    int64_t trustLevelValue;
+                    if (TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_TrustLevel, trustLevelValue, false))
+                    {
+                        details.TrustLevel = static_cast<Repository::SourceTrustLevel>(trustLevelValue);
+                    }
+
                     return true;
                 });
 
@@ -669,9 +684,20 @@ namespace AppInstaller::Repository
                         details.Data = additionalSource.Data;
                         details.Identifier = additionalSource.Identifier;
                         details.Origin = SourceOrigin::GroupPolicy;
+                        details.Explicit = additionalSource.Explicit;
 #ifndef AICLI_DISABLE_TEST_HOOKS
                         details.CertificatePinningConfiguration = additionalSource.PinningConfiguration;
 #endif
+                        try
+                        {
+                            details.TrustLevel = Repository::ConvertToSourceTrustLevelFlag(additionalSource.TrustLevel);
+                        }
+                        catch (...)
+                        {
+                            details.TrustLevel = Repository::SourceTrustLevel::None;
+                            AICLI_LOG(Repo, Verbose, << "Invalid source trust level from policy. Trust level set to None.");
+                        }
+
                         result.emplace_back(std::move(details));
                     }
                 }

@@ -86,6 +86,7 @@ namespace AppInstaller::CLI
         PinType = 0x8,
         StubType = 0x10,
         Proxy = 0x20,
+        AllAndTargetVersion = 0x40,
 
         // This must always be at the end
         Max

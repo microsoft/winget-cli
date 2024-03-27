@@ -545,6 +545,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListName);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoneFound);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoSources);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListExplicit);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListTrustLevel);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListType);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListUpdated);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListUpdatedNever);
@@ -558,12 +560,14 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveOne);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRequiresAuthentication);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceExplicitArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetListAndOverridePreamble);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetOne);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceTrustLevelArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceTypeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandLongDescription);
@@ -574,6 +578,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(StateHeader);
         WINGET_DEFINE_RESOURCE_STRINGID(SystemArchitecture);
         WINGET_DEFINE_RESOURCE_STRINGID(TagArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(TargetVersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ThankYou);
         WINGET_DEFINE_RESOURCE_STRINGID(ThirdPartSoftwareNotices);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolDescription);
@@ -585,9 +590,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Unavailable);
         WINGET_DEFINE_RESOURCE_STRINGID(UnexpectedErrorExecutingCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallAbandoned);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallAllVersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallFailedDueToMultipleVersions);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFailedWithCode);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowStartingPackageUninstall);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);

@@ -30,6 +30,8 @@ constexpr std::string_view s_SourcesYaml_Source_Name = "Name"sv;
 constexpr std::string_view s_SourcesYaml_Source_Type = "Type"sv;
 constexpr std::string_view s_SourcesYaml_Source_Arg = "Arg"sv;
 constexpr std::string_view s_SourcesYaml_Source_Data = "Data"sv;
+constexpr std::string_view s_SourcesYaml_Source_TrustLevel = "TrustLevel"sv;
+constexpr std::string_view s_SourcesYaml_Source_Explicit = "Explicit"sv;
 constexpr std::string_view s_SourcesYaml_Source_LastUpdate = "LastUpdate"sv;
 
 constexpr std::string_view s_EmptySources = R"(
@@ -172,6 +174,17 @@ Sources:
     IsTombstone: false
 )"sv;
 
+constexpr std::string_view s_SingleSource_TrustLevels_Explicit= R"(
+Sources:
+  - Name: testName
+    Type: testType
+    Arg: testArg
+    Data: testData
+    IsTombstone: false
+    TrustLevel: 3
+    Explicit: true
+)"sv;
+
 namespace
 {
     // Helper to create a simple source.
@@ -286,6 +299,27 @@ TEST_CASE("RepoSources_SingleSource", "[sources]")
     RequireDefaultSourcesAt(sources, 1);
 }
 
+TEST_CASE("RepoSources_SingleSource_TrustLevel_Explicit", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_SingleSource_TrustLevels_Explicit);
+    RemoveSetting(Stream::SourcesMetadata);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
+
+    REQUIRE(sources[0].Name == "testName");
+    REQUIRE(sources[0].Type == "testType");
+    REQUIRE(sources[0].Arg == "testArg");
+    REQUIRE(sources[0].Data == "testData");
+    REQUIRE(sources[0].Origin == SourceOrigin::User);
+    REQUIRE(sources[0].Explicit == true);
+    REQUIRE(WI_IsFlagSet(sources[0].TrustLevel, SourceTrustLevel::Trusted));
+    REQUIRE(WI_IsFlagSet(sources[0].TrustLevel, SourceTrustLevel::StoreOrigin));
+    REQUIRE(sources[0].LastUpdateTime == ConvertUnixEpochToSystemClock(0));
+
+    RequireDefaultSourcesAt(sources, 1);
+}
+
 TEST_CASE("RepoSources_ThreeSources", "[sources]")
 {
     SetSetting(Stream::UserSources, s_ThreeSources);
@@ -312,14 +346,14 @@ TEST_CASE("RepoSources_InvalidYAML", "[sources]")
 {
     SetSetting(Stream::UserSources, "Name: Value : BAD");
 
-    REQUIRE_THROWS_HR(GetSources(), APPINSTALLER_CLI_ERROR_SOURCES_INVALID);
+    REQUIRE_NOTHROW(GetSources());
 }
 
 TEST_CASE("RepoSources_MissingField", "[sources]")
 {
     SetSetting(Stream::UserSources, s_SingleSource_MissingArg);
 
-    REQUIRE_THROWS_HR(GetSources(), APPINSTALLER_CLI_ERROR_SOURCES_INVALID);
+    REQUIRE_NOTHROW(GetSources());
 }
 
 TEST_CASE("RepoSources_AddSource", "[sources]")
@@ -332,6 +366,8 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     details.Type = "thisIsTheType";
     details.Arg = "thisIsTheArg";
     details.Data = "thisIsTheData";
+    details.TrustLevel = Repository::SourceTrustLevel::None;
+    details.Explicit = false;
 
     bool addCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
@@ -352,6 +388,8 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     REQUIRE(sources[0].Data == details.Data);
     REQUIRE(sources[0].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
     REQUIRE(sources[0].Origin == SourceOrigin::User);
+    REQUIRE(sources[0].TrustLevel == details.TrustLevel);
+    REQUIRE(sources[0].Explicit == details.Explicit);
 
     RequireDefaultSourcesAt(sources, 1);
 }
@@ -1247,7 +1285,7 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
 
     SECTION("with well known name")
     {
-        Source addStoreBack{ details.Name, details.Arg, details.Type };
+        Source addStoreBack{ details.Name, details.Arg, details.Type, Repository::SourceTrustLevel::None, false };
         REQUIRE(addStoreBack.Add(progress));
 
         Source storeAfterAdd{ details.Name };
@@ -1258,7 +1296,7 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
     SECTION("with different name")
     {
         std::string newName = details.Name + "_new";
-        Source addStoreBack{ newName, details.Arg, details.Type };
+        Source addStoreBack{ newName, details.Arg, details.Type, Repository::SourceTrustLevel::None, false };
         REQUIRE(addStoreBack.Add(progress));
 
         Source storeAfterAdd{ newName };

@@ -3,10 +3,7 @@
 #pragma once
 
 #include <string>
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
 #include "winget/GroupPolicy.h"
-#endif
 
 namespace AppInstaller::Settings
 {
@@ -48,8 +45,5 @@ namespace AppInstaller::Settings
     std::vector<BoolAdminSetting> GetAllBoolAdminSettings();
     std::vector<StringAdminSetting> GetAllStringAdminSettings();
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    // Only exposed for tests to validate that all admin settings have a corresponding policy
     TogglePolicy::Policy GetAdminSettingPolicy(BoolAdminSetting setting);
-#endif
 }

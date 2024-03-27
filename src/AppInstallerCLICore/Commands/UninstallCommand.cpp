@@ -23,11 +23,12 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Name),
             Argument::ForType(Args::Type::Moniker),
             Argument::ForType(Args::Type::ProductCode),
-            Argument::ForType(Args::Type::Version),
+            Argument::ForType(Args::Type::TargetVersion),
+            Argument::ForType(Args::Type::AllVersions),
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::Exact),
-            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
             Argument::ForType(Args::Type::Force),
@@ -75,7 +76,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Id:
         case Execution::Args::Type::Name:
         case Execution::Args::Type::Moniker:
-        case Execution::Args::Type::Version:
+        case Execution::Args::Type::TargetVersion:
         case Execution::Args::Type::Channel:
         case Execution::Args::Type::Source:
         case Execution::Args::Type::ProductCode:
@@ -111,7 +112,6 @@ namespace AppInstaller::CLI
             // --manifest case where new manifest is provided
             context <<
                 Workflow::GetManifestFromArg <<
-                Workflow::ReportManifestIdentity <<
                 Workflow::SearchSourceUsingManifest <<
                 Workflow::EnsureOneMatchFromSearchResult(OperationType::Uninstall) <<
                 Workflow::UninstallSinglePackage;
@@ -125,7 +125,6 @@ namespace AppInstaller::CLI
                     Workflow::SearchSourceForSingle <<
                     Workflow::HandleSearchResultFailures <<
                     Workflow::EnsureOneMatchFromSearchResult(OperationType::Uninstall) <<
-                    Workflow::ReportPackageIdentity <<
                     Workflow::UninstallSinglePackage;
             }
             else

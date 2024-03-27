@@ -613,6 +613,7 @@ namespace AppInstaller::CLI
         }
 
         // Special handling for multi-query arguments:
+        execArgs.MakeMultiQueryContainUniqueValues();
         execArgs.MoveMultiQueryToSingleQueryIfNeeded();
     }
 
@@ -861,14 +862,7 @@ namespace AppInstaller::CLI
         if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGet))
         {
             AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
-            throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
-        }
-
-        // Block CLI execution if WinGetCommandLineInterfaces is disabled by Policy
-        if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces))
-        {
-            AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
-            throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGetCommandLineInterfaces);
+            throw Settings::GroupPolicyException::GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
         }
 
         AICLI_LOG(CLI, Info, << "Executing command: " << Name());

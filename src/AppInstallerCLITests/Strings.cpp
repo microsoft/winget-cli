@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
@@ -278,6 +278,11 @@ TEST_CASE("SplitWithSeparator", "[string]")
     std::vector<std::string> test3 = Split("test", '.');
     REQUIRE(test3.size() == 1);
     REQUIRE(test3[0] == "test");
+
+    std::vector<std::string> test4 = Split(" trim |    spaces ", '|', true);
+    REQUIRE(test4.size() == 2);
+    REQUIRE(test4[0] == "trim");
+    REQUIRE(test4[1] == "spaces");
 }
 
 TEST_CASE("ConvertGuid", "[string]")

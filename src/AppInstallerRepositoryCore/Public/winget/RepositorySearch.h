@@ -242,7 +242,7 @@ namespace AppInstaller::Repository
     {
         PackageVersionKey() = default;
 
-        PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel) :
+        PackageVersionKey(std::string sourceId, Utility::NormalizedString version, Utility::NormalizedString channel) :
             SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)) {}
 
         // The source id that this version came from.

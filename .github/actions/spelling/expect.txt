@@ -424,6 +424,7 @@ srs
 startswith
 STARTUPINFOW
 STDMETHODCALLTYPE
+storeorigin
 STRRET
 stylecop
 subdir

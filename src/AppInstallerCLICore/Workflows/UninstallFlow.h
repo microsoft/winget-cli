@@ -12,6 +12,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void UninstallSinglePackage(Execution::Context& context);
 
+    // Uninstalls a single package version. This also does the reporting, user interaction, and recording
+    // for single-package uninstallation.
+    // RequiredArgs: None
+    // Inputs: InstalledPackageVersion
+    // Outputs: None
+    void UninstallSinglePackageVersion(Execution::Context& context);
+
     // Uninstalls multiple packages.
     // RequiredArgs: None
     // Inputs: PackageSubContexts

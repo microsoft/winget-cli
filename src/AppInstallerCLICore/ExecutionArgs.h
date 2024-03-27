@@ -54,12 +54,16 @@ namespace AppInstaller::CLI::Execution
             Purge, // Removes all files and directories related to a package during an uninstall. Only applies to the portable installerType.
             Preserve, // Retains any files and directories created by the portable exe.
             ProductCode, // Uninstalls using the product code as the identifier.
+            AllVersions, // Uninstall all versions of the package
+            TargetVersion, // The specific version to target
 
             //Source Command
             SourceName,
             SourceType,
             SourceArg,
             ForceSourceReset,
+            SourceExplicit,
+            SourceTrustLevel,
 
             //Hash Command
             HashFile,
@@ -218,10 +222,28 @@ namespace AppInstaller::CLI::Execution
             return types;
         }
 
+        // If the user passes the same value multiple times inside a MultiQuery, operations will be repeated
+        // Since there currently is not a way to include search options within a MultiQuery, processing duplicates
+        // does not make sense within a single invocation
+        void MakeMultiQueryContainUniqueValues()
+        {
+            auto itr = m_parsedArgs.find(Type::MultiQuery);
+            
+            // If there is not a value in MultiQuery, or there is only one value, it is presumed to be unique
+            if (itr == m_parsedArgs.end() || itr->second.size() == 1)
+            {
+                return;
+            }
+
+            std::set<std::string> querySet;
+            std::vector<std::string>& queryStrings = itr->second;
+
+            queryStrings.erase(std::remove_if(queryStrings.begin(), queryStrings.end(), [&](const std::string value) { return !querySet.insert(value).second; }), queryStrings.end());
+        }
+
         // If we get a single value for multi-query, we remove the argument and add it back as a single query.
         // This way the rest of the code can assume that if there is a MultiQuery we will always have multiple values,
         // and if there is a single one it will be in the Query type.
-        // This is the only case where we modify the parsed args from user input.
         void MoveMultiQueryToSingleQueryIfNeeded()
         {
             auto itr = m_parsedArgs.find(Type::MultiQuery);

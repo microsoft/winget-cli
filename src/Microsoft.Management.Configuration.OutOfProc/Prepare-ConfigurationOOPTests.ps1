@@ -24,7 +24,7 @@ if (-not [System.String]::IsNullOrEmpty($PackageLayoutPath))
 {
     $Local:packageManifestPath = Join-Path $PackageLayoutPath "AppxManifest.xml"
 
-    Add-AppxPackage -Register $Local:packageManifestPath
+    Add-AppxPackage -ForceApplicationShutdown -Register $Local:packageManifestPath
 
     # Configure crash dump and log file settings
     $Local:settingsExport = ConvertFrom-Json (wingetdev.exe settings export)
