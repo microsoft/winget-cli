@@ -46,6 +46,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             IAsyncOperation<IConfigurationSetProcessorFactory> CreateConfigurationSetProcessorFactoryAsync(winrt::hstring handler)
             {
+                // TODO: Ensure calling process has same package identity
                 std::wstringstream stringStream{ std::wstring{ static_cast<std::wstring_view>(handler) } };
                 stringStream >> m_result;
                 m_initEvent.SetEvent();
@@ -54,6 +55,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             ConfigurationProcessor CreateConfigurationProcessor(IConfigurationSetProcessorFactory factory)
             {
+                // TODO: Ensure calling process has same package identity
                 m_factory = factory;
                 m_initEvent.SetEvent();
                 return nullptr;
