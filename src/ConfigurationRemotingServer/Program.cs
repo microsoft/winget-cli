@@ -1,20 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Microsoft.Management.Configuration;
-using Microsoft.Management.Configuration.Processor;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.Management.Configuration;
+using Microsoft.Management.Configuration.Processor;
 using WinRT;
 
 namespace ConfigurationRemotingServer
 {
     internal class Program
     {
-        private const int ErrorInvalidArg = unchecked((int)0x80070057);
-
         private const string CommandLineSectionSeparator = "~~~~~~";
+        private const string ExternalModulesName = "ExternalModules";
+
 
         static int Main(string[] args)
         {
@@ -27,6 +28,16 @@ namespace ConfigurationRemotingServer
                 ulong parentProcessHandle = ulong.Parse(args[3]);
 
                 PowerShellConfigurationSetProcessorFactory factory = new PowerShellConfigurationSetProcessorFactory();
+
+                // Set default properties.
+                var externalModulesPath = GetExternalModulesPath();
+                if (!string.IsNullOrWhiteSpace(externalModulesPath))
+                {
+                    // Set as implicit module paths so it will be always included in AdditionalModulePaths
+                    factory.ImplicitModulePaths = new List<string>() { externalModulesPath };
+                }
+
+                factory.ProcessorType = PowerShellConfigurationProcessorType.Hosted;
 
                 // Parse limitation set if applicable.
                 // The format will be:
@@ -76,8 +87,8 @@ namespace ConfigurationRemotingServer
                         limitationSet.Path = metadataJson.Path;
                     }
 
-                    // Create a new factory with limitation set to be used for initialization.
-                    factory = new PowerShellConfigurationSetProcessorFactory(limitationSet);
+                    // Set the limitation set in factory.
+                    factory.LimitationSet = limitationSet;
                 }
 
                 IObjectReference factoryInterface = MarshalInterface<global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
@@ -95,6 +106,25 @@ namespace ConfigurationRemotingServer
         {
             [JsonPropertyName("path")]
             public string Path { get; set; } = string.Empty;
+        }
+
+        private static string GetExternalModulesPath()
+        {
+            var currentAssemblyDirectoryPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (currentAssemblyDirectoryPath != null)
+            {
+                var packageRootPath = Directory.GetParent(currentAssemblyDirectoryPath)?.FullName;
+                if (packageRootPath != null)
+                {
+                    var externalModulesPath = Path.Combine(packageRootPath, ExternalModulesName);
+                    if (Directory.Exists(externalModulesPath))
+                    {
+                        return externalModulesPath;
+                    }
+                }
+            }
+
+            return string.Empty;
         }
 
         [DllImport("WindowsPackageManager.dll")]

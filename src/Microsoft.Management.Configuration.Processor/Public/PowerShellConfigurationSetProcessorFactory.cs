@@ -9,8 +9,8 @@ namespace Microsoft.Management.Configuration.Processor
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Management.Automation;
-    using System.Reflection;
     using System.Text;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
@@ -22,13 +22,11 @@ namespace Microsoft.Management.Configuration.Processor
     /// </summary>
     public sealed class PowerShellConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory, IPowerShellConfigurationProcessorFactoryProperties
     {
-        private const string ExternalModulesName = "ExternalModules";
-
-        private readonly ConfigurationSet? limitationSet;
-
         // Backing variables for properties that are restricted in limit mode.
+        private ConfigurationSet? limitationSet;
         private PowerShellConfigurationProcessorType processorType = PowerShellConfigurationProcessorType.Default;
         private IReadOnlyList<string>? additionalModulePaths;
+        private IReadOnlyList<string>? implicitModulePaths;
         private PowerShellConfigurationProcessorPolicy policy = PowerShellConfigurationProcessorPolicy.Default;
         private PowerShellConfigurationProcessorLocation location = PowerShellConfigurationProcessorLocation.Default;
         private string? customLocation;
@@ -36,24 +34,8 @@ namespace Microsoft.Management.Configuration.Processor
         /// <summary>
         /// Initializes a new instance of the <see cref="PowerShellConfigurationSetProcessorFactory"/> class.
         /// </summary>
-        /// <param name="limitationSet">Limitation Configuration Set.</param>
-        public PowerShellConfigurationSetProcessorFactory(ConfigurationSet? limitationSet = null)
+        public PowerShellConfigurationSetProcessorFactory()
         {
-            this.limitationSet = limitationSet;
-
-            if (this.IsLimitMode())
-            {
-                // Set default properties.
-                // This should be consistent with what WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization
-                // sets for initialization.
-                var externalModulesPath = GetExternalModulesPath();
-                if (!string.IsNullOrWhiteSpace(externalModulesPath))
-                {
-                    this.additionalModulePaths = new List<string>() { externalModulesPath };
-                }
-
-                this.processorType = PowerShellConfigurationProcessorType.Hosted;
-            }
         }
 
         /// <summary>
@@ -65,6 +47,27 @@ namespace Microsoft.Management.Configuration.Processor
         /// Gets or sets the minimum diagnostic level to send.
         /// </summary>
         public DiagnosticLevel MinimumLevel { get; set; } = DiagnosticLevel.Informational;
+
+        /// <summary>
+        /// Gets or sets the limitation set. Limitation set can only be set once.
+        /// </summary>
+        public ConfigurationSet? LimitationSet
+        {
+            get
+            {
+                return this.limitationSet;
+            }
+
+            set
+            {
+                if (this.IsLimitMode())
+                {
+                    throw new InvalidOperationException("Setting LimitationSet in limit mode is invalid.");
+                }
+
+                this.limitationSet = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the processor type.
@@ -104,7 +107,73 @@ namespace Microsoft.Management.Configuration.Processor
                     throw new InvalidOperationException("Setting AdditionalModulePaths in limit mode is invalid.");
                 }
 
-                this.additionalModulePaths = value;
+                // Create a copy of incoming value
+                List<string> newModulePaths = new List<string>();
+                if (value != null)
+                {
+                    foreach (string path in value)
+                    {
+                        newModulePaths.Add(path);
+                    }
+                }
+
+                // Add implicit module paths if applicable
+                if (this.implicitModulePaths != null)
+                {
+                    foreach (string path in this.implicitModulePaths)
+                    {
+                        if (!newModulePaths.Contains(path))
+                        {
+                            newModulePaths.Add(path);
+                        }
+                    }
+                }
+
+                this.additionalModulePaths = newModulePaths;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the implicit module paths. These paths are always included in AdditionalModulePaths.
+        /// </summary>
+        public IReadOnlyList<string>? ImplicitModulePaths
+        {
+            get
+            {
+                return this.implicitModulePaths;
+            }
+
+            set
+            {
+                if (this.IsLimitMode())
+                {
+                    throw new InvalidOperationException("Setting ImplicitModulePaths in limit mode is invalid.");
+                }
+
+                this.implicitModulePaths = value;
+
+                // Apply to additional module paths if applicable.
+                if (this.implicitModulePaths != null)
+                {
+                    List<string> newModulePaths = new List<string>();
+                    if (this.additionalModulePaths != null)
+                    {
+                        foreach (string path in this.additionalModulePaths)
+                        {
+                            newModulePaths.Add(path);
+                        }
+                    }
+
+                    foreach (string path in this.implicitModulePaths)
+                    {
+                        if (!newModulePaths.Contains(path))
+                        {
+                            newModulePaths.Add(path);
+                        }
+                    }
+
+                    this.additionalModulePaths = newModulePaths;
+                }
             }
         }
 
@@ -303,21 +372,6 @@ namespace Microsoft.Management.Configuration.Processor
 
                 this.InvokeDiagnostics(diagnostics, level, builder.ToString());
             }
-        }
-
-        private static string GetExternalModulesPath()
-        {
-            var currentAssemblyDirectoryPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if (currentAssemblyDirectoryPath != null)
-            {
-                var packageRootPath = Directory.GetParent(currentAssemblyDirectoryPath)?.FullName;
-                if (packageRootPath != null)
-                {
-                    return Path.Combine(packageRootPath, ExternalModulesName);
-                }
-            }
-
-            return string.Empty;
         }
 
         private void InvokeDiagnostics(EventHandler<IDiagnosticInformation> diagnostics, DiagnosticLevel level, string message)

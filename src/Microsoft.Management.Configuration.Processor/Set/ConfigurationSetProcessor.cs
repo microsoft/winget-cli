@@ -25,6 +25,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
     {
         private readonly ConfigurationSet? configurationSet;
         private readonly bool isLimitMode;
+        private List<ConfigurationUnit> limitUnitList = new List<ConfigurationUnit>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationSetProcessor"/> class.
@@ -39,9 +40,17 @@ namespace Microsoft.Management.Configuration.Processor.Set
             this.isLimitMode = isLimitMode;
 
             // In limit mode, configurationSet is the limitation set to be used. It cannot be null.
-            if (this.isLimitMode && this.configurationSet == null)
+            if (this.isLimitMode)
             {
-                throw new ArgumentNullException(nameof(this.configurationSet), "configurationSet is required in limit mode.");
+                if (this.configurationSet == null)
+                {
+                    throw new ArgumentNullException(nameof(configurationSet), "configurationSet is required in limit mode.");
+                }
+
+                foreach (var unit in this.configurationSet.Units)
+                {
+                    this.limitUnitList.Add(unit);
+                }
             }
         }
 
@@ -58,13 +67,18 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// <summary>
         /// Creates a configuration unit processor for the given unit.
         /// </summary>
-        /// <param name="unit">Configuration unit.</param>
+        /// <param name="incomingUnit">Configuration unit.</param>
         /// <returns>A configuration unit processor.</returns>
         public IConfigurationUnitProcessor CreateUnitProcessor(
-            ConfigurationUnit unit)
+            ConfigurationUnit incomingUnit)
         {
             try
             {
+                this.OnDiagnostics(DiagnosticLevel.Informational, $"GetUnitProcessorDetails is running in limit mode: {this.isLimitMode}.");
+
+                // CreateUnitProcessor can only be called once on each configuration unit in limit mode.
+                var unit = this.GetConfigurationUnit(incomingUnit, true);
+
                 var configurationUnitInternal = new ConfigurationUnitInternal(unit, this.configurationSet?.Path) { UnitTypeIsResourceName = IsUnitTypeResourceName(this.configurationSet?.SchemaVersion) };
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating unit processor for: {configurationUnitInternal.QualifiedName}...");
 
@@ -87,15 +101,20 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// <summary>
         /// Gets the configuration unit processor details for the given unit.
         /// </summary>
-        /// <param name="unit">Configuration unit.</param>
+        /// <param name="incomingUnit">Configuration unit.</param>
         /// <param name="detailFlags">Detail flags.</param>
         /// <returns>Configuration unit processor details.</returns>
         public IConfigurationUnitProcessorDetails? GetUnitProcessorDetails(
-            ConfigurationUnit unit,
+            ConfigurationUnit incomingUnit,
             ConfigurationUnitDetailFlags detailFlags)
         {
             try
             {
+                this.OnDiagnostics(DiagnosticLevel.Informational, $"GetUnitProcessorDetails is running in limit mode: {this.isLimitMode}.");
+
+                // GetUnitProcessorDetails can be invoked multiple times on each configuration unit in limit mode.
+                var unit = this.GetConfigurationUnit(incomingUnit);
+
                 var unitInternal = new ConfigurationUnitInternal(unit, this.configurationSet?.Path);
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Getting unit details [{detailFlags}] for: {unitInternal.QualifiedName}");
 
@@ -188,6 +207,19 @@ namespace Microsoft.Management.Configuration.Processor.Set
         private static bool IsUnitTypeResourceName(string? schemaVersion)
         {
             return schemaVersion != null && schemaVersion == "0.1";
+        }
+
+        private static bool ConfigurationUnitEquals(ConfigurationUnit first, ConfigurationUnit second)
+        {
+            if (first.Identifier != second.Identifier ||
+                first.Type != second.Type ||
+                first.Intent != second.Intent)
+            {
+                return false;
+            }
+
+            // Consider group units logic when group units are supported.
+            return true;
         }
 
         /// <summary>
@@ -351,6 +383,41 @@ namespace Microsoft.Management.Configuration.Processor.Set
         private void OnDiagnostics(DiagnosticLevel level, string message)
         {
             this.SetProcessorFactory?.OnDiagnostics(level, message);
+        }
+
+        private ConfigurationUnit GetConfigurationUnit(ConfigurationUnit incomingUnit, bool useLimitList = false)
+        {
+            if (this.isLimitMode)
+            {
+                if (this.configurationSet == null)
+                {
+                    throw new InvalidOperationException("Configuration set should not be null in limit mode.");
+                }
+
+                var unitList = useLimitList ? this.configurationSet.Units : this.limitUnitList;
+
+                for (int i = unitList.Count - 1; i >= 0; i--)
+                {
+                    var unit = unitList[i];
+                    if (ConfigurationUnitEquals(incomingUnit, unit))
+                    {
+                        if (useLimitList)
+                        {
+                            this.limitUnitList.RemoveAt(i);
+                        }
+
+                        return unit;
+                    }
+
+                    // Consider group units logic when group units are supported.
+                }
+
+                throw new InvalidOperationException("Configuration unit not found in limit mode.");
+            }
+            else
+            {
+                return incomingUnit;
+            }
         }
     }
 }
