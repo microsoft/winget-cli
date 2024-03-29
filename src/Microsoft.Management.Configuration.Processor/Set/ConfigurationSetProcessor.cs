@@ -16,6 +16,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Unit;
+    using Windows.Foundation.Collections;
     using Windows.Security.Cryptography.Certificates;
 
     /// <summary>
@@ -209,11 +210,33 @@ namespace Microsoft.Management.Configuration.Processor.Set
             return schemaVersion != null && schemaVersion == "0.1";
         }
 
+        private static bool ValueSetEquals(ValueSet first, ValueSet second)
+        {
+            if (first.Count != second.Count)
+            {
+                return false;
+            }
+
+
+
+            return true;
+        }
+
         private static bool ConfigurationUnitEquals(ConfigurationUnit first, ConfigurationUnit second)
         {
             if (first.Identifier != second.Identifier ||
                 first.Type != second.Type ||
                 first.Intent != second.Intent)
+            {
+                return false;
+            }
+
+            if (!ValueSetEquals(first.Settings, second.Settings))
+            {
+                return false;
+            }
+
+            if (!ValueSetEquals(first.Metadata, second.Metadata))
             {
                 return false;
             }
