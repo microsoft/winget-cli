@@ -316,6 +316,30 @@ configuration:
                 then:
                   - addLabel:
                       label: Command-Validate
+              # Context-Elevated-User
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][eE]levated([\s-][uU]ser)?'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Context-Elevated-User
+              # Context-User
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][uU]ser'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Context-User
+              # Context-System
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][sS]ystem'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Context-System
               # Dependencies
               - if:
                   - commentContains:
@@ -452,6 +476,14 @@ configuration:
                 then:
                   - addLabel:
                       label: Zipped-Binary
+              # Zipped-Binary
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+([wW]indows[\s-])?[sS]andbox'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Windows-Sandbox
               # Unblocked
               - if:
                   - commentContains:
@@ -593,6 +625,12 @@ configuration:
                   - removeLabel:
                       label: Command-Validate
                   - removeLabel:
+                      label: Context-Elevated-User
+                  - removeLabel:
+                      label: Context-User
+                  - removeLabel:
+                      label: Context-System
+                  - removeLabel:
                       label: Dependencies
                   - removeLabel:
                       label: DSC-Resource
@@ -624,6 +662,8 @@ configuration:
                       label: Public-Service-Announcement
                   - removeLabel:
                       label: Side-By-Side
+                  - removeLabel:
+                      label: Windows-Sandbox
                   - removeLabel:
                       label: Zipped-Binary
 onFailure:
