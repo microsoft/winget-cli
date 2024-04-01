@@ -617,6 +617,12 @@ configuration:
                   - removeLabel:
                       label: Command-Validate
                   - removeLabel:
+                      label: Context-Elevated-User
+                  - removeLabel:
+                      label: Context-User
+                  - removeLabel:
+                      label: Context-System
+                  - removeLabel:
                       label: Dependencies
                   - removeLabel:
                       label: DSC-Resource
