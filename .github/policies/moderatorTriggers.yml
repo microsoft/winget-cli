@@ -316,6 +316,30 @@ configuration:
                 then:
                   - addLabel:
                       label: Command-Validate
+              # Context-Elevated-User
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][eE]levated([\s-][uU]ser)?'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Context-Elevated-User
+              # Context-User
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][uU]ser'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Context-User
+              # Context-System
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][sS]ystem'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Context-System
               # Dependencies
               - if:
                   - commentContains:
