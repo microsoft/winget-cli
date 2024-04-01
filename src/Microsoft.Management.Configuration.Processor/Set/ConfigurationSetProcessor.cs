@@ -10,13 +10,12 @@ namespace Microsoft.Management.Configuration.Processor.Set
     using System.Collections.Generic;
     using System.IO;
     using System.Management.Automation;
-    using Microsoft.Management.Configuration.Processor.Constants;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
+    using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Unit;
-    using Windows.Foundation.Collections;
     using Windows.Security.Cryptography.Certificates;
 
     /// <summary>
@@ -210,18 +209,6 @@ namespace Microsoft.Management.Configuration.Processor.Set
             return schemaVersion != null && schemaVersion == "0.1";
         }
 
-        private static bool ValueSetEquals(ValueSet first, ValueSet second)
-        {
-            if (first.Count != second.Count)
-            {
-                return false;
-            }
-
-
-
-            return true;
-        }
-
         private static bool ConfigurationUnitEquals(ConfigurationUnit first, ConfigurationUnit second)
         {
             if (first.Identifier != second.Identifier ||
@@ -231,17 +218,17 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 return false;
             }
 
-            if (!ValueSetEquals(first.Settings, second.Settings))
+            if (!first.Settings.ContentEquals(second.Settings))
             {
                 return false;
             }
 
-            if (!ValueSetEquals(first.Metadata, second.Metadata))
+            if (!first.Metadata.ContentEquals(second.Metadata))
             {
                 return false;
             }
 
-            // Consider group units logic when group units are supported.
+            // Note: Consider group units logic when group units are supported.
             return true;
         }
 
@@ -432,7 +419,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                         return unit;
                     }
 
-                    // Consider group units logic when group units are supported.
+                    // Note: Consider group units logic when group units are supported.
                 }
 
                 throw new InvalidOperationException("Configuration unit not found in limit mode.");
