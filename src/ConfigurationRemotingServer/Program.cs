@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Management.Configuration;
 using Microsoft.Management.Configuration.Processor;
+using Windows.Storage.Streams;
 using WinRT;
 
 namespace ConfigurationRemotingServer
@@ -63,9 +65,14 @@ namespace ConfigurationRemotingServer
 
                     // Parse limitation set.
                     byte[] limitationSetBytes = Encoding.UTF8.GetBytes(commandStr.Substring(secondSeparatorIndex + CommandLineSectionSeparator.Length));
-                    MemoryStream limitationSetStream = new MemoryStream(limitationSetBytes);
+                    InMemoryRandomAccessStream limitationSetStream = new InMemoryRandomAccessStream();
+                    DataWriter streamWriter = new DataWriter(limitationSetStream);
+                    streamWriter.WriteBytes(limitationSetBytes);
+                    streamWriter.StoreAsync().GetAwaiter().GetResult();
+                    streamWriter.DetachStream();
+                    limitationSetStream.Seek(0);
                     ConfigurationProcessor processor = new ConfigurationProcessor(factory);
-                    var limitationSetResult = processor.OpenConfigurationSet(limitationSetStream.AsInputStream());
+                    var limitationSetResult = processor.OpenConfigurationSet(limitationSetStream);
                     if (limitationSetResult.ResultCode != null)
                     {
                         throw limitationSetResult.ResultCode;

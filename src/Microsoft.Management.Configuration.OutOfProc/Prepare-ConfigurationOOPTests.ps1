@@ -9,13 +9,13 @@ param(
 
 # Copy the winmd into the unit test directory since it will be needed for marshalling
 $Local:winmdSourcePath = Join-Path $BuildOutputPath "Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd"
-$Local:winmdTargetPath = Join-Path $BuildOutputPath "Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.winmd"
+$Local:winmdTargetPath = Join-Path $BuildOutputPath "Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.22000.0\Microsoft.Management.Configuration.winmd"
 
 Copy-Item $Local:winmdSourcePath $Local:winmdTargetPath -Force
 
 # Copy the OOP helper dll into the unit test directory to make activation look the same as in-proc
 $Local:dllSourcePath = Join-Path $BuildOutputPath "Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration.OutOfProc.dll"
-$Local:dllTargetPath = Join-Path $BuildOutputPath "Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.dll"
+$Local:dllTargetPath = Join-Path $BuildOutputPath "Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.22000.0\Microsoft.Management.Configuration.dll"
 
 Copy-Item $Local:dllSourcePath $Local:dllTargetPath -Force
 

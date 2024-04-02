@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="OutOfProcAttribute.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -27,7 +27,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             // The test runner is located somewhere like this:
             //  C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform
             // and the command line from there is:
-            //  .\vstest.console.exe "<location of your repo>\src\x64\Debug\Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.UnitTests.dll" --TestCaseFilter:Category=OutOfProc
+            //  .\vstest.console.exe "<location of your repo>\src\x64\Debug\Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.22000.0\Microsoft.Management.Configuration.UnitTests.dll" --TestCaseFilter:Category=OutOfProc
         }
     }
 }
