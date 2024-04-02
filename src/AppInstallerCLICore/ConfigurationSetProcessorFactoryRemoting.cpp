@@ -24,7 +24,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
 
         // The string used to divide the arguments sent to the remote server
-        constexpr std::wstring_view s_ArgumentsDivider = L"\n---\n";
+        constexpr std::wstring_view s_ArgumentsDivider = L"\n~~~~~~\n";
 
         // A helper with a convenient function that we use to receive the remote factory object.
         struct RemoteFactoryCallback : winrt::implements<RemoteFactoryCallback, IConfigurationStatics>
@@ -156,13 +156,14 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_completionEvent.create(wil::EventOptions::None, completionEventName.c_str());
                 auto completeEventIfFailureDuringConstruction = wil::scope_exit([&]() { m_completionEvent.SetEvent(); });
 
+                // This will be presented to the user so it must be formatted nicely.
                 // Arguments are:
                 // server.exe <marshalled callback object> <completion event name> <this process id>
                 // 
                 // Optionally, we may also place additional data that limits what the server may do as:
-                // ---
+                // ~~~~~~
                 // { "JSON properties" }
-                // ---
+                // ~~~~~~
                 // YAML configuration set definition
                 std::wostringstream argumentsStream;
                 argumentsStream << s_RemoteServerFileName << L' ' << marshalledCallback << L' ' << completionEventName << L' ' << GetCurrentProcessId();

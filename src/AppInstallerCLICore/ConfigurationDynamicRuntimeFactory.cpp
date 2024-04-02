@@ -8,6 +8,7 @@
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Microsoft::Management::Configuration;
+using namespace winrt::Windows::Storage;
 
 namespace AppInstaller::CLI::ConfigurationRemoting
 {
@@ -42,7 +43,21 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 //       We would do this here to avoid creating them if the only call is going to be for details (ex. `configure show` shouldn't need to elevate)
                 //       We want to do this now to prevent a UAC from showing much later than the start of the operation.
 
+                // Determine and create set processors for all required integrity levels.
+                for (auto existingUnit : m_configurationSet.Units())
+                {
+                    Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(existingUnit);
+
+                    auto itr = m_setProcessors.find(requiredIntegrityLevel);
+                    if (itr == m_setProcessors.end())
+                    {
+                        itr = CreateSetProcessorForIntegrityLevel(requiredIntegrityLevel);
+                    }
+                }
+
+                // Create set and unit processor for current unit.
                 Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(unit);
+
                 auto itr = m_setProcessors.find(requiredIntegrityLevel);
                 if (itr == m_setProcessors.end())
                 {
@@ -102,27 +117,57 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             // Serializes the set properties to be sent to the remote server
             std::string SerializeSetProperties()
             {
-                // TODO: Serialize any properties to JSON that do not get serialized to the file stream
-                //       Currently the only one is `Path`.
-                //       This should be the path to sending properties set via SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties
-                return R"({
-  "filePath": "E:\Temp\PSGallery_NoModule_NoSettings.yml"
-})";
+                Json::Value json{ Json::ValueType::objectValue };
+
+                auto setMetadata = m_configurationSet.Metadata();
+                auto filePath = setMetadata.TryLookup(L"filePath");
+                if (filePath)
+                {
+                    auto filePathProperty = filePath.try_as<IPropertyValue>();
+                    if (filePathProperty && filePathProperty.Type() == PropertyType::String)
+                    {
+                        json["filePath"] = winrt::to_string(filePathProperty.GetString());
+                    }
+                }
+
+                Json::StreamWriterBuilder writerBuilder;
+                writerBuilder.settings_["indentation"] = "";
+                return Json::writeString(writerBuilder, json);
             }
 
             // Serializes a version of the set that only contains the units that require high integrity level
             std::string SerializeHighIntegrityLevelSet()
             {
-                // TODO: Extract only the units that require high integrity and place them in a new set, then serialize it
-                // TODO: Implement ConfigurationSet::Serialize
-                return R"(properties:
-    configurationVersion: 0.1
-    resources:
-      - resource: XmlFileContentResource
-        directives:
-          description: Set XML file contents
-          SecurityContext: elevated
-)";
+                ConfigurationSet highIntegritySet;
+
+                std::vector<ConfigurationUnit> highIntegrityUnits;
+                auto units = m_configurationSet.Units();
+
+                for (auto unit : units)
+                {
+                    if (unit.IsActive() && GetIntegrityLevelForUnit(unit) == Security::IntegrityLevel::High)
+                    {
+                        highIntegrityUnits.emplace_back(unit);
+                    }
+                }
+
+                highIntegritySet.Units(std::move(highIntegrityUnits));
+
+                Streams::InMemoryRandomAccessStream stream;
+                highIntegritySet.Serialize(stream);
+                stream.Seek(0);
+
+                Streams::DataReader dataReader(stream);
+                dataReader.LoadAsync((unsigned int)stream.Size());
+                winrt::hstring readFromStream{ L"" };
+
+                while (dataReader.UnconsumedBufferLength() > 0)
+                {
+                    unsigned int bytesToRead = dataReader.ReadUInt32();
+                    readFromStream = readFromStream + dataReader.ReadString(bytesToRead) + L"\n";
+                }
+
+                return winrt::to_string(readFromStream);
             }
 
             ProcessorMap::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)

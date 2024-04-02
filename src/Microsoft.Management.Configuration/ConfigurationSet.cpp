@@ -125,8 +125,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSet::Serialize(const Windows::Storage::Streams::IOutputStream& stream)
     {
-        UNREFERENCED_PARAMETER(stream);
-        THROW_HR(E_NOTIMPL);
+        AppInstaller::YAML::Emitter emitter;
+        emitter << AppInstaller::YAML::BeginMap;
+        emitter << AppInstaller::YAML::Key << "configurationVersion" << AppInstaller::YAML::Value << "0.1";
+        emitter << AppInstaller::YAML::EndMap;
+
+        auto result = emitter.str();
+
+        // Write string to Stream
+        Windows::Storage::Streams::DataWriter dataWriter{ stream };
+        dataWriter.WriteString(winrt::to_hstring(emitter.str()));
+        dataWriter.StoreAsync().get();
+        dataWriter.DetachStream();
     }
 
     void ConfigurationSet::Remove()
