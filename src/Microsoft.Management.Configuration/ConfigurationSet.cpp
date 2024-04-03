@@ -126,9 +126,34 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSet::Serialize(const Windows::Storage::Streams::IOutputStream& stream)
     {
         AppInstaller::YAML::Emitter emitter;
-        emitter << AppInstaller::YAML::BeginMap;
-        emitter << AppInstaller::YAML::Key << "configurationVersion" << AppInstaller::YAML::Value << "0.1";
-        emitter << AppInstaller::YAML::EndMap;
+        emitter << AppInstaller::YAML::Key << "properties";
+        emitter << AppInstaller::YAML::BeginSeq;
+
+        for (const auto& unit : m_units)
+        {
+            emitter << AppInstaller::YAML::BeginMap;
+            emitter << AppInstaller::YAML::Key << "resource" << AppInstaller::YAML::Value << winrt::to_string(unit.Identifier());
+
+            emitter << AppInstaller::YAML::Key << "directives";
+            emitter << AppInstaller::YAML::BeginMap;
+            emitter << AppInstaller::YAML::Key << "module" << AppInstaller::YAML::Value << winrt::to_string(unit.Details().ModuleName());
+            emitter << AppInstaller::YAML::Key << "description" << AppInstaller::YAML::Value << winrt::to_string(unit.Details().UnitDescription());
+            emitter << AppInstaller::YAML::EndMap;
+
+            emitter << AppInstaller::YAML::EndMap;
+
+            // Settings is a map of keys and values, so dynamically generate those values.
+            emitter << AppInstaller::YAML::Key << "settings";
+            emitter << AppInstaller::YAML::BeginMap;
+            for (const auto& [key, value] : unit.Settings())
+            {
+                emitter << AppInstaller::YAML::Key << winrt::to_string(key) << AppInstaller::YAML::Value << winrt::to_string(winrt::unbox_value<hstring>(value));
+            }
+            emitter << AppInstaller::YAML::EndMap;
+
+        }
+
+        emitter << AppInstaller::YAML::EndSeq;
 
         auto result = emitter.str();
 

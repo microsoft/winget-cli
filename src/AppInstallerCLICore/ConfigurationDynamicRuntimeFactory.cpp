@@ -120,13 +120,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 Json::Value json{ Json::ValueType::objectValue };
 
                 auto setMetadata = m_configurationSet.Metadata();
-                auto filePath = setMetadata.TryLookup(L"filePath");
-                if (filePath)
+                auto path = setMetadata.TryLookup(L"path");
+                if (path)
                 {
-                    auto filePathProperty = filePath.try_as<IPropertyValue>();
-                    if (filePathProperty && filePathProperty.Type() == PropertyType::String)
+                    auto pathValue = path.try_as<IPropertyValue>();
+                    if (pathValue && pathValue.Type() == PropertyType::String)
                     {
-                        json["filePath"] = winrt::to_string(filePathProperty.GetString());
+                        json["path"] = winrt::to_string(pathValue.GetString());
                     }
                 }
 
@@ -135,7 +135,10 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 return Json::writeString(writerBuilder, json);
             }
 
-            // Serializes a version of the set that only contains the units that require high integrity level
+            /// <summary>
+            /// Creates a separate configuration set containing high integrity units and returns the serialized string value.
+            /// </summary>
+            /// <returns>Serialized string value.</returns>
             std::string SerializeHighIntegrityLevelSet()
             {
                 ConfigurationSet highIntegritySet;
@@ -153,6 +156,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 highIntegritySet.Units(std::move(highIntegrityUnits));
 
+                // Serialize high integrity set and return output string.
                 Streams::InMemoryRandomAccessStream stream;
                 highIntegritySet.Serialize(stream);
                 stream.Seek(0);
