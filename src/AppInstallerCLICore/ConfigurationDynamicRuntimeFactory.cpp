@@ -39,19 +39,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             // Creates a configuration unit processor for the given unit.
             IConfigurationUnitProcessor CreateUnitProcessor(const ConfigurationUnit& unit)
             {
-                // TODO: Inspect the configuration set to determine the complete set of integrity levels we will need and create the set processors for all of them.
-                //       We would do this here to avoid creating them if the only call is going to be for details (ex. `configure show` shouldn't need to elevate)
-                //       We want to do this now to prevent a UAC from showing much later than the start of the operation.
-
-                // Determine and create set processors for all required integrity levels.
                 for (auto existingUnit : m_configurationSet.Units())
                 {
                     Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(existingUnit);
 
-                    auto itr = m_setProcessors.find(requiredIntegrityLevel);
-                    if (itr == m_setProcessors.end())
+                    if (m_setProcessors.find(requiredIntegrityLevel) == m_setProcessors.end())
                     {
-                        itr = CreateSetProcessorForIntegrityLevel(requiredIntegrityLevel);
+                        CreateSetProcessorForIntegrityLevel(requiredIntegrityLevel);
                     }
                 }
 
