@@ -23,14 +23,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         constexpr std::string_view s_ConfigurationYaml_Settings = "settings"sv;
         constexpr std::string_view s_ConfigurationYaml_AllowPrerelease = "allowPrerelease"sv;
 
-#define WRITE_HSTRING_PROPERTY(emitter, key, value) \
-        { \
-            if (!value.empty()) \
-            { \
-                emitter << YAML::Key << key << YAML::Value << AppInstaller::Utility::ConvertToUTF8(value); \
-            } \
-        }
-
         void WriteYamlPropertyFromValueSet(YAML::Emitter& emitter, const Collections::ValueSet& valueSet, std::string_view name)
         {
             auto keyName = AppInstaller::Utility::ConvertToUTF16(name);
@@ -180,16 +172,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         emitter << YAML::Key << s_ConfigurationYaml_Properties;
 
         emitter << YAML::BeginMap;
-        WRITE_HSTRING_PROPERTY(emitter, s_ConfigurationYaml_ConfigurationVersion, m_schemaVersion);
-
+        emitter << YAML::Key << s_ConfigurationYaml_ConfigurationVersion << YAML::Key << Utility::ConvertToUTF8(m_schemaVersion);
         emitter << YAML::Key << s_ConfigurationYaml_Resources;
         emitter << YAML::BeginSeq;
+
         for (const auto& unit : m_units)
         {
             emitter << YAML::BeginMap;
 
             auto details = unit.Details();
-            WRITE_HSTRING_PROPERTY(emitter, s_ConfigurationYaml_Resource, (details.ModuleName() + L"\\" + details.UnitType()));
+            emitter << YAML::Key << s_ConfigurationYaml_Resource << YAML::Key << Utility::ConvertToUTF8(details.ModuleName() + L"\\" + details.UnitType());
 
             // Directives
             auto metadata = unit.Metadata();
