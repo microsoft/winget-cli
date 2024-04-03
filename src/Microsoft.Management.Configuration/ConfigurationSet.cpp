@@ -4,16 +4,65 @@
 #include "ConfigurationSet.h"
 #include "ConfigurationSet.g.cpp"
 #include "ConfigurationSetParser.h"
+#include <AppInstallerStrings.h>
+
+using namespace AppInstaller;
+using namespace winrt::Windows::Foundation;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    namespace
+    {
+        constexpr std::string_view s_ConfigurationYaml_Properties = "properties"sv;
+        constexpr std::string_view s_ConfigurationYaml_Resources = "resources"sv;
+        constexpr std::string_view s_ConfigurationYaml_ConfigurationVersion = "configurationVersion"sv;
+        constexpr std::string_view s_ConfigurationYaml_Resource = "resource"sv;
+        constexpr std::string_view s_ConfigurationYaml_Directives = "directives"sv;
+        constexpr std::string_view s_ConfigurationYaml_Module = "module"sv;
+        constexpr std::string_view s_ConfigurationYaml_Description = "description"sv;
+        constexpr std::string_view s_ConfigurationYaml_Settings = "settings"sv;
+        constexpr std::string_view s_ConfigurationYaml_AllowPrerelease = "allowPrerelease"sv;
+
+#define WRITE_HSTRING_PROPERTY(emitter, key, value) \
+        { \
+            if (!value.empty()) \
+            { \
+                emitter << YAML::Key << key << YAML::Value << AppInstaller::Utility::ConvertToUTF8(value); \
+            } \
+        }
+
+        void WriteYamlPropertyFromValueSet(YAML::Emitter& emitter, const Collections::ValueSet& valueSet, std::string_view name)
+        {
+            auto keyName = AppInstaller::Utility::ConvertToUTF16(name);
+
+            if (valueSet.HasKey(keyName))
+            {
+                auto object = valueSet.Lookup(keyName);
+                IPropertyValue property = object.try_as<IPropertyValue>();
+                auto type = property.Type();
+                if (type == PropertyType::Boolean)
+                {
+                    emitter << YAML::Key << name << YAML::Value << property.GetBoolean();
+                }
+                else if (type == PropertyType::String)
+                {
+                    emitter << YAML::Key << name << YAML::Value << AppInstaller::Utility::ConvertToUTF8(property.GetString());
+                }
+                else if (type == PropertyType::Int64)
+                {
+                    emitter << YAML::Key << name << YAML::Value << property.GetInt64();
+                }
+            }
+        }
+    }
+
     ConfigurationSet::ConfigurationSet()
     {
         GUID instanceIdentifier;
         THROW_IF_FAILED(CoCreateGuid(&instanceIdentifier));
         m_instanceIdentifier = instanceIdentifier;
         m_schemaVersion = ConfigurationSetParser::LatestVersion();
-    }
+    }  
 
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
         m_instanceIdentifier(instanceIdentifier)
@@ -125,39 +174,47 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSet::Serialize(const Windows::Storage::Streams::IOutputStream& stream)
     {
-        AppInstaller::YAML::Emitter emitter;
-        emitter << AppInstaller::YAML::Key << "properties";
-        emitter << AppInstaller::YAML::BeginSeq;
+        YAML::Emitter emitter;
 
+        emitter << YAML::BeginMap;
+        emitter << YAML::Key << s_ConfigurationYaml_Properties;
+
+        emitter << YAML::BeginMap;
+        WRITE_HSTRING_PROPERTY(emitter, s_ConfigurationYaml_ConfigurationVersion, m_schemaVersion);
+
+        emitter << YAML::Key << s_ConfigurationYaml_Resources;
+        emitter << YAML::BeginSeq;
         for (const auto& unit : m_units)
         {
-            emitter << AppInstaller::YAML::BeginMap;
-            emitter << AppInstaller::YAML::Key << "resource" << AppInstaller::YAML::Value << winrt::to_string(unit.Identifier());
+            emitter << YAML::BeginMap;
 
-            emitter << AppInstaller::YAML::Key << "directives";
-            emitter << AppInstaller::YAML::BeginMap;
-            emitter << AppInstaller::YAML::Key << "module" << AppInstaller::YAML::Value << winrt::to_string(unit.Details().ModuleName());
-            emitter << AppInstaller::YAML::Key << "description" << AppInstaller::YAML::Value << winrt::to_string(unit.Details().UnitDescription());
-            emitter << AppInstaller::YAML::EndMap;
+            auto details = unit.Details();
+            WRITE_HSTRING_PROPERTY(emitter, s_ConfigurationYaml_Resource, (details.ModuleName() + L"\\" + details.UnitType()));
 
-            emitter << AppInstaller::YAML::EndMap;
+            // Directives
+            auto metadata = unit.Metadata();
+            emitter << YAML::Key << s_ConfigurationYaml_Directives;
+            emitter << YAML::BeginMap;
+            WriteYamlPropertyFromValueSet(emitter, metadata, s_ConfigurationYaml_Description);
+            WriteYamlPropertyFromValueSet(emitter, metadata, s_ConfigurationYaml_AllowPrerelease);
+            emitter << YAML::EndMap;
 
-            // Settings is a map of keys and values, so dynamically generate those values.
-            emitter << AppInstaller::YAML::Key << "settings";
-            emitter << AppInstaller::YAML::BeginMap;
-            for (const auto& [key, value] : unit.Settings())
+            // Settings
+            auto settings = unit.Settings();
+            emitter << YAML::Key << s_ConfigurationYaml_Settings;
+            emitter << YAML::BeginMap;
+            for (const auto& entry : settings)
             {
-                emitter << AppInstaller::YAML::Key << winrt::to_string(key) << AppInstaller::YAML::Value << winrt::to_string(winrt::unbox_value<hstring>(value));
+                WriteYamlPropertyFromValueSet(emitter, settings, AppInstaller::Utility::ConvertToUTF8(entry.Key()));
             }
-            emitter << AppInstaller::YAML::EndMap;
+            emitter << YAML::EndMap;
 
+            emitter << YAML::EndMap;
         }
 
-        emitter << AppInstaller::YAML::EndSeq;
+        emitter << YAML::EndSeq;
+        emitter << YAML::EndMap;
 
-        auto result = emitter.str();
-
-        // Write string to Stream
         Windows::Storage::Streams::DataWriter dataWriter{ stream };
         dataWriter.WriteString(winrt::to_hstring(emitter.str()));
         dataWriter.StoreAsync().get();

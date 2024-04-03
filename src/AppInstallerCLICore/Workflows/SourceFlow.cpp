@@ -7,6 +7,8 @@
 #include "TableOutput.h"
 #include "WorkflowBase.h"
 
+#include "winget/Yaml.h"
+
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::CLI::Execution;
@@ -299,6 +301,34 @@ namespace AppInstaller::CLI::Workflow
     void ExportSourceList(Execution::Context& context)
     {
         const std::vector<Repository::SourceDetails>& sources = context.Get<Data::SourceList>();
+
+        //std::string hello = "properties";
+        //AppInstaller::YAML::Emitter emitter;
+        //emitter << AppInstaller::YAML::BeginMap;
+        //emitter << AppInstaller::YAML::Key << hello;
+        //emitter << AppInstaller::YAML::BeginSeq;
+
+        //emitter << AppInstaller::YAML::BeginMap;
+        //emitter << AppInstaller::YAML::Key << "resource"sv << AppInstaller::YAML::Value << "Microsoft.Windows.Developer/Developermode";
+
+        //emitter << AppInstaller::YAML::Key << "directives"sv;
+        //emitter << AppInstaller::YAML::BeginMap;
+        //emitter << AppInstaller::YAML::Key << "module"sv << AppInstaller::YAML::Value << "ModuleName";
+        //emitter << AppInstaller::YAML::Key << "description"sv << AppInstaller::YAML::Value << "Description";
+        //emitter << AppInstaller::YAML::EndMap;
+
+        //// Settings is a map of keys and values, so dynamically generate those values.
+        //emitter << AppInstaller::YAML::Key << "settings"sv;
+        //emitter << AppInstaller::YAML::BeginMap;
+
+        //emitter << AppInstaller::YAML::Key << "id"sv << AppInstaller::YAML::Value << "Microsoft.Nuget";
+
+        //emitter << AppInstaller::YAML::EndMap;
+
+        //emitter << AppInstaller::YAML::EndMap;
+        //emitter << AppInstaller::YAML::EndSeq;
+
+        //context.Reporter.Info() << emitter.str() << std::endl;
 
         if (sources.empty())
         {
