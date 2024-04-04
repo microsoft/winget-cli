@@ -39,15 +39,23 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             // Creates a configuration unit processor for the given unit.
             IConfigurationUnitProcessor CreateUnitProcessor(const ConfigurationUnit& unit)
             {
-                for (auto existingUnit : m_configurationSet.Units())
-                {
-                    Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(existingUnit);
+                static std::once_flag s_createUnitSetProcessorsOnce;
 
-                    if (m_setProcessors.find(requiredIntegrityLevel) == m_setProcessors.end())
+                // Determine and create set processors for all required integrity levels.
+                // Doing this here avoids creating them if the only call is going to be for details (ex. `configure show`) 
+                std::call_once(s_createUnitSetProcessorsOnce,
+                    [&]()
                     {
-                        CreateSetProcessorForIntegrityLevel(requiredIntegrityLevel);
-                    }
-                }
+                        for (auto existingUnit : m_configurationSet.Units())
+                        {
+                            Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(existingUnit);
+
+                            if (m_setProcessors.find(requiredIntegrityLevel) == m_setProcessors.end())
+                            {
+                                CreateSetProcessorForIntegrityLevel(requiredIntegrityLevel);
+                            }
+                        }
+                    });
 
                 // Create set and unit processor for current unit.
                 Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(unit);
@@ -113,16 +121,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             {
                 Json::Value json{ Json::ValueType::objectValue };
 
-                auto setMetadata = m_configurationSet.Metadata();
-                auto path = setMetadata.TryLookup(L"path");
-                if (path)
-                {
-                    auto pathValue = path.try_as<IPropertyValue>();
-                    if (pathValue && pathValue.Type() == PropertyType::String)
-                    {
-                        json["path"] = winrt::to_string(pathValue.GetString());
-                    }
-                }
+                auto path = m_configurationSet.Path();
+                json["path"] = winrt::to_string(path);
 
                 Json::StreamWriterBuilder writerBuilder;
                 writerBuilder.settings_["indentation"] = "";
@@ -136,6 +136,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             std::string SerializeHighIntegrityLevelSet()
             {
                 ConfigurationSet highIntegritySet;
+
+                // TODO: Currently we only support schema version 0.2 for handling elevated integrity levels.
+                highIntegritySet.SchemaVersion(L"0.2");
 
                 std::vector<ConfigurationUnit> highIntegrityUnits;
                 auto units = m_configurationSet.Units();

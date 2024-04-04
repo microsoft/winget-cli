@@ -134,7 +134,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
         else
         {
-            FIELD_VALUE_ERROR(GetFieldName(FieldName::Type), typeValue, typeNode.Mark());
+            FIELD_VALUE_ERROR(GetConfigurationFieldName(FieldName::Type), typeValue, typeNode.Mark());
         }
 
         // TODO: Consider supporting an expanded set of type strings
@@ -167,7 +167,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             int64_t value = valueNode.as<int64_t>();
             if (value < 0 || value > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
             {
-                FIELD_VALUE_ERROR(GetFieldName(field), valueNode.as<std::string>(), valueNode.Mark());
+                FIELD_VALUE_ERROR(GetConfigurationFieldName(field), valueNode.as<std::string>(), valueNode.Mark());
             }
             (parameter->*propertyFunction)(static_cast<uint32_t>(value));
         }
@@ -234,7 +234,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     bool ConfigurationSetParser_0_3::ShouldConvertToGroup(ConfigurationUnit* unit)
     {
         // Allow the metadata to inform us that we should treat it as a group, including preventing a known type from being treated as one.
-        auto isGroupObject = unit->Metadata().TryLookup(GetFieldNameHString(FieldName::IsGroupMetadata));
+        auto isGroupObject = unit->Metadata().TryLookup(GetConfigurationFieldNameHString(FieldName::IsGroupMetadata));
         if (isGroupObject)
         {
             auto isGroupProperty = isGroupObject.try_as<Windows::Foundation::IPropertyValue>();

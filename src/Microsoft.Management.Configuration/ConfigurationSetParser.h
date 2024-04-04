@@ -13,6 +13,45 @@ using namespace std::string_view_literals;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    // The various field names that are used in parsing.
+    enum class FieldName
+    {
+        // v0.1 and v0.2
+        ConfigurationVersion,
+        Properties,
+        Resource,
+        Directives,
+        Settings,
+        Assertions,
+        Id,
+        DependsOn,
+
+        // Universal
+        Resources,
+        ModuleDirective,
+
+        // v0.3
+        Schema,
+        Metadata,
+        Parameters,
+        Variables,
+        Type,
+        Description,
+        Name,
+        IsGroupMetadata,
+        DefaultValue,
+        AllowedValues,
+        MinimumLength,
+        MaximumLength,
+        MinimumValue,
+        MaximumValue,
+    };
+
+    // Gets the value of the field name.
+    std::string_view GetConfigurationFieldName(FieldName fieldName);
+
+    hstring GetConfigurationFieldNameHString(FieldName fieldName);
+
     // Interface for parsing a configuration set stream.
     struct ConfigurationSetParser
     {
@@ -79,44 +118,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void SetError(hresult result, std::string_view field = {}, std::string_view value = {}, uint32_t line = 0, uint32_t column = 0);
         void SetError(hresult result, std::string_view field, const AppInstaller::YAML::Mark& mark, std::string_view value = {});
 
-        // The various field names that are used in parsing.
-        enum class FieldName
-        {
-            // v0.1 and v0.2
-            ConfigurationVersion,
-            Properties,
-            Resource,
-            Directives,
-            Settings,
-            Assertions,
-            Id,
-            DependsOn,
-
-            // Universal
-            Resources,
-            ModuleDirective,
-
-            // v0.3
-            Schema,
-            Metadata,
-            Parameters,
-            Variables,
-            Type,
-            Description,
-            Name,
-            IsGroupMetadata,
-            DefaultValue,
-            AllowedValues,
-            MinimumLength,
-            MaximumLength,
-            MinimumValue,
-            MaximumValue,
-        };
-
-        // Gets the value of the field name.
-        static std::string_view GetFieldName(FieldName fieldName);
-        static hstring GetFieldNameHString(FieldName fieldName);
-
         ConfigurationSetPtr m_configurationSet;
         hresult m_result;
         hstring m_field;
@@ -154,5 +155,25 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     private:
         // Support older schema parsing.
         static std::unique_ptr<ConfigurationSetParser> GetSchemaVersionFromOldFormat(AppInstaller::YAML::Node& document, std::string& schemaVersionString);
+    };
+
+    struct ConfigurationSetSerializer
+    {
+        static std::unique_ptr<ConfigurationSetSerializer> CreateSerializer(hstring version);
+
+        virtual ~ConfigurationSetSerializer() noexcept = default;
+
+        ConfigurationSetSerializer(const ConfigurationSetSerializer&) = delete;
+        ConfigurationSetSerializer& operator=(const ConfigurationSetSerializer&) = delete;
+        ConfigurationSetSerializer(ConfigurationSetSerializer&&) = default;
+        ConfigurationSetSerializer& operator=(ConfigurationSetSerializer&&) = default;
+
+        // Serializes a configuration set to the original yaml string.
+        virtual hstring Serialize(ConfigurationSet*) = 0;
+
+    protected:
+        ConfigurationSetSerializer() = default;
+
+        void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet);
     };
 }

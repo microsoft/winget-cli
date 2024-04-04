@@ -16,7 +16,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSetParser_0_1::Parse()
     {
         std::vector<Configuration::ConfigurationUnit> units;
-        const Node& properties = m_document[GetFieldName(FieldName::Properties)];
+        const Node& properties = m_document[GetConfigurationFieldName(FieldName::Properties)];
         ParseConfigurationUnitsFromField(properties, FieldName::Assertions, ConfigurationUnitIntent::Assert, units);
         ParseConfigurationUnitsFromField(properties, FieldName::Parameters, ConfigurationUnitIntent::Inform, units);
         ParseConfigurationUnitsFromField(properties, FieldName::Resources, ConfigurationUnitIntent::Apply, units);
