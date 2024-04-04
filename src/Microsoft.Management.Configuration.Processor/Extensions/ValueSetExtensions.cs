@@ -134,6 +134,10 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                     {
                         return false;
                     }
+                    else
+                    {
+                        continue;
+                    }
                 }
                 else if ((firstValueSet == null && secondValueSet != null) ||
                     (firstValueSet != null && secondValueSet == null))

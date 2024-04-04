@@ -417,7 +417,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                     throw new InvalidOperationException("Configuration set should not be null in limit mode.");
                 }
 
-                var unitList = useLimitList ? this.configurationSet.Units : this.limitUnitList;
+                var unitList = useLimitList ? this.limitUnitList : this.configurationSet.Units;
 
                 for (int i = unitList.Count - 1; i >= 0; i--)
                 {
