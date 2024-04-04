@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
     using System.Collections.Generic;
     using System.IO;
     using System.Management.Automation;
+    using System.Runtime.CompilerServices;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
@@ -63,6 +64,17 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// Gets the processor environment.
         /// </summary>
         internal IProcessorEnvironment ProcessorEnvironment { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the set processor is running in limit mode.
+        /// </summary>
+        internal bool IsLimitMode
+        {
+            get
+            {
+                return this.isLimitMode;
+            }
+        }
 
         /// <summary>
         /// Creates a configuration unit processor for the given unit.
@@ -395,6 +407,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
             this.SetProcessorFactory?.OnDiagnostics(level, message);
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         private ConfigurationUnit GetConfigurationUnit(ConfigurationUnit incomingUnit, bool useLimitList = false)
         {
             if (this.isLimitMode)

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ValueSetExtensionsTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -339,6 +339,121 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             };
 
             Assert.Throws<InvalidOperationException>(() => valueSetArray.ToArray());
+        }
+
+        /// <summary>
+        /// Tests ValueSet simple types content equals.
+        /// </summary>
+        [Fact]
+        public void ValueSet_SimpleTypes_ContentEquals()
+        {
+            string stringProperty = "stringProperty";
+            string stringPropertyValue = "string";
+
+            string intProperty = "intProperty";
+            long intPropertyValue = 64;
+
+            string boolProperty = "boolProperty";
+            bool boolPropertyValue = true;
+
+            var valueSet = new ValueSet
+            {
+                { stringProperty, stringPropertyValue },
+                { intProperty, intPropertyValue },
+                { boolProperty, boolPropertyValue },
+            };
+
+            // Same content different order
+            var valueSetDifferentOrder = new ValueSet
+            {
+                { boolProperty, boolPropertyValue },
+                { stringProperty, stringPropertyValue },
+                { intProperty, intPropertyValue },
+            };
+
+            Assert.True(valueSet.ContentEquals(valueSetDifferentOrder));
+
+            // Entry missing
+            var valueSetEntryMissing = new ValueSet
+            {
+                { stringProperty, stringPropertyValue },
+                { intProperty, intPropertyValue },
+            };
+
+            Assert.False(valueSet.ContentEquals(valueSetEntryMissing));
+
+            // Different entry
+            var valueSetEntryDifferent = new ValueSet
+            {
+                { stringProperty, stringPropertyValue },
+                { intProperty, intPropertyValue },
+                { "Another", "AnotherValue" },
+            };
+
+            Assert.False(valueSet.ContentEquals(valueSetEntryDifferent));
+
+            // Different value
+            var valueSetDifferentValue = new ValueSet
+            {
+                { boolProperty, boolPropertyValue },
+                { stringProperty, stringPropertyValue },
+                { intProperty, 0 },
+            };
+
+            Assert.False(valueSet.ContentEquals(valueSetDifferentValue));
+        }
+
+        /// <summary>
+        /// Tests when a ValueSet has inner value sets.
+        /// </summary>
+        [Fact]
+        public void ValueSet_NestedValueSets_ContentEquals()
+        {
+            string boolPropertyInner = "boolPropertyInner";
+            bool boolPropertyValueInner = true;
+            var valueSetInner = new ValueSet()
+            {
+                { boolPropertyInner, boolPropertyValueInner },
+            };
+
+            string stringPropertyInnerInner = "stringPropertyInnerInner";
+            string stringPropertyValueInnerInner = "stringInnerInner";
+            var valueSetInnerInner = new ValueSet()
+            {
+                { stringPropertyInnerInner, stringPropertyValueInnerInner },
+            };
+
+            string inner2Key = "InnerKey2";
+            var valueSetInner2 = new ValueSet()
+            {
+                { inner2Key, valueSetInnerInner },
+            };
+
+            string key1 = "key1";
+            string key2 = "key2";
+            var valueSet = new ValueSet()
+            {
+                { key1, valueSetInner },
+                { key2, valueSetInner2 },
+            };
+
+            // Same content different order
+            var valueSetDifferentOrder = new ValueSet()
+            {
+                { key2, valueSetInner2 },
+                { key1, valueSetInner },
+            };
+
+            Assert.True(valueSet.ContentEquals(valueSetDifferentOrder));
+
+            // Different nested content
+            var valueSetDifferentContent = new ValueSet()
+            {
+                { key2, valueSetInner },
+                { key1, valueSetInner2 },
+            };
+
+            Assert.False(valueSet.ContentEquals(valueSetDifferentContent));
         }
     }
 }

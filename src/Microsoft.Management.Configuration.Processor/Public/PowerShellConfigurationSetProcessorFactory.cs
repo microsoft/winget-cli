@@ -8,9 +8,11 @@ namespace Microsoft.Management.Configuration.Processor
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
@@ -22,6 +24,8 @@ namespace Microsoft.Management.Configuration.Processor
     /// </summary>
     public sealed class PowerShellConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory, IPowerShellConfigurationProcessorFactoryProperties
     {
+        private bool isCreateProcessorInvoked = false;
+
         // Backing variables for properties that are restricted in limit mode.
         private ConfigurationSet? limitationSet;
         private PowerShellConfigurationProcessorType processorType = PowerShellConfigurationProcessorType.Default;
@@ -251,6 +255,8 @@ namespace Microsoft.Management.Configuration.Processor
             {
                 this.OnDiagnostics(DiagnosticLevel.Informational, $"The set processor factory is running in limit mode: {this.IsLimitMode()}.");
 
+                this.CheckLimitMode();
+
                 ConfigurationSet? set = this.IsLimitMode() ? this.limitationSet : incomingSet;
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating set processor for `{set?.Name ?? "<null>"}`...");
@@ -382,6 +388,24 @@ namespace Microsoft.Management.Configuration.Processor
                 Message = message,
             };
             diagnostics.Invoke(this, information);
+        }
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        private void CheckLimitMode()
+        {
+            if (!this.IsLimitMode())
+            {
+                return;
+            }
+
+            if (this.isCreateProcessorInvoked)
+            {
+                throw new InvalidOperationException("CreateSetProcessor is already invoked in limit mode.");
+            }
+            else
+            {
+                this.isCreateProcessorInvoked = true;
+            }
         }
 
         private bool IsLimitMode()
