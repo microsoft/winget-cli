@@ -178,7 +178,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             configurationProcessorFactory.ImplicitModulePaths = new List<string> { @"c:\this\is\implicit" };
             Assert.Equal(configurationProcessorFactory.AdditionalModulePaths, new List<string> { @"c:\this\is\additional", @"c:\this\is\implicit" });
 
-            // Set AdditiionalModulePaths when ImplicitModulePaths module paths are set
+            // Set AdditionalModulePaths when ImplicitModulePaths module paths are set
             configurationProcessorFactory.AdditionalModulePaths = new List<string> { @"c:\this\is\additional\2" };
             Assert.Equal(configurationProcessorFactory.AdditionalModulePaths, new List<string> { @"c:\this\is\additional\2", @"c:\this\is\implicit" });
         }
