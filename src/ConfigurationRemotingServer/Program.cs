@@ -18,7 +18,6 @@ namespace ConfigurationRemotingServer
         private const string CommandLineSectionSeparator = "~~~~~~";
         private const string ExternalModulesName = "ExternalModules";
 
-
         static int Main(string[] args)
         {
             ulong memoryHandle = ulong.Parse(args[0]);
@@ -33,12 +32,13 @@ namespace ConfigurationRemotingServer
 
                 // Set default properties.
                 var externalModulesPath = GetExternalModulesPath();
-                if (!string.IsNullOrWhiteSpace(externalModulesPath))
+                if (string.IsNullOrWhiteSpace(externalModulesPath))
                 {
-                    // Set as implicit module paths so it will be always included in AdditionalModulePaths
-                    factory.ImplicitModulePaths = new List<string>() { externalModulesPath };
+                    throw new DirectoryNotFoundException("Failed to get ExternalModules.");
                 }
 
+                // Set as implicit module paths so it will be always included in AdditionalModulePaths
+                factory.ImplicitModulePaths = new List<string>() { externalModulesPath };
                 factory.ProcessorType = PowerShellConfigurationProcessorType.Hosted;
 
                 // Parse limitation set if applicable.

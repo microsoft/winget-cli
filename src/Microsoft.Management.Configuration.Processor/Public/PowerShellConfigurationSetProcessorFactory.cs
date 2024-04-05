@@ -400,6 +400,7 @@ namespace Microsoft.Management.Configuration.Processor
 
             if (this.isCreateProcessorInvoked)
             {
+                this.OnDiagnostics(DiagnosticLevel.Error, "CreateSetProcessor is already invoked in limit mode.");
                 throw new InvalidOperationException("CreateSetProcessor is already invoked in limit mode.");
             }
             else

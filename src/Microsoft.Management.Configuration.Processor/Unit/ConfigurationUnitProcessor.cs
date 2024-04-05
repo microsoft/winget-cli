@@ -190,6 +190,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             {
                 if (this.isTestInvoked)
                 {
+                    this.OnDiagnostics(DiagnosticLevel.Error, "TestSettings is already invoked in limit mode.");
                     throw new InvalidOperationException("TestSettings is already invoked in limit mode.");
                 }
                 else
@@ -202,6 +203,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             {
                 if (this.isApplyInvoked)
                 {
+                    this.OnDiagnostics(DiagnosticLevel.Error, "ApplySettings is already invoked in limit mode.");
                     throw new InvalidOperationException("ApplySettings is already invoked in limit mode.");
                 }
                 else

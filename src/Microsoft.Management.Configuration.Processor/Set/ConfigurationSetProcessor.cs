@@ -25,7 +25,6 @@ namespace Microsoft.Management.Configuration.Processor.Set
     internal sealed class ConfigurationSetProcessor : IConfigurationSetProcessor
     {
         private readonly ConfigurationSet? configurationSet;
-        private readonly bool isLimitMode;
         private List<ConfigurationUnit> limitUnitList = new List<ConfigurationUnit>();
 
         /// <summary>
@@ -38,10 +37,10 @@ namespace Microsoft.Management.Configuration.Processor.Set
         {
             this.ProcessorEnvironment = processorEnvironment;
             this.configurationSet = configurationSet;
-            this.isLimitMode = isLimitMode;
+            this.IsLimitMode = isLimitMode;
 
             // In limit mode, configurationSet is the limitation set to be used. It cannot be null.
-            if (this.isLimitMode)
+            if (this.IsLimitMode)
             {
                 if (this.configurationSet == null)
                 {
@@ -68,13 +67,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// <summary>
         /// Gets a value indicating whether the set processor is running in limit mode.
         /// </summary>
-        internal bool IsLimitMode
-        {
-            get
-            {
-                return this.isLimitMode;
-            }
-        }
+        internal bool IsLimitMode { get; private set; }
 
         /// <summary>
         /// Creates a configuration unit processor for the given unit.
@@ -86,7 +79,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         {
             try
             {
-                this.OnDiagnostics(DiagnosticLevel.Informational, $"GetUnitProcessorDetails is running in limit mode: {this.isLimitMode}.");
+                this.OnDiagnostics(DiagnosticLevel.Informational, $"GetUnitProcessorDetails is running in limit mode: {this.IsLimitMode}.");
 
                 // CreateUnitProcessor can only be called once on each configuration unit in limit mode.
                 var unit = this.GetConfigurationUnit(incomingUnit, true);
@@ -100,7 +93,8 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Using unit from location: {dscResourceInfo.Path}");
                 return new ConfigurationUnitProcessor(
                     this.ProcessorEnvironment,
-                    new ConfigurationUnitAndResource(configurationUnitInternal, dscResourceInfo))
+                    new ConfigurationUnitAndResource(configurationUnitInternal, dscResourceInfo),
+                    this.IsLimitMode)
                 { SetProcessorFactory = this.SetProcessorFactory };
             }
             catch (Exception ex)
@@ -122,7 +116,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         {
             try
             {
-                this.OnDiagnostics(DiagnosticLevel.Informational, $"GetUnitProcessorDetails is running in limit mode: {this.isLimitMode}.");
+                this.OnDiagnostics(DiagnosticLevel.Informational, $"GetUnitProcessorDetails is running in limit mode: {this.IsLimitMode}.");
 
                 // GetUnitProcessorDetails can be invoked multiple times on each configuration unit in limit mode.
                 var unit = this.GetConfigurationUnit(incomingUnit);
@@ -410,7 +404,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         [MethodImpl(MethodImplOptions.Synchronized)]
         private ConfigurationUnit GetConfigurationUnit(ConfigurationUnit incomingUnit, bool useLimitList = false)
         {
-            if (this.isLimitMode)
+            if (this.IsLimitMode)
             {
                 if (this.configurationSet == null)
                 {
@@ -419,7 +413,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
                 var unitList = useLimitList ? this.limitUnitList : this.configurationSet.Units;
 
-                for (int i = unitList.Count - 1; i >= 0; i--)
+                for (int i = 0; i < unitList.Count; i++)
                 {
                     var unit = unitList[i];
                     if (ConfigurationUnitEquals(incomingUnit, unit))
@@ -435,6 +429,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                     // Note: Consider group units logic when group units are supported.
                 }
 
+                this.OnDiagnostics(DiagnosticLevel.Error, "Configuration unit not found in limit mode.");
                 throw new InvalidOperationException("Configuration unit not found in limit mode.");
             }
             else

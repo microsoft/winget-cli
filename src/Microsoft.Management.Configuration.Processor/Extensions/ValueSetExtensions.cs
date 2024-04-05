@@ -118,8 +118,7 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                 {
                     continue;
                 }
-                else if ((firstValue == null && secondValue != null) ||
-                    (firstValue != null && secondValue == null))
+                else if (firstValue == null || secondValue == null)
                 {
                     return false;
                 }
@@ -139,8 +138,7 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                         continue;
                     }
                 }
-                else if ((firstValueSet == null && secondValueSet != null) ||
-                    (firstValueSet != null && secondValueSet == null))
+                else if (firstValueSet != null || secondValueSet != null)
                 {
                     return false;
                 }
