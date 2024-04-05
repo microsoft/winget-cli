@@ -157,9 +157,6 @@ namespace AppInstaller::Repository::Microsoft
         IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
         bool UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
 
-        // Creates the ISQLiteIndex interface object for this version.
-        static std::unique_ptr<Schema::ISQLiteIndex> CreateISQLiteIndex(const SQLite::Version& version);
-
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
     };
 }

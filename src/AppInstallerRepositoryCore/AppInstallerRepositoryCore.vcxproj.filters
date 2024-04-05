@@ -100,6 +100,9 @@
     <Filter Include="Rest\Schema\1_7\Json">
       <UniqueIdentifier>{7fd6c265-81c0-4c6e-87b2-24bef117e21d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\2_0">
+      <UniqueIdentifier>{34442899-29e5-4183-96ba-a1e8740146be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -417,6 +420,27 @@
     <ClInclude Include="Rest\Schema\1_7\Json\ManifestDeserializer.h">
       <Filter>Rest\Schema\1_7\Json</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\CommandsTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\Interface.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\PackagesTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\OneToManyTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\OneToOneTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\SearchResultsTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\TagsTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -655,6 +679,24 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_7\Json\ManifestDeserializer_1_7.cpp">
       <Filter>Rest\Schema\1_7\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_0\Interface_2_0.cpp">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_0\PackagesTable.cpp">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_0\OneToManyTable_2_0.cpp">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_0\OneToOneTable.cpp">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_0\SearchResultsTable_2_0.cpp">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\ISQLiteIndex.cpp">
+      <Filter>Microsoft\Schema</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

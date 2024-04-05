@@ -108,9 +108,13 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Sets the string for the given metadata and manifest id.
         virtual void SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value) = 0;
 
+        // Version 1.2
+
         // Normalizes a name using the internal rules used by the index.
         // Largely a utility function; should not be used to do work on behalf of the index by the caller.
         virtual Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const = 0;
+
+        // Version 1.4
 
         // Get all the dependencies for a specific manifest.
         virtual std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const = 0;
@@ -119,4 +123,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ISQLiteIndex::CreateOptions);
+
+    // Creates the ISQLiteIndex interface object for the given version.
+    std::unique_ptr<Schema::ISQLiteIndex> CreateISQLiteIndex(const SQLite::Version& version);
 }

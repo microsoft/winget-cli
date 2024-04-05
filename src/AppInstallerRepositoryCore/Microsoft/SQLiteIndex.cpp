@@ -6,15 +6,6 @@
 #include "ArpVersionValidation.h"
 #include <winget/ManifestYamlParser.h>
 
-#include "Schema/1_0/Interface.h"
-#include "Schema/1_1/Interface.h"
-#include "Schema/1_2/Interface.h"
-#include "Schema/1_3/Interface.h"
-#include "Schema/1_4/Interface.h"
-#include "Schema/1_5/Interface.h"
-#include "Schema/1_6/Interface.h"
-#include "Schema/1_7/Interface.h"
-
 namespace AppInstaller::Repository::Microsoft
 {
     SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, SQLite::Version version, CreateOptions options)
@@ -46,36 +37,10 @@ namespace AppInstaller::Repository::Microsoft
         return { filePath, source };
     }
 
-    std::unique_ptr<Schema::ISQLiteIndex> SQLiteIndex::CreateISQLiteIndex(const SQLite::Version& version)
-    {
-        using namespace Schema;
-
-        if (version.MajorVersion == 1 ||
-            version.IsLatest())
-        {
-            constexpr std::array<std::unique_ptr<Schema::ISQLiteIndex>(*)(), 8> versionCreatorMap =
-            {
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_0::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_1::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_2::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_3::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_4::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_5::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_6::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_7::Interface>()); },
-            };
-
-            return versionCreatorMap[std::min(static_cast<size_t>(version.MinorVersion), versionCreatorMap.size() - 1)]();
-        }
-
-        // We do not have the capacity to operate on this schema version
-        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-    }
-
     SQLiteIndex::SQLiteIndex(const std::string& target, const SQLite::Version& version) : SQLiteStorageBase(target, version)
     {
         m_dbconn.EnableICU();
-        m_interface = CreateISQLiteIndex(version);
+        m_interface = Schema::CreateISQLiteIndex(version);
         m_version = m_interface->GetVersion();
     }
 
@@ -84,7 +49,7 @@ namespace AppInstaller::Repository::Microsoft
     {
         m_dbconn.EnableICU();
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
-        m_interface = CreateISQLiteIndex(m_version);
+        m_interface = Schema::CreateISQLiteIndex(m_version);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
 
@@ -92,18 +57,18 @@ namespace AppInstaller::Repository::Microsoft
         SQLiteStorageBase(target, source)
     {
         m_dbconn.EnableICU();
-        m_interface = CreateISQLiteIndex(m_version);
+        m_interface = Schema::CreateISQLiteIndex(m_version);
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void SQLiteIndex::ForceVersion(const SQLite::Version& version)
     {
-        m_interface = CreateISQLiteIndex(version);
+        m_interface = Schema::CreateISQLiteIndex(version);
     }
 
     SQLite::Version SQLiteIndex::GetLatestVersion()
     {
-        return CreateISQLiteIndex(SQLite::Version::Latest())->GetVersion();
+        return Schema::CreateISQLiteIndex(SQLite::Version::Latest())->GetVersion();
     }
 #endif
 

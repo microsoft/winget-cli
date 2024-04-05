@@ -2,18 +2,25 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Microsoft/Schema/ISQLiteIndex.h"
-#include "Microsoft/Schema/1_0/SearchResultsTable.h"
-#include "Microsoft/Schema/1_0/OneToManyTable.h"
+#include "Microsoft/Schema/2_0/SearchResultsTable.h"
+#include "Microsoft/Schema/2_0/OneToManyTable.h"
 
 #include <memory>
 #include <vector>
 
+using namespace std::string_view_literals;
 
-namespace AppInstaller::Repository::Microsoft::Schema::V1_0
+namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
+    // Version 2.0
+    static constexpr std::string_view s_MetadataValueName_InternalMajorVersion = "internalMajorVersion"sv;
+    static constexpr std::string_view s_MetadataValueName_InternalMinorVersion = "internalMinorVersion"sv;
+
     // Interface to this schema version exposed through ISQLiteIndex.
     struct Interface : public ISQLiteIndex
     {
+        Interface(Utility::NormalizationVersion normVersion = Utility::NormalizationVersion::Initial);
+
         // Version 1.0
         SQLite::Version GetVersion() const override;
         void CreateTables(SQLite::Connection& connection, CreateOptions options) override;
@@ -42,8 +49,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const override;
 
     protected:
-        virtual bool NotNeeded(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const;
-
         // Creates the search results table.
         virtual std::unique_ptr<SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const;
 
@@ -53,14 +58,31 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Executes all relevant searches for the query.
         virtual void PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const;
 
-        // Gets a property already knowing that the manifest id is valid.
-        virtual std::optional<std::string> GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const;
-
         // Gets the one to many table schema to use.
         virtual OneToManyTableSchema GetOneToManyTableSchema() const;
+
+        // Executes search on a request that can be modified.
+        virtual SearchResult SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const;
+
+        // Prepares for packaging, optionally vacuuming the database.
+        virtual void PrepareForPackaging(SQLite::Connection& connection, bool vacuum);
 
         // Force the database to shrink the file size.
         // This *must* be done outside of an active transaction.
         void Vacuum(const SQLite::Connection& connection);
+
+        // If before PrepareForPackaging is called, this should find the internal interface schema version and create the object.
+        // If after PrepareForPackaging is called, this should not find the internal interface schema version and allow the code to fall through.
+        // requireInternalInterface should be set to true for modifying functions.
+        void EnsureInternalInterface(const SQLite::Connection& connection, bool requireInternalInterface = false) const;
+
+        // If EnsureInternalInterface has been called.
+        mutable bool m_internalInterfaceChecked = false;
+
+        // Interface to the data before PrepareForPackaging is called.
+        mutable std::unique_ptr<Schema::ISQLiteIndex> m_internalInterface;
+
+        // The name normalization utility
+        Utility::NameNormalizer m_normalizer;
     };
 }
