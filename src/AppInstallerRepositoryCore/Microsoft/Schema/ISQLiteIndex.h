@@ -126,4 +126,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
     // Creates the ISQLiteIndex interface object for the given version.
     std::unique_ptr<Schema::ISQLiteIndex> CreateISQLiteIndex(const SQLite::Version& version);
+
+    // For a given match type, gets the set of match types that are more specific subsets of it.
+    std::vector<MatchType> GetDefaultMatchTypeOrder(MatchType type);
 }

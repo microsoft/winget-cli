@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <winget/SQLiteMetadataTable.h>
+#include "Microsoft/Schema/1_7/Interface.h"
 #include "Microsoft/Schema/2_0/Interface.h"
 
 #include "Microsoft/Schema/2_0/PackagesTable.h"
@@ -14,8 +15,60 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
-    namespace anonymous
+    namespace anon
     {
+        // Folds the values of the fields that are stored folded.
+        void FoldPackageMatchFilters(std::vector<PackageMatchFilter>& filters)
+        {
+            for (auto& filter : filters)
+            {
+                if ((filter.Field == PackageMatchField::PackageFamilyName || filter.Field == PackageMatchField::ProductCode || filter.Field == PackageMatchField::UpgradeCode) &&
+                    filter.Type == MatchType::Exact)
+                {
+                    filter.Value = Utility::FoldCase(filter.Value);
+                }
+            }
+        }
+
+        // Update NormalizedNameAndPublisher with normalization and folding
+        // Returns true if the normalized name contains normalization field of fieldsToInclude
+        bool UpdateNormalizedNameAndPublisher(
+            PackageMatchFilter& filter,
+            const Utility::NameNormalizer& normalizer,
+            Utility::NormalizationField fieldsToInclude)
+        {
+            Utility::NormalizedName normalized = normalizer.Normalize(Utility::FoldCase(filter.Value), Utility::FoldCase(filter.Additional.value()));
+            filter.Value = normalized.GetNormalizedName(fieldsToInclude);
+            filter.Additional = normalized.Publisher();
+            return WI_AreAllFlagsSet(normalized.GetNormalizedFields(), fieldsToInclude);
+        }
+
+        bool UpdatePackageMatchFilters(
+            std::vector<PackageMatchFilter>& filters,
+            const Utility::NameNormalizer& normalizer,
+            Utility::NormalizationField normalizedNameFieldsToFilter = Utility::NormalizationField::None)
+        {
+            bool normalizedNameFieldsFound = false;
+            for (auto itr = filters.begin(); itr != filters.end();)
+            {
+                if (itr->Field == PackageMatchField::NormalizedNameAndPublisher && itr->Type == MatchType::Exact)
+                {
+                    if (!UpdateNormalizedNameAndPublisher(*itr, normalizer, normalizedNameFieldsToFilter))
+                    {
+                        // If not matched, this package match filter will be removed.
+                        // For example, if caller is trying to search with arch info only, values without arch will be removed from search.
+                        itr = filters.erase(itr);
+                        continue;
+                    }
+
+                    normalizedNameFieldsFound = true;
+                }
+
+                ++itr;
+            }
+
+            return normalizedNameFieldsFound;
+        }
     }
 
     Interface::Interface(Utility::NormalizationVersion normVersion) : m_normalizer(normVersion)
@@ -29,14 +82,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     void Interface::CreateTables(SQLite::Connection& connection, CreateOptions options)
     {
-        m_internalInterface = CreateISQLiteIndex(SQLite::Version::LatestForMajor(1));
+        m_internalInterface = CreateInternalInterface();
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createtables_v2_0");
-
-        // Store the internal schema version in the metadata
-        SQLite::Version internalVersion = m_internalInterface->GetVersion();
-        SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_InternalMajorVersion, static_cast<int>(internalVersion.MajorVersion));
-        SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_InternalMinorVersion, static_cast<int>(internalVersion.MinorVersion));
 
         // We only create the internal tables at this point, the actual 2.0 tables are created in PrepareForPackaging
         m_internalInterface->CreateTables(connection, options);
@@ -97,7 +145,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         AICLI_CHECK_CONSISTENCY(TagsTable::CheckConsistency(connection, log));
         AICLI_CHECK_CONSISTENCY(CommandsTable::CheckConsistency(connection, log));
 
-        // TODO: Check the *5* new-style 1:N tables as well
+        AICLI_CHECK_CONSISTENCY(PackageFamilyNameTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(ProductCodeTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(NormalizedPackageNameTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(NormalizedPackagePublisherTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(UpgradeCodeTable::CheckConsistency(connection, log));
 
 #undef AICLI_CHECK_CONSISTENCY
 
@@ -113,114 +165,54 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             return m_internalInterface->Search(connection, request);
         }
 
-        // TODO: Move to SearchInternal and bring in 1.1 - 1.7 search request updating
-
-        if (request.IsForEverything())
-        {
-            std::vector<SQLite::rowid_t> ids = PackagesTable::GetAllRowIds(connection, request.MaximumResults);
-
-            SearchResult result;
-            for (SQLite::rowid_t id : ids)
-            {
-                result.Matches.emplace_back(std::make_pair(id, PackageMatchFilter(PackageMatchField::Id, MatchType::Wildcard)));
-            }
-
-            result.Truncated = (request.MaximumResults && PackagesTable::GetCount(connection) > request.MaximumResults);
-
-            return result;
-        }
-
-        // First phase, create the search results table and populate it with the initial results.
-        // If the Query is provided, we search across many fields and put results in together.
-        // If Inclusions has fields, we add these to the data.
-        // If neither is defined, we take the first filter and use it as the initial results search.
-        std::unique_ptr<SearchResultsTable> resultsTable = CreateSearchResultsTable(connection);
-        bool inclusionsAttempted = false;
-
-        if (request.Query)
-        {
-            // Perform searches across multiple tables to populate the initial results.
-            PerformQuerySearch(*resultsTable.get(), request.Query.value());
-
-            inclusionsAttempted = true;
-        }
-
-        if (!request.Inclusions.empty())
-        {
-            for (auto include : request.Inclusions)
-            {
-                for (MatchType match : GetMatchTypeOrder(include.Type))
-                {
-                    include.Type = match;
-                    resultsTable->SearchOnField(include);
-                }
-            }
-
-            inclusionsAttempted = true;
-        }
-
-        size_t filterIndex = 0;
-        if (!inclusionsAttempted)
-        {
-            THROW_HR_IF(E_UNEXPECTED, request.Filters.empty());
-
-            // Perform search for just the field matching the first filter
-            PackageMatchFilter filter = request.Filters[0];
-
-            for (MatchType match : GetMatchTypeOrder(filter.Type))
-            {
-                filter.Type = match;
-                resultsTable->SearchOnField(filter);
-            }
-
-            // Skip the filter as we already know everything matches
-            filterIndex = 1;
-        }
-
-        // Remove any duplicate manifest entries
-        resultsTable->RemoveDuplicateManifestRows();
-
-        // Second phase, for remaining filters, flag matching search results, then remove unflagged values.
-        for (size_t i = filterIndex; i < request.Filters.size(); ++i)
-        {
-            PackageMatchFilter filter = request.Filters[i];
-
-            resultsTable->PrepareToFilter();
-
-            for (MatchType match : GetMatchTypeOrder(filter.Type))
-            {
-                filter.Type = match;
-                resultsTable->FilterOnField(filter);
-            }
-
-            resultsTable->CompleteFilter();
-        }
-
-        return resultsTable->GetSearchResults(request.MaximumResults);
+        SearchRequest requestCopy = request;
+        return SearchInternal(connection, requestCopy);
     }
 
     std::optional<std::string> Interface::GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
     {
         switch (property)
         {
-        case AppInstaller::Repository::PackageVersionProperty::Id:
-            return ManifestTable::GetValueById<IdTable>(connection, manifestId);
-        case AppInstaller::Repository::PackageVersionProperty::Name:
-            return ManifestTable::GetValueById<NameTable>(connection, manifestId);
-        case AppInstaller::Repository::PackageVersionProperty::Version:
-            return ManifestTable::GetValueById<VersionTable>(connection, manifestId);
-        case AppInstaller::Repository::PackageVersionProperty::Channel:
+        case PackageVersionProperty::Id:
+            return PackagesTable::GetValueById<PackagesTable::IdColumn>(connection, manifestId);
+        case PackageVersionProperty::Name:
+            return PackagesTable::GetValueById<PackagesTable::NameColumn>(connection, manifestId);
+        case PackageVersionProperty::Version:
+            return PackagesTable::GetValueById<PackagesTable::LatestVersionColumn>(connection, manifestId);
+        case PackageVersionProperty::Channel:
             return "";
-            // TODO: Add newer properties
+        case PackageVersionProperty::ManifestSHA256Hash:
+        {
+            std::optional<SQLite::blob_t> hash = PackagesTable::GetValueById<PackagesTable::HashColumn>(connection, manifestId);
+            return (!hash || hash->empty()) ? std::optional<std::string>{} : Utility::SHA256::ConvertToString(hash.value());
+        }
+        case PackageVersionProperty::ArpMinVersion:
+            return PackagesTable::GetValueById<PackagesTable::ARPMinVersionColumn>(connection, manifestId);
+        case PackageVersionProperty::ArpMaxVersion:
+            return PackagesTable::GetValueById<PackagesTable::ARPMaxVersionColumn>(connection, manifestId);
         default:
             return {};
         }
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection&, SQLite::rowid_t, PackageVersionMultiProperty) const
+    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
     {
-        // TODO: Implement newer multi-properties
-        return {};
+        switch (property)
+        {
+        case PackageVersionMultiProperty::PackageFamilyName:
+            return PackageFamilyNameTable::GetValuesByManifestId(connection, manifestId);
+        case PackageVersionMultiProperty::ProductCode:
+            return ProductCodeTable::GetValuesByManifestId(connection, manifestId);
+            // These values are not right, as they are normalized.  But they are good enough for now and all we have.
+        case PackageVersionMultiProperty::Name:
+            return NormalizedPackageNameTable::GetValuesByManifestId(connection, manifestId);
+        case PackageVersionMultiProperty::Publisher:
+            return NormalizedPackagePublisherTable::GetValuesByManifestId(connection, manifestId);
+        case PackageVersionMultiProperty::UpgradeCode:
+            return UpgradeCodeTable::GetValuesByManifestId(connection, manifestId);
+        default:
+            return {};
+        }
     }
 
     std::optional<SQLite::rowid_t> Interface::GetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) const
@@ -302,36 +294,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         return std::make_unique<SearchResultsTable>(connection);
     }
 
-    std::vector<MatchType> Interface::GetMatchTypeOrder(MatchType type) const
-    {
-        // TODO: Move to shared implementation at least for this default set
-        switch (type)
-        {
-        case MatchType::Exact:
-            return { MatchType::Exact };
-        case MatchType::CaseInsensitive:
-            return { MatchType::CaseInsensitive };
-        case MatchType::StartsWith:
-            return { MatchType::CaseInsensitive, MatchType::StartsWith };
-        case MatchType::Substring:
-            return { MatchType::CaseInsensitive, MatchType::Substring };
-        case MatchType::Wildcard:
-            return { MatchType::Wildcard };
-        case MatchType::Fuzzy:
-            return { MatchType::CaseInsensitive, MatchType::Fuzzy };
-        case MatchType::FuzzySubstring:
-            return { MatchType::CaseInsensitive, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
-    }
-
     void Interface::PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const
     {
-        // Arbitrary values to create a reusable filter with the given value.
-        PackageMatchFilter filter(PackageMatchField::Id, MatchType::Exact, query.Value);
+        // First, do an exact match search for the folded system reference strings
+        // We do this first because it is exact, and likely won't match anything else if it matches this.
+        PackageMatchFilter filter(PackageMatchField::Unknown, MatchType::Exact, Utility::FoldCase(query.Value));
 
-        for (MatchType match : GetMatchTypeOrder(query.Type))
+        for (PackageMatchField field : { PackageMatchField::PackageFamilyName, PackageMatchField::ProductCode, PackageMatchField::UpgradeCode })
+        {
+            filter.Field = field;
+            resultsTable.SearchOnField(filter);
+        }
+
+        // Now search on the unfolded value
+        filter.Value = query.Value;
+
+        for (MatchType match : GetDefaultMatchTypeOrder(query.Type))
         {
             filter.Type = match;
 
@@ -350,7 +328,147 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     ISQLiteIndex::SearchResult Interface::SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const
     {
-        // TODO: Copy search and any modifications 1.1-1.7 here
+        anon::FoldPackageMatchFilters(request.Inclusions);
+        anon::FoldPackageMatchFilters(request.Filters);
+
+        if (request.Purpose == SearchPurpose::CorrelationToInstalled)
+        {
+            // Correlate from available package to installed package
+            // For available package to installed package mapping, only one try is needed.
+            // For example, if ARP DisplayName contains arch, then the installed package's ARP DisplayName should also include arch.
+            auto candidateInclusionsWithArch = request.Inclusions;
+            if (anon::UpdatePackageMatchFilters(candidateInclusionsWithArch, m_normalizer, Utility::NormalizationField::Architecture))
+            {
+                // If DisplayNames contain arch, only use Inclusions with arch for search
+                request.Inclusions = candidateInclusionsWithArch;
+            }
+            else
+            {
+                // Otherwise, just update the Inclusions with normalization
+                anon::UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
+            }
+
+            return BasicSearchInternal(connection, request);
+        }
+        else if (request.Purpose == SearchPurpose::CorrelationToAvailable)
+        {
+            // For installed package to available package correlation,
+            // try the search with NormalizedName with Arch first, if not found, try with all values.
+            // This can be extended in the future for more granular search requests.
+            std::vector<SearchRequest> candidateSearches;
+            auto candidateSearchWithArch = request;
+            if (anon::UpdatePackageMatchFilters(candidateSearchWithArch.Inclusions, m_normalizer, Utility::NormalizationField::Architecture))
+            {
+                candidateSearches.emplace_back(std::move(candidateSearchWithArch));
+            }
+            anon::UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
+            candidateSearches.emplace_back(request);
+
+            SearchResult result;
+            for (auto& candidateSearch : candidateSearches)
+            {
+                result = BasicSearchInternal(connection, candidateSearch);
+                if (!result.Matches.empty())
+                {
+                    break;
+                }
+            }
+
+            return result;
+        }
+        else
+        {
+            anon::UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
+            anon::UpdatePackageMatchFilters(request.Filters, m_normalizer);
+
+            return BasicSearchInternal(connection, request);
+        }
+    }
+
+    ISQLiteIndex::SearchResult Interface::BasicSearchInternal(const SQLite::Connection& connection, const SearchRequest& request) const
+    {
+        if (request.IsForEverything())
+        {
+            std::vector<SQLite::rowid_t> ids = PackagesTable::GetAllRowIds(connection, request.MaximumResults);
+
+            SearchResult result;
+            for (SQLite::rowid_t id : ids)
+            {
+                result.Matches.emplace_back(std::make_pair(id, PackageMatchFilter(PackageMatchField::Id, MatchType::Wildcard)));
+            }
+
+            result.Truncated = (request.MaximumResults && PackagesTable::GetCount(connection) > request.MaximumResults);
+
+            return result;
+        }
+
+        // First phase, create the search results table and populate it with the initial results.
+        // If the Query is provided, we search across many fields and put results in together.
+        // If Inclusions has fields, we add these to the data.
+        // If neither is defined, we take the first filter and use it as the initial results search.
+        std::unique_ptr<SearchResultsTable> resultsTable = CreateSearchResultsTable(connection);
+        bool inclusionsAttempted = false;
+
+        if (request.Query)
+        {
+            // Perform searches across multiple tables to populate the initial results.
+            PerformQuerySearch(*resultsTable.get(), request.Query.value());
+
+            inclusionsAttempted = true;
+        }
+
+        if (!request.Inclusions.empty())
+        {
+            for (auto include : request.Inclusions)
+            {
+                for (MatchType match : GetDefaultMatchTypeOrder(include.Type))
+                {
+                    include.Type = match;
+                    resultsTable->SearchOnField(include);
+                }
+            }
+
+            inclusionsAttempted = true;
+        }
+
+        size_t filterIndex = 0;
+        if (!inclusionsAttempted)
+        {
+            THROW_HR_IF(E_UNEXPECTED, request.Filters.empty());
+
+            // Perform search for just the field matching the first filter
+            PackageMatchFilter filter = request.Filters[0];
+
+            for (MatchType match : GetDefaultMatchTypeOrder(filter.Type))
+            {
+                filter.Type = match;
+                resultsTable->SearchOnField(filter);
+            }
+
+            // Skip the filter as we already know everything matches
+            filterIndex = 1;
+        }
+
+        // Remove any duplicate manifest entries
+        resultsTable->RemoveDuplicateManifestRows();
+
+        // Second phase, for remaining filters, flag matching search results, then remove unflagged values.
+        for (size_t i = filterIndex; i < request.Filters.size(); ++i)
+        {
+            PackageMatchFilter filter = request.Filters[i];
+
+            resultsTable->PrepareToFilter();
+
+            for (MatchType match : GetDefaultMatchTypeOrder(filter.Type))
+            {
+                filter.Type = match;
+                resultsTable->FilterOnField(filter);
+            }
+
+            resultsTable->CompleteFilter();
+        }
+
+        return resultsTable->GetSearchResults(request.MaximumResults);
     }
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
@@ -386,17 +504,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     {
         if (!m_internalInterfaceChecked)
         {
-            std::optional<int> major = SQLite::MetadataTable::TryGetNamedValue<int>(connection, s_MetadataValueName_InternalMajorVersion);
-            std::optional<int> minor = SQLite::MetadataTable::TryGetNamedValue<int>(connection, s_MetadataValueName_InternalMinorVersion);
-
-            if (major && minor)
+            if (!PackagesTable::Exists(connection))
             {
-                m_internalInterface = CreateISQLiteIndex(SQLite::Version{ static_cast<uint32_t>(major.value()), static_cast<uint32_t>(minor.value()) });
+                m_internalInterface = CreateInternalInterface();
             }
 
             m_internalInterfaceChecked = true;
         }
 
         THROW_HR_IF(E_NOT_VALID_STATE, requireInternalInterface && !m_internalInterface);
+    }
+
+    std::unique_ptr<Schema::ISQLiteIndex> Interface::CreateInternalInterface() const
+    {
+        return std::make_unique<V1_7::Interface>();
     }
 }

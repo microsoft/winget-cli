@@ -12,10 +12,6 @@ using namespace std::string_view_literals;
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
-    // Version 2.0
-    static constexpr std::string_view s_MetadataValueName_InternalMajorVersion = "internalMajorVersion"sv;
-    static constexpr std::string_view s_MetadataValueName_InternalMinorVersion = "internalMinorVersion"sv;
-
     // Interface to this schema version exposed through ISQLiteIndex.
     struct Interface : public ISQLiteIndex
     {
@@ -52,9 +48,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Creates the search results table.
         virtual std::unique_ptr<SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const;
 
-        // Gets the ordering of matches to execute, with more specific matches coming first.
-        virtual std::vector<MatchType> GetMatchTypeOrder(MatchType type) const;
-
         // Executes all relevant searches for the query.
         virtual void PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const;
 
@@ -63,6 +56,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         // Executes search on a request that can be modified.
         virtual SearchResult SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const;
+
+        // Executes search on the given request.
+        SearchResult BasicSearchInternal(const SQLite::Connection& connection, const SearchRequest& request) const;
 
         // Prepares for packaging, optionally vacuuming the database.
         virtual void PrepareForPackaging(SQLite::Connection& connection, bool vacuum);
@@ -75,6 +71,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // If after PrepareForPackaging is called, this should not find the internal interface schema version and allow the code to fall through.
         // requireInternalInterface should be set to true for modifying functions.
         void EnsureInternalInterface(const SQLite::Connection& connection, bool requireInternalInterface = false) const;
+
+        // Allows derived types to move to a different internal schema version.
+        virtual std::unique_ptr<Schema::ISQLiteIndex> CreateInternalInterface() const;
 
         // If EnsureInternalInterface has been called.
         mutable bool m_internalInterfaceChecked = false;

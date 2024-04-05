@@ -47,9 +47,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Creates the search results table.
         virtual std::unique_ptr<SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const;
 
-        // Gets the ordering of matches to execute, with more specific matches coming first.
-        virtual std::vector<MatchType> GetMatchTypeOrder(MatchType type) const;
-
         // Executes all relevant searches for the query.
         virtual void PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const;
 

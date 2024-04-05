@@ -465,7 +465,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             for (auto include : request.Inclusions)
             {
-                for (MatchType match : GetMatchTypeOrder(include.Type))
+                for (MatchType match : GetDefaultMatchTypeOrder(include.Type))
                 {
                     include.Type = match;
                     resultsTable->SearchOnField(include);
@@ -483,7 +483,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             // Perform search for just the field matching the first filter
             PackageMatchFilter filter = request.Filters[0];
 
-            for (MatchType match : GetMatchTypeOrder(filter.Type))
+            for (MatchType match : GetDefaultMatchTypeOrder(filter.Type))
             {
                 filter.Type = match;
                 resultsTable->SearchOnField(filter);
@@ -503,7 +503,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             resultsTable->PrepareToFilter();
 
-            for (MatchType match : GetMatchTypeOrder(filter.Type))
+            for (MatchType match : GetDefaultMatchTypeOrder(filter.Type))
             {
                 filter.Type = match;
                 resultsTable->FilterOnField(filter);
@@ -583,35 +583,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return std::make_unique<SearchResultsTable>(connection);
     }
 
-    std::vector<MatchType> Interface::GetMatchTypeOrder(MatchType type) const
-    {
-        switch (type)
-        {
-        case MatchType::Exact:
-            return { MatchType::Exact };
-        case MatchType::CaseInsensitive:
-            return { MatchType::CaseInsensitive };
-        case MatchType::StartsWith:
-            return { MatchType::CaseInsensitive, MatchType::StartsWith };
-        case MatchType::Substring:
-            return { MatchType::CaseInsensitive, MatchType::Substring };
-        case MatchType::Wildcard:
-            return { MatchType::Wildcard };
-        case MatchType::Fuzzy:
-            return { MatchType::CaseInsensitive, MatchType::Fuzzy };
-        case MatchType::FuzzySubstring:
-            return { MatchType::CaseInsensitive, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
-    }
-
     void Interface::PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const
     {
         // Arbitrary values to create a reusable filter with the given value.
         PackageMatchFilter filter(PackageMatchField::Id, MatchType::Exact, query.Value);
 
-        for (MatchType match : GetMatchTypeOrder(query.Type))
+        for (MatchType match : GetDefaultMatchTypeOrder(query.Type))
         {
             filter.Type = match;
 

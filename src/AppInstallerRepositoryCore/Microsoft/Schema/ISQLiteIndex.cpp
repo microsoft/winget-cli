@@ -52,4 +52,27 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // We do not have the capacity to operate on this schema version
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
+
+    std::vector<MatchType> GetDefaultMatchTypeOrder(MatchType type)
+    {
+        switch (type)
+        {
+        case MatchType::Exact:
+            return { MatchType::Exact };
+        case MatchType::CaseInsensitive:
+            return { MatchType::CaseInsensitive };
+        case MatchType::StartsWith:
+            return { MatchType::CaseInsensitive, MatchType::StartsWith };
+        case MatchType::Substring:
+            return { MatchType::CaseInsensitive, MatchType::Substring };
+        case MatchType::Wildcard:
+            return { MatchType::Wildcard };
+        case MatchType::Fuzzy:
+            return { MatchType::CaseInsensitive, MatchType::Fuzzy };
+        case MatchType::FuzzySubstring:
+            return { MatchType::CaseInsensitive, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+    }
 }

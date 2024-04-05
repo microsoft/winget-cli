@@ -8,18 +8,18 @@
 #include <vector>
 
 
-namespace AppInstaller::Repository::Microsoft::Schema::V1_0
+namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
     namespace details
     {
         // Creates the table.
-        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool useNamedIndices);
+        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName);
 
         // Selects the value from the table, returning the rowid if it exists.
         std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike = false);
 
         // Selects the value from the table, returning the rowid if it exists.
-        std::optional<std::string> OneToOneTableSelectValueById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id);
+        std::optional<std::string> OneToOneTableSelectValueById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t rowid);
 
         // Gets all row ids from the table.
         std::vector<SQLite::rowid_t> OneToOneTableGetAllRowIds(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, size_t limit);
@@ -34,9 +34,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Determines if the table is empty.
         bool OneToOneTableIsEmpty(SQLite::Connection& connection, std::string_view tableName);
-
-        // Removes the given row by its rowid if it is no longer referenced.
-        void OneToOneTableDeleteById(SQLite::Connection& connection, std::string_view tableName, SQLite::rowid_t id);
 
         // Checks the consistency of the table.
         bool OneToOneTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log);
@@ -55,13 +52,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Creates the table with named indices.
         static void Create(SQLite::Connection& connection)
         {
-            details::CreateOneToOneTable(connection, TableInfo::TableName(), TableInfo::ValueName(), true);
-        }
-
-        // Creates the table with standard primary keys.
-        static void Create_deprecated(SQLite::Connection& connection)
-        {
-            details::CreateOneToOneTable(connection, TableInfo::TableName(), TableInfo::ValueName(), false);
+            details::CreateOneToOneTable(connection, TableInfo::TableName(), TableInfo::ValueName());
         }
 
         // The name of the table.
@@ -76,12 +67,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return TableInfo::ValueName();
         }
 
-        // Value indicating type.
-        static constexpr bool IsOneToOne()
-        {
-            return true;
-        }
-
         // Selects the value from the table, returning the rowid if it exists.
         static std::optional<SQLite::rowid_t> SelectIdByValue(const SQLite::Connection& connection, std::string_view value, bool useLike = false)
         {
@@ -89,9 +74,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         // Selects the value from the table, returning it if it exists.
-        static std::optional<value_t> SelectValueById(SQLite::Connection& connection, id_t id)
+        static std::optional<value_t> SelectValueById(SQLite::Connection& connection, id_t rowid)
         {
-            return details::OneToOneTableSelectValueById(connection, TableInfo::TableName(), TableInfo::ValueName(), id);
+            return details::OneToOneTableSelectValueById(connection, TableInfo::TableName(), TableInfo::ValueName(), rowid);
         }
 
         // Gets all row ids from the table.
@@ -104,12 +89,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static SQLite::rowid_t EnsureExists(SQLite::Connection& connection, std::string_view value, bool overwriteLikeMatch = false)
         {
             return details::OneToOneTableEnsureExists(connection, TableInfo::TableName(), TableInfo::ValueName(), value, overwriteLikeMatch);
-        }
-
-        // Removes the given row by its rowid if it is no longer referenced.
-        static void DeleteById(SQLite::Connection& connection, SQLite::rowid_t id)
-        {
-            return details::OneToOneTableDeleteById(connection, TableInfo::TableName(), id);
         }
 
         // Removes data that is no longer needed for an index that is to be published.

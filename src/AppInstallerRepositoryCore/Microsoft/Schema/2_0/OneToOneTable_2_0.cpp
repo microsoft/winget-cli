@@ -1,53 +1,37 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Microsoft/Schema/1_0/OneToOneTable.h"
-#include "Microsoft/Schema/1_0/ManifestTable.h"
+#include "Microsoft/Schema/2_0/OneToOneTable.h"
 #include <winget/SQLiteStatementBuilder.h>
 
 
-namespace AppInstaller::Repository::Microsoft::Schema::V1_0
+namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
     namespace details
     {
         using namespace std::string_view_literals;
         static constexpr std::string_view s_OneToOneTable_IndexSuffix = "_pkindex"sv;
 
-        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool useNamedIndices)
+        void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName)
         {
             using namespace SQLite::Builder;
 
-            // Starting in V1.1, all code should be going this route of creating named indices rather than using primary or unique keys on columns.
-            // The resulting database will function the same, but give us control to drop the indices to reduce space.
-            if (useNamedIndices)
-            {
-                SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_create_v1_1");
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_create_v2_0");
 
-                StatementBuilder createTableBuilder;
+            StatementBuilder createTableBuilder;
 
-                createTableBuilder.CreateTable(tableName).Columns({
-                    IntegerPrimaryKey(),
-                    ColumnBuilder(valueName, Type::Text).NotNull()
-                    });
+            createTableBuilder.CreateTable(tableName).Columns({
+                IntegerPrimaryKey(),
+                ColumnBuilder(valueName, Type::Text).NotNull()
+                });
 
-                createTableBuilder.Execute(connection);
+            createTableBuilder.Execute(connection);
 
-                StatementBuilder indexBuilder;
-                indexBuilder.CreateUniqueIndex({ tableName, s_OneToOneTable_IndexSuffix }).On(tableName).Columns(valueName);
-                indexBuilder.Execute(connection);
+            StatementBuilder indexBuilder;
+            indexBuilder.CreateUniqueIndex({ tableName, s_OneToOneTable_IndexSuffix }).On(tableName).Columns(valueName);
+            indexBuilder.Execute(connection);
 
-                savepoint.Commit();
-            }
-            else
-            {
-                StatementBuilder createTableBuilder;
-
-                createTableBuilder.CreateTable(tableName).Columns({
-                    ColumnBuilder(valueName, Type::Text).NotNull().PrimaryKey()
-                    });
-
-                createTableBuilder.Execute(connection);
-            }
+            savepoint.Commit();
         }
 
         std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike)
@@ -76,10 +60,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
         }
 
-        std::optional<std::string> OneToOneTableSelectValueById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id)
+        std::optional<std::string> OneToOneTableSelectValueById(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t rowid)
         {
             SQLite::Builder::StatementBuilder selectBuilder;
-            selectBuilder.Select(valueName).From(tableName).Where(SQLite::RowIDName).Equals(id);
+            selectBuilder.Select(valueName).From(tableName).Where(SQLite::RowIDName).Equals(rowid);
 
             SQLite::Statement select = selectBuilder.Prepare(connection);
 
@@ -167,14 +151,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         bool OneToOneTableIsEmpty(SQLite::Connection& connection, std::string_view tableName)
         {
             return (OneToOneTableGetCount(connection, tableName) == 0);
-        }
-
-        void OneToOneTableDeleteById(SQLite::Connection& connection, std::string_view tableName, SQLite::rowid_t id)
-        {
-            SQLite::Builder::StatementBuilder builder;
-            builder.DeleteFrom(tableName).Where(SQLite::RowIDName).Equals(id);
-
-            builder.Execute(connection);
         }
 
         bool OneToOneTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log)

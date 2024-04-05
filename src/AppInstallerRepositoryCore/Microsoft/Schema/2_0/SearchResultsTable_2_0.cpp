@@ -9,7 +9,7 @@
 #include "Microsoft/Schema/2_0/CommandsTable.h"
 
 
-namespace AppInstaller::Repository::Microsoft::Schema::V1_0
+namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
     namespace
     {
