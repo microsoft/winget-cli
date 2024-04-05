@@ -66,4 +66,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         emitter << EndMap;
     }
+
+    void ConfigurationSetSerializer::WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const std::vector<ConfigurationUnit>& units)
+    {
+        emitter << BeginSeq;
+
+        for (auto unit : units)
+        {
+            // Resource
+            emitter << BeginMap;
+            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Resource) << Value << AppInstaller::Utility::ConvertToUTF8(unit.Type());
+
+            // Directives
+            const auto& metadata = unit.Metadata();
+            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Directives);
+            WriteYamlValueSet(emitter, metadata);
+
+            // Settings
+            auto settings = unit.Settings();
+            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Settings);
+            WriteYamlValueSet(emitter, settings);
+
+            emitter << EndMap;
+        }
+
+        emitter << EndSeq;
+    }
 }

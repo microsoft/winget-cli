@@ -26,5 +26,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationSetSerializer() = default;
 
         void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet);
+
+        void WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const std::vector<ConfigurationUnit>& units);
     };
 }

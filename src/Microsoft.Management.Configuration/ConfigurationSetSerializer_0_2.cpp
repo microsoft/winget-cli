@@ -12,6 +12,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     hstring ConfigurationSetSerializer_0_2::Serialize(ConfigurationSet* configurationSet)
     {
+        std::vector<ConfigurationUnit> assertions;
+        std::vector<ConfigurationUnit> resources;
+
+        for (auto unit : configurationSet->Units())
+        {
+            if (unit.Intent() == ConfigurationUnitIntent::Assert)
+            {
+                assertions.emplace_back(unit);
+            }
+            else if (unit.Intent() == ConfigurationUnitIntent::Apply)
+            {
+                resources.emplace_back(unit);
+            }
+        }
+
         Emitter emitter;
 
         emitter << BeginMap;
@@ -20,28 +35,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         emitter << BeginMap;
         emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::ConfigurationVersion) << Value << AppInstaller::Utility::ConvertToUTF8(configurationSet->SchemaVersion());
 
-        emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Resources);
-        emitter << BeginSeq;
-
-        for (auto unit : configurationSet->Units())
+        if (!assertions.empty())
         {
-            emitter << BeginMap;
-            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Resource) << Value << AppInstaller::Utility::ConvertToUTF8(unit.Type());
-
-            // Directives
-            const auto& metadata = unit.Metadata();
-            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Directives);
-            WriteYamlValueSet(emitter, metadata);
-
-            // Settings
-            auto settings = unit.Settings();
-            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Settings);
-            WriteYamlValueSet(emitter, settings);
-
-            emitter << EndMap;
+            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Assertions);
+            WriteYamlConfigurationUnits(emitter, assertions);
         }
 
-        emitter << EndSeq;
+        if (!resources.empty())
+        {
+            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Resources);
+            WriteYamlConfigurationUnits(emitter, resources);
+        }
 
         emitter << EndMap;
         emitter << EndMap;
