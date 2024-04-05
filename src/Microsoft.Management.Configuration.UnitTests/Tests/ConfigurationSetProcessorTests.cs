@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationSetProcessorTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -813,6 +813,116 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var importModuleException = Assert.Throws<ImportModuleException>(() => setProcessor.CreateUnitProcessor(unit));
             Assert.Equal(ErrorCodes.WinGetConfigUnitImportModuleAdmin, importModuleException.HResult);
+        }
+
+        /// <summary>
+        /// Test CreateUnitProcessor. Limit mode.
+        /// </summary>
+        [Fact]
+        public void CreateUnitProcessor_LimitMode()
+        {
+            string resourceName = "xResourceName";
+            string moduleName = "xModuleName";
+            Version version = new Version("1.0");
+
+            var processorEnvMock = new Mock<IProcessorEnvironment>();
+            processorEnvMock.Setup(
+                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                .Returns(new DscResourceInfoInternal(resourceName, moduleName, version))
+                .Verifiable();
+
+            var limitSet = new ConfigurationSet();
+            var limitUnit = new ConfigurationUnit
+            {
+                Type = resourceName,
+                Intent = ConfigurationUnitIntent.Apply,
+            };
+            limitUnit.Metadata.Add("module", moduleName);
+            limitUnit.Metadata.Add("version", version.ToString());
+            limitSet.Units = new List<ConfigurationUnit> { limitUnit };
+
+            var configurationSetProcessor = new ConfigurationSetProcessor(
+                processorEnvMock.Object,
+                limitSet,
+                true);
+
+            // Calling with unit different from limit set should throw.
+            var unitDifferentContent = new ConfigurationUnit
+            {
+                Type = "differentResourceName",
+                Intent = ConfigurationUnitIntent.Apply,
+            };
+
+            Assert.Throws<System.InvalidOperationException>(() => configurationSetProcessor.CreateUnitProcessor(unitDifferentContent));
+            Assert.Throws<System.InvalidOperationException>(() => configurationSetProcessor.GetUnitProcessorDetails(unitDifferentContent, ConfigurationUnitDetailFlags.Load));
+
+            // Calling with unit matching limit set.
+            var unitProcessor = configurationSetProcessor.CreateUnitProcessor(limitUnit);
+            Assert.NotNull(unitProcessor);
+            Assert.Equal(limitUnit.Type, unitProcessor.Unit.Type);
+            var processorDetails = configurationSetProcessor.GetUnitProcessorDetails(limitUnit, ConfigurationUnitDetailFlags.Load);
+            Assert.NotNull(processorDetails);
+            Assert.Equal(moduleName, processorDetails.ModuleName);
+
+            // Calling CreateProcessor again should thow. Calling GetProcessorDetails multiple times is ok.
+            Assert.Throws<System.InvalidOperationException>(() => configurationSetProcessor.CreateUnitProcessor(limitUnit));
+            var processorDetails2 = configurationSetProcessor.GetUnitProcessorDetails(limitUnit, ConfigurationUnitDetailFlags.Load);
+            Assert.NotNull(processorDetails2);
+            Assert.Equal(moduleName, processorDetails2.ModuleName);
+        }
+
+        /// <summary>
+        /// Test CreateUnitProcessor. Limit mode. Duplicate units in limit set.
+        /// </summary>
+        [Fact]
+        public void CreateUnitProcessor_LimitMode_DuplicateUnits()
+        {
+            string resourceName = "xResourceName";
+            string moduleName = "xModuleName";
+            Version version = new Version("1.0");
+
+            var processorEnvMock = new Mock<IProcessorEnvironment>();
+            processorEnvMock.Setup(
+                    m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.Type == resourceName)))
+                .Returns(new DscResourceInfoInternal(resourceName, moduleName, version))
+                .Verifiable();
+
+            var limitSet = new ConfigurationSet();
+            var limitUnit = new ConfigurationUnit
+            {
+                Type = resourceName,
+                Intent = ConfigurationUnitIntent.Apply,
+            };
+            limitUnit.Metadata.Add("module", moduleName);
+            limitUnit.Metadata.Add("version", version.ToString());
+            limitSet.Units = new List<ConfigurationUnit> { limitUnit, limitUnit };
+
+            var configurationSetProcessor = new ConfigurationSetProcessor(
+                processorEnvMock.Object,
+                limitSet,
+                true);
+
+            // Calling with unit different from limit set should throw.
+            var unitDifferentContent = new ConfigurationUnit
+            {
+                Type = "differentResourceName",
+                Intent = ConfigurationUnitIntent.Apply,
+            };
+
+            Assert.Throws<System.InvalidOperationException>(() => configurationSetProcessor.CreateUnitProcessor(unitDifferentContent));
+
+            // Calling with unit matching limit set.
+            var unitProcessor = configurationSetProcessor.CreateUnitProcessor(limitUnit);
+            Assert.NotNull(unitProcessor);
+            Assert.Equal(limitUnit.Type, unitProcessor.Unit.Type);
+
+            // Calling again should also not thow.
+            var unitProcessor2 = configurationSetProcessor.CreateUnitProcessor(limitUnit);
+            Assert.NotNull(unitProcessor2);
+            Assert.Equal(limitUnit.Type, unitProcessor2.Unit.Type);
+
+            // Calling third time should throw.
+            Assert.Throws<System.InvalidOperationException>(() => configurationSetProcessor.CreateUnitProcessor(limitUnit));
         }
 
         private ConfigurationUnit CreateConfigurationUnit()

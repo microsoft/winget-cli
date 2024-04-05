@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="Errors.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -7,7 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
     /// <summary>
-    /// Contains the error codes used by Microsoft.Management.Configuration
+    /// Contains the error codes used by Microsoft.Management.Configuration.
     /// </summary>
     internal static class Errors
     {
