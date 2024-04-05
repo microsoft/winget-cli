@@ -469,7 +469,7 @@ properties:
         }
 
         /// <summary>
-        /// Test that verifies that the configuration set can be serialized and reopened correctly.
+        /// Verifies that the configuration set (0.2) can be serialized and reopened correctly.
         /// </summary>
         [Fact]
         public void TestSet_Serialize_0_2()
@@ -481,6 +481,7 @@ properties:
   configurationVersion: 0.2
   assertions:
     - resource: FakeModule
+      id: TestId
       directives:
         description: FakeDescription
         allowPrerelease: true
@@ -491,6 +492,11 @@ properties:
         TestInt: 1234  
   resources:
     - resource: FakeModule2
+      id: TestId2
+      dependsOn:
+        - TestId
+        - dependency2
+        - dependency3
       directives:
         description: FakeDescription2
         SecurityContext: elevated
@@ -507,22 +513,27 @@ properties:
 
             string yamlOutput = this.ReadStream(stream);
 
-            ConfigurationProcessor processor2 = this.CreateConfigurationProcessorWithDiagnostics();
-            OpenConfigurationSetResult serializedSetResult = processor2.OpenConfigurationSet(this.CreateStream(yamlOutput));
+            // Reopen configuration set from serialized string and verify values.
+            OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
+            Assert.Null(serializedSetResult.ResultCode);
             ConfigurationSet set = serializedSetResult.Set;
+            Assert.NotNull(set);
 
             Assert.Equal("0.2", set.SchemaVersion);
             Assert.Equal(2, set.Units.Count);
 
             Assert.Equal("FakeModule", set.Units[0].Type);
             Assert.Equal(ConfigurationUnitIntent.Assert, set.Units[0].Intent);
-            this.VerifyValueSet(set.Units[0].Metadata, new("description", "FakeDescription"), new("allowPrerelease", true), new("SecurityContext", "elevated"));
-            this.VerifyValueSet(set.Units[0].Settings, new("TestString", "Hello"), new("TestBool", false), new("TestInt", 1234));
+            Assert.Equal("TestId", set.Units[0].Identifier);
+            this.VerifyValueSet(set.Units[0].Metadata, new ("description", "FakeDescription"), new ("allowPrerelease", true), new ("SecurityContext", "elevated"));
+            this.VerifyValueSet(set.Units[0].Settings, new ("TestString", "Hello"), new ("TestBool", false), new ("TestInt", 1234));
 
             Assert.Equal("FakeModule2", set.Units[1].Type);
             Assert.Equal(ConfigurationUnitIntent.Apply, set.Units[1].Intent);
-            this.VerifyValueSet(set.Units[1].Metadata, new("description", "FakeDescription2"), new("SecurityContext", "elevated"));
-            this.VerifyValueSet(set.Units[1].Settings, new("TestString", "Bye"), new("TestBool", true), new("TestInt", 4321));
+            Assert.Equal("TestId2", set.Units[1].Identifier);
+            this.VerifyStringArray(set.Units[1].Dependencies, "TestId", "dependency2", "dependency3");
+            this.VerifyValueSet(set.Units[1].Metadata, new ("description", "FakeDescription2"), new ("SecurityContext", "elevated"));
+            this.VerifyValueSet(set.Units[1].Settings, new ("TestString", "Bye"), new ("TestBool", true), new ("TestInt", 4321));
         }
 
         /// <summary>

@@ -71,11 +71,31 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         emitter << BeginSeq;
 
-        for (auto unit : units)
+        for (const auto& unit : units)
         {
             // Resource
             emitter << BeginMap;
             emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Resource) << Value << AppInstaller::Utility::ConvertToUTF8(unit.Type());
+
+            // Id
+            if (!unit.Identifier().empty())
+            {
+                emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Id) << Value << AppInstaller::Utility::ConvertToUTF8(unit.Identifier());
+            }
+
+            // Dependencies
+            if (unit.Dependencies().Size() > 0)
+            {
+                emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::DependsOn);
+                emitter << BeginSeq;
+
+                for (const auto& dependency : unit.Dependencies())
+                {
+                    emitter << AppInstaller::Utility::ConvertToUTF8(dependency);
+                }
+
+                emitter << EndSeq;
+            }
 
             // Directives
             const auto& metadata = unit.Metadata();
@@ -83,7 +103,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             WriteYamlValueSet(emitter, metadata);
 
             // Settings
-            auto settings = unit.Settings();
+            const auto& settings = unit.Settings();
             emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Settings);
             WriteYamlValueSet(emitter, settings);
 

@@ -46,7 +46,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 std::call_once(s_createUnitSetProcessorsOnce,
                     [&]()
                     {
-                        for (auto existingUnit : m_configurationSet.Units())
+                        for (const auto& existingUnit : m_configurationSet.Units())
                         {
                             Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(existingUnit);
 
@@ -120,9 +120,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             std::string SerializeSetProperties()
             {
                 Json::Value json{ Json::ValueType::objectValue };
-
-                auto path = m_configurationSet.Path();
-                json["path"] = winrt::to_string(path);
+                json["path"] = winrt::to_string(m_configurationSet.Path());
                 Json::StreamWriterBuilder writerBuilder;
                 writerBuilder.settings_["indentation"] = "\t";
                 return Json::writeString(writerBuilder, json);
@@ -178,8 +176,6 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // If we got here, the only option is that the current integrity level is not High.
                 if (integrityLevel == Security::IntegrityLevel::High)
                 {
-                    std::cout << SerializeSetProperties() << std::endl;
-                    std::cout << SerializeHighIntegrityLevelSet() << std::endl;
                     factory = CreateOutOfProcessFactory(true, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
                 }
                 else

@@ -94,7 +94,6 @@ namespace AppInstaller::CLI::Workflow
             if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ConfigureSelfElevation) &&
                 !Runtime::IsRunningAsAdmin())
             {
-                AICLI_LOG(Config, Verbose, << "Creating dynamic runtime factory.");
                 factory = ConfigurationRemoting::CreateDynamicRuntimeFactory();
                 // TODO: Implement SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties on dynamic factory
             }
