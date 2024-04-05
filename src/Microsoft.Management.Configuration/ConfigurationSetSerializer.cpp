@@ -62,6 +62,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             {
                 emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << property.GetInt64();
             }
+            else
+            {
+                throw E_NOTIMPL;
+            }
         }
 
         emitter << EndMap;

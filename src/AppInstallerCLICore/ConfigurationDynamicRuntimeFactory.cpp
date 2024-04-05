@@ -39,11 +39,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             // Creates a configuration unit processor for the given unit.
             IConfigurationUnitProcessor CreateUnitProcessor(const ConfigurationUnit& unit)
             {
-                static std::once_flag s_createUnitSetProcessorsOnce;
-
                 // Determine and create set processors for all required integrity levels.
                 // Doing this here avoids creating them if the only call is going to be for details (ex. `configure show`) 
-                std::call_once(s_createUnitSetProcessorsOnce,
+                std::call_once(m_createUnitSetProcessorsOnce,
                     [&]()
                     {
                         for (const auto& existingUnit : m_configurationSet.Units())
@@ -189,6 +187,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             Security::IntegrityLevel m_currentIntegrityLevel;
             ProcessorMap m_setProcessors;
             ConfigurationSet m_configurationSet;
+            std::once_flag m_createUnitSetProcessorsOnce;
         };
 
         // This is implemented completely in the packaged context for now, if we want to make it more configurable, we will probably want to move it to configuration and
