@@ -155,27 +155,20 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // Serialize high integrity set and return output string.
                 Streams::InMemoryRandomAccessStream memoryStream;
                 highIntegritySet.Serialize(memoryStream);
-                memoryStream.Seek(0);
 
-                Streams::DataReader dataReader(memoryStream);
-                dataReader.UnicodeEncoding(Streams::UnicodeEncoding::Utf8);
+                Streams::DataReader reader(memoryStream.GetInputStreamAt(0));
+                reader.UnicodeEncoding(Streams::UnicodeEncoding::Utf8);
+                reader.LoadAsync((uint32_t)memoryStream.Size());
 
-                winrt::hstring yamlResult;
-                uint32_t bytesRead = dataReader.LoadAsync(sizeof(uint32_t)).get();
+                winrt::hstring result;
+                uint32_t bytesToRead = reader.UnconsumedBufferLength();
 
-                if (bytesRead > 0)
+                if (bytesToRead > 0)
                 {
-                    // Get size of serialized yaml string.
-                    uint32_t yamlLength = dataReader.ReadUInt32();
-                    bytesRead = dataReader.LoadAsync(yamlLength).get();
-                    if (bytesRead > 0)
-                    {
-                        // Read yaml string.
-                        yamlResult = dataReader.ReadString(yamlLength);
-                    }
+                    result = reader.ReadString(bytesToRead);
                 }
 
-                return winrt::to_string(yamlResult);
+                return winrt::to_string(result);
             }
 
             ProcessorMap::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)

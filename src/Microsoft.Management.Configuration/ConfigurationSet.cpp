@@ -135,7 +135,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         Windows::Storage::Streams::DataWriter dataWriter{ stream };
         dataWriter.UnicodeEncoding(Windows::Storage::Streams::UnicodeEncoding::Utf8);
-        dataWriter.WriteUInt32(dataWriter.MeasureString(result));
         dataWriter.WriteString(result);
         dataWriter.StoreAsync().get();
         dataWriter.DetachStream();
