@@ -95,6 +95,40 @@ namespace AppInstaller::MSStore
 
             return result;
         }
+
+        enum class CheckExistingItemResult
+        {
+            None,
+            Restart,
+            Cancel,
+        };
+
+        CheckExistingItemResult CheckRestartOrCancelForPossibleExistingItems(const IVectorView<AppInstallItem>& installItems)
+        {
+            CheckExistingItemResult result = CheckExistingItemResult::None;
+
+            for (auto const& installItem : installItems)
+            {
+                const auto& status = installItem.GetCurrentStatus();
+                switch (status.InstallState())
+                {
+                case AppInstallState::Canceled:
+                case AppInstallState::Error:
+                    // For these states, always do a cancel;
+                    result = CheckExistingItemResult::Cancel;
+                    return result;
+                case AppInstallState::Paused:
+                case AppInstallState::PausedLowBattery:
+                case AppInstallState::PausedWiFiRecommended:
+                case AppInstallState::PausedWiFiRequired:
+                    // For these states, set result to restart and continue the loop to see if future items need cancel.
+                    result = CheckExistingItemResult::Restart;
+                    break;
+                }
+            }
+
+            return result;
+        }
     }
 
     HRESULT MSStoreOperation::StartAndWaitForOperation(IProgressCallback& progress)
@@ -102,12 +136,14 @@ namespace AppInstaller::MSStore
         // Best effort verifying/acquiring product ownership.
         std::ignore = EnsureFreeEntitlement(m_productId, m_scope);
 
-        if (m_type == MSStoreOperationType::Install || m_type == MSStoreOperationType::Repair)
+        if (m_type == MSStoreOperationType::Update)
+        {
+            return UpdatePackage(progress);
+        }
+        else
         {
             return InstallPackage(progress);
         }
-
-        return UpdatePackage(progress);
     }
 
     HRESULT MSStoreOperation::InstallPackage(IProgressCallback& progress)
@@ -149,6 +185,30 @@ namespace AppInstaller::MSStore
             winrt::hstring(),
             installOptions).get();
 
+        auto existingItemResult = CheckRestartOrCancelForPossibleExistingItems(installItems);
+        if (existingItemResult == CheckExistingItemResult::Cancel || existingItemResult == CheckExistingItemResult::Restart)
+        {
+            if (existingItemResult == CheckExistingItemResult::Cancel)
+            {
+                installManager.Cancel(m_productId);
+            }
+            else
+            {
+                installManager.Restart(m_productId);
+            }
+
+            // Wait a bit
+            Sleep(500);
+
+            // Try again
+            installItems = installManager.StartProductInstallAsync(
+                m_productId,            // ProductId
+                winrt::hstring(),       // FlightId
+                L"WinGetCli",           // ClientId
+                winrt::hstring(),
+                installOptions).get();
+        }
+
         return WaitForOperation(installItems, progress);
     }
 
@@ -174,6 +234,31 @@ namespace AppInstaller::MSStore
 
         std::vector<AppInstallItem> installItemVector{ installItem };
         IVectorView<AppInstallItem> installItems = winrt::single_threaded_vector(std::move(installItemVector)).GetView();
+
+        auto existingItemResult = CheckRestartOrCancelForPossibleExistingItems(installItems);
+        if (existingItemResult == CheckExistingItemResult::Cancel || existingItemResult == CheckExistingItemResult::Restart)
+        {
+            if (existingItemResult == CheckExistingItemResult::Cancel)
+            {
+                installManager.Cancel(m_productId);
+            }
+            else
+            {
+                installManager.Restart(m_productId);
+            }
+
+            // Wait a bit
+            Sleep(500);
+
+            // Try again
+            installItem = installManager.SearchForUpdatesAsync(
+                m_productId,          // ProductId
+                winrt::hstring(),   // SkuId
+                winrt::hstring(),
+                winrt::hstring(),   // ClientId
+                updateOptions
+            ).get();
+        }
 
         return WaitForOperation(installItems, progress);
     }
