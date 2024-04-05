@@ -16,10 +16,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSetParser_0_1::Parse()
     {
         std::vector<Configuration::ConfigurationUnit> units;
-        const Node& properties = m_document[GetConfigurationFieldName(FieldName::Properties)];
-        ParseConfigurationUnitsFromField(properties, FieldName::Assertions, ConfigurationUnitIntent::Assert, units);
-        ParseConfigurationUnitsFromField(properties, FieldName::Parameters, ConfigurationUnitIntent::Inform, units);
-        ParseConfigurationUnitsFromField(properties, FieldName::Resources, ConfigurationUnitIntent::Apply, units);
+        const Node& properties = m_document[GetConfigurationFieldName(ConfigurationFieldName::Properties)];
+        ParseConfigurationUnitsFromField(properties, ConfigurationFieldName::Assertions, ConfigurationUnitIntent::Assert, units);
+        ParseConfigurationUnitsFromField(properties, ConfigurationFieldName::Parameters, ConfigurationUnitIntent::Inform, units);
+        ParseConfigurationUnitsFromField(properties, ConfigurationFieldName::Resources, ConfigurationUnitIntent::Apply, units);
 
         m_configurationSet = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
         m_configurationSet->Units(std::move(units));
@@ -32,7 +32,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return s_schemaVersion;
     }
 
-    void ConfigurationSetParser_0_1::ParseConfigurationUnitsFromField(const Node& document, FieldName field, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result)
+    void ConfigurationSetParser_0_1::ParseConfigurationUnitsFromField(const Node& document, ConfigurationFieldName field, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result)
     {
         ParseSequence(document, field, false, Node::Type::Mapping, [&](const Node& item)
             {
@@ -44,11 +44,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetParser_0_1::ParseConfigurationUnit(ConfigurationUnit* unit, const Node& unitNode, ConfigurationUnitIntent intent)
     {
-        CHECK_ERROR(GetStringValueForUnit(unitNode, FieldName::Resource, true, unit, &ConfigurationUnit::Type));
-        CHECK_ERROR(GetStringValueForUnit(unitNode, FieldName::Id, false, unit, &ConfigurationUnit::Identifier));
+        CHECK_ERROR(GetStringValueForUnit(unitNode, ConfigurationFieldName::Resource, true, unit, &ConfigurationUnit::Type));
+        CHECK_ERROR(GetStringValueForUnit(unitNode, ConfigurationFieldName::Id, false, unit, &ConfigurationUnit::Identifier));
         unit->Intent(intent);
-        CHECK_ERROR(GetStringArrayForUnit(unitNode, FieldName::DependsOn, false, unit, &ConfigurationUnit::Dependencies));
-        CHECK_ERROR(ParseValueSet(unitNode, FieldName::Directives, false, unit->Metadata()));
-        CHECK_ERROR(ParseValueSet(unitNode, FieldName::Settings, false, unit->Settings()));
+        CHECK_ERROR(GetStringArrayForUnit(unitNode, ConfigurationFieldName::DependsOn, false, unit, &ConfigurationUnit::Dependencies));
+        CHECK_ERROR(ParseValueSet(unitNode, ConfigurationFieldName::Directives, false, unit->Metadata()));
+        CHECK_ERROR(ParseValueSet(unitNode, ConfigurationFieldName::Settings, false, unit->Settings()));
     }
 }

@@ -10,6 +10,7 @@
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
 
+#include "ConfigurationSetUtilities.h"
 #include "ConfigurationSetParserError.h"
 #include "ConfigurationSetParser_0_1.h"
 #include "ConfigurationSetParser_0_2.h"
@@ -17,7 +18,6 @@
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::YAML;
-using namespace winrt::Windows::Foundation;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -179,7 +179,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::string schemaUriString;
         std::string schemaVersionString;
 
-        Node& schemaNode = document[GetConfigurationFieldName(FieldName::Schema)];
+        Node& schemaNode = document[GetConfigurationFieldName(ConfigurationFieldName::Schema)];
         if (schemaNode.IsScalar())
         {
             schemaUriString = schemaNode.as<std::string>();
@@ -200,7 +200,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 if (schemaNode.IsScalar())
                 {
                     AICLI_LOG(Config, Error, << "Unknown configuration schema: " << schemaUriString);
-                    return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, GetConfigurationFieldName(FieldName::Schema), schemaUriString);
+                    return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, GetConfigurationFieldName(ConfigurationFieldName::Schema), schemaUriString);
                 }
                 else
                 {
@@ -228,7 +228,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         AICLI_LOG(Config, Error, << "Unknown configuration version: " << schemaVersion.ToString());
-        return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, GetConfigurationFieldName(FieldName::ConfigurationVersion), schemaVersion.ToString());
+        return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, GetConfigurationFieldName(ConfigurationFieldName::ConfigurationVersion), schemaVersion.ToString());
     }
 
     bool ConfigurationSetParser::IsRecognizedSchemaVersion(hstring value) try
@@ -326,47 +326,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         SetError(result, field, value, static_cast<uint32_t>(mark.line), static_cast<uint32_t>(mark.column));
     }
 
-    std::string_view GetConfigurationFieldName(FieldName fieldName)
-    {
-        switch (fieldName)
-        {
-        case FieldName::ConfigurationVersion: return "configurationVersion"sv;
-        case FieldName::Properties: return "properties"sv;
-        case FieldName::Resource: return "resource"sv;
-        case FieldName::Directives: return "directives"sv;
-        case FieldName::Settings: return "settings"sv;
-        case FieldName::Assertions: return "assertions"sv;
-        case FieldName::Id: return "id"sv;
-        case FieldName::DependsOn: return "dependsOn"sv;
-
-        case FieldName::Resources: return "resources"sv;
-        case FieldName::ModuleDirective: return "module"sv;
-
-        case FieldName::Schema: return "$schema"sv;
-        case FieldName::Metadata: return "metadata"sv;
-        case FieldName::Parameters: return "parameters"sv;
-        case FieldName::Variables: return "variables"sv;
-        case FieldName::Type: return "type"sv;
-        case FieldName::Description: return "description"sv;
-        case FieldName::Name: return "name"sv;
-        case FieldName::IsGroupMetadata: return "isGroup"sv;
-        case FieldName::DefaultValue: return "defaultValue"sv;
-        case FieldName::AllowedValues: return "allowedValues"sv;
-        case FieldName::MinimumLength: return "minLength"sv;
-        case FieldName::MaximumLength: return "maxLength"sv;
-        case FieldName::MinimumValue: return "minValue"sv;
-        case FieldName::MaximumValue: return "maxValue"sv;
-        }
-
-        THROW_HR(E_UNEXPECTED);
-    }
-
-    hstring GetConfigurationFieldNameHString(FieldName fieldName)
-    {
-        return hstring{ ConvertToUTF16(GetConfigurationFieldName(fieldName)) };
-    }
-
-    const Node& ConfigurationSetParser::GetAndEnsureField(const Node& parent, FieldName field, bool required, std::optional<Node::Type> type)
+    const Node& ConfigurationSetParser::GetAndEnsureField(const Node& parent, ConfigurationFieldName field, bool required, std::optional<Node::Type> type)
     {
         const Node& fieldNode = parent[GetConfigurationFieldName(field)];
 
@@ -385,7 +345,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return fieldNode;
     }
 
-    void ConfigurationSetParser::EnsureFieldAbsent(const Node& parent, FieldName field)
+    void ConfigurationSetParser::EnsureFieldAbsent(const Node& parent, ConfigurationFieldName field)
     {
         const Node& fieldNode = parent[GetConfigurationFieldName(field)];
 
@@ -395,7 +355,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationSetParser::ParseValueSet(const Node& node, FieldName field, bool required, const Windows::Foundation::Collections::ValueSet& valueSet)
+    void ConfigurationSetParser::ParseValueSet(const Node& node, ConfigurationFieldName field, bool required, const Windows::Foundation::Collections::ValueSet& valueSet)
     {
         const Node& mapNode = CHECK_ERROR(GetAndEnsureField(node, field, required, Node::Type::Mapping));
 
@@ -405,7 +365,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationSetParser::ParseMapping(const AppInstaller::YAML::Node& node, FieldName field, bool required, AppInstaller::YAML::Node::Type elementType, std::function<void(std::string, const AppInstaller::YAML::Node&)> operation)
+    void ConfigurationSetParser::ParseMapping(const AppInstaller::YAML::Node& node, ConfigurationFieldName field, bool required, AppInstaller::YAML::Node::Type elementType, std::function<void(std::string, const AppInstaller::YAML::Node&)> operation)
     {
         const Node& mapNode = CHECK_ERROR(GetAndEnsureField(node, field, required, Node::Type::Mapping));
         if (!mapNode)
@@ -437,7 +397,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationSetParser::ParseSequence(const AppInstaller::YAML::Node& node, FieldName field, bool required, std::optional<Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation)
+    void ConfigurationSetParser::ParseSequence(const AppInstaller::YAML::Node& node, ConfigurationFieldName field, bool required, std::optional<Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation)
     {
         const Node& sequenceNode = CHECK_ERROR(GetAndEnsureField(node, field, required, Node::Type::Sequence));
         if (!sequenceNode)
@@ -464,36 +424,36 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     std::unique_ptr<ConfigurationSetParser> ConfigurationSetParser::GetSchemaVersionFromOldFormat(AppInstaller::YAML::Node& document, std::string& schemaVersionString)
     {
-        Node& propertiesNode = document[GetConfigurationFieldName(FieldName::Properties)];
+        Node& propertiesNode = document[GetConfigurationFieldName(ConfigurationFieldName::Properties)];
         if (!propertiesNode)
         {
             AICLI_LOG(Config, Error, << "No properties");
             // Even though this is for the "older" format, if there is no properties entry then give an error for the newer format since this is probably neither.
-            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_MISSING_FIELD, GetConfigurationFieldName(FieldName::Schema));
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_MISSING_FIELD, GetConfigurationFieldName(ConfigurationFieldName::Schema));
         }
         else if (!propertiesNode.IsMap())
         {
             AICLI_LOG(Config, Error, << "Invalid properties type");
-            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetConfigurationFieldName(FieldName::Properties), propertiesNode.Mark());
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetConfigurationFieldName(ConfigurationFieldName::Properties), propertiesNode.Mark());
         }
 
-        Node& versionNode = propertiesNode[GetConfigurationFieldName(FieldName::ConfigurationVersion)];
+        Node& versionNode = propertiesNode[GetConfigurationFieldName(ConfigurationFieldName::ConfigurationVersion)];
         if (!versionNode)
         {
             AICLI_LOG(Config, Error, << "No configuration version");
-            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_MISSING_FIELD, GetConfigurationFieldName(FieldName::ConfigurationVersion));
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_MISSING_FIELD, GetConfigurationFieldName(ConfigurationFieldName::ConfigurationVersion));
         }
         else if (!versionNode.IsScalar())
         {
             AICLI_LOG(Config, Error, << "Invalid configuration version type");
-            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetConfigurationFieldName(FieldName::ConfigurationVersion), versionNode.Mark());
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetConfigurationFieldName(ConfigurationFieldName::ConfigurationVersion), versionNode.Mark());
         }
 
         schemaVersionString = versionNode.as<std::string>();
         return {};
     }
 
-    void ConfigurationSetParser::GetStringValueForUnit(const Node& node, FieldName field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value))
+    void ConfigurationSetParser::GetStringValueForUnit(const Node& node, ConfigurationFieldName field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value))
     {
         const Node& valueNode = CHECK_ERROR(GetAndEnsureField(node, field, required, Node::Type::Scalar));
 
@@ -506,7 +466,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationSetParser::GetStringArrayForUnit(const Node& node, FieldName field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(std::vector<hstring>&& value))
+    void ConfigurationSetParser::GetStringArrayForUnit(const Node& node, ConfigurationFieldName field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(std::vector<hstring>&& value))
     {
         std::vector<hstring> arrayValue;
         CHECK_ERROR(ParseSequence(node, field, required, Node::Type::Scalar, [&](const AppInstaller::YAML::Node& item)
@@ -520,7 +480,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationSetParser::ValidateType(ConfigurationUnit* unit, const Node& unitNode, FieldName typeField, bool moveModuleNameToMetadata, bool moduleNameRequiredInType)
+    void ConfigurationSetParser::ValidateType(ConfigurationUnit* unit, const Node& unitNode, ConfigurationFieldName typeField, bool moveModuleNameToMetadata, bool moduleNameRequiredInType)
     {
         QualifiedResourceName qualifiedName{ unit->Type() };
 
@@ -530,15 +490,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         if (!qualifiedName.Module.empty())
         {
             // If the module is provided in both the resource name and the directives, ensure that it matches
-            hstring moduleDirectiveFieldName = GetConfigurationFieldNameHString(FieldName::ModuleDirective);
+            hstring moduleDirectiveFieldName = GetConfigurationFieldNameHString(ConfigurationFieldName::ModuleDirective);
             auto moduleDirective = unit->Metadata().TryLookup(moduleDirectiveFieldName);
             if (moduleDirective)
             {
                 auto moduleProperty = moduleDirective.try_as<Windows::Foundation::IPropertyValue>();
-                FIELD_TYPE_ERROR_IF(!moduleProperty, GetConfigurationFieldName(FieldName::ModuleDirective), unitNode.Mark());
-                FIELD_TYPE_ERROR_IF(moduleProperty.Type() != Windows::Foundation::PropertyType::String, GetConfigurationFieldName(FieldName::ModuleDirective), unitNode.Mark());
+                FIELD_TYPE_ERROR_IF(!moduleProperty, GetConfigurationFieldName(ConfigurationFieldName::ModuleDirective), unitNode.Mark());
+                FIELD_TYPE_ERROR_IF(moduleProperty.Type() != Windows::Foundation::PropertyType::String, GetConfigurationFieldName(ConfigurationFieldName::ModuleDirective), unitNode.Mark());
                 hstring moduleValue = moduleProperty.GetString();
-                FIELD_VALUE_ERROR_IF(qualifiedName.Module != moduleValue, GetConfigurationFieldName(FieldName::ModuleDirective), ConvertToUTF8(moduleValue), unitNode.Mark());
+                FIELD_VALUE_ERROR_IF(qualifiedName.Module != moduleValue, GetConfigurationFieldName(ConfigurationFieldName::ModuleDirective), ConvertToUTF8(moduleValue), unitNode.Mark());
             }
             else if (moveModuleNameToMetadata)
             {
@@ -557,7 +517,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationSetParser::ParseObject(const Node& node, FieldName fieldForErrors, Windows::Foundation::PropertyType type, Windows::Foundation::IInspectable& result)
+    void ConfigurationSetParser::ParseObject(const Node& node, ConfigurationFieldName fieldForErrors, Windows::Foundation::PropertyType type, Windows::Foundation::IInspectable& result)
     {
         try
         {
@@ -570,57 +530,5 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             LOG_CAUGHT_EXCEPTION();
             FIELD_VALUE_ERROR(GetConfigurationFieldName(fieldForErrors), node.as<std::string>(), node.Mark());
         }
-    }
-
-    std::unique_ptr<ConfigurationSetSerializer> ConfigurationSetSerializer::CreateSerializer(hstring version)
-    {
-        // Create the parser based on the version selected
-        SemanticVersion schemaVersion(std::move(winrt::to_string(version)));
-
-        // TODO: Consider having the version/uri/type information all together in the future
-        if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 1)
-        {
-            throw E_NOTIMPL;
-        }
-        else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 2)
-        {
-            return std::make_unique<ConfigurationSetSerializer_0_2>();
-        }
-        else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 3)
-        {
-            throw E_NOTIMPL;
-        }
-        else
-        {
-            AICLI_LOG(Config, Error, << "Unknown configuration version: " << schemaVersion.ToString());
-            throw E_UNEXPECTED;
-        }
-    }
-
-    void ConfigurationSetSerializer::WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet)
-    {
-        emitter << BeginMap;
-
-        for (const auto& [key, value] : valueSet)
-        {
-            IPropertyValue property = value.try_as<IPropertyValue>();
-            std::string keyName = winrt::to_string(key);
-            auto type = property.Type();
-
-            if (type == PropertyType::Boolean)
-            {
-                emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << property.GetBoolean();
-            }
-            else if (type == PropertyType::String)
-            {
-                emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << AppInstaller::Utility::ConvertToUTF8(property.GetString());
-            }
-            else if (type == PropertyType::Int64)
-            {
-                emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << property.GetInt64();
-            }
-        }
-
-        emitter << EndMap;
     }
 }

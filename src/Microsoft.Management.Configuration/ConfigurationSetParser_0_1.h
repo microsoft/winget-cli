@@ -25,7 +25,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring GetSchemaVersion() override;
 
     protected:
-        void ParseConfigurationUnitsFromField(const AppInstaller::YAML::Node& document, FieldName field, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result);
+        void ParseConfigurationUnitsFromField(const AppInstaller::YAML::Node& document, ConfigurationFieldName field, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result);
         virtual void ParseConfigurationUnit(ConfigurationUnit* unit, const AppInstaller::YAML::Node& unitNode, ConfigurationUnitIntent intent);
 
         AppInstaller::YAML::Node m_document;

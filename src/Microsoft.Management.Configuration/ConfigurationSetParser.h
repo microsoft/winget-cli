@@ -3,55 +3,15 @@
 #pragma once
 #include <ConfigurationUnit.h>
 #include <ConfigurationSet.h>
+#include <ConfigurationSetUtilities.h>
 #include <winget/Yaml.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <memory>
 #include <string_view>
 #include <vector>
 
-using namespace std::string_view_literals;
-
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    // The various field names that are used in parsing.
-    enum class FieldName
-    {
-        // v0.1 and v0.2
-        ConfigurationVersion,
-        Properties,
-        Resource,
-        Directives,
-        Settings,
-        Assertions,
-        Id,
-        DependsOn,
-
-        // Universal
-        Resources,
-        ModuleDirective,
-
-        // v0.3
-        Schema,
-        Metadata,
-        Parameters,
-        Variables,
-        Type,
-        Description,
-        Name,
-        IsGroupMetadata,
-        DefaultValue,
-        AllowedValues,
-        MinimumLength,
-        MaximumLength,
-        MinimumValue,
-        MaximumValue,
-    };
-
-    // Gets the value of the field name.
-    std::string_view GetConfigurationFieldName(FieldName fieldName);
-
-    hstring GetConfigurationFieldNameHString(FieldName fieldName);
-
     // Interface for parsing a configuration set stream.
     struct ConfigurationSetParser
     {
@@ -126,54 +86,34 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         uint32_t m_column = 0;
 
         // Gets the given `field` from the `parent` node, checking against the requirement and type.
-        const AppInstaller::YAML::Node& GetAndEnsureField(const AppInstaller::YAML::Node& parent, FieldName field, bool required, std::optional<AppInstaller::YAML::Node::Type> type);
+        const AppInstaller::YAML::Node& GetAndEnsureField(const AppInstaller::YAML::Node& parent, ConfigurationFieldName field, bool required, std::optional<AppInstaller::YAML::Node::Type> type);
 
         // Errors if the given `field` is present.
-        void EnsureFieldAbsent(const AppInstaller::YAML::Node& parent, FieldName field);
+        void EnsureFieldAbsent(const AppInstaller::YAML::Node& parent, ConfigurationFieldName field);
 
         // Parse the ValueSet named `field` from the given `node`.
-        void ParseValueSet(const AppInstaller::YAML::Node& node, FieldName field, bool required, const Windows::Foundation::Collections::ValueSet& valueSet);
+        void ParseValueSet(const AppInstaller::YAML::Node& node, ConfigurationFieldName field, bool required, const Windows::Foundation::Collections::ValueSet& valueSet);
 
         // Parse the mapping named `field` from the given `node`.
-        void ParseMapping(const AppInstaller::YAML::Node& node, FieldName field, bool required, AppInstaller::YAML::Node::Type elementType, std::function<void(std::string, const AppInstaller::YAML::Node&)> operation);
+        void ParseMapping(const AppInstaller::YAML::Node& node, ConfigurationFieldName field, bool required, AppInstaller::YAML::Node::Type elementType, std::function<void(std::string, const AppInstaller::YAML::Node&)> operation);
 
         // Parse the sequence named `field` from the given `node`.
-        void ParseSequence(const AppInstaller::YAML::Node& node, FieldName field, bool required, std::optional<AppInstaller::YAML::Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation);
+        void ParseSequence(const AppInstaller::YAML::Node& node, ConfigurationFieldName field, bool required, std::optional<AppInstaller::YAML::Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation);
 
         // Gets the string value in `field` from the given `node`, setting this value on `unit` using the `propertyFunction`.
-        void GetStringValueForUnit(const AppInstaller::YAML::Node& node, FieldName field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value));
+        void GetStringValueForUnit(const AppInstaller::YAML::Node& node, ConfigurationFieldName field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value));
 
         // Gets the string array in `field` from the given `node`, setting this value on `unit` using the `propertyFunction`.
-        void GetStringArrayForUnit(const AppInstaller::YAML::Node& node, FieldName field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(std::vector<hstring>&& value));
+        void GetStringArrayForUnit(const AppInstaller::YAML::Node& node, ConfigurationFieldName field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(std::vector<hstring>&& value));
 
         // Validates the unit's Type property for correctness and consistency with the metadata. Should be called after parsing the Metadata value.
-        void ValidateType(ConfigurationUnit* unit, const AppInstaller::YAML::Node& unitNode, FieldName typeField, bool moveModuleNameToMetadata, bool moduleNameRequiredInType);
+        void ValidateType(ConfigurationUnit* unit, const AppInstaller::YAML::Node& unitNode, ConfigurationFieldName typeField, bool moveModuleNameToMetadata, bool moduleNameRequiredInType);
 
         // Parses an object from the given node, attempting to treat it as the requested type if possible.
-        void ParseObject(const AppInstaller::YAML::Node& node, FieldName fieldForErrors, Windows::Foundation::PropertyType type, Windows::Foundation::IInspectable& result);
+        void ParseObject(const AppInstaller::YAML::Node& node, ConfigurationFieldName fieldForErrors, Windows::Foundation::PropertyType type, Windows::Foundation::IInspectable& result);
 
     private:
         // Support older schema parsing.
         static std::unique_ptr<ConfigurationSetParser> GetSchemaVersionFromOldFormat(AppInstaller::YAML::Node& document, std::string& schemaVersionString);
-    };
-
-    struct ConfigurationSetSerializer
-    {
-        static std::unique_ptr<ConfigurationSetSerializer> CreateSerializer(hstring version);
-
-        virtual ~ConfigurationSetSerializer() noexcept = default;
-
-        ConfigurationSetSerializer(const ConfigurationSetSerializer&) = delete;
-        ConfigurationSetSerializer& operator=(const ConfigurationSetSerializer&) = delete;
-        ConfigurationSetSerializer(ConfigurationSetSerializer&&) = default;
-        ConfigurationSetSerializer& operator=(ConfigurationSetSerializer&&) = default;
-
-        // Serializes a configuration set to the original yaml string.
-        virtual hstring Serialize(ConfigurationSet*) = 0;
-
-    protected:
-        ConfigurationSetSerializer() = default;
-
-        void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet);
     };
 }

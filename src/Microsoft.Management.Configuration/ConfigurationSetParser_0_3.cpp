@@ -18,12 +18,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         auto result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
 
-        CHECK_ERROR(ParseValueSet(m_document, FieldName::Metadata, false, result->Metadata()));
+        CHECK_ERROR(ParseValueSet(m_document, ConfigurationFieldName::Metadata, false, result->Metadata()));
         CHECK_ERROR(ParseParameters(result));
-        CHECK_ERROR(ParseValueSet(m_document, FieldName::Variables, false, result->Variables()));
+        CHECK_ERROR(ParseValueSet(m_document, ConfigurationFieldName::Variables, false, result->Variables()));
 
         std::vector<Configuration::ConfigurationUnit> units;
-        CHECK_ERROR(ParseConfigurationUnitsFromField(m_document, FieldName::Resources, units));
+        CHECK_ERROR(ParseConfigurationUnitsFromField(m_document, ConfigurationFieldName::Resources, units));
         result->Units(std::move(units));
 
         result->SchemaVersion(GetSchemaVersion());
@@ -40,7 +40,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         std::vector<Configuration::ConfigurationParameter> parameters;
 
-        ParseMapping(m_document, FieldName::Parameters, false, Node::Type::Mapping, [&](std::string name, const Node& item)
+        ParseMapping(m_document, ConfigurationFieldName::Parameters, false, Node::Type::Mapping, [&](std::string name, const Node& item)
             {
                 auto parameter = make_self<wil::details::module_count_wrapper<ConfigurationParameter>>();
                 CHECK_ERROR(ParseParameter(parameter.get(), item));
@@ -54,18 +54,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSetParser_0_3::ParseParameter(ConfigurationParameter* parameter, const AppInstaller::YAML::Node& node)
     {
         CHECK_ERROR(ParseParameterType(parameter, node));
-        CHECK_ERROR(ParseValueSet(node, FieldName::Metadata, false, parameter->Metadata()));
-        CHECK_ERROR(GetStringValueForParameter(node, FieldName::Description, parameter, &ConfigurationParameter::Description));
+        CHECK_ERROR(ParseValueSet(node, ConfigurationFieldName::Metadata, false, parameter->Metadata()));
+        CHECK_ERROR(GetStringValueForParameter(node, ConfigurationFieldName::Description, parameter, &ConfigurationParameter::Description));
 
         Windows::Foundation::PropertyType parameterType = parameter->Type();
-        CHECK_ERROR(ParseObjectValueForParameter(node, FieldName::DefaultValue, parameterType, parameter, &ConfigurationParameter::DefaultValue));
+        CHECK_ERROR(ParseObjectValueForParameter(node, ConfigurationFieldName::DefaultValue, parameterType, parameter, &ConfigurationParameter::DefaultValue));
 
         std::vector<Windows::Foundation::IInspectable> allowedValues;
 
-        CHECK_ERROR(ParseSequence(node, FieldName::AllowedValues, false, std::nullopt, [&](const Node& item)
+        CHECK_ERROR(ParseSequence(node, ConfigurationFieldName::AllowedValues, false, std::nullopt, [&](const Node& item)
             {
                 Windows::Foundation::IInspectable object;
-                CHECK_ERROR(ParseObject(item, FieldName::AllowedValues, parameterType, object));
+                CHECK_ERROR(ParseObject(item, ConfigurationFieldName::AllowedValues, parameterType, object));
                 allowedValues.emplace_back(std::move(object));
             }));
 
@@ -76,30 +76,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (IsLengthType(parameterType))
         {
-            CHECK_ERROR(GetUInt32ValueForParameter(node, FieldName::MinimumLength, parameter, &ConfigurationParameter::MinimumLength));
-            CHECK_ERROR(GetUInt32ValueForParameter(node, FieldName::MaximumLength, parameter, &ConfigurationParameter::MaximumLength));
+            CHECK_ERROR(GetUInt32ValueForParameter(node, ConfigurationFieldName::MinimumLength, parameter, &ConfigurationParameter::MinimumLength));
+            CHECK_ERROR(GetUInt32ValueForParameter(node, ConfigurationFieldName::MaximumLength, parameter, &ConfigurationParameter::MaximumLength));
         }
         else
         {
-            CHECK_ERROR(EnsureFieldAbsent(node, FieldName::MinimumLength));
-            CHECK_ERROR(EnsureFieldAbsent(node, FieldName::MaximumLength));
+            CHECK_ERROR(EnsureFieldAbsent(node, ConfigurationFieldName::MinimumLength));
+            CHECK_ERROR(EnsureFieldAbsent(node, ConfigurationFieldName::MaximumLength));
         }
 
         if (IsComparableType(parameterType))
         {
-            CHECK_ERROR(ParseObjectValueForParameter(node, FieldName::MinimumValue, parameterType, parameter, &ConfigurationParameter::MinimumValue));
-            CHECK_ERROR(ParseObjectValueForParameter(node, FieldName::MaximumValue, parameterType, parameter, &ConfigurationParameter::MaximumValue));
+            CHECK_ERROR(ParseObjectValueForParameter(node, ConfigurationFieldName::MinimumValue, parameterType, parameter, &ConfigurationParameter::MinimumValue));
+            CHECK_ERROR(ParseObjectValueForParameter(node, ConfigurationFieldName::MaximumValue, parameterType, parameter, &ConfigurationParameter::MaximumValue));
         }
         else
         {
-            CHECK_ERROR(EnsureFieldAbsent(node, FieldName::MinimumValue));
-            CHECK_ERROR(EnsureFieldAbsent(node, FieldName::MaximumValue));
+            CHECK_ERROR(EnsureFieldAbsent(node, ConfigurationFieldName::MinimumValue));
+            CHECK_ERROR(EnsureFieldAbsent(node, ConfigurationFieldName::MaximumValue));
         }
     }
 
     void ConfigurationSetParser_0_3::ParseParameterType(ConfigurationParameter* parameter, const AppInstaller::YAML::Node& node)
     {
-        const Node& typeNode = CHECK_ERROR(GetAndEnsureField(node, FieldName::Type, true, Node::Type::Scalar));
+        const Node& typeNode = CHECK_ERROR(GetAndEnsureField(node, ConfigurationFieldName::Type, true, Node::Type::Scalar));
         std::string typeValue = typeNode.as<std::string>();
 
         if (typeValue == "string")
@@ -134,7 +134,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
         else
         {
-            FIELD_VALUE_ERROR(GetConfigurationFieldName(FieldName::Type), typeValue, typeNode.Mark());
+            FIELD_VALUE_ERROR(GetConfigurationFieldName(ConfigurationFieldName::Type), typeValue, typeNode.Mark());
         }
 
         // TODO: Consider supporting an expanded set of type strings
@@ -142,7 +142,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetParser_0_3::GetStringValueForParameter(
         const Node& node,
-        FieldName field,
+        ConfigurationFieldName field,
         ConfigurationParameter* parameter,
         void(ConfigurationParameter::* propertyFunction)(const hstring& value))
     {
@@ -156,7 +156,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetParser_0_3::GetUInt32ValueForParameter(
         const AppInstaller::YAML::Node& node,
-        FieldName field,
+        ConfigurationFieldName field,
         ConfigurationParameter* parameter,
         void(ConfigurationParameter::* propertyFunction)(uint32_t value))
     {
@@ -175,7 +175,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetParser_0_3::ParseObjectValueForParameter(
         const AppInstaller::YAML::Node& node,
-        FieldName field,
+        ConfigurationFieldName field,
         Windows::Foundation::PropertyType type,
         ConfigurationParameter* parameter,
         void(ConfigurationParameter::* propertyFunction)(const Windows::Foundation::IInspectable& value))
@@ -191,7 +191,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationSetParser_0_3::ParseConfigurationUnitsFromField(const Node& document, FieldName field, std::vector<Configuration::ConfigurationUnit>& result)
+    void ConfigurationSetParser_0_3::ParseConfigurationUnitsFromField(const Node& document, ConfigurationFieldName field, std::vector<Configuration::ConfigurationUnit>& result)
     {
         ParseSequence(document, field, false, Node::Type::Mapping, [&](const Node& item)
             {
@@ -206,14 +206,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Set unknown intent as the new schema doesn't express it directly
         unit->Intent(ConfigurationUnitIntent::Unknown);
 
-        CHECK_ERROR(GetStringValueForUnit(unitNode, FieldName::Name, true, unit, &ConfigurationUnit::Identifier));
-        CHECK_ERROR(GetStringValueForUnit(unitNode, FieldName::Type, true, unit, &ConfigurationUnit::Type));
-        CHECK_ERROR(ParseValueSet(unitNode, FieldName::Metadata, false, unit->Metadata()));
-        CHECK_ERROR(ValidateType(unit, unitNode, FieldName::Type, false, true));
-        CHECK_ERROR(GetStringArrayForUnit(unitNode, FieldName::DependsOn, false, unit, &ConfigurationUnit::Dependencies));
+        CHECK_ERROR(GetStringValueForUnit(unitNode, ConfigurationFieldName::Name, true, unit, &ConfigurationUnit::Identifier));
+        CHECK_ERROR(GetStringValueForUnit(unitNode, ConfigurationFieldName::Type, true, unit, &ConfigurationUnit::Type));
+        CHECK_ERROR(ParseValueSet(unitNode, ConfigurationFieldName::Metadata, false, unit->Metadata()));
+        CHECK_ERROR(ValidateType(unit, unitNode, ConfigurationFieldName::Type, false, true));
+        CHECK_ERROR(GetStringArrayForUnit(unitNode, ConfigurationFieldName::DependsOn, false, unit, &ConfigurationUnit::Dependencies));
 
         // Regardless of being a group or not, parse the settings.
-        CHECK_ERROR(ParseValueSet(unitNode, FieldName::Properties, false, unit->Settings()));
+        CHECK_ERROR(ParseValueSet(unitNode, ConfigurationFieldName::Properties, false, unit->Settings()));
 
         if (ShouldConvertToGroup(unit))
         {
@@ -221,11 +221,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             // TODO: The PS DSC v3 POR looks like it supports each group defining a new schema to be used for its group items.
             //       Consider supporting that in the future; but for now just use the same schema for everything.
-            const Node& propertiesNode = GetAndEnsureField(unitNode, FieldName::Properties, false, Node::Type::Mapping);
+            const Node& propertiesNode = GetAndEnsureField(unitNode, ConfigurationFieldName::Properties, false, Node::Type::Mapping);
             if (propertiesNode)
             {
                 std::vector<Configuration::ConfigurationUnit> units;
-                CHECK_ERROR(ParseConfigurationUnitsFromField(propertiesNode, FieldName::Resources, units));
+                CHECK_ERROR(ParseConfigurationUnitsFromField(propertiesNode, ConfigurationFieldName::Resources, units));
                 unit->Units(std::move(units));
             }
         }
@@ -234,7 +234,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     bool ConfigurationSetParser_0_3::ShouldConvertToGroup(ConfigurationUnit* unit)
     {
         // Allow the metadata to inform us that we should treat it as a group, including preventing a known type from being treated as one.
-        auto isGroupObject = unit->Metadata().TryLookup(GetConfigurationFieldNameHString(FieldName::IsGroupMetadata));
+        auto isGroupObject = unit->Metadata().TryLookup(GetConfigurationFieldNameHString(ConfigurationFieldName::IsGroupMetadata));
         if (isGroupObject)
         {
             auto isGroupProperty = isGroupObject.try_as<Windows::Foundation::IPropertyValue>();

@@ -4,6 +4,7 @@
 #include "ConfigurationSet.h"
 #include "ConfigurationSet.g.cpp"
 #include "ConfigurationSetParser.h"
+#include "ConfigurationSetSerializer.h"
 #include <AppInstallerStrings.h>
 
 using namespace AppInstaller;
@@ -133,7 +134,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring result = serializer->Serialize(this);
 
         Windows::Storage::Streams::DataWriter dataWriter{ stream };
-        dataWriter.WriteString(winrt::to_hstring(result));
+        dataWriter.UnicodeEncoding(Windows::Storage::Streams::UnicodeEncoding::Utf8);
+        dataWriter.WriteUInt32(dataWriter.MeasureString(result));
+        dataWriter.WriteString(result);
         dataWriter.StoreAsync().get();
         dataWriter.DetachStream();
     }

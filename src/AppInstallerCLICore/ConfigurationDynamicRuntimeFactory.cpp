@@ -123,9 +123,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 auto path = m_configurationSet.Path();
                 json["path"] = winrt::to_string(path);
-
                 Json::StreamWriterBuilder writerBuilder;
-                writerBuilder.settings_["indentation"] = "";
+                writerBuilder.settings_["indentation"] = "\t";
                 return Json::writeString(writerBuilder, json);
             }
 
@@ -154,21 +153,29 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 highIntegritySet.Units(std::move(highIntegrityUnits));
 
                 // Serialize high integrity set and return output string.
-                Streams::InMemoryRandomAccessStream stream;
-                highIntegritySet.Serialize(stream);
-                stream.Seek(0);
+                Streams::InMemoryRandomAccessStream memoryStream;
+                highIntegritySet.Serialize(memoryStream);
+                memoryStream.Seek(0);
 
-                Streams::DataReader dataReader(stream);
-                dataReader.LoadAsync((unsigned int)stream.Size());
-                winrt::hstring readFromStream{ L"" };
+                Streams::DataReader dataReader(memoryStream);
+                dataReader.UnicodeEncoding(Streams::UnicodeEncoding::Utf8);
 
-                while (dataReader.UnconsumedBufferLength() > 0)
+                winrt::hstring yamlResult;
+                uint32_t bytesRead = dataReader.LoadAsync(sizeof(uint32_t)).get();
+
+                if (bytesRead > 0)
                 {
-                    unsigned int bytesToRead = dataReader.ReadUInt32();
-                    readFromStream = readFromStream + dataReader.ReadString(bytesToRead) + L"\n";
+                    // Get size of serialized yaml string.
+                    uint32_t yamlLength = dataReader.ReadUInt32();
+                    bytesRead = dataReader.LoadAsync(yamlLength).get();
+                    if (bytesRead > 0)
+                    {
+                        // Read yaml string.
+                        yamlResult = dataReader.ReadString(yamlLength);
+                    }
                 }
 
-                return winrt::to_string(readFromStream);
+                return winrt::to_string(yamlResult);
             }
 
             ProcessorMap::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)
@@ -178,6 +185,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // If we got here, the only option is that the current integrity level is not High.
                 if (integrityLevel == Security::IntegrityLevel::High)
                 {
+                    std::cout << SerializeSetProperties() << std::endl;
+                    std::cout << SerializeHighIntegrityLevelSet() << std::endl;
                     factory = CreateOutOfProcessFactory(true, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
                 }
                 else
