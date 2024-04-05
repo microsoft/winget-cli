@@ -207,7 +207,7 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Configuration))
     )
     $module.AddArchSpecificFiles($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $additionalFiles = @(
-        "Microsoft.Management.Configuration.Projection\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Projection.dll"
+        "Microsoft.Management.Configuration.Projection\net6.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll"
     )
     $module.AddAnyCpuSpecificFilesToArch($additionalFiles, "SharedDependencies", $BuildRoot, $Configuration)
     $modules += $module
