@@ -32,22 +32,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ParseParameterType(ConfigurationParameter* parameter, const AppInstaller::YAML::Node& node);
         void GetStringValueForParameter(
             const AppInstaller::YAML::Node& node,
-            ConfigurationFieldName field,
+            ConfigurationField field,
             ConfigurationParameter* parameter,
             void(ConfigurationParameter::* propertyFunction)(const hstring& value));
         void GetUInt32ValueForParameter(
             const AppInstaller::YAML::Node& node,
-            ConfigurationFieldName field,
+            ConfigurationField field,
             ConfigurationParameter* parameter,
             void(ConfigurationParameter::* propertyFunction)(uint32_t value));
         void ParseObjectValueForParameter(
             const AppInstaller::YAML::Node& node,
-            ConfigurationFieldName field,
+            ConfigurationField field,
             Windows::Foundation::PropertyType type,
             ConfigurationParameter* parameter,
             void(ConfigurationParameter::* propertyFunction)(const Windows::Foundation::IInspectable& value));
 
-        void ParseConfigurationUnitsFromField(const AppInstaller::YAML::Node& document, ConfigurationFieldName field, std::vector<Configuration::ConfigurationUnit>& result);
+        void ParseConfigurationUnitsFromField(const AppInstaller::YAML::Node& document, ConfigurationField field, std::vector<Configuration::ConfigurationUnit>& result);
         virtual void ParseConfigurationUnit(ConfigurationUnit* unit, const AppInstaller::YAML::Node& unitNode);
         // Determines if the given unit should be converted to a group.
         bool ShouldConvertToGroup(ConfigurationUnit* unit);

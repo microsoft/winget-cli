@@ -22,6 +22,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSetParser_0_2::ParseConfigurationUnit(ConfigurationUnit* unit, const Node& unitNode, ConfigurationUnitIntent intent)
     {
         CHECK_ERROR(ConfigurationSetParser_0_1::ParseConfigurationUnit(unit, unitNode, intent));
-        ValidateType(unit, unitNode, ConfigurationFieldName::Resource, true, false);
+        ValidateType(unit, unitNode, ConfigurationField::Resource, true, false);
     }
 }

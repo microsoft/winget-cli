@@ -6,8 +6,8 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    // The various field names that are used in parsing.
-    enum class ConfigurationFieldName
+    // The various configuration fields that are used in parsing/serialization.
+    enum class ConfigurationField
     {
         // v0.1 and v0.2
         ConfigurationVersion,
@@ -40,8 +40,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         MaximumValue,
     };
 
-    // Gets the value of the field name.
-    std::string_view GetConfigurationFieldName(ConfigurationFieldName fieldName);
+    // Gets the name value of the configuration field.
+    std::string_view GetConfigurationFieldName(ConfigurationField fieldName);
 
-    winrt::hstring GetConfigurationFieldNameHString(ConfigurationFieldName fieldName);
+    winrt::hstring GetConfigurationFieldNameHString(ConfigurationField fieldName);
 }

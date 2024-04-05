@@ -12,7 +12,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System.Threading;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
-    using Windows.Storage.Streams;
     using Xunit;
     using Xunit.Abstractions;
 

@@ -30,20 +30,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Emitter emitter;
 
         emitter << BeginMap;
-        emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Properties);
+        emitter << Key << GetConfigurationFieldName(ConfigurationField::Properties);
 
         emitter << BeginMap;
-        emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::ConfigurationVersion) << Value << AppInstaller::Utility::ConvertToUTF8(configurationSet->SchemaVersion());
+        emitter << Key << GetConfigurationFieldName(ConfigurationField::ConfigurationVersion) << Value << AppInstaller::Utility::ConvertToUTF8(configurationSet->SchemaVersion());
 
         if (!assertions.empty())
         {
-            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Assertions);
+            emitter << Key << GetConfigurationFieldName(ConfigurationField::Assertions);
             WriteYamlConfigurationUnits(emitter, assertions);
         }
 
         if (!resources.empty())
         {
-            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Resources);
+            emitter << Key << GetConfigurationFieldName(ConfigurationField::Resources);
             WriteYamlConfigurationUnits(emitter, resources);
         }
 

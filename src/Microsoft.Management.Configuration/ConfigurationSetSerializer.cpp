@@ -75,18 +75,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             // Resource
             emitter << BeginMap;
-            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Resource) << Value << AppInstaller::Utility::ConvertToUTF8(unit.Type());
+            emitter << Key << GetConfigurationFieldName(ConfigurationField::Resource) << Value << AppInstaller::Utility::ConvertToUTF8(unit.Type());
 
             // Id
             if (!unit.Identifier().empty())
             {
-                emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Id) << Value << AppInstaller::Utility::ConvertToUTF8(unit.Identifier());
+                emitter << Key << GetConfigurationFieldName(ConfigurationField::Id) << Value << AppInstaller::Utility::ConvertToUTF8(unit.Identifier());
             }
 
             // Dependencies
             if (unit.Dependencies().Size() > 0)
             {
-                emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::DependsOn);
+                emitter << Key << GetConfigurationFieldName(ConfigurationField::DependsOn);
                 emitter << BeginSeq;
 
                 for (const auto& dependency : unit.Dependencies())
@@ -99,12 +99,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             // Directives
             const auto& metadata = unit.Metadata();
-            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Directives);
+            emitter << Key << GetConfigurationFieldName(ConfigurationField::Directives);
             WriteYamlValueSet(emitter, metadata);
 
             // Settings
             const auto& settings = unit.Settings();
-            emitter << Key << GetConfigurationFieldName(ConfigurationFieldName::Settings);
+            emitter << Key << GetConfigurationFieldName(ConfigurationField::Settings);
             WriteYamlValueSet(emitter, settings);
 
             emitter << EndMap;

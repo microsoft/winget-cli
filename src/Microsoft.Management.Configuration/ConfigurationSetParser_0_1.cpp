@@ -16,10 +16,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSetParser_0_1::Parse()
     {
         std::vector<Configuration::ConfigurationUnit> units;
-        const Node& properties = m_document[GetConfigurationFieldName(ConfigurationFieldName::Properties)];
-        ParseConfigurationUnitsFromField(properties, ConfigurationFieldName::Assertions, ConfigurationUnitIntent::Assert, units);
-        ParseConfigurationUnitsFromField(properties, ConfigurationFieldName::Parameters, ConfigurationUnitIntent::Inform, units);
-        ParseConfigurationUnitsFromField(properties, ConfigurationFieldName::Resources, ConfigurationUnitIntent::Apply, units);
+        const Node& properties = m_document[GetConfigurationFieldName(ConfigurationField::Properties)];
+        ParseConfigurationUnitsFromField(properties, ConfigurationField::Assertions, ConfigurationUnitIntent::Assert, units);
+        ParseConfigurationUnitsFromField(properties, ConfigurationField::Parameters, ConfigurationUnitIntent::Inform, units);
+        ParseConfigurationUnitsFromField(properties, ConfigurationField::Resources, ConfigurationUnitIntent::Apply, units);
 
         m_configurationSet = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
         m_configurationSet->Units(std::move(units));
@@ -32,7 +32,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return s_schemaVersion;
     }
 
-    void ConfigurationSetParser_0_1::ParseConfigurationUnitsFromField(const Node& document, ConfigurationFieldName field, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result)
+    void ConfigurationSetParser_0_1::ParseConfigurationUnitsFromField(const Node& document, ConfigurationField field, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result)
     {
         ParseSequence(document, field, false, Node::Type::Mapping, [&](const Node& item)
             {
@@ -44,11 +44,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetParser_0_1::ParseConfigurationUnit(ConfigurationUnit* unit, const Node& unitNode, ConfigurationUnitIntent intent)
     {
-        CHECK_ERROR(GetStringValueForUnit(unitNode, ConfigurationFieldName::Resource, true, unit, &ConfigurationUnit::Type));
-        CHECK_ERROR(GetStringValueForUnit(unitNode, ConfigurationFieldName::Id, false, unit, &ConfigurationUnit::Identifier));
+        CHECK_ERROR(GetStringValueForUnit(unitNode, ConfigurationField::Resource, true, unit, &ConfigurationUnit::Type));
+        CHECK_ERROR(GetStringValueForUnit(unitNode, ConfigurationField::Id, false, unit, &ConfigurationUnit::Identifier));
         unit->Intent(intent);
-        CHECK_ERROR(GetStringArrayForUnit(unitNode, ConfigurationFieldName::DependsOn, false, unit, &ConfigurationUnit::Dependencies));
-        CHECK_ERROR(ParseValueSet(unitNode, ConfigurationFieldName::Directives, false, unit->Metadata()));
-        CHECK_ERROR(ParseValueSet(unitNode, ConfigurationFieldName::Settings, false, unit->Settings()));
+        CHECK_ERROR(GetStringArrayForUnit(unitNode, ConfigurationField::DependsOn, false, unit, &ConfigurationUnit::Dependencies));
+        CHECK_ERROR(ParseValueSet(unitNode, ConfigurationField::Directives, false, unit->Metadata()));
+        CHECK_ERROR(ParseValueSet(unitNode, ConfigurationField::Settings, false, unit->Settings()));
     }
 }

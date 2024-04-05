@@ -5,10 +5,6 @@
 #include "ConfigurationSet.g.cpp"
 #include "ConfigurationSetParser.h"
 #include "ConfigurationSetSerializer.h"
-#include <AppInstallerStrings.h>
-
-using namespace AppInstaller;
-using namespace winrt::Windows::Foundation;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -18,7 +14,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         THROW_IF_FAILED(CoCreateGuid(&instanceIdentifier));
         m_instanceIdentifier = instanceIdentifier;
         m_schemaVersion = ConfigurationSetParser::LatestVersion();
-    }  
+    }
 
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
         m_instanceIdentifier(instanceIdentifier)
