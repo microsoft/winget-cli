@@ -121,6 +121,7 @@ namespace AppInstaller::MSStore
                 case AppInstallState::PausedLowBattery:
                 case AppInstallState::PausedWiFiRecommended:
                 case AppInstallState::PausedWiFiRequired:
+                case AppInstallState::ReadyToDownload:
                     // For these states, set result to restart and continue the loop to see if future items need cancel.
                     result = CheckExistingItemResult::Restart;
                     break;
