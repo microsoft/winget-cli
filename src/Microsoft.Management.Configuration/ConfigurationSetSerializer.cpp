@@ -46,25 +46,35 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         for (const auto& [key, value] : valueSet)
         {
-            IPropertyValue property = value.try_as<IPropertyValue>();
             std::string keyName = winrt::to_string(key);
-            auto type = property.Type();
+            const auto& currentValueSet = value.try_as<Windows::Foundation::Collections::ValueSet>();
 
-            if (type == PropertyType::Boolean)
+            if (currentValueSet)
             {
-                emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << property.GetBoolean();
-            }
-            else if (type == PropertyType::String)
-            {
-                emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << AppInstaller::Utility::ConvertToUTF8(property.GetString());
-            }
-            else if (type == PropertyType::Int64)
-            {
-                emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << property.GetInt64();
+                emitter << AppInstaller::YAML::Key << keyName;
+                WriteYamlValueSet(emitter, currentValueSet);
             }
             else
             {
-                throw E_NOTIMPL;
+                IPropertyValue property = value.try_as<IPropertyValue>();
+                auto type = property.Type();
+
+                if (type == PropertyType::Boolean)
+                {
+                    emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << property.GetBoolean();
+                }
+                else if (type == PropertyType::String)
+                {
+                    emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << AppInstaller::Utility::ConvertToUTF8(property.GetString());
+                }
+                else if (type == PropertyType::Int64)
+                {
+                    emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << property.GetInt64();
+                }
+                else
+                {
+                    throw E_NOTIMPL;
+                }
             }
         }
 

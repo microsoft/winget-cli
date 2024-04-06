@@ -203,16 +203,6 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_remoteFactory = callback->Wait(process.get());
                 AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
 
-                STARTUPINFOW startupInfo{};
-                startupInfo.cb = sizeof(startupInfo);
-                wil::unique_process_information processInformation;
-
-                THROW_IF_WIN32_BOOL_FALSE(CreateProcessW(serverPath.c_str(), &arguments[0], nullptr, nullptr, TRUE, DETACHED_PROCESS, nullptr, nullptr, &startupInfo, &processInformation));
-                AICLI_LOG(Config, Verbose, << "  Configuration remote PID is " << processInformation.dwProcessId);
-
-                m_remoteFactory = callback->Wait(processInformation.hProcess);
-                AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
-
                 completeEventIfFailureDuringConstruction.release();
             }
 

@@ -10,12 +10,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.InteropServices;
+    using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
     using Newtonsoft.Json.Linq;
     using Windows.Foundation.Collections;
     using Windows.Storage.Streams;
+    using WinRT;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -503,7 +505,9 @@ properties:
       settings:
         TestString: Bye
         TestBool: true
-        TestInt: 4321  
+        TestInt: 4321
+        Mapping:
+          Key: TestValue
 "));
 
             // Serialize set.
@@ -533,7 +537,10 @@ properties:
             Assert.Equal("TestId2", set.Units[1].Identifier);
             this.VerifyStringArray(set.Units[1].Dependencies, "TestId", "dependency2", "dependency3");
             this.VerifyValueSet(set.Units[1].Metadata, new ("description", "FakeDescription2"), new ("SecurityContext", "elevated"));
-            this.VerifyValueSet(set.Units[1].Settings, new ("TestString", "Bye"), new ("TestBool", true), new ("TestInt", 4321));
+
+            ValueSet mapping = new ValueSet();
+            mapping.Add("Key", "TestValue");
+            this.VerifyValueSet(set.Units[1].Settings, new ("TestString", "Bye"), new ("TestBool", true), new ("TestInt", 4321), new ("Mapping", mapping));
         }
 
         /// <summary>
@@ -763,6 +770,9 @@ parameters:
                         break;
                     case bool b:
                         Assert.Equal(b, (bool)value);
+                        break;
+                    case ValueSet v:
+                        Assert.True(v.ContentEquals(value.As<ValueSet>()));
                         break;
                     default:
                         Assert.Fail($"Add expected type `{expectation.Value.GetType().Name}` to switch statement.");
