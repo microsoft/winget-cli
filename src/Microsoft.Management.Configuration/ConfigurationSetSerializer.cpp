@@ -56,7 +56,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
             else
             {
-                IPropertyValue property = value.try_as<IPropertyValue>();
+                IPropertyValue property = value.as<IPropertyValue>();
                 auto type = property.Type();
 
                 if (type == PropertyType::Boolean)
@@ -73,7 +73,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 }
                 else
                 {
-                    throw E_NOTIMPL;
+                    THROW_HR(E_NOTIMPL);;
                 }
             }
         }
