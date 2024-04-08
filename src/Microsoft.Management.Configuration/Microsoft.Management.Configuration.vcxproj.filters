@@ -102,6 +102,15 @@
     <ClCompile Include="ApplyGroupSettingsResult.cpp">
       <Filter>Internals</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigurationSetSerializer.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSetSerializer_0_2.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSetUtilities.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -212,6 +221,11 @@
     </ClInclude>
     <ClInclude Include="ApplyGroupSettingsResult.h">
       <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetSerializer.h" />
+    <ClInclude Include="ConfigurationSetSerializer_0_2.h" />
+    <ClInclude Include="ConfigurationSetUtilities.h">
+      <Filter>Parser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

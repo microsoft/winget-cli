@@ -312,3 +312,14 @@ You can enable the feature as shown below.
        "configuration03": true
    },
 ```
+
+### configureSelfElevate
+
+This feature enables configure commands to request elevation as needed.
+Currently, this means that properly attributed configuration units (and only those) will be run through an elevated process while the rest are run from the current context.
+
+```json
+   "experimentalFeatures": {
+       "configureSelfElevate": true
+   },
+```

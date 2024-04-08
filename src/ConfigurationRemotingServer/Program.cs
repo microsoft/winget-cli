@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Loader;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,6 +13,57 @@ using WinRT;
 
 namespace ConfigurationRemotingServer
 {
+    /// <summary>
+    /// Custom assembly load context.
+    /// </summary>
+    internal class NativeAssemblyLoadContext : AssemblyLoadContext
+    {
+        private static readonly string PackageRootPath;
+
+        private static readonly NativeAssemblyLoadContext NativeALC = new();
+
+        static NativeAssemblyLoadContext()
+        {
+            var self = typeof(NativeAssemblyLoadContext).Assembly;
+            PackageRootPath = Path.Combine(
+                Path.GetDirectoryName(self.Location)!,
+                "..");
+        }
+
+        private NativeAssemblyLoadContext()
+            : base("NativeAssemblyLoadContext", isCollectible: false)
+        {
+        }
+
+        /// <summary>
+        /// Handler to resolve unmanaged assemblies.
+        /// </summary>
+        /// <param name="context">Assembly load context.</param>
+        /// <param name="name">Assembly name.</param>
+        /// <returns>The assembly, null if not in our assembly location.</returns>
+        internal static IntPtr ResolvingUnmanagedHandler(Assembly context, string name)
+        {
+            if (name.Equals("WindowsPackageManager.dll", StringComparison.OrdinalIgnoreCase))
+            {
+                return NativeALC.LoadUnmanagedDll(name);
+            }
+
+            return IntPtr.Zero;
+        }
+
+        /// <inheritdoc/>
+        protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
+        {
+            string path = Path.Combine(PackageRootPath, unmanagedDllName);
+            if (File.Exists(path))
+            {
+                return this.LoadUnmanagedDllFromPath(path);
+            }
+
+            return IntPtr.Zero;
+        }
+    }
+
     internal class Program
     {
         private const string CommandLineSectionSeparator = "~~~~~~";
@@ -20,13 +71,15 @@ namespace ConfigurationRemotingServer
 
         static int Main(string[] args)
         {
-            ulong memoryHandle = ulong.Parse(args[0]);
+            // Help find WindowsPackageManager.dll
+            AssemblyLoadContext.Default.ResolvingUnmanagedDll += NativeAssemblyLoadContext.ResolvingUnmanagedHandler;
+
+            string staticsCallback = args[1];
 
             try
             {
-                ulong initEventHandle = ulong.Parse(args[1]);
-                ulong completionEventHandle = ulong.Parse(args[2]);
-                ulong parentProcessHandle = ulong.Parse(args[3]);
+                string completionEventName = args[2];
+                uint parentProcessId = uint.Parse(args[3]);
 
                 PowerShellConfigurationSetProcessorFactory factory = new PowerShellConfigurationSetProcessorFactory();
 
@@ -100,11 +153,11 @@ namespace ConfigurationRemotingServer
 
                 IObjectReference factoryInterface = MarshalInterface<global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
 
-                return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, memoryHandle, initEventHandle, completionEventHandle, parentProcessHandle);
+                return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, staticsCallback, completionEventName, parentProcessId);
             }
             catch(Exception ex)
             {
-                WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(ex.HResult, IntPtr.Zero, memoryHandle, 0, 0, 0);
+                WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(ex.HResult, IntPtr.Zero, staticsCallback, null, 0);
                 return ex.HResult;
             }
         }
@@ -135,7 +188,12 @@ namespace ConfigurationRemotingServer
         }
 
         [DllImport("WindowsPackageManager.dll")]
-        private static extern int WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(int result, IntPtr factory, ulong memoryHandle, ulong initEventHandle, ulong completionMutexHandle, ulong parentProcessHandle);
+        private static extern int WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(
+            int result,
+            IntPtr factory,
+            [MarshalAs(UnmanagedType.LPWStr)]string staticsCallback,
+            [MarshalAs(UnmanagedType.LPWStr)]string? completionEventName,
+            uint parentProcessId);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr GetCommandLineW();
