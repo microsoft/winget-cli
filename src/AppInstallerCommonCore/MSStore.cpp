@@ -282,8 +282,12 @@ namespace AppInstaller::MSStore
         auto cancelIfOperationFailed = wil::scope_exit(
             [&]()
             {
-                AppInstallManager installManager;
-                installManager.Cancel(m_productId);
+                try
+                {    
+                    AppInstallManager installManager;
+                    installManager.Cancel(m_productId);
+                }
+                CATCH_LOG();
             });
 
         for (auto const& installItem : installItems)
