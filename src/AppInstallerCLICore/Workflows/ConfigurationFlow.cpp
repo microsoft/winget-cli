@@ -4,13 +4,15 @@
 #include "ConfigurationFlow.h"
 #include "PromptFlow.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
-#include <AppInstallerDownloader.h>
-#include <AppInstallerErrors.h>
-#include <AppInstallerStrings.h>
-#include <winrt/Microsoft.Management.Configuration.h>
-#include <winget/SelfManagement.h>
 #include "ConfigurationCommon.h"
 #include "ConfigurationWingetDscModuleUnitValidation.h"
+#include <AppInstallerDownloader.h>
+#include <AppInstallerErrors.h>
+#include <AppInstallerRuntime.h>
+#include <AppInstallerStrings.h>
+#include <winget/ExperimentalFeature.h>
+#include <winget/SelfManagement.h>
+#include <winrt/Microsoft.Management.Configuration.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -86,8 +88,21 @@ namespace AppInstaller::CLI::Workflow
             }
 #endif
 
-            auto factory = ConfigurationRemoting::CreateOutOfProcessFactory();
-            Configuration::SetModulePath(context, factory);
+            IConfigurationSetProcessorFactory factory;
+
+            // Since downgrading is not currently supported, only use dynamic if not running as admin.
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ConfigureSelfElevation) &&
+                !Runtime::IsRunningAsAdmin())
+            {
+                factory = ConfigurationRemoting::CreateDynamicRuntimeFactory();
+                // TODO: Implement SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties on dynamic factory
+            }
+            else
+            {
+                factory = ConfigurationRemoting::CreateOutOfProcessFactory();
+                Configuration::SetModulePath(context, factory);
+            }
+
             return factory;
         }
 

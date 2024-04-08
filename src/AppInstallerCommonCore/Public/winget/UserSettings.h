@@ -74,6 +74,7 @@ namespace AppInstaller::Settings
         EFConfiguration03,
         EFSideBySide,
         EFProxy,
+        EFConfigureSelfElevation,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -155,6 +156,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfiguration03, bool, bool, false, ".experimentalFeatures.configuration03"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFSideBySide, bool, bool, false, ".experimentalFeatures.sideBySide"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFProxy, bool, bool, false, ".experimentalFeatures.proxy"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureSelfElevation, bool, bool, false, ".experimentalFeatures.configureSelfElevate"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior
