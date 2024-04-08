@@ -443,6 +443,7 @@
     <ClCompile Include="Commands\TestCommand.cpp" />
     <ClCompile Include="ConfigurationCommon.cpp" />
     <ClCompile Include="ConfigurationContext.cpp" />
+    <ClCompile Include="ConfigurationDynamicRuntimeFactory.cpp" />
     <ClCompile Include="ConfigurationSetProcessorFactoryRemoting.cpp" />
     <ClCompile Include="ConfigurationWingetDscModuleUnitValidation.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />

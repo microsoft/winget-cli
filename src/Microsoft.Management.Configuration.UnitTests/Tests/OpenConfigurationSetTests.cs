@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="OpenConfigurationSetTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -10,11 +10,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.InteropServices;
+    using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
     using Newtonsoft.Json.Linq;
     using Windows.Foundation.Collections;
+    using Windows.Storage.Streams;
+    using WinRT;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -468,6 +471,79 @@ properties:
         }
 
         /// <summary>
+        /// Verifies that the configuration set (0.2) can be serialized and reopened correctly.
+        /// </summary>
+        [Fact]
+        public void TestSet_Serialize_0_2()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
+
+            OpenConfigurationSetResult openResult = processor.OpenConfigurationSet(this.CreateStream(@"
+properties:
+  configurationVersion: 0.2
+  assertions:
+    - resource: FakeModule
+      id: TestId
+      directives:
+        description: FakeDescription
+        allowPrerelease: true
+        SecurityContext: elevated
+      settings:
+        TestString: Hello
+        TestBool: false
+        TestInt: 1234  
+  resources:
+    - resource: FakeModule2
+      id: TestId2
+      dependsOn:
+        - TestId
+        - dependency2
+        - dependency3
+      directives:
+        description: FakeDescription2
+        SecurityContext: elevated
+      settings:
+        TestString: Bye
+        TestBool: true
+        TestInt: 4321
+        Mapping:
+          Key: TestValue
+"));
+
+            // Serialize set.
+            ConfigurationSet configurationSet = openResult.Set;
+            InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream();
+            configurationSet.Serialize(stream);
+
+            string yamlOutput = this.ReadStream(stream);
+
+            // Reopen configuration set from serialized string and verify values.
+            OpenConfigurationSetResult serializedSetResult = processor.OpenConfigurationSet(this.CreateStream(yamlOutput));
+            Assert.Null(serializedSetResult.ResultCode);
+            ConfigurationSet set = serializedSetResult.Set;
+            Assert.NotNull(set);
+
+            Assert.Equal("0.2", set.SchemaVersion);
+            Assert.Equal(2, set.Units.Count);
+
+            Assert.Equal("FakeModule", set.Units[0].Type);
+            Assert.Equal(ConfigurationUnitIntent.Assert, set.Units[0].Intent);
+            Assert.Equal("TestId", set.Units[0].Identifier);
+            this.VerifyValueSet(set.Units[0].Metadata, new ("description", "FakeDescription"), new ("allowPrerelease", true), new ("SecurityContext", "elevated"));
+            this.VerifyValueSet(set.Units[0].Settings, new ("TestString", "Hello"), new ("TestBool", false), new ("TestInt", 1234));
+
+            Assert.Equal("FakeModule2", set.Units[1].Type);
+            Assert.Equal(ConfigurationUnitIntent.Apply, set.Units[1].Intent);
+            Assert.Equal("TestId2", set.Units[1].Identifier);
+            this.VerifyStringArray(set.Units[1].Dependencies, "TestId", "dependency2", "dependency3");
+            this.VerifyValueSet(set.Units[1].Metadata, new ("description", "FakeDescription2"), new ("SecurityContext", "elevated"));
+
+            ValueSet mapping = new ValueSet();
+            mapping.Add("Key", "TestValue");
+            this.VerifyValueSet(set.Units[1].Settings, new ("TestString", "Bye"), new ("TestBool", true), new ("TestInt", 4321), new ("Mapping", mapping));
+        }
+
+        /// <summary>
         /// Test for using version 0.3 schema.
         /// </summary>
         [Fact]
@@ -691,6 +767,12 @@ parameters:
                         break;
                     case string s:
                         Assert.Equal(s, (string)value);
+                        break;
+                    case bool b:
+                        Assert.Equal(b, (bool)value);
+                        break;
+                    case ValueSet v:
+                        Assert.True(v.ContentEquals(value.As<ValueSet>()));
                         break;
                     default:
                         Assert.Fail($"Add expected type `{expectation.Value.GetType().Name}` to switch statement.");
