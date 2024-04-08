@@ -131,13 +131,11 @@ namespace AppInstaller::MSStore
             return result;
         }
 
-        bool DoesInstallItemsContainProduct(const IVectorView<AppInstallItem>& installItems, std::wstring_view productIdWide)
+        bool DoesInstallItemsContainProduct(const IVectorView<AppInstallItem>& installItems, std::wstring_view productId)
         {
-            auto productId = Utility::ConvertToUTF8(productIdWide);
-
             for (auto const& installItem : installItems)
             {
-                if (Utility::CaseInsensitiveEquals(Utility::ConvertToUTF8(installItem.ProductId()), productId))
+                if (Utility::CaseInsensitiveEquals(installItem.ProductId(), productId))
                 {
                     return true;
                 }
@@ -158,16 +156,16 @@ namespace AppInstaller::MSStore
                     installManager.Cancel(productId);
 
                     // Wait for at most 10 seconds for install item to be removed from queue.
-                    for (int i = 0; i < 20; ++i)
+                    for (int i = 0; i < 50; ++i)
                     {
-                        Sleep(500);
+                        Sleep(200);
                         if (!DoesInstallItemsContainProduct(installManager.AppInstallItems(), productId))
                         {
                             return S_OK;
                         }
                     }
 
-                    return HRESULT_FROM_WIN32(ERROR_TIMEOUT);
+                    RETURN_HR(HRESULT_FROM_WIN32(ERROR_TIMEOUT));
                 }
                 else
                 {
@@ -236,10 +234,7 @@ namespace AppInstaller::MSStore
 
         // Check if we need to restart or cancel existing items.
         auto restartOrCancelResult = RestartOrCancelExistingOperationIfNecessary(installItems, installManager, m_productId);
-        if (FAILED(restartOrCancelResult))
-        {
-            return restartOrCancelResult;
-        }
+        RETURN_IF_FAILED(restartOrCancelResult);
 
         // If restart or cancel happened, try again.
         if (restartOrCancelResult == S_OK)
@@ -281,10 +276,7 @@ namespace AppInstaller::MSStore
 
         // Check if we need to restart or cancel existing items.
         auto restartOrCancelResult = RestartOrCancelExistingOperationIfNecessary(installItems, installManager, m_productId);
-        if (FAILED(restartOrCancelResult))
-        {
-            return restartOrCancelResult;
-        }
+        RETURN_IF_FAILED(restartOrCancelResult);
 
         // If restart or cancel happened, try again.
         if (restartOrCancelResult == S_OK)
