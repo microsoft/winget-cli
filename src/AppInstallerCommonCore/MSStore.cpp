@@ -131,8 +131,23 @@ namespace AppInstaller::MSStore
             return result;
         }
 
+        bool DoesInstallItemsContainProduct(const IVectorView<AppInstallItem>& installItems, std::wstring_view productIdWide)
+        {
+            auto productId = Utility::ConvertToUTF8(productIdWide);
+
+            for (auto const& installItem : installItems)
+            {
+                if (Utility::CaseInsensitiveEquals(Utility::ConvertToUTF8(installItem.ProductId()), productId))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         // Returns true if Restart or Cancel happened. False otherwise.
-        bool RestartOrCancelExistingOperationIfNecessary(const IVectorView<AppInstallItem>& installItems, AppInstallManager& installManager, std::wstring_view productId)
+        HRESULT RestartOrCancelExistingOperationIfNecessary(const IVectorView<AppInstallItem>& installItems, AppInstallManager& installManager, std::wstring_view productId)
         {
             auto existingItemResult = CheckRestartOrCancelForPossibleExistingOperation(installItems);
 
@@ -141,16 +156,27 @@ namespace AppInstaller::MSStore
                 if (existingItemResult == CheckExistingItemResult::Cancel)
                 {
                     installManager.Cancel(productId);
+
+                    // Wait for at most 10 seconds for install item to be removed from queue.
+                    for (int i = 0; i < 20; ++i)
+                    {
+                        Sleep(500);
+                        if (!DoesInstallItemsContainProduct(installManager.AppInstallItems(), productId))
+                        {
+                            return S_OK;
+                        }
+                    }
+
+                    return HRESULT_FROM_WIN32(ERROR_TIMEOUT);
                 }
                 else
                 {
                     installManager.Restart(productId);
+                    return S_OK;
                 }
-
-                return true;
             }
 
-            return false;
+            return S_FALSE;
         }
     }
 
@@ -209,11 +235,15 @@ namespace AppInstaller::MSStore
             installOptions).get();
 
         // Check if we need to restart or cancel existing items.
-        if (RestartOrCancelExistingOperationIfNecessary(installItems, installManager, m_productId))
+        auto restartOrCancelResult = RestartOrCancelExistingOperationIfNecessary(installItems, installManager, m_productId);
+        if (FAILED(restartOrCancelResult))
         {
-            // Wait a bit
-            Sleep(500);
+            return restartOrCancelResult;
+        }
 
+        // If restart or cancel happened, try again.
+        if (restartOrCancelResult == S_OK)
+        {
             // Try again
             installItems = installManager.StartProductInstallAsync(
                 m_productId,            // ProductId
@@ -250,11 +280,15 @@ namespace AppInstaller::MSStore
         IVectorView<AppInstallItem> installItems = winrt::single_threaded_vector(std::move(installItemVector)).GetView();
 
         // Check if we need to restart or cancel existing items.
-        if (RestartOrCancelExistingOperationIfNecessary(installItems, installManager, m_productId))
+        auto restartOrCancelResult = RestartOrCancelExistingOperationIfNecessary(installItems, installManager, m_productId);
+        if (FAILED(restartOrCancelResult))
         {
-            // Wait a bit
-            Sleep(500);
+            return restartOrCancelResult;
+        }
 
+        // If restart or cancel happened, try again.
+        if (restartOrCancelResult == S_OK)
+        {
             // Try again
             installItem = installManager.SearchForUpdatesAsync(
                 m_productId,          // ProductId
@@ -283,7 +317,7 @@ namespace AppInstaller::MSStore
             [&]()
             {
                 try
-                {    
+                {
                     AppInstallManager installManager;
                     installManager.Cancel(m_productId);
                 }
