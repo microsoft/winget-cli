@@ -537,6 +537,24 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::InsertOrIgnore(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "INSERT OR IGNORE INTO", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::InsertOrIgnore(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "INSERT OR IGNORE INTO", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::InsertOrIgnore(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "INSERT OR IGNORE INTO", table);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Columns(std::string_view column)
     {
         OutputColumns(m_stream, "(", column);
@@ -713,6 +731,24 @@ namespace AppInstaller::SQLite::Builder
     StatementBuilder& StatementBuilder::DropTable(std::initializer_list<std::string_view> table)
     {
         OutputOperationAndTable(m_stream, "DROP TABLE", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropTableIfExists(std::string_view table)
+    {
+        OutputOperationAndTable(m_stream, "DROP TABLE IF EXISTS", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropTableIfExists(QualifiedTable table)
+    {
+        OutputOperationAndTable(m_stream, "DROP TABLE IF EXISTS", table);
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::DropTableIfExists(std::initializer_list<std::string_view> table)
+    {
+        OutputOperationAndTable(m_stream, "DROP TABLE IF EXISTS", table);
         return *this;
     }
 

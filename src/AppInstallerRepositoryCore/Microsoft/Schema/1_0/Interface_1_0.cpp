@@ -520,9 +520,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return GetPropertyByManifestIdInternal(connection, manifestId, property);
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection&, SQLite::rowid_t, PackageVersionMultiProperty) const
+    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t rowid, PackageVersionMultiProperty property) const
     {
-        return {};
+        switch (property)
+        {
+        case PackageVersionMultiProperty::Tag:
+            return TagsTable::GetValuesByManifestId(connection, rowid);
+        case PackageVersionMultiProperty::Command:
+            return CommandsTable::GetValuesByManifestId(connection, rowid);
+        default:
+            return {};
+        }
     }
 
     std::optional<SQLite::rowid_t> Interface::GetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) const
@@ -543,6 +551,26 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> Interface::GetDependentsById(const SQLite::Connection&, AppInstaller::Manifest::string_t) const
     {
         return {};
+    }
+
+    void Interface::DropTables(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "droptables_v1_0");
+
+        IdTable::Drop(connection);
+        NameTable::Drop(connection);
+        MonikerTable::Drop(connection);
+        VersionTable::Drop(connection);
+        ChannelTable::Drop(connection);
+
+        PathPartTable::Drop(connection);
+
+        ManifestTable::Drop(connection);
+
+        TagsTable::Drop(connection);
+        CommandsTable::Drop(connection);
+
+        savepoint.Commit();
     }
 
     std::vector<ISQLiteIndex::VersionKey> Interface::GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const
@@ -614,6 +642,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return ManifestTable::GetValueById<ChannelTable>(connection, manifestId);
         case AppInstaller::Repository::PackageVersionProperty::RelativePath:
             return PathPartTable::GetPathById(connection, std::get<0>(ManifestTable::GetIdsById<PathPartTable>(connection, manifestId)));
+        case AppInstaller::Repository::PackageVersionProperty::Moniker:
+            return ManifestTable::GetValueById<MonikerTable>(connection, manifestId);
         default:
             return {};
         }

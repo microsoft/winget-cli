@@ -2,13 +2,17 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include <winget/SQLiteMetadataTable.h>
-#include "Microsoft/Schema/1_7/Interface.h"
 #include "Microsoft/Schema/2_0/Interface.h"
 
 #include "Microsoft/Schema/2_0/PackagesTable.h"
 
 #include "Microsoft/Schema/2_0/TagsTable.h"
 #include "Microsoft/Schema/2_0/CommandsTable.h"
+#include "Microsoft/Schema/2_0/PackageFamilyNameTable.h"
+#include "Microsoft/Schema/2_0/ProductCodeTable.h"
+#include "Microsoft/Schema/2_0/NormalizedPackageNameTable.h"
+#include "Microsoft/Schema/2_0/NormalizedPackagePublisherTable.h"
+#include "Microsoft/Schema/2_0/UpgradeCodeTable.h"
 
 #include "Microsoft/Schema/2_0/SearchResultsTable.h"
 
@@ -171,6 +175,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     std::optional<std::string> Interface::GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
     {
+        EnsureInternalInterface(connection);
+
+        if (m_internalInterface)
+        {
+            return m_internalInterface->GetPropertyByManifestId(connection, manifestId, property);
+        }
+
         switch (property)
         {
         case PackageVersionProperty::Id:
@@ -197,19 +208,26 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
     {
+        EnsureInternalInterface(connection);
+
+        if (m_internalInterface)
+        {
+            return m_internalInterface->GetMultiPropertyByManifestId(connection, manifestId, property);
+        }
+
         switch (property)
         {
         case PackageVersionMultiProperty::PackageFamilyName:
-            return PackageFamilyNameTable::GetValuesByManifestId(connection, manifestId);
+            return PackageFamilyNameTable::GetValuesByPrimaryId(connection, manifestId);
         case PackageVersionMultiProperty::ProductCode:
-            return ProductCodeTable::GetValuesByManifestId(connection, manifestId);
+            return ProductCodeTable::GetValuesByPrimaryId(connection, manifestId);
             // These values are not right, as they are normalized.  But they are good enough for now and all we have.
         case PackageVersionMultiProperty::Name:
-            return NormalizedPackageNameTable::GetValuesByManifestId(connection, manifestId);
+            return NormalizedPackageNameTable::GetValuesByPrimaryId(connection, manifestId);
         case PackageVersionMultiProperty::Publisher:
-            return NormalizedPackagePublisherTable::GetValuesByManifestId(connection, manifestId);
+            return NormalizedPackagePublisherTable::GetValuesByPrimaryId(connection, manifestId);
         case PackageVersionMultiProperty::UpgradeCode:
-            return UpgradeCodeTable::GetValuesByManifestId(connection, manifestId);
+            return UpgradeCodeTable::GetValuesByPrimaryId(connection, manifestId);
         default:
             return {};
         }
@@ -262,6 +280,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     Utility::NormalizedName Interface::NormalizeName(std::string_view name, std::string_view publisher) const
     {
+        if (m_internalInterface)
+        {
+            return m_internalInterface->NormalizeName(name, publisher);
+        }
+
         return m_normalizer.Normalize(name, publisher);
     }
 
@@ -287,6 +310,31 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
 
         THROW_HR(E_NOT_VALID_STATE);
+    }
+
+    void Interface::DropTables(SQLite::Connection& connection)
+    {
+        EnsureInternalInterface(connection);
+
+        if (m_internalInterface)
+        {
+            return m_internalInterface->DropTables(connection);
+        }
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "droptables_v2_0");
+
+        PackagesTable::Drop(connection);
+
+        TagsTable::Drop(connection);
+        CommandsTable::Drop(connection);
+
+        PackageFamilyNameTable::Drop(connection);
+        ProductCodeTable::Drop(connection);
+        NormalizedPackageNameTable::Drop(connection);
+        NormalizedPackagePublisherTable::Drop(connection);
+        UpgradeCodeTable::Drop(connection);
+
+        savepoint.Commit();
     }
 
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
@@ -389,7 +437,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     {
         if (request.IsForEverything())
         {
-            std::vector<SQLite::rowid_t> ids = PackagesTable::GetAllRowIds(connection, request.MaximumResults);
+            std::vector<SQLite::rowid_t> ids = PackagesTable::GetAllRowIds(connection, PackagesTable::IdColumn::Name, request.MaximumResults);
 
             SearchResult result;
             for (SQLite::rowid_t id : ids)
@@ -473,17 +521,96 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
     {
-        // TODO: Write out changed package intermediate files and save their hashes
+        // TODO: If package was written since last prepare, write out the intermediate file
+        //          Implement with a table in pre-prepare state that holds { packageId, writeTime, intermediateFileText, hash }
+        //          Update flow is:
+        //              1. Caller sets current time value via new property mechanism
+        //              2. Update as needed; each change updates the new table for the changed package
+        //              3. Prepare writes all files after time set in step 1
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v2_0");
 
-        // TODO: Create 2.0 tables
+        // Create the 2.0 data tables
+        PackagesTable::Create<
+            PackagesTable::IdColumn,
+            PackagesTable::NameColumn,
+            PackagesTable::MonikerColumn,
+            PackagesTable::LatestVersionColumn,
+            PackagesTable::ARPMinVersionColumn,
+            PackagesTable::ARPMaxVersionColumn,
+            PackagesTable::HashColumn
+        >(connection);
 
-        // TODO: Copy data from 1.N tables to 2.0 tables
+        TagsTable::Create(connection, OneToManyTableSchema::Version_2_0);
+        CommandsTable::Create(connection, OneToManyTableSchema::Version_2_0);
 
-        // TODO: Drop 1.N tables
+        PackageFamilyNameTable::Create(connection);
+        ProductCodeTable::Create(connection);
+        NormalizedPackageNameTable::Create(connection);
+        NormalizedPackagePublisherTable::Create(connection);
+        UpgradeCodeTable::Create(connection);
 
-        // TODO: Remove metadata for internal schema version to mark completion
+        // Copy data from 1.7 tables to 2.0 tables
+        SearchResult allPackages = m_internalInterface->Search(connection, {});
+
+        for (const auto& packageMatch : allPackages.Matches)
+        {
+            std::vector<ISQLiteIndex::VersionKey> versionKeys = m_internalInterface->GetVersionKeysById(connection, packageMatch.first);
+            ISQLiteIndex::VersionKey& latestVersionKey = versionKeys[0];
+
+            // TODO: Get the hash from that file rather than grabbing an arbitrary value here
+            SQLite::blob_t intermediateHash = Utility::ParseFromHexString(m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::ManifestSHA256Hash).value());
+
+            std::vector<PackagesTable::NameValuePair> packageData{
+                { PackagesTable::IdColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value() },
+                { PackagesTable::NameColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Name).value() },
+                { PackagesTable::LatestVersionColumn::Name, latestVersionKey.VersionAndChannel.GetVersion().ToString() },
+            };
+
+            auto addIfPresent = [&](std::string_view name, std::optional<std::string>&& value)
+                {
+                    if (value && !value->empty())
+                    {
+                        packageData.emplace_back(PackagesTable::NameValuePair{ name, std::move(value).value() });
+                    }
+                };
+
+            addIfPresent(PackagesTable::MonikerColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Moniker).value());
+            addIfPresent(PackagesTable::ARPMinVersionColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::ArpMinVersion).value());
+            addIfPresent(PackagesTable::ARPMaxVersionColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::ArpMaxVersion).value());
+
+            SQLite::rowid_t packageId = PackagesTable::Insert(connection, packageData);
+
+            PackagesTable::UpdateValueIdById<PackagesTable::HashColumn>(connection, packageId, intermediateHash);
+
+            for (const auto& versionKey : versionKeys)
+            {
+                TagsTable::EnsureExistsAndInsert(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Tag), packageId);
+                CommandsTable::EnsureExistsAndInsert(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Command), packageId);
+
+                PackageFamilyNameTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::PackageFamilyName), packageId);
+                ProductCodeTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::ProductCode), packageId);
+                NormalizedPackageNameTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Name), packageId);
+                NormalizedPackagePublisherTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Publisher), packageId);
+                UpgradeCodeTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::UpgradeCode), packageId);
+            }
+        }
+
+        PackagesTable::PrepareForPackaging<
+            PackagesTable::IdColumn,
+            PackagesTable::NameColumn,
+            PackagesTable::MonikerColumn,
+            PackagesTable::LatestVersionColumn,
+            PackagesTable::ARPMinVersionColumn,
+            PackagesTable::ARPMaxVersionColumn,
+            PackagesTable::HashColumn
+        >(connection);
+
+        TagsTable::PrepareForPackaging(connection);
+        CommandsTable::PrepareForPackaging(connection);
+
+        // Drop 1.7 tables
+        m_internalInterface->DropTables(connection);
 
         savepoint.Commit();
 
@@ -517,6 +644,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     std::unique_ptr<Schema::ISQLiteIndex> Interface::CreateInternalInterface() const
     {
-        return std::make_unique<V1_7::Interface>();
+        return CreateISQLiteIndex({ 1, 7 });
     }
 }

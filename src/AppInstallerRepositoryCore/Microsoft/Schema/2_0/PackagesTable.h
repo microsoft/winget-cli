@@ -14,19 +14,40 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
     namespace details
     {
+        // Info on the columns.
+        struct ColumnInfo
+        {
+            template<typename Column>
+            static constexpr ColumnInfo Create()
+            {
+                ColumnInfo result;
+                result.Name = Column::Name;
+                result.Type = Column::Type;
+                result.PrimaryKey = Column::PrimaryKey;
+                result.AllowNull = Column::AllowNull;
+                return result;
+            }
+
+            std::string_view Name;
+            SQLite::Builder::Type Type = {};
+            bool PrimaryKey = false;
+            bool AllowNull = false;
+        };
+
+        // Creates the table.
+        void PackagesTableCreate(SQLite::Connection& connection, std::initializer_list<ColumnInfo> values);
+
         // Gets the requested values for the manifest with the given rowid.
         SQLite::Statement PackagesTableGetValuesById_Statement(
             const SQLite::Connection& connection,
             SQLite::rowid_t id,
-            std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
-            std::initializer_list<std::string_view> manifestColumnNames,
+            std::initializer_list<std::string_view> columns,
             bool stepAndVerify = true);
 
         // Builds the search select statement base on the given values.
         std::vector<int> PackagesTableBuildSearchStatement(
             SQLite::Builder::StatementBuilder& builder,
-            std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
-            std::initializer_list<bool> isOneToOnes,
+            std::initializer_list<std::string_view> columns,
             std::string_view manifestAlias,
             std::string_view valueAlias,
             bool useLike);
@@ -35,6 +56,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // The first bind value will be the value to set.
         // The second bind value will be the manifest rowid to modify.
         SQLite::Statement PackagesTableUpdateValueIdById_Statement(SQLite::Connection& connection, std::string_view valueName);
+
+        // Removes data that is no longer needed for an index that is to be published.
+        void PackagesTablePrepareForPackaging(SQLite::Connection& connection, std::initializer_list<ColumnInfo> values);
     }
 
     // A table in which each row represents a single package.
@@ -99,26 +123,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             static constexpr bool AllowNull = true;
         };
 
-        // Info on the columns.
-        struct ColumnInfo
-        {
-            template<typename Column>
-            ColumnInfo()
-            {
-                Name = Column::Name;
-                Type = Column::Type;
-                PrimaryKey = Column::PrimaryKey;
-                AllowNull = Column::AllowNull;
-            }
-
-            std::string_view Name;
-            SQLite::Builder::Type Type;
-            bool PrimaryKey = false;
-            bool AllowNull = false;
-        };
+        using ColumnInfo = details::ColumnInfo;
 
         // Creates the table.
-        static void Create(SQLite::Connection& connection, std::initializer_list<ColumnInfo> values);
+        template <typename... Columns>
+        static void Create(SQLite::Connection& connection)
+        {
+            details::PackagesTableCreate(connection, { ColumnInfo::Create<Columns>()... });
+        }
+
+        // Drops the table.
+        static void Drop(SQLite::Connection& connection);
+
+        // Determine if the table currently exists in the database.
+        static bool Exists(const SQLite::Connection& connection);
 
         // Alters the table, adding the column provided.
         static void AddColumn(SQLite::Connection& connection, const ColumnInfo& value);
@@ -127,14 +145,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         struct NameValuePair
         {
             std::string_view Name;
-            std::string_view Value;
+            std::string Value;
         };
 
         // Insert the given values into the table.
-        static SQLite::rowid_t Insert(SQLite::Connection& connection, std::initializer_list<NameValuePair> values);
+        static SQLite::rowid_t Insert(SQLite::Connection& connection, const std::vector<NameValuePair>& values);
 
         // Gets a value indicating whether the package with rowid exists.
         static bool ExistsById(const SQLite::Connection& connection, SQLite::rowid_t rowid);
+
+        // Gets all row ids from the table.
+        static std::vector<SQLite::rowid_t> GetAllRowIds(const SQLite::Connection& connection, std::string_view orderByColumn, size_t limit = 0);
+
+        // Gets the total number of rows in the table.
+        static uint64_t GetCount(const SQLite::Connection& connection);
 
         // Gets the values requested for the package with the given rowid.
         template <typename... Columns>
@@ -145,9 +169,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         // Gets the value requested for the package with the given rowid, if it exists.
         template <typename Column>
-        static std::optional<typename SQLite::Builder::TypeInfo<Column::Type>::value_t> GetValueById(const SQLite::Connection& connection, SQLite::rowid_t id)
+        static std::optional<typename SQLite::Builder::TypeInfo<Column::Type>::value_t> GetValueById(const SQLite::Connection& connection, SQLite::rowid_t rowid)
         {
-            auto statement = details::PackagesTableGetValuesById_Statement(connection, id, { Column::Name }, false);
+            auto statement = details::PackagesTableGetValuesById_Statement(connection, rowid, { Column::Name }, false);
             if (statement.Step()) { return statement.GetColumn<typename SQLite::Builder::TypeInfo<Column::Type>::value_t>(0); }
             else { return std::nullopt; }
         }
@@ -156,9 +180,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // If more than one table is provided, no value will be captured.
         // The return value is the bind indices of the values to match against.
         template <typename... Columns>
-        static std::vector<int> BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, std::string_view manifestAlias, std::string_view valueAlias, bool useLike)
+        static std::vector<int> BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, std::string_view primaryAlias, std::string_view valueAlias, bool useLike)
         {
-            return details::PackagesTableBuildSearchStatement(builder, { SQLite::Builder::QualifiedColumn{ Table::TableName(), Table::ValueName() }... }, { Table::IsOneToOne()... }, manifestAlias, valueAlias, useLike);
+            return details::PackagesTableBuildSearchStatement(builder, { Columns::Name... }, primaryAlias, valueAlias, useLike);
         }
 
         // Update the value of a single column for the package with the given rowid.
@@ -172,7 +196,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
 
         // Removes data that is no longer needed for an index that is to be published.
-        static void PrepareForPackaging(SQLite::Connection& connection, std::initializer_list<std::string_view> values);
+        template <typename... Columns>
+        static void PrepareForPackaging(SQLite::Connection& connection)
+        {
+            details::PackagesTablePrepareForPackaging(connection, { ColumnInfo::Create<Columns>()... });
+        }
 
         // Determines if the table is empty.
         static bool IsEmpty(SQLite::Connection& connection);

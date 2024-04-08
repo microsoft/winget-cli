@@ -193,15 +193,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Through the "group by m.id", we will only ever have one row per id, and the "min(sort)" returns us one of the rows that matched
         // through the earliest search.  We also order by the sort value to have the earliest search matches first in the list
         StatementBuilder builder;
-        builder.Select().
-            Column(QCol(ManifestTable::TableName(), IdTable::ValueName())).
-            Column(QCol(tempTableAlias, s_SearchResultsTable_MatchField)).
-            Column(QCol(tempTableAlias, s_SearchResultsTable_MatchType)).
-            Column(QCol(tempTableAlias, s_SearchResultsTable_MatchValue)).
-            Column(Aggregate::Min, QCol(tempTableAlias, s_SearchResultsTable_SortValue)).
-        From(GetQualifiedName()).As(tempTableAlias).
-            Join(ManifestTable::TableName()).On(QCol(tempTableAlias, s_SearchResultsTable_Manifest), QCol(ManifestTable::TableName(), SQLite::RowIDName)).
-            GroupBy(QCol(ManifestTable::TableName(), IdTable::ValueName())).OrderBy(QCol(tempTableAlias, s_SearchResultsTable_SortValue));
+        //builder.Select().
+        //    Column(QCol(ManifestTable::TableName(), IdTable::ValueName())).
+        //    Column(QCol(tempTableAlias, s_SearchResultsTable_MatchField)).
+        //    Column(QCol(tempTableAlias, s_SearchResultsTable_MatchType)).
+        //    Column(QCol(tempTableAlias, s_SearchResultsTable_MatchValue)).
+        //    Column(Aggregate::Min, QCol(tempTableAlias, s_SearchResultsTable_SortValue)).
+        //From(GetQualifiedName()).As(tempTableAlias).
+        //    Join(ManifestTable::TableName()).On(QCol(tempTableAlias, s_SearchResultsTable_Manifest), QCol(ManifestTable::TableName(), SQLite::RowIDName)).
+        //    GroupBy(QCol(ManifestTable::TableName(), IdTable::ValueName())).OrderBy(QCol(tempTableAlias, s_SearchResultsTable_SortValue));
 
         SQLite::Statement select = builder.Prepare(m_connection);
 
@@ -237,15 +237,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         switch (field)
         {
         case PackageMatchField::Id:
-            return ManifestTable::BuildSearchStatement<IdTable>(builder, manifestAlias, valueAlias, useLike);
+            return PackagesTable::BuildSearchStatement<PackagesTable::IdColumn>(builder, manifestAlias, valueAlias, useLike);
         case PackageMatchField::Name:
-            return ManifestTable::BuildSearchStatement<NameTable>(builder, manifestAlias, valueAlias, useLike);
+            return PackagesTable::BuildSearchStatement<PackagesTable::NameColumn>(builder, manifestAlias, valueAlias, useLike);
         case PackageMatchField::Moniker:
-            return ManifestTable::BuildSearchStatement<MonikerTable>(builder, manifestAlias, valueAlias, useLike);
-        case PackageMatchField::Tag:
-            return ManifestTable::BuildSearchStatement<TagsTable>(builder, manifestAlias, valueAlias, useLike);
-        case PackageMatchField::Command:
-            return ManifestTable::BuildSearchStatement<CommandsTable>(builder, manifestAlias, valueAlias, useLike);
+            return PackagesTable::BuildSearchStatement<PackagesTable::MonikerColumn>(builder, manifestAlias, valueAlias, useLike);
+        //case PackageMatchField::Tag:
+        //    return PackagesTable::BuildSearchStatement<TagsTable>(builder, manifestAlias, valueAlias, useLike);
+        //case PackageMatchField::Command:
+        //    return PackagesTable::BuildSearchStatement<CommandsTable>(builder, manifestAlias, valueAlias, useLike);
         default:
             return {};
         }

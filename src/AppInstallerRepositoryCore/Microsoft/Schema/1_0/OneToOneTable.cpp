@@ -50,6 +50,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
         }
 
+        void DropOneToOneTable(SQLite::Connection& connection, std::string_view tableName)
+        {
+            SQLite::Builder::StatementBuilder dropTableBuilder;
+            dropTableBuilder.DropTable(tableName);
+
+            dropTableBuilder.Execute(connection);
+        }
+
         std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike)
         {
             SQLite::Builder::StatementBuilder selectBuilder;

@@ -134,6 +134,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         return DependenciesTable::GetDependentsById(connection, packageId);
     }
 
+    void Interface::DropTables(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "droptables_v1_4");
+
+        V1_2::Interface::DropTables(connection);
+
+        DependenciesTable::Drop(connection);
+
+        savepoint.Commit();
+    }
+
     bool Interface::ValidateDependenciesWithMinVersions(const SQLite::Connection& connection, bool log) const
     {
         try

@@ -120,6 +120,10 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const = 0;
 
         virtual std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const = 0;
+
+        // Version 1.7
+
+        virtual void DropTables(SQLite::Connection& connection) = 0;
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ISQLiteIndex::CreateOptions);

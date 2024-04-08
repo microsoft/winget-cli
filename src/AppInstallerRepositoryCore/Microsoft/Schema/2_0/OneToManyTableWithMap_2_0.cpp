@@ -26,7 +26,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             SQLite::Statement CreateMappingInsertStatementForPrimaryId(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t manifestId)
             {
                 SQLite::Builder::StatementBuilder insertMappingBuilder;
-                insertMappingBuilder.InsertInto({ tableName, s_OneToManyTable_MapTable_Suffix }).
+                insertMappingBuilder.InsertOrIgnore({ tableName, s_OneToManyTable_MapTable_Suffix }).
                     Columns({ s_OneToManyTable_MapTable_PrimaryName, valueName }).Values(manifestId, SQLite::Builder::Unbound);
 
                 return insertMappingBuilder.Prepare(connection);
@@ -100,6 +100,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             savepoint.Commit();
         }
 
+        void DropOneToManyTable(SQLite::Connection& connection, std::string_view tableName)
+        {
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_drop_v2_0");
+
+            DropOneToOneTable(connection, tableName);
+
+            SQLite::Builder::StatementBuilder dropTableBuilder;
+            dropTableBuilder.DropTable({ tableName, s_OneToManyTable_MapTable_Suffix });
+
+            dropTableBuilder.Execute(connection);
+
+            savepoint.Commit();
+        }
+
         std::vector<std::string> OneToManyTableGetValuesByPrimaryId(
             const SQLite::Connection& connection,
             std::string_view tableName,
@@ -127,7 +141,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         void OneToManyTableEnsureExistsAndInsert(SQLite::Connection& connection,
             std::string_view tableName, std::string_view valueName,
-            const std::vector<Utility::NormalizedString>& values, SQLite::rowid_t manifestId)
+            const std::vector<std::string>& values, SQLite::rowid_t manifestId)
         {
             SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_ensureandinsert_v2_0");
 
@@ -148,17 +162,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             savepoint.Commit();
         }
 
-        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, OneToManyTableSchema schemaVersion, bool preserveManifestIndex, bool preserveValuesIndex)
+        void OneToManyTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName)
         {
-            if (!preserveManifestIndex)
-            {
-                SQLite::Builder::StatementBuilder dropMapTableIndexBuilder;
-                dropMapTableIndexBuilder.DropIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_IndexSuffix });
+            SQLite::Builder::StatementBuilder dropMapTableIndexBuilder;
+            dropMapTableIndexBuilder.DropIndex({ tableName, s_OneToManyTable_MapTable_Suffix, s_OneToManyTable_MapTable_IndexSuffix });
 
-                dropMapTableIndexBuilder.Execute(connection);
-            }
+            dropMapTableIndexBuilder.Execute(connection);
 
-            OneToOneTablePrepareForPackaging(connection, tableName, true, preserveValuesIndex);
+            OneToOneTablePrepareForPackaging(connection, tableName);
         }
 
         bool OneToManyTableCheckConsistency(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool log)

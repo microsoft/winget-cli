@@ -3,7 +3,7 @@
 #pragma once
 #include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Microsoft/Schema/2_0/SearchResultsTable.h"
-#include "Microsoft/Schema/2_0/OneToManyTable.h"
+#include "Microsoft/Schema/2_0/OneToManyTableWithMap.h"
 
 #include <memory>
 #include <vector>
@@ -43,6 +43,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Version 1.4 Get all the dependencies for a specific manifest.
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const override;
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const override;
+
+        // Version 1.7
+        void DropTables(SQLite::Connection& connection) override;
 
     protected:
         // Creates the search results table.

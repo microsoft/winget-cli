@@ -441,6 +441,24 @@
     <ClInclude Include="Microsoft\Schema\2_0\TagsTable.h">
       <Filter>Microsoft\Schema\2_0</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\SystemReferenceStringTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\PackageFamilyNameTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\NormalizedPackageNameTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\NormalizedPackagePublisherTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\ProductCodeTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\UpgradeCodeTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -697,6 +715,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\ISQLiteIndex.cpp">
       <Filter>Microsoft\Schema</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_0\SystemReferenceStringTable.cpp">
+      <Filter>Microsoft\Schema\2_0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

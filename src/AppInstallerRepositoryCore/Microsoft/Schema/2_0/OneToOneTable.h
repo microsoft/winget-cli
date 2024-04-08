@@ -15,6 +15,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Creates the table.
         void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName);
 
+        // Drops the table.
+        void DropOneToOneTable(SQLite::Connection& connection, std::string_view tableName);
+
         // Selects the value from the table, returning the rowid if it exists.
         std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike = false);
 
@@ -26,8 +29,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         // Ensures that the values exists in the table.
         SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool overwriteLikeMatch = false);
+
         // Removes data that is no longer needed for an index that is to be published.
-        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndices, bool preserveValuesIndex);
+        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName);
 
         // Gets the total number of rows in the table.
         uint64_t OneToOneTableGetCount(const SQLite::Connection& connection, std::string_view tableName);
@@ -89,19 +93,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         static SQLite::rowid_t EnsureExists(SQLite::Connection& connection, std::string_view value, bool overwriteLikeMatch = false)
         {
             return details::OneToOneTableEnsureExists(connection, TableInfo::TableName(), TableInfo::ValueName(), value, overwriteLikeMatch);
-        }
-
-        // Removes data that is no longer needed for an index that is to be published.
-        // Preserving the values index will improve searching when it is primarily done by equality.
-        static void PrepareForPackaging(SQLite::Connection& connection, bool preserveValuesIndex = false)
-        {
-            details::OneToOneTablePrepareForPackaging(connection, TableInfo::TableName(), true, preserveValuesIndex);
-        }
-
-        // Removes data that is no longer needed for an index that is to be published.
-        static void PrepareForPackaging_deprecated(SQLite::Connection& connection)
-        {
-            details::OneToOneTablePrepareForPackaging(connection, TableInfo::TableName(), false, false);
         }
 
         // Gets the total number of rows in the table.

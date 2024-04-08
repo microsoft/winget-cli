@@ -121,6 +121,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Creates the table with standard primary keys.
         static void Create_deprecated(SQLite::Connection& connection, std::initializer_list<ManifestColumnInfo> values);
 
+        // Drops the table.
+        static void Drop(SQLite::Connection& connection);
+
         // Insert the given values into the table.
         static SQLite::rowid_t Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values);
 

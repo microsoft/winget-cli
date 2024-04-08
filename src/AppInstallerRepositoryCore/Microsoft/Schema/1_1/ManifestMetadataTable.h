@@ -22,6 +22,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         // Creates the table in the database.
         static void Create(SQLite::Connection& connection);
 
+        // Drops the table.
+        static void Drop(SQLite::Connection& connection);
+
         // Gets all metadata associated with the given manifest.
         // The table must exist.
         static ISQLiteIndex::MetadataResult GetMetadataByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId);

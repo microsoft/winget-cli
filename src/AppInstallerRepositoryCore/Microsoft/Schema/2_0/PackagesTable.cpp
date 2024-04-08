@@ -15,6 +15,65 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     namespace details
     {
+        void PackagesTableCreate(SQLite::Connection& connection, std::initializer_list<ColumnInfo> values)
+        {
+            using namespace SQLite::Builder;
+
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPackagesTable_v2_0");
+
+            StatementBuilder createTableBuilder;
+            createTableBuilder.CreateTable(s_PackagesTable_Table_Name).BeginColumns();
+
+            // Add an integer primary key to keep the manifest rowid consistent
+            createTableBuilder.Column(IntegerPrimaryKey());
+
+            for (const ColumnInfo& value : values)
+            {
+                ColumnBuilder columnBuilder(value.Name, Type::Int64);
+
+                if (!value.AllowNull)
+                {
+                    columnBuilder.NotNull();
+                }
+
+                createTableBuilder.Column(columnBuilder);
+            }
+
+            createTableBuilder.EndColumns();
+
+            createTableBuilder.Execute(connection);
+
+            // Create a unique index with the primary key values
+            StatementBuilder pkIndexBuilder;
+
+            pkIndexBuilder.CreateUniqueIndex({ s_PackagesTable_Table_Name, s_PackagesTable_Index_Suffix }).On(s_PackagesTable_Table_Name).BeginColumns();
+
+            for (const ColumnInfo& value : values)
+            {
+                if (value.PrimaryKey)
+                {
+                    pkIndexBuilder.Column(value.Name);
+                }
+            }
+
+            pkIndexBuilder.EndColumns();
+
+            pkIndexBuilder.Execute(connection);
+
+            // Create an index on every value to improve performance
+            for (const ColumnInfo& value : values)
+            {
+                StatementBuilder createIndexBuilder;
+
+                createIndexBuilder.CreateIndex({ s_PackagesTable_Table_Name, s_PackagesTable_Index_Separator, value.Name, s_PackagesTable_Index_Suffix });
+                createIndexBuilder.On(s_PackagesTable_Table_Name).Columns(value.Name);
+
+                createIndexBuilder.Execute(connection);
+            }
+
+            savepoint.Commit();
+        }
+
         // Creates a statement and executes it, select the actual values for a given manifest id.
         // Ex.
         // SELECT [ids].[id] FROM [manifest]
@@ -23,29 +82,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         SQLite::Statement PackagesTableGetValuesById_Statement(
             const SQLite::Connection& connection,
             SQLite::rowid_t id,
-            std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
-            std::initializer_list<std::string_view> manifestColumnNames,
+            std::initializer_list<std::string_view> columns,
             bool stepAndVerify)
         {
-            THROW_HR_IF(E_UNEXPECTED, manifestColumnNames.size() != columns.size());
-
-            using QCol = SQLite::Builder::QualifiedColumn;
-
             SQLite::Builder::StatementBuilder builder;
-            builder.Select(columns).From(s_PackagesTable_Table_Name);
-
-            // join tables
-            auto columnItr = columns.begin();
-            auto manifestColumnNameItr = manifestColumnNames.begin();
-            while (columnItr != columns.end())
-            {
-                builder.Join(columnItr->Table).On(QCol{ s_PackagesTable_Table_Name, *manifestColumnNameItr }, QCol{ columnItr->Table, SQLite::RowIDName });
-
-                columnItr++;
-                manifestColumnNameItr++;
-            }
-
-            builder.Where(QCol{ s_PackagesTable_Table_Name, SQLite::RowIDName }).Equals(id);
+            builder.Select(columns).From(s_PackagesTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
             SQLite::Statement result = builder.Prepare(connection);
 
@@ -59,9 +100,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         std::vector<int> PackagesTableBuildSearchStatement(
             SQLite::Builder::StatementBuilder& builder,
-            std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
-            std::initializer_list<bool> isOneToOnes,
-            std::string_view manifestAlias,
+            std::initializer_list<std::string_view> columns,
+            std::string_view primaryAlias,
             std::string_view valueAlias,
             bool useLike)
         {
@@ -78,7 +118,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             //      where tags.tag = <value>
             // Where the joins and where portions are repeated for each table in question.
             builder.Select().
-                Column(QCol(s_PackagesTable_Table_Name, SQLite::RowIDName)).As(manifestAlias);
+                Column(QCol(s_PackagesTable_Table_Name, SQLite::RowIDName)).As(primaryAlias);
 
             // Value will be captured for single tables references, and left empty for multi-tables
             if (columns.size() == 1)
@@ -92,33 +132,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             builder.As(valueAlias).From(s_PackagesTable_Table_Name);
 
-            // Create join clauses
-            THROW_HR_IF(E_INVALIDARG, columns.size() != isOneToOnes.size());
-            auto columnItr = columns.begin();
-            auto isOneToOneItr = isOneToOnes.begin();
-
-            for (; columnItr != columns.end(); ++columnItr, ++isOneToOneItr)
-            {
-                const SQLite::Builder::QualifiedColumn& column = *columnItr;
-
-                if (*isOneToOneItr)
-                {
-                    builder.
-                        Join(column.Table).On(QCol(s_PackagesTable_Table_Name, column.Column), QCol(column.Table, SQLite::RowIDName));
-                }
-                else
-                {
-                    std::string mapTableName = details::OneToManyTableGetMapTableName(column.Table);
-                    builder.
-                        Join(mapTableName).On(QCol(s_PackagesTable_Table_Name, SQLite::RowIDName), QCol(mapTableName, details::OneToManyTableGetManifestColumnName())).
-                        Join(column.Table).On(QCol(mapTableName, column.Column), QCol(column.Table, SQLite::RowIDName));
-                }
-            }
-
             std::vector<int> result;
 
             // Create where clause
-            for (const SQLite::Builder::QualifiedColumn& column : columns)
+            for (const auto& column : columns)
             {
                 if (result.empty())
                 {
@@ -152,6 +169,26 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             return builder.Prepare(connection);
         }
+
+        void PackagesTablePrepareForPackaging(SQLite::Connection& connection, std::initializer_list<ColumnInfo> values)
+        {
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "pfpPackagesTable_v2_0");
+
+            // Drop the index on the requested values
+            for (const auto& value : values)
+            {
+                SQLite::Builder::StatementBuilder dropIndexBuilder;
+                dropIndexBuilder.DropIndex({ s_PackagesTable_Table_Name, s_PackagesTable_Index_Separator, value.Name, s_PackagesTable_Index_Suffix });
+
+                dropIndexBuilder.Execute(connection);
+            }
+
+            SQLite::Builder::StatementBuilder dropPKIndexBuilder;
+            dropPKIndexBuilder.DropIndex({ s_PackagesTable_Table_Name, s_PackagesTable_Index_Suffix });
+            dropPKIndexBuilder.Execute(connection);
+
+            savepoint.Commit();
+        }
     }
 
     std::string_view PackagesTable::TableName()
@@ -159,56 +196,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         return s_PackagesTable_Table_Name;
     }
 
-    void PackagesTable::Create(SQLite::Connection& connection, std::initializer_list<ColumnInfo> values)
+    void PackagesTable::Drop(SQLite::Connection& connection)
     {
-        using namespace SQLite::Builder;
+        SQLite::Builder::StatementBuilder dropTableBuilder;
+        dropTableBuilder.DropTable(s_PackagesTable_Table_Name);
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPackagesTable_v2_0");
+        dropTableBuilder.Execute(connection);
+    }
 
-        StatementBuilder createTableBuilder;
-        createTableBuilder.CreateTable(s_PackagesTable_Table_Name).BeginColumns();
+    bool PackagesTable::Exists(const SQLite::Connection& connection)
+    {
+        using namespace SQLite;
 
-        // Add an integer primary key to keep the manifest rowid consistent
-        createTableBuilder.Column(IntegerPrimaryKey());
+        Builder::StatementBuilder builder;
+        builder.Select(Builder::RowCount).From(Builder::Schema::MainTable).
+            Where(Builder::Schema::TypeColumn).Equals(Builder::Schema::Type_Table).And(Builder::Schema::NameColumn).Equals(s_PackagesTable_Table_Name);
 
-        for (const ColumnInfo& value : values)
-        {
-            createTableBuilder.Column(ColumnBuilder(value.Name, Type::Int64).NotNull());
-        }
-
-        createTableBuilder.EndColumns();
-
-        createTableBuilder.Execute(connection);
-
-        // Create a unique index with the primary key values
-        StatementBuilder pkIndexBuilder;
-
-        pkIndexBuilder.CreateUniqueIndex({ s_PackagesTable_Table_Name, s_PackagesTable_Index_Suffix }).On(s_PackagesTable_Table_Name).BeginColumns();
-
-        for (const ColumnInfo& value : values)
-        {
-            if (value.PrimaryKey)
-            {
-                pkIndexBuilder.Column(value.Name);
-            }
-        }
-
-        pkIndexBuilder.EndColumns();
-
-        pkIndexBuilder.Execute(connection);
-
-        // Create an index on every value to improve performance
-        for (const ColumnInfo& value : values)
-        {
-            StatementBuilder createIndexBuilder;
-
-            createIndexBuilder.CreateIndex({ s_PackagesTable_Table_Name, s_PackagesTable_Index_Separator, value.Name, s_PackagesTable_Index_Suffix });
-            createIndexBuilder.On(s_PackagesTable_Table_Name).Columns(value.Name);
-
-            createIndexBuilder.Execute(connection);
-        }
-
-        savepoint.Commit();
+        Statement statement = builder.Prepare(connection);
+        THROW_HR_IF(E_UNEXPECTED, !statement.Step());
+        return statement.GetColumn<int64_t>(0) != 0;
     }
 
     void PackagesTable::AddColumn(SQLite::Connection& connection, const ColumnInfo& value)
@@ -225,7 +231,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         savepoint.Commit();
     }
 
-    SQLite::rowid_t PackagesTable::Insert(SQLite::Connection& connection, std::initializer_list<NameValuePair> values)
+    SQLite::rowid_t PackagesTable::Insert(SQLite::Connection& connection, const std::vector<NameValuePair>& values)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.InsertInto(s_PackagesTable_Table_Name).BeginColumns();
@@ -261,24 +267,36 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         return (countStatement.GetColumn<int>(0) != 0);
     }
 
-    void PackagesTable::PrepareForPackaging(SQLite::Connection& connection, std::initializer_list<std::string_view> values)
+    std::vector<SQLite::rowid_t> PackagesTable::GetAllRowIds(const SQLite::Connection& connection, std::string_view orderByColumn, size_t limit)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "pfpPackagesTable_v2_0");
+        SQLite::Builder::StatementBuilder selectBuilder;
+        selectBuilder.Select(SQLite::RowIDName).From(s_PackagesTable_Table_Name).OrderBy(orderByColumn);
 
-        // Drop the index on the requested values
-        for (std::string_view value : values)
+        if (limit)
         {
-            SQLite::Builder::StatementBuilder dropIndexBuilder;
-            dropIndexBuilder.DropIndex({ s_PackagesTable_Table_Name, s_PackagesTable_Index_Separator, value, s_PackagesTable_Index_Suffix });
-
-            dropIndexBuilder.Execute(connection);
+            selectBuilder.Limit(limit);
         }
 
-        SQLite::Builder::StatementBuilder dropPKIndexBuilder;
-        dropPKIndexBuilder.DropIndex({ s_PackagesTable_Table_Name, s_PackagesTable_Index_Suffix });
-        dropPKIndexBuilder.Execute(connection);
+        SQLite::Statement select = selectBuilder.Prepare(connection);
 
-        savepoint.Commit();
+        std::vector<SQLite::rowid_t> result;
+        while (select.Step())
+        {
+            result.emplace_back(select.GetColumn<SQLite::rowid_t>(0));
+        }
+        return result;
+    }
+
+    uint64_t PackagesTable::GetCount(const SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select(SQLite::Builder::RowCount).From(s_PackagesTable_Table_Name);
+
+        SQLite::Statement countStatement = builder.Prepare(connection);
+
+        THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
+
+        return static_cast<uint64_t>(countStatement.GetColumn<SQLite::rowid_t>(0));
     }
 
     bool PackagesTable::IsEmpty(SQLite::Connection& connection)

@@ -34,6 +34,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             savepoint.Commit();
         }
 
+        void DropOneToOneTable(SQLite::Connection& connection, std::string_view tableName)
+        {
+            SQLite::Builder::StatementBuilder dropTableBuilder;
+            dropTableBuilder.DropTable(tableName);
+
+            dropTableBuilder.Execute(connection);
+        }
+
         std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike)
         {
             SQLite::Builder::StatementBuilder selectBuilder;
@@ -126,14 +134,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             return connection.GetLastInsertRowID();
         }
 
-        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndices, bool preserveValuesIndex)
+        void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName)
         {
-            if (useNamedIndices && !preserveValuesIndex)
-            {
-                SQLite::Builder::StatementBuilder dropIndexBuilder;
-                dropIndexBuilder.DropIndex({ tableName, s_OneToOneTable_IndexSuffix });
-                dropIndexBuilder.Execute(connection);
-            }
+            SQLite::Builder::StatementBuilder dropIndexBuilder;
+            dropIndexBuilder.DropIndex({ tableName, s_OneToOneTable_IndexSuffix });
+            dropIndexBuilder.Execute(connection);
         }
 
         uint64_t OneToOneTableGetCount(const SQLite::Connection& connection, std::string_view tableName)

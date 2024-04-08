@@ -117,19 +117,18 @@ namespace AppInstaller::SQLite::Builder
     template <Type type>
     struct TypeInfo
     {
-        static_assert(false, "Unknown Type");
     };
 
     template <>
     struct TypeInfo<Type::Text>
     {
-        using type_t = std::string;
+        using value_t = std::string;
     };
 
     template <>
     struct TypeInfo<Type::Blob>
     {
-        using type_t = SQLite::blob_t;
+        using value_t = SQLite::blob_t;
     };
 
     // Aggregate functions.
@@ -329,6 +328,12 @@ namespace AppInstaller::SQLite::Builder
         StatementBuilder& InsertInto(QualifiedTable table);
         StatementBuilder& InsertInto(std::initializer_list<std::string_view> table);
 
+        // Begin an insert or ignore statement for the given table.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& InsertOrIgnore(std::string_view table);
+        StatementBuilder& InsertOrIgnore(QualifiedTable table);
+        StatementBuilder& InsertOrIgnore(std::initializer_list<std::string_view> table);
+
         // Set the columns for a statement (typically insert).
         StatementBuilder& Columns(std::string_view column);
         StatementBuilder& Columns(std::initializer_list<std::string_view> columns);
@@ -380,11 +385,17 @@ namespace AppInstaller::SQLite::Builder
         // Complete an alter table statement by adding a column.
         StatementBuilder& Add(std::string_view column, Type type);
 
-        // Begin an table deletion statement.
+        // Begin a table deletion statement.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& DropTable(std::string_view table);
         StatementBuilder& DropTable(QualifiedTable table);
         StatementBuilder& DropTable(std::initializer_list<std::string_view> table);
+
+        // Begin a table deletion statement.
+        // The initializer_list form enables the table name to be constructed from multiple parts.
+        StatementBuilder& DropTableIfExists(std::string_view table);
+        StatementBuilder& DropTableIfExists(QualifiedTable table);
+        StatementBuilder& DropTableIfExists(std::initializer_list<std::string_view> table);
 
         // Begin an index creation statement.
         // The initializer_list form enables the index name to be constructed from multiple parts.

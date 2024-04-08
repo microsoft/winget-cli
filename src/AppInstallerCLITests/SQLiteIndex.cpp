@@ -3355,3 +3355,19 @@ TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafoldi
     REQUIRE(pcValues2.size() == 1);
     REQUIRE(pcValues1[0] != pcValues2[0]);
 }
+
+TEST_CASE("ConvertIndexFrom17to20", "[sqliteindex]")
+{
+    std::string tempPath = R"(E:\Temp\schema20\schema20test.db)";
+    std::filesystem::remove_all(tempPath);
+    std::filesystem::copy_file(R"(E:\Temp\schema20\index.db)", tempPath);
+
+    SQLiteIndex index = SQLiteIndex::Open(tempPath, SQLiteIndex::OpenDisposition::ReadWrite);
+    index.ForceVersion({ 2, 0 });
+
+    auto start = std::chrono::steady_clock::now();
+
+    index.PrepareForPackaging();
+
+    std::cout << "Seconds to complete: " << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count();
+}

@@ -253,6 +253,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         return m_normalizer.Normalize(name, publisher);
     }
 
+    void Interface::DropTables(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "droptables_v1_2");
+
+        V1_1::Interface::DropTables(connection);
+
+        NormalizedPackageNameTable::Drop(connection);
+        NormalizedPackagePublisherTable::Drop(connection);
+
+        savepoint.Commit();
+    }
+
     std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<V1_2::SearchResultsTable>(connection);

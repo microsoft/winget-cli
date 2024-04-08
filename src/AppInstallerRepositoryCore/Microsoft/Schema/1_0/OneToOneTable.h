@@ -15,6 +15,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Creates the table.
         void CreateOneToOneTable(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, bool useNamedIndices);
 
+        // Drops the table.
+        void DropOneToOneTable(SQLite::Connection& connection, std::string_view tableName);
+
         // Selects the value from the table, returning the rowid if it exists.
         std::optional<SQLite::rowid_t> OneToOneTableSelectIdByValue(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool useLike = false);
 
@@ -62,6 +65,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static void Create_deprecated(SQLite::Connection& connection)
         {
             details::CreateOneToOneTable(connection, TableInfo::TableName(), TableInfo::ValueName(), false);
+        }
+
+        // Drops the table.
+        static void Drop(SQLite::Connection& connection)
+        {
+            details::DropOneToOneTable(connection, TableInfo::TableName());
         }
 
         // The name of the table.
