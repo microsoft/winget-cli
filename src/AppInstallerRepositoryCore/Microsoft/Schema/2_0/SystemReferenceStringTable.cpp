@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Microsoft/Schema/2_0/OneToManyTableWithMap.h"
-#include "Microsoft/Schema/2_0/OneToOneTable.h"
+#include "Microsoft/Schema/2_0/SystemReferenceStringTable.h"
 #include "Microsoft/Schema/2_0/PackagesTable.h"
 #include <winget/SQLiteStatementBuilder.h>
 

@@ -17,6 +17,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         };
     }
 
-    // The table for Commands.
     using ProductCodeTable = SystemReferenceStringTable<details::ProductCodeTableInfo>;
 }

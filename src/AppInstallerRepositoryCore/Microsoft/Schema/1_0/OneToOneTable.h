@@ -29,6 +29,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Ensures that the values exists in the table.
         SQLite::rowid_t OneToOneTableEnsureExists(SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, std::string_view value, bool overwriteLikeMatch = false);
+
         // Removes data that is no longer needed for an index that is to be published.
         void OneToOneTablePrepareForPackaging(SQLite::Connection& connection, std::string_view tableName, bool useNamedIndices, bool preserveValuesIndex);
 

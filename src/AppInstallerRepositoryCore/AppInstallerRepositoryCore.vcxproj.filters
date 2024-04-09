@@ -432,9 +432,6 @@
     <ClInclude Include="Microsoft\Schema\2_0\OneToManyTableWithMap.h">
       <Filter>Microsoft\Schema\2_0</Filter>
     </ClInclude>
-    <ClInclude Include="Microsoft\Schema\2_0\OneToOneTable.h">
-      <Filter>Microsoft\Schema\2_0</Filter>
-    </ClInclude>
     <ClInclude Include="Microsoft\Schema\2_0\SearchResultsTable.h">
       <Filter>Microsoft\Schema\2_0</Filter>
     </ClInclude>
@@ -704,10 +701,7 @@
     <ClCompile Include="Microsoft\Schema\2_0\PackagesTable.cpp">
       <Filter>Microsoft\Schema\2_0</Filter>
     </ClCompile>
-    <ClCompile Include="Microsoft\Schema\2_0\OneToManyTableWithMap_2_0.cpp">
-      <Filter>Microsoft\Schema\2_0</Filter>
-    </ClCompile>
-    <ClCompile Include="Microsoft\Schema\2_0\OneToOneTable_2_0.cpp">
+    <ClCompile Include="Microsoft\Schema\2_0\OneToManyTableWithMap.cpp">
       <Filter>Microsoft\Schema\2_0</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\2_0\SearchResultsTable_2_0.cpp">

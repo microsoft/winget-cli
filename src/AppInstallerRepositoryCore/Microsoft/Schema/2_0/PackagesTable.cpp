@@ -189,6 +189,52 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             savepoint.Commit();
         }
+
+        bool PackagesTableCheckColumnForNulls(const SQLite::Connection& connection, std::string_view valueName, bool log)
+        {
+            // Build a select statement to find values that contain an embedded null character
+            // Such as:
+            // Select count(*) from table where instr(value,char(0))>0
+            SQLite::Builder::StatementBuilder builder;
+            builder.
+                Select({ SQLite::RowIDName, valueName }).
+                From(s_PackagesTable_Table_Name).
+                WhereValueContainsEmbeddedNullCharacter(valueName);
+
+            SQLite::Statement select = builder.Prepare(connection);
+            bool result = true;
+
+            while (select.Step())
+            {
+                result = false;
+
+                if (!log)
+                {
+                    break;
+                }
+
+                AICLI_LOG(Repo, Info, << "  [INVALID] value [" << valueName << "] in table [" << s_PackagesTable_Table_Name <<
+                    "] at row [" << select.GetColumn<SQLite::rowid_t>(0) << "] contains an embedded null character and starts with [" <<
+                    select.GetColumn<std::string>(1) << "]");
+            }
+
+            return result;
+        }
+
+        bool PackagesTableCheckConsistency(const SQLite::Connection& connection, std::initializer_list<std::string_view> values, bool log)
+        {
+            bool result = true;
+
+            for (const auto& value : values)
+            {
+                if (result || log)
+                {
+                    result = details::PackagesTableCheckColumnForNulls(connection, value, log) && result;
+                }
+            }
+
+            return result;
+        }
     }
 
     std::string_view PackagesTable::TableName()

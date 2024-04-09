@@ -179,7 +179,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 
     void Interface::DropTables(SQLite::Connection& connection)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "droptables_v1_1");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "drop_tables_v1_1");
 
         V1_0::Interface::DropTables(connection);
 

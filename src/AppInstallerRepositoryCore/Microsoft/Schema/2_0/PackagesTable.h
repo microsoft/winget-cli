@@ -59,6 +59,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         // Removes data that is no longer needed for an index that is to be published.
         void PackagesTablePrepareForPackaging(SQLite::Connection& connection, std::initializer_list<ColumnInfo> values);
+
+        // Checks for embedded nulls in the database.
+        bool PackagesTableCheckConsistency(const SQLite::Connection& connection, std::initializer_list<std::string_view> values, bool log);
     }
 
     // A table in which each row represents a single package.
@@ -200,6 +203,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         static void PrepareForPackaging(SQLite::Connection& connection)
         {
             details::PackagesTablePrepareForPackaging(connection, { ColumnInfo::Create<Columns>()... });
+        }
+
+        // Checks the consistency of the index to ensure that every referenced row exists.
+        // Returns true if index is consistent; false if it is not.
+        template <typename... Columns>
+        static bool CheckConsistency(const SQLite::Connection& connection, bool log)
+        {
+            return details::PackagesTableCheckConsistency(connection, { Columns::Name... }, log);
         }
 
         // Determines if the table is empty.

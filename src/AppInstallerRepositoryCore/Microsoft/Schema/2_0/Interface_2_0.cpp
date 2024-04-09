@@ -145,6 +145,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             result = _check_ && result; \
         }
 
+        AICLI_CHECK_CONSISTENCY((PackagesTable::CheckConsistency<
+            PackagesTable::IdColumn,
+            PackagesTable::NameColumn,
+            PackagesTable::MonikerColumn,
+            PackagesTable::LatestVersionColumn,
+            PackagesTable::ARPMinVersionColumn,
+            PackagesTable::ARPMaxVersionColumn>(connection, log)));
+
         // Check the 1:N map tables for consistency
         AICLI_CHECK_CONSISTENCY(TagsTable::CheckConsistency(connection, log));
         AICLI_CHECK_CONSISTENCY(CommandsTable::CheckConsistency(connection, log));
@@ -201,6 +209,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             return PackagesTable::GetValueById<PackagesTable::ARPMinVersionColumn>(connection, manifestId);
         case PackageVersionProperty::ArpMaxVersion:
             return PackagesTable::GetValueById<PackagesTable::ARPMaxVersionColumn>(connection, manifestId);
+        case PackageVersionProperty::Moniker:
+            return PackagesTable::GetValueById<PackagesTable::MonikerColumn>(connection, manifestId);
         default:
             return {};
         }
@@ -228,6 +238,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             return NormalizedPackagePublisherTable::GetValuesByPrimaryId(connection, manifestId);
         case PackageVersionMultiProperty::UpgradeCode:
             return UpgradeCodeTable::GetValuesByPrimaryId(connection, manifestId);
+        case PackageVersionMultiProperty::Tag:
+            return TagsTable::GetValuesByPrimaryId(connection, manifestId);
+        case PackageVersionMultiProperty::Command:
+            return CommandsTable::GetValuesByPrimaryId(connection, manifestId);
         default:
             return {};
         }
@@ -321,7 +335,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             return m_internalInterface->DropTables(connection);
         }
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "droptables_v2_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "drop_tables_v2_0");
 
         PackagesTable::Drop(connection);
 
@@ -541,8 +555,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             PackagesTable::HashColumn
         >(connection);
 
-        TagsTable::Create(connection, OneToManyTableSchema::Version_2_0);
-        CommandsTable::Create(connection, OneToManyTableSchema::Version_2_0);
+        TagsTable::Create(connection, GetOneToManyTableSchema());
+        CommandsTable::Create(connection, GetOneToManyTableSchema());
 
         PackageFamilyNameTable::Create(connection);
         ProductCodeTable::Create(connection);
@@ -608,6 +622,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         TagsTable::PrepareForPackaging(connection);
         CommandsTable::PrepareForPackaging(connection);
+
+        // The tables based on SystemReferenceStringTable don't need a prepare currently
 
         // Drop 1.7 tables
         m_internalInterface->DropTables(connection);
