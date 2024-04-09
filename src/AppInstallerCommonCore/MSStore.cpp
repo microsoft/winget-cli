@@ -95,6 +95,87 @@ namespace AppInstaller::MSStore
 
             return result;
         }
+
+        enum class CheckExistingItemResult
+        {
+            None,
+            Restart,
+            Cancel,
+        };
+
+        CheckExistingItemResult CheckRestartOrCancelForPossibleExistingOperation(const IVectorView<AppInstallItem>& installItems)
+        {
+            CheckExistingItemResult result = CheckExistingItemResult::None;
+
+            for (auto const& installItem : installItems)
+            {
+                const auto& status = installItem.GetCurrentStatus();
+                switch (status.InstallState())
+                {
+                case AppInstallState::Canceled:
+                case AppInstallState::Error:
+                    // For these states, always do a cancel;
+                    result = CheckExistingItemResult::Cancel;
+                    return result;
+                case AppInstallState::Paused:
+                case AppInstallState::PausedLowBattery:
+                case AppInstallState::PausedWiFiRecommended:
+                case AppInstallState::PausedWiFiRequired:
+                case AppInstallState::ReadyToDownload:
+                    // For these states, set result to restart and continue the loop to see if future items need cancel.
+                    result = CheckExistingItemResult::Restart;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        bool DoesInstallItemsContainProduct(const IVectorView<AppInstallItem>& installItems, std::wstring_view productId)
+        {
+            for (auto const& installItem : installItems)
+            {
+                if (Utility::CaseInsensitiveEquals(installItem.ProductId(), productId))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // Returns true if Restart or Cancel happened. False otherwise.
+        HRESULT RestartOrCancelExistingOperationIfNecessary(const IVectorView<AppInstallItem>& installItems, AppInstallManager& installManager, std::wstring_view productId)
+        {
+            auto existingItemResult = CheckRestartOrCancelForPossibleExistingOperation(installItems);
+
+            if (existingItemResult == CheckExistingItemResult::Cancel || existingItemResult == CheckExistingItemResult::Restart)
+            {
+                if (existingItemResult == CheckExistingItemResult::Cancel)
+                {
+                    installManager.Cancel(productId);
+
+                    // Wait for at most 10 seconds for install item to be removed from queue.
+                    for (int i = 0; i < 50; ++i)
+                    {
+                        Sleep(200);
+                        if (!DoesInstallItemsContainProduct(installManager.AppInstallItems(), productId))
+                        {
+                            return S_OK;
+                        }
+                    }
+
+                    RETURN_HR(HRESULT_FROM_WIN32(ERROR_TIMEOUT));
+                }
+                else
+                {
+                    installManager.Restart(productId);
+                    return S_OK;
+                }
+            }
+
+            return S_FALSE;
+        }
     }
 
     HRESULT MSStoreOperation::StartAndWaitForOperation(IProgressCallback& progress)
@@ -102,12 +183,14 @@ namespace AppInstaller::MSStore
         // Best effort verifying/acquiring product ownership.
         std::ignore = EnsureFreeEntitlement(m_productId, m_scope);
 
-        if (m_type == MSStoreOperationType::Install || m_type == MSStoreOperationType::Repair)
+        if (m_type == MSStoreOperationType::Update)
+        {
+            return UpdatePackage(progress);
+        }
+        else
         {
             return InstallPackage(progress);
         }
-
-        return UpdatePackage(progress);
     }
 
     HRESULT MSStoreOperation::InstallPackage(IProgressCallback& progress)
@@ -149,6 +232,22 @@ namespace AppInstaller::MSStore
             winrt::hstring(),
             installOptions).get();
 
+        // Check if we need to restart or cancel existing items.
+        auto restartOrCancelResult = RestartOrCancelExistingOperationIfNecessary(installItems, installManager, m_productId);
+        RETURN_IF_FAILED(restartOrCancelResult);
+
+        // If restart or cancel happened, try again.
+        if (restartOrCancelResult == S_OK)
+        {
+            // Try again
+            installItems = installManager.StartProductInstallAsync(
+                m_productId,            // ProductId
+                winrt::hstring(),       // FlightId
+                L"WinGetCli",           // ClientId
+                winrt::hstring(),
+                installOptions).get();
+        }
+
         return WaitForOperation(installItems, progress);
     }
 
@@ -175,11 +274,48 @@ namespace AppInstaller::MSStore
         std::vector<AppInstallItem> installItemVector{ installItem };
         IVectorView<AppInstallItem> installItems = winrt::single_threaded_vector(std::move(installItemVector)).GetView();
 
+        // Check if we need to restart or cancel existing items.
+        auto restartOrCancelResult = RestartOrCancelExistingOperationIfNecessary(installItems, installManager, m_productId);
+        RETURN_IF_FAILED(restartOrCancelResult);
+
+        // If restart or cancel happened, try again.
+        if (restartOrCancelResult == S_OK)
+        {
+            // Try again
+            installItem = installManager.SearchForUpdatesAsync(
+                m_productId,          // ProductId
+                winrt::hstring(),   // SkuId
+                winrt::hstring(),
+                winrt::hstring(),   // ClientId
+                updateOptions
+            ).get();
+
+            if (!installItem)
+            {
+                return APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE;
+            }
+
+            installItemVector.clear();
+            installItemVector.emplace_back(installItem);
+            installItems = winrt::single_threaded_vector(std::move(installItemVector)).GetView();
+        }
+
         return WaitForOperation(installItems, progress);
     }
 
     HRESULT MSStoreOperation::WaitForOperation(IVectorView<AppInstallItem>& installItems, IProgressCallback& progress)
     {
+        auto cancelIfOperationFailed = wil::scope_exit(
+            [&]()
+            {
+                try
+                {
+                    AppInstallManager installManager;
+                    installManager.Cancel(m_productId);
+                }
+                CATCH_LOG();
+            });
+
         for (auto const& installItem : installItems)
         {
             AICLI_LOG(Core, Info, <<
@@ -242,12 +378,18 @@ namespace AppInstaller::MSStore
                     {
                         AICLI_LOG(Core, Info, << "Asked to shutdown while installing AppInstaller.");
                         progress.OnProgress(overallProgressMax, overallProgressMax, ProgressType::Percent);
+                        cancelIfOperationFailed.release();
                         return S_OK;
                     }
                 }
             }
 
             Sleep(100);
+        }
+
+        if (SUCCEEDED(errorCode))
+        {
+            cancelIfOperationFailed.release();
         }
 
         return errorCode;
