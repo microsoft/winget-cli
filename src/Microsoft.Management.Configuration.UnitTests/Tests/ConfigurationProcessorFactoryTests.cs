@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationProcessorFactoryTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -134,6 +134,53 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var modulePath = setProcessor.ProcessorEnvironment.GetVariable<string>(Variables.PSModulePath);
             Assert.Contains($"{properties.CustomLocation};", modulePath);
+        }
+
+        /// <summary>
+        /// Tests the configuration set processor in limitation mode.
+        /// </summary>
+        [Fact]
+        public void CreateSetProcessor_LimitMode()
+        {
+            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory();
+            var configurationSet = new ConfigurationSet();
+            configurationProcessorFactory.LimitationSet = configurationSet;
+
+            Assert.Throws<System.InvalidOperationException>(() => configurationProcessorFactory.LimitationSet = configurationSet);
+            Assert.Throws<System.InvalidOperationException>(() => configurationProcessorFactory.ProcessorType = PowerShellConfigurationProcessorType.Default);
+            Assert.Throws<System.InvalidOperationException>(() => configurationProcessorFactory.AdditionalModulePaths = new List<string>());
+            Assert.Throws<System.InvalidOperationException>(() => configurationProcessorFactory.ImplicitModulePaths = new List<string>());
+            Assert.Throws<System.InvalidOperationException>(() => configurationProcessorFactory.Policy = PowerShellConfigurationProcessorPolicy.Unrestricted);
+            Assert.Throws<System.InvalidOperationException>(() => configurationProcessorFactory.Location = PowerShellConfigurationProcessorLocation.Custom);
+            Assert.Throws<System.InvalidOperationException>(() => configurationProcessorFactory.CustomLocation = @"c:\this\is\a\module\path");
+
+            var setProcessor = configurationProcessorFactory.CreateSetProcessor(configurationSet) as ConfigurationSetProcessor;
+            Assert.NotNull(setProcessor);
+            Assert.True(setProcessor.IsLimitMode);
+
+            // Create processor again in limit mode should fail
+            Assert.Throws<System.InvalidOperationException>(() => configurationProcessorFactory.CreateSetProcessor(configurationSet));
+        }
+
+        /// <summary>
+        /// Tests the configuration set processor factory with ImplicitModulePaths.
+        /// </summary>
+        [Fact]
+        public void ImplicitModulePaths()
+        {
+            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory();
+
+            // When ImplicitModulePaths module paths are not set
+            configurationProcessorFactory.AdditionalModulePaths = new List<string> { @"c:\this\is\additional" };
+            Assert.Equal(configurationProcessorFactory.AdditionalModulePaths, new List<string> { @"c:\this\is\additional" });
+
+            // Implicit ModulePaths are set, it automatically populates AdditionalModulePaths
+            configurationProcessorFactory.ImplicitModulePaths = new List<string> { @"c:\this\is\implicit" };
+            Assert.Equal(configurationProcessorFactory.AdditionalModulePaths, new List<string> { @"c:\this\is\additional", @"c:\this\is\implicit" });
+
+            // Set AdditionalModulePaths when ImplicitModulePaths module paths are set
+            configurationProcessorFactory.AdditionalModulePaths = new List<string> { @"c:\this\is\additional\2" };
+            Assert.Equal(configurationProcessorFactory.AdditionalModulePaths, new List<string> { @"c:\this\is\additional\2", @"c:\this\is\implicit" });
         }
     }
 }
