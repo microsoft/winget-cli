@@ -132,6 +132,9 @@ namespace AppInstaller::Certificates
         // Returns false to indicate the it does not.
         bool Validate(PCCERT_CONTEXT certContext) const;
 
+        // Validates the given certificate chain.
+        bool ValidateChain(PCCERT_CHAIN_CONTEXT certChainContext) const;
+
         // True if no pinning is configured.
         bool IsEmpty() const { return m_configuration.empty(); }
 

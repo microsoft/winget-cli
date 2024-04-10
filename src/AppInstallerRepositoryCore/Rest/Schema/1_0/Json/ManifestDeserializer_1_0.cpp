@@ -3,8 +3,8 @@
 #include "pch.h"
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/IRestClient.h"
-#include "Rest/Schema/HttpClientHelper.h"
 #include "ManifestDeserializer.h"
+#include "winget/HttpClientHelper.h"
 #include <winget/JsonUtil.h>
 #include "Rest/Schema/CommonRestConstants.h"
 

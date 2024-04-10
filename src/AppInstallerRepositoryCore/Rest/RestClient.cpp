@@ -8,7 +8,7 @@
 #include "Rest/Schema/1_5/Interface.h"
 #include "Rest/Schema/1_6/Interface.h"
 #include "Rest/Schema/1_7/Interface.h"
-#include "Rest/Schema/HttpClientHelper.h"
+#include "winget/HttpClientHelper.h"
 #include <winget/JsonUtil.h>
 #include "Rest/Schema/InformationResponseDeserializer.h"
 #include "Rest/Schema/CommonRestConstants.h"
@@ -17,6 +17,7 @@
 using namespace AppInstaller::Repository::Rest::Schema;
 using namespace AppInstaller::Repository::Rest::Schema::V1_0;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Http;
 
 namespace AppInstaller::Repository::Rest
 {
@@ -133,7 +134,7 @@ namespace AppInstaller::Repository::Rest
         return *commonVersions.rbegin();
     }
 
-    Schema::IRestClient::Information RestClient::GetInformation(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Schema::HttpClientHelper& helper)
+    Schema::IRestClient::Information RestClient::GetInformation(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const HttpClientHelper& helper)
     {
         utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));

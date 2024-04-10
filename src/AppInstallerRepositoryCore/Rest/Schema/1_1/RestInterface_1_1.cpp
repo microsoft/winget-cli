@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "Rest/Schema/1_1/Interface.h"
 #include "Rest/Schema/IRestClient.h"
-#include "Rest/Schema/HttpClientHelper.h"
+#include "winget/HttpClientHelper.h"
 #include <winget/JsonUtil.h>
 #include "Rest/Schema/RestHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
@@ -26,9 +26,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
     Interface::Interface(
         const std::string& restApi,
-        const HttpClientHelper& httpClientHelper,
+        const Http::HttpClientHelper& httpClientHelper,
         IRestClient::Information information,
-        const HttpClientHelper::HttpRequestHeaders& additionalHeaders) : V1_0::Interface(restApi, httpClientHelper), m_information(std::move(information))
+        const Http::HttpClientHelper::HttpRequestHeaders& additionalHeaders) : V1_0::Interface(restApi, httpClientHelper), m_information(std::move(information))
     {
         m_requiredRestApiHeaders[JSON::GetUtilityString(ContractVersion)] = JSON::GetUtilityString(Version_1_1_0.ToString());
 

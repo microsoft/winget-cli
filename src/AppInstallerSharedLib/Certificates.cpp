@@ -431,6 +431,14 @@ namespace AppInstaller::Certificates
         m_configuration.emplace_back(std::move(chain));
     }
 
+    bool PinningConfiguration::ValidateChain(PCCERT_CHAIN_CONTEXT certChainContext) const
+    {
+        // Obtain the context of the end certificate of the chain, which will be the zero-index element in the first simple chain.
+        PCERT_SIMPLE_CHAIN simpleChain = certChainContext->rgpChain[0];
+        PCCERT_CONTEXT certContext = simpleChain->rgpElement[0]->pCertContext;
+        return Validate(certContext);
+    }
+
     bool PinningConfiguration::Validate(PCCERT_CONTEXT certContext) const
     {
         if (m_configuration.empty())
