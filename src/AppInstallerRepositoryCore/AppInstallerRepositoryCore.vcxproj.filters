@@ -456,6 +456,9 @@
     <ClInclude Include="Microsoft\Schema\2_0\UpgradeCodeTable.h">
       <Filter>Microsoft\Schema\2_0</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\2_0\PackageUpdateTrackingTable.h">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -711,6 +714,9 @@
       <Filter>Microsoft\Schema</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\2_0\SystemReferenceStringTable.cpp">
+      <Filter>Microsoft\Schema\2_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\2_0\PackageUpdateTrackingTable.cpp">
       <Filter>Microsoft\Schema\2_0</Filter>
     </ClCompile>
   </ItemGroup>

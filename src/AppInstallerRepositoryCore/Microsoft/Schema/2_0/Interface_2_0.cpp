@@ -15,6 +15,7 @@
 #include "Microsoft/Schema/2_0/UpgradeCodeTable.h"
 
 #include "Microsoft/Schema/2_0/SearchResultsTable.h"
+#include "Microsoft/Schema/2_0/PackageUpdateTrackingTable.h"
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_0
@@ -101,25 +102,45 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     SQLite::rowid_t Interface::AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         EnsureInternalInterface(connection, true);
-        return m_internalInterface->AddManifest(connection, manifest, relativePath);
+        SQLite::rowid_t manifestId = m_internalInterface->AddManifest(connection, manifest, relativePath);
+        PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), m_internalInterface->GetPropertyByManifestId(connection, manifestId, PackageVersionProperty::Id).value());
+        return manifestId;
     }
 
     std::pair<bool, SQLite::rowid_t> Interface::UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath)
     {
         EnsureInternalInterface(connection, true);
-        return m_internalInterface->UpdateManifest(connection, manifest, relativePath);
+        std::pair<bool, SQLite::rowid_t> result = m_internalInterface->UpdateManifest(connection, manifest, relativePath);
+        if (result.first)
+        {
+            PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), m_internalInterface->GetPropertyByManifestId(connection, result.second, PackageVersionProperty::Id).value());
+        }
+        return result;
     }
 
     SQLite::rowid_t Interface::RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest)
     {
         EnsureInternalInterface(connection, true);
-        return m_internalInterface->RemoveManifest(connection, manifest);
+        std::optional<SQLite::rowid_t> result = m_internalInterface->GetManifestIdByManifest(connection, manifest);
+
+        // If the manifest doesn't actually exist, fail the remove.
+        THROW_HR_IF(E_NOT_SET, !result);
+
+        SQLite::rowid_t manifestId = result.value();
+        RemoveManifestById(connection, manifestId);
+
+        return manifestId;
     }
 
     void Interface::RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId)
     {
         EnsureInternalInterface(connection, true);
+        std::optional<std::string> identifier = m_internalInterface->GetPropertyByManifestId(connection, manifestId, PackageVersionProperty::Id);
         m_internalInterface->RemoveManifestById(connection, manifestId);
+        if (identifier)
+        {
+            PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), identifier.value());
+        }
     }
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection)
@@ -132,17 +153,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     {
         EnsureInternalInterface(connection);
 
-        if (m_internalInterface)
-        {
-            return m_internalInterface->CheckConsistency(connection, log);
-        }
-
         bool result = true;
 
 #define AICLI_CHECK_CONSISTENCY(_check_) \
         if (result || log) \
         { \
             result = _check_ && result; \
+        }
+
+        if (m_internalInterface)
+        {
+            AICLI_CHECK_CONSISTENCY(m_internalInterface->CheckConsistency(connection, log));
+            AICLI_CHECK_CONSISTENCY(PackageUpdateTrackingTable::CheckConsistency(connection, m_internalInterface.get(), log));
+
+            return result;
         }
 
         AICLI_CHECK_CONSISTENCY((PackagesTable::CheckConsistency<
@@ -536,11 +560,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
     {
         // TODO: If package was written since last prepare, write out the intermediate file
-        //          Implement with a table in pre-prepare state that holds { packageId, writeTime, intermediateFileText, hash }
+        //          Implement with a table in pre-prepare state that holds { packageIdString, writeTime, intermediateFileText, hash }
         //          Update flow is:
         //              1. Caller sets current time value via new property mechanism
         //              2. Update as needed; each change updates the new table for the changed package
         //              3. Prepare writes all files after time set in step 1
+        // TODO: Pull the actual timestamp
+        int64_t updateBaseTime = 0;
+        for (const auto& packageData : PackageUpdateTrackingTable::GetUpdatesSince(connection, updateBaseTime))
+        {
+            // TODO: Handle the output here
+        }
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v2_0");
 
@@ -572,11 +602,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             std::vector<ISQLiteIndex::VersionKey> versionKeys = m_internalInterface->GetVersionKeysById(connection, packageMatch.first);
             ISQLiteIndex::VersionKey& latestVersionKey = versionKeys[0];
 
-            // TODO: Get the hash from that file rather than grabbing an arbitrary value here
-            SQLite::blob_t intermediateHash = Utility::ParseFromHexString(m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::ManifestSHA256Hash).value());
+            std::string packageIdentifier = m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value();
 
             std::vector<PackagesTable::NameValuePair> packageData{
-                { PackagesTable::IdColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value() },
+                { PackagesTable::IdColumn::Name, packageIdentifier },
                 { PackagesTable::NameColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Name).value() },
                 { PackagesTable::LatestVersionColumn::Name, latestVersionKey.VersionAndChannel.GetVersion().ToString() },
             };
@@ -595,7 +624,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             SQLite::rowid_t packageId = PackagesTable::Insert(connection, packageData);
 
-            PackagesTable::UpdateValueIdById<PackagesTable::HashColumn>(connection, packageId, intermediateHash);
+            PackagesTable::UpdateValueIdById<PackagesTable::HashColumn>(connection, packageId, PackageUpdateTrackingTable::GetDataHash(connection, packageIdentifier));
 
             for (const auto& versionKey : versionKeys)
             {

@@ -391,6 +391,7 @@
     <ClInclude Include="Microsoft\Schema\2_0\PackageFamilyNameTable.h" />
     <ClInclude Include="Microsoft\Schema\2_0\PackagesTable.h" />
     <ClInclude Include="Microsoft\Schema\2_0\OneToManyTableWithMap.h" />
+    <ClInclude Include="Microsoft\Schema\2_0\PackageUpdateTrackingTable.h" />
     <ClInclude Include="Microsoft\Schema\2_0\ProductCodeTable.h" />
     <ClInclude Include="Microsoft\Schema\2_0\SearchResultsTable.h" />
     <ClInclude Include="Microsoft\Schema\2_0\SystemReferenceStringTable.h" />
@@ -498,6 +499,7 @@
     <ClCompile Include="Microsoft\Schema\2_0\Interface_2_0.cpp" />
     <ClCompile Include="Microsoft\Schema\2_0\PackagesTable.cpp" />
     <ClCompile Include="Microsoft\Schema\2_0\OneToManyTableWithMap.cpp" />
+    <ClCompile Include="Microsoft\Schema\2_0\PackageUpdateTrackingTable.cpp" />
     <ClCompile Include="Microsoft\Schema\2_0\SearchResultsTable_2_0.cpp" />
     <ClCompile Include="Microsoft\Schema\2_0\SystemReferenceStringTable.cpp" />
     <ClCompile Include="Microsoft\Schema\ISQLiteIndex.cpp" />
