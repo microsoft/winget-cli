@@ -17,3 +17,4 @@ namespace AppInstaller::Rest
 
     std::vector<std::string> GetUniqueItems(const std::vector<std::string>& list);
 }
+

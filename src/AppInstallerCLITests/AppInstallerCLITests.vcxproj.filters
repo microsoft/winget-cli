@@ -179,10 +179,10 @@
     <ClCompile Include="Registry.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="RestClient.cpp">
+    <ClCompile Include="Rest.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
-    <ClCompile Include="RestHelper.cpp">
+    <ClCompile Include="RestClient.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
     <ClCompile Include="RestInterface_1_0.cpp">
