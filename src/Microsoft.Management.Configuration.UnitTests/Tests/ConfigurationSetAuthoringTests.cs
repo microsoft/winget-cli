@@ -10,6 +10,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
+    using Windows.Foundation.Collections;
+    using Windows.Storage.Streams;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -70,7 +72,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationUnitIntent testIntent = ConfigurationUnitIntent.Assert;
 
             ConfigurationUnit testUnit = this.ConfigurationUnit();
-
             testUnit.Type = testName;
             Assert.Equal(testName, testUnit.Type);
             testUnit.Identifier = testIdentifier;
@@ -100,12 +101,33 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// This test is to ensure that real tests are added when Serialize is implemented.
+        /// Basic sanity check to verify that nested value sets can be serialized successfully.
         /// </summary>
         [Fact]
-        public void ConfigurationSetSerializeNotImplemented()
+        public void ConfigurationSetSerializeNestedValueSets()
         {
-            Assert.Throws<NotImplementedException>(() => this.ConfigurationSet().Serialize(null));
+            ConfigurationSet testSet = this.ConfigurationSet();
+
+            testSet.SchemaVersion = "0.2";
+            ConfigurationUnit testUnit = this.ConfigurationUnit();
+            string testName = "Test Name";
+            string testIdentifier = "Test Identifier";
+            testUnit.Type = testName;
+            testUnit.Identifier = testIdentifier;
+
+            ValueSet innerValueSet = new ValueSet();
+            innerValueSet.Add("innerKey", "innerValue");
+
+            ValueSet outerValueSet = new ValueSet();
+            outerValueSet.Add("outerKey", innerValueSet);
+            testUnit.Metadata = outerValueSet;
+            testSet.Units.Add(testUnit);
+
+            InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream();
+            testSet.Serialize(stream);
+
+            string yamlOutput = this.ReadStream(stream);
+            Assert.NotNull(yamlOutput);
         }
     }
 }

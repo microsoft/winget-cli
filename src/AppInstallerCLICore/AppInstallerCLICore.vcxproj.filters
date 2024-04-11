@@ -248,6 +248,9 @@
     <ClInclude Include="Workflows\RepairFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="ConfigurationWingetDscModuleUnitValidation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -456,12 +459,18 @@
     </ClCompile>
     <ClCompile Include="Commands\ErrorCommand.cpp">
       <Filter>Commands</Filter>
-    </ClCompile>    
+    </ClCompile>
     <ClCompile Include="Commands\RepairCommand.cpp">
       <Filter>Commands</Filter>
-    </ClCompile>    
+    </ClCompile>
     <ClCompile Include="Workflows\RepairFlow.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationWingetDscModuleUnitValidation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationDynamicRuntimeFactory.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

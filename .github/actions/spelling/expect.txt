@@ -101,6 +101,7 @@ diskfull
 DISMAPI
 dnld
 Dobbeleer
+DONOT
 dsc
 DUPLICATEALIAS
 dustojnikhummer
@@ -470,6 +471,7 @@ uninstalls
 Unk
 unknwn
 Unknwnbase
+UNMARSHALING
 unparsable
 unvirtualized
 UParse

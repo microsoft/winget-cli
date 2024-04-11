@@ -48,6 +48,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFSideBySide>();
             case ExperimentalFeature::Feature::Proxy:
                 return userSettings.Get<Setting::EFProxy>();
+            case ExperimentalFeature::Feature::ConfigureSelfElevation:
+                return userSettings.Get<Setting::EFConfigureSelfElevation>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -85,6 +87,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Side-by-side improvements", "sideBySide", "https://aka.ms/winget-settings", Feature::SideBySide };
         case Feature::Proxy:
             return ExperimentalFeature{ "Proxy", "proxy", "https://aka.ms/winget-settings", Feature::Proxy };
+        case Feature::ConfigureSelfElevation:
+            return ExperimentalFeature{ "Configure Self Elevation", "configureSelfElevate", "https://aka.ms/winget-settings", Feature::ConfigureSelfElevation };
         default:
             THROW_HR(E_UNEXPECTED);
         }

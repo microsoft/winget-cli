@@ -110,6 +110,10 @@ namespace ConfigurationShim
             {
                 result = AppInstaller::CLI::ConfigurationRemoting::CreateOutOfProcessFactory();
             }
+            else if (lowerHandler == AppInstaller::Configuration::DynamicRuntimeHandlerIdentifier)
+            {
+                result = AppInstaller::CLI::ConfigurationRemoting::CreateDynamicRuntimeFactory();
+            }
 
             if (result)
             {
