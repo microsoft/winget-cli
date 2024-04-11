@@ -441,6 +441,7 @@
     <ClInclude Include="Public\winget\Pin.h" />
     <ClInclude Include="Public\winget\Reboot.h" />
     <ClInclude Include="Public\winget\Regex.h" />
+    <ClInclude Include="Public\winget\Rest.h" />
     <ClInclude Include="Public\winget\PathVariable.h" />
     <ClInclude Include="Public\winget\PortableARPEntry.h" />
     <ClInclude Include="Public\winget\PortableFileEntry.h" />
@@ -490,6 +491,7 @@
     <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Reboot.cpp" />
     <ClCompile Include="Regex.cpp" />
+    <ClCompile Include="Rest.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

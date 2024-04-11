@@ -5,7 +5,6 @@
 #include "Rest/Schema/IRestClient.h"
 #include "winget/HttpClientHelper.h"
 #include <winget/JsonUtil.h>
-#include "Rest/Schema/RestHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
 
 using namespace std::string_view_literals;

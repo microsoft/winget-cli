@@ -6,7 +6,6 @@
 #include <Windows.h>
 #include <AclAPI.h>
 #include <appmodel.h>
-#include <wininet.h>
 #include <sddl.h>
 #include <Shlobj.h>
 #include <Shlwapi.h>
@@ -25,10 +24,6 @@
 
 // TODO: See if we can get down to having just one JSON parser...
 #include <json/json.h>
-
-#ifndef WINGET_DISABLE_FOR_FUZZING
-#include <cpprest/json.h>
-#endif
 
 #pragma warning( push )
 #pragma warning ( disable : 4458 4100 4702 6031 )
@@ -67,7 +62,9 @@
 #pragma warning( push )
 #pragma warning ( disable : 26495 26439 )
 #include <cpprest/http_client.h>
+#ifndef WINGET_DISABLE_FOR_FUZZING
 #include <cpprest/json.h>
+#endif
 #include <cpprest/uri_builder.h>
 #pragma warning( pop )
 

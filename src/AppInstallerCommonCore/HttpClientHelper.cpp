@@ -5,6 +5,7 @@
 #include <AppInstallerRuntime.h>
 #include <winget/HttpClientHelper.h>
 #include <winget/NetworkSettings.h>
+#include <winhttp.h>
 
 namespace AppInstaller::Http
 {
@@ -25,13 +26,12 @@ namespace AppInstaller::Http
         {
             HINTERNET requestHandle = reinterpret_cast<HINTERNET>(handle);
 
-            // Get certificate chain and pass along to pinning config
-            wil::unique_cert_chain_context certChainContext;
-            DWORD bufferSize = sizeof(&certChainContext);
+            // Get certificate and pass along to pinning config
+            wil::unique_cert_context certContext;
+            DWORD bufferSize = sizeof(&certContext);
+            THROW_IF_WIN32_BOOL_FALSE(WinHttpQueryOption(requestHandle, WINHTTP_OPTION_SERVER_CERT_CONTEXT, &certContext, &bufferSize));
 
-            THROW_IF_WIN32_BOOL_FALSE(InternetQueryOptionW(requestHandle, INTERNET_OPTION_SERVER_CERT_CHAIN_CONTEXT, &certChainContext, &bufferSize));
-
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH, !pinningConfiguration.ValidateChain(certChainContext.get()));
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH, !pinningConfiguration.Validate(certContext.get()));
         }
 
         std::chrono::seconds GetRetryAfter(const web::http::http_headers& headers)

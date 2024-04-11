@@ -9,10 +9,10 @@
 #include "Rest/Schema/1_6/Interface.h"
 #include "Rest/Schema/1_7/Interface.h"
 #include "winget/HttpClientHelper.h"
+#include "winget/Rest.h"
 #include <winget/JsonUtil.h>
 #include "Rest/Schema/InformationResponseDeserializer.h"
 #include "Rest/Schema/CommonRestConstants.h"
-#include "Rest/Schema/RestHelper.h"
 
 using namespace AppInstaller::Repository::Rest::Schema;
 using namespace AppInstaller::Repository::Rest::Schema::V1_0;
@@ -60,7 +60,7 @@ namespace AppInstaller::Repository::Rest
             const utility::string_t& restApi, const HttpClientHelper::HttpRequestHeaders& additionalHeaders, const HttpClientHelper& clientHelper)
         {
             // Call information endpoint
-            utility::string_t endpoint = RestHelper::AppendPathToUri(restApi, JSON::GetUtilityString(InformationGetEndpoint));
+            utility::string_t endpoint = AppInstaller::Rest::AppendPathToUri(restApi, JSON::GetUtilityString(InformationGetEndpoint));
             std::optional<web::json::value> response = clientHelper.HandleGet(endpoint, additionalHeaders);
 
             THROW_HR_IF(APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE, !response);
@@ -136,8 +136,8 @@ namespace AppInstaller::Repository::Rest
 
     Schema::IRestClient::Information RestClient::GetInformation(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const HttpClientHelper& helper)
     {
-        utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
+        utility::string_t restEndpoint = AppInstaller::Rest::GetRestAPIBaseUri(restApi);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !AppInstaller::Rest::IsValidUri(restEndpoint));
 
         auto headers = GetHeaders(customHeader, caller);
 
@@ -182,8 +182,8 @@ namespace AppInstaller::Repository::Rest
 
     RestClient RestClient::Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const HttpClientHelper& helper, const Authentication::AuthenticationArguments& authArgs)
     {
-        utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
+        utility::string_t restEndpoint = AppInstaller::Rest::GetRestAPIBaseUri(restApi);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !AppInstaller::Rest::IsValidUri(restEndpoint));
 
         auto headers = GetHeaders(customHeader, caller);
 

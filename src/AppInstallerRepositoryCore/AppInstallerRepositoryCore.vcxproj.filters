@@ -210,9 +210,6 @@
     <ClInclude Include="Rest\RestSourceFactory.h">
       <Filter>Rest</Filter>
     </ClInclude>
-    <ClInclude Include="Rest\Schema\RestHelper.h">
-      <Filter>Rest\Schema</Filter>
-    </ClInclude>
     <ClInclude Include="Rest\Schema\1_0\Json\ManifestDeserializer.h">
       <Filter>Rest\Schema\1_0\Json</Filter>
     </ClInclude>
@@ -484,9 +481,6 @@
     </ClCompile>
     <ClCompile Include="Rest\RestSourceFactory.cpp">
       <Filter>Rest</Filter>
-    </ClCompile>
-    <ClCompile Include="Rest\Schema\RestHelper.cpp">
-      <Filter>Rest\Schema</Filter>
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_0\Json\ManifestDeserializer_1_0.cpp">
       <Filter>Rest\Schema\1_0\Json</Filter>

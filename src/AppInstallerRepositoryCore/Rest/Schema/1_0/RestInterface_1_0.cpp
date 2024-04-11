@@ -7,7 +7,7 @@
 #include <winget/JsonUtil.h>
 #include <winget/ManifestJSONParser.h>
 #include <winget/ManifestValidation.h>
-#include "Rest/Schema/RestHelper.h"
+#include <winget/Rest.h>
 #include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/SearchResponseParser.h"
 #include "Rest/Schema/SearchRequestComposer.h"
@@ -24,25 +24,37 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
-            return RestHelper::AppendPathToUri(AppInstaller::JSON::GetUtilityString(restApiUri), AppInstaller::JSON::GetUtilityString(ManifestSearchPostEndpoint));
+            return AppInstaller::Rest::AppendPathToUri(AppInstaller::JSON::GetUtilityString(restApiUri), AppInstaller::JSON::GetUtilityString(ManifestSearchPostEndpoint));
         }
 
         utility::string_t GetManifestByVersionEndpoint(
             const std::string& restApiUri, const std::string& packageId, const std::map<std::string_view, std::string>& queryParameters)
         {
-            utility::string_t getManifestEndpoint = RestHelper::AppendPathToUri(
+            utility::string_t getManifestEndpoint = AppInstaller::Rest::AppendPathToUri(
                 AppInstaller::JSON::GetUtilityString(restApiUri), AppInstaller::JSON::GetUtilityString(ManifestByVersionAndChannelGetEndpoint));
 
-            utility::string_t getManifestWithPackageIdPath = RestHelper::AppendPathToUri(getManifestEndpoint, AppInstaller::JSON::GetUtilityString(packageId));
+            utility::string_t getManifestWithPackageIdPath = AppInstaller::Rest::AppendPathToUri(getManifestEndpoint, AppInstaller::JSON::GetUtilityString(packageId));
 
             // Create the endpoint with query parameters
-            return RestHelper::AppendQueryParamsToUri(getManifestWithPackageIdPath, queryParameters);
+            return AppInstaller::Rest::AppendQueryParamsToUri(getManifestWithPackageIdPath, queryParameters);
+        }
+
+        std::optional<utility::string_t> GetContinuationToken(const web::json::value& jsonObject)
+        {
+            std::optional<std::string> continuationToken = AppInstaller::JSON::GetRawStringValueFromJsonNode(jsonObject, AppInstaller::JSON::GetUtilityString(ContinuationToken));
+
+            if (continuationToken)
+            {
+                return utility::conversions::to_string_t(continuationToken.value());
+            }
+
+            return {};
         }
     }
 
     Interface::Interface(const std::string& restApi, const Http::HttpClientHelper& httpClientHelper) : m_restApiUri(restApi), m_httpClientHelper(httpClientHelper)
     {
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(AppInstaller::JSON::GetUtilityString(restApi)));
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !AppInstaller::Rest::IsValidUri(AppInstaller::JSON::GetUtilityString(restApi)));
 
         m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
         m_requiredRestApiHeaders.emplace(AppInstaller::JSON::GetUtilityString(ContractVersion), AppInstaller::JSON::GetUtilityString(Version_1_0_0.ToString()));
@@ -98,7 +110,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 }
 
                 std::move(currentResult.Matches.begin(), std::next(currentResult.Matches.begin(), insertElements), std::inserter(results.Matches, results.Matches.end()));
-                ct = RestHelper::GetContinuationToken(jsonObject.value()).value_or(L"");
+                ct = GetContinuationToken(jsonObject.value()).value_or(L"");
             }
 
             continuationToken = ct;

@@ -439,7 +439,6 @@
     <ClInclude Include="Rest\Schema\CommonRestConstants.h" />
     <ClInclude Include="Rest\Schema\InformationResponseDeserializer.h" />
     <ClInclude Include="Rest\Schema\IRestClient.h" />
-    <ClInclude Include="Rest\Schema\RestHelper.h" />
     <ClInclude Include="Rest\Schema\SearchRequestComposer.h" />
     <ClInclude Include="Rest\Schema\SearchResponseParser.h" />
     <ClInclude Include="SourceFactory.h" />
@@ -522,7 +521,6 @@
     <ClCompile Include="Rest\Schema\1_7\RestInterface_1_7.cpp" />
     <ClCompile Include="Rest\Schema\AuthenticationInfoParser.cpp" />
     <ClCompile Include="Rest\Schema\InformationResponseDeserializer.cpp" />
-    <ClCompile Include="Rest\Schema\RestHelper.cpp" />
     <ClCompile Include="Rest\Schema\SearchRequestComposer.cpp" />
     <ClCompile Include="Rest\Schema\SearchResponseParser.cpp" />
     <ClCompile Include="SourceList.cpp" />

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Rest/Schema/IRestClient.h"
-#include <cpprest/json.h>
 #include <winget/HttpClientHelper.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0
