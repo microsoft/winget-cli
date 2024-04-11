@@ -1,219 +1,150 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
-#include <winget/SQLiteWrapper.h>
+#include "pch.h"
+#include "PackageUpdateTrackingTable.h"
 #include <winget/SQLiteStatementBuilder.h>
-#include <initializer_list>
-#include <optional>
-#include <string_view>
-#include <utility>
-#include <vector>
 
+using namespace AppInstaller::SQLite;
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
-    namespace details
+    using namespace std::string_view_literals;
+    static constexpr std::string_view s_PUTT_Table_Name = "update_tracking"sv;
+    static constexpr std::string_view s_PUTT_WriteTimeIndex_Name = "update_tracking_write_idx"sv;
+    static constexpr std::string_view s_PUTT_Package = "package"sv;
+    static constexpr std::string_view s_PUTT_WriteTime = "writetime"sv;
+    static constexpr std::string_view s_PUTT_Manifest = "manifest"sv;
+    static constexpr std::string_view s_PUTT_Hash = "hash"sv;
+
+    std::string_view PackageUpdateTrackingTable::TableName()
     {
-        // Info on the columns.
-        struct ColumnInfo
-        {
-            template<typename Column>
-            static constexpr ColumnInfo Create()
-            {
-                ColumnInfo result;
-                result.Name = Column::Name;
-                result.Type = Column::Type;
-                result.PrimaryKey = Column::PrimaryKey;
-                result.AllowNull = Column::AllowNull;
-                return result;
-            }
-
-            std::string_view Name;
-            SQLite::Builder::Type Type = {};
-            bool PrimaryKey = false;
-            bool AllowNull = false;
-        };
-
-        // Creates the table.
-        void PackagesTableCreate(SQLite::Connection& connection, std::initializer_list<ColumnInfo> values);
-
-        // Gets the requested values for the manifest with the given rowid.
-        SQLite::Statement PackagesTableGetValuesById_Statement(
-            const SQLite::Connection& connection,
-            SQLite::rowid_t id,
-            std::initializer_list<std::string_view> columns,
-            bool stepAndVerify = true);
-
-        // Builds the search select statement base on the given values.
-        std::vector<int> PackagesTableBuildSearchStatement(
-            SQLite::Builder::StatementBuilder& builder,
-            std::initializer_list<std::string_view> columns,
-            std::string_view manifestAlias,
-            std::string_view valueAlias,
-            bool useLike);
-
-        // Prepares a statement to update the value of a single column for the manifest with the given rowid.
-        // The first bind value will be the value to set.
-        // The second bind value will be the manifest rowid to modify.
-        SQLite::Statement PackagesTableUpdateValueIdById_Statement(SQLite::Connection& connection, std::string_view valueName);
-
-        // Removes data that is no longer needed for an index that is to be published.
-        void PackagesTablePrepareForPackaging(SQLite::Connection& connection, std::initializer_list<ColumnInfo> values);
-
-        // Checks for embedded nulls in the database.
-        bool PackagesTableCheckConsistency(const SQLite::Connection& connection, std::initializer_list<std::string_view> values, bool log);
+        return s_PUTT_Table_Name;
     }
 
-    // A table in which each row represents a single package.
-    struct PackagesTable
+    void PackageUpdateTrackingTable::Create(SQLite::Connection& connection)
     {
-        // Get the table name.
-        static std::string_view TableName();
+        using namespace Builder;
 
-        struct IdColumn
+        StatementBuilder builder;
+        builder.CreateTable(s_PUTT_Table_Name).BeginColumns();
+
+        builder.Column(IntegerPrimaryKey());
+        builder.Column(ColumnBuilder(s_PUTT_Package, Type::Text).NotNull());
+        builder.Column(ColumnBuilder(s_PUTT_WriteTime, Type::Int64).NotNull());
+        builder.Column(ColumnBuilder(s_PUTT_Manifest, Type::Text).NotNull());
+        builder.Column(ColumnBuilder(s_PUTT_Hash, Type::Blob).NotNull());
+
+        builder.EndColumns();
+
+        builder.Execute(connection);
+
+        StatementBuilder indexBuilder;
+        indexBuilder.CreateIndex(s_PUTT_WriteTimeIndex_Name).On(s_PUTT_Table_Name).Columns(s_PUTT_WriteTime);
+        indexBuilder.Execute(connection);
+    }
+
+    void PackageUpdateTrackingTable::EnsureExists(SQLite::Connection& connection)
+    {
+        if (!Exists(connection))
         {
-            static constexpr std::string_view Name = "id"sv;
-            static constexpr SQLite::Builder::Type Type = SQLite::Builder::Type::Text;
-            static constexpr bool PrimaryKey = true;
-            static constexpr bool AllowNull = false;
-        };
+            Create(connection);
+        }
+    }
 
-        struct NameColumn
+    void PackageUpdateTrackingTable::Drop(SQLite::Connection& connection)
+    {
+        Builder::StatementBuilder dropTableBuilder;
+        dropTableBuilder.DropTable(s_PUTT_Table_Name);
+
+        dropTableBuilder.Execute(connection);
+    }
+
+    bool PackageUpdateTrackingTable::Exists(const SQLite::Connection& connection)
+    {
+        Builder::StatementBuilder builder;
+        builder.Select(Builder::RowCount).From(Builder::Schema::MainTable).
+            Where(Builder::Schema::TypeColumn).Equals(Builder::Schema::Type_Table).And(Builder::Schema::NameColumn).Equals(s_PUTT_Table_Name);
+
+        Statement statement = builder.Prepare(connection);
+        THROW_HR_IF(E_UNEXPECTED, !statement.Step());
+        return statement.GetColumn<int64_t>(0) != 0;
+    }
+
+    void PackageUpdateTrackingTable::Update(SQLite::Connection& connection, ISQLiteIndex* internalIndex, const std::string& packageIdentifier)
+    {
+        // TODO: Pull the data on the given package and update the table
+    }
+
+    bool PackageUpdateTrackingTable::CheckConsistency(const SQLite::Connection& connection, ISQLiteIndex* internalIndex, bool log)
+    {
+        // Ensure that all data in the update table matches the internal index
+        for (const PackageData& packageData : GetUpdatesSince(connection, 0))
         {
-            static constexpr std::string_view Name = "name"sv;
-            static constexpr SQLite::Builder::Type Type = SQLite::Builder::Type::Text;
-            static constexpr bool PrimaryKey = false;
-            static constexpr bool AllowNull = false;
-        };
+            auto manifestHash = Utility::SHA256::ComputeHash(packageData.Manifest);
+            if (!Utility::SHA256::AreEqual(packageData.Hash, manifestHash))
+            {
+                if (!log)
+                {
+                    return false;
+                }
 
-        struct MonikerColumn
-        {
-            static constexpr std::string_view Name = "moniker"sv;
-            static constexpr SQLite::Builder::Type Type = SQLite::Builder::Type::Text;
-            static constexpr bool PrimaryKey = false;
-            static constexpr bool AllowNull = true;
-        };
+                AICLI_LOG(Repo, Info, << "  [INVALID] value [" << s_PUTT_Hash << "] in table [" << s_PUTT_Table_Name <<
+                    "] at row [" << packageData.RowID << "]; the hash of the manifest value does not match the hash in the row");
+            }
 
-        struct LatestVersionColumn
-        {
-            static constexpr std::string_view Name = "latest_version"sv;
-            static constexpr SQLite::Builder::Type Type = SQLite::Builder::Type::Text;
-            static constexpr bool PrimaryKey = false;
-            static constexpr bool AllowNull = false;
-        };
+            SearchRequest request;
+            request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, packageData.PackageIdentifier);
 
-        struct ARPMinVersionColumn
-        {
-            static constexpr std::string_view Name = "arp_min_version"sv;
-            static constexpr SQLite::Builder::Type Type = SQLite::Builder::Type::Text;
-            static constexpr bool PrimaryKey = false;
-            static constexpr bool AllowNull = true;
-        };
+            if (internalIndex->Search(connection, request).Matches.empty())
+            {
+                if (!log)
+                {
+                    return false;
+                }
 
-        struct ARPMaxVersionColumn
-        {
-            static constexpr std::string_view Name = "arp_max_version"sv;
-            static constexpr SQLite::Builder::Type Type = SQLite::Builder::Type::Text;
-            static constexpr bool PrimaryKey = false;
-            static constexpr bool AllowNull = true;
-        };
-
-        struct HashColumn
-        {
-            static constexpr std::string_view Name = "hash"sv;
-            static constexpr SQLite::Builder::Type Type = SQLite::Builder::Type::Blob;
-            static constexpr bool PrimaryKey = false;
-            static constexpr bool AllowNull = true;
-        };
-
-        using ColumnInfo = details::ColumnInfo;
-
-        // Creates the table.
-        template <typename... Columns>
-        static void Create(SQLite::Connection& connection)
-        {
-            details::PackagesTableCreate(connection, { ColumnInfo::Create<Columns>()... });
+                AICLI_LOG(Repo, Info, << "  [INVALID] value [" << s_PUTT_Package << "] in table [" << s_PUTT_Table_Name <<
+                    "] at row [" << packageData.RowID << "]; the package [" << packageData.PackageIdentifier << "] was not found in the internal index");
+            }
         }
 
-        // Drops the table.
-        static void Drop(SQLite::Connection& connection);
+        // Ensure that all packages in the internal index are present in the update table
+        // TODO:::::
+    }
 
-        // Determine if the table currently exists in the database.
-        static bool Exists(const SQLite::Connection& connection);
+    std::vector<PackageUpdateTrackingTable::PackageData> PackageUpdateTrackingTable::GetUpdatesSince(const SQLite::Connection& connection, int64_t updateBaseTime)
+    {
+        Builder::StatementBuilder builder;
+        builder.Select({ RowIDName, s_PUTT_Package, s_PUTT_WriteTime, s_PUTT_Manifest, s_PUTT_Hash }).
+            From(s_PUTT_Table_Name).Where(s_PUTT_WriteTime).IsGreaterThan(updateBaseTime);
 
-        // Alters the table, adding the column provided.
-        static void AddColumn(SQLite::Connection& connection, const ColumnInfo& value);
+        Statement select = builder.Prepare(connection);
 
-        // A string value for the package.
-        struct NameValuePair
+        std::vector<PackageData> result;
+
+        while (select.Step())
         {
-            std::string_view Name;
-            std::string Value;
-        };
+            PackageData item;
+            item.RowID = select.GetColumn<rowid_t>(0);
+            item.PackageIdentifier = select.GetColumn<std::string>(1);
+            item.WriteTime = select.GetColumn<int64_t>(2);
+            item.Manifest = select.GetColumn<std::string>(3);
+            item.Hash = select.GetColumn<blob_t>(4);
 
-        // Insert the given values into the table.
-        static SQLite::rowid_t Insert(SQLite::Connection& connection, const std::vector<NameValuePair>& values);
-
-        // Gets a value indicating whether the package with rowid exists.
-        static bool ExistsById(const SQLite::Connection& connection, SQLite::rowid_t rowid);
-
-        // Gets all row ids from the table.
-        static std::vector<SQLite::rowid_t> GetAllRowIds(const SQLite::Connection& connection, std::string_view orderByColumn, size_t limit = 0);
-
-        // Gets the total number of rows in the table.
-        static uint64_t GetCount(const SQLite::Connection& connection);
-
-        // Gets the values requested for the package with the given rowid.
-        template <typename... Columns>
-        static auto GetValuesById(const SQLite::Connection& connection, SQLite::rowid_t rowid)
-        {
-            return details::PackagesTableGetValuesById_Statement(connection, rowid, { Columns::Name... }).GetRow<typename SQLite::Builder::TypeInfo<Columns::Type>::value_t...>();
+            result.emplace_back(std::move(item));
         }
 
-        // Gets the value requested for the package with the given rowid, if it exists.
-        template <typename Column>
-        static std::optional<typename SQLite::Builder::TypeInfo<Column::Type>::value_t> GetValueById(const SQLite::Connection& connection, SQLite::rowid_t rowid)
-        {
-            auto statement = details::PackagesTableGetValuesById_Statement(connection, rowid, { Column::Name }, false);
-            if (statement.Step()) { return statement.GetColumn<typename SQLite::Builder::TypeInfo<Column::Type>::value_t>(0); }
-            else { return std::nullopt; }
-        }
+        return result;
+    }
 
-        // Builds the search select statement base on the given values.
-        // If more than one table is provided, no value will be captured.
-        // The return value is the bind indices of the values to match against.
-        template <typename... Columns>
-        static std::vector<int> BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, std::string_view primaryAlias, std::string_view valueAlias, bool useLike)
-        {
-            return details::PackagesTableBuildSearchStatement(builder, { Columns::Name... }, primaryAlias, valueAlias, useLike);
-        }
+    SQLite::blob_t PackageUpdateTrackingTable::GetDataHash(const SQLite::Connection& connection, const std::string& packageIdentifier)
+    {
+        Builder::StatementBuilder builder;
+        builder.Select(s_PUTT_Hash).From(s_PUTT_Table_Name).Where(s_PUTT_Package).LikeWithEscape(packageIdentifier);
 
-        // Update the value of a single column for the package with the given rowid.
-        template <typename Column>
-        static void UpdateValueIdById(SQLite::Connection& connection, SQLite::rowid_t id, const typename SQLite::Builder::TypeInfo<Column::Type>::value_t& value)
-        {
-            auto stmt = details::PackagesTableUpdateValueIdById_Statement(connection, Column::Name);
-            stmt.Bind(1, value);
-            stmt.Bind(2, id);
-            stmt.Execute();
-        }
+        Statement select = builder.Prepare(connection);
 
-        // Removes data that is no longer needed for an index that is to be published.
-        template <typename... Columns>
-        static void PrepareForPackaging(SQLite::Connection& connection)
-        {
-            details::PackagesTablePrepareForPackaging(connection, { ColumnInfo::Create<Columns>()... });
-        }
+        THROW_HR_IF(E_NOT_SET, !select.Step());
 
-        // Checks the consistency of the index to ensure that every referenced row exists.
-        // Returns true if index is consistent; false if it is not.
-        template <typename... Columns>
-        static bool CheckConsistency(const SQLite::Connection& connection, bool log)
-        {
-            return details::PackagesTableCheckConsistency(connection, { Columns::Name... }, log);
-        }
-
-        // Determines if the table is empty.
-        static bool IsEmpty(SQLite::Connection& connection);
-    };
+        return select.GetColumn<SQLite::blob_t>(0);
+    }
 }

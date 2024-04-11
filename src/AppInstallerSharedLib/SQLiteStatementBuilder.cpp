@@ -356,6 +356,12 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::IsGreaterThan(details::unbound_t, std::optional<size_t> index)
+    {
+        AppendOpAndBinder(Op::GreaterThan, index);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::LikeWithEscape(std::string_view value)
     {
         AddBindFunctor(AppendOpAndBinder(Op::Like), EscapeStringForLike(value));
@@ -940,6 +946,9 @@ namespace AppInstaller::SQLite::Builder
             break;
         case Op::Literal:
             m_stream << " ?";
+            break;
+        case Op::GreaterThan:
+            m_stream << " > ?";
             break;
         default:
             THROW_HR(E_UNEXPECTED);

@@ -18,7 +18,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         static void Create(SQLite::Connection& connection);
 
         // Creates the table if it does not exist.
-        static bool EnsureExists(const SQLite::Connection& connection);
+        static void EnsureExists(SQLite::Connection& connection);
 
         // Drops the table.
         static void Drop(SQLite::Connection& connection);
@@ -33,8 +33,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Returns true if index is consistent; false if it is not.
         static bool CheckConsistency(const SQLite::Connection& connection, ISQLiteIndex* internalIndex, bool log);
 
+        // Data on a single row in the table.
+        struct PackageData
+        {
+            SQLite::rowid_t RowID;
+            std::string PackageIdentifier;
+            int64_t WriteTime;
+            std::string Manifest;
+            SQLite::blob_t Hash;
+        };
+
         // Gets the data on updates that have been written since the given base time.
-        static std::vector<SOMETHING> GetUpdatesSince(const SQLite::Connection& connection, int64_t updateBaseTime);
+        static std::vector<PackageData> GetUpdatesSince(const SQLite::Connection& connection, int64_t updateBaseTime);
 
         // Gets the data hash for the given package identifier.
         static SQLite::blob_t GetDataHash(const SQLite::Connection& connection, const std::string& packageIdentifier);

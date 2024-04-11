@@ -270,6 +270,14 @@ namespace AppInstaller::SQLite::Builder
         StatementBuilder& Equals(std::nullptr_t);
         StatementBuilder& Equals();
 
+        template <typename ValueType>
+        StatementBuilder& IsGreaterThan(const ValueType& value)
+        {
+            AddBindFunctor(AppendOpAndBinder(Op::GreaterThan), value);
+            return *this;
+        }
+        StatementBuilder& IsGreaterThan(details::unbound_t, std::optional<size_t> index = {});
+
         StatementBuilder& LikeWithEscape(std::string_view value);
         StatementBuilder& Like(details::unbound_t);
 
@@ -470,6 +478,7 @@ namespace AppInstaller::SQLite::Builder
             Like,
             Escape,
             Literal,
+            GreaterThan,
         };
 
         // Appends given the operation.

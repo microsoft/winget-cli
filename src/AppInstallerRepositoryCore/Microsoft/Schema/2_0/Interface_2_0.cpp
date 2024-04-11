@@ -652,6 +652,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         TagsTable::PrepareForPackaging(connection);
         CommandsTable::PrepareForPackaging(connection);
 
+        PackageUpdateTrackingTable::Drop(connection);
+
         // The tables based on SystemReferenceStringTable don't need a prepare currently
 
         // Drop 1.7 tables
