@@ -8,11 +8,11 @@
 #include "Rest/Schema/1_5/Interface.h"
 #include "Rest/Schema/1_6/Interface.h"
 #include "Rest/Schema/1_7/Interface.h"
-#include "winget/HttpClientHelper.h"
-#include "winget/Rest.h"
-#include <winget/JsonUtil.h>
 #include "Rest/Schema/InformationResponseDeserializer.h"
 #include "Rest/Schema/CommonRestConstants.h"
+#include <winget/HttpClientHelper.h>
+#include <winget/Rest.h>
+#include <winget/JsonUtil.h>
 
 using namespace AppInstaller::Repository::Rest::Schema;
 using namespace AppInstaller::Repository::Rest::Schema::V1_0;

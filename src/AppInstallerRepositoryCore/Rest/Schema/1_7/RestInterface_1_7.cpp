@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Rest/Schema/1_7/Interface.h"
-#include "Rest/Schema/IRestClient.h"
-#include "winget/HttpClientHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
+#include "Rest/Schema/IRestClient.h"
+#include <winget/HttpClientHelper.h>
 #include <winget/JsonUtil.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_7

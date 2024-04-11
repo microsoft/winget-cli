@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include "winget/Rest.h"
 #include "cpprest/json.h"
+#include <winget/Rest.h>
 
 using namespace AppInstaller::Rest;
 

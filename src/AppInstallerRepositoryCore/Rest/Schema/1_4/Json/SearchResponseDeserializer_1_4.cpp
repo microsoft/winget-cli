@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SearchResponseDeserializer.h"
-#include "winget/Rest.h"
 #include <winget/JsonUtil.h>
+#include <winget/Rest.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_4::Json
 {

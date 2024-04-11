@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerStrings.h"
 #include "winget/Rest.h"
 #include <winget/JsonUtil.h>
-#include <AppInstallerStrings.h>
 
 namespace AppInstaller::Rest
 {

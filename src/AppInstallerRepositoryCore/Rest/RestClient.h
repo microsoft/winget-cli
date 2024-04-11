@@ -4,7 +4,7 @@
 #include <set>
 #include "Rest/Schema/IRestClient.h"
 #include "ISource.h"
-#include "winget/HttpClientHelper.h"
+#include <winget/HttpClientHelper.h>
 
 namespace AppInstaller::Repository::Rest
 {
