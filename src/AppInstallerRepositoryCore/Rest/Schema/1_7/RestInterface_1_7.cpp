@@ -2,18 +2,18 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Rest/Schema/1_7/Interface.h"
-#include "Rest/Schema/IRestClient.h"
-#include "Rest/Schema/HttpClientHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
+#include "Rest/Schema/IRestClient.h"
+#include <winget/HttpClientHelper.h>
 #include <winget/JsonUtil.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_7
 {
     Interface::Interface(
         const std::string& restApi,
-        const HttpClientHelper& httpClientHelper,
+        const Http::HttpClientHelper& httpClientHelper,
         IRestClient::Information information,
-        const HttpClientHelper::HttpRequestHeaders& additionalHeaders,
+        const Http::HttpClientHelper::HttpRequestHeaders& additionalHeaders,
         Authentication::AuthenticationArguments authArgs) : V1_6::Interface(restApi, httpClientHelper, std::move(information), additionalHeaders), m_authArgs(std::move(authArgs))
     {
         m_requiredRestApiHeaders[JSON::GetUtilityString(ContractVersion)] = JSON::GetUtilityString(Version_1_7_0.ToString());
@@ -35,9 +35,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_7
         return Version_1_7_0;
     }
 
-    HttpClientHelper::HttpRequestHeaders Interface::GetAuthHeaders() const
+    Http::HttpClientHelper::HttpRequestHeaders Interface::GetAuthHeaders() const
     {
-        HttpClientHelper::HttpRequestHeaders result;
+        Http::HttpClientHelper::HttpRequestHeaders result;
 
         if (m_information.Authentication.Type == Authentication::AuthenticationType::MicrosoftEntraId)
         {

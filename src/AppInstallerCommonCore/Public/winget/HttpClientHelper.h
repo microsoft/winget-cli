@@ -2,14 +2,12 @@
 // Licensed under the MIT License.
 #pragma once
 #include <winget/Certificates.h>
-
 #include <cpprest/http_client.h>
 #include <cpprest/json.h>
-
 #include <optional>
 #include <vector>
 
-namespace AppInstaller::Repository::Rest::Schema
+namespace AppInstaller::Http
 {
     struct HttpClientHelper
     {

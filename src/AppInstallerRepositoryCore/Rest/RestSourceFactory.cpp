@@ -81,7 +81,7 @@ namespace AppInstaller::Repository::Rest
             }
 
             SourceDetails m_details;
-            Schema::HttpClientHelper m_httpClientHelper;
+            Http::HttpClientHelper m_httpClientHelper;
             SourceInformation m_information;
             std::optional<std::string> m_customHeader;
             std::string m_caller;

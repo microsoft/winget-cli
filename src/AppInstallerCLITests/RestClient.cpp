@@ -10,6 +10,7 @@
 #include <AppInstallerRuntime.h>
 
 using namespace AppInstaller;
+using namespace AppInstaller::Http;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Repository::Rest;
 using namespace AppInstaller::Repository::Rest::Schema;
