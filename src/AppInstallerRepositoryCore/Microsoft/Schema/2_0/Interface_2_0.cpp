@@ -17,6 +17,8 @@
 #include "Microsoft/Schema/2_0/SearchResultsTable.h"
 #include "Microsoft/Schema/2_0/PackageUpdateTrackingTable.h"
 
+#include <winget/PackageVersionDataManifest.h>
+
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
@@ -559,17 +561,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
     {
-        // TODO: If package was written since last prepare, write out the intermediate file
-        //          Implement with a table in pre-prepare state that holds { packageIdString, writeTime, intermediateFileText, hash }
-        //          Update flow is:
-        //              1. Caller sets current time value via new property mechanism
-        //              2. Update as needed; each change updates the new table for the changed package
-        //              3. Prepare writes all files after time set in step 1
-        // TODO: Pull the actual timestamp
+        // Output all of the changed package version manifests
+        // TODO: Get the actual timestamp and base output directory
         int64_t updateBaseTime = 0;
+        std::filesystem::path baseOutputDirectory;
         for (const auto& packageData : PackageUpdateTrackingTable::GetUpdatesSince(connection, updateBaseTime))
         {
-            // TODO: Handle the output here
+            std::filesystem::path packageDirectory = baseOutputDirectory / Utility::ConvertToUTF16(packageData.PackageIdentifier);
+            std::filesystem::path hashDirectory = packageDirectory / Utility::SHA256::ConvertToWideString(packageData.Hash);
+
+            std::filesystem::create_directories(hashDirectory);
+
+            std::filesystem::path manifestPath = hashDirectory / Manifest::PackageVersionDataManifest::VersionManifestFileName();
+
+            AICLI_LOG(Repo, Info, << "Writing PackageVersionDataManifest for [" << packageData.PackageIdentifier << "] to [" << manifestPath << "]");
+
+            std::ofstream stream(manifestPath, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+            THROW_LAST_ERROR_IF(stream.fail());
+            stream << packageData.Manifest << std::flush;
+            THROW_LAST_ERROR_IF(stream.fail());
         }
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v2_0");

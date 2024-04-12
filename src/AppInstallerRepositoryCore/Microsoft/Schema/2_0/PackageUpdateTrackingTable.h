@@ -36,9 +36,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Data on a single row in the table.
         struct PackageData
         {
-            SQLite::rowid_t RowID;
+            SQLite::rowid_t RowID = 0;
             std::string PackageIdentifier;
-            int64_t WriteTime;
+            int64_t WriteTime = 0;
             std::string Manifest;
             SQLite::blob_t Hash;
         };
