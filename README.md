@@ -5,9 +5,9 @@
 
 ![winget install wingetcreate](.github/images/WingetInstall.gif)
 
-If you are new to the Windows Package Manager, you might want to [Explore the Windows Package Manager tool](https://docs.microsoft.com/learn/modules/explore-windows-package-manager-tool/?WT.mc_id=AZ-MVP-5004737). The client has access to packages from two default sources. The first is "msstore" the Microsoft Store (free Apps rated "e" for everyone). The second is "winget" the [WinGet community repository](https://github.com/microsoft/winget-pkgs).
+If you are new to the Windows Package Manager, you might want to [Explore the Windows Package Manager tool](https://docs.microsoft.com/learn/modules/explore-windows-package-manager-tool/?WT.mc_id=AZ-MVP-5004737). The client has access to packages from two default sources. The first is "msstore" the Microsoft Store (free Apps rated "e" for everyone). The second is "Winget" the [WinGet community repository](https://github.com/microsoft/winget-pkgs).
 
-> **Note**: Group policy may be configured and modify configured sources. Run `winget --info` to see any configured policies.
+> **Note**: Group policy may be configured and configured sources. Run `winget --info` to see any configured policies.
 
 ## Installing The Client
 
@@ -41,11 +41,11 @@ Please read our [troubleshooting guide](/doc/troubleshooting/README.md).
 
 ## Administrator Considerations
 
-Installer behavior can be different depending on whether you are running **winget** with administrator privileges.
+Installer behavior can be different depending on whether you are running **Winget** with administrator privileges.
 
 * When running **winget** without administrator privileges, some applications may [require elevation](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works) to install. When the installer runs, Windows will prompt you to [elevate](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience). If you choose not to elevate, the application will fail to install.
 
-* When running **winget** in an Administrator Command Prompt, you will not see [elevation prompts](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience) if the application requires it. Always use caution when running your command prompt as an administrator, and only install applications you trust.
+* When running **Winget** in an Administrator Command Prompt, you will not see [elevation prompts](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience) if the application requires it. Always use caution when running your command prompt as an administrator, and only install applications you trust.
 
 ### Build your own
 
@@ -57,7 +57,7 @@ You can also [build the client yourself](#building-the-client). While the client
 
 ## Windows Package Manager Release Roadmap
 
-The plan for delivering next Windows Package Manager releases is described included in our [discussions](https://github.com/microsoft/winget-cli/discussions/2063), and will be updated as the project proceeds.
+The plan for delivering the next Windows Package Manager releases is described and included in our [discussions](https://github.com/microsoft/winget-cli/discussions/2063), and will be updated as the project proceeds.
 
 ## Overview of the  Windows Package Manager
 
@@ -73,7 +73,7 @@ This winget-cli repository includes the source code designed to build the client
 
 ### Sources
 
-The client is built around the concept of sources; a set of packages effectively. Sources provide the ability to discover and retrieve the metadata about the packages, so that the client can act on it.
+The client is built around the concept of sources; a set of packages effectively. Sources provide the ability to discover and retrieve the metadata about the packages so that the client can act on it.
 
 * The default "winget" source includes packages in the [Windows Package Manager Community Repository](https://github.com/microsoft/winget-pkgs).
 * The default "msstore" source includes packages in the Microsoft Store.
@@ -91,7 +91,7 @@ The client is built around the concept of sources; a set of packages effectively
 * Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
 * [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/)
-  * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
+  * Or use Winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
 * The following workloads:
   * .NET Desktop Development
   * Desktop Development with C++
@@ -103,7 +103,7 @@ The client is built around the concept of sources; a set of packages effectively
 
 ### Building
 
-Open `winget-cli\src\AppInstallerCLI.sln` in Visual Studio and build. We currently only build using the solution; command line methods of building a VS solution should work as well. After the build finishes, deploy the solution from Build > Deploy Solution. You can then run the client from the command line using `wingetdev`.
+Open `winget-cli\src\AppInstallerCLI.sln` in Visual Studio and build. We currently only build using the solution; command-line methods of building a VS solution should work as well. After the build finishes, deploy the solution from Build > Deploy Solution. You can then run the client from the command line using `wingetdev`.
 
 ## Credit
 
@@ -112,7 +112,7 @@ We would like to thank [Keivan Beigi (@kayone)](https://github.com/kayone) for h
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+Contributor License Agreement (CLA) declaring that you have the right to, and do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com. More
 information is available in our [CONTRIBUTING.md](/CONTRIBUTING.md) file.
 
@@ -130,9 +130,9 @@ The winget.exe client is instrumented to collect usage and diagnostic (error) da
 
 If you build the client yourself the instrumentation will not be enabled and no data will be sent to Microsoft.
 
-The winget.exe client respects machine wide privacy settings and users can opt-out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy). In addition, you may also explicitly block telemetry using [settings](https://docs.microsoft.com/windows/package-manager/winget/settings)
+The winget.exe client respects machine-wide privacy settings and users can opt out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy). In addition, you may also explicitly block telemetry using [settings](https://docs.microsoft.com/windows/package-manager/winget/settings)
 
-In short to opt-out, do one of the following:
+In short to opt out, do one of the following:
 
 **Windows 11**: Go to `Start`, then select `Settings` > `Privacy & security` > `Diagnostics & feedback` > `Diagnostic data` and unselect `Send optional diagnostic data`.
 
