@@ -285,6 +285,11 @@
           "description": "Enable configure commands request elevation as needed",
           "type": "boolean",
           "default": false
+        },
+        "storeDownload": {
+          "description": "Enable support for downloading packages from the Microsoft Store",
+          "type": "boolean",
+          "default": false
         }
       }
     }

@@ -232,7 +232,13 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::MSStore:
                 if (installerDownloadOnly)
                 {
-                    THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                    if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
+                    {
+                    }
+                    else
+                    {
+                        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                    }
                 }
                 else
                 {
