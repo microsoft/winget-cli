@@ -112,8 +112,7 @@ We would like to thank [Keivan Beigi (@kayone)](https://github.com/kayone) for h
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com. More
+Contributor License Agreement (CLA) declaring that you have the right to, and do, actually grant us the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com. More
 information is available in our [CONTRIBUTING.md](/CONTRIBUTING.md) file.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
