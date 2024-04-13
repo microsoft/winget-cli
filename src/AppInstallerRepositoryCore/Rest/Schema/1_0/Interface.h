@@ -2,15 +2,14 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Rest/Schema/IRestClient.h"
-#include "Rest/Schema/HttpClientHelper.h"
-#include <cpprest/json.h>
+#include <winget/HttpClientHelper.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0
 {
     // Interface to this schema version exposed through IRestClient.
     struct Interface : public IRestClient
     {
-        Interface(const std::string& restApi, const Schema::HttpClientHelper& helper);
+        Interface(const std::string& restApi, const Http::HttpClientHelper& helper);
 
         Interface(const Interface&) = delete;
         Interface& operator=(const Interface&) = delete;
@@ -39,13 +38,13 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
         virtual std::vector<Manifest::Manifest> GetParsedManifests(const web::json::value& manifestsResponseObject) const;
 
         // Gets auth headers if source requires authentication for access.
-        virtual HttpClientHelper::HttpRequestHeaders GetAuthHeaders() const;
+        virtual Http::HttpClientHelper::HttpRequestHeaders GetAuthHeaders() const;
 
-        HttpClientHelper::HttpRequestHeaders m_requiredRestApiHeaders;
+        Http::HttpClientHelper::HttpRequestHeaders m_requiredRestApiHeaders;
 
     private:
         std::string m_restApiUri;
         utility::string_t m_searchEndpoint;
-        HttpClientHelper m_httpClientHelper;
+        Http::HttpClientHelper m_httpClientHelper;
     };
 }

@@ -46,7 +46,7 @@ http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer
 ^ShortDescription: Le nouveau.*$
 
 # Ignore test patterns
-REQUIRE\(RestHelper::GetRestAPIBaseUri\(".*"\) == L".*"
+REQUIRE\(Rest::GetRestAPIBaseUri\(".*"\) == L".*"
 
 # fabricbot.json
 "(?:id|user)": "[-A-Za-z0-9_]*"

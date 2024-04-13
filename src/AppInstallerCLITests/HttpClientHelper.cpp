@@ -4,13 +4,13 @@
 #include "TestCommon.h"
 #include "TestRestRequestHandler.h"
 #include <AppInstallerErrors.h>
-#include <Rest/Schema/HttpClientHelper.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 #include <winget/Certificates.h>
+#include <winget/HttpClientHelper.h>
 #include <CertificateResources.h>
 
-using namespace AppInstaller::Repository::Rest::Schema;
+using namespace AppInstaller::Http;
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Certificates;

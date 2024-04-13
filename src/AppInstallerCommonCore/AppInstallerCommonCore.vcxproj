@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
@@ -246,7 +246,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;_DEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\PureLib\pure;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\PureLib\pure;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\PureLib\pure;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -272,7 +272,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;WIN32;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\PureLib\pure;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
       <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</SDLCheck>
@@ -288,7 +288,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\PureLib\pure;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\PureLib\pure;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\PureLib\pure;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -325,7 +325,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\PureLib\pure;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\PureLib\pure;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\PureLib\pure;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -421,6 +421,9 @@
     <ClInclude Include="Public\winget\Archive.h" />
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
+    <ClInclude Include="Public\winget\HttpClientHelper.h">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Public\winget\Locale.h" />
     <ClInclude Include="Public\winget\Manifest.h" />
     <ClInclude Include="Public\winget\ManifestInstaller.h" />
@@ -440,6 +443,7 @@
     <ClInclude Include="Public\winget\Pin.h" />
     <ClInclude Include="Public\winget\Reboot.h" />
     <ClInclude Include="Public\winget\Regex.h" />
+    <ClInclude Include="Public\winget\Rest.h" />
     <ClInclude Include="Public\winget\PathVariable.h" />
     <ClInclude Include="Public\winget\PortableARPEntry.h" />
     <ClInclude Include="Public\winget\PortableFileEntry.h" />
@@ -465,6 +469,9 @@
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="ExtensionCatalog.cpp" />
     <ClCompile Include="FileLogger.cpp" />
+    <ClCompile Include="HttpClientHelper.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="HttpStream\HttpClientWrapper.cpp" />
     <ClCompile Include="HttpStream\HttpLocalCache.cpp" />
     <ClCompile Include="HttpStream\HttpRandomAccessStream.cpp" />
@@ -488,6 +495,7 @@
     <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Reboot.cpp" />
     <ClCompile Include="Regex.cpp" />
+    <ClCompile Include="Rest.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
