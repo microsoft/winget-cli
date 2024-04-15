@@ -30,11 +30,21 @@ namespace AppInstaller::Manifest
         std::optional<std::string> relativePath,
         std::optional<std::string> manifestHash) :
         Version(versionAndChannel.GetVersion()),
-        ArpMinVersion(arpMinVersion),
-        ArpMaxVersion(arpMaxVersion),
-        ManifestRelativePath(relativePath.value()),
-        ManifestHash(manifestHash.value())
-    {}
+        ArpMinVersion(std::move(arpMinVersion)),
+        ArpMaxVersion(std::move(arpMaxVersion)),
+        ManifestRelativePath(std::move(relativePath).value()),
+        ManifestHash(std::move(manifestHash).value())
+    {
+        if (ArpMinVersion && ArpMinVersion->empty())
+        {
+            ArpMinVersion.reset();
+        }
+
+        if (ArpMaxVersion && ArpMaxVersion->empty())
+        {
+            ArpMaxVersion.reset();
+        }
+    }
 
     void PackageVersionDataManifest::AddVersion(VersionData&& versionData)
     {

@@ -3360,14 +3360,17 @@ TEST_CASE("ConvertIndexFrom17to20", "[sqliteindex]")
 {
     std::string tempPath = R"(E:\Temp\schema20\schema20test.db)";
     std::filesystem::remove_all(tempPath);
+    std::filesystem::remove_all(R"(E:\Temp\schema20\schema20test_intermediates)");
+
     std::filesystem::copy_file(R"(E:\Temp\schema20\index.db)", tempPath);
 
     SQLiteIndex index = SQLiteIndex::Open(tempPath, SQLiteIndex::OpenDisposition::ReadWrite);
-    index.ForceVersion({ 2, 0 });
 
     auto start = std::chrono::steady_clock::now();
+    index.MigrateTo({ 2, 0 });
+    std::cout << "Seconds to migrate: " << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count() << std::endl;
 
+    start = std::chrono::steady_clock::now();
     index.PrepareForPackaging();
-
-    std::cout << "Seconds to complete: " << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count();
+    std::cout << "Seconds to prepare: " << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count() << std::endl;
 }

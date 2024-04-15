@@ -377,6 +377,33 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         savepoint.Commit();
     }
 
+    bool Interface::MigrateFrom(SQLite::Connection& connection, const ISQLiteIndex* current)
+    {
+        THROW_HR_IF_NULL(E_POINTER, current);
+
+        auto currentVersion = current->GetVersion();
+        if (currentVersion.MajorVersion != 1 || currentVersion.MinorVersion != 7)
+        {
+            return false;
+        }
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "migrate_from_v2_0");
+
+        // We only need to insert all of the existing packages into the update tracking table.
+        PackageUpdateTrackingTable::EnsureExists(connection);
+        SearchResult allPackages = current->Search(connection, {});
+
+        for (const auto& packageMatch : allPackages.Matches)
+        {
+            std::vector<ISQLiteIndex::VersionKey> versionKeys = current->GetVersionKeysById(connection, packageMatch.first);
+            ISQLiteIndex::VersionKey& latestVersionKey = versionKeys[0];
+            PackageUpdateTrackingTable::Update(connection, current, current->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value(), false);
+        }
+
+        savepoint.Commit();
+        return true;
+    }
+
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<SearchResultsTable>(connection);
@@ -564,7 +591,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Output all of the changed package version manifests
         // TODO: Get the actual timestamp and base output directory
         int64_t updateBaseTime = 0;
-        std::filesystem::path baseOutputDirectory;
+        std::filesystem::path baseOutputDirectory = R"(E:\Temp\schema20\schema20test_intermediates)";
         for (const auto& packageData : PackageUpdateTrackingTable::GetUpdatesSince(connection, updateBaseTime))
         {
             std::filesystem::path packageDirectory = baseOutputDirectory / Utility::ConvertToUTF16(packageData.PackageIdentifier);

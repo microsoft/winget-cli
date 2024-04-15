@@ -71,8 +71,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         return statement.GetColumn<int64_t>(0) != 0;
     }
 
-    void PackageUpdateTrackingTable::Update(SQLite::Connection& connection, ISQLiteIndex* internalIndex, const std::string& packageIdentifier)
+    void PackageUpdateTrackingTable::Update(SQLite::Connection& connection, const ISQLiteIndex* internalIndex, const std::string& packageIdentifier, bool ensureTable)
     {
+        if (ensureTable)
+        {
+            EnsureExists(connection);
+        }
+
         SearchRequest request;
         request.Inclusions.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, packageIdentifier);
         auto result = internalIndex->Search(connection, request);

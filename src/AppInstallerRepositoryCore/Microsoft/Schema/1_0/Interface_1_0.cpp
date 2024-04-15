@@ -573,6 +573,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         savepoint.Commit();
     }
 
+    bool Interface::MigrateFrom(SQLite::Connection&, const ISQLiteIndex*)
+    {
+        return false;
+    }
+
     std::vector<ISQLiteIndex::VersionKey> Interface::GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const
     {
         auto versionsAndChannels = ManifestTable::GetAllValuesById<IdTable, VersionTable, ChannelTable>(connection, id);

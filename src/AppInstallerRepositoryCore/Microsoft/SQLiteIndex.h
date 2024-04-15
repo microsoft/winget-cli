@@ -143,6 +143,10 @@ namespace AppInstaller::Repository::Microsoft
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const;
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(AppInstaller::Manifest::string_t packageId) const;
 
+        // Migrates the index to the target version.
+        // Returns false to indicate that the requested migration is not supported.
+        bool MigrateTo(SQLite::Version version);
+
     private:
         // Constructor used to create a new index.
         SQLiteIndex(const std::string& target, const SQLite::Version& version);

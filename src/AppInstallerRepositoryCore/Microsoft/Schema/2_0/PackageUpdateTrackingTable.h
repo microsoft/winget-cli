@@ -27,7 +27,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         static bool Exists(const SQLite::Connection& connection);
 
         // Updates the tracking table for the given package identifier in the internal index.
-        static void Update(SQLite::Connection& connection, ISQLiteIndex* internalIndex, const std::string& packageIdentifier);
+        static void Update(SQLite::Connection& connection, const ISQLiteIndex* internalIndex, const std::string& packageIdentifier, bool ensureTable = true);
 
         // Checks the consistency of the index to ensure that every referenced row exists.
         // Returns true if index is consistent; false if it is not.

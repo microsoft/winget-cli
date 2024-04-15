@@ -264,4 +264,28 @@ namespace AppInstaller::Repository::Microsoft
     {
         return m_interface->GetDependentsById(m_dbconn, packageId);
     }
+
+    bool SQLiteIndex::MigrateTo(SQLite::Version version)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_migrateto");
+
+        AICLI_LOG(Repo, Info, << "Attempting to migrate index from [" << m_interface->GetVersion() << "] to [" << version << "]...");
+        std::unique_ptr<Schema::ISQLiteIndex> newInterface = Schema::CreateISQLiteIndex(version);
+
+        bool result = newInterface->MigrateFrom(m_dbconn, m_interface.get());
+
+        AICLI_LOG(Repo, Info, << "...migration was " << (result ? "" : "NOT ") << "successful");
+        if (result)
+        {
+            version.SetSchemaVersion(m_dbconn);
+            SetLastWriteTime();
+            savepoint.Commit();
+
+            m_version = version;
+            m_interface = std::move(newInterface);
+        }
+
+        return result;
+    }
 }

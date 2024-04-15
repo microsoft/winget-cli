@@ -44,6 +44,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Version 1.7
         void DropTables(SQLite::Connection& connection) override;
 
+        // Version 2.0
+        bool MigrateFrom(SQLite::Connection& connection, const ISQLiteIndex* current) override;
+
     protected:
         virtual bool NotNeeded(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const;
 

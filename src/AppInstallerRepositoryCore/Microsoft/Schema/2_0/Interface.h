@@ -47,6 +47,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Version 1.7
         void DropTables(SQLite::Connection& connection) override;
 
+        // Version 2.0
+        bool MigrateFrom(SQLite::Connection& connection, const ISQLiteIndex* current) override;
+
     protected:
         // Creates the search results table.
         virtual std::unique_ptr<SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const;

@@ -123,13 +123,21 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Version 1.7
 
+        // Drops all tables that would have been created.
         virtual void DropTables(SQLite::Connection& connection) = 0;
+
+        // Version 2.0
+
+        // Migrates from the current interface given.
+        // Returns true if supported; false if not.
+        // Throws on errors that occur during an attempted migration.
+        virtual bool MigrateFrom(SQLite::Connection& connection, const ISQLiteIndex* current) = 0;
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ISQLiteIndex::CreateOptions);
 
     // Creates the ISQLiteIndex interface object for the given version.
-    std::unique_ptr<Schema::ISQLiteIndex> CreateISQLiteIndex(const SQLite::Version& version);
+    std::unique_ptr<ISQLiteIndex> CreateISQLiteIndex(const SQLite::Version& version);
 
     // For a given match type, gets the set of match types that are more specific subsets of it.
     std::vector<MatchType> GetDefaultMatchTypeOrder(MatchType type);
