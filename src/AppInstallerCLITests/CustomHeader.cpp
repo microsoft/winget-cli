@@ -13,6 +13,7 @@
 
 using namespace TestCommon;
 using namespace AppInstaller;
+using namespace AppInstaller::Http;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Rest;

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Rest/Schema/CommonRestConstants.h"
 #include "Rest/Schema/IRestClient.h"
 #include "SearchResponseDeserializer.h"
 #include <winget/JsonUtil.h>
-#include "Rest/Schema/RestHelper.h"
-#include "Rest/Schema/CommonRestConstants.h"
+#include <winget/Rest.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 {
@@ -116,8 +116,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         std::string channel = JSON::GetRawStringValueFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(Channel)).value_or("");
-        std::vector<std::string> packageFamilyNames = RestHelper::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(PackageFamilyNames)));
-        std::vector<std::string> productCodes = RestHelper::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(ProductCodes)));
+        std::vector<std::string> packageFamilyNames = AppInstaller::Rest::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(PackageFamilyNames)));
+        std::vector<std::string> productCodes = AppInstaller::Rest::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(ProductCodes)));
 
         return IRestClient::VersionInfo{
             AppInstaller::Utility::VersionAndChannel{std::move(version.value()), std::move(channel)},

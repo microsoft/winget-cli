@@ -9,6 +9,7 @@
 #include <AppInstallerErrors.h>
 
 using namespace TestCommon;
+using namespace AppInstaller::Http;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
