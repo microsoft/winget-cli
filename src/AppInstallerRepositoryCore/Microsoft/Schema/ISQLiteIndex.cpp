@@ -15,6 +15,16 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
+    void ISQLiteIndex::PrepareForPackaging(const SQLiteIndexContext& context)
+    {
+        PrepareForPackaging(context.Connection);
+    }
+
+    void ISQLiteIndex::SetProperty(SQLite::Connection&, Property, const std::string&)
+    {
+        THROW_WIN32(ERROR_NOT_SUPPORTED);
+    }
+
     std::unique_ptr<ISQLiteIndex> CreateISQLiteIndex(const SQLite::Version& version)
     {
         if (version.MajorVersion == 1 ||
@@ -48,7 +58,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         }
 
         // We do not have the capacity to operate on this schema version
-        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        THROW_WIN32(ERROR_NOT_SUPPORTED);
     }
 
     std::vector<MatchType> GetDefaultMatchTypeOrder(MatchType type)

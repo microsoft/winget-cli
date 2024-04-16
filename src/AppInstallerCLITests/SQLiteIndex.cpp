@@ -3359,12 +3359,14 @@ TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafoldi
 TEST_CASE("ConvertIndexFrom17to20", "[sqliteindex]")
 {
     std::string tempPath = R"(E:\Temp\schema20\schema20test.db)";
+    std::string intermediatesPath = R"(E:\Temp\schema20\schema20test_intermediates)";
     std::filesystem::remove_all(tempPath);
-    std::filesystem::remove_all(R"(E:\Temp\schema20\schema20test_intermediates)");
+    std::filesystem::remove_all(intermediatesPath);
 
     std::filesystem::copy_file(R"(E:\Temp\schema20\index.db)", tempPath);
 
     SQLiteIndex index = SQLiteIndex::Open(tempPath, SQLiteIndex::OpenDisposition::ReadWrite);
+    index.SetProperty(SQLiteIndex::Property::IntermediateFileOutputPath, intermediatesPath);
 
     auto start = std::chrono::steady_clock::now();
     index.MigrateTo({ 2, 0 });

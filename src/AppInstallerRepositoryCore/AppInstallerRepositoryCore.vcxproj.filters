@@ -459,6 +459,9 @@
     <ClInclude Include="Microsoft\Schema\2_0\PackageUpdateTrackingTable.h">
       <Filter>Microsoft\Schema\2_0</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\SQLiteIndexContextData.h">
+      <Filter>Microsoft\Schema</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

@@ -12,6 +12,9 @@ using namespace std::string_view_literals;
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
+    // Version 2.0
+    static constexpr std::string_view s_MetadataValueName_PackageUpdateTrackingBaseTime = "updateTrackingBase"sv;
+
     // Interface to this schema version exposed through ISQLiteIndex.
     struct Interface : public ISQLiteIndex
     {
@@ -25,6 +28,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         SQLite::rowid_t RemoveManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest) override;
         void RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId) override;
         void PrepareForPackaging(SQLite::Connection& connection) override;
+        void PrepareForPackaging(const SQLiteIndexContext& context) override;
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
         SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const override;
         std::optional<std::string> GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const override;
@@ -49,6 +53,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         // Version 2.0
         bool MigrateFrom(SQLite::Connection& connection, const ISQLiteIndex* current) override;
+        void SetProperty(SQLite::Connection& connection, Property property, const std::string& value) override;
 
     protected:
         // Creates the search results table.
@@ -67,7 +72,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         SearchResult BasicSearchInternal(const SQLite::Connection& connection, const SearchRequest& request) const;
 
         // Prepares for packaging, optionally vacuuming the database.
-        virtual void PrepareForPackaging(SQLite::Connection& connection, bool vacuum);
+        virtual void PrepareForPackaging(const SQLiteIndexContext& context, bool vacuum);
 
         // Force the database to shrink the file size.
         // This *must* be done outside of an active transaction.

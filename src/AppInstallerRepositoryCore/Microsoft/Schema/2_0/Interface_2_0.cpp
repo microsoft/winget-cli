@@ -145,10 +145,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
     }
 
-    void Interface::PrepareForPackaging(SQLite::Connection& connection)
+    void Interface::PrepareForPackaging(SQLite::Connection&)
     {
-        EnsureInternalInterface(connection, true);
-        PrepareForPackaging(connection, true);
+        // We implement the context version
+        THROW_HR(E_NOTIMPL);
+    }
+
+    void Interface::PrepareForPackaging(const SQLiteIndexContext& context)
+    {
+        EnsureInternalInterface(context.Connection, true);
+        PrepareForPackaging(context, true);
     }
 
     bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
@@ -404,6 +410,29 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         return true;
     }
 
+    void Interface::SetProperty(SQLite::Connection& connection, Property property, const std::string& value)
+    {
+        switch (property)
+        {
+        case Property::PackageUpdateTrackingBaseTime:
+        {
+            int64_t baseTime = 0;
+            if (value.empty())
+            {
+                baseTime = Utility::GetCurrentUnixEpoch();
+            }
+            else
+            {
+                baseTime = std::stoll(value);
+            }
+            SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_PackageUpdateTrackingBaseTime, std::to_string(baseTime));
+        }
+            break;
+        }
+
+        THROW_WIN32(ERROR_NOT_SUPPORTED);
+    }
+
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<SearchResultsTable>(connection);
@@ -586,13 +615,34 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         return resultsTable->GetSearchResults(request.MaximumResults);
     }
 
-    void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)
+    void Interface::PrepareForPackaging(const SQLiteIndexContext& context, bool vacuum)
     {
-        // Output all of the changed package version manifests
-        // TODO: Get the actual timestamp and base output directory
-        int64_t updateBaseTime = 0;
-        std::filesystem::path baseOutputDirectory = R"(E:\Temp\schema20\schema20test_intermediates)";
+        SQLite::Connection& connection = context.Connection;
 
+        // Get the base time from metadata
+        int64_t updateBaseTime = 0;
+        std::optional<std::string> updateBaseTimeString = SQLite::MetadataTable::TryGetNamedValue<std::string>(connection, s_MetadataValueName_PackageUpdateTrackingBaseTime);
+        if (updateBaseTimeString && !updateBaseTimeString->empty())
+        {
+            updateBaseTime = std::stoll(updateBaseTimeString.value());
+        }
+
+        // Get the output directory or use the file path
+        std::filesystem::path baseOutputDirectory;
+
+        if (context.Data.Contains(Property::IntermediateFileOutputPath))
+        {
+            baseOutputDirectory = context.Data.Get<Property::IntermediateFileOutputPath>();
+        }
+        else if (context.Data.Contains(Property::DatabaseFilePath))
+        {
+            baseOutputDirectory = context.Data.Get<Property::DatabaseFilePath>();
+            baseOutputDirectory = baseOutputDirectory.parent_path();
+        }
+
+        THROW_WIN32_IF(ERROR_INVALID_STATE, baseOutputDirectory.empty() || baseOutputDirectory.is_relative());
+
+        // Output all of the changed package version manifests since the base time to the target location
         for (const auto& packageData : PackageUpdateTrackingTable::GetUpdatesSince(connection, updateBaseTime))
         {
             std::filesystem::path packageDirectory = baseOutputDirectory / Utility::ConvertToUTF16(packageData.PackageIdentifier);

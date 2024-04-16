@@ -273,6 +273,8 @@ msftrubengu
 MSIHASH
 MSIXHASH
 msstore
+MSZIP
+mszyml
 Mta
 Mugiwara
 Multideclaration

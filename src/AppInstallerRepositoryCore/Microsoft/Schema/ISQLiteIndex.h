@@ -4,6 +4,7 @@
 #include <winget/SQLiteWrapper.h>
 #include <winget/SQLiteVersion.h>
 #include "ISource.h"
+#include "Microsoft/Schema/SQLiteIndexContextData.h"
 #include <AppInstallerVersions.h>
 #include <winget/Manifest.h>
 #include <winget/NameNormalization.h>
@@ -14,6 +15,13 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
+    // Contains the database connection and any other data that the owning index might need to pass in.
+    struct SQLiteIndexContext
+    {
+        SQLite::Connection& Connection;
+        SQLiteIndexContextData& Data;
+    };
+
     // The common interface used to interact with all schema versions of the index.
     struct ISQLiteIndex
     {
@@ -77,6 +85,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Removes data that is no longer needed for an index that is to be published.
         virtual void PrepareForPackaging(SQLite::Connection& connection) = 0;
 
+        // Removes data that is no longer needed for an index that is to be published.
+        virtual void PrepareForPackaging(const SQLiteIndexContext& context);
+
         // Checks the consistency of the index to ensure that every referenced row exists.
         // Returns true if index is consistent; false if it is not.
         virtual bool CheckConsistency(const SQLite::Connection& connection, bool log) const = 0;
@@ -132,6 +143,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Returns true if supported; false if not.
         // Throws on errors that occur during an attempted migration.
         virtual bool MigrateFrom(SQLite::Connection& connection, const ISQLiteIndex* current) = 0;
+
+        // Set the property value.
+        virtual void SetProperty(SQLite::Connection& connection, Property property, const std::string& value);
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ISQLiteIndex::CreateOptions);

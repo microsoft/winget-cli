@@ -42,6 +42,7 @@ namespace AppInstaller::Repository::Microsoft
         m_dbconn.EnableICU();
         m_interface = Schema::CreateISQLiteIndex(version);
         m_version = m_interface->GetVersion();
+        SetDatabaseFilePath(target);
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
@@ -51,6 +52,7 @@ namespace AppInstaller::Repository::Microsoft
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
         m_interface = Schema::CreateISQLiteIndex(m_version);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
+        SetDatabaseFilePath(target);
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteIndex& source) :
@@ -58,6 +60,15 @@ namespace AppInstaller::Repository::Microsoft
     {
         m_dbconn.EnableICU();
         m_interface = Schema::CreateISQLiteIndex(m_version);
+        SetDatabaseFilePath(target);
+    }
+
+    void SQLiteIndex::SetDatabaseFilePath(const std::string& target)
+    {
+        if (target != SQLITE_MEMORY_DB_CONNECTION_TARGET)
+        {
+            m_contextData.Add<Schema::Property::DatabaseFilePath>(Utility::ConvertToUTF16(target));
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -185,7 +196,7 @@ namespace AppInstaller::Repository::Microsoft
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Info, << "Preparing index for packaging");
 
-        m_interface->PrepareForPackaging(m_dbconn);
+        m_interface->PrepareForPackaging(Schema::SQLiteIndexContext{ m_dbconn, m_contextData });
     }
 
     bool SQLiteIndex::CheckConsistency(bool log) const
@@ -287,5 +298,24 @@ namespace AppInstaller::Repository::Microsoft
         }
 
         return result;
+    }
+
+    void SQLiteIndex::SetProperty(Property property, const std::string& value)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+
+        switch (property)
+        {
+        case Property::PackageUpdateTrackingBaseTime:
+            m_interface->SetProperty(m_dbconn, Schema::Property::PackageUpdateTrackingBaseTime, value);
+            break;
+        case Property::IntermediateFileOutputPath:
+        {
+            std::filesystem::path pathValue{ Utility::ConvertToUTF16(value) };
+            THROW_HR_IF(E_INVALIDARG, pathValue.empty() || pathValue.is_relative());
+            m_contextData.Add<Schema::Property::IntermediateFileOutputPath>(std::move(pathValue));
+        }
+            break;
+        }
     }
 }

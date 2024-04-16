@@ -147,6 +147,17 @@ namespace AppInstaller::Repository::Microsoft
         // Returns false to indicate that the requested migration is not supported.
         bool MigrateTo(SQLite::Version version);
 
+        // The property values that can be set.
+        enum class Property
+        {
+            PackageUpdateTrackingBaseTime,
+            IntermediateFileOutputPath,
+        };
+
+        // Sets the given property.
+        // Some properties will persist into the database.
+        void SetProperty(Property property, const std::string& value);
+
     private:
         // Constructor used to create a new index.
         SQLiteIndex(const std::string& target, const SQLite::Version& version);
@@ -157,10 +168,14 @@ namespace AppInstaller::Repository::Microsoft
         // Constructor used to copy the given index.
         SQLiteIndex(const std::string& target, SQLiteIndex& source);
 
+        // Sets the database file path in the context data if appropriate.
+        void SetDatabaseFilePath(const std::string& target);
+
         // Internal functions to normalize on the relativePath being present.
         IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
         bool UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
 
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
+        Schema::SQLiteIndexContextData m_contextData;
     };
 }
