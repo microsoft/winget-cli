@@ -108,6 +108,10 @@ namespace AppInstaller::Utility
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b);
 
+    // Compares the two UTF16 strings in a case insensitive manner.
+    // Use this if one of the values is a known value, and thus ToLower is sufficient.
+    bool CaseInsensitiveEquals(std::wstring_view a, std::wstring_view b);
+
     // Returns if a UTF8 string is contained within a vector in a case insensitive manner.
     bool CaseInsensitiveContains(const std::vector<std::string_view>& a, std::string_view b);
 
@@ -268,6 +272,9 @@ namespace AppInstaller::Utility
 
     // Converts the given GUID value to a string.
     std::string ConvertGuidToString(const GUID& value);
+
+    // Creates a new GUID and returns the string value.
+    std::wstring CreateNewGuidNameWString();
 
     // Converts the input string to a DWORD value using std::stoul and returns a boolean value based on the resulting DWORD value.
     bool IsDwordFlagSet(const std::string& value);

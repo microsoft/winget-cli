@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationUnitProcessor.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -7,6 +7,8 @@
 namespace Microsoft.Management.Configuration.Processor.Unit
 {
     using System;
+    using System.ComponentModel;
+    using System.Runtime.CompilerServices;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
@@ -20,18 +22,25 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     {
         private readonly IProcessorEnvironment processorEnvironment;
         private readonly ConfigurationUnitAndResource unitResource;
+        private readonly bool isLimitMode;
+
+        private bool isTestInvoked = false;
+        private bool isApplyInvoked = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationUnitProcessor"/> class.
         /// </summary>
         /// <param name="processorEnvironment">Processor environment.</param>
         /// <param name="unitResource">UnitResource.</param>
+        /// <param name="isLimitMode">Whether it is under limit mode.</param>
         internal ConfigurationUnitProcessor(
             IProcessorEnvironment processorEnvironment,
-            ConfigurationUnitAndResource unitResource)
+            ConfigurationUnitAndResource unitResource,
+            bool isLimitMode = false)
         {
             this.processorEnvironment = processorEnvironment;
             this.unitResource = unitResource;
+            this.isLimitMode = isLimitMode;
         }
 
         /// <summary>
@@ -53,6 +62,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         {
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Get` for resource: {this.unitResource.UnitInternal.QualifiedName}...");
 
+            this.CheckLimitMode(ConfigurationUnitIntent.Inform);
             var result = new GetSettingsResult(this.Unit);
 
             try
@@ -86,6 +96,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 throw new NotSupportedException();
             }
 
+            this.CheckLimitMode(ConfigurationUnitIntent.Assert);
             var result = new TestSettingsResult(this.Unit);
             result.TestResult = ConfigurationTestResult.Failed;
             try
@@ -122,6 +133,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 throw new NotSupportedException();
             }
 
+            this.CheckLimitMode(ConfigurationUnitIntent.Apply);
             var result = new ApplySettingsResult(this.Unit);
             try
             {
@@ -159,6 +171,48 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 resultInformation.Details = e.ToString();
                 resultInformation.ResultSource = ConfigurationUnitResultSource.Internal;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        private void CheckLimitMode(ConfigurationUnitIntent intent)
+        {
+            if (!this.isLimitMode)
+            {
+                return;
+            }
+
+            if (intent == ConfigurationUnitIntent.Unknown)
+            {
+                throw new InvalidEnumArgumentException(nameof(ConfigurationUnitIntent.Unknown));
+            }
+
+            if (intent == ConfigurationUnitIntent.Assert)
+            {
+                if (this.isTestInvoked)
+                {
+                    this.OnDiagnostics(DiagnosticLevel.Error, "TestSettings is already invoked in limit mode.");
+                    throw new InvalidOperationException("TestSettings is already invoked in limit mode.");
+                }
+                else
+                {
+                    this.isTestInvoked = true;
+                }
+            }
+
+            if (intent == ConfigurationUnitIntent.Apply)
+            {
+                if (this.isApplyInvoked)
+                {
+                    this.OnDiagnostics(DiagnosticLevel.Error, "ApplySettings is already invoked in limit mode.");
+                    throw new InvalidOperationException("ApplySettings is already invoked in limit mode.");
+                }
+                else
+                {
+                    this.isApplyInvoked = true;
+                }
+            }
+
+            // Get is always allowed now.
         }
 
         private void OnDiagnostics(DiagnosticLevel level, string message)

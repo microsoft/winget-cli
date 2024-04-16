@@ -14,6 +14,7 @@
 using namespace TestCommon;
 using namespace AppInstaller;
 using namespace AppInstaller::Authentication;
+using namespace AppInstaller::Http;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;

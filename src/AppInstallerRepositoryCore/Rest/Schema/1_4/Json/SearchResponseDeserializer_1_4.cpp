@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SearchResponseDeserializer.h"
-#include "Rest/Schema/RestHelper.h"
 #include <winget/JsonUtil.h>
+#include <winget/Rest.h>
 
 namespace AppInstaller::Repository::Rest::Schema::V1_4::Json
 {
@@ -19,8 +19,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_4::Json
         auto result = V1_0::Json::SearchResponseDeserializer::DeserializeVersionInfo(versionInfoJsonObject);
         if (result.has_value())
         {
-            result->UpgradeCodes = RestHelper::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(UpgradeCodes)));
-            auto arpVersions = RestHelper::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(AppsAndFeaturesEntryVersions)));
+            result->UpgradeCodes = AppInstaller::Rest::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(UpgradeCodes)));
+            auto arpVersions = AppInstaller::Rest::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(AppsAndFeaturesEntryVersions)));
             for (auto const& version : arpVersions)
             {
                 result->ArpVersions.emplace_back(Utility::Version{ version });

@@ -104,6 +104,11 @@ namespace AppInstaller::Utility
         return ToLower(a) == ToLower(b);
     }
 
+    bool CaseInsensitiveEquals(std::wstring_view a, std::wstring_view b)
+    {
+        return ToLower(a) == ToLower(b);
+    }
+
     bool CaseInsensitiveContains(const std::vector<std::string_view>& a, std::string_view b)
     {
         auto B = ToLower(b);
@@ -869,9 +874,20 @@ namespace AppInstaller::Utility
 
     std::string ConvertGuidToString(const GUID& value)
     {
-        wchar_t buffer[256];
+        wchar_t buffer[40];
         THROW_HR_IF(E_UNEXPECTED, !StringFromGUID2(value, buffer, ARRAYSIZE(buffer)));
         return ConvertToUTF8(buffer);
+    }
+
+    std::wstring CreateNewGuidNameWString()
+    {
+        GUID guid;
+        THROW_IF_FAILED(CoCreateGuid(&guid));
+
+        wchar_t buffer[40];
+        THROW_HR_IF(E_UNEXPECTED, StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)) != 39);
+
+        return std::wstring{ &buffer[1], 36 };
     }
 
     bool IsDwordFlagSet(const std::string& value)

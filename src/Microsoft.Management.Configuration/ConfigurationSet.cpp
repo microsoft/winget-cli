@@ -4,6 +4,7 @@
 #include "ConfigurationSet.h"
 #include "ConfigurationSet.g.cpp"
 #include "ConfigurationSetParser.h"
+#include "ConfigurationSetSerializer.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -125,8 +126,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSet::Serialize(const Windows::Storage::Streams::IOutputStream& stream)
     {
-        UNREFERENCED_PARAMETER(stream);
-        THROW_HR(E_NOTIMPL);
+        std::unique_ptr<ConfigurationSetSerializer> serializer = ConfigurationSetSerializer::CreateSerializer(m_schemaVersion);
+        hstring result = serializer->Serialize(this);
+
+        Windows::Storage::Streams::DataWriter dataWriter{ stream };
+        dataWriter.UnicodeEncoding(Windows::Storage::Streams::UnicodeEncoding::Utf8);
+        dataWriter.WriteString(result);
+        dataWriter.StoreAsync().get();
+        dataWriter.DetachStream();
     }
 
     void ConfigurationSet::Remove()
