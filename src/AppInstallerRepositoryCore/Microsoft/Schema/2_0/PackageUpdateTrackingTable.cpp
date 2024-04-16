@@ -32,7 +32,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         builder.Column(IntegerPrimaryKey());
         builder.Column(ColumnBuilder(s_PUTT_Package, Type::Text).NotNull());
         builder.Column(ColumnBuilder(s_PUTT_WriteTime, Type::Int64).NotNull());
-        builder.Column(ColumnBuilder(s_PUTT_Manifest, Type::Text).NotNull());
+        builder.Column(ColumnBuilder(s_PUTT_Manifest, Type::Blob).NotNull());
         builder.Column(ColumnBuilder(s_PUTT_Hash, Type::Blob).NotNull());
 
         builder.EndColumns();
@@ -113,14 +113,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             }
 
             std::string manifestString = manifest.Serialize();
-            Utility::SHA256::HashBuffer manifestHash = Utility::SHA256::ComputeHash(manifestString);
+
+            auto compressor = Manifest::PackageVersionDataManifest::CreateCompressor();
+            std::vector<uint8_t> compressedManifest = compressor.Compress(manifestString);
+
+            Utility::SHA256::HashBuffer manifestHash = Utility::SHA256::ComputeHash(compressedManifest);
             int64_t currentTime = Utility::GetCurrentUnixEpoch();
 
             // First attempt to update the row and then insert it if no modification occurred.
             Builder::StatementBuilder updateBuilder;
             updateBuilder.Update(s_PUTT_Table_Name).Set().
                 Column(s_PUTT_WriteTime).Equals(currentTime).
-                Column(s_PUTT_Manifest).Equals(manifestString).
+                Column(s_PUTT_Manifest).Equals(compressedManifest).
                 Column(s_PUTT_Hash).Equals(manifestHash).
                 Where(s_PUTT_Package).LikeWithEscape(packageIdentifier);
 
@@ -131,7 +135,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
                 Builder::StatementBuilder insertBuilder;
                 insertBuilder.InsertInto(s_PUTT_Table_Name).
                     Columns({ s_PUTT_Package, s_PUTT_WriteTime, s_PUTT_Manifest, s_PUTT_Hash }).
-                    Values(packageIdentifier, currentTime, manifestString, manifestHash);
+                    Values(packageIdentifier, currentTime, compressedManifest, manifestHash);
 
                 insertBuilder.Execute(connection);
             }
@@ -222,7 +226,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             item.RowID = select.GetColumn<rowid_t>(0);
             item.PackageIdentifier = select.GetColumn<std::string>(1);
             item.WriteTime = select.GetColumn<int64_t>(2);
-            item.Manifest = select.GetColumn<std::string>(3);
+            item.Manifest = select.GetColumn<blob_t>(3);
             item.Hash = select.GetColumn<blob_t>(4);
 
             result.emplace_back(std::move(item));

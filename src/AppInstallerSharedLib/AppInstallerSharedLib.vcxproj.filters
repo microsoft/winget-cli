@@ -211,6 +211,9 @@
     <ClCompile Include="ManagedFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Compression.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

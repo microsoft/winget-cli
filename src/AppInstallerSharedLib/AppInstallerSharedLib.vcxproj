@@ -436,6 +436,7 @@
     <ClCompile Include="AppInstallerLogging.cpp" />
     <ClCompile Include="AppInstallerStrings.cpp" />
     <ClCompile Include="Certificates.cpp" />
+    <ClCompile Include="Compression.cpp" />
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />

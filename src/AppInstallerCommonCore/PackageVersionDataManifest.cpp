@@ -8,19 +8,42 @@ using namespace std::string_view_literals;
 
 namespace AppInstaller::Manifest
 {
-    static constexpr std::string_view s_FieldName_SchemaVersion = "schemaVersion"sv;
-    static constexpr std::string_view s_FieldName_VersionData = "versionData"sv;
-    static constexpr std::string_view s_FieldName_Version = "version"sv;
-    static constexpr std::string_view s_FieldName_ArpMinVersion = "arpMinVersion"sv;
-    static constexpr std::string_view s_FieldName_ArpMaxVersion = "arpMaxVersion"sv;
-    static constexpr std::string_view s_FieldName_RelativePath = "relativePath"sv;
-    static constexpr std::string_view s_FieldName_Sha256Hash = "sha256Hash"sv;
+    static constexpr std::string_view s_FieldName_SchemaVersion = "sV"sv;
+    static constexpr std::string_view s_FieldName_VersionData = "vD"sv;
+    static constexpr std::string_view s_FieldName_Version = "v"sv;
+    static constexpr std::string_view s_FieldName_ArpMinVersion = "aMiV"sv;
+    static constexpr std::string_view s_FieldName_ArpMaxVersion = "aMaV"sv;
+    static constexpr std::string_view s_FieldName_RelativePath = "rP"sv;
+    static constexpr std::string_view s_FieldName_Sha256Hash = "s256H"sv;
 
     static constexpr std::string_view s_SchemaVersion_1_0 = "1.0"sv;
+
+    static constexpr DWORD CompressionAlgorithm = COMPRESS_ALGORITHM_MSZIP;
+    static constexpr bool CompressionSetLevel1 = false;
 
     std::string_view PackageVersionDataManifest::VersionManifestFileName()
     {
         return "versionData.yml"sv;
+    }
+
+    std::string_view PackageVersionDataManifest::VersionManifestCompressedFileName()
+    {
+        return "versionData.mszyml"sv;
+    }
+
+    Compression::Compressor PackageVersionDataManifest::CreateCompressor()
+    {
+        Compression::Compressor result(CompressionAlgorithm);
+        if constexpr (CompressionSetLevel1)
+        {
+            result.SetInformation(COMPRESS_INFORMATION_CLASS_LEVEL, 1);
+        }
+        return result;
+    }
+
+    Compression::Decompressor PackageVersionDataManifest::CreateDecompressor()
+    {
+        return Compression::Decompressor(CompressionAlgorithm);
     }
 
     PackageVersionDataManifest::VersionData::VersionData(

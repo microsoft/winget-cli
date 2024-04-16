@@ -47,6 +47,9 @@ namespace AppInstaller::Utility {
         // Computes the hash of the given buffer immediately.
         static HashBuffer ComputeHash(const uint8_t* buffer, std::uint32_t cbBuffer);
 
+        // Computes the hash of the given buffer immediately.
+        static HashBuffer ComputeHash(const std::vector<uint8_t>& buffer);
+
         // Computes the hash of the given string immediately.
         static HashBuffer ComputeHash(std::string_view buffer);
 

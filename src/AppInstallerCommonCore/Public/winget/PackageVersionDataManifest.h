@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerVersions.h>
+#include <winget/Compression.h>
 
 
 namespace AppInstaller::Manifest
@@ -11,6 +12,15 @@ namespace AppInstaller::Manifest
     {
         // The file name to use for the package version data manifest.
         static std::string_view VersionManifestFileName();
+
+        // The file name to use for the compressed package version data manifest.
+        static std::string_view VersionManifestCompressedFileName();
+
+        // Creates the compressor used by the PackageVersionDataManifest.
+        static Compression::Compressor CreateCompressor();
+
+        // Creates the decompressor used by the PackageVersionDataManifest.
+        static Compression::Decompressor CreateDecompressor();
 
         // Data on an individual version.
         struct VersionData

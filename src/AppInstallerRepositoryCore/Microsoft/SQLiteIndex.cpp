@@ -268,7 +268,7 @@ namespace AppInstaller::Repository::Microsoft
     bool SQLiteIndex::MigrateTo(SQLite::Version version)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_migrateto");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_migrate_to");
 
         AICLI_LOG(Repo, Info, << "Attempting to migrate index from [" << m_interface->GetVersion() << "] to [" << version << "]...");
         std::unique_ptr<Schema::ISQLiteIndex> newInterface = Schema::CreateISQLiteIndex(version);

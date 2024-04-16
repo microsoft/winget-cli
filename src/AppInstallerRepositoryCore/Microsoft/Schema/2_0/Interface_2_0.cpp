@@ -592,6 +592,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // TODO: Get the actual timestamp and base output directory
         int64_t updateBaseTime = 0;
         std::filesystem::path baseOutputDirectory = R"(E:\Temp\schema20\schema20test_intermediates)";
+
         for (const auto& packageData : PackageUpdateTrackingTable::GetUpdatesSince(connection, updateBaseTime))
         {
             std::filesystem::path packageDirectory = baseOutputDirectory / Utility::ConvertToUTF16(packageData.PackageIdentifier);
@@ -599,14 +600,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             std::filesystem::create_directories(hashDirectory);
 
-            std::filesystem::path manifestPath = hashDirectory / Manifest::PackageVersionDataManifest::VersionManifestFileName();
+            std::filesystem::path manifestPath = hashDirectory / Manifest::PackageVersionDataManifest::VersionManifestCompressedFileName();
 
             AICLI_LOG(Repo, Info, << "Writing PackageVersionDataManifest for [" << packageData.PackageIdentifier << "] to [" << manifestPath << "]");
 
             std::ofstream stream(manifestPath, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
             THROW_LAST_ERROR_IF(stream.fail());
-            stream << packageData.Manifest << std::flush;
+            stream.write(reinterpret_cast<const char*>(packageData.Manifest.data()), packageData.Manifest.size());
             THROW_LAST_ERROR_IF(stream.fail());
+            stream.flush();
         }
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v2_0");

@@ -39,7 +39,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             SQLite::rowid_t RowID = 0;
             std::string PackageIdentifier;
             int64_t WriteTime = 0;
-            std::string Manifest;
+            SQLite::blob_t Manifest;
             SQLite::blob_t Hash;
         };
 
