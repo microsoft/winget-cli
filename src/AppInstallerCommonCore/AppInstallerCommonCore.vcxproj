@@ -436,6 +436,7 @@
     <ClInclude Include="Public\winget\MsiExecArguments.h" />
     <ClInclude Include="Public\winget\MsixManifestValidation.h" />
     <ClInclude Include="Public\winget\MSStore.h" />
+    <ClInclude Include="Public\winget\MSStoreRest.h" />
     <ClInclude Include="Public\winget\NameNormalization.h" />
     <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\NetworkSettings.h" />
@@ -488,6 +489,7 @@
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="MSStore.cpp" />
+    <ClCompile Include="MSStoreRest.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="NetworkSettings.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />

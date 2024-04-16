@@ -8,6 +8,7 @@
 #include <AppInstallerMsixInfo.h>
 #include <winget/AdminSettings.h>
 #include <winget/GroupPolicy.h>
+#include <winget/MSStoreRest.h>
 #include <winget/ManifestYamlWriter.h>
 #include <winget/NetworkSettings.h>
 
@@ -234,6 +235,10 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
                     {
+
+                        std::string wuCategoryId = MSStore::MSStoreRestHelper::GetWuCategoryId("9NKSQGP7F2NH", "en-US", "US");
+                        AICLI_LOG(Core, Info,  << "WuCategoryId obtained: " << wuCategoryId);
+                        return;
                     }
                     else
                     {
