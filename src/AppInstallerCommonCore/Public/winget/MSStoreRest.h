@@ -6,12 +6,9 @@
 
 namespace AppInstaller::MSStore
 {
-    // Move this out to a separate file so that we don't have to include it in the another file.
-    struct MSStoreRestHelper
-    {
-        static std::string GetWuCategoryId(const std::string& productId, const std::string& language, const std::string& marketplace);
+    // Constructs the MSStore catalog rest api with the provided product id and language.
+    std::string GetStoreCatalogRestApi(const std::string& productId, const std::string& language);
 
-    protected:
-        static std::optional<std::string> GetWuCategoryIdInternal(const web::json::value& dataObject);
-    };
+    // Retrieves the corresponding WuCategoryId from the json response object;
+    std::string GetWuCategoryId(const web::json::value& jsonObject);
 }

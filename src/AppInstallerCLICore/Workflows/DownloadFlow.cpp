@@ -11,6 +11,9 @@
 #include <winget/MSStoreRest.h>
 #include <winget/ManifestYamlWriter.h>
 #include <winget/NetworkSettings.h>
+#include <winget/HttpClientHelper.h>
+#include <winget/Rest.h>
+
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -235,15 +238,22 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
                     {
+                        // TODO: Initial work for store download to retrieve the WuCategoryId from the store endpoint.
+                        std::string storeRestEndpoint = MSStore::GetStoreCatalogRestApi(installer.ProductId, installer.Locale);
 
-                        std::string wuCategoryId = MSStore::MSStoreRestHelper::GetWuCategoryId("9NKSQGP7F2NH", "en-US", "US");
+                        AppInstaller::Http::HttpClientHelper httpClientHelper;
+                        std::optional<web::json::value> jsonObject = httpClientHelper.HandleGet(JSON::GetUtilityString(storeRestEndpoint));
+
+                        if (!jsonObject)
+                        {
+                            std::cout << "No json object found" << std::endl;
+                        }
+
+                        std::string wuCategoryId = MSStore::GetWuCategoryId(jsonObject.value());
                         AICLI_LOG(Core, Info,  << "WuCategoryId obtained: " << wuCategoryId);
-                        return;
                     }
-                    else
-                    {
-                        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-                    }
+
+                    THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
                 }
                 else
                 {
