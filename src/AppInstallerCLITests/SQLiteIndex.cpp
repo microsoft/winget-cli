@@ -9,6 +9,7 @@
 #include <winget/Manifest.h>
 #include <AppInstallerStrings.h>
 #include <winget/SQLiteMetadataTable.h>
+#include <winget/PackageVersionDataManifest.h>
 
 #include <Microsoft/Schema/1_0/IdTable.h>
 #include <Microsoft/Schema/1_0/NameTable.h>
@@ -3495,15 +3496,267 @@ TEST_CASE("SQLiteIndex_Property_IntermediateFilePath", "[sqliteindex]")
     REQUIRE(contextData.Get<Schema::Property::IntermediateFileOutputPath>() == intermediateFilePath);
 }
 
-TEST_CASE("SQLiteIndex_Property_BaseUpdateTime", "[sqliteindex][V2_0]")
+struct ManifestAndPath
 {
-    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
-    INFO("Using temporary file named: " << tempFile.GetPath());
+    Manifest Manifest;
+    std::string Path;
+};
 
-    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, SQLiteVersion{ 2, 0 });
-    int64_t baseTime = 42;
-    index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, std::to_string(baseTime));
+void CreateFakeManifestAndPath(
+    ManifestAndPath& manifestAndPath,
+    const string_t& publisher,
+    std::string_view version = "1.0.0",
+    std::optional<std::string_view> arpMinVersion = {},
+    std::optional<std::string_view> arpMaxVersion = {})
+{
+    CreateFakeManifest(manifestAndPath.Manifest, publisher, version);
+    manifestAndPath.Path = ConvertToUTF8(CreateNewGuidNameWString());
+    manifestAndPath.Manifest.StreamSha256 = SHA256::ComputeHash(manifestAndPath.Path);
 
-    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
-    REQUIRE(MetadataTable::GetNamedValue<int64_t>(connection, Schema::V2_0::s_MetadataValueName_PackageUpdateTrackingBaseTime) == baseTime);
+    if (arpMinVersion)
+    {
+        manifestAndPath.Manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
+        manifestAndPath.Manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+        manifestAndPath.Manifest.Installers[0].AppsAndFeaturesEntries.back().DisplayVersion = arpMinVersion.value();
+    }
+
+    if (arpMaxVersion)
+    {
+        manifestAndPath.Manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
+        manifestAndPath.Manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
+        manifestAndPath.Manifest.Installers[0].AppsAndFeaturesEntries.back().DisplayVersion = arpMaxVersion.value();
+    }
+}
+
+std::filesystem::path GetOnlyChild(const std::filesystem::path& parent)
+{
+    auto parentDirectoryIterator = std::filesystem::directory_iterator{ parent };
+    std::filesystem::path result = parentDirectoryIterator->path();
+    REQUIRE(++parentDirectoryIterator == std::filesystem::directory_iterator{});
+    return result;
+}
+
+void CheckIntermediates(const std::filesystem::path& intermediatesDirectory, const std::vector<std::vector<ManifestAndPath>>& expectedIntermediatesData, std::chrono::seconds sleep = 1s)
+{
+    size_t intermediatePackageCount = std::count_if(std::filesystem::directory_iterator{ intermediatesDirectory }, std::filesystem::directory_iterator{}, [](const auto&){ return true; });
+    REQUIRE(intermediatePackageCount == expectedIntermediatesData.size());
+
+    for (const auto& versions : expectedIntermediatesData)
+    {
+        REQUIRE(!versions.empty());
+        INFO(versions[0].Manifest.Id);
+        std::filesystem::path packageDirectory = intermediatesDirectory / ConvertToUTF16(versions[0].Manifest.Id);
+
+        REQUIRE(std::filesystem::exists(packageDirectory));
+        std::filesystem::path hashDirectory = GetOnlyChild(packageDirectory);
+
+        SHA256::HashBuffer hashBytes = SHA256::ConvertToBytes(hashDirectory.filename().u8string());
+        std::filesystem::path versionDataFile = GetOnlyChild(hashDirectory);
+        std::ifstream versionDataStream{ versionDataFile, std::ios_base::in | std::ios_base::binary };
+        auto versionDataBytes = ReadEntireStreamAsByteArray(versionDataStream);
+        SHA256::HashBuffer versionDataHash = SHA256::ComputeHash(versionDataBytes);
+        REQUIRE(SHA256::AreEqual(hashBytes, versionDataHash));
+
+        PackageVersionDataManifest versionDataManifest;
+        versionDataManifest.Deserialize(PackageVersionDataManifest::CreateDecompressor().Decompress(versionDataBytes));
+
+        const auto& versionDataVersions = versionDataManifest.Versions();
+        REQUIRE(versionDataVersions.size() == versions.size());
+
+        for (const auto& manifestAndPath : versions)
+        {
+            const auto& versionDataItr = std::find_if(versionDataVersions.begin(), versionDataVersions.end(), [&](const auto& v) { return v.Version == manifestAndPath.Manifest.Version; });
+            REQUIRE(versionDataItr != versionDataVersions.end());
+            const auto& versionData = *versionDataItr;
+
+            REQUIRE(manifestAndPath.Path == versionData.ManifestRelativePath);
+            REQUIRE(SHA256::ConvertToString(manifestAndPath.Manifest.StreamSha256) == versionData.ManifestHash);
+
+            auto versionRange = manifestAndPath.Manifest.GetArpVersionRange();
+            if (!versionRange.IsEmpty())
+            {
+                REQUIRE(versionData.ArpMinVersion);
+                REQUIRE(versionRange.GetMinVersion() == versionData.ArpMinVersion.value());
+                REQUIRE(versionData.ArpMaxVersion);
+                REQUIRE(versionRange.GetMaxVersion() == versionData.ArpMaxVersion.value());
+            }
+        }
+    }
+
+    // This is needed to force the timestamp to roll over to a new value for the next call to this function.
+    // An alternate solution would be to hook the timestamp function and control the values it returns
+    // so that we can advance/halt time arbitrarily.
+    std::this_thread::sleep_for(sleep);
+}
+
+void PrepareAndCheckIntermediates(const std::filesystem::path& baseFile, const std::filesystem::path& preparedFile, const std::vector<std::vector<ManifestAndPath>>& expectedIntermediatesData, std::chrono::seconds sleep = 1s)
+{
+    TempDirectory intermediatesDirectory{ "v2_0_intermediates" };
+    INFO("Intermediates directory: " << intermediatesDirectory.GetPath());
+
+    std::filesystem::copy_file(baseFile, preparedFile, std::filesystem::copy_options::overwrite_existing);
+
+    SQLiteIndex index = SQLiteIndex::Open(preparedFile.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
+    index.SetProperty(SQLiteIndex::Property::IntermediateFileOutputPath, intermediatesDirectory);
+    index.PrepareForPackaging();
+
+    CheckIntermediates(intermediatesDirectory, expectedIntermediatesData, sleep);
+}
+
+TEST_CASE("SQLiteIndex_V2_0_UsageFlow_Simple", "[sqliteindex][V2_0]")
+{
+    TempFile baseFile{ "v2_0_index_tempdb"s, ".db"s };
+    TempFile preparedFile{ "v2_0_index_prepared_tempdb"s, ".db"s };
+    INFO("Using files named: [" << baseFile.GetPath() << "] and [" << preparedFile.GetPath() << "]");
+
+    // Create empty index
+    std::ignore = SQLiteIndex::CreateNew(baseFile, SQLiteVersion{ 2, 0 });
+
+    std::string publisher = "Publisher";
+    ManifestAndPath manifest1;
+    CreateFakeManifestAndPath(manifest1, publisher, "1.0");
+
+    {
+        // Open existing file to add a manifest
+        SQLiteIndex index = SQLiteIndex::Open(baseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "");
+        index.AddManifest(manifest1.Manifest, manifest1.Path);
+    }
+
+    PrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest1 } }, 0s);
+}
+
+TEST_CASE("SQLiteIndex_V2_0_UsageFlow_Complex", "[sqliteindex][V2_0]")
+{
+    TempFile baseFile{ "v2_0_index_tempdb"s, ".db"s };
+    TempFile preparedFile{ "v2_0_index_prepared_tempdb"s, ".db"s };
+    INFO("Using files named: [" << baseFile.GetPath() << "] and [" << preparedFile.GetPath() << "]");
+
+    // Create empty index
+    std::ignore = SQLiteIndex::CreateNew(baseFile, SQLiteVersion{ 2, 0 });
+
+    // Open existing file to add a new package
+    std::string Publisher1 = "Publisher1";
+    ManifestAndPath manifest1;
+    CreateFakeManifestAndPath(manifest1, Publisher1, "1.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(baseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "");
+        index.AddManifest(manifest1.Manifest, manifest1.Path);
+    }
+
+    PrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest1 } });
+
+    // Open existing file to add another new package
+    ManifestAndPath manifest2;
+    CreateFakeManifestAndPath(manifest2, "Publisher2", "1.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(baseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "");
+        index.AddManifest(manifest2.Manifest, manifest2.Path);
+    }
+
+    PrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest2 } });
+
+    // Open existing file to add a new version of existing package
+    ManifestAndPath manifest3;
+    CreateFakeManifestAndPath(manifest3, Publisher1, "2.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(baseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "");
+        index.AddManifest(manifest3.Manifest, manifest3.Path);
+    }
+
+    PrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest1, manifest3 } });
+
+    // Open existing file to add a new verion of existing package and update an existing version
+    manifest2.Manifest.StreamSha256 = SHA256::ComputeHash(manifest2.Manifest.Id);
+
+    ManifestAndPath manifest4;
+    CreateFakeManifestAndPath(manifest4, Publisher1, "3.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(baseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, "");
+        index.UpdateManifest(manifest2.Manifest, manifest2.Path);
+        index.AddManifest(manifest4.Manifest, manifest4.Path);
+    }
+
+    PrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest2 }, { manifest1, manifest3, manifest4 } }, 0s);
+}
+
+void MigratePrepareAndCheckIntermediates(const std::filesystem::path& baseFile, const std::filesystem::path& preparedFile, const std::vector<std::vector<ManifestAndPath>>& expectedIntermediatesData)
+{
+    TempDirectory intermediatesDirectory{ "v2_0_intermediates" };
+    INFO("Intermediates directory: " << intermediatesDirectory.GetPath());
+
+    std::filesystem::copy_file(baseFile, preparedFile, std::filesystem::copy_options::overwrite_existing);
+
+    SQLiteIndex index = SQLiteIndex::Open(preparedFile.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
+    index.MigrateTo({ 2, 0 });
+    index.SetProperty(SQLiteIndex::Property::IntermediateFileOutputPath, intermediatesDirectory);
+    index.PrepareForPackaging();
+
+    CheckIntermediates(intermediatesDirectory, expectedIntermediatesData, 0s);
+}
+
+TEST_CASE("SQLiteIndex_V2_0_UsageFlow_ComplexMigration", "[sqliteindex][V2_0]")
+{
+    TempFile baseFile{ "v1_7_index_tempdb"s, ".db"s };
+    TempFile preparedFile{ "v2_0_index_prepared_tempdb"s, ".db"s };
+    INFO("Using files named: [" << baseFile.GetPath() << "] and [" << preparedFile.GetPath() << "]");
+
+    // Create empty index
+    std::ignore = SQLiteIndex::CreateNew(baseFile, SQLiteVersion{ 1, 7 });
+
+    // Open existing file to add a new package
+    std::string Publisher1 = "Publisher1";
+    ManifestAndPath manifest1;
+    CreateFakeManifestAndPath(manifest1, Publisher1, "1.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(baseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        index.AddManifest(manifest1.Manifest, manifest1.Path);
+    }
+
+    MigratePrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest1 } });
+
+    // Open existing file to add another new package
+    ManifestAndPath manifest2;
+    CreateFakeManifestAndPath(manifest2, "Publisher2", "1.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(baseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        index.AddManifest(manifest2.Manifest, manifest2.Path);
+    }
+
+    MigratePrepareAndCheckIntermediates(baseFile, preparedFile, { {  manifest2 }, { manifest1 } });
+
+    // Open existing file to add a new version of existing package
+    ManifestAndPath manifest3;
+    CreateFakeManifestAndPath(manifest3, Publisher1, "2.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(baseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        index.AddManifest(manifest3.Manifest, manifest3.Path);
+    }
+
+    MigratePrepareAndCheckIntermediates(baseFile, preparedFile, { {  manifest2 }, { manifest1, manifest3 } });
+
+    // Open existing file to add a new verion of existing package and update an existing version
+    manifest2.Manifest.StreamSha256 = SHA256::ComputeHash(manifest2.Manifest.Id);
+
+    ManifestAndPath manifest4;
+    CreateFakeManifestAndPath(manifest4, Publisher1, "3.0");
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(baseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+        index.UpdateManifest(manifest2.Manifest, manifest2.Path);
+        index.AddManifest(manifest4.Manifest, manifest4.Path);
+    }
+
+    MigratePrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest2 }, { manifest1, manifest3, manifest4 } });
 }

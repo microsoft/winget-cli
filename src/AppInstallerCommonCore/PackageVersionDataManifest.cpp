@@ -93,7 +93,7 @@ namespace AppInstaller::Manifest
         Version(versionAndChannel.GetVersion()),
         ArpMinVersion(std::move(arpMinVersion)),
         ArpMaxVersion(std::move(arpMaxVersion)),
-        ManifestRelativePath(std::move(relativePath).value()),
+        ManifestRelativePath(std::move(relativePath).value_or("")),
         ManifestHash(std::move(manifestHash).value_or(""))
     {
         if (ArpMinVersion && ArpMinVersion->empty())

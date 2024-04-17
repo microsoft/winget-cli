@@ -9,7 +9,7 @@
 #include "Microsoft/Schema/2_0/CommandsTable.h"
 
 
-// TODO TODO TODO :: The code here was copied from a previous schema version and is currently a placeholder !!!
+// TODO :: The code here was copied from a previous schema version and is currently a placeholder !!!
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
