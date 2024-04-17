@@ -79,7 +79,6 @@ namespace AppInstaller::CLI::Execution
             Position,
 
             // Export Command
-            OutputFile,
             IncludeVersions,
 
             // Import Command
@@ -126,6 +125,9 @@ namespace AppInstaller::CLI::Execution
             ConfigurationEnable,
             ConfigurationDisable,
             ConfigurationModulePath,
+            ConfigurationExportPackageId,
+            ConfigurationExportModule,
+            ConfigurationExportResource,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs
@@ -138,6 +140,7 @@ namespace AppInstaller::CLI::Execution
             Wait, // Prompts the user to press any key before exiting
             OpenLogs, // Opens the default logs directory after executing the command
             Force, // Forces the execution of the workflow with non security related issues
+            OutputFile,
 
             DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header
