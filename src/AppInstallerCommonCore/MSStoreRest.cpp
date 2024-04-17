@@ -1,33 +1,29 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include <winget/MSStoreRest.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerErrors.h>
 #include <AppinstallerLogging.h>
 #include <AppInstallerRuntime.h>
-#include <winget/HttpClientHelper.h>
+#include <winget/MSStoreRest.h>
 #include <winget/Rest.h>
 
 namespace AppInstaller::MSStore
 {
     using namespace std::string_view_literals;
-    using namespace winrt::Windows::Foundation;
-    using namespace winrt::Windows::Foundation::Collections;
-    using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
 
     namespace
     {
         constexpr std::string_view Neutral = "Neutral"sv;
-        constexpr std::string_view Product = "Product"sv;
-        constexpr std::string_view DisplaySkuAvailabilities = "DisplaySkuAvailabilities"sv;
-        constexpr std::string_view Sku = "Sku"sv;
-        constexpr std::string_view Properties = "Properties"sv;
-        constexpr std::string_view FulfillmentData = "FulfillmentData"sv;
-        constexpr std::string_view WuCategoryId = "WuCategoryId"sv;
-        constexpr std::string_view PreferredSkuId = "PreferredSkuId"sv;
-        constexpr std::string_view SkuId = "SkuId"sv;
         constexpr std::string_view DefaultPreferredSkuIdValue = "0010"sv;
+        constexpr std::string_view DisplaySkuAvailabilities = "DisplaySkuAvailabilities"sv;
+        constexpr std::string_view FulfillmentData = "FulfillmentData"sv;
+        constexpr std::string_view PreferredSkuId = "PreferredSkuId"sv;
+        constexpr std::string_view Product = "Product"sv;
+        constexpr std::string_view Properties = "Properties"sv;
+        constexpr std::string_view Sku = "Sku"sv;
+        constexpr std::string_view SkuId = "SkuId"sv;
+        constexpr std::string_view WuCategoryId = "WuCategoryId"sv;
         constexpr std::string_view MSStoreCatalogRestApi = R"(https://displaycatalog.mp.microsoft.com/v7.0/products/{0}?fieldsTemplate=InstallAgent&market={1}&languages={2})";
 
         std::optional<std::string> GetWuCategoryIdInternal(const web::json::value& jsonObject)

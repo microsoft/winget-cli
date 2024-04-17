@@ -98,6 +98,7 @@ desktopappinstaller
 devhome
 dic
 diskfull
+displaycatalog
 DISMAPI
 dnld
 Dobbeleer
@@ -412,7 +413,7 @@ silentpreferred
 similarissues
 similaritytolerance
 Skipx
-Sku
+sku
 SMTO
 sortof
 SOURCESDIRECTORY
