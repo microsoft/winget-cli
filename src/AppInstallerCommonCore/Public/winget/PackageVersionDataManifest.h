@@ -25,6 +25,8 @@ namespace AppInstaller::Manifest
         // Data on an individual version.
         struct VersionData
         {
+            VersionData() = default;
+
             VersionData(
                 const Utility::VersionAndChannel& versionAndChannel,
                 std::optional<std::string> arpMinVersion,
@@ -42,8 +44,17 @@ namespace AppInstaller::Manifest
         // Adds the given version data to the manifest.
         void AddVersion(VersionData&& versionData);
 
+        // Gets the version data in this object.
+        const std::vector<VersionData>& Versions() const;
+
         // Returns a serialized version of the current manifest data.
         std::string Serialize();
+
+        // Parses the input into this objects data.
+        void Deserialize(std::string_view input);
+
+        // Parses the input into this objects data.
+        void Deserialize(const std::vector<uint8_t>& input);
 
     private:
         std::vector<VersionData> m_versions;

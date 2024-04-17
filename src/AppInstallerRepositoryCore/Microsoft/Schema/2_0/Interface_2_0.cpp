@@ -428,9 +428,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             SQLite::MetadataTable::SetNamedValue(connection, s_MetadataValueName_PackageUpdateTrackingBaseTime, std::to_string(baseTime));
         }
             break;
-        }
 
-        THROW_WIN32(ERROR_NOT_SUPPORTED);
+        default:
+            THROW_WIN32(ERROR_NOT_SUPPORTED);
+        }
     }
 
     std::unique_ptr<SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
@@ -749,6 +750,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         m_internalInterface->DropTables(connection);
 
         savepoint.Commit();
+
+        m_internalInterface.reset();
 
         if (vacuum)
         {

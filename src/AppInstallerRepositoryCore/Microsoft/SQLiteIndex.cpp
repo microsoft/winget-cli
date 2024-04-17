@@ -81,6 +81,11 @@ namespace AppInstaller::Repository::Microsoft
     {
         return Schema::CreateISQLiteIndex(SQLite::Version::Latest())->GetVersion();
     }
+
+    const Schema::SQLiteIndexContextData& SQLiteIndex::GetContextData() const
+    {
+        return m_contextData;
+    }
 #endif
 
     SQLiteIndex::IdType SQLiteIndex::AddManifest(const std::filesystem::path& manifestPath, const std::filesystem::path& relativePath)

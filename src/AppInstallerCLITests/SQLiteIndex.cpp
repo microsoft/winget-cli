@@ -8,6 +8,7 @@
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/Manifest.h>
 #include <AppInstallerStrings.h>
+#include <winget/SQLiteMetadataTable.h>
 
 #include <Microsoft/Schema/1_0/IdTable.h>
 #include <Microsoft/Schema/1_0/NameTable.h>
@@ -20,6 +21,8 @@
 #include <Microsoft/Schema/1_0/CommandsTable.h>
 #include <Microsoft/Schema/1_0/SearchResultsTable.h>
 #include <Microsoft/Schema/1_4/DependenciesTable.h>
+#include <Microsoft/Schema/2_0/Interface.h>
+#include <Microsoft/Schema/2_0/PackageUpdateTrackingTable.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -38,15 +41,9 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<SQLiteVer
     // If no specific version requested, then use generator to run against the last 3 versions.
     if (!version)
     {
-        SQLiteVersion latestVersion = SQLiteIndex::GetLatestVersion();
-        if (latestVersion.MajorVersion != 1)
-        {
-            throw std::exception("You added major version 2, figure out how to deal with these tests that do back compat coverage!");
-        }
-
-        // Relies on the fact that min version is already >= 2
-        SQLiteVersion versionMinus1 = SQLiteVersion{ 1, latestVersion.MinorVersion - 1 };
-        SQLiteVersion versionMinus2 = SQLiteVersion{ 1, latestVersion.MinorVersion - 2 };
+        SQLiteVersion latestVersion{ 2, 0 };
+        SQLiteVersion versionMinus1 = SQLiteVersion{ 1, 7 };
+        SQLiteVersion versionMinus2 = SQLiteVersion{ 1, 6 };
 
         version = GENERATE_COPY(SQLiteVersion{ versionMinus2 }, SQLiteVersion{ versionMinus1 }, SQLiteVersion{ latestVersion });
     }
@@ -56,15 +53,9 @@ SQLiteIndex CreateTestIndex(const std::string& filePath, std::optional<SQLiteVer
 
 SQLiteVersion TestPrepareForRead(SQLiteIndex& index)
 {
-    SQLiteVersion latestVersion = SQLiteIndex::GetLatestVersion();
-    if (latestVersion.MajorVersion != 1)
-    {
-        throw std::exception("You added major version 2, figure out how to deal with these tests that do back compat coverage!");
-    }
-
-    // Relies on the fact that min version is already >= 2
-    SQLiteVersion versionMinus1 = SQLiteVersion{ 1, latestVersion.MinorVersion - 1 };
-    SQLiteVersion versionMinus2 = SQLiteVersion{ 1, latestVersion.MinorVersion - 2 };
+    SQLiteVersion latestVersion{ 2, 0 };
+    SQLiteVersion versionMinus1 = SQLiteVersion{ 1, 7 };
+    SQLiteVersion versionMinus2 = SQLiteVersion{ 1, 6 };
 
     if (index.GetVersion() == versionMinus2)
     {
@@ -1027,7 +1018,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
     manifest2.DefaultLocalization.Add<Localization::Tags>({});
     manifest2.Installers[0].Commands = { "test1", "test2", "test3" };
 
-    SQLiteIndex index = CreateTestIndex(tempFile);
+    SQLiteIndex index = CreateTestIndex(tempFile, SQLiteVersion{ 1, 7 });
 
     index.AddManifest(manifest1, manifest1Path);
     index.AddManifest(manifest2, manifest2Path);
@@ -1062,6 +1053,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
 
     REQUIRE(manifest2.Id == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::Id));
     REQUIRE(manifest2.DefaultLocalization.Get<Localization::PackageName>() == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::Name));
+    REQUIRE(manifest2.Moniker == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::Moniker));
     REQUIRE(manifest2.Version == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::Version));
     REQUIRE(manifest2.Channel == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::Channel));
     REQUIRE(manifest2Path == index.GetPropertyByManifestId(manifest2RowId, PackageVersionProperty::RelativePath));
@@ -2739,7 +2731,52 @@ TEST_CASE("SQLiteIndex_GetMultiProperty_ProductCode", "[sqliteindex]")
     }
 }
 
-TEST_CASE("SQLiteIndex_ManifestMetadata", "[sqliteindex]")
+TEST_CASE("SQLiteIndex_GetMultiProperty_Tag", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag1", "Tag2" }, { "Command" }, "Path1", {}, { "PC1", "PC2" } },
+        });
+
+    SQLiteVersion testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 1);
+
+    auto props = index.GetMultiPropertyByManifestId(results.Matches[0].first, PackageVersionMultiProperty::Tag);
+
+    REQUIRE(props.size() == 2);
+    REQUIRE(std::find(props.begin(), props.end(), "Tag1") != props.end());
+    REQUIRE(std::find(props.begin(), props.end(), "Tag2") != props.end());
+}
+
+TEST_CASE("SQLiteIndex_GetMultiProperty_Command", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag1", "Tag2" }, { "Command" }, "Path1", {}, { "PC1", "PC2" } },
+        });
+
+    SQLiteVersion testVersion = TestPrepareForRead(index);
+
+    SearchRequest request;
+
+    auto results = index.Search(request);
+    REQUIRE(results.Matches.size() == 1);
+
+    auto props = index.GetMultiPropertyByManifestId(results.Matches[0].first, PackageVersionMultiProperty::Command);
+
+    REQUIRE(props.size() == 1);
+    REQUIRE(props[0] == "Command");
+}
+
+TEST_CASE("SQLiteIndex_ManifestMetadata", "[sqliteindex][V1_7]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -2747,7 +2784,7 @@ TEST_CASE("SQLiteIndex_ManifestMetadata", "[sqliteindex]")
     SQLiteIndex index = SearchTestSetup(tempFile, {
         { "Id1", "Name1", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path1", {}, { "PC1", "PC2" } },
         { "Id2", "Name2", "Moniker", "Version", "Channel", { "Tag" }, { "Command" }, "Path2", { "PFN1", "PFN2" }, {} },
-        });
+        }, SQLiteVersion{ 1, 7 });
 
     SQLiteVersion testVersion = TestPrepareForRead(index);
 
@@ -3213,7 +3250,7 @@ TEST_CASE("SQLiteIndex_CheckConsistency_FindEmbeddedNull", "[sqliteindex]")
     REQUIRE(!index.CheckConsistency(true));
 }
 
-TEST_CASE("SQLiteIndex_MapDataFolding_Tags", "[sqliteindex][mapdatafolding]")
+TEST_CASE("SQLiteIndex_MapDataFolding_Tags", "[sqliteindex][mapdatafolding][V1_7]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -3224,7 +3261,7 @@ TEST_CASE("SQLiteIndex_MapDataFolding_Tags", "[sqliteindex][mapdatafolding]")
     SQLiteIndex index = SearchTestSetup(tempFile, {
         { "Id", "Name", "Publisher", "Moniker", "Version1", "", { tag1 }, { "Command" }, "Path1", {}, { "PC1" } },
         { "Id", "Name", "Publisher", "Moniker", "Version2", "", { tag2 }, { "Command" }, "Path2", {}, { "PC2" } },
-        });
+        }, SQLiteVersion{ 1, 7 });
 
     // Apply the map data folding if it is present in the created test index.
     index.PrepareForPackaging();
@@ -3244,7 +3281,7 @@ TEST_CASE("SQLiteIndex_MapDataFolding_Tags", "[sqliteindex][mapdatafolding]")
     REQUIRE(results1.Matches[0].first == results2.Matches[0].first);
 }
 
-TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding]")
+TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding][V1_7]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -3255,7 +3292,7 @@ TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding]")
     SQLiteIndex index = SearchTestSetup(tempFile, {
         { "Id", "Name", "Publisher", "Moniker", "Version1", "", { }, { "Command" }, "Path1", { pfn1 }, { } },
         { "Id", "Name", "Publisher", "Moniker", "Version2", "", { }, { "Command" }, "Path2", { pfn2 }, { } },
-        });
+        }, SQLiteVersion{ 1, 7 });
 
     // Apply the map data folding if it is present in the created test index.
     index.PrepareForPackaging();
@@ -3312,7 +3349,7 @@ TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding]")
     }
 }
 
-TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafolding]")
+TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafolding][V1_7]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -3323,7 +3360,7 @@ TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafoldi
     SQLiteIndex index = SearchTestSetup(tempFile, {
         { "Id", "Name", "Publisher", "Moniker", "Version1", "", { }, { "Command" }, "Path1", { }, { pc1 } },
         { "Id", "Name", "Publisher", "Moniker", "Version2", "", { }, { "Command" }, "Path2", { }, { pc2 } },
-        });
+        }, SQLiteVersion{ 1, 7 });
 
     // Apply the map data folding if it is present in the created test index.
     index.PrepareForPackaging();
@@ -3356,23 +3393,117 @@ TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafoldi
     REQUIRE(pcValues1[0] != pcValues2[0]);
 }
 
-TEST_CASE("ConvertIndexFrom17to20", "[sqliteindex]")
+TEST_CASE("SQLiteIndex_FilePath_Memory", "[sqliteindex]")
 {
-    std::string tempPath = R"(E:\Temp\schema20\schema20test.db)";
-    std::string intermediatesPath = R"(E:\Temp\schema20\schema20test_intermediates)";
-    std::filesystem::remove_all(tempPath);
-    std::filesystem::remove_all(intermediatesPath);
+    SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET);
+    auto contextData = index.GetContextData();
+    REQUIRE(!contextData.Contains(Schema::Property::DatabaseFilePath));
+}
 
-    std::filesystem::copy_file(R"(E:\Temp\schema20\index.db)", tempPath);
+TEST_CASE("SQLiteIndex_FilePath_Create", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
 
-    SQLiteIndex index = SQLiteIndex::Open(tempPath, SQLiteIndex::OpenDisposition::ReadWrite);
-    index.SetProperty(SQLiteIndex::Property::IntermediateFileOutputPath, intermediatesPath);
+    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile);
+    auto contextData = index.GetContextData();
+    REQUIRE(contextData.Contains(Schema::Property::DatabaseFilePath));
+    REQUIRE(contextData.Get<Schema::Property::DatabaseFilePath>() == tempFile.GetPath());
+}
 
-    auto start = std::chrono::steady_clock::now();
-    index.MigrateTo({ 2, 0 });
-    std::cout << "Seconds to migrate: " << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count() << std::endl;
+TEST_CASE("SQLiteIndex_FilePath_Open", "[sqliteindex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
 
-    start = std::chrono::steady_clock::now();
-    index.PrepareForPackaging();
-    std::cout << "Seconds to prepare: " << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start).count() << std::endl;
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile);
+    }
+
+    SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::Read);
+    auto contextData = index.GetContextData();
+    REQUIRE(contextData.Contains(Schema::Property::DatabaseFilePath));
+    REQUIRE(contextData.Get<Schema::Property::DatabaseFilePath>() == tempFile.GetPath());
+}
+
+TEST_CASE("SQLiteIndex_MigrateTo_Unsupported", "[sqliteindex][V1_7]")
+{
+    SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, SQLiteVersion{ 1, 6 });
+    REQUIRE(!index.MigrateTo(SQLiteVersion{ 1, 7 }));
+}
+
+TEST_CASE("SQLiteIndex_MigrateTo_Empty", "[sqliteindex][V2_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    {
+        SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, SQLiteVersion{ 1, 7 });
+        REQUIRE(index.MigrateTo(SQLiteVersion{ 2, 0 }));
+        REQUIRE(index.GetVersion() == SQLiteVersion{ 2, 0 });
+    }
+
+    {
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::Read);
+        REQUIRE(index.GetVersion() == SQLiteVersion{ 2, 0 });
+    }
+}
+
+TEST_CASE("SQLiteIndex_MigrateTo_Data", "[sqliteindex][V2_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    std::string packageId1 = "Id1";
+    std::string packageId2 = "Id2";
+    std::string packageId3 = "Id3";
+
+    SQLiteIndex index = SearchTestSetup(tempFile, {
+        { packageId1, "Name1", "Moniker", "Version", "", { "Tag" }, { "Command" }, "Path1", { "PFN1" }, { "PC1" } },
+        { packageId2, "Name2", "Moniker", "Version", "", { "ID3" }, { "Command" }, "Path2", { "PFN2" }, { "PC2" } },
+        { packageId3, "Name3", "Moniker", "Version", "", { "Tag" }, { "Command" }, "Path3", { "PFN3" }, { "PC3" } },
+        });
+
+    auto preMigrationVersion = index.GetVersion();
+
+    if (preMigrationVersion == SQLiteVersion{ 1, 7 })
+    {
+        REQUIRE(index.MigrateTo(SQLiteVersion{ 2, 0 }));
+        REQUIRE(index.GetVersion() == SQLiteVersion{ 2, 0 });
+
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+        auto updateData = Schema::V2_0::PackageUpdateTrackingTable::GetUpdatesSince(connection, 0);
+
+        REQUIRE(updateData.size() == 3);
+        REQUIRE(std::count_if(updateData.begin(), updateData.end(), [&](const auto& x) { return x.PackageIdentifier == packageId1; }) == 1);
+        REQUIRE(std::count_if(updateData.begin(), updateData.end(), [&](const auto& x) { return x.PackageIdentifier == packageId2; }) == 1);
+        REQUIRE(std::count_if(updateData.begin(), updateData.end(), [&](const auto& x) { return x.PackageIdentifier == packageId3; }) == 1);
+    }
+    else
+    {
+        REQUIRE(!index.MigrateTo(SQLiteVersion{ 2, 0 }));
+        REQUIRE(index.GetVersion() == preMigrationVersion);
+    }
+}
+
+TEST_CASE("SQLiteIndex_Property_IntermediateFilePath", "[sqliteindex]")
+{
+    SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET);
+    std::filesystem::path intermediateFilePath = "A:\\Path";
+    index.SetProperty(SQLiteIndex::Property::IntermediateFileOutputPath, intermediateFilePath.u8string());
+
+    auto contextData = index.GetContextData();
+    REQUIRE(contextData.Contains(Schema::Property::IntermediateFileOutputPath));
+    REQUIRE(contextData.Get<Schema::Property::IntermediateFileOutputPath>() == intermediateFilePath);
+}
+
+TEST_CASE("SQLiteIndex_Property_BaseUpdateTime", "[sqliteindex][V2_0]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    SQLiteIndex index = SQLiteIndex::CreateNew(tempFile, SQLiteVersion{ 2, 0 });
+    int64_t baseTime = 42;
+    index.SetProperty(SQLiteIndex::Property::PackageUpdateTrackingBaseTime, std::to_string(baseTime));
+
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+    REQUIRE(MetadataTable::GetNamedValue<int64_t>(connection, Schema::V2_0::s_MetadataValueName_PackageUpdateTrackingBaseTime) == baseTime);
 }

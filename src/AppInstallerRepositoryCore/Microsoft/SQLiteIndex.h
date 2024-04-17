@@ -62,6 +62,9 @@ namespace AppInstaller::Repository::Microsoft
 
         // Gets the latest version of the index schema (the actual numbers, not just the latest sentinel values).
         static SQLite::Version GetLatestVersion();
+
+        // Gets the context data for testing.
+        const Schema::SQLiteIndexContextData& GetContextData() const;
 #endif
 
         // Adds the manifest at the repository relative path to the index.
