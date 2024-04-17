@@ -50,6 +50,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFProxy>();
             case ExperimentalFeature::Feature::ConfigureSelfElevation:
                 return userSettings.Get<Setting::EFConfigureSelfElevation>();
+            case ExperimentalFeature::Feature::ConfigureExport:
+                return userSettings.Get<Setting::EFConfigureExport>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -89,6 +91,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Proxy", "proxy", "https://aka.ms/winget-settings", Feature::Proxy };
         case Feature::ConfigureSelfElevation:
             return ExperimentalFeature{ "Configure Self Elevation", "configureSelfElevate", "https://aka.ms/winget-settings", Feature::ConfigureSelfElevation };
+        case Feature::ConfigureExport:
+            return ExperimentalFeature{ "Configure Export", "configureExport", "https://aka.ms/winget-settings", Feature::ConfigureExport };
         default:
             THROW_HR(E_UNEXPECTED);
         }
