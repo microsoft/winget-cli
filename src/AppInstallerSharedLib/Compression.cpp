@@ -16,13 +16,13 @@ namespace AppInstaller::Compression
 
         if (!data.empty())
         {
-            size_t compressedBufferSize = 0;
+            SIZE_T compressedBufferSize = 0;
             THROW_HR_IF(E_UNEXPECTED, ::Compress(m_compressor.get(), data.data(), data.size(), nullptr, 0, &compressedBufferSize));
             THROW_LAST_ERROR_IF(GetLastError() != ERROR_INSUFFICIENT_BUFFER);
 
             result.resize(compressedBufferSize);
 
-            size_t compressedDataSize = 0;
+            SIZE_T compressedDataSize = 0;
             THROW_IF_WIN32_BOOL_FALSE(::Compress(m_compressor.get(), data.data(), data.size(), &result[0], result.size(), &compressedDataSize));
 
             result.resize(compressedDataSize);
@@ -59,13 +59,13 @@ namespace AppInstaller::Compression
 
         if (!data.empty())
         {
-            size_t decompressedBufferSize = 0;
+            SIZE_T decompressedBufferSize = 0;
             THROW_HR_IF(E_UNEXPECTED, ::Decompress(m_decompressor.get(), data.data(), data.size(), nullptr, 0, &decompressedBufferSize));
             THROW_LAST_ERROR_IF(GetLastError() != ERROR_INSUFFICIENT_BUFFER);
 
             result.resize(decompressedBufferSize);
 
-            size_t decompressedDataSize = 0;
+            SIZE_T decompressedDataSize = 0;
             THROW_IF_WIN32_BOOL_FALSE(::Decompress(m_decompressor.get(), data.data(), data.size(), &result[0], result.size(), &decompressedDataSize));
 
             result.resize(decompressedDataSize);
