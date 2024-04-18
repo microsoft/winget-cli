@@ -171,6 +171,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             savepoint.Commit();
         }
 
+        void DropOneToManyTable(SQLite::Connection& connection, std::string_view tableName)
+        {
+            SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, std::string{ tableName } + "_drop_v1_0");
+
+            DropOneToOneTable(connection, tableName);
+
+            SQLite::Builder::StatementBuilder dropTableBuilder;
+            dropTableBuilder.DropTable({ tableName, s_OneToManyTable_MapTable_Suffix });
+
+            dropTableBuilder.Execute(connection);
+
+            savepoint.Commit();
+        }
+
         std::vector<std::string> OneToManyTableGetValuesByManifestId(
             const SQLite::Connection& connection,
             std::string_view tableName,

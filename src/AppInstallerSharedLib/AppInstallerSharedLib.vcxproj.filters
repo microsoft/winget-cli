@@ -128,6 +128,9 @@
     <ClInclude Include="Public\winget\SQLiteMetadataTable.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\Compression.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -206,6 +209,9 @@
       <Filter>SQLite</Filter>
     </ClCompile>
     <ClCompile Include="ManagedFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Compression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

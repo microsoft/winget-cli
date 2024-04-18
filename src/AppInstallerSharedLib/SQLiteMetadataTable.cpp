@@ -16,7 +16,7 @@ namespace AppInstaller::SQLite
     static constexpr std::string_view s_MetadataTable_Table_Create = R"(
 CREATE TABLE [metadata](
     [name] TEXT PRIMARY KEY NOT NULL,
-    [value] TEXT NOT NULL)
+    [value] TEXT NOT NULL) WITHOUT ROWID
 )"sv;
 
     // Statements

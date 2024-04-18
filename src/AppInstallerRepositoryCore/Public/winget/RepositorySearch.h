@@ -152,6 +152,7 @@ namespace AppInstaller::Repository
         Publisher,
         ArpMinVersion,
         ArpMaxVersion,
+        Moniker,
     };
 
     // A property of a package version that can have multiple values.
@@ -172,6 +173,10 @@ namespace AppInstaller::Repository
         // The locale of the matching Name and Publisher values; ideally these would match in number and order with both Name and Publisher.
         // May be empty if there is only a single value for Name and Publisher.
         Locale,
+        // The tags associated with a package version.
+        Tag,
+        // The commands associated with a package version.
+        Command,
     };
 
     // A metadata item of a package version. These values are persisted and cannot be changed.

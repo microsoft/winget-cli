@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
 
@@ -7,6 +7,7 @@
 #include <appmodel.h>
 #include <icu.h>
 #include <sddl.h>
+#include <compressapi.h>
 
 #define YAML_DECLARE_STATIC
 #include <yaml.h>

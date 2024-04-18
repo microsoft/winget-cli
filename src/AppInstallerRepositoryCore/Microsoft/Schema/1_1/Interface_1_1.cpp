@@ -177,6 +177,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         savepoint.Commit();
     }
 
+    void Interface::DropTables(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "drop_tables_v1_1");
+
+        V1_0::Interface::DropTables(connection);
+
+        PackageFamilyNameTable::Drop(connection);
+        ProductCodeTable::Drop(connection);
+
+        ManifestMetadataTable::Drop(connection);
+
+        savepoint.Commit();
+    }
+
     std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<V1_1::SearchResultsTable>(connection);

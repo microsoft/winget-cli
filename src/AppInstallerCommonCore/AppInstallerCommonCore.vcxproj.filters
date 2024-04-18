@@ -192,6 +192,9 @@
     <ClInclude Include="Public\winget\NetworkSettings.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\PackageVersionDataManifest.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
     <ClInclude Include="Public\winget\HttpClientHelper.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -348,6 +351,9 @@
       <Filter>Authentication</Filter>
     </ClCompile>
     <ClCompile Include="NetworkSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageVersionDataManifest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HttpClientHelper.cpp">
