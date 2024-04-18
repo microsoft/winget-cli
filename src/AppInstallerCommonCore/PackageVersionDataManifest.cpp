@@ -9,6 +9,7 @@ using namespace std::string_view_literals;
 
 namespace AppInstaller::Manifest
 {
+    // These shortened names save some bytes since humans are neither authoring them nor reading them (except to debug).
     static constexpr std::string_view s_FieldName_SchemaVersion = "sV"sv;
     static constexpr std::string_view s_FieldName_VersionData = "vD"sv;
     static constexpr std::string_view s_FieldName_Version = "v"sv;
