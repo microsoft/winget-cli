@@ -11,7 +11,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
-    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
@@ -31,24 +30,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     /// </summary>
     public sealed class ConfigurationCommand : PowerShellCmdlet
     {
-        private static bool isProgressEnabled;
-
-        static ConfigurationCommand()
-        {
-            // There's an OS bug where COM has never worked properly on arm64, this cause the
-            // progress to AV on that architecture. Fix is in 10.0.26068.0, for build before disable progress.
-            if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
-            {
-                var minWindowsVersion = new Version(10, 0, 26068, 0);
-                var osVersion = Environment.OSVersion.Version;
-                isProgressEnabled = osVersion.CompareTo(minWindowsVersion) >= 0;
-            }
-            else
-            {
-                isProgressEnabled = true;
-            }
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationCommand"/> class.
         /// </summary>
@@ -383,11 +364,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 set.Units.Count);
 
             var applyTask = processor.ApplySetAsync(set, flags);
-
-            if (isProgressEnabled)
-            {
-                applyTask.Progress = applyProgressOutput.Progress;
-            }
+            applyTask.Progress = applyProgressOutput.Progress;
 
             try
             {
@@ -421,11 +398,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 set.Units.Count);
 
             var testTask = processor.TestSetAsync(set);
-
-            if (isProgressEnabled)
-            {
-                testTask.Progress = testProgressOutput.Progress;
-            }
+            testTask.Progress = testProgressOutput.Progress;
 
             try
             {
@@ -463,11 +436,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     totalUnitsCount);
 
                 var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailFlags.ReadOnly);
-
-                if (isProgressEnabled)
-                {
-                    detailsTask.Progress = detailsProgressOutput.Progress;
-                }
+                detailsTask.Progress = detailsProgressOutput.Progress;
 
                 try
                 {
