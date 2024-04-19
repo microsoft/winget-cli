@@ -24,8 +24,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         static OperationWithProgressBase()
         {
-            // There's an OS bug where COM has never worked properly on arm64, this cause the
-            // progress to AV on that architecture. Fix is in 10.0.26068.0, for build before disable progress.
+            // Progress on arm64 will produce an AV because there's an OS bug where marshaling structs over a certain size fail.
+            // Fix is in 10.0.26068.0, for build before that disable progress.
             if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
             {
                 var minWindowsVersion = new Version(10, 0, 26068, 0);
