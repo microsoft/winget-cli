@@ -33,7 +33,7 @@ namespace AppInstaller::CLI::Workflow
     }
 #endif
 
-    namespace
+    namespace anon
     {
         constexpr std::wstring_view s_Directive_Description = L"description";
         constexpr std::wstring_view s_Directive_Module = L"module";
@@ -844,10 +844,10 @@ namespace AppInstaller::CLI::Workflow
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
 
-        ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory(context)};
+        ConfigurationProcessor processor{ anon::CreateConfigurationSetProcessorFactory(context)};
 
         // Set the processor to the current level of the logging.
-        processor.MinimumLevel(ConvertLevel(Logging::Log().GetLevel()));
+        processor.MinimumLevel(anon::ConvertLevel(Logging::Log().GetLevel()));
         processor.Caller(L"winget");
         // Use same activity as the overall winget command
         processor.ActivityIdentifier(*Logging::Telemetry().GetActivityId());
@@ -857,7 +857,7 @@ namespace AppInstaller::CLI::Workflow
         // Route the configuration diagnostics into the context's diagnostics logging
         processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const IDiagnosticInformation& diagnostics)
             {
-                context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, ConvertLevel(diagnostics.Level()), Utility::ConvertToUTF8(diagnostics.Message()));
+                context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, anon::ConvertLevel(diagnostics.Level()), Utility::ConvertToUTF8(diagnostics.Message()));
             });
 
         ConfigurationContext configurationContext;
@@ -986,7 +986,7 @@ namespace AppInstaller::CLI::Workflow
         progressScope->Callback().SetProgressMessage(gettingDetailString);
 
         auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::ReadOnly);
-        auto unification = CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
+        auto unification = anon::CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
 
         OutputStream out = context.Reporter.Info();
         uint32_t unitsShown = 0;
@@ -1001,8 +1001,8 @@ namespace AppInstaller::CLI::Workflow
                 for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
                 {
                     GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
-                    OutputConfigurationUnitInformation(out, unitResult.Unit());
+                    anon::LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+                    anon::OutputConfigurationUnitInformation(out, unitResult.Unit());
                 }
 
                 progressScope = context.Reporter.BeginAsyncProgress(true);
@@ -1046,8 +1046,8 @@ namespace AppInstaller::CLI::Workflow
                 for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
                 {
                     GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
-                    OutputConfigurationUnitInformation(out, unitResult.Unit());
+                    anon::LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+                    anon::OutputConfigurationUnitInformation(out, unitResult.Unit());
                 }
             }
         }
@@ -1057,7 +1057,7 @@ namespace AppInstaller::CLI::Workflow
         for (unitsShown; unitsShown < allUnits.Size(); ++unitsShown)
         {
             ConfigurationUnit unit = allUnits.GetAt(unitsShown);
-            OutputConfigurationUnitInformation(out, unit);
+            anon::OutputConfigurationUnitInformation(out, unit);
         }
     }
 
@@ -1093,7 +1093,7 @@ namespace AppInstaller::CLI::Workflow
 
         {
             auto applyOperation = configContext.Processor().ApplySetAsync(configContext.Set(), ApplyConfigurationSetFlags::None);
-            ApplyConfigurationSetProgressOutput progress{ context, applyOperation };
+            anon::ApplyConfigurationSetProgressOutput progress{ context, applyOperation };
 
             result = applyOperation.get();
             progress.HandleUnreportedProgress(result);
@@ -1120,7 +1120,7 @@ namespace AppInstaller::CLI::Workflow
 
         {
             auto testOperation = configContext.Processor().TestSetAsync(configContext.Set());
-            TestConfigurationSetProgressOutput progress{ context, testOperation };
+            anon::TestConfigurationSetProgressOutput progress{ context, testOperation };
 
             result = testOperation.get();
             progress.HandleUnreportedProgress(result);
@@ -1184,7 +1184,7 @@ namespace AppInstaller::CLI::Workflow
                     ConfigurationUnit unit = unitResult.Unit();
 
                     auto out = context.Reporter.Info();
-                    OutputConfigurationUnitHeader(out, unit, unit.Type());
+                    anon::OutputConfigurationUnitHeader(out, unit, unit.Type());
 
                     switch (resultCode)
                     {
@@ -1220,7 +1220,7 @@ namespace AppInstaller::CLI::Workflow
         progressScope->Callback().SetProgressMessage(gettingDetailString);
 
         auto getLocalDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::Local);
-        auto unification = CreateProgressCancellationUnification(std::move(progressScope), getLocalDetailsOperation);
+        auto unification = anon::CreateProgressCancellationUnification(std::move(progressScope), getLocalDetailsOperation);
 
         HRESULT getLocalHR = S_OK;
         GetConfigurationSetDetailsResult getLocalResult = nullptr;
@@ -1254,7 +1254,7 @@ namespace AppInstaller::CLI::Workflow
         progressScope->Callback().SetProgressMessage(gettingDetailString);
 
         auto getCatalogDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::Catalog);
-        unification = CreateProgressCancellationUnification(std::move(progressScope), getCatalogDetailsOperation);
+        unification = anon::CreateProgressCancellationUnification(std::move(progressScope), getCatalogDetailsOperation);
 
         HRESULT getCatalogHR = S_OK;
         GetConfigurationSetDetailsResult getCatalogResult = nullptr;
@@ -1315,13 +1315,13 @@ namespace AppInstaller::CLI::Workflow
                 if (needsHeader)
                 {
                     auto out = context.Reporter.Info();
-                    OutputConfigurationUnitHeader(out, unit, unit.Type());
+                    anon::OutputConfigurationUnitHeader(out, unit, unit.Type());
                     needsHeader = false;
                     foundIssue = true;
                 }
             };
 
-            if (GetValueSetString(unit.Metadata(), s_Directive_Module).value_or(Utility::LocIndString{}).empty())
+            if (anon::GetValueSetString(unit.Metadata(), anon::s_Directive_Module).value_or(Utility::LocIndString{}).empty())
             {
                 outputHeaderIfNeeded();
                 context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitModuleNotProvidedWarning << std::endl;
@@ -1344,23 +1344,23 @@ namespace AppInstaller::CLI::Workflow
             if (FAILED(catalogUnitResult.ResultInformation().ResultCode()))
             {
                 outputHeaderIfNeeded();
-                OutputUnitRunFailure(context, unit, catalogUnitResult.ResultInformation());
+                anon::OutputUnitRunFailure(context, unit, catalogUnitResult.ResultInformation());
                 continue;
             }
 
             // If not already prerelease, try with prerelease and warn if found
-            std::optional<bool> allowPrereleaseDirective = GetValueSetBool(unit.Metadata(), s_Directive_AllowPrerelease);
+            std::optional<bool> allowPrereleaseDirective = anon::GetValueSetBool(unit.Metadata(), anon::s_Directive_AllowPrerelease);
             if (!allowPrereleaseDirective || !allowPrereleaseDirective.value())
             {
                 // Check if the configuration unit is prerelease but the author forgot it
                 ConfigurationUnit clone = unit.Copy();
-                clone.Metadata().Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+                clone.Metadata().Insert(anon::s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
 
                 progressScope = context.Reporter.BeginAsyncProgress(true);
                 progressScope->Callback().SetProgressMessage(gettingDetailString);
 
                 auto getUnitDetailsOperation = configContext.Processor().GetUnitDetailsAsync(clone, ConfigurationUnitDetailFlags::Catalog);
-                auto unitUnification = CreateProgressCancellationUnification(std::move(progressScope), getUnitDetailsOperation);
+                auto unitUnification = anon::CreateProgressCancellationUnification(std::move(progressScope), getUnitDetailsOperation);
 
                 IConfigurationUnitProcessorDetails prereleaseDetails;
 
@@ -1404,7 +1404,7 @@ namespace AppInstaller::CLI::Workflow
     {
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
         auto units = configContext.Set().Units();
-        auto validationOrder = GetConfigurationSetUnitValidationOrder(units.GetView());
+        auto validationOrder = anon::GetConfigurationSetUnitValidationOrder(units.GetView());
 
         Configuration::WingetDscModuleUnitValidator wingetUnitValidator;
 
