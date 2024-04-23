@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DownloadFlow.h"
+#include "MSStoreInstallerHandler.h"
 #include <winget/Filesystem.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerMsixInfo.h>
 #include <winget/AdminSettings.h>
 #include <winget/GroupPolicy.h>
-#include <winget/MSStoreRest.h>
 #include <winget/ManifestYamlWriter.h>
 #include <winget/NetworkSettings.h>
 #include <winget/HttpClientHelper.h>
@@ -236,24 +236,8 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::MSStore:
                 if (installerDownloadOnly)
                 {
-                    if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
-                    {
-                        // TODO: Initial work for store download to retrieve the WuCategoryId from the store endpoint.
-                        std::string storeRestEndpoint = MSStore::GetStoreCatalogRestApi(installer.ProductId, installer.Locale);
-
-                        AppInstaller::Http::HttpClientHelper httpClientHelper;
-                        std::optional<web::json::value> jsonObject = httpClientHelper.HandleGet(JSON::GetUtilityString(storeRestEndpoint));
-
-                        if (!jsonObject)
-                        {
-                            std::cout << "No json object found" << std::endl;
-                        }
-
-                        std::string wuCategoryId = MSStore::GetWuCategoryId(jsonObject.value());
-                        AICLI_LOG(Core, Info,  << "WuCategoryId obtained: " << wuCategoryId);
-                    }
-
-                    THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                    context << MSStoreDownload;
+                    break;
                 }
                 else
                 {

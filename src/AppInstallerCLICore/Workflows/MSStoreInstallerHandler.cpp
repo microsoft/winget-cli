@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "MSStoreInstallerHandler.h"
+#include <winget/HttpClientHelper.h>
 #include <winget/MSStore.h>
+#include <winget/MSStoreDownload.h>
 #include <winget/SelfManagement.h>
 
 namespace AppInstaller::CLI::Workflow
@@ -185,6 +187,49 @@ namespace AppInstaller::CLI::Workflow
 
             AICLI_TERMINATE_CONTEXT(hr);
         }
+    }
+
+    void MSStoreDownload(Execution::Context& context)
+    {
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
+        {
+            const auto& installer = context.Get<Execution::Data::Installer>().value();
+            std::string storeRestEndpoint = MSStore::GetStoreCatalogRestApi(installer.ProductId, installer.Locale);
+
+            AppInstaller::Http::HttpClientHelper httpClientHelper;
+            std::optional<web::json::value> jsonObject = httpClientHelper.HandleGet(JSON::GetUtilityString(storeRestEndpoint));
+
+            if (!jsonObject)
+            {
+                std::cout << "No json object found" << std::endl;
+            }
+
+            const auto& packages = MSStore::DeserializeDisplayCatalogPackages(jsonObject.value());
+
+            for (const auto& package : packages)
+            {
+                if (package.PackageFormat == PackageFormatEnum::EAppxBundle)
+                {
+                    // Not applicable. 
+                }
+
+            }
+
+            // Check architecture
+            // Check if 
+            // using the packages, perform a package comparator so that it selects the the best package for our scenario.
+
+            if (packages.empty())
+            {
+                AICLI_LOG(Core, Info, << "WuCategoryId obtained: ");
+            }
+            else
+            {
+                AICLI_LOG(Core, Info, << "packages found ");
+            }
+        }
+
+        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
 
     void EnsureStorePolicySatisfied(Execution::Context& context)

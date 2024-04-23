@@ -436,7 +436,7 @@
     <ClInclude Include="Public\winget\MsiExecArguments.h" />
     <ClInclude Include="Public\winget\MsixManifestValidation.h" />
     <ClInclude Include="Public\winget\MSStore.h" />
-    <ClInclude Include="Public\winget\MSStoreRest.h">
+    <ClInclude Include="Public\winget\MSStoreDownload.h">
         <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Public\winget\NameNormalization.h" />
@@ -491,7 +491,7 @@
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="MSStore.cpp" />
-    <ClCompile Include="MSStoreRest.cpp">
+    <ClCompile Include="MSStoreDownload.cpp">
         <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="NameNormalization.cpp" />
