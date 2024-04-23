@@ -24,6 +24,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         // Version 1.2
         Utility::NormalizedName NormalizeName(std::string_view name, std::string_view publisher) const override;
 
+        // Version 1.7
+        void DropTables(SQLite::Connection& connection) override;
+
     protected:
         std::unique_ptr<V1_0::SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const override;
         SearchResult SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const override;

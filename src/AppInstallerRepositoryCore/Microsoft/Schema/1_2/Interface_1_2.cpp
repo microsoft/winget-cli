@@ -11,7 +11,7 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 {
-    namespace
+    namespace anon
     {
         void AddNormalizedName(
             const Utility::NameNormalizer& normalizer,
@@ -114,7 +114,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
             filter.Value = normalized.GetNormalizedName(fieldsToInclude);
             filter.Additional = normalized.Publisher();
             return WI_AreAllFlagsSet(normalized.GetNormalizedFields(), fieldsToInclude);
-        };
+        }
 
         // Update NormalizedNameAndPublisher with normalization and folding
         // Returns true if any of normalized name contains normalization field of fieldsToInclude
@@ -180,8 +180,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         // Add the new 1.2 data
         // These normalized strings are all stored with their cases folded so that they can be
         // looked up ordinally; enabling the index to provide efficient searches.
-        NormalizedPackageNameTable::EnsureExistsAndInsert(connection, GetNormalizedNames(m_normalizer, manifest), manifestId);
-        NormalizedPackagePublisherTable::EnsureExistsAndInsert(connection, GetNormalizedPublishers(m_normalizer, manifest), manifestId);
+        NormalizedPackageNameTable::EnsureExistsAndInsert(connection, anon::GetNormalizedNames(m_normalizer, manifest), manifestId);
+        NormalizedPackagePublisherTable::EnsureExistsAndInsert(connection, anon::GetNormalizedPublishers(m_normalizer, manifest), manifestId);
 
         savepoint.Commit();
 
@@ -195,8 +195,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         auto [indexModified, manifestId] = V1_1::Interface::UpdateManifest(connection, manifest, relativePath);
 
         // Update new 1.2 tables as necessary
-        indexModified = NormalizedPackageNameTable::UpdateIfNeededByManifestId(connection, GetNormalizedNames(m_normalizer, manifest), manifestId) || indexModified;
-        indexModified = NormalizedPackagePublisherTable::UpdateIfNeededByManifestId(connection, GetNormalizedPublishers(m_normalizer, manifest), manifestId) || indexModified;
+        indexModified = NormalizedPackageNameTable::UpdateIfNeededByManifestId(connection, anon::GetNormalizedNames(m_normalizer, manifest), manifestId) || indexModified;
+        indexModified = NormalizedPackagePublisherTable::UpdateIfNeededByManifestId(connection, anon::GetNormalizedPublishers(m_normalizer, manifest), manifestId) || indexModified;
 
         savepoint.Commit();
 
@@ -253,6 +253,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         return m_normalizer.Normalize(name, publisher);
     }
 
+    void Interface::DropTables(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "drop_tables_v1_2");
+
+        V1_1::Interface::DropTables(connection);
+
+        NormalizedPackageNameTable::Drop(connection);
+        NormalizedPackagePublisherTable::Drop(connection);
+
+        savepoint.Commit();
+    }
+
     std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
         return std::make_unique<V1_2::SearchResultsTable>(connection);
@@ -266,7 +278,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
             // For available package to installed package mapping, only one try is needed.
             // For example, if ARP DisplayName contains arch, then the installed package's ARP DisplayName should also include arch.
             auto candidateInclusionsWithArch = request.Inclusions;
-            if (UpdatePackageMatchFilters(candidateInclusionsWithArch, m_normalizer, Utility::NormalizationField::Architecture))
+            if (anon::UpdatePackageMatchFilters(candidateInclusionsWithArch, m_normalizer, Utility::NormalizationField::Architecture))
             {
                 // If DisplayNames contain arch, only use Inclusions with arch for search
                 request.Inclusions = candidateInclusionsWithArch;
@@ -274,7 +286,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
             else
             {
                 // Otherwise, just update the Inclusions with normalization
-                UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
+                anon::UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
             }
 
             return V1_1::Interface::SearchInternal(connection, request);
@@ -286,11 +298,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
             // This can be extended in the future for more granular search requests.
             std::vector<SearchRequest> candidateSearches;
             auto candidateSearchWithArch = request;
-            if (UpdatePackageMatchFilters(candidateSearchWithArch.Inclusions, m_normalizer, Utility::NormalizationField::Architecture))
+            if (anon::UpdatePackageMatchFilters(candidateSearchWithArch.Inclusions, m_normalizer, Utility::NormalizationField::Architecture))
             {
                 candidateSearches.emplace_back(std::move(candidateSearchWithArch));
             }
-            UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
+            anon::UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
             candidateSearches.emplace_back(request);
 
             SearchResult result;
@@ -307,8 +319,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         }
         else
         {
-            UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
-            UpdatePackageMatchFilters(request.Filters, m_normalizer);
+            anon::UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
+            anon::UpdatePackageMatchFilters(request.Filters, m_normalizer);
 
             return V1_1::Interface::SearchInternal(connection, request);
         }

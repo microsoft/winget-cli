@@ -34,6 +34,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Create the tables.
         void CreateOneToManyTable(SQLite::Connection& connection, OneToManyTableSchema schemaVersion, std::string_view tableName, std::string_view valueName);
 
+        // Drop the tables.
+        void DropOneToManyTable(SQLite::Connection& connection, std::string_view tableName);
+
         // Gets all values associated with the given manifest id.
         std::vector<std::string> OneToManyTableGetValuesByManifestId(
             const SQLite::Connection& connection,
@@ -97,6 +100,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         static void Create(SQLite::Connection& connection, OneToManyTableSchema schemaVersion)
         {
             details::CreateOneToManyTable(connection, schemaVersion, TableInfo::TableName(), TableInfo::ValueName());
+        }
+
+        // Drops the table.
+        static void Drop(SQLite::Connection& connection)
+        {
+            details::DropOneToManyTable(connection, TableInfo::TableName());
         }
 
         // Gets all values associated with the given manifest id.

@@ -23,6 +23,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         // Creates the table with named indices.
         static void Create(SQLite::Connection& connection);
 
+        // Drops the table.
+        static void Drop(SQLite::Connection& connection);
+
         static bool Exists(const SQLite::Connection& connection);
 
         // Add the dependencies for the specific manifest.
