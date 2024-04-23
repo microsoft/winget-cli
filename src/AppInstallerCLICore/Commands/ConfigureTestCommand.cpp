@@ -30,7 +30,6 @@ namespace AppInstaller::CLI
 
     Utility::LocIndView ConfigureTestCommand::HelpLink() const
     {
-        // TODO: Make this exist
         return "https://aka.ms/winget-command-configure#test"_liv;
     }
 

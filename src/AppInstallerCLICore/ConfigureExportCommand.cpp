@@ -35,20 +35,30 @@ namespace AppInstaller::CLI
 
     Utility::LocIndView ConfigureExportCommand::HelpLink() const
     {
-        // TODO: Make this exist
         return "https://aka.ms/winget-command-configure#export"_liv;
     }
 
     void ConfigureExportCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context;
+        context <<
+            VerifyIsFullPackage;
     }
 
     void ConfigureExportCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
         Configuration::ValidateCommonArguments(execArgs);
 
-        // module with resource.
-        // at least packageId and/or module with resource
+        bool validInputArgs = false;
+        if ((execArgs.Contains(Execution::Args::Type::ConfigurationExportModule) && execArgs.Contains(Execution::Args::Type::ConfigurationExportResource)) ||
+            execArgs.Contains(Execution::Args::Type::ConfigurationExportPackageId))
+        {
+            validInputArgs = true;
+        }
+
+        if (!validInputArgs)
+        {
+            // TODO: At least --packageId and/or --module with --resource must be used.
+            throw CommandException(Resource::String::ConfigurationEnableArgumentError);
+        }
     }
 }
