@@ -251,6 +251,9 @@
     <ClInclude Include="ConfigurationWingetDscModuleUnitValidation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Workflows\MSStorePackageComparator.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -472,6 +475,9 @@
     <ClCompile Include="ConfigurationDynamicRuntimeFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClInclude Include="Workflows\MSStorePackageComparator.cpp">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

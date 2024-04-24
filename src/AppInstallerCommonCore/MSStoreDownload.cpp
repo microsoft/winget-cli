@@ -35,18 +35,26 @@ namespace AppInstaller::MSStore
 
     PackageFormatEnum ConvertToPackageFormatEnum(std::string_view packageFormatStr)
     {
-        std::string arch = ToLower(packageFormatStr);
-        if (arch == "appxbundle")
+        std::string packageFormat = ToLower(packageFormatStr);
+        if (packageFormat == "appxbundle")
         {
             return PackageFormatEnum::AppxBundle;
         }
-        else if (arch == "eappxbundle")
+        else if (packageFormat == "eappxbundle")
         {
             return PackageFormatEnum::EAppxBundle;
         }
-        else if (arch == "msixbundle")
+        else if (packageFormat == "msixbundle")
         {
             return PackageFormatEnum::MsixBundle;
+        }
+        else if (packageFormat == "appx")
+        {
+            return PackageFormatEnum::Appx;
+        }
+        else if (packageFormat == "msix")
+        {
+            return PackageFormatEnum::Msix;
         }
 
         AICLI_LOG(Core, Info, << "ConvertToPackageFormatEnum: Unknown package format: " << packageFormatStr);
@@ -71,6 +79,11 @@ namespace AppInstaller::MSStore
             }
 
             const auto& productValue = product.value().get();
+
+            // Default to 0010 id.
+            // Use 0010 id
+
+
 
             // Retrieve the preferred sku id. If it does not exist, default to '0010'.
             std::optional<std::string> preferredSkuId = JSON::GetRawStringValueFromJsonNode(productValue, JSON::GetUtilityString(PreferredSkuId));

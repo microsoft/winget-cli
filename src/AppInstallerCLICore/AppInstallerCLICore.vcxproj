@@ -410,6 +410,7 @@
     <ClInclude Include="Workflows\ImportExportFlow.h" />
     <ClInclude Include="Workflows\MsiInstallFlow.h" />
     <ClInclude Include="Workflows\MSStoreInstallerHandler.h" />
+    <ClInclude Include="Workflows\MSStorePackageComparator.h" />
     <ClInclude Include="Workflows\MultiQueryFlow.h" />
     <ClInclude Include="Workflows\PinFlow.h" />
     <ClInclude Include="Workflows\PortableFlow.h" />
@@ -487,6 +488,7 @@
     <ClCompile Include="Workflows\ImportExportFlow.cpp" />
     <ClCompile Include="Workflows\MsiInstallFlow.cpp" />
     <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp" />
+    <ClCompile Include="Workflows\MSStorePackageComparator.cpp" />
     <ClCompile Include="Workflows\MultiQueryFlow.cpp" />
     <ClCompile Include="Workflows\PinFlow.cpp" />
     <ClCompile Include="Workflows\PortableFlow.cpp" />
