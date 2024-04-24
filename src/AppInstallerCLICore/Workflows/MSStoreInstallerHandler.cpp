@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "MSStoreInstallerHandler.h"
-#include "MSStorePackageComparator.h"
 #include <winget/HttpClientHelper.h>
 #include <winget/MSStore.h>
 #include <winget/MSStoreDownload.h>
@@ -195,9 +194,7 @@ namespace AppInstaller::CLI::Workflow
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
         {
             const auto& installer = context.Get<Execution::Data::Installer>().value();
-            std::string storeRestEndpoint = MSStore::GetStoreCatalogRestApi(installer.ProductId, installer.Locale);
-
-            // Move back to MSStoreDownload in common core.
+            std::string storeRestEndpoint = MSStore::GetMSStoreCatalogRestApi(installer.ProductId, installer.Locale);
 
             AppInstaller::Http::HttpClientHelper httpClientHelper;
             std::optional<web::json::value> jsonObject = httpClientHelper.HandleGet(JSON::GetUtilityString(storeRestEndpoint));
@@ -207,7 +204,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(Core, Error, << "No json object found");
             }
 
-            const auto& packages = MSStore::DeserializeDisplayCatalogPackages(jsonObject.value());
+            const auto& packages = MSStore::DeserializeMSStoreCatalogPackages(jsonObject.value());
 
             // Language
             std::vector<std::string> requiredLocale;
@@ -225,13 +222,11 @@ namespace AppInstaller::CLI::Workflow
             }
             else if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
             {
-                // Arguments provided in command line
                 allowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallArchitecture)));
             }
 
             DisplayCatalogPackageComparator packageComparator(requiredLocale, allowedArchitectures);
-
-            const auto& result = packageComparator.GetPreferredPackage(packages);
+            auto result = packageComparator.GetPreferredPackage(packages);
 
             if (!result)
             {
@@ -239,7 +234,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_NO_APPLICABLE_PACKAGE);
             }
 
-            const auto& preferredPackage = result.value();
+            auto preferredPackage = result.value();
 
             AICLI_LOG(Core, Info, << "WuCategoryId: " << preferredPackage.WuCategoryId);
             AICLI_LOG(Core, Info, << "ContentId: " << preferredPackage.ContentId);
