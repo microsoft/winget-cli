@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json",
+  "version": 1,
+  "registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/catchorg/Catch2",
+          "commitHash": "6e79e682b726f524310d55dec8ddac4e9c52fb5f"
+        }
+      },
+      "developmentDependency": true
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/microsoft/CorrelationVector-Cpp",
+          "commitHash": "cf38d2b44baaf352509ad9980786bc49554c32e4"
+        }
+      },
+      "developmentDependency": false
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/yhirose/cpp-httplib",
+          "commitHash": "5c00bbf36ba8ff47b4fb97712fc38cb2884e5b98"
+        }
+      },
+      "developmentDependency": true
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/curl/curl",
+          "commitHash": "d755a5f7c009dd63a61b2c745180d8ba937cbfeb"
+        }
+      },
+      "developmentDependency": false
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/c-ares/c-ares",
+          "commitHash": "fddf01938d3789e06cc1c3774e4cd0c7d2a89976"
+        }
+      },
+      "developmentDependency": false,
+      "dependencyRoots": [
+        {
+          "type": "git",
+          "git": {
+            "repositoryUrl": "https://github.com/curl/curl",
+            "commitHash": "d755a5f7c009dd63a61b2c745180d8ba937cbfeb"
+          }
+        }
+      ]
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/openssl/openssl",
+          "commitHash": "01d5e2318405362b4de5e670c90d9b40a351d053"
+        }
+      },
+      "developmentDependency": false,
+      "dependencyRoots": [
+        {
+          "type": "git",
+          "git": {
+            "repositoryUrl": "https://github.com/curl/curl",
+            "commitHash": "d755a5f7c009dd63a61b2c745180d8ba937cbfeb"
+          }
+        }
+      ]
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/microsoft/do-client",
+          "commitHash": "d71ade6f692dd8bc319ec3228c956517e9b29292"
+        }
+      },
+      "developmentDependency": true
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/nlohmann/json",
+          "commitHash": "9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03"
+        }
+      },
+      "developmentDependency": false
+    }
+  ]
+}
