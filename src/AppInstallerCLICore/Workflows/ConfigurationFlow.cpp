@@ -837,6 +837,197 @@ namespace AppInstaller::CLI::Workflow
 
             return validationOrder;
         }
+
+        void SetNameAndOrigin(ConfigurationSet& set, std::filesystem::path& absolutePath)
+        {
+            // TODO: Consider how to properly determine a good value for name and origin.
+            set.Name(absolutePath.filename().wstring());
+            set.Origin(absolutePath.parent_path().wstring());
+            set.Path(absolutePath.wstring());
+        }
+
+        void OpenConfigurationSet(Execution::Context& context, const std::string& argPath, bool allowRemote)
+        {
+            auto progressScope = context.Reporter.BeginAsyncProgress(true);
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationReadingConfigFile());
+
+            std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
+            bool isRemote = Utility::IsUrlRemote(argPath);
+            std::filesystem::path absolutePath;
+            Streams::IInputStream inputStream = nullptr;
+
+            if (isRemote)
+            {
+                if (!allowRemote)
+                {
+                    AICLI_LOG(Config, Error, << "Remote files are not supported");
+                    AICLI_TERMINATE_CONTEXT(ERROR_NOT_SUPPORTED);
+                }
+
+                std::ostringstream stringStream;
+                ProgressCallback emptyCallback;
+                Utility::DownloadToStream(argPath, stringStream, Utility::DownloadType::ConfigurationFile, emptyCallback);
+
+                auto strContent = stringStream.str();
+                std::vector<BYTE> byteContent{ strContent.begin(), strContent.end() };
+
+                Streams::InMemoryRandomAccessStream memoryStream;
+                Streams::DataWriter streamWriter{ memoryStream };
+                streamWriter.WriteBytes(byteContent);
+                streamWriter.StoreAsync().get();
+                streamWriter.DetachStream();
+                memoryStream.Seek(0);
+                inputStream = memoryStream;
+            }
+            else
+            {
+                absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });
+                auto openAction = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read);
+                auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
+                inputStream = openAction.get();
+            }
+
+            OpenConfigurationSetResult openResult = nullptr;
+            {
+                auto openAction = context.Get<Data::ConfigurationContext>().Processor().OpenConfigurationSetAsync(inputStream);
+                auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
+                openResult = openAction.get();
+            }
+
+            progressScope.reset();
+
+            if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))
+            {
+                AICLI_LOG(Config, Error, << "Failed to open configuration set at " << (isRemote ? argPath : absolutePath.u8string()) << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
+
+                switch (openResult.ResultCode())
+                {
+                case WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE:
+                    context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidType(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
+                    break;
+                case WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE:
+                    context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidValue(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }, Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
+                    break;
+                case WINGET_CONFIG_ERROR_MISSING_FIELD:
+                    context.Reporter.Error() << Resource::String::ConfigurationFieldMissing(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
+                    break;
+                case WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION:
+                    context.Reporter.Error() << Resource::String::ConfigurationFileVersionUnknown(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
+                    break;
+                case WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE:
+                case WINGET_CONFIG_ERROR_INVALID_YAML:
+                default:
+                    context.Reporter.Error() << Resource::String::ConfigurationFileInvalidYAML << std::endl;
+                    break;
+                }
+
+                if (openResult.Line() != 0)
+                {
+                    context.Reporter.Error() << Resource::String::SeeLineAndColumn(openResult.Line(), openResult.Column()) << std::endl;
+                }
+
+                AICLI_TERMINATE_CONTEXT(openResult.ResultCode());
+            }
+
+            ConfigurationSet result = openResult.Set();
+
+            // Temporary block on using schema 0.3 while experimental
+            if (result.SchemaVersion() == L"0.3")
+            {
+                AICLI_RETURN_IF_TERMINATED(context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::Configuration03));
+            }
+
+            // Fill out the information about the set based on it coming from a file.
+            if (isRemote)
+            {
+                result.Name(Utility::GetFileNameFromURI(argPath).wstring());
+                result.Origin(argPathWide);
+                // Do not set path. This means ${WinGetConfigRoot} not supported in remote configs.
+            }
+            else
+            {
+                SetNameAndOrigin(result, absolutePath);
+            }
+
+            context.Get<Data::ConfigurationContext>().Set(result);
+        }
+
+        std::optional<ConfigurationUnit> CreateWinGetUnit(const Execution::Context& context)
+        {
+            if (context.Args.Contains(Execution::Args::Type::ConfigurationExportPackageId))
+            {
+                std::string packageId{ context.Args.GetArg(Args::Type::ConfigurationExportPackageId) };
+                std::wstring packageIdWide = Utility::ConvertToUTF16(packageId);
+
+                ConfigurationUnit unit;
+                unit.Type(L"Microsoft.WinGet.DSC/WinGetPackage");
+                unit.Identifier(packageIdWide);
+                unit.Intent(ConfigurationUnitIntent::Apply);
+
+                // TODO: look for strings
+                ValueSet directives;
+                directives.Insert(L"description", PropertyValue::CreateString(L"Install " + packageIdWide));
+                directives.Insert(L"allowPrerelease", PropertyValue::CreateBoolean(true));
+                unit.Metadata(std::move(directives));
+
+                ValueSet settings;
+                settings.Insert(L"id", PropertyValue::CreateString(packageIdWide));
+                settings.Insert(L"source", PropertyValue::CreateString(L"winget"));
+                unit.Settings(std::move(settings));
+
+                return unit;
+            }
+
+            return {};
+        }
+
+        std::optional<ConfigurationUnit> CreateConfigurationUnit(const Execution::Context& context, const std::optional<ConfigurationUnit> dependantUnit)
+        {
+            if (context.Args.Contains(Execution::Args::Type::ConfigurationExportModule) &&
+                context.Args.Contains(Execution::Args::Type::ConfigurationExportResource))
+            {
+                std::string moduleName{ context.Args.GetArg(Args::Type::ConfigurationExportModule) };
+                std::wstring moduleNameWide = Utility::ConvertToUTF16(moduleName);
+
+                std::string resourceName{ context.Args.GetArg(Args::Type::ConfigurationExportResource) };
+                std::wstring resourceNameWide = Utility::ConvertToUTF16(resourceName);
+
+                // Somehow call get. You might need to retry with allowPrelease.
+
+                ConfigurationUnit unit;
+                unit.Type(moduleNameWide + L"/" + resourceNameWide);
+                unit.Intent(ConfigurationUnitIntent::Apply);
+
+                ValueSet directives;
+                if (dependantUnit.has_value())
+                {
+                    // If no, no description?
+                    directives.Insert(L"description", PropertyValue::CreateString(L"Configure " + dependantUnit.value().Identifier()));
+                }
+
+                // TODO: whatever you did for get. if you tried with prerelease then cool.
+                // directives.Insert(L"allowPrerelease", PropertyValue::CreateBoolean(true));
+
+                if (directives.Size() != 0)
+                {
+                    unit.Metadata(std::move(directives));
+                }
+
+                // Add settings from get.
+
+                // Add dependency.
+                if (dependantUnit.has_value())
+                {
+                    auto dependencies = winrt::single_threaded_vector<winrt::hstring>();
+                    dependencies.Append(dependantUnit.value().Identifier());
+                    unit.Dependencies(std::move(dependencies));
+                }
+
+                return unit;
+            }
+
+            return {};
+        }
     }
 
     void CreateConfigurationProcessor(Context& context)
@@ -868,106 +1059,32 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenConfigurationSet(Context& context)
     {
-        auto progressScope = context.Reporter.BeginAsyncProgress(true);
-        progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationReadingConfigFile());
-
         std::string argPath{ context.Args.GetArg(Args::Type::ConfigurationFile) };
-        std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
-        bool isRemote = Utility::IsUrlRemote(argPath);
-        std::filesystem::path absolutePath;
-        Streams::IInputStream inputStream = nullptr;
+        anon::OpenConfigurationSet(context, argPath, true);
+    }
 
-        if (isRemote)
+    void CreateOrOpenConfigurationSet(Context& context)
+    {
+        std::string argPath{ context.Args.GetArg(Args::Type::OutputFile) };
+
+        if (std::filesystem::exists(argPath))
         {
-            std::ostringstream stringStream;
-            ProgressCallback emptyCallback;
-            Utility::DownloadToStream(argPath, stringStream, Utility::DownloadType::ConfigurationFile, emptyCallback);
-
-            auto strContent = stringStream.str();
-            std::vector<BYTE> byteContent{ strContent.begin(), strContent.end() };
-
-            Streams::InMemoryRandomAccessStream memoryStream;
-            Streams::DataWriter streamWriter{ memoryStream };
-            streamWriter.WriteBytes(byteContent);
-            streamWriter.StoreAsync().get();
-            streamWriter.DetachStream();
-            memoryStream.Seek(0);
-            inputStream = memoryStream;
+            anon::OpenConfigurationSet(context, argPath, false);
         }
         else
         {
-            absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });
-            auto openAction = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read);
-            auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
-            inputStream = openAction.get();
+            std::ofstream file{ argPath };
+
+            // TODO: support other schema versions or pick up latest.
+            ConfigurationSet set;
+            set.SchemaVersion(L"0.2");
+
+            std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
+            auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });
+            anon::SetNameAndOrigin(set, absolutePath);
+
+            context.Get<Data::ConfigurationContext>().Set(set);
         }
-
-        OpenConfigurationSetResult openResult = nullptr;
-        {
-            auto openAction = context.Get<Data::ConfigurationContext>().Processor().OpenConfigurationSetAsync(inputStream);
-            auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
-            openResult = openAction.get();
-        }
-
-        progressScope.reset();
-
-        if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))
-        {
-            AICLI_LOG(Config, Error, << "Failed to open configuration set at " << (isRemote ? argPath : absolutePath.u8string()) << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
-
-            switch (openResult.ResultCode())
-            {
-            case WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE:
-                context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidType(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
-                break;
-            case WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE:
-                context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidValue(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }, Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
-                break;
-            case WINGET_CONFIG_ERROR_MISSING_FIELD:
-                context.Reporter.Error() << Resource::String::ConfigurationFieldMissing(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
-                break;
-            case WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION:
-                context.Reporter.Error() << Resource::String::ConfigurationFileVersionUnknown(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
-                break;
-            case WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE:
-            case WINGET_CONFIG_ERROR_INVALID_YAML:
-            default:
-                context.Reporter.Error() << Resource::String::ConfigurationFileInvalidYAML << std::endl;
-                break;
-            }
-
-            if (openResult.Line() != 0)
-            {
-                context.Reporter.Error() << Resource::String::SeeLineAndColumn(openResult.Line(), openResult.Column()) << std::endl;
-            }
-
-            AICLI_TERMINATE_CONTEXT(openResult.ResultCode());
-        }
-
-        ConfigurationSet result = openResult.Set();
-
-        // Temporary block on using schema 0.3 while experimental
-        if (result.SchemaVersion() == L"0.3")
-        {
-            AICLI_RETURN_IF_TERMINATED(context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::Configuration03));
-        }
-
-        // Fill out the information about the set based on it coming from a file.
-        if (isRemote)
-        {
-            result.Name(Utility::GetFileNameFromURI(argPath).wstring());
-            result.Origin(argPathWide);
-            // Do not set path. This means ${WinGetConfigRoot} not supported in remote configs.
-        }
-        else
-        {
-            // TODO: Consider how to properly determine a good value for name and origin.
-            result.Name(absolutePath.filename().wstring());
-            result.Origin(absolutePath.parent_path().wstring());
-            result.Path(absolutePath.wstring());
-        }
-
-        context.Get<Data::ConfigurationContext>().Set(result);
     }
 
     void ShowConfigurationSet(Context& context)
@@ -1433,5 +1550,35 @@ namespace AppInstaller::CLI::Workflow
     void ValidateAllGoodMessage(Execution::Context& context)
     {
         context.Reporter.Info() << Resource::String::ConfigurationValidationFoundNoIssues << std::endl;
+    }
+
+    void AddWinGetPackageAndResource(Execution::Context& context)
+    {
+        auto wingetUnit = anon::CreateWinGetUnit(context);
+        auto configUnit = anon::CreateConfigurationUnit(context, wingetUnit);
+
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+        if (wingetUnit.has_value())
+        {
+            configContext.Set().Units().Append(wingetUnit.value());
+        }
+
+        if (configUnit.has_value())
+        {
+            configContext.Set().Units().Append(configUnit.value());
+        }
+    }
+
+    void WriteConfigFile(Execution::Context& context)
+    {
+        std::string argPath{ context.Args.GetArg(Args::Type::OutputFile) };
+        std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
+        auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });
+
+        auto openAction = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::ReadWrite);
+
+        // TODO: add comments.
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+        configContext.Set().Serialize(openAction.get());
     }
 }

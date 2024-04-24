@@ -17,6 +17,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: ConfigurationSet
     void OpenConfigurationSet(Execution::Context& context);
 
+    // Creates or opens the configuration set.
+    // Required Args: OutputFile
+    // Inputs: ConfigurationProcessor
+    // Outputs: ConfigurationSet
+    void CreateOrOpenConfigurationSet(Execution::Context& context);
+
     // Outputs the configuration set.
     // Required Args: None
     // Inputs: ConfigurationSet
@@ -84,4 +90,16 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void ValidateAllGoodMessage(Execution::Context& context);
+
+    // Adds a configuration unit with the winget package and/or exports resource given.
+    // Required Args: None
+    // Inputs: ConfigurationProcessor, ConfigurationSet
+    // Outputs: None
+    void AddWinGetPackageAndResource(Execution::Context& context);
+
+    // Write the configuration file.
+    // Rquired Args: OutputFile
+    // Inputs: ConfigurationProcessor, ConfigurationSet
+    // Outputs: None
+    void WriteConfigFile(Execution::Context& context);
 }

@@ -41,7 +41,11 @@ namespace AppInstaller::CLI
     void ConfigureExportCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
-            VerifyIsFullPackage;
+            VerifyIsFullPackage <<
+            CreateConfigurationProcessor <<
+            CreateOrOpenConfigurationSet <<
+            AddWinGetPackageAndResource <<
+            WriteConfigFile;
     }
 
     void ConfigureExportCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
