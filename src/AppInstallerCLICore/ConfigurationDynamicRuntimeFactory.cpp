@@ -158,17 +158,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 auto streamSize = (uint32_t)memoryStream.Size();
                 std::vector<uint8_t> bytes;
                 bytes.resize(streamSize);
-
                 reader.LoadAsync(streamSize);
                 reader.ReadBytes(bytes);
-
-                std::string result{ bytes.begin(), bytes.end() };
-
-                reader.DetachStream();
                 reader.Close();
                 memoryStream.Close();
 
-                return result;
+                return { bytes.begin(), bytes.end() };
             }
 
             ProcessorMap::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)
