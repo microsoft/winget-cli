@@ -74,7 +74,7 @@ namespace AppInstallerCLIE2ETests
         public void SourceAddWithExplicit()
         {
             // Remove the test source.
-            TestCommon.RunAICLICommand("source remove", "TestSource");
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
 
             var result = TestCommon.RunAICLICommand("source add", $"SourceTest {Constants.TestSourceUrl} --trust-level trusted --explicit");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);

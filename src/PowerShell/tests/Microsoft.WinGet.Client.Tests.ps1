@@ -22,7 +22,7 @@ BeforeAll {
     {
         $wingetExeName = "wingetdev.exe"
     }
-    
+
     $settingsFilePath = (ConvertFrom-Json (& $wingetExeName settings export)).userSettingsFile
 
     $deviceGroupPolicyRoot = "HKLM:\Software\Policies\Microsoft\Windows"
@@ -42,7 +42,9 @@ BeforeAll {
             Get-WinGetSource -Name 'TestSource'
         }
         catch {
-            Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/'
+            # TODO: Add-WinGetSource does not support setting trust level yet.
+            # Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/'
+            $wingetExeName source add TestSource https://localhost:5001/TestKit/ --trust-level trusted
         }
     }
 
