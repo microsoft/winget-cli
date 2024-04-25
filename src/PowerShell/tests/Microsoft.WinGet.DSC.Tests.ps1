@@ -13,9 +13,6 @@ BeforeAll {
     Import-Module Microsoft.WinGet.Client
     Import-Module Microsoft.WinGet.DSC
 
-    # TODO: Temporary fix to by pass smartscreen checks. Replace once --trust-level is supported in DSC.
-    $addTestSourceCommand = "wingetdev.exe source add TestSource https://localhost:5001/TestKit/ --trust-level trusted"
-
     # Helper function for calling Invoke-DscResource on the Microsoft.WinGet.DSC module.
     function InvokeWinGetDSC() {
         param (
@@ -30,6 +27,18 @@ BeforeAll {
         )
 
         return Invoke-DscResource -Name $Name -ModuleName Microsoft.WinGet.DSC -Method $Method -Property $Property
+    }
+
+    function AddTestSource {
+        try {
+            Get-WinGetSource -Name 'TestSource'
+        }
+        catch {
+            # TODO: Add-WinGetSource does not support setting trust level yet.
+            # Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/'
+            $sourceAddCommand = "wingetdev.exe source add TestSource https://localhost:5001/TestKit/ --trust-level trusted"
+            Invoke-Expression -Command $sourceAddCommand
+        }
     }
 }
 
@@ -143,7 +152,7 @@ Describe 'WinGetSources' {
         # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Absent'; Sources = @{ $testSourceName = $testSourceValue }}
 
         # TODO: Replace with DSC once '--trust-level' is supported.
-        Invoke-Expression -Command $addTestSourceCommand
+        AddTestSource
     }
 
     It 'Get WinGet source' {  
@@ -177,7 +186,7 @@ Describe 'WinGetPackage' {
         # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Present'; Sources = @{ TestSource = @{ Arg = 'https://localhost:5001/TestKit/'; Type = 'Microsoft.PreIndexed.Package' }}}
 
         # TODO: Replace with DSC once '--trust-level' is supported.
-        Invoke-Expression -Command $addTestSourceCommand
+        AddTestSource
     }
 
     It 'Get WinGetPackage' {
