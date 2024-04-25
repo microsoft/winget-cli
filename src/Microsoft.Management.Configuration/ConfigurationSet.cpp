@@ -128,10 +128,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         std::unique_ptr<ConfigurationSetSerializer> serializer = ConfigurationSetSerializer::CreateSerializer(m_schemaVersion);
         hstring result = serializer->Serialize(this);
+        auto resultUtf8 = winrt::to_string(result);
+        std::vector<uint8_t> bytes(resultUtf8.begin(), resultUtf8.end());
 
         Windows::Storage::Streams::DataWriter dataWriter{ stream };
         dataWriter.UnicodeEncoding(Windows::Storage::Streams::UnicodeEncoding::Utf8);
-        dataWriter.WriteString(result);
+        dataWriter.WriteBytes(bytes);
         dataWriter.StoreAsync().get();
         dataWriter.DetachStream();
     }

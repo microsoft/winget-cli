@@ -154,17 +154,20 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 Streams::DataReader reader(memoryStream.GetInputStreamAt(0));
                 reader.UnicodeEncoding(Streams::UnicodeEncoding::Utf8);
-                reader.LoadAsync((uint32_t)memoryStream.Size());
 
-                winrt::hstring result;
-                uint32_t bytesToRead = reader.UnconsumedBufferLength();
+                auto numBytes = (uint32_t)memoryStream.Size();
+                std::vector<uint8_t> bytes;
+                bytes.resize(numBytes);
+                reader.LoadAsync(numBytes);
+                reader.ReadBytes(bytes);
+                std::string result{ bytes.begin(), bytes.end() };
 
-                if (bytesToRead > 0)
-                {
-                    result = reader.ReadString(bytesToRead);
-                }
+                reader.DetachStream();
+                reader.Close();
 
-                return winrt::to_string(result);
+                memoryStream.Close();
+
+                return result;
             }
 
             ProcessorMap::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)
