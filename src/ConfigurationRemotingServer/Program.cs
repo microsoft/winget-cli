@@ -103,11 +103,10 @@ namespace ConfigurationRemotingServer
                 //     }
                 // If a limitation set is provided, the processor will be limited
                 // to only work on units defined inside the limitation set.
+                var commandPtr = GetCommandLineW();
+                var commandStr = Marshal.PtrToStringUni(commandPtr) ?? string.Empty;
 
-                // var commandPtr = GetCommandLineW();
-                // var commandStr = Marshal.PtrToStringUni(commandPtr) ?? string.Empty;
-                var commandStr = "hello ~~~~~~ goodbye ~~~~~~ okay";
-                //// In case the limitation set content contains the separator, we'll not use Split method.
+                // In case the limitation set content contains the separator, we'll not use Split method.
                 var firstSeparatorIndex = commandStr.IndexOf(CommandLineSectionSeparator);
                 if (firstSeparatorIndex > 0)
                 {
@@ -119,43 +118,37 @@ namespace ConfigurationRemotingServer
 
                     // Parse limitation set.
                     byte[] limitationSetBytes = Encoding.UTF8.GetBytes(commandStr.Substring(secondSeparatorIndex + CommandLineSectionSeparator.Length));
+                    MemoryStream memStream = new MemoryStream();
+                    memStream.Write(limitationSetBytes);
+                    memStream.Flush();
+                    memStream.Seek(0, SeekOrigin.Begin);
+                    ConfigurationProcessor processor = new ConfigurationProcessor(factory);
+                    var limitationSetResult = processor.OpenConfigurationSet(memStream.AsInputStream());
 
-                    // Error starts here!!!!
-                    //InMemoryRandomAccessStream limitationSetStream = new InMemoryRandomAccessStream();
-                    //limitationSetStream.Dispose();
-                    //DataWriter streamWriter = new DataWriter(limitationSetStream);
-                    //streamWriter.WriteBytes(limitationSetBytes);
-                    //streamWriter.StoreAsync().GetAwaiter().GetResult();
-                    //streamWriter.DetachStream();
-                    //limitationSetStream.Seek(0);
+                    if (limitationSetResult.ResultCode != null)
+                    {
+                        throw limitationSetResult.ResultCode;
+                    }
 
+                    var limitationSet = limitationSetResult.Set;
+                    if (limitationSet == null)
+                    {
+                        throw new ArgumentException("The limitation set cannot be parsed.");
+                    }
+
+                    // Now parse metadata json and update the limitation set
+                    var metadataJson = JsonSerializer.Deserialize<LimitationSetMetadata>(commandStr.Substring(
+                        firstSeparatorIndex + CommandLineSectionSeparator.Length,
+                        secondSeparatorIndex - firstSeparatorIndex - CommandLineSectionSeparator.Length));
+
+                    if (metadataJson != null)
+                    {
+                        limitationSet.Path = metadataJson.Path;
+                    }
+
+                    // Set the limitation set in factory.
+                    factory.LimitationSet = limitationSet;
                 }
-                //ConfigurationProcessor processor = new ConfigurationProcessor(factory);
-                //var limitationSetResult = processor.OpenConfigurationSet(limitationSetStream);
-                //if (limitationSetResult.ResultCode != null)
-                //{
-                //    throw limitationSetResult.ResultCode;
-                //}
-
-                //    var limitationSet = limitationSetResult.Set;
-                //    if (limitationSet == null)
-                //    {
-                //        throw new ArgumentException("The limitation set cannot be parsed.");
-                //    }
-
-                //    // Now parse metadata json and update the limitation set
-                //    var metadataJson = JsonSerializer.Deserialize<LimitationSetMetadata>(commandStr.Substring(
-                //        firstSeparatorIndex + CommandLineSectionSeparator.Length,
-                //        secondSeparatorIndex - firstSeparatorIndex - CommandLineSectionSeparator.Length));
-
-                //    if (metadataJson != null)
-                //    {
-                //        limitationSet.Path = metadataJson.Path;
-                //    }
-
-                // Set the limitation set in factory.
-                //factory.LimitationSet = limitationSet;
-                //}
 
                 IObjectReference factoryInterface = MarshalInterface<global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
 

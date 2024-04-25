@@ -155,16 +155,17 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 Streams::DataReader reader(memoryStream.GetInputStreamAt(0));
                 reader.UnicodeEncoding(Streams::UnicodeEncoding::Utf8);
 
-                auto numBytes = (uint32_t)memoryStream.Size();
+                auto streamSize = (uint32_t)memoryStream.Size();
                 std::vector<uint8_t> bytes;
-                bytes.resize(numBytes);
-                reader.LoadAsync(numBytes);
+                bytes.resize(streamSize);
+
+                reader.LoadAsync(streamSize);
                 reader.ReadBytes(bytes);
+
                 std::string result{ bytes.begin(), bytes.end() };
 
                 reader.DetachStream();
                 reader.Close();
-
                 memoryStream.Close();
 
                 return result;
