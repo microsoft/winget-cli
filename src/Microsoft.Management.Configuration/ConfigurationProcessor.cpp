@@ -232,6 +232,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             // This is done here to enable easy cancellation propagation to the stream reads.
             uint32_t bufferSize = 1 << 20;
             Windows::Storage::Streams::Buffer buffer(bufferSize);
+
+            // Memory stream in mixed elevation does not support 'InputStreamOptions::ReadAhead'.
             Windows::Storage::Streams::InputStreamOptions readOptions = Windows::Storage::Streams::InputStreamOptions::Partial;
             std::string inputString;
 
