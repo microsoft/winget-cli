@@ -14,7 +14,7 @@ BeforeAll {
     Import-Module Microsoft.WinGet.DSC
 
     # TODO: Temporary fix to by pass smartscreen checks. Replace once --trust-level is supported in DSC.
-    $addTestSourceCommand = "winget.exe source add TestSource https://localhost:5001/TestKit/ --trust-level trusted"
+    $addTestSourceCommand = "wingetdev.exe source add TestSource https://localhost:5001/TestKit/ --trust-level trusted"
 
     # Helper function for calling Invoke-DscResource on the Microsoft.WinGet.DSC module.
     function InvokeWinGetDSC() {
