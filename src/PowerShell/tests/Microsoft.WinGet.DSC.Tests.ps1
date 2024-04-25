@@ -13,6 +13,9 @@ BeforeAll {
     Import-Module Microsoft.WinGet.Client
     Import-Module Microsoft.WinGet.DSC
 
+    # TODO: Temporary fix to by pass smartscreen checks. Replace once --trust-level is supported in DSC.
+    $addTestSourceCommand = "winget.exe source add TestSource https://localhost:5001/TestKit/ --trust-level trusted"
+
     # Helper function for calling Invoke-DscResource on the Microsoft.WinGet.DSC module.
     function InvokeWinGetDSC() {
         param (
@@ -130,14 +133,17 @@ Describe 'WinGetUserSettings' {
 
 Describe 'WinGetSources' {
     BeforeAll {
-        $testSourceName = 'TestSource'
+        # $testSourceName = 'TestSource'
 
-        $testSourceValue = @{
-            Type = 'Microsoft.PreIndexed.Package'
-            Arg = 'https://localhost:5001/TestKit/'
-        }
+        # $testSourceValue = @{
+        #     Type = 'Microsoft.PreIndexed.Package'
+        #     Arg = 'https://localhost:5001/TestKit/'
+        # }
         
-        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Absent'; Sources = @{ $testSourceName = $testSourceValue }}
+        # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Absent'; Sources = @{ $testSourceName = $testSourceValue }}
+
+        # TODO: Replace with DSC once '--trust-level' is supported.
+        Invoke-Command -Command $addTestSourceCommand
     }
 
     It 'Get WinGet source' {  
@@ -168,7 +174,10 @@ Describe 'WinGetPackage' {
         $testPackageVersion = '1.0.0.0'
 
         # Add test source.
-        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Present'; Sources = @{ TestSource = @{ Arg = 'https://localhost:5001/TestKit/'; Type = 'Microsoft.PreIndexed.Package' }}}
+        # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Present'; Sources = @{ TestSource = @{ Arg = 'https://localhost:5001/TestKit/'; Type = 'Microsoft.PreIndexed.Package' }}}
+
+        # TODO: Replace with DSC once '--trust-level' is supported.
+        Invoke-Command -Command $addTestSourceCommand
     }
 
     It 'Get WinGetPackage' {
@@ -202,7 +211,7 @@ Describe 'WinGetPackage' {
         $result.IsInstalled | Should -Be $true
         $result.IsUpdateAvailable | Should -Be $false
         $result.InstalledVersion | Should -Not -Be 1.0.0.0
-    }
+    } 
 
     It 'Uninstall WinGetPackage' {
         InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Id = $testPackageId; UseLatest = $true }
