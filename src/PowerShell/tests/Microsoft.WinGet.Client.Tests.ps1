@@ -44,7 +44,8 @@ BeforeAll {
         catch {
             # TODO: Add-WinGetSource does not support setting trust level yet.
             # Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/'
-            $wingetExeName source add TestSource https://localhost:5001/TestKit/ --trust-level trusted
+            $sourceAddCommand = "${wingetExeName} source add TestSource https://localhost:5001/TestKit/ --trust-level trusted"
+            Invoke-Expression -Command $sourceAddCommand
         }
     }
 
