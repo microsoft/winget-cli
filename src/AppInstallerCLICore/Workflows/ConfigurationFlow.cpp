@@ -956,6 +956,7 @@ namespace AppInstaller::CLI::Workflow
         {
             if (context.Args.Contains(Execution::Args::Type::ConfigurationExportPackageId))
             {
+                // Maybe we can add some checks to validate the package id exists.
                 std::string packageId{ context.Args.GetArg(Args::Type::ConfigurationExportPackageId) };
                 std::wstring packageIdWide = Utility::ConvertToUTF16(packageId);
 
@@ -981,7 +982,30 @@ namespace AppInstaller::CLI::Workflow
             return {};
         }
 
-        std::optional<ConfigurationUnit> CreateConfigurationUnit(const Execution::Context& context, const std::optional<ConfigurationUnit> dependantUnit)
+        GetConfigurationUnitSettingsResult GetUnitSettings(Execution::Context& context, ConfigurationUnit& unit)
+        {
+            // This assumes there are no required properties for Get, but for example WinGetPackage requires the Id.
+            // It is obviously wrong and will be wrong until Export is implemented for DSC v2 and a proper way to inform
+            // about input to winget configure export is implemented. Drink the kool-aid and transcend.
+            unit.Intent(ConfigurationUnitIntent::Inform);
+
+            auto progressScope = context.Reporter.BeginAsyncProgress(true);
+
+            // TODO: string
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationReadingConfigFile());
+
+            GetConfigurationUnitSettingsResult getResult = nullptr;
+            {
+                auto getAction = context.Get<Data::ConfigurationContext>().Processor().GetUnitSettingsAsync(unit);
+                auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { getAction.Cancel(); });
+                getResult = getAction.get();
+            }
+
+            progressScope.reset();
+            return getResult;
+        }
+
+        std::optional<ConfigurationUnit> CreateConfigurationUnit(Execution::Context& context, const std::optional<ConfigurationUnit> dependantUnit)
         {
             if (context.Args.Contains(Execution::Args::Type::ConfigurationExportModule) &&
                 context.Args.Contains(Execution::Args::Type::ConfigurationExportResource))
@@ -992,28 +1016,56 @@ namespace AppInstaller::CLI::Workflow
                 std::string resourceName{ context.Args.GetArg(Args::Type::ConfigurationExportResource) };
                 std::wstring resourceNameWide = Utility::ConvertToUTF16(resourceName);
 
-                // Somehow call get. You might need to retry with allowPrelease.
-
                 ConfigurationUnit unit;
                 unit.Type(moduleNameWide + L"/" + resourceNameWide);
+
+                // Call processor to get settings for the unit.
+                auto getResult = GetUnitSettings(context, unit);
+                winrt::hresult resultCode = getResult.ResultInformation().ResultCode();
+                if (FAILED(resultCode))
+                {
+                    // Retry if it fails with not found in the case the module is a pre-released one.
+                    bool isPreRelease = false;
+                    if (resultCode == WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY)
+                    {
+                        ValueSet directives;
+                        directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+
+                        auto preReleaseResult = GetUnitSettings(context, unit);
+
+                        winrt::hresult preReleaseResultCode = preReleaseResult.ResultInformation().ResultCode();
+                        if (SUCCEEDED(preReleaseResultCode))
+                        {
+                            isPreRelease = true;
+                            getResult = preReleaseResult;
+                        }
+                        else
+                        {
+                            AICLI_LOG(Config, Error, << "Failed Get allowing prerelease modules");
+                            LogFailedGetConfigurationUnitDetails(unit, preReleaseResult.ResultInformation());
+                        }
+                    }
+
+                    if (!isPreRelease)
+                    {
+                        OutputUnitRunFailure(context, unit, getResult.ResultInformation());
+                        THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
+                    }
+                }
+
+                unit.Settings(getResult.Settings());
+
+                // GetUnitSettings will set it to Inform.
                 unit.Intent(ConfigurationUnitIntent::Apply);
 
-                ValueSet directives;
+                // If the retry happened the allowPrerelease directive should be there.
+                ValueSet directives = unit.Metadata();
                 if (dependantUnit.has_value())
                 {
-                    // If no, no description?
-                    directives.Insert(L"description", PropertyValue::CreateString(L"Configure " + dependantUnit.value().Identifier()));
+                    // If no, no description or quoi?
+                    directives.Insert(s_Directive_Description, PropertyValue::CreateString(L"Configure " + dependantUnit.value().Identifier()));
+                    unit.Metadata(directives);
                 }
-
-                // TODO: whatever you did for get. if you tried with prerelease then cool.
-                // directives.Insert(L"allowPrerelease", PropertyValue::CreateBoolean(true));
-
-                if (directives.Size() != 0)
-                {
-                    unit.Metadata(std::move(directives));
-                }
-
-                // Add settings from get.
 
                 // Add dependency.
                 if (dependantUnit.has_value())

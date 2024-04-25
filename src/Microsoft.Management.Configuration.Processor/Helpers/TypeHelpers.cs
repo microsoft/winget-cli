@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TypeHelpers.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -6,8 +6,12 @@
 
 namespace Microsoft.Management.Configuration.Processor.Helpers
 {
+    using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Reflection;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
+    using Microsoft.Management.Configuration.Processor.Extensions;
     using Windows.Foundation.Collections;
 
     /// <summary>
@@ -74,14 +78,41 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             var result = new ValueSet();
             foreach (PropertyInfo property in obj.GetType().GetProperties())
             {
-                // Specialize here.
-                if (property.PropertyType.IsEnum)
+                try
                 {
-                    result.Add(property.Name, property.GetValue(obj)?.ToString());
+                    var propertyValue = property.GetValue(obj);
+                    if (propertyValue == null)
+                    {
+                        // Ignore null values.
+                        continue;
+                    }
+
+                    // Specialize here.
+                    if (property.PropertyType.IsEnum)
+                    {
+                        result.Add(property.Name, propertyValue.ToString());
+                    }
+                    else if (property.PropertyType == typeof(Hashtable))
+                    {
+                        Hashtable hashtable = (Hashtable)propertyValue;
+                        result.Add(property.Name, hashtable.ToValueSet());
+                    }
+                    else if (property.PropertyType == typeof(string))
+                    {
+                        string propertyString = (string)propertyValue;
+                        if (!string.IsNullOrEmpty(propertyString))
+                        {
+                            result.Add(property.Name, propertyString);
+                        }
+                    }
+                    else
+                    {
+                        result.Add(property.Name, property.GetValue(obj));
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    result.Add(property.Name, property.GetValue(obj));
+                    throw new UnitPropertyUnsupportedException(property, e);
                 }
             }
 
