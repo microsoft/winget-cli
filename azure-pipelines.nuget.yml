@@ -13,6 +13,7 @@ variables:
   packageName: Microsoft.WindowsPackageManager.Utils
   buildVer: $[counter(${{ parameters.version }}, 1)]
   version: ${{ parameters.version }}.$(buildVer)
+  EnableDetectorVcpkg: true
 
 jobs:
   - job: "Build"
@@ -57,6 +58,13 @@ jobs:
         inputs:
           command: "restore"
           projects: "**/*.csproj"
+
+      - task: CmdLine@2
+        displayName: Enable Vcpkg Install
+        inputs:
+          script: |
+            $(VCPKG_INSTALLATION_ROOT)\vcpkg.exe integrate install
+          workingDirectory: '$(VCPKG_INSTALLATION_ROOT)'
 
       - task: PowerShell@2
         displayName: Update Binary Version

@@ -191,6 +191,9 @@ PublishScripts/
 *.nuget.props
 *.nuget.targets
 
+# Vcpkg install directory
+**/vcpkg_installed/*
+
 # Microsoft Azure Build Output
 csx/
 *.build.csdef
