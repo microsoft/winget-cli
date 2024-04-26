@@ -19,6 +19,7 @@ pool:
 variables:
   solution: 'src\AppInstallerCLI.sln'
   appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
+  EnableDetectorVcpkg: true
 
 # Do not set the build version for a PR build.
 
@@ -88,6 +89,13 @@ jobs:
     inputs:
       command: 'restore'
       projects: '**/*.csproj'
+
+  - task: CmdLine@2
+    displayName: Enable Vcpkg Install
+    inputs:
+      script: |
+        $(VCPKG_INSTALLATION_ROOT)\vcpkg.exe integrate install
+      workingDirectory: '$(VCPKG_INSTALLATION_ROOT)'
 
   - task: PowerShell@2
     displayName: Update Binary Version
