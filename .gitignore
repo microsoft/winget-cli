@@ -342,3 +342,6 @@ src/PowerShell/Microsoft.WinGet.Client/Crescendo/*.psm1
 
 # Dev PowerShell module path
 src/PowerShell/scripts/Module
+
+# Interop nuget
+src/WinGetUtilInterop/scripts/Nuget*
