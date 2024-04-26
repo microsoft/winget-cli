@@ -149,10 +149,7 @@ Describe 'WinGetSources' {
             Arg = 'https://localhost:5001/TestKit/'
         }
         
-        # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Absent'; Sources = @{ $testSourceName = $testSourceValue }}
-
-        # TODO: Replace with DSC once '--trust-level' is supported.
-        AddTestSource
+        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Absent'; Sources = @{ $testSourceName = $testSourceValue }}
     }
 
     It 'Get WinGet source' {  
@@ -166,7 +163,10 @@ Describe 'WinGetSources' {
     }
 
     It 'Set WinGet source' {
-        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Ensure = 'Present'; Sources = @{ $testSourceName = $testSourceValue }}
+        # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Ensure = 'Present'; Sources = @{ $testSourceName = $testSourceValue }}
+        # TODO: Replace with DSC once '--trust-level' is supported
+        AddTestSource
+
         $result = InvokeWinGetDSC -Name WinGetSources -Method Get -Property @{ Sources = @{ $testSourceName = $testSourceValue }}
         $result.Sources.Keys  | Should -Contain $testSourceName
 
