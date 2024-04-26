@@ -443,6 +443,7 @@
     <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\NetworkSettings.h" />
     <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h" />
+    <ClInclude Include="Public\winget\PackageVersionDataManifest.h" />
     <ClInclude Include="Public\winget\Pin.h" />
     <ClInclude Include="Public\winget\Reboot.h" />
     <ClInclude Include="Public\winget\Regex.h" />
@@ -497,6 +498,7 @@
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="NetworkSettings.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
+    <ClCompile Include="PackageVersionDataManifest.cpp" />
     <ClCompile Include="Pin.cpp" />
     <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Reboot.cpp" />

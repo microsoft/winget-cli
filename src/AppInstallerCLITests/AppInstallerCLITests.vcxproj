@@ -232,6 +232,7 @@
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
+    <ClCompile Include="PackageVersionDataManifest.cpp" />
     <ClCompile Include="PathVariable.cpp" />
     <ClCompile Include="PinFlow.cpp" />
     <ClCompile Include="PinningIndex.cpp" />

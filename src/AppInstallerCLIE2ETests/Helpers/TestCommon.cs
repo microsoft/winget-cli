@@ -709,7 +709,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             else
             {
                 GroupPolicyHelper.EnableAdditionalSources.SetNotConfigured();
-                RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+                RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl} --trust-level trusted");
             }
 
             Thread.Sleep(2000);

@@ -465,7 +465,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             for (auto include : request.Inclusions)
             {
-                for (MatchType match : GetMatchTypeOrder(include.Type))
+                for (MatchType match : GetDefaultMatchTypeOrder(include.Type))
                 {
                     include.Type = match;
                     resultsTable->SearchOnField(include);
@@ -483,7 +483,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             // Perform search for just the field matching the first filter
             PackageMatchFilter filter = request.Filters[0];
 
-            for (MatchType match : GetMatchTypeOrder(filter.Type))
+            for (MatchType match : GetDefaultMatchTypeOrder(filter.Type))
             {
                 filter.Type = match;
                 resultsTable->SearchOnField(filter);
@@ -503,7 +503,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             resultsTable->PrepareToFilter();
 
-            for (MatchType match : GetMatchTypeOrder(filter.Type))
+            for (MatchType match : GetDefaultMatchTypeOrder(filter.Type))
             {
                 filter.Type = match;
                 resultsTable->FilterOnField(filter);
@@ -520,9 +520,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return GetPropertyByManifestIdInternal(connection, manifestId, property);
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection&, SQLite::rowid_t, PackageVersionMultiProperty) const
+    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t rowid, PackageVersionMultiProperty property) const
     {
-        return {};
+        switch (property)
+        {
+        case PackageVersionMultiProperty::Tag:
+            return TagsTable::GetValuesByManifestId(connection, rowid);
+        case PackageVersionMultiProperty::Command:
+            return CommandsTable::GetValuesByManifestId(connection, rowid);
+        default:
+            return {};
+        }
     }
 
     std::optional<SQLite::rowid_t> Interface::GetManifestIdByKey(const SQLite::Connection& connection, SQLite::rowid_t id, std::string_view version, std::string_view channel) const
@@ -543,6 +551,31 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> Interface::GetDependentsById(const SQLite::Connection&, AppInstaller::Manifest::string_t) const
     {
         return {};
+    }
+
+    void Interface::DropTables(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "drop_tables_v1_0");
+
+        IdTable::Drop(connection);
+        NameTable::Drop(connection);
+        MonikerTable::Drop(connection);
+        VersionTable::Drop(connection);
+        ChannelTable::Drop(connection);
+
+        PathPartTable::Drop(connection);
+
+        ManifestTable::Drop(connection);
+
+        TagsTable::Drop(connection);
+        CommandsTable::Drop(connection);
+
+        savepoint.Commit();
+    }
+
+    bool Interface::MigrateFrom(SQLite::Connection&, const ISQLiteIndex*)
+    {
+        return false;
     }
 
     std::vector<ISQLiteIndex::VersionKey> Interface::GetVersionKeysById(const SQLite::Connection& connection, SQLite::rowid_t id) const
@@ -583,35 +616,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return std::make_unique<SearchResultsTable>(connection);
     }
 
-    std::vector<MatchType> Interface::GetMatchTypeOrder(MatchType type) const
-    {
-        switch (type)
-        {
-        case MatchType::Exact:
-            return { MatchType::Exact };
-        case MatchType::CaseInsensitive:
-            return { MatchType::CaseInsensitive };
-        case MatchType::StartsWith:
-            return { MatchType::CaseInsensitive, MatchType::StartsWith };
-        case MatchType::Substring:
-            return { MatchType::CaseInsensitive, MatchType::Substring };
-        case MatchType::Wildcard:
-            return { MatchType::Wildcard };
-        case MatchType::Fuzzy:
-            return { MatchType::CaseInsensitive, MatchType::Fuzzy };
-        case MatchType::FuzzySubstring:
-            return { MatchType::CaseInsensitive, MatchType::Fuzzy, MatchType::Substring, MatchType::FuzzySubstring };
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
-    }
-
     void Interface::PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const
     {
         // Arbitrary values to create a reusable filter with the given value.
         PackageMatchFilter filter(PackageMatchField::Id, MatchType::Exact, query.Value);
 
-        for (MatchType match : GetMatchTypeOrder(query.Type))
+        for (MatchType match : GetDefaultMatchTypeOrder(query.Type))
         {
             filter.Type = match;
 
@@ -637,6 +647,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return ManifestTable::GetValueById<ChannelTable>(connection, manifestId);
         case AppInstaller::Repository::PackageVersionProperty::RelativePath:
             return PathPartTable::GetPathById(connection, std::get<0>(ManifestTable::GetIdsById<PathPartTable>(connection, manifestId)));
+        case AppInstaller::Repository::PackageVersionProperty::Moniker:
+            return ManifestTable::GetValueById<MonikerTable>(connection, manifestId);
         default:
             return {};
         }

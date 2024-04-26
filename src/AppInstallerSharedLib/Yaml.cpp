@@ -407,6 +407,11 @@ namespace AppInstaller::YAML
 
     std::optional<int64_t> Node::try_as_dispatch(int64_t*) const
     {
+        if (m_scalar.empty())
+        {
+            return {};
+        }
+
         const char* begin = m_scalar.c_str();
         char* end = nullptr;
         errno = 0;

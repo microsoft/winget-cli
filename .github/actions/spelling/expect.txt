@@ -72,6 +72,7 @@ CODEOWNERS
 COINIT
 COMGLB
 commandline
+compressapi
 contactsupport
 contentfiles
 contoso
@@ -276,6 +277,8 @@ msftrubengu
 MSIHASH
 MSIXHASH
 msstore
+MSZIP
+mszyml
 Mta
 Mugiwara
 Multideclaration

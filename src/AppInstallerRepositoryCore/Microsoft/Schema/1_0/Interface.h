@@ -39,16 +39,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         // Version 1.4 Get all the dependencies for a specific manifest.
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const override;
-        std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const override;   
+        std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const override;
+
+        // Version 1.7
+        void DropTables(SQLite::Connection& connection) override;
+
+        // Version 2.0
+        bool MigrateFrom(SQLite::Connection& connection, const ISQLiteIndex* current) override;
 
     protected:
         virtual bool NotNeeded(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const;
 
         // Creates the search results table.
         virtual std::unique_ptr<SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const;
-
-        // Gets the ordering of matches to execute, with more specific matches coming first.
-        virtual std::vector<MatchType> GetMatchTypeOrder(MatchType type) const;
 
         // Executes all relevant searches for the query.
         virtual void PerformQuerySearch(SearchResultsTable& resultsTable, const RequestMatch& query) const;

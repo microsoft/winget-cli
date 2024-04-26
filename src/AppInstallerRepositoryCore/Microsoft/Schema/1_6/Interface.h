@@ -20,6 +20,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
         std::vector<std::string> GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const override;
 
+        // Version 1.7
+        void DropTables(SQLite::Connection& connection) override;
+
     protected:
         std::unique_ptr<V1_0::SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const override;
         void PerformQuerySearch(V1_0::SearchResultsTable& resultsTable, const RequestMatch& query) const override;

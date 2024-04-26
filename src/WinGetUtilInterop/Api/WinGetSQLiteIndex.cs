@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetSQLiteIndex.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -26,6 +26,32 @@ namespace Microsoft.WinGetUtil.Api
         internal WinGetSQLiteIndex(IntPtr indexHandle)
         {
             this.indexHandle = indexHandle;
+        }
+
+        /// <inheritdoc/>
+        public void MigrateTo(uint majorVersion, uint minorVersion)
+        {
+            try
+            {
+                WinGetSQLiteIndexMigrate(this.indexHandle, majorVersion, minorVersion);
+            }
+            catch (Exception e)
+            {
+                throw new WinGetSQLiteIndexException(e);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void SetProperty(SQLiteIndexProperty property, string value)
+        {
+            try
+            {
+                WinGetSQLiteIndexSetProperty(this.indexHandle, property, value);
+            }
+            catch (Exception e)
+            {
+                throw new WinGetSQLiteIndexException(e);
+            }
         }
 
         /// <inheritdoc/>
@@ -134,6 +160,26 @@ namespace Microsoft.WinGetUtil.Api
                 }
             }
         }
+
+        /// <summary>
+        /// Migrates the index to the target version.
+        /// </summary>
+        /// <param name="index">Handle of the index.</param>
+        /// <param name="majorVersion">Major version.</param>
+        /// <param name="minorVersion">Minor version.</param>
+        /// <returns>HRESULT.</returns>
+        [DllImport(Constants.DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        private static extern IntPtr WinGetSQLiteIndexMigrate(IntPtr index, uint majorVersion, uint minorVersion);
+
+        /// <summary>
+        /// Sets a property on the index.
+        /// </summary>
+        /// <param name="index">Handle of the index.</param>
+        /// <param name="property">The property to set.</param>
+        /// <param name="value">The value to set.</param>
+        /// <returns>HRESULT.</returns>
+        [DllImport(Constants.DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        private static extern IntPtr WinGetSQLiteIndexSetProperty(IntPtr index, SQLiteIndexProperty property, string value);
 
         /// <summary>
         /// Closes the index.

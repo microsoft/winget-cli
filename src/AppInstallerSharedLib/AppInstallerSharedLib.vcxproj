@@ -409,6 +409,7 @@
     <ClInclude Include="Public\Telemetry\WinEventLogLevels.h" />
     <ClInclude Include="Public\winget\AsyncTokens.h" />
     <ClInclude Include="Public\winget\Certificates.h" />
+    <ClInclude Include="Public\winget\Compression.h" />
     <ClInclude Include="Public\winget\ConfigurationSetProcessorHandlers.h" />
     <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="Public\winget\IConfigurationStaticsInternals.h" />
@@ -435,6 +436,7 @@
     <ClCompile Include="AppInstallerLogging.cpp" />
     <ClCompile Include="AppInstallerStrings.cpp" />
     <ClCompile Include="Certificates.cpp" />
+    <ClCompile Include="Compression.cpp" />
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />

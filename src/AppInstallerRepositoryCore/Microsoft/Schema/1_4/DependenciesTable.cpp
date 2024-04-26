@@ -236,6 +236,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         savepoint.Commit();
     }
 
+    void DependenciesTable::Drop(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder dropTableBuilder;
+        dropTableBuilder.DropTableIfExists(s_DependenciesTable_Table_Name);
+
+        dropTableBuilder.Execute(connection);
+    }
+
     void DependenciesTable::AddDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest, SQLite::rowid_t manifestRowId)
     {
         if (!Exists(connection))

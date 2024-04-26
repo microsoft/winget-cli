@@ -26,6 +26,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         // Creates the table with standard primary keys.
         static void Create_deprecated(SQLite::Connection& connection);
 
+        // Drops the table.
+        static void Drop(SQLite::Connection& connection);
+
         // Gets the table name.
         static std::string_view TableName();
 
