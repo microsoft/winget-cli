@@ -233,7 +233,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             uint32_t bufferSize = 1 << 20;
             Windows::Storage::Streams::Buffer buffer(bufferSize);
 
-            // Memory stream in mixed elevation does not support 'InputStreamOptions::ReadAhead'.
+            // Memory stream in mixed elevation does not support InputStreamOptions as flags.
             Windows::Storage::Streams::InputStreamOptions readOptions = Windows::Storage::Streams::InputStreamOptions::Partial;
             std::string inputString;
 

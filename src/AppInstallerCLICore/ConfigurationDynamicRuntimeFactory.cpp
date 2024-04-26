@@ -153,14 +153,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 highIntegritySet.Serialize(memoryStream);
 
                 Streams::DataReader reader(memoryStream.GetInputStreamAt(0));
-                reader.UnicodeEncoding(Streams::UnicodeEncoding::Utf8);
-
-                auto streamSize = (uint32_t)memoryStream.Size();
+                THROW_HR_IF(E_UNEXPECTED, memoryStream.Size() > std::numeric_limits<uint32_t>::max());
+                uint32_t streamSize = (uint32_t)memoryStream.Size();
                 std::vector<uint8_t> bytes;
                 bytes.resize(streamSize);
                 reader.LoadAsync(streamSize);
                 reader.ReadBytes(bytes);
-                reader.Close();
+                reader.DetachStream();
                 memoryStream.Close();
 
                 return { bytes.begin(), bytes.end() };

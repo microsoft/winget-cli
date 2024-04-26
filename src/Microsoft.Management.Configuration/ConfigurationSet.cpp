@@ -132,7 +132,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::vector<uint8_t> bytes(resultUtf8.begin(), resultUtf8.end());
 
         Windows::Storage::Streams::DataWriter dataWriter{ stream };
-        dataWriter.UnicodeEncoding(Windows::Storage::Streams::UnicodeEncoding::Utf8);
         dataWriter.WriteBytes(bytes);
         dataWriter.StoreAsync().get();
         dataWriter.DetachStream();
