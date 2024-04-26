@@ -333,3 +333,14 @@ Currently, this means that properly attributed configuration units (and only tho
        "configureSelfElevate": true
    },
 ```
+
+### storeDownload
+
+This feature enables packages to be downloaded from the Microsoft Store.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "storeDownload": true
+   },
+```

@@ -28,6 +28,7 @@ namespace AppInstaller::Settings
             Proxy = 0x8,
             SideBySide = 0x10,
             ConfigureSelfElevation = 0x20,
+            StoreDownload = 0x40,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command

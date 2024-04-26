@@ -367,7 +367,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions);CLICOREDLLBUILD;WINGET_DISABLE_FOR_FUZZING;_DISABLE_VECTOR_ANNOTATION;_DISABLE_STRING_ANNOTATION</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\PureLib\pure;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Public;$(ProjectDir)Telemetry;$(ProjectDir)..\AppInstallerSharedLib;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\binver;$(ProjectDir)..\YamlCppLib\libyaml\include;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\PureLib\pure;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -436,6 +436,9 @@
     <ClInclude Include="Public\winget\MsiExecArguments.h" />
     <ClInclude Include="Public\winget\MsixManifestValidation.h" />
     <ClInclude Include="Public\winget\MSStore.h" />
+    <ClInclude Include="Public\winget\MSStoreDownload.h">
+        <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Public\winget\NameNormalization.h" />
     <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\NetworkSettings.h" />
@@ -489,6 +492,9 @@
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="MSStore.cpp" />
+    <ClCompile Include="MSStoreDownload.cpp">
+        <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="NetworkSettings.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
@@ -497,7 +503,9 @@
     <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Reboot.cpp" />
     <ClCompile Include="Regex.cpp" />
-    <ClCompile Include="Rest.cpp" />
+    <ClCompile Include="Rest.cpp">
+        <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

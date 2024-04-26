@@ -99,6 +99,7 @@ desktopappinstaller
 devhome
 dic
 diskfull
+displaycatalog
 DISMAPI
 dnld
 Dobbeleer
@@ -107,6 +108,8 @@ dsc
 DUPLICATEALIAS
 dustojnikhummer
 dvinns
+EAppx
+eappxbundle
 ecfr
 ecfrbrowse
 ECustom
@@ -416,7 +419,7 @@ silentpreferred
 similarissues
 similaritytolerance
 Skipx
-Sku
+sku
 SMTO
 sortof
 SOURCESDIRECTORY
