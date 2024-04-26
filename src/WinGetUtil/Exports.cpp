@@ -28,6 +28,17 @@ namespace
     {
         return potentiallyNullPath ? std::filesystem::path{ potentiallyNullPath } : std::filesystem::path{};
     }
+
+    SQLiteIndex::Property GetSQLiteIndexProperty(WinGetSQLiteIndexProperty property)
+    {
+        switch (property)
+        {
+        case WinGetSQLiteIndexProperty_PackageUpdateTrackingBaseTime: return SQLiteIndex::Property::PackageUpdateTrackingBaseTime;
+        case WinGetSQLiteIndexProperty_IntermediateFileOutputPath: return SQLiteIndex::Property::IntermediateFileOutputPath;
+        }
+
+        THROW_HR(E_INVALIDARG);
+    }
 }
 
 extern "C"
@@ -114,6 +125,34 @@ extern "C"
     WINGET_UTIL_API WinGetSQLiteIndexClose(WINGET_SQLITE_INDEX_HANDLE index) try
     {
         std::unique_ptr<SQLiteIndex> toClose(reinterpret_cast<SQLiteIndex*>(index));
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetSQLiteIndexMigrate(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        UINT32 majorVersion,
+        UINT32 minorVersion) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !index);
+
+        return reinterpret_cast<SQLiteIndex*>(index)->MigrateTo({ majorVersion, minorVersion }) ? S_OK : HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+    }
+    CATCH_RETURN()
+
+
+    WINGET_UTIL_API WinGetSQLiteIndexSetProperty(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        WinGetSQLiteIndexProperty property,
+        WINGET_STRING value) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !index);
+        THROW_HR_IF(E_INVALIDARG, !value);
+
+        std::string valueUtf8 = ConvertToUTF8(value);
+
+        reinterpret_cast<SQLiteIndex*>(index)->SetProperty(GetSQLiteIndexProperty(property), valueUtf8);
 
         return S_OK;
     }

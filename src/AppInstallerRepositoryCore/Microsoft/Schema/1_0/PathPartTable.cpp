@@ -159,6 +159,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         savepoint.Commit();
     }
 
+    void PathPartTable::Drop(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder dropTableBuilder;
+        dropTableBuilder.DropTable(s_PathPartTable_Table_Name);
+
+        dropTableBuilder.Execute(connection);
+    }
+
     std::string_view PathPartTable::TableName()
     {
         return s_PathPartTable_Table_Name;
