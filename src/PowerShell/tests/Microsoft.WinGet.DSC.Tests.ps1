@@ -142,12 +142,12 @@ Describe 'WinGetUserSettings' {
 
 Describe 'WinGetSources' {
     BeforeAll {
-        # $testSourceName = 'TestSource'
+        $testSourceName = 'TestSource'
 
-        # $testSourceValue = @{
-        #     Type = 'Microsoft.PreIndexed.Package'
-        #     Arg = 'https://localhost:5001/TestKit/'
-        # }
+        $testSourceValue = @{
+            Type = 'Microsoft.PreIndexed.Package'
+            Arg = 'https://localhost:5001/TestKit/'
+        }
         
         # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Absent'; Sources = @{ $testSourceName = $testSourceValue }}
 
