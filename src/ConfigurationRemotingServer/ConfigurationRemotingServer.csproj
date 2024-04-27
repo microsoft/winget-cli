@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj" />
   </ItemGroup>
 
   <Target Name="PwshFiles" AfterTargets="AfterBuild">
