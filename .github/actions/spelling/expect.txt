@@ -108,8 +108,6 @@ dsc
 DUPLICATEALIAS
 dustojnikhummer
 dvinns
-EAppx
-eappxbundle
 ecfr
 ecfrbrowse
 ECustom

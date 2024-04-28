@@ -11,9 +11,6 @@
 #include <winget/GroupPolicy.h>
 #include <winget/ManifestYamlWriter.h>
 #include <winget/NetworkSettings.h>
-#include <winget/HttpClientHelper.h>
-#include <winget/Rest.h>
-
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -236,14 +233,15 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::MSStore:
                 if (installerDownloadOnly)
                 {
-                    context << MSStoreDownload;
-                    break;
+                    context <<
+                        MSStoreDownload <<
+                        ExportManifest;
                 }
                 else
                 {
                     // Nothing to do here
-                    return;
                 }
+                return;
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }

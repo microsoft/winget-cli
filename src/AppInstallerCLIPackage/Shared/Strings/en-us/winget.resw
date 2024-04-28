@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -2272,14 +2272,14 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY" xml:space="preserve">
     <value>Operation is blocked by Group Policy</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR" xml:space="preserve">
-    <value>Rest source internal error</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR" xml:space="preserve">
+    <value>Rest API internal error</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL" xml:space="preserve">
     <value>Invalid rest source url</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
-    <value>Unsupported MIME type returned by rest source</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
+    <value>Unsupported MIME type returned by rest API</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION" xml:space="preserve">
     <value>Invalid rest source contract version</value>
@@ -2299,8 +2299,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST" xml:space="preserve">
     <value>The search request is not supported by one or more sources</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND" xml:space="preserve">
-    <value>The rest source endpoint is not found.</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND" xml:space="preserve">
+    <value>The rest API endpoint is not found.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED" xml:space="preserve">
     <value>Failed to open the source.</value>
@@ -2883,10 +2883,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="SourceListTrustLevel" xml:space="preserve">
     <value>Trust Level</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_MSSTORE_NO_APPLICABLE_PACKAGE" xml:space="preserve">
-    <value>No applicable MSStore package found.</value>
+  <data name="APPINSTALLER_CLI_ERROR_MSSTORE_DOWNLOAD_NO_APPLICABLE_PACKAGE" xml:space="preserve">
+    <value>No applicable Microsoft Store package found for download.</value>
   </data>
   <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
-    <value>The MSStore package could not be found.</value>
+    <value>The Microsoft Store package could not be found for download.</value>
   </data>
 </root>

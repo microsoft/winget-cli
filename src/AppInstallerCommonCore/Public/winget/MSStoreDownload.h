@@ -16,7 +16,6 @@ namespace AppInstaller::MSStore
     {
         Unknown = -1,
         AppxBundle,
-        EAppxBundle,
         MsixBundle,
         Appx,
         Msix,

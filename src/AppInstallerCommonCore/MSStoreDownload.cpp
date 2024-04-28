@@ -48,12 +48,7 @@ namespace AppInstaller::MSStore
 
             bool IsApplicable(const MSStoreCatalogPackage& package) override
             {
-                if (package.PackageFormat == PackageFormatEnum::EAppxBundle)
-                {
-                    return false;
-                }
-
-                return true;
+                return package.PackageFormat != PackageFormatEnum::Unknown;
             }
 
             bool IsFirstBetter(const MSStoreCatalogPackage& first, const MSStoreCatalogPackage& second) override
@@ -321,10 +316,6 @@ namespace AppInstaller::MSStore
         {
             return PackageFormatEnum::AppxBundle;
         }
-        else if (packageFormat == "eappxbundle")
-        {
-            return PackageFormatEnum::EAppxBundle;
-        }
         else if (packageFormat == "msixbundle")
         {
             return PackageFormatEnum::MsixBundle;
@@ -484,7 +475,6 @@ namespace AppInstaller::MSStore
         std::string market = AppInstaller::Runtime::GetOSRegion();
 
         auto restEndpoint = AppInstaller::Utility::Format(std::string{ MSStoreCatalogRestApi }, productId, Details, market, languageValue);
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !AppInstaller::Rest::IsValidUri(JSON::GetUtilityString(restEndpoint)));
         return restEndpoint;
     }
 

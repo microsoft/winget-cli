@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "MSStoreInstallerHandler.h"
-#include <winget/HttpClientHelper.h>
 #include <winget/MSStore.h>
 #include <winget/MSStoreDownload.h>
 #include <winget/SelfManagement.h>
@@ -191,9 +190,12 @@ namespace AppInstaller::CLI::Workflow
 
     void MSStoreDownload(Execution::Context& context)
     {
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
         {
-            const auto& installer = context.Get<Execution::Data::Installer>().value();
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        }
+
+        const auto& installer = context.Get<Execution::Data::Installer>().value();
             std::string storeRestEndpoint = MSStore::GetMSStoreCatalogRestApi(installer.ProductId, installer.Locale);
 
             AppInstaller::Http::HttpClientHelper httpClientHelper;
@@ -231,16 +233,14 @@ namespace AppInstaller::CLI::Workflow
             if (!result)
             {
                 context.Reporter.Error() << Resource::String::MSStoreDownloadPackageNotFound << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_NO_APPLICABLE_PACKAGE);
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_DOWNLOAD_NO_APPLICABLE_PACKAGE);
             }
 
             auto preferredPackage = result.value();
 
             AICLI_LOG(Core, Info, << "WuCategoryId: " << preferredPackage.WuCategoryId);
             AICLI_LOG(Core, Info, << "ContentId: " << preferredPackage.ContentId);
-        }
 
-        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
 
     void EnsureStorePolicySatisfied(Execution::Context& context)
