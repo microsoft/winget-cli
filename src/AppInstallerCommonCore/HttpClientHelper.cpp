@@ -98,7 +98,7 @@ namespace AppInstaller::Http
         const HttpClientHelper::HttpRequestHeaders& authHeaders) const
     {
         web::http::http_response httpResponse;
-        HttpClientHelper::Post(uri, body, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
+        Post(uri, body, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
             {
                 httpResponse = response;
             }).wait();

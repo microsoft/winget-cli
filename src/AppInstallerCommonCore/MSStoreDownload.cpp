@@ -4,12 +4,17 @@
 #include <AppInstallerStrings.h>
 #include <AppInstallerErrors.h>
 #include <AppinstallerLogging.h>
+#include <AppInstallerSHA256.h>
 #include "AppInstallerRuntime.h"
 #include "winget/Locale.h"
+#include "winget/JsonUtil.h"
 #include "winget/MSStoreDownload.h"
 #include "winget/Rest.h"
 #include "winget/HttpClientHelper.h"
 #include "winget/UserSettings.h"
+#ifndef WINGET_DISABLE_FOR_FUZZING
+#include <sfsclient/SFSClient.h>
+#endif
 
 namespace AppInstaller::MSStore
 {
@@ -36,7 +41,7 @@ namespace AppInstaller::MSStore
         constexpr std::string_view WuCategoryId = "WuCategoryId"sv;
 
         // Display catalog rest endpoint
-        constexpr std::string_view MSStoreCatalogRestApi = R"(https://displaycatalog.mp.microsoft.com/v7.0/products/{0}?fieldsTemplate={1}&market={2}&languages={3})";
+        constexpr std::string_view DisplayCatalogRestApi = R"(https://displaycatalog.mp.microsoft.com/v7.0/products/{0}?fieldsTemplate={1}&market={2}&languages={3})";
         constexpr std::string_view Details = "Details"sv;
         constexpr std::string_view Neutral = "Neutral"sv;
 
@@ -380,7 +385,7 @@ namespace AppInstaller::MSStore
             // Neutral is always added
             locales.emplace_back(Neutral);
 
-            auto restEndpoint = AppInstaller::Utility::Format(std::string{ MSStoreCatalogRestApi },
+            auto restEndpoint = AppInstaller::Utility::Format(std::string{ DisplayCatalogRestApi },
                 productId, Details, AppInstaller::Runtime::GetOSRegion(), Utility::Join(Utility::LocIndView(","), locales));
 
             return JSON::GetUtilityString(restEndpoint);
@@ -510,6 +515,8 @@ namespace AppInstaller::MSStore
 
         DisplayCatalogPackage CallDisplayCatalogAndGetPreferredPackage(std::string_view productId, std::string_view locale, Utility::Architecture architecture)
         {
+            AICLI_LOG(Core, Info, << "CallDisplayCatalogAndGetPreferredPackage with ProductId: " << productId << " Locale: " << locale << " Architecture: " << Utility::ToString(architecture));
+
             auto displayCatalogApi = GetDisplayCatalogRestApi(productId, locale);
 
             AppInstaller::Http::HttpClientHelper httpClientHelper;
@@ -524,7 +531,7 @@ namespace AppInstaller::MSStore
             const auto& sku = GetSkuNodeFromDisplayCatalogResponse(displayCatalogResponseObject.value());
             auto displayCatalogPackages = GetDisplayCatalogPackagesFromSkuNode(sku.get());
 
-            DisplayCatalogPackageComparison::DisplayCatalogPackageComparator packageComparator(std::string{ locale }, architecture);
+            DisplayCatalogPackageComparison::DisplayCatalogPackageComparator packageComparator{ std::string{ locale }, architecture };
             auto preferredPackageResult = packageComparator.GetPreferredPackage(displayCatalogPackages);
 
             if (!preferredPackageResult)
@@ -546,6 +553,322 @@ namespace AppInstaller::MSStore
         }
     }
 
+#ifndef WINGET_DISABLE_FOR_FUZZING
+    namespace SfsClientDetails
+    {
+        const std::string SupportedPlatforms[] = { "Universal", "Desktop", "IoT", "Holographic", "Team" };
+        const std::string SupportedFileTypes[] = { ".msix", ".msixbundle", ".appx", ".appxbundle" };
 
+        Utility::Architecture ConvertFromSfsArchitecture(SFS::Architecture sfsArchitecture)
+        {
+            switch (sfsArchitecture)
+            {
+            case SFS::Architecture::Amd64:
+                return Utility::Architecture::X64;
+            case SFS::Architecture::x86:
+                return Utility::Architecture::X86;
+            case SFS::Architecture::Arm64:
+                return Utility::Architecture::Arm64;
+            case SFS::Architecture::Arm:
+                return Utility::Architecture::Arm;
+            case SFS::Architecture::None:
+                return Utility::Architecture::Neutral;
+            }
 
+            return Utility::Architecture::Unknown;
+        }
+
+        bool IsSfsPackageFilePlatformSupported(const SFS::AppFile& appFile)
+        {
+            for (auto const& supportedPlatform : SupportedPlatforms)
+            {
+                for (auto const& applicability : appFile.GetApplicabilityDetails().GetPlatformApplicabilityForPackage())
+                {
+                    if (Utility::CaseInsensitiveStartsWith(applicability, supportedPlatform))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        bool IsSfsPackageFileArchitectureSupported(const SFS::AppFile& appFile, Utility::Architecture architecture)
+        {
+            if (architecture == Utility::Architecture::Unknown)
+            {
+                // No required architecture
+                return true;
+            }
+
+            for (auto const& sfsArchitecture : appFile.GetApplicabilityDetails().GetArchitectures())
+            {
+                if (architecture == ConvertFromSfsArchitecture(sfsArchitecture))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // This also checks if the file type is supported. If not supported, the return is empty string.
+        std::string GetSfsPackageFileName(const SFS::AppFile& appFile)
+        {
+            std::string fileExtension = std::filesystem::path{ appFile.GetFileId() }.extension().u8string();
+
+            bool fileTypeSupported = false;
+            for (auto const& supportedFileType : SupportedFileTypes)
+            {
+                if (Utility::CaseInsensitiveEquals(supportedFileType, fileExtension))
+                {
+                    fileTypeSupported = true;
+                    break;
+                }
+            }
+
+            if (!fileTypeSupported)
+            {
+                return {};
+            }
+
+            return appFile.GetFileMoniker() + fileExtension;
+        }
+
+        void SfsClientLoggingCallback(const SFS::LogData& logData)
+        {
+            std::string message = "Message: " + std::string{ logData.message };
+            message += " File: " + std::string{ logData.file };
+            message += " Line: " + std::to_string(logData.line);
+            message += " Function: " + std::string{ logData.function };
+
+            switch (logData.severity)
+            {
+            case SFS::LogSeverity::Verbose:
+                AICLI_LOG(Core, Verbose, << message);
+                break;
+            case SFS::LogSeverity::Info:
+                AICLI_LOG(Core, Info, << message);
+                break;
+            case SFS::LogSeverity::Warning:
+                AICLI_LOG(Core, Warning, << message);
+                break;
+            case SFS::LogSeverity::Error:
+                AICLI_LOG(Core, Error, << message);
+                break;
+            }
+        }
+
+        const std::unique_ptr<SFS::SFSClient>& GetSfsClientInstance()
+        {
+            static std::unique_ptr<SFS::SFSClient> s_sfsClient;
+            static std::once_flag s_sfsClientInitializeOnce;
+
+            std::call_once(s_sfsClientInitializeOnce,
+                [&]()
+                {
+                    SFS::ClientConfig config;
+                    config.accountId = "storeapps";
+                    config.instanceId = "storeapps";
+                    config.logCallbackFn = SfsClientLoggingCallback;
+
+                    auto result = SFS::SFSClient::Make(config, s_sfsClient);
+                    if (!result)
+                    {
+                        AICLI_LOG(Core, Error, << "Failed to initialize SfsClient. Error code:" << result.GetCode() << " Message: " << result.GetMsg());
+                        THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to initialize SfsClient. ErrorCode: " + result.GetCode());
+                    }
+                });
+
+            return s_sfsClient;
+        }
+
+        void PopulateSfsAppFileToMSStoreDownloadFileVector(
+            const std::vector<SFS::AppFile>& appFiles,
+            std::vector<MSStoreDownloadFile>& downloadFiles,
+            std::set<std::string>& fileNames,
+            Utility::Architecture architecture = Utility::Architecture::Unknown)
+        {
+            for (auto const& appFile : appFiles)
+            {
+                if (!IsSfsPackageFilePlatformSupported(appFile))
+                {
+                    AICLI_LOG(Core, Info, << "Package skipped due to unsupported platforms. FileId:" << appFile.GetFileId());
+                    continue;
+                }
+                if (!IsSfsPackageFileArchitectureSupported(appFile, architecture))
+                {
+                    AICLI_LOG(Core, Info, << "Package skipped due to unsupported architecture. FileId:" << appFile.GetFileId());
+                    continue;
+                }
+                std::string fileName = GetSfsPackageFileName(appFile);
+                if (fileName.empty())
+                {
+                    AICLI_LOG(Core, Info, << "Package skipped due to unsupported file type. FileId:" << appFile.GetFileId());
+                    continue;
+                }
+                if (!fileNames.insert(Utility::ToLower(fileName)).second)
+                {
+                    AICLI_LOG(Core, Info, << "Package skipped due to duplicate entry. FileId:" << appFile.GetFileId());
+                    continue;
+                }
+
+                MSStoreDownloadFile downloadFile;
+                downloadFile.Url = appFile.GetUrl();
+                downloadFile.FileName = fileName;
+                downloadFile.Sha256 = Utility::SHA256::ConvertToBytes(appFile.GetHashes().at(SFS::HashType::Sha256));
+
+                downloadFiles.emplace_back(std::move(downloadFile));
+            }
+        }
+
+        MSStoreDownloadInfo CallSfsClientAndGetMSStoreDownloadInfo(std::string_view wuCategoryId, Utility::Architecture architecture)
+        {
+            AICLI_LOG(Core, Info, << "CallSfsClientAndGetMSStoreDownloadInfo with WuCategoryId: " << wuCategoryId << " Architecture: " << Utility::ToString(architecture));
+
+            SFS::RequestParams sfsClientRequest;
+            sfsClientRequest.productRequests = { {std::string{ wuCategoryId }, {}} };
+
+            std::vector<SFS::AppContent> appContents;
+            auto requestResult = GetSfsClientInstance()->GetLatestAppDownloadInfo(sfsClientRequest, appContents);
+            if (!requestResult)
+            {
+                AICLI_LOG(Core, Error, << "Failed to call SfsClient GetLatestAppDownloadInfo. Error code:" << requestResult.GetCode() << " Message: " << requestResult.GetMsg());
+                THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to call SfsClient GetLatestAppDownloadInfo. ErrorCode: " + requestResult.GetCode());
+            }
+
+            THROW_HR_IF(E_UNEXPECTED, appContents.empty());
+
+            MSStoreDownloadInfo result;
+            const auto& appContent = appContents.at(0);
+
+            // Populate main packages
+            std::set<std::string> mainPackageFileNames;
+            PopulateSfsAppFileToMSStoreDownloadFileVector(appContent.GetFiles(), result.MainPackages, mainPackageFileNames, architecture);
+
+            // Populate dependency packages
+            std::set<std::string> dependencyPackageFileNames;
+            for (auto const& dependencyEntry : appContent.GetPrerequisites())
+            {
+                PopulateSfsAppFileToMSStoreDownloadFileVector(dependencyEntry.GetFiles(), result.DependencyPackages, dependencyPackageFileNames);
+            }
+
+            if (result.MainPackages.empty())
+            {
+                AICLI_LOG(Core, Error, << "No applicable SFS main package.");
+                THROW_HR(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSClIENT_PACKAGE);
+            }
+
+            return result;
+        }
+    }
+#endif
+
+    namespace LicensingDetails
+    {
+        // Json response fields
+        constexpr std::string_view License = "license"sv;
+        constexpr std::string_view Keys = "keys"sv;
+        constexpr std::string_view Value = "value"sv;
+
+        // Licensing rest endpoint
+        constexpr std::string_view LicensingRestEndpoint = "https://licensing.md.mp.microsoft.com/v9.0/licenses/offlineContent";
+        constexpr std::string_view ContentId = "contentId"sv;
+        constexpr std::string_view From = "From"sv;
+
+        std::vector<BYTE> GetLicencing(std::string_view contentId, const Http::HttpClientHelper::HttpRequestHeaders& authHeaders)
+        {
+            AICLI_LOG(Core, Error, << "GetLicencing with ContentId: " << contentId);
+
+            AppInstaller::Http::HttpClientHelper httpClientHelper;
+
+            web::json::value requestBody;
+            requestBody[JSON::GetUtilityString(ContentId)] = web::json::value::string(JSON::GetUtilityString(contentId));
+            Http::HttpClientHelper::HttpRequestHeaders requestHeaders;
+            requestHeaders.insert_or_assign(JSON::GetUtilityString(From), L"winget-cli");
+
+            std::optional<web::json::value> licensingResponseObject = httpClientHelper.HandlePost(
+                JSON::GetUtilityString(LicensingRestEndpoint), requestBody, requestHeaders, authHeaders);
+
+            if (!licensingResponseObject || licensingResponseObject->is_null())
+            {
+                AICLI_LOG(Core, Error, << "Empty licensing response");
+                THROW_HR(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED);
+            }
+
+            std::optional<std::reference_wrapper<const web::json::value>> license = JSON::GetJsonValueFromNode(licensingResponseObject.value(), JSON::GetUtilityString(License));
+            if (!license)
+            {
+                AICLI_LOG(Core, Error, << "Missing license node");
+                THROW_HR(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED);
+            }
+
+            auto keys = JSON::GetRawJsonArrayFromJsonNode(license.value().get(), JSON::GetUtilityString(Keys));
+            if (!keys || keys->get().size() == 0)
+            {
+                AICLI_LOG(Core, Error, << "Missing keys or empty keys");
+                THROW_HR(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED);
+            }
+
+            std::string base64LicenseContent = JSON::GetRawStringValueFromJsonNode(keys->get().at(0), JSON::GetUtilityString(Value)).value_or("");
+            if (base64LicenseContent.empty())
+            {
+                AICLI_LOG(Core, Error, << "Missing license content");
+                THROW_HR(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED);
+            }
+
+            return JSON::Base64Decode(base64LicenseContent);
+        }
+    }
+
+    namespace
+    {
+        Http::HttpClientHelper::HttpRequestHeaders GetAuthHeaders(std::unique_ptr<Authentication::Authenticator>& authenticator)
+        {
+            Http::HttpClientHelper::HttpRequestHeaders result;
+
+            auto authResult = authenticator->AuthenticateForToken();
+            if (FAILED(authResult.Status))
+            {
+                AICLI_LOG(Repo, Error, << "Authentication failed. Result: " << authResult.Status);
+                THROW_HR_MSG(authResult.Status, "Failed to authenticate for MicrosoftEntraId");
+            }
+            result.insert_or_assign(web::http::header_names::authorization, JSON::GetUtilityString(Authentication::CreateBearerToken(authResult.Token)));
+
+            return result;
+        }
+    }
+
+    MSStoreDownloadContext::MSStoreDownloadContext(
+        std::string productId,
+        AppInstaller::Utility::Architecture architecture,
+        std::string locale,
+        AppInstaller::Authentication::AuthenticationArguments authArgs) :
+        m_productId(std::move(productId)), m_architecture(architecture), m_locale(std::move(locale))
+    {
+        Authentication::MicrosoftEntraIdAuthenticationInfo licensingMicrosoftEntraIdAuthInfo;
+        licensingMicrosoftEntraIdAuthInfo.Resource = "c5e1cb0d-5d24-4b1a-b291-ec684152b2ba";
+        Authentication::AuthenticationInfo licensingAuthInfo;
+        licensingAuthInfo.Type = Authentication::AuthenticationType::MicrosoftEntraId;
+        licensingAuthInfo.MicrosoftEntraIdInfo = std::move(licensingMicrosoftEntraIdAuthInfo);
+
+        // Not moving authArgs because we'll have auth for display catalog and sfs client in the near future.
+        m_licensingAuthenticator = std::make_unique<Authentication::Authenticator>(std::move(licensingAuthInfo), authArgs);
+    }
+
+    MSStoreDownloadInfo MSStoreDownloadContext::GetDwonloadInfo()
+    {
+        auto displayCatalogPackage = DisplayCatalogDetails::CallDisplayCatalogAndGetPreferredPackage(m_productId, m_locale, m_architecture);
+        auto downloadInfo = SfsClientDetails::CallSfsClientAndGetMSStoreDownloadInfo(displayCatalogPackage.WuCategoryId, m_architecture);
+        m_contentId = displayCatalogPackage.ContentId;
+        return downloadInfo;
+    }
+
+    std::vector<BYTE> MSStoreDownloadContext::GetLicense()
+    {
+        THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_contentId.empty(), "GetDownloadInfo() must be called before GetLicense()");
+
+        return LicensingDetails::GetLicencing(m_contentId, GetAuthHeaders(m_licensingAuthenticator));
+    }
 }

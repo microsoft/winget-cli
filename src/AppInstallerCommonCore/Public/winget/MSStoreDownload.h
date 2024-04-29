@@ -27,7 +27,7 @@ namespace AppInstaller::MSStore
 
     struct MSStoreDownloadContext
     {
-        MSStoreDownloadContext(std::string productId, AppInstaller::Utility::Architecture architecture, std::string locale, AppInstaller::Authentication::AuthenticationArguments authArgs) {};
+        MSStoreDownloadContext(std::string productId, AppInstaller::Utility::Architecture architecture, std::string locale, AppInstaller::Authentication::AuthenticationArguments authArgs);
 
         // Calls display catalog API and sfs-client to get download info.
         MSStoreDownloadInfo GetDwonloadInfo();
@@ -38,9 +38,9 @@ namespace AppInstaller::MSStore
 
     private:
         std::string m_productId;
-        std::vector<AppInstaller::Utility::Architecture> m_architectures;
-        std::vector<std::string> m_locales;
-        //AppInstaller::Authentication::Authenticator m_licensingAuthenticator;
+        AppInstaller::Utility::Architecture m_architecture = AppInstaller::Utility::Architecture::Unknown;
+        std::string m_locale;
+        std::unique_ptr<AppInstaller::Authentication::Authenticator> m_licensingAuthenticator;
         std::string m_contentId;
     };
 }

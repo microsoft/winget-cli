@@ -3,9 +3,18 @@
 #include "pch.h"
 #include "MSStoreInstallerHandler.h"
 #include "WorkflowBase.h"
+#include <AppInstallerSHA256.h>
+#include <AppInstallerDownloader.h>
+#include <AppInstallerRuntime.h>
+#include <winget/Filesystem.h>
 #include <winget/MSStore.h>
 #include <winget/MSStoreDownload.h>
 #include <winget/SelfManagement.h>
+
+namespace AppInstaller::CLI::Workflow
+{
+    void DownloadInstallerFile(Execution::Context& context);
+}
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -65,9 +74,69 @@ namespace AppInstaller::CLI::Workflow
             THROW_IF_FAILED(hr);
         }
 
-        HRESULT DownloadMSStorePackageFile()
+        HRESULT DownloadMSStorePackageFile(const MSStoreDownloadFile& downloadFile, const std::filesystem::path& downloadDirectory, Execution::Context& context)
         {
-            
+            try
+            {
+                // Create a new Context to execute the package download
+                auto subContextPtr = context.CreateSubContext();
+                Execution::Context& subContext = *subContextPtr;
+                auto previousThreadGlobals = subContext.SetForCurrentThread();
+
+                Manifest::ManifestInstaller installer;
+                installer.Url = downloadFile.Url;
+                installer.Sha256 = downloadFile.Sha256;
+                subContext.Add<Execution::Data::Installer>(std::move(installer));
+
+                auto tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
+                tempInstallerPath /= Utility::SHA256::ConvertToString(downloadFile.Sha256);
+                AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
+                subContext.Add<Execution::Data::InstallerPath>(tempInstallerPath);
+
+                subContext << Workflow::DownloadInstallerFile;
+                if (subContext.IsTerminated())
+                {
+                    RETURN_HR(subContext.GetTerminationHR());
+                }
+
+                previousThreadGlobals.reset();
+
+                // Verify hash
+                const auto& hashPair = context.Get<Execution::Data::HashPair>();
+                if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
+                {
+                    AICLI_LOG(CLI, Info, << "Microsoft Store package hash verified");
+                    context.Reporter.Info() << Resource::String::MSStoreDownloadPackageHashVerified << std::endl;
+                    // Trust direct doownload from Store if hash matched
+                    Utility::ApplyMotwIfApplicable(tempInstallerPath, URLZONE_TRUSTED);
+                }
+                else
+                {
+                    if (!context.Args.Contains(Execution::Args::Type::HashOverride))
+                    {
+                        AICLI_LOG(CLI, Error, << "Microsoft Store package hash mismatch");
+                        context.Reporter.Error() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
+                        RETURN_HR(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
+                    }
+                    else
+                    {
+                        AICLI_LOG(CLI, Warning, << "Microsoft Store package hash mismatch");
+                        context.Reporter.Warn() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
+                    }
+                }
+
+                auto renamedDownloadedPackage = downloadDirectory / Utility::ConvertToUTF16(downloadFile.FileName);
+                Filesystem::RenameFile(tempInstallerPath, renamedDownloadedPackage);
+                context.Reporter.Info() << Resource::String::MSStoreDownloadPackageDownloaded(Utility::LocIndView{ renamedDownloadedPackage.u8string() }) << std::endl;
+
+                return S_OK;
+            }
+            catch (...)
+            {
+                AICLI_LOG(CLI, Error, << "Microsoft Store package download failed. File: " << downloadFile.FileName);
+                context.Reporter.Error() << Resource::String::MSStoreDownloadPackageDownloadFailed(Utility::LocIndView{ downloadFile.FileName }) << std::endl;
+                RETURN_HR(APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED);
+            }
         }
     }
 
@@ -222,18 +291,21 @@ namespace AppInstaller::CLI::Workflow
         MSStoreDownloadInfo downloadInfo;
         try
         {
-            // YAO: info reporting
-            downloadInfo = downloadContext.GetDwonloadInfo();
+            context.Reporter.Info() << Resource::String::MSStoreDownloadGetDownloadInfo << std::endl;
 
-            if (downloadInfo.MainPackages.empty())
-            {
-                context.Reporter.Error() << Resource::String::MSStoreDownloadPackageNotFound << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE);
-            }
+            downloadInfo = downloadContext.GetDwonloadInfo();
         }
         catch (const wil::ResultException& re)
         {
-            // YAO: error reporting
+            switch (re.GetErrorCode())
+            {
+            case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE:
+            case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSClIENT_PACKAGE:
+                context.Reporter.Error() << Resource::String::MSStoreDownloadPackageNotFound << std::endl;
+                break;
+            default:
+                context.Reporter.Error() << Resource::String::MSStoreDownloadGetDownloadInfoFailed << std::endl;
+            }
             AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
         }
 
@@ -255,32 +327,43 @@ namespace AppInstaller::CLI::Workflow
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_CANNOT_MAKE), !std::filesystem::is_directory(directoryToCreate));
         }
 
+        // Download dependency packages
         if (!skipDependencies)
         {
-            // YAO: info reporting
+            AICLI_LOG(CLI, Info, << "Downloading MSStore dependency packages");
+            context.Reporter.Info() << Resource::String::MSStoreDownloadDependencyPackages << std::endl;
+
             for (auto const& dependencyPackage : downloadInfo.DependencyPackages)
             {
-                HRESULT hr = DownloadMSStorePackageFile();
+                HRESULT hr = DownloadMSStorePackageFile(dependencyPackage, dependenciesDirectory, context);
                 if (FAILED(hr))
                 {
-
+                    AICLI_TERMINATE_CONTEXT(hr);
                 }
             }
         }
 
-        for (auto const& dependencyPackage : downloadInfo.MainPackages)
+        // Download main packages
+        for (auto const& mainPackage : downloadInfo.MainPackages)
         {
-            // YAO: info reporting
-            HRESULT hr = DownloadMSStorePackageFile();
+            AICLI_LOG(CLI, Info, << "Downloading MSStore main packages");
+            context.Reporter.Info() << Resource::String::MSStoreDownloadMainPackages << std::endl;
+
+            HRESULT hr = DownloadMSStorePackageFile(mainPackage, downloadDirectory, context);
             if (FAILED(hr))
             {
-
+                AICLI_TERMINATE_CONTEXT(hr);
             }
         }
 
+        context.Reporter.Info() << Resource::String::MSStoreDownloadPackageDownloadSuccess << std::endl;
+
+        // Get license
         if (!context.Args.Contains(Execution::Args::Type::SkipMicrosoftStorePackageLicense))
         {
-            // YAO: info reporting
+            AICLI_LOG(CLI, Info, << "Getting MSStore package license");
+            context.Reporter.Info() << Resource::String::MSStoreDownloadGetLicense << std::endl;
+
             std::vector<BYTE> licenseContent;
             try
             {
@@ -288,42 +371,20 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (const wil::ResultException& re)
             {
-                // YAO: error reporting
+                AICLI_LOG(CLI, Error, << "Getting MSStore package license failed");
+                context.Reporter.Error() << Resource::String::MSStoreDownloadGetLicenseFailed << std::endl;
                 AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
             }
 
-            THROW_HR_IF(E_UNEXPECTED, licenseContent.empty());
             std::filesystem::path licenseFilePath = downloadDirectory / Utility::ConvertToUTF16(installer.ProductId + "_License.xml");
             std::ofstream licenseFile(licenseFilePath, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
             licenseFile.write((const char *)&licenseContent[0], licenseContent.size());
             licenseFile.flush();
             licenseFile.close();
 
-            // YAO: info reporting success
+            AICLI_LOG(CLI, Error, << "Getting MSStore package license success");
+            context.Reporter.Error() << Resource::String::MSStoreDownloadGetLicenseSuccess(Utility::LocIndView{ licenseFilePath.u8string() }) << std::endl;
         }
-
-        std::string storeRestEndpoint = MSStore::GetMSStoreCatalogRestApi(installer.ProductId, installer.Locale);
-
-            AppInstaller::Http::HttpClientHelper httpClientHelper;
-            std::optional<web::json::value> jsonObject = httpClientHelper.HandleGet(JSON::GetUtilityString(storeRestEndpoint));
-
-            if (!jsonObject)
-            {
-                AICLI_LOG(Core, Error, << "No json object found");
-            }
-
-            const auto& packages = MSStore::DeserializeMSStoreCatalogPackages(jsonObject.value());
-
-            DisplayCatalogPackageComparator packageComparator(requiredLocale, allowedArchitectures);
-            auto result = packageComparator.GetPreferredPackage(packages);
-
-            
-
-            auto preferredPackage = result.value();
-
-            AICLI_LOG(Core, Info, << "WuCategoryId: " << preferredPackage.WuCategoryId);
-            AICLI_LOG(Core, Info, << "ContentId: " << preferredPackage.ContentId);
-
     }
 
     void EnsureStorePolicySatisfied(Execution::Context& context)

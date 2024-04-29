@@ -322,6 +322,18 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MsixArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreAppBlocked);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadDependencyPackages);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadGetDownloadInfo);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadGetDownloadInfoFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadGetLicense);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadGetLicenseFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadGetLicenseSuccess);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadMainPackages);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageDownloaded);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageDownloadFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageDownloadSuccess);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageHashMismatch);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageHashVerified);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallTryGetEntitlement);

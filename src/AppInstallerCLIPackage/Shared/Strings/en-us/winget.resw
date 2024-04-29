@@ -2889,4 +2889,43 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
     <value>The Microsoft Store package could not be found.</value>
   </data>
+  <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
+    <value>Successfully verified Microsoft Store package hash</value>
+  </data>
+  <data name="MSStoreDownloadPackageHashMismatch" xml:space="preserve">
+    <value>Microsoft Store package hash mismatch</value>
+  </data>
+  <data name="MSStoreDownloadPackageDownloaded" xml:space="preserve">
+    <value>Microsoft Store package downloaded: {0}</value>
+    <comment>{Locked="{0}"} Full path of the downloaded package.</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadFailed" xml:space="preserve">
+    <value>Microsoft Store package download failed: {0}</value>
+    <comment>{Locked="{0}"} Package name.</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadSuccess" xml:space="preserve">
+    <value>Microsoft Store package download completed</value>
+  </data>
+  <data name="MSStoreDownloadMainPackages" xml:space="preserve">
+    <value>Downloading main packages...</value>
+  </data>
+  <data name="MSStoreDownloadDependencyPackages" xml:space="preserve">
+    <value>Downloading dependency packages...</value>
+  </data>
+  <data name="MSStoreDownloadGetDownloadInfo" xml:space="preserve">
+    <value>Retrieving Microsoft Store package download information</value>
+  </data>
+  <data name="MSStoreDownloadGetDownloadInfoFailed" xml:space="preserve">
+    <value>Failed to retrieve Microsoft Store package download information</value>
+  </data>
+  <data name="MSStoreDownloadGetLicense" xml:space="preserve">
+    <value>Retrieving Microsoft Store package license</value>
+  </data>
+  <data name="MSStoreDownloadGetLicenseSuccess" xml:space="preserve">
+    <value>Microsoft Store package license saved: {0}</value>
+    <comment>{Locked="{0}"} License file full path.</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseFailed" xml:space="preserve">
+    <value>Failed to retrieve Microsoft Store package license</value>
+  </data>
 </root>
