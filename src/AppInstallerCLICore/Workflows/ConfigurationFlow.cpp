@@ -1017,7 +1017,21 @@ namespace AppInstaller::CLI::Workflow
                 std::wstring resourceNameWide = Utility::ConvertToUTF16(resourceName);
 
                 ConfigurationUnit unit;
-                unit.Type(moduleNameWide + L"/" + resourceNameWide);
+                unit.Type(resourceNameWide);
+
+                ValueSet directives;
+                directives.Insert(s_Directive_Module, PropertyValue::CreateString(moduleNameWide));
+
+                if (dependantUnit.has_value())
+                {
+                    directives.Insert(s_Directive_Description, PropertyValue::CreateString(L"Configure " + dependantUnit.value().Identifier()));
+                }
+                else
+                {
+                    directives.Insert(s_Directive_Description, PropertyValue::CreateString(L"Configure " + resourceNameWide));
+                }
+
+                unit.Metadata(directives);
 
                 // Call processor to get settings for the unit.
                 auto getResult = GetUnitSettings(context, unit);
@@ -1028,8 +1042,8 @@ namespace AppInstaller::CLI::Workflow
                     bool isPreRelease = false;
                     if (resultCode == WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY)
                     {
-                        ValueSet directives;
                         directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+                        unit.Metadata(directives);
 
                         auto preReleaseResult = GetUnitSettings(context, unit);
 
@@ -1057,15 +1071,6 @@ namespace AppInstaller::CLI::Workflow
 
                 // GetUnitSettings will set it to Inform.
                 unit.Intent(ConfigurationUnitIntent::Apply);
-
-                // If the retry happened the allowPrerelease directive should be there.
-                ValueSet directives = unit.Metadata();
-                if (dependantUnit.has_value())
-                {
-                    // If no, no description or quoi?
-                    directives.Insert(s_Directive_Description, PropertyValue::CreateString(L"Configure " + dependantUnit.value().Identifier()));
-                    unit.Metadata(directives);
-                }
 
                 // Add dependency.
                 if (dependantUnit.has_value())
@@ -1125,8 +1130,6 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            std::ofstream file{ argPath };
-
             // TODO: support other schema versions or pick up latest.
             ConfigurationSet set;
             set.SchemaVersion(L"0.2");
@@ -1624,13 +1627,25 @@ namespace AppInstaller::CLI::Workflow
     void WriteConfigFile(Execution::Context& context)
     {
         std::string argPath{ context.Args.GetArg(Args::Type::OutputFile) };
-        std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
-        auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });
 
-        auto openAction = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::ReadWrite);
+        auto tempFilePath = Runtime::GetNewTempFilePath();
 
-        // TODO: add comments.
+        {
+            std::ofstream tempStream{ tempFilePath };
+            tempStream << "# Created using winget configure export " << Runtime::GetClientVersion().get() << std::endl;
+        }
+
+        auto openAction = Streams::FileRandomAccessStream::OpenAsync(
+            tempFilePath.wstring(),
+            FileAccessMode::ReadWrite);
+
+        auto stream = openAction.get();
+        stream.Seek(stream.Size());
+
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
         configContext.Set().Serialize(openAction.get());
+
+        auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPath });
+        std::filesystem::copy_file(tempFilePath, absolutePath, std::filesystem::copy_options::overwrite_existing);
     }
 }

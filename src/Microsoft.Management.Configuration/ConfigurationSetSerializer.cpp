@@ -131,7 +131,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             // Resource
             emitter << BeginMap;
-            emitter << Key << GetConfigurationFieldName(ConfigurationField::Resource) << Value << AppInstaller::Utility::ConvertToUTF8(unit.Type());
+            emitter << Key << GetConfigurationFieldName(ConfigurationField::Resource) << Value << AppInstaller::Utility::ConvertToUTF8(GetResourceName(unit));
 
             // Id
             if (!unit.Identifier().empty())
@@ -154,9 +154,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
 
             // Directives
-            const auto& metadata = unit.Metadata();
-            emitter << Key << GetConfigurationFieldName(ConfigurationField::Directives);
-            WriteYamlValueSet(emitter, metadata);
+            WriteResourceDirectives(emitter, unit);
 
             // Settings
             const auto& settings = unit.Settings();
@@ -167,5 +165,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         emitter << EndSeq;
+    }
+
+    winrt::hstring ConfigurationSetSerializer::GetResourceName(const ConfigurationUnit& unit)
+    {
+        return unit.Type();
+    }
+
+    void ConfigurationSetSerializer::WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit)
+    {
+        const auto& metadata = unit.Metadata();
+        emitter << Key << GetConfigurationFieldName(ConfigurationField::Directives);
+        WriteYamlValueSet(emitter, metadata);
+    }
+
+    winrt::hstring ConfigurationSetSerializer::GetSchemaVersionComment(winrt::hstring version)
+    {
+        return winrt::to_hstring(L"# yaml-language-server: $schema=https://aka.ms/configuration-dsc-schema/") + version;
     }
 }
