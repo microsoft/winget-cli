@@ -4,361 +4,410 @@
 #include <AppInstallerStrings.h>
 #include <AppInstallerErrors.h>
 #include <AppinstallerLogging.h>
-#include <AppInstallerRuntime.h>
-#include <winget/Locale.h>
-#include <winget/MSStoreDownload.h>
-#include <winget/Rest.h>
-#include <winget/UserSettings.h>
+#include "AppInstallerRuntime.h"
+#include "winget/Locale.h"
+#include "winget/MSStoreDownload.h"
+#include "winget/Rest.h"
+#include "winget/HttpClientHelper.h"
+#include "winget/UserSettings.h"
 
 namespace AppInstaller::MSStore
 {
     using namespace std::string_view_literals;
 
-    namespace
+    namespace DisplayCatalogDetails
     {
-        constexpr std::string_view Architectures = "Architectures"sv;
-        constexpr std::string_view ContentId = "ContentId"sv;
-        constexpr std::string_view Neutral = "Neutral"sv;
-        constexpr std::string_view DefaultSkuIdValue = "0010"sv;
-        constexpr std::string_view Details = "Details"sv;
+        // Default preferred sku to use
+        constexpr std::string_view TargetSkuIdValue = "0010"sv;
+
+        // Json response fields
+        constexpr std::string_view Product = "Product"sv;
         constexpr std::string_view DisplaySkuAvailabilities = "DisplaySkuAvailabilities"sv;
-        constexpr std::string_view FulfillmentData = "FulfillmentData"sv;
+        constexpr std::string_view Sku = "Sku"sv;
+        constexpr std::string_view SkuId = "SkuId"sv;
+        constexpr std::string_view Properties = "Properties"sv;
+        constexpr std::string_view Packages = "Packages"sv;
         constexpr std::string_view Languages = "Languages"sv;
         constexpr std::string_view PackageFormat = "PackageFormat"sv;
         constexpr std::string_view PackageId = "PackageId"sv;
-        constexpr std::string_view Packages = "Packages"sv;
-        constexpr std::string_view PreferredSkuId = "PreferredSkuId"sv;
-        constexpr std::string_view Product = "Product"sv;
-        constexpr std::string_view Properties = "Properties"sv;
-        constexpr std::string_view Sku = "Sku"sv;
-        constexpr std::string_view SkuId = "SkuId"sv;
+        constexpr std::string_view Architectures = "Architectures"sv;
+        constexpr std::string_view ContentId = "ContentId"sv;
+        constexpr std::string_view FulfillmentData = "FulfillmentData"sv;
         constexpr std::string_view WuCategoryId = "WuCategoryId"sv;
-        constexpr std::string_view MSStoreCatalogRestApi = R"(https://displaycatalog.mp.microsoft.com/v7.0/products/{0}?fieldsTemplate={1}&market={2}&languages={3})";
 
-        bool IsPackageFormatBundle(PackageFormatEnum packageFormatEnum)
+        // Display catalog rest endpoint
+        constexpr std::string_view MSStoreCatalogRestApi = R"(https://displaycatalog.mp.microsoft.com/v7.0/products/{0}?fieldsTemplate={1}&market={2}&languages={3})";
+        constexpr std::string_view Details = "Details"sv;
+        constexpr std::string_view Neutral = "Neutral"sv;
+
+
+        enum class DisplayCatalogPackageFormatEnum
         {
-            return
-                packageFormatEnum == PackageFormatEnum::AppxBundle ||
-                packageFormatEnum == PackageFormatEnum::MsixBundle;
+            Unknown,
+            AppxBundle,
+            MsixBundle,
+            Appx,
+            Msix,
+        };
+
+        DisplayCatalogPackageFormatEnum ConvertToPackageFormatEnum(std::string_view packageFormatStr)
+        {
+            std::string packageFormat = Utility::ToLower(packageFormatStr);
+            if (packageFormat == "appxbundle")
+            {
+                return DisplayCatalogPackageFormatEnum::AppxBundle;
+            }
+            else if (packageFormat == "msixbundle")
+            {
+                return DisplayCatalogPackageFormatEnum::MsixBundle;
+            }
+            else if (packageFormat == "appx")
+            {
+                return DisplayCatalogPackageFormatEnum::Appx;
+            }
+            else if (packageFormat == "msix")
+            {
+                return DisplayCatalogPackageFormatEnum::Msix;
+            }
+
+            AICLI_LOG(Core, Info, << "ConvertToPackageFormatEnum: Unknown package format: " << packageFormatStr);
+            return DisplayCatalogPackageFormatEnum::Unknown;
         }
 
-        struct PackageFormatComparator : public details::MSStoreCatalogPackageComparisonField
+        struct DisplayCatalogPackage
         {
-            PackageFormatComparator() : details::MSStoreCatalogPackageComparisonField("Package Format") {}
+            std::string PackageId;
 
-            bool IsApplicable(const MSStoreCatalogPackage& package) override
-            {
-                return package.PackageFormat != PackageFormatEnum::Unknown;
-            }
+            std::vector<AppInstaller::Utility::Architecture> Architectures;
 
-            bool IsFirstBetter(const MSStoreCatalogPackage& first, const MSStoreCatalogPackage& second) override
-            {
-                return IsPackageFormatBundle(first.PackageFormat) && !IsPackageFormatBundle(second.PackageFormat);
-            }
+            std::vector<std::string> Languages;
+
+            DisplayCatalogPackageFormatEnum PackageFormat = DisplayCatalogPackageFormatEnum::Unknown;
+
+            // To be used later in sfs-client
+            std::string WuCategoryId;
+
+            // To be used later in licensing
+            std::string ContentId;
         };
 
-        struct LanguageComparator : public details::MSStoreCatalogPackageComparisonField
+        // Display catalog package comparison logic
+
+        namespace DisplayCatalogPackageComparison
         {
-            LanguageComparator(std::vector<std::string> preference, std::vector<std::string> requirement) :
-                details::MSStoreCatalogPackageComparisonField("Language"), m_preference(std::move(preference)), m_requirement(std::move(requirement))
+            struct DiaplayCatalogPackageComparisonField
             {
-                AICLI_LOG(Core, Verbose,
-                    << "Language Comparator created with Required Languages: " << Utility::ConvertContainerToString(m_requirement)
-                    << " , Preferred Languages: " << Utility::ConvertContainerToString(m_preference));
-            }
+                DiaplayCatalogPackageComparisonField(std::string_view name) : m_name(name) {}
 
-            static std::unique_ptr<LanguageComparator> Create(const std::vector<std::string>& requiredLanguages)
+                virtual ~DiaplayCatalogPackageComparisonField() = default;
+
+                std::string_view Name() const { return m_name; }
+
+                virtual bool IsApplicable(const DisplayCatalogPackage& package) = 0;
+
+                virtual bool IsFirstBetter(const DisplayCatalogPackage& first, const DisplayCatalogPackage& second) = 0;
+
+            private:
+                std::string_view m_name;
+            };
+
+            struct PackageFormatComparator : public DiaplayCatalogPackageComparisonField
             {
-                std::vector<std::string> requirement = requiredLanguages;
-                if (requirement.empty())
+                PackageFormatComparator() : DiaplayCatalogPackageComparisonField("Package Format") {}
+
+                bool IsApplicable(const DisplayCatalogPackage& package) override
                 {
-                    requirement = Settings::User().Get<Settings::Setting::InstallLocaleRequirement>();
+                    return package.PackageFormat != DisplayCatalogPackageFormatEnum::Unknown;
                 }
 
-                std::vector<std::string> preference = Settings::User().Get<Settings::Setting::InstallLocalePreference>();
-                if (preference.empty())
+                bool IsFirstBetter(const DisplayCatalogPackage& first, const DisplayCatalogPackage& second) override
                 {
-                    preference = AppInstaller::Locale::GetUserPreferredLanguages();
+                    return IsPackageFormatBundle(first) && !IsPackageFormatBundle(second);
                 }
 
-                if (!preference.empty() || !requirement.empty())
+            private:
+                bool IsPackageFormatBundle(const DisplayCatalogPackage& package)
                 {
-                    return std::make_unique<LanguageComparator>(preference, requirement);
+                    return
+                        package.PackageFormat == DisplayCatalogPackageFormatEnum::AppxBundle ||
+                        package.PackageFormat == DisplayCatalogPackageFormatEnum::MsixBundle;
                 }
-                else
-                {
-                    return {};
-                }
-            }
+            };
 
-            bool IsApplicable(const MSStoreCatalogPackage& package) override
+            struct LocaleComparator : public DiaplayCatalogPackageComparisonField
             {
-                if (!m_requirement.empty())
+                LocaleComparator(std::string locale) : DiaplayCatalogPackageComparisonField("Locale")
                 {
-                    for (auto const& requiredLanguage : m_requirement)
+                    if (!locale.empty())
                     {
-                        double distanceScore = GetBestDistanceScoreFromList(requiredLanguage, package.Languages);
-                        if (distanceScore >= Locale::MinimumDistanceScoreAsPerfectMatch)
+                        m_locales.emplace_back(std::move(locale));
+                        m_isRequirement = true;
+                    }
+                    else
+                    {
+                        m_locales = Locale::GetUserPreferredLanguages();
+                    }
+
+                    AICLI_LOG(Core, Verbose,
+                        << "Locale Comparator created with locales: " << Utility::ConvertContainerToString(m_locales)
+                        << " , Is requirement: " << m_isRequirement);
+                }
+
+                bool IsApplicable(const DisplayCatalogPackage& package) override
+                {
+                    if (m_isRequirement)
+                    {
+                        for (auto const& locale : m_locales)
                         {
-                            return true;
+                            double distanceScore = GetBestDistanceScoreFromList(locale, package.Languages);
+                            if (distanceScore >= Locale::MinimumDistanceScoreAsCompatibleMatch)
+                            {
+                                return true;
+                            }
                         }
+
+                        return false;
                     }
-
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-
-            bool IsFirstBetter(const MSStoreCatalogPackage& first, const MSStoreCatalogPackage& second)
-            {
-                if (m_preference.empty())
-                {
-                    return false;
-                }
-
-                for (auto const& preferredLanguage : m_preference)
-                {
-                    double firstScore = GetBestDistanceScoreFromList(preferredLanguage, first.Languages);
-                    double secondScore = GetBestDistanceScoreFromList(preferredLanguage, second.Languages);
-
-                    if (firstScore >= Locale::MinimumDistanceScoreAsCompatibleMatch || secondScore >= Locale::MinimumDistanceScoreAsCompatibleMatch)
-                    {
-                        return firstScore > secondScore;
-                    }
-                }
-
-                return false;
-            }
-
-        private:
-            double GetBestDistanceScoreFromList(std::string_view targetLanguage, const std::vector<std::string>& languages)
-            {
-                double finalScore{};
-                for (auto const& language : languages)
-                {
-                    double currentScore = Locale::GetDistanceOfLanguage(targetLanguage, language);
-                    if (currentScore > finalScore)
-                    {
-                        finalScore = currentScore;
-                    }
-                }
-
-                return finalScore;
-            }
-
-            std::vector<std::string> m_preference;
-            std::vector<std::string> m_requirement;
-        };
-
-        struct ArchitectureComparator : public details::MSStoreCatalogPackageComparisonField
-        {
-            ArchitectureComparator(std::vector<Utility::Architecture> requirement, std::vector<Utility::Architecture> preference) :
-                details::MSStoreCatalogPackageComparisonField("Architecture"), m_requirement(std::move(requirement)), m_preference(std::move(preference))
-            {
-                AICLI_LOG(Core, Verbose,
-                    << "Architecture Comparator created with required archs: " << Utility::ConvertContainerToString(m_requirement, Utility::ToString)
-                    << " , Preferred archs: " << Utility::ConvertContainerToString(m_preference, Utility::ToString));
-            }
-
-            static std::unique_ptr<ArchitectureComparator> Create(const std::vector<Utility::Architecture>& allowedArchitectures)
-            {
-                std::vector<Utility::Architecture> requiredArchitectures = allowedArchitectures;
-
-                if (requiredArchitectures.empty())
-                {
-                    requiredArchitectures = Settings::User().Get<Settings::Setting::InstallArchitectureRequirement>();
-                }
-
-                std::vector<Utility::Architecture> optionalArchitectures = Settings::User().Get<Settings::Setting::InstallArchitecturePreference>();
-
-                if (!requiredArchitectures.empty() || !optionalArchitectures.empty())
-                {
-                    return std::make_unique<ArchitectureComparator>(std::move(requiredArchitectures), std::move(optionalArchitectures));
-                }
-                else
-                {
-                    return {};
-                }
-            }
-
-            bool IsApplicable(const MSStoreCatalogPackage& package) override
-            {
-                if (!m_requirement.empty())
-                {
-                    return ContainCommonArchitectures(m_requirement, package.Architectures);
-                }
-
-                return true;
-            }
-
-            bool IsFirstBetter(const MSStoreCatalogPackage& first, const MSStoreCatalogPackage& second) override
-            {
-                if (!m_preference.empty())
-                {
-                    return (ContainCommonArchitectures(first.Architectures, m_preference) && !ContainCommonArchitectures(second.Architectures, m_preference));
-                }
-
-                return false;
-            }
-
-        private:
-            // Checks if two lists of architectures have common elements.
-            bool ContainCommonArchitectures(const std::vector<Utility::Architecture>& firstList, const std::vector<Utility::Architecture>& secondList)
-            {
-                for (auto arch : firstList)
-                {
-                    if (IsArchitectureInList(arch, secondList))
+                    else
                     {
                         return true;
                     }
                 }
 
-                return false;
-            }
+                bool IsFirstBetter(const DisplayCatalogPackage& first, const DisplayCatalogPackage& second)
+                {
+                    for (auto const& locale : m_locales)
+                    {
+                        double firstScore = GetBestDistanceScoreFromList(locale, first.Languages);
+                        double secondScore = GetBestDistanceScoreFromList(locale, second.Languages);
 
-            bool IsArchitectureInList(Utility::Architecture arch, const std::vector<Utility::Architecture>& architectureList)
+                        if (firstScore >= Locale::MinimumDistanceScoreAsCompatibleMatch || secondScore >= Locale::MinimumDistanceScoreAsCompatibleMatch)
+                        {
+                            return firstScore > secondScore;
+                        }
+                    }
+
+                    return false;
+                }
+
+            private:
+                double GetBestDistanceScoreFromList(std::string_view targetLocale, const std::vector<std::string>& locales)
+                {
+                    double finalScore = 0;
+                    for (auto const& locale : locales)
+                    {
+                        double currentScore = Locale::GetDistanceOfLanguage(targetLocale, locale);
+                        if (currentScore > finalScore)
+                        {
+                            finalScore = currentScore;
+                        }
+                    }
+
+                    return finalScore;
+                }
+
+                std::vector<std::string> m_locales;
+                bool m_isRequirement = false;
+            };
+
+            struct ArchitectureComparator : public DiaplayCatalogPackageComparisonField
             {
-                return architectureList.end() != std::find_if(
-                    architectureList.begin(),
-                    architectureList.end(),
-                    [&](const auto& a) { return a == arch; });
-            }
+                ArchitectureComparator(Utility::Architecture architecture) : DiaplayCatalogPackageComparisonField("Architecture")
+                {
+                    if (architecture != Utility::Architecture::Unknown)
+                    {
+                        m_architectures.emplace_back(architecture);
+                        m_isRequirement = true;
+                    }
+                    else
+                    {
+                        m_architectures = Utility::GetApplicableArchitectures();
+                    }
 
-            std::vector<Utility::Architecture> m_requirement;
-            std::vector<Utility::Architecture> m_preference;
-        };
-    }
+                    AICLI_LOG(Core, Verbose,
+                        << "Architecture Comparator created with archs: " << Utility::ConvertContainerToString(m_architectures, Utility::ToString)
+                        << " , Is requirement: " << m_isRequirement);
+                }
 
-    DisplayCatalogPackageComparator::DisplayCatalogPackageComparator(const std::vector<std::string>& requiredLanguages, const std::vector<Utility::Architecture>& requiredArchs)
-    {
-        // Order of comparators matters.
-        AddComparator(LanguageComparator::Create(requiredLanguages));
-        AddComparator(ArchitectureComparator::Create(requiredArchs));
-        AddComparator(std::make_unique<PackageFormatComparator>());
-    }
+                bool IsApplicable(const DisplayCatalogPackage& package) override
+                {
+                    if (m_isRequirement)
+                    {
+                        for (auto arch : package.Architectures)
+                        {
+                            if (Utility::IsApplicableArchitecture(arch, m_architectures) > Utility::InapplicableArchitecture)
+                            {
+                                return true;
+                            }
+                        }
 
-    void DisplayCatalogPackageComparator::AddComparator(std::unique_ptr<details::MSStoreCatalogPackageComparisonField>&& comparator)
-    {
-        if (comparator)
-        {
-            m_comparators.emplace_back(std::move(comparator));
-        }
-    }
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
 
-    std::optional<MSStoreCatalogPackage> DisplayCatalogPackageComparator::GetPreferredPackage(const std::vector<MSStoreCatalogPackage>& packages)
-    {
-        AICLI_LOG(Core, Verbose, << "Starting MSStore package selection.");
+                bool IsFirstBetter(const DisplayCatalogPackage& first, const DisplayCatalogPackage& second) override
+                {
+                    for (auto arch : m_architectures)
+                    {
+                        auto firstItr = std::find(first.Architectures.begin(), first.Architectures.end(), arch);
+                        auto secondItr = std::find(second.Architectures.begin(), second.Architectures.end(), arch);
 
-        const MSStoreCatalogPackage* result = nullptr;
-        for (const auto& package : packages)
-        {
-            if (IsApplicable(package) && (!result || IsFirstBetter(package, *result)))
+                        if (firstItr != first.Architectures.end() && secondItr == second.Architectures.end())
+                        {
+                            true;
+                        }
+                        else if (secondItr != second.Architectures.end())
+                        {
+                            return false;
+                        }
+                    }
+
+                    return false;
+                }
+
+            private:
+                std::vector<Utility::Architecture> m_architectures;
+                bool m_isRequirement = false;
+            };
+
+            struct DisplayCatalogPackageComparator
             {
-                result = &package;
-            }
+                DisplayCatalogPackageComparator(std::string requiredLocale, Utility::Architecture requiredArch)
+                {
+                    // Order of comparators matters.
+                    AddComparator(std::make_unique<LocaleComparator>(requiredLocale));
+                    AddComparator(std::make_unique<ArchitectureComparator>(requiredArch));
+                    AddComparator(std::make_unique<PackageFormatComparator>());
+                }
+
+                // Gets the best installer from the manifest, if at least one is applicable.
+                std::optional<DisplayCatalogPackage> GetPreferredPackage(const std::vector<DisplayCatalogPackage>& packages)
+                {
+                    AICLI_LOG(Core, Verbose, << "Starting display catalog package selection.");
+
+                    const DisplayCatalogPackage* result = nullptr;
+                    for (const auto& package : packages)
+                    {
+                        if (IsApplicable(package) && (!result || IsFirstBetter(package, *result)))
+                        {
+                            result = &package;
+                        }
+                    }
+
+                    if (result)
+                    {
+                        return *result;
+                    }
+                    else
+                    {
+                        return {};
+                    }
+                }
+
+                // Determines if the package is applicable.
+                bool IsApplicable(const DisplayCatalogPackage& package)
+                {
+                    for (const auto& comparator : m_comparators)
+                    {
+                        if (!comparator->IsApplicable(package))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                // Determines if the first package is a better choice.
+                bool IsFirstBetter(const DisplayCatalogPackage& first, const DisplayCatalogPackage& second)
+                {
+                    for (const auto& comparator : m_comparators)
+                    {
+                        bool forwardCompare = comparator->IsFirstBetter(first, second);
+                        bool reverseCompare = comparator->IsFirstBetter(second, first);
+
+                        if (forwardCompare && reverseCompare)
+                        {
+                            AICLI_LOG(Core, Error, << "Packages are both better than each other?");
+                            THROW_HR(E_UNEXPECTED);
+                        }
+
+                        if (forwardCompare && !reverseCompare)
+                        {
+                            AICLI_LOG(Core, Verbose, << "Package " << first.PackageId << " is better than " << second.PackageId);
+                            return true;
+                        }
+                    }
+
+                    AICLI_LOG(Core, Verbose, << "Package " << first.PackageId << " is equivalent in priority to " << second.PackageId);
+                    return false;
+                }
+
+            private:
+                void AddComparator(std::unique_ptr<DiaplayCatalogPackageComparisonField>&& comparator)
+                {
+                    if (comparator)
+                    {
+                        m_comparators.emplace_back(std::move(comparator));
+                    }
+                }
+
+                std::vector<std::unique_ptr<DiaplayCatalogPackageComparisonField>> m_comparators;
+            };
         }
 
-        if (result)
-        {
-            return *result;
-        }
-        else
-        {
-            return {};
-        }
-    }
+        // Display catalog API invocation and handling
 
-    bool DisplayCatalogPackageComparator::IsFirstBetter(const MSStoreCatalogPackage& first, const MSStoreCatalogPackage& second)
-    {
-        for (const auto& comparator : m_comparators)
+        utility::string_t GetDisplayCatalogRestApi(std::string_view productId, std::string_view locale)
         {
-            bool forwardCompare = comparator->IsFirstBetter(first, second);
-            bool reverseCompare = comparator->IsFirstBetter(second, first);
-
-            if (forwardCompare && reverseCompare)
+            std::vector<Utility::LocIndString> locales;
+            if (!locale.empty())
             {
-                AICLI_LOG(Core, Error, << "Packages are both better than each other?");
-                THROW_HR(E_UNEXPECTED);
+                locales.emplace_back(locale);
             }
-
-            if (forwardCompare && !reverseCompare)
+            else
             {
-                AICLI_LOG(Core, Verbose, << "Package " << first.PackageId << " is better than " << second.PackageId);
-                return true;
+                for (auto const& localeEntry : Locale::GetUserPreferredLanguages())
+                {
+                    locales.emplace_back(localeEntry);
+                }
             }
+
+            // Neutral is always added
+            locales.emplace_back(Neutral);
+
+            auto restEndpoint = AppInstaller::Utility::Format(std::string{ MSStoreCatalogRestApi },
+                productId, Details, AppInstaller::Runtime::GetOSRegion(), Utility::Join(Utility::LocIndView(","), locales));
+
+            return JSON::GetUtilityString(restEndpoint);
         }
 
-        AICLI_LOG(Core, Verbose, << "Package " << first.PackageId << " is equivalent in priority to " << second.PackageId);
-        return false;
-    }
-
-    bool DisplayCatalogPackageComparator::IsApplicable(const MSStoreCatalogPackage& package)
-    {
-        for (const auto& comparator : m_comparators)
+        std::reference_wrapper<const web::json::value> GetSkuNodeFromDisplayCatalogResponse(const web::json::value& responseObject)
         {
-            bool result = comparator->IsApplicable(package);
-            if (!result)
+            AICLI_LOG(Core, Info, << "Started parsing diaplay catalog response. Try to find target sku: " << TargetSkuIdValue);
+
+            if (responseObject.is_null())
             {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    PackageFormatEnum ConvertToPackageFormatEnum(std::string_view packageFormatStr)
-    {
-        std::string packageFormat = Utility::ToLower(packageFormatStr);
-        if (packageFormat == "appxbundle")
-        {
-            return PackageFormatEnum::AppxBundle;
-        }
-        else if (packageFormat == "msixbundle")
-        {
-            return PackageFormatEnum::MsixBundle;
-        }
-        else if (packageFormat == "appx")
-        {
-            return PackageFormatEnum::Appx;
-        }
-        else if (packageFormat == "msix")
-        {
-            return PackageFormatEnum::Msix;
-        }
-
-        AICLI_LOG(Core, Info, << "ConvertToPackageFormatEnum: Unknown package format: " << packageFormatStr);
-        return PackageFormatEnum::Unknown;
-    }
-
-    std::vector<MSStoreCatalogPackage> DeserializeMSStoreCatalogPackages(const web::json::value& jsonObject)
-    {
-        try
-        {
-            if (jsonObject.is_null())
-            {
-                AICLI_LOG(Core, Error, << "Missing json object.");
-                return {};
+                AICLI_LOG(Core, Error, << "Missing DisplayCatalog Response json object.");
+                THROW_HR(APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED);
             }
 
-            std::optional<std::reference_wrapper<const web::json::value>> product = JSON::GetJsonValueFromNode(jsonObject, JSON::GetUtilityString(Product));
+            std::optional<std::reference_wrapper<const web::json::value>> product = JSON::GetJsonValueFromNode(responseObject, JSON::GetUtilityString(Product));
             if (!product)
             {
-                AICLI_LOG(Core, Error, << "Missing Product");
-                return {};
+                AICLI_LOG(Core, Error, << "Missing Product node");
+                THROW_HR(APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED);
             }
 
-            const auto& productValue = product.value().get();
-
-            std::optional<std::reference_wrapper<const web::json::value>> defaultSku;
-
-            auto skuEntries = JSON::GetRawJsonArrayFromJsonNode(productValue, JSON::GetUtilityString(DisplaySkuAvailabilities));
+            auto skuEntries = JSON::GetRawJsonArrayFromJsonNode(product.value().get(), JSON::GetUtilityString(DisplaySkuAvailabilities));
             if (!skuEntries)
             {
                 AICLI_LOG(Core, Error, << "Missing DisplaySkuAvailabilities");
-                return {};
+                THROW_HR(APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED);
             }
 
             for (const auto& skuEntry : skuEntries.value().get())
@@ -367,30 +416,31 @@ namespace AppInstaller::MSStore
                 if (!sku)
                 {
                     AICLI_LOG(Core, Error, << "Missing Sku");
-                    return {};
+                    THROW_HR(APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED);
                 }
 
                 const auto& skuValue = sku.value().get();
-                std::optional<std::string> skuId = JSON::GetRawStringValueFromJsonNode(skuValue, JSON::GetUtilityString(SkuId));
-                if (JSON::IsValidNonEmptyStringValue(skuId) && Utility::CaseInsensitiveEquals(skuId.value(), DefaultSkuIdValue))
+                auto skuId = JSON::GetRawStringValueFromJsonNode(skuValue, JSON::GetUtilityString(SkuId)).value_or("");
+                if (TargetSkuIdValue == skuId)
                 {
-                    defaultSku = sku;
-                    break;
+                    AICLI_LOG(Core, Info, << "Target Sku (" << TargetSkuIdValue << ") found");
+                    return skuValue;
                 }
             }
 
-            if (!defaultSku)
-            {
-                AICLI_LOG(Core, Error, << "Default Sku (" << DefaultSkuIdValue << ") not found");
-                return {};
-            }
+            AICLI_LOG(Core, Error, << "Target Sku (" << TargetSkuIdValue << ") not found");
+            THROW_HR(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE);
+        }
 
-            const auto& defaultSkuValue = defaultSku.value().get();
-            std::optional<std::reference_wrapper<const web::json::value>> properties = JSON::GetJsonValueFromNode(defaultSkuValue, JSON::GetUtilityString(Properties));
+        std::vector<DisplayCatalogPackage> GetDisplayCatalogPackagesFromSkuNode(const web::json::value& jsonObject)
+        {
+            AICLI_LOG(Core, Info, << "Started extracing diaplay catalog packages from sku.");
+
+            std::optional<std::reference_wrapper<const web::json::value>> properties = JSON::GetJsonValueFromNode(jsonObject, JSON::GetUtilityString(Properties));
             if (!properties)
             {
                 AICLI_LOG(Core, Error, << "Missing Properties");
-                return {};
+                THROW_HR(APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED);
             }
 
             const auto& propertiesValue = properties.value().get();
@@ -398,84 +448,104 @@ namespace AppInstaller::MSStore
             if (!packages)
             {
                 AICLI_LOG(Core, Error, << "Missing Packages");
-                return {};
+                THROW_HR(APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED);
             }
 
-            std::vector<MSStoreCatalogPackage> displayCatalogPackages;
+            std::vector<DisplayCatalogPackage> displayCatalogPackages;
 
             for (const auto& packageEntry : packages.value().get())
             {
-                MSStoreCatalogPackage catalogPackage;
+                DisplayCatalogPackage catalogPackage;
 
                 // Package Id
-                std::optional<std::string> packageId = JSON::GetRawStringValueFromJsonNode(packageEntry, JSON::GetUtilityString(PackageId));
-                if (packageId)
-                {
-                    catalogPackage.PackageId = packageId.value();
-                }
-
+                catalogPackage.PackageId = JSON::GetRawStringValueFromJsonNode(packageEntry, JSON::GetUtilityString(PackageId)).value_or("");
                 // Architectures
                 auto architectures = JSON::GetRawStringArrayFromJsonNode(packageEntry, JSON::GetUtilityString(Architectures));
                 for (const auto& arch : architectures)
                 {
-                    catalogPackage.Architectures.emplace_back(Utility::ConvertToArchitectureEnum(arch));
+                    auto archEnum = Utility::ConvertToArchitectureEnum(arch);
+                    if (archEnum != Utility::Architecture::Unknown)
+                    {
+                        catalogPackage.Architectures.emplace_back(archEnum);
+                    }
                 }
-
                 // Languages
                 auto languages = JSON::GetRawStringArrayFromJsonNode(packageEntry, JSON::GetUtilityString(Languages));
                 for (const auto& language : languages)
                 {
                     catalogPackage.Languages.emplace_back(language);
                 }
-
                 // Package Format
-                std::optional<std::string> packageFormat = JSON::GetRawStringValueFromJsonNode(packageEntry, JSON::GetUtilityString(PackageFormat));
-                if (packageFormat)
-                {
-                    catalogPackage.PackageFormat = ConvertToPackageFormatEnum(packageFormat.value());
-                }
-
+                auto packageFormat = JSON::GetRawStringValueFromJsonNode(packageEntry, JSON::GetUtilityString(PackageFormat)).value_or("");
+                catalogPackage.PackageFormat = ConvertToPackageFormatEnum(packageFormat);
                 // Content Id
-                std::optional<std::string> contentId = JSON::GetRawStringValueFromJsonNode(packageEntry, JSON::GetUtilityString(ContentId));
-                if (contentId)
+                catalogPackage.ContentId = JSON::GetRawStringValueFromJsonNode(packageEntry, JSON::GetUtilityString(ContentId)).value_or("");
+                if (catalogPackage.ContentId.empty())
                 {
-                    catalogPackage.ContentId = contentId.value();
+                    AICLI_LOG(Core, Warning, << "Missing ContentId");
+                    // ContentId is required for licensing. Skip this package if missing.
+                    continue;
                 }
-
                 // WuCategoryId
                 std::optional<std::reference_wrapper<const web::json::value>> fulfillmentData = JSON::GetJsonValueFromNode(propertiesValue, JSON::GetUtilityString(FulfillmentData));
-                if (fulfillmentData)
+                if (!fulfillmentData)
                 {
-                    const auto& fulfillmentDataValue = fulfillmentData.value().get();
-                    std::optional<std::string> wuCategoryId = JSON::GetRawStringValueFromJsonNode(fulfillmentDataValue, JSON::GetUtilityString(WuCategoryId));
-                    if (JSON::IsValidNonEmptyStringValue(wuCategoryId))
-                    {
-                        catalogPackage.WuCategoryId = wuCategoryId.value();
-                    }
+                    AICLI_LOG(Core, Warning, << "Missing FulfillmentData");
+                    // WuCategoryId is required for sfs-client. Skip this package if missing.
+                    continue;
+                }
+                catalogPackage.WuCategoryId = JSON::GetRawStringValueFromJsonNode(fulfillmentData.value().get(), JSON::GetUtilityString(WuCategoryId)).value_or("");
+                if (catalogPackage.WuCategoryId.empty())
+                {
+                    AICLI_LOG(Core, Warning, << "Missing WuCategoryId");
+                    // WuCategoryId is required for sfs-client. Skip this package if missing.
+                    continue;
                 }
 
-                displayCatalogPackages.emplace_back(catalogPackage);
+                displayCatalogPackages.emplace_back(std::move(catalogPackage));
             }
 
             return displayCatalogPackages;
         }
-        catch (const std::exception& e)
+
+        DisplayCatalogPackage CallDisplayCatalogAndGetPreferredPackage(std::string_view productId, std::string_view locale, Utility::Architecture architecture)
         {
-            AICLI_LOG(Core, Error, << "Error encountered while deserializing MSStore request. Reason: " << e.what());
-        }
-        catch (...)
-        {
-            AICLI_LOG(Core, Error, << "Received invalid information.");
+            auto displayCatalogApi = GetDisplayCatalogRestApi(productId, locale);
+
+            AppInstaller::Http::HttpClientHelper httpClientHelper;
+            std::optional<web::json::value> displayCatalogResponseObject = httpClientHelper.HandleGet(displayCatalogApi);
+
+            if (!displayCatalogResponseObject)
+            {
+                AICLI_LOG(Core, Error, << "No display catalog json object found");
+                THROW_HR(APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED);
+            }
+
+            const auto& sku = GetSkuNodeFromDisplayCatalogResponse(displayCatalogResponseObject.value());
+            auto displayCatalogPackages = GetDisplayCatalogPackagesFromSkuNode(sku.get());
+
+            DisplayCatalogPackageComparison::DisplayCatalogPackageComparator packageComparator(std::string{ locale }, architecture);
+            auto preferredPackageResult = packageComparator.GetPreferredPackage(displayCatalogPackages);
+
+            if (!preferredPackageResult)
+            {
+                AICLI_LOG(Core, Error,
+                    << "No applicable display catalog package found for ProductId: " << productId
+                    << " , Locale: " << locale << " , Architecture: " << Utility::ToString(architecture));
+
+                THROW_HR(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE);
+            }
+
+            auto preferredPackage = preferredPackageResult.value();
+
+            AICLI_LOG(Core, Info,
+                << "DisplayCatalog package selected. WuCategoryId: " << preferredPackage.WuCategoryId
+                << " , ContentId: " << preferredPackage.ContentId);
+
+            return preferredPackage;
         }
     }
 
-    std::string GetMSStoreCatalogRestApi(const std::string& productId, const std::string& locale)
-    {
-        std::string languageValue = !locale.empty() ? locale : std::string{ Neutral };
-        std::string market = AppInstaller::Runtime::GetOSRegion();
 
-        auto restEndpoint = AppInstaller::Utility::Format(std::string{ MSStoreCatalogRestApi }, productId, Details, market, languageValue);
-        return restEndpoint;
-    }
 
 }

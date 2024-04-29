@@ -202,6 +202,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // YAO: Info for --rename not working formsstore download
+        // YAO: Info for authentication
 
         const auto& installer = context.Get<Execution::Data::Installer>().value();
 
@@ -227,7 +228,7 @@ namespace AppInstaller::CLI::Workflow
             if (downloadInfo.MainPackages.empty())
             {
                 context.Reporter.Error() << Resource::String::MSStoreDownloadPackageNotFound << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_DOWNLOAD_NO_APPLICABLE_PACKAGE);
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE);
             }
         }
         catch (const wil::ResultException& re)
@@ -280,9 +281,10 @@ namespace AppInstaller::CLI::Workflow
         if (!context.Args.Contains(Execution::Args::Type::SkipMicrosoftStorePackageLicense))
         {
             // YAO: info reporting
+            std::vector<BYTE> licenseContent;
             try
             {
-
+                licenseContent = downloadContext.GetLicense();
             }
             catch (const wil::ResultException& re)
             {
@@ -290,7 +292,14 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
             }
 
-            std::ofstream licenseFile(downloadDirectory / Utility::ConvertToUTF16(installer.ProductId + "_License.xml"), std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+            THROW_HR_IF(E_UNEXPECTED, licenseContent.empty());
+            std::filesystem::path licenseFilePath = downloadDirectory / Utility::ConvertToUTF16(installer.ProductId + "_License.xml");
+            std::ofstream licenseFile(licenseFilePath, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+            licenseFile.write((const char *)&licenseContent[0], licenseContent.size());
+            licenseFile.flush();
+            licenseFile.close();
+
+            // YAO: info reporting success
         }
 
         std::string storeRestEndpoint = MSStore::GetMSStoreCatalogRestApi(installer.ProductId, installer.Locale);
