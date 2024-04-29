@@ -2945,6 +2945,6 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
-    <value>Microsoft Store package download requires Microsoft Entra Id authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with the Microsoft services for access authorization. For Microsoft Store package licensing, the Microsoft Entra Id account needs to have administrator access to the Microsoft Entra Id tenant.</value>
+    <value>Microsoft Store package download requires Microsoft Entra Id authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with Microsoft services for access authorization. For Microsoft Store package licensing, the Microsoft Entra Id account needs to have administrator access to the Microsoft Entra Id tenant.</value>
   </data>
 </root>

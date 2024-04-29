@@ -300,6 +300,8 @@ namespace AppInstaller::CLI::Workflow
         }
         catch (const wil::ResultException& re)
         {
+            AICLI_LOG(CLI, Error, << "Getting MSStore package download info failed. Error code: " << re.GetErrorCode());
+
             switch (re.GetErrorCode())
             {
             case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE:
@@ -309,7 +311,8 @@ namespace AppInstaller::CLI::Workflow
             default:
                 context.Reporter.Error() << Resource::String::MSStoreDownloadGetDownloadInfoFailed << std::endl;
             }
-            AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
+
+            throw;
         }
 
         bool skipDependencies = context.Args.Contains(Execution::Args::Type::SkipDependencies);
@@ -338,11 +341,7 @@ namespace AppInstaller::CLI::Workflow
 
             for (auto const& dependencyPackage : downloadInfo.DependencyPackages)
             {
-                HRESULT hr = DownloadMSStorePackageFile(dependencyPackage, dependenciesDirectory, context);
-                if (FAILED(hr))
-                {
-                    AICLI_TERMINATE_CONTEXT(hr);
-                }
+                THROW_IF_FAILED(DownloadMSStorePackageFile(dependencyPackage, dependenciesDirectory, context));
             }
         }
 
@@ -352,11 +351,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Downloading MSStore main packages");
             context.Reporter.Info() << Resource::String::MSStoreDownloadMainPackages << std::endl;
 
-            HRESULT hr = DownloadMSStorePackageFile(mainPackage, downloadDirectory, context);
-            if (FAILED(hr))
-            {
-                AICLI_TERMINATE_CONTEXT(hr);
-            }
+            THROW_IF_FAILED(DownloadMSStorePackageFile(mainPackage, downloadDirectory, context));
         }
 
         context.Reporter.Info() << Resource::String::MSStoreDownloadPackageDownloadSuccess << std::endl;
@@ -374,9 +369,9 @@ namespace AppInstaller::CLI::Workflow
             }
             catch (const wil::ResultException& re)
             {
-                AICLI_LOG(CLI, Error, << "Getting MSStore package license failed");
+                AICLI_LOG(CLI, Error, << "Getting MSStore package license failed. Error code: " << re.GetErrorCode());
                 context.Reporter.Error() << Resource::String::MSStoreDownloadGetLicenseFailed << std::endl;
-                AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
+                throw;
             }
 
             std::filesystem::path licenseFilePath = downloadDirectory / Utility::ConvertToUTF16(installer.ProductId + "_License.xml");
