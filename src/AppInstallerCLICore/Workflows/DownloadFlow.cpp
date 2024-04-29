@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DownloadFlow.h"
+#include "MSStoreInstallerHandler.h"
 #include <winget/Filesystem.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerRuntime.h>
@@ -10,6 +11,9 @@
 #include <winget/GroupPolicy.h>
 #include <winget/ManifestYamlWriter.h>
 #include <winget/NetworkSettings.h>
+#include <winget/HttpClientHelper.h>
+#include <winget/Rest.h>
+
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -232,7 +236,8 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::MSStore:
                 if (installerDownloadOnly)
                 {
-                    THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                    context << MSStoreDownload;
+                    break;
                 }
                 else
                 {

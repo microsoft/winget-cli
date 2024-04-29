@@ -153,18 +153,16 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 highIntegritySet.Serialize(memoryStream);
 
                 Streams::DataReader reader(memoryStream.GetInputStreamAt(0));
-                reader.UnicodeEncoding(Streams::UnicodeEncoding::Utf8);
-                reader.LoadAsync((uint32_t)memoryStream.Size());
+                THROW_HR_IF(E_UNEXPECTED, memoryStream.Size() > std::numeric_limits<uint32_t>::max());
+                uint32_t streamSize = (uint32_t)memoryStream.Size();
+                std::vector<uint8_t> bytes;
+                bytes.resize(streamSize);
+                reader.LoadAsync(streamSize);
+                reader.ReadBytes(bytes);
+                reader.DetachStream();
+                memoryStream.Close();
 
-                winrt::hstring result;
-                uint32_t bytesToRead = reader.UnconsumedBufferLength();
-
-                if (bytesToRead > 0)
-                {
-                    result = reader.ReadString(bytesToRead);
-                }
-
-                return winrt::to_string(result);
+                return { bytes.begin(), bytes.end() };
             }
 
             ProcessorMap::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)

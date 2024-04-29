@@ -32,6 +32,12 @@
 #include <string_view>
 #include <vector>
 
+#pragma warning( push )
+#pragma warning ( disable : 26495 26439 )
+#include <cpprest/http_client.h>
+#include <cpprest/json.h>
+#pragma warning( pop )
+
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>

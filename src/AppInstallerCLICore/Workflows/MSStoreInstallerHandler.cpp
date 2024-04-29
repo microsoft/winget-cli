@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "MSStoreInstallerHandler.h"
+#include <winget/HttpClientHelper.h>
 #include <winget/MSStore.h>
+#include <winget/MSStoreDownload.h>
 #include <winget/SelfManagement.h>
 
 namespace AppInstaller::CLI::Workflow
@@ -185,6 +187,60 @@ namespace AppInstaller::CLI::Workflow
 
             AICLI_TERMINATE_CONTEXT(hr);
         }
+    }
+
+    void MSStoreDownload(Execution::Context& context)
+    {
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
+        {
+            const auto& installer = context.Get<Execution::Data::Installer>().value();
+            std::string storeRestEndpoint = MSStore::GetMSStoreCatalogRestApi(installer.ProductId, installer.Locale);
+
+            AppInstaller::Http::HttpClientHelper httpClientHelper;
+            std::optional<web::json::value> jsonObject = httpClientHelper.HandleGet(JSON::GetUtilityString(storeRestEndpoint));
+
+            if (!jsonObject)
+            {
+                AICLI_LOG(Core, Error, << "No json object found");
+            }
+
+            const auto& packages = MSStore::DeserializeMSStoreCatalogPackages(jsonObject.value());
+
+            // Language
+            std::vector<std::string> requiredLocale;
+            if (context.Args.Contains(Execution::Args::Type::Locale))
+            {
+                requiredLocale.emplace_back(context.Args.GetArg(Execution::Args::Type::Locale));
+            }
+
+            // Architectures
+            std::vector<Utility::Architecture> allowedArchitectures;
+            if (context.Contains(Execution::Data::AllowedArchitectures))
+            {
+                // Com caller can directly set allowed architectures
+                allowedArchitectures = context.Get<Execution::Data::AllowedArchitectures>();
+            }
+            else if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
+            {
+                allowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallArchitecture)));
+            }
+
+            DisplayCatalogPackageComparator packageComparator(requiredLocale, allowedArchitectures);
+            auto result = packageComparator.GetPreferredPackage(packages);
+
+            if (!result)
+            {
+                context.Reporter.Error() << Resource::String::MSStoreDownloadPackageNotFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_NO_APPLICABLE_PACKAGE);
+            }
+
+            auto preferredPackage = result.value();
+
+            AICLI_LOG(Core, Info, << "WuCategoryId: " << preferredPackage.WuCategoryId);
+            AICLI_LOG(Core, Info, << "ContentId: " << preferredPackage.ContentId);
+        }
+
+        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
 
     void EnsureStorePolicySatisfied(Execution::Context& context)

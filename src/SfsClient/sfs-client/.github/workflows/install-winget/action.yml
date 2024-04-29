@@ -1,0 +1,56 @@
+name: Install WinGet
+
+description: Installs WinGet from sources, caching the installation files if possible
+
+inputs:
+  winget-installation-cache:
+    description: 'Where the installation files will be cached'
+    required: false
+    default: 'winget-installation-cache'
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Cache WinGet installation
+      id: cache-winget-installation
+      uses: actions/cache@v4
+      with:
+        path: winget-installation-cache
+        key: winget-installation
+
+    # Winget is not available in the windows-latest image as it is Windows Server 2022 and winget is not yet available officially for it.
+    # We can still install it in "experimental" mode manually though.
+    - name: Install WinGet
+      shell: pwsh
+      run: |
+        # Check it doesn't exist to avoid installing it without need
+        if (!(Get-Command 'winget.exe' -CommandType Application -ErrorAction SilentlyContinue))
+        {
+          New-Item -ItemType Directory ${{ inputs.winget-installation-cache }} -Force | Out-Null
+          Set-Location ${{ inputs.winget-installation-cache }}
+          $ProgressPreference = "silentlyContinue"
+          $WingetInstaller = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+          if (!(Test-Path $WingetInstaller))
+          {
+            Write-Host "Downloading Winget"
+            Invoke-WebRequest -Uri https://github.com/microsoft/winget-cli/releases/download/v1.7.10582/$WingetInstaller -OutFile $WingetInstaller
+          }
+          $VCLibsInstaller = "Microsoft.VCLibs.x64.14.00.Desktop.appx"
+          if (!(Test-Path $VCLibsInstaller))
+          {
+            Write-Host "Downloading Winget dependency VCLibs"
+            Invoke-WebRequest -Uri https://aka.ms/$VCLibsInstaller -OutFile $VCLibsInstaller
+          }
+          $XamlInstaller = "Microsoft.UI.Xaml.2.8.x64.appx"
+          if (!(Test-Path $XamlInstaller))
+          {
+            Write-Host "Downloading Winget dependency Xaml"
+            Invoke-WebRequest -Uri https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/$XamlInstaller -OutFile $XamlInstaller
+          }
+
+          Import-Module -Name Appx -UseWindowsPowershell | Out-Null
+          Add-AppxPackage $VCLibsInstaller
+          Add-AppxPackage $XamlInstaller
+          Add-AppxPackage $WingetInstaller
+        }

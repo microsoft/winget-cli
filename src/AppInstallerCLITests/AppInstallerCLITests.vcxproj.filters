@@ -180,7 +180,7 @@
       <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="Rest.cpp">
-      <Filter>Source Files\Repository</Filter>
+      <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="RestClient.cpp">
       <Filter>Source Files\Repository</Filter>

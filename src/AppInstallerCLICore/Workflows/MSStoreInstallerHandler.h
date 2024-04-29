@@ -26,6 +26,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void MSStoreRepair(Execution::Context& context);
 
+    // Downloads the Store app installer.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void MSStoreDownload(Execution::Context& context);
+
     // Ensure the Store app is not blocked by policy.
     // Required Args: None
     // Inputs: Installer

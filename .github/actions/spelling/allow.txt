@@ -241,6 +241,7 @@ publiccontainer
 PUCHAR
 pwa
 QCol
+Qspectre
 rclsid
 REBOOTPROMPT
 Redistributable
@@ -362,6 +363,7 @@ userguide
 usersources
 utext
 valijson
+vcpkg
 vcvars
 vcxitems
 VERYSILENT

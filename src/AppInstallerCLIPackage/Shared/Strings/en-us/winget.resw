@@ -2883,4 +2883,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="SourceListTrustLevel" xml:space="preserve">
     <value>Trust Level</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_MSSTORE_NO_APPLICABLE_PACKAGE" xml:space="preserve">
+    <value>No applicable MSStore package found.</value>
+  </data>
+  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
+    <value>The MSStore package could not be found.</value>
+  </data>
 </root>

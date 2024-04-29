@@ -54,7 +54,16 @@
           "commitHash": "fd54913e65338e678440ae66b3b5022ab23b761b"
         }
       }
-    }   
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/microsoft/sfs-client.git",
+          "commitHash": "cf18b357f43aa9bbaba7d8b3b3774b39140aa00f"
+        }
+      }
+    }
   ],
   "Version": 1
 }
