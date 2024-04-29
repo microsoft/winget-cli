@@ -99,35 +99,33 @@ namespace AppInstaller::CLI::Workflow
                     RETURN_HR(subContext.GetTerminationHR());
                 }
 
-                previousThreadGlobals.reset();
-
                 // Verify hash
-                const auto& hashPair = context.Get<Execution::Data::HashPair>();
+                const auto& hashPair = subContext.Get<Execution::Data::HashPair>();
                 if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
                 {
                     AICLI_LOG(CLI, Info, << "Microsoft Store package hash verified");
-                    context.Reporter.Info() << Resource::String::MSStoreDownloadPackageHashVerified << std::endl;
+                    subContext.Reporter.Info() << Resource::String::MSStoreDownloadPackageHashVerified << std::endl;
                     // Trust direct doownload from Store if hash matched
                     Utility::ApplyMotwIfApplicable(tempInstallerPath, URLZONE_TRUSTED);
                 }
                 else
                 {
-                    if (!context.Args.Contains(Execution::Args::Type::HashOverride))
+                    if (!subContext.Args.Contains(Execution::Args::Type::HashOverride))
                     {
                         AICLI_LOG(CLI, Error, << "Microsoft Store package hash mismatch");
-                        context.Reporter.Error() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
+                        subContext.Reporter.Error() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
                         RETURN_HR(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
                     }
                     else
                     {
                         AICLI_LOG(CLI, Warning, << "Microsoft Store package hash mismatch");
-                        context.Reporter.Warn() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
+                        subContext.Reporter.Warn() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
                     }
                 }
 
                 auto renamedDownloadedPackage = downloadDirectory / Utility::ConvertToUTF16(downloadFile.FileName);
                 Filesystem::RenameFile(tempInstallerPath, renamedDownloadedPackage);
-                context.Reporter.Info() << Resource::String::MSStoreDownloadPackageDownloaded(Utility::LocIndView{ renamedDownloadedPackage.u8string() }) << std::endl;
+                subContext.Reporter.Info() << Resource::String::MSStoreDownloadPackageDownloaded(Utility::LocIndView{ renamedDownloadedPackage.u8string() }) << std::endl;
 
                 return S_OK;
             }

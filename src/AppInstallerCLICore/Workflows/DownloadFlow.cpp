@@ -618,7 +618,11 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            std::string packageDownloadFolderName = manifest.Id + '_' + manifest.Version;
+            std::string packageDownloadFolderName = manifest.Id;
+            if (!Utility::Version{ manifest.Version }.IsUnknown())
+            {
+                packageDownloadFolderName += '_' + manifest.Version;
+            }
             context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / Utility::ConvertToUTF16(packageDownloadFolderName));
         }
     }

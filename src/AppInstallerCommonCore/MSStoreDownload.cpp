@@ -717,7 +717,8 @@ namespace AppInstaller::MSStore
                 MSStoreDownloadFile downloadFile;
                 downloadFile.Url = appFile.GetUrl();
                 downloadFile.FileName = fileName;
-                downloadFile.Sha256 = Utility::SHA256::ConvertToBytes(appFile.GetHashes().at(SFS::HashType::Sha256));
+                // The sha256 hash was base64 encoded
+                downloadFile.Sha256 = JSON::Base64Decode(appFile.GetHashes().at(SFS::HashType::Sha256));
 
                 downloadFiles.emplace_back(std::move(downloadFile));
             }
