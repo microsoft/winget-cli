@@ -7,7 +7,6 @@
 namespace Microsoft.Management.Configuration.Processor.Exceptions
 {
     using System;
-    using System.Reflection;
 
     /// <summary>
     /// The property type of a unit is not supported.
@@ -17,18 +16,36 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// <summary>
         /// Initializes a new instance of the <see cref="UnitPropertyUnsupportedException"/> class.
         /// </summary>
-        /// <param name="property">PropertyInfo.</param>
+        /// <param name="name">Name.</param>
+        /// <param name="type">Type.</param>
         /// <param name="inner">Inner exception.</param>
-        public UnitPropertyUnsupportedException(PropertyInfo property, Exception inner)
-            : base($"Property {property.Name} of type {property.PropertyType.FullName} is not supported.", inner)
+        public UnitPropertyUnsupportedException(string name, Type type, Exception inner)
+            : base($"Property {name} of type {type.FullName} is not supported.", inner)
         {
             this.HResult = ErrorCodes.WinGetConfigUnitUnsupportedType;
-            this.Property = property;
+            this.Name = name;
+            this.Type = type;
         }
 
         /// <summary>
-        /// Gets the property.
+        /// Initializes a new instance of the <see cref="UnitPropertyUnsupportedException"/> class.
         /// </summary>
-        public PropertyInfo Property { get; }
+        /// <param name="type">Type.</param>
+        public UnitPropertyUnsupportedException(Type type)
+            : base($"Type {type.FullName} is not supported.")
+        {
+            this.HResult = ErrorCodes.WinGetConfigUnitUnsupportedType;
+            this.Type = type;
+        }
+
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        public string? Name { get; }
+
+        /// <summary>
+        /// Gets the type.
+        /// </summary>
+        public Type Type { get; }
     }
 }

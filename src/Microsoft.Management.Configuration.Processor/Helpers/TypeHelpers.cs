@@ -78,45 +78,77 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             var result = new ValueSet();
             foreach (PropertyInfo property in obj.GetType().GetProperties())
             {
-                try
-                {
-                    var propertyValue = property.GetValue(obj);
-                    if (propertyValue == null)
-                    {
-                        // Ignore null values.
-                        continue;
-                    }
+                var key = property.Name;
+                var value = GetCompatibleValueSetValueOfProperty(property.PropertyType, property.GetValue(obj));
 
-                    // Specialize here.
-                    if (property.PropertyType.IsEnum)
-                    {
-                        result.Add(property.Name, propertyValue.ToString());
-                    }
-                    else if (property.PropertyType == typeof(Hashtable))
-                    {
-                        Hashtable hashtable = (Hashtable)propertyValue;
-                        result.Add(property.Name, hashtable.ToValueSet());
-                    }
-                    else if (property.PropertyType == typeof(string))
-                    {
-                        string propertyString = (string)propertyValue;
-                        if (!string.IsNullOrEmpty(propertyString))
-                        {
-                            result.Add(property.Name, propertyString);
-                        }
-                    }
-                    else
-                    {
-                        result.Add(property.Name, property.GetValue(obj));
-                    }
-                }
-                catch (Exception e)
+                if (value != null)
                 {
-                    throw new UnitPropertyUnsupportedException(property, e);
+                    result.Add(key, value);
                 }
             }
 
             return result;
+        }
+
+        private static object? GetCompatibleValueSetValueOfProperty(Type type, object? value)
+        {
+            if (value == null)
+            {
+                // Ignore null values.
+                return null;
+            }
+
+            // Specialize here.
+            if (type.IsEnum)
+            {
+                return value.ToString();
+            }
+            else if (type == typeof(Hashtable))
+            {
+                Hashtable hashtable = (Hashtable)value;
+                return hashtable.ToValueSet();
+            }
+            else if (type == typeof(string))
+            {
+                // Ignore empty strings.
+                string propertyString = (string)value;
+                if (!string.IsNullOrEmpty(propertyString))
+                {
+                    return propertyString;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else if (type.IsArray)
+            {
+                var valueSetArray = new ValueSet();
+                int index = 0;
+                foreach (object arrayObj in (Array)value)
+                {
+                    var arrayValue = GetCompatibleValueSetValueOfProperty(arrayObj.GetType(), arrayObj);
+                    if (arrayValue != null)
+                    {
+                        valueSetArray.Add(index.ToString(), arrayValue);
+                        index++;
+                    }
+                }
+
+                if (valueSetArray.Count > 0)
+                {
+                    valueSetArray.Add("treatAsArray", true);
+                }
+
+                return valueSetArray;
+            }
+            else if (type.IsValueType)
+            {
+                return value;
+            }
+
+            // This might be too restrictive but anything else is going to be some object that we don't support anyway.
+            throw new UnitPropertyUnsupportedException(value.GetType());
         }
     }
 }

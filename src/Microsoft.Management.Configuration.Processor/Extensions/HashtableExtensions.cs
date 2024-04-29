@@ -34,12 +34,12 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                 string? key = entry.Key as string;
                 if (key != null)
                 {
-                    if (entry.Value?.GetType() == typeof(Hashtable))
+                    if (entry.Value.GetType() == typeof(Hashtable))
                     {
                         var innerHashtable = (Hashtable)entry.Value;
                         valueSet.Add(key, innerHashtable.ToValueSet());
                     }
-                    else if (entry.Value?.GetType().IsEnum == true)
+                    else if (entry.Value.GetType().IsEnum == true)
                     {
                         valueSet.Add(key, entry.Value.ToString());
                     }

@@ -47,38 +47,80 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         for (const auto& [key, value] : valueSet)
         {
             std::string keyName = winrt::to_string(key);
-            const auto& currentValueSet = value.try_as<Windows::Foundation::Collections::ValueSet>();
 
-            if (currentValueSet)
-            {
-                emitter << AppInstaller::YAML::Key << keyName;
-                WriteYamlValueSet(emitter, currentValueSet);
-            }
-            else
-            {
-                IPropertyValue property = value.as<IPropertyValue>();
-                auto type = property.Type();
-
-                if (type == PropertyType::Boolean)
-                {
-                    emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << property.GetBoolean();
-                }
-                else if (type == PropertyType::String)
-                {
-                    emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << AppInstaller::Utility::ConvertToUTF8(property.GetString());
-                }
-                else if (type == PropertyType::Int64)
-                {
-                    emitter << AppInstaller::YAML::Key << keyName << AppInstaller::YAML::Value << property.GetInt64();
-                }
-                else
-                {
-                    THROW_HR(E_NOTIMPL);;
-                }
-            }
+            emitter << AppInstaller::YAML::Key << keyName;
+            WriteYamlValue(emitter, value);
         }
 
         emitter << EndMap;
+    }
+
+
+    void ConfigurationSetSerializer::WriteYamlValue(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value)
+    {
+        const auto& currentValueSet = value.try_as<Windows::Foundation::Collections::ValueSet>();
+        if (currentValueSet)
+        {
+            if (currentValueSet.HasKey(L"treatAsArray"))
+            {
+                WriteYamlValueSetAsArray(emitter, currentValueSet);
+            }
+            else
+            {
+                WriteYamlValueSet(emitter, currentValueSet);
+            }
+        }
+        else
+        {
+            IPropertyValue property = value.as<IPropertyValue>();
+            auto type = property.Type();
+
+            if (type == PropertyType::Boolean)
+            {
+                emitter << AppInstaller::YAML::Value << property.GetBoolean();
+            }
+            else if (type == PropertyType::String)
+            {
+                emitter << AppInstaller::YAML::Value << AppInstaller::Utility::ConvertToUTF8(property.GetString());
+            }
+            else if (type == PropertyType::Int64)
+            {
+                emitter << AppInstaller::YAML::Value << property.GetInt64();
+            }
+            else
+            {
+                THROW_HR(E_NOTIMPL);;
+            }
+        }
+    }
+
+    void ConfigurationSetSerializer::WriteYamlValueSetAsArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSetArray)
+    {
+        std::vector<std::pair<int, winrt::Windows::Foundation::IInspectable>> arrayValues;
+        for (const auto& arrayValue : valueSetArray)
+        {
+            if (arrayValue.Key() != L"treatAsArray")
+            {
+                arrayValues.emplace_back(std::make_pair(std::stoi(arrayValue.Key().c_str()), arrayValue.Value()));
+            }
+        }
+
+        std::sort(
+            arrayValues.begin(),
+            arrayValues.end(),
+            [](const std::pair<int, winrt::Windows::Foundation::IInspectable>& a, const std::pair<int, winrt::Windows::Foundation::IInspectable>& b)
+            {
+                return a.first < b.first;
+            });
+
+        emitter << BeginSeq;
+
+        for (const auto& arrayValue : arrayValues)
+        {
+            WriteYamlValue(emitter, arrayValue.second);
+        }
+
+        emitter << EndSeq;
     }
 
     void ConfigurationSetSerializer::WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const std::vector<ConfigurationUnit>& units)
