@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <winget/Authentication.h>
 #include <winget/JsonUtil.h>
 #include <AppInstallerArchitecture.h>
 
@@ -12,16 +13,49 @@
 
 namespace AppInstaller::MSStore
 {
-    enum class PackageFormatEnum
+    struct MSStoreDownloadFile
     {
-        Unknown = -1,
+        std::string Url;
+        std::vector<BYTE> Sha256;
+        std::string FileName;
+    };
+
+    struct MSStoreDownloadInfo
+    {
+        std::vector<MSStoreDownloadFile> MainPackages;
+        std::vector<MSStoreDownloadFile> DependencyPackages;
+    };
+
+    struct MSStoreDownloadContext
+    {
+        MSStoreDownloadContext(std::string productId, AppInstaller::Utility::Architecture architecture, std::string locale, AppInstaller::Authentication::AuthenticationArguments authArgs) {};
+
+        // Calls display catalog API and sfs-client to get download info.
+        MSStoreDownloadInfo GetDwonloadInfo();
+
+        // Gets license for the corresponding package returned by previous GetDwonloadInfo().
+        // GetDwonloadInfo() must be called before calling this method.
+        std::vector<BYTE> GetLicense();
+
+    private:
+        std::string m_productId;
+        std::vector<AppInstaller::Utility::Architecture> m_architectures;
+        std::vector<std::string> m_locales;
+        AppInstaller::Authentication::Authenticator m_licensingAuthenticator;
+        std::string m_wuCategoryId;
+        std::string m_contentId;
+    };
+
+    enum class DisplayCatalogPackageFormatEnum
+    {
+        Unknown,
         AppxBundle,
         MsixBundle,
         Appx,
         Msix,
     };
 
-    struct MSStoreCatalogPackage
+    struct DisplayCatalogPackage
     {
         std::string PackageId;
 
@@ -29,7 +63,7 @@ namespace AppInstaller::MSStore
 
         std::vector<std::string> Languages;
 
-        PackageFormatEnum PackageFormat = PackageFormatEnum::Unknown;
+        DisplayCatalogPackageFormatEnum PackageFormat = DisplayCatalogPackageFormatEnum::Unknown;
 
         std::string WuCategoryId;
 
@@ -46,9 +80,9 @@ namespace AppInstaller::MSStore
 
             std::string_view Name() const { return m_name; }
 
-            virtual bool IsApplicable(const MSStoreCatalogPackage& package) = 0;
+            virtual bool IsApplicable(const DisplayCatalogPackage& package) = 0;
 
-            virtual bool IsFirstBetter(const MSStoreCatalogPackage& first, const MSStore::MSStoreCatalogPackage& second) = 0;
+            virtual bool IsFirstBetter(const DisplayCatalogPackage& first, const MSStore::DisplayCatalogPackage& second) = 0;
 
         private:
             std::string_view m_name;

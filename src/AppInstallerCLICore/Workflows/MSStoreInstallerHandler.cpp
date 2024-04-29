@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "MSStoreInstallerHandler.h"
+#include "WorkflowBase.h"
 #include <winget/MSStore.h>
 #include <winget/MSStoreDownload.h>
 #include <winget/SelfManagement.h>
@@ -62,6 +63,11 @@ namespace AppInstaller::CLI::Workflow
                 });
 
             THROW_IF_FAILED(hr);
+        }
+
+        HRESULT DownloadMSStorePackageFile()
+        {
+            
         }
     }
 
@@ -195,8 +201,99 @@ namespace AppInstaller::CLI::Workflow
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
 
+        // YAO: Info for --rename not working formsstore download
+
         const auto& installer = context.Get<Execution::Data::Installer>().value();
-            std::string storeRestEndpoint = MSStore::GetMSStoreCatalogRestApi(installer.ProductId, installer.Locale);
+
+        Utility::Architecture requiredArchitecture = Utility::Architecture::Unknown;
+        std::string requiredLocale;
+        if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
+        {
+            requiredArchitecture = Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallArchitecture));
+        }
+        if (context.Args.Contains(Execution::Args::Type::Locale))
+        {
+            requiredLocale = context.Args.GetArg(Execution::Args::Type::Locale);
+        }
+
+        MSStoreDownloadContext downloadContext{ installer.ProductId, requiredArchitecture, requiredLocale, GetAuthenticationArguments(context) };
+
+        MSStoreDownloadInfo downloadInfo;
+        try
+        {
+            // YAO: info reporting
+            downloadInfo = downloadContext.GetDwonloadInfo();
+
+            if (downloadInfo.MainPackages.empty())
+            {
+                context.Reporter.Error() << Resource::String::MSStoreDownloadPackageNotFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_DOWNLOAD_NO_APPLICABLE_PACKAGE);
+            }
+        }
+        catch (const wil::ResultException& re)
+        {
+            // YAO: error reporting
+            AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
+        }
+
+        bool skipDependencies = context.Args.Contains(Execution::Args::Type::SkipDependencies);
+
+        // Prepare directories
+        THROW_HR_IF(E_UNEXPECTED, !context.Contains(Execution::Data::DownloadDirectory));
+        std::filesystem::path downloadDirectory = context.Get<Execution::Data::DownloadDirectory>();
+        std::filesystem::path dependenciesDirectory = downloadDirectory / L"Dependencies";
+
+        // Create directories if needed.
+        auto directoryToCreate = skipDependencies ? downloadDirectory : dependenciesDirectory;
+        if (!std::filesystem::exists(directoryToCreate))
+        {
+            std::filesystem::create_directories(directoryToCreate);
+        }
+        else
+        {
+            THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_CANNOT_MAKE), !std::filesystem::is_directory(directoryToCreate));
+        }
+
+        if (!skipDependencies)
+        {
+            // YAO: info reporting
+            for (auto const& dependencyPackage : downloadInfo.DependencyPackages)
+            {
+                HRESULT hr = DownloadMSStorePackageFile();
+                if (FAILED(hr))
+                {
+
+                }
+            }
+        }
+
+        for (auto const& dependencyPackage : downloadInfo.MainPackages)
+        {
+            // YAO: info reporting
+            HRESULT hr = DownloadMSStorePackageFile();
+            if (FAILED(hr))
+            {
+
+            }
+        }
+
+        if (!context.Args.Contains(Execution::Args::Type::SkipMicrosoftStorePackageLicense))
+        {
+            // YAO: info reporting
+            try
+            {
+
+            }
+            catch (const wil::ResultException& re)
+            {
+                // YAO: error reporting
+                AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
+            }
+
+            std::ofstream licenseFile(downloadDirectory / Utility::ConvertToUTF16(installer.ProductId + "_License.xml"), std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+        }
+
+        std::string storeRestEndpoint = MSStore::GetMSStoreCatalogRestApi(installer.ProductId, installer.Locale);
 
             AppInstaller::Http::HttpClientHelper httpClientHelper;
             std::optional<web::json::value> jsonObject = httpClientHelper.HandleGet(JSON::GetUtilityString(storeRestEndpoint));
@@ -208,33 +305,10 @@ namespace AppInstaller::CLI::Workflow
 
             const auto& packages = MSStore::DeserializeMSStoreCatalogPackages(jsonObject.value());
 
-            // Language
-            std::vector<std::string> requiredLocale;
-            if (context.Args.Contains(Execution::Args::Type::Locale))
-            {
-                requiredLocale.emplace_back(context.Args.GetArg(Execution::Args::Type::Locale));
-            }
-
-            // Architectures
-            std::vector<Utility::Architecture> allowedArchitectures;
-            if (context.Contains(Execution::Data::AllowedArchitectures))
-            {
-                // Com caller can directly set allowed architectures
-                allowedArchitectures = context.Get<Execution::Data::AllowedArchitectures>();
-            }
-            else if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
-            {
-                allowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallArchitecture)));
-            }
-
             DisplayCatalogPackageComparator packageComparator(requiredLocale, allowedArchitectures);
             auto result = packageComparator.GetPreferredPackage(packages);
 
-            if (!result)
-            {
-                context.Reporter.Error() << Resource::String::MSStoreDownloadPackageNotFound << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_DOWNLOAD_NO_APPLICABLE_PACKAGE);
-            }
+            
 
             auto preferredPackage = result.value();
 

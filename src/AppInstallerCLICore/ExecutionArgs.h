@@ -89,6 +89,7 @@ namespace AppInstaller::CLI::Execution
 
             // Download Command
             DownloadDirectory,
+            SkipMicrosoftStorePackageLicense, // YAO: add arg
 
             // Setting Command
             AdminSettingEnable,
