@@ -100,11 +100,11 @@ namespace AppInstaller::MSStore
 
         namespace DisplayCatalogPackageComparison
         {
-            struct DiaplayCatalogPackageComparisonField
+            struct DisplayCatalogPackageComparisonField
             {
-                DiaplayCatalogPackageComparisonField(std::string_view name) : m_name(name) {}
+                DisplayCatalogPackageComparisonField(std::string_view name) : m_name(name) {}
 
-                virtual ~DiaplayCatalogPackageComparisonField() = default;
+                virtual ~DisplayCatalogPackageComparisonField() = default;
 
                 std::string_view Name() const { return m_name; }
 
@@ -116,9 +116,9 @@ namespace AppInstaller::MSStore
                 std::string_view m_name;
             };
 
-            struct PackageFormatComparator : public DiaplayCatalogPackageComparisonField
+            struct PackageFormatComparator : public DisplayCatalogPackageComparisonField
             {
-                PackageFormatComparator() : DiaplayCatalogPackageComparisonField("Package Format") {}
+                PackageFormatComparator() : DisplayCatalogPackageComparisonField("Package Format") {}
 
                 bool IsApplicable(const DisplayCatalogPackage& package) override
                 {
@@ -139,9 +139,9 @@ namespace AppInstaller::MSStore
                 }
             };
 
-            struct LocaleComparator : public DiaplayCatalogPackageComparisonField
+            struct LocaleComparator : public DisplayCatalogPackageComparisonField
             {
-                LocaleComparator(std::string locale) : DiaplayCatalogPackageComparisonField("Locale")
+                LocaleComparator(std::string locale) : DisplayCatalogPackageComparisonField("Locale")
                 {
                     if (!locale.empty())
                     {
@@ -215,9 +215,9 @@ namespace AppInstaller::MSStore
                 bool m_isRequirement = false;
             };
 
-            struct ArchitectureComparator : public DiaplayCatalogPackageComparisonField
+            struct ArchitectureComparator : public DisplayCatalogPackageComparisonField
             {
-                ArchitectureComparator(Utility::Architecture architecture) : DiaplayCatalogPackageComparisonField("Architecture")
+                ArchitectureComparator(Utility::Architecture architecture) : DisplayCatalogPackageComparisonField("Architecture")
                 {
                     if (architecture != Utility::Architecture::Unknown)
                     {
@@ -353,7 +353,7 @@ namespace AppInstaller::MSStore
                 }
 
             private:
-                void AddComparator(std::unique_ptr<DiaplayCatalogPackageComparisonField>&& comparator)
+                void AddComparator(std::unique_ptr<DisplayCatalogPackageComparisonField>&& comparator)
                 {
                     if (comparator)
                     {
@@ -361,7 +361,7 @@ namespace AppInstaller::MSStore
                     }
                 }
 
-                std::vector<std::unique_ptr<DiaplayCatalogPackageComparisonField>> m_comparators;
+                std::vector<std::unique_ptr<DisplayCatalogPackageComparisonField>> m_comparators;
             };
         }
 
@@ -393,7 +393,7 @@ namespace AppInstaller::MSStore
 
         std::reference_wrapper<const web::json::value> GetSkuNodeFromDisplayCatalogResponse(const web::json::value& responseObject)
         {
-            AICLI_LOG(Core, Info, << "Started parsing diaplay catalog response. Try to find target sku: " << TargetSkuIdValue);
+            AICLI_LOG(Core, Info, << "Started parsing display catalog response. Try to find target sku: " << TargetSkuIdValue);
 
             if (responseObject.is_null())
             {
@@ -439,7 +439,7 @@ namespace AppInstaller::MSStore
 
         std::vector<DisplayCatalogPackage> GetDisplayCatalogPackagesFromSkuNode(const web::json::value& jsonObject)
         {
-            AICLI_LOG(Core, Info, << "Started extracing diaplay catalog packages from sku.");
+            AICLI_LOG(Core, Info, << "Started extracting display catalog packages from sku.");
 
             std::optional<std::reference_wrapper<const web::json::value>> properties = JSON::GetJsonValueFromNode(jsonObject, JSON::GetUtilityString(Properties));
             if (!properties)
@@ -858,7 +858,7 @@ namespace AppInstaller::MSStore
         m_licensingAuthenticator = std::make_unique<Authentication::Authenticator>(std::move(licensingAuthInfo), authArgs);
     }
 
-    MSStoreDownloadInfo MSStoreDownloadContext::GetDwonloadInfo()
+    MSStoreDownloadInfo MSStoreDownloadContext::GetDownloadInfo()
     {
         auto displayCatalogPackage = DisplayCatalogDetails::CallDisplayCatalogAndGetPreferredPackage(m_productId, m_locale, m_architecture);
         auto downloadInfo = SfsClientDetails::CallSfsClientAndGetMSStoreDownloadInfo(displayCatalogPackage.WuCategoryId, m_architecture);

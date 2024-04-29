@@ -2883,8 +2883,20 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="SourceListTrustLevel" xml:space="preserve">
     <value>Trust Level</value>
   </data>
+  <data name="APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED" xml:space="preserve">
+    <value>Failed to get Microsoft Store package catalog.</value>
+  </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE" xml:space="preserve">
-    <value>No applicable Microsoft Store package found from Store package catalog.</value>
+    <value>No applicable Microsoft Store package found from Microsoft Store package catalog.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED" xml:space="preserve">
+    <value>Failed to get Microsoft Store package download infomation.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSClIENT_PACKAGE" xml:space="preserve">
+    <value>No applicable Microsoft Store package download infomation found.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
+    <value>Failed to retrieve Microsoft Store package license.</value>
   </data>
   <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
     <value>The Microsoft Store package could not be found.</value>
@@ -2927,5 +2939,12 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="MSStoreDownloadGetLicenseFailed" xml:space="preserve">
     <value>Failed to retrieve Microsoft Store package license</value>
+  </data>
+  <data name="MSStoreDownloadRenameNotSupported" xml:space="preserve">
+    <value>Microsoft Store package download does not support --rename argument. Microsoft Store package will use names provided by Microsoft Store catalog</value>
+    <comment>{Locked="--rename"}</comment>
+  </data>
+  <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
+    <value>Microsoft Store package download requires Microsoft Entra Id authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with the Microsoft services for access authorization. For Microsoft Store package licensing, the Microsoft Entra Id account needs to have administrator access to the Microsoft Entra Id tenant.</value>
   </data>
 </root>

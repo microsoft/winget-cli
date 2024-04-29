@@ -105,7 +105,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     AICLI_LOG(CLI, Info, << "Microsoft Store package hash verified");
                     subContext.Reporter.Info() << Resource::String::MSStoreDownloadPackageHashVerified << std::endl;
-                    // Trust direct doownload from Store if hash matched
+                    // Trust direct download from Store if hash matched
                     Utility::ApplyMotwIfApplicable(tempInstallerPath, URLZONE_TRUSTED);
                 }
                 else
@@ -268,8 +268,13 @@ namespace AppInstaller::CLI::Workflow
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
 
-        // YAO: Info for --rename not working formsstore download
-        // YAO: Info for authentication
+        if (context.Args.Contains(Execution::Args::Type::Rename))
+        {
+            context.Reporter.Warn() << Resource::String::MSStoreDownloadRenameNotSupported << std::endl;
+        }
+
+        // Authentication notice
+        context.Reporter.Warn() << Resource::String::MSStoreDownloadAuthenticationNotice << std::endl;
 
         const auto& installer = context.Get<Execution::Data::Installer>().value();
 
@@ -291,7 +296,7 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Info() << Resource::String::MSStoreDownloadGetDownloadInfo << std::endl;
 
-            downloadInfo = downloadContext.GetDwonloadInfo();
+            downloadInfo = downloadContext.GetDownloadInfo();
         }
         catch (const wil::ResultException& re)
         {
@@ -380,8 +385,8 @@ namespace AppInstaller::CLI::Workflow
             licenseFile.flush();
             licenseFile.close();
 
-            AICLI_LOG(CLI, Error, << "Getting MSStore package license success");
-            context.Reporter.Error() << Resource::String::MSStoreDownloadGetLicenseSuccess(Utility::LocIndView{ licenseFilePath.u8string() }) << std::endl;
+            AICLI_LOG(CLI, Info, << "Getting MSStore package license success");
+            context.Reporter.Info() << Resource::String::MSStoreDownloadGetLicenseSuccess(Utility::LocIndView{ licenseFilePath.u8string() }) << std::endl;
         }
     }
 

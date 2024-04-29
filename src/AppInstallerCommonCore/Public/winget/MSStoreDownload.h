@@ -30,10 +30,10 @@ namespace AppInstaller::MSStore
         MSStoreDownloadContext(std::string productId, AppInstaller::Utility::Architecture architecture, std::string locale, AppInstaller::Authentication::AuthenticationArguments authArgs);
 
         // Calls display catalog API and sfs-client to get download info.
-        MSStoreDownloadInfo GetDwonloadInfo();
+        MSStoreDownloadInfo GetDownloadInfo();
 
-        // Gets license for the corresponding package returned by previous GetDwonloadInfo().
-        // GetDwonloadInfo() must be called before calling this method.
+        // Gets license for the corresponding package returned by previous GetDownloadInfo().
+        // GetDownloadInfo() must be called before calling this method.
         std::vector<BYTE> GetLicense();
 
     private:

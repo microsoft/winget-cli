@@ -214,7 +214,11 @@ namespace AppInstaller
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED, "The installer technology in use doesn't support repair."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED, "Repair operations involving administrator privileges are not permitted on packages installed within the user scope."),
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED, "The SQLite connection was terminated to prevent corruption."),
-            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE, "No applicable Microsoft Store package found from Store package catalog."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED, "Failed to get Microsoft Store package catalog."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE, "No applicable Microsoft Store package found from Microsoft Store package catalog."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to get Microsoft Store package download infomation."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSClIENT_PACKAGE, "No applicable Microsoft Store package download infomation found."),
+            WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED, "Failed to retrieve Microsoft Store package license."),
 
             // Install errors.
             WINGET_HRESULT_INFO(APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, "Application is currently running. Exit the application then try again."),
