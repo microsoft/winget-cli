@@ -39,6 +39,15 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Directive_Module = L"module";
         constexpr std::wstring_view s_Directive_AllowPrerelease = L"allowPrerelease";
 
+        constexpr std::wstring_view s_Unit_WinGetPackage = L"WinGetPackage";
+
+        constexpr std::wstring_view s_Module_WinGetClient = L"Microsoft.WinGet.DSC";
+
+        constexpr std::wstring_view s_Setting_Id = L"id";
+        constexpr std::wstring_view s_Setting_Source = L"source";
+
+        constexpr std::wstring_view s_WinGetSource = L"winget";
+
         Logging::Level ConvertLevel(DiagnosticLevel level)
         {
             switch (level)
@@ -961,20 +970,20 @@ namespace AppInstaller::CLI::Workflow
                 std::wstring packageIdWide = Utility::ConvertToUTF16(packageId);
 
                 ConfigurationUnit unit;
-                unit.Type(L"Microsoft.WinGet.DSC/WinGetPackage");
+                unit.Type(s_Unit_WinGetPackage);
                 unit.Identifier(packageIdWide);
                 unit.Intent(ConfigurationUnitIntent::Apply);
 
-                // TODO: look for strings
                 ValueSet directives;
-                directives.Insert(L"description", PropertyValue::CreateString(L"Install " + packageIdWide));
-                directives.Insert(L"allowPrerelease", PropertyValue::CreateBoolean(true));
-                unit.Metadata(std::move(directives));
+                directives.Insert(s_Directive_Module, PropertyValue::CreateString(s_Module_WinGetClient));
+                directives.Insert(s_Directive_Description, PropertyValue::CreateString(L"Install " + packageIdWide));
+                directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+                unit.Metadata(directives);
 
                 ValueSet settings;
-                settings.Insert(L"id", PropertyValue::CreateString(packageIdWide));
-                settings.Insert(L"source", PropertyValue::CreateString(L"winget"));
-                unit.Settings(std::move(settings));
+                settings.Insert(s_Setting_Id, PropertyValue::CreateString(packageIdWide));
+                settings.Insert(s_Setting_Source, PropertyValue::CreateString(s_WinGetSource));
+                unit.Settings(settings);
 
                 return unit;
             }
@@ -991,8 +1000,7 @@ namespace AppInstaller::CLI::Workflow
 
             auto progressScope = context.Reporter.BeginAsyncProgress(true);
 
-            // TODO: string
-            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationReadingConfigFile());
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationGettingResourceSettings());
 
             GetConfigurationUnitSettingsResult getResult = nullptr;
             {
@@ -1072,7 +1080,7 @@ namespace AppInstaller::CLI::Workflow
                 // GetUnitSettings will set it to Inform.
                 unit.Intent(ConfigurationUnitIntent::Apply);
 
-                // Add dependency.
+                // Add dependency if needed.
                 if (dependantUnit.has_value())
                 {
                     auto dependencies = winrt::single_threaded_vector<winrt::hstring>();
@@ -1628,6 +1636,8 @@ namespace AppInstaller::CLI::Workflow
     {
         std::string argPath{ context.Args.GetArg(Args::Type::OutputFile) };
 
+        context.Reporter.Info() << Resource::String::ConfigurationExportAddingToFile(Utility::LocIndView{ argPath }) << std::endl;
+
         auto tempFilePath = Runtime::GetNewTempFilePath();
 
         {
@@ -1647,5 +1657,7 @@ namespace AppInstaller::CLI::Workflow
 
         auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPath });
         std::filesystem::copy_file(tempFilePath, absolutePath, std::filesystem::copy_options::overwrite_existing);
+
+        context.Reporter.Info() << Resource::String::ConfigurationExportSuccessful << std::endl;
     }
 }

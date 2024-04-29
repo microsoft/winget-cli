@@ -12,25 +12,22 @@ namespace AppInstaller::CLI
     std::vector<Argument> ConfigureExportCommand::GetArguments() const
     {
         return {
-            // TODO: Resource
-            Argument{ Execution::Args::Type::OutputFile, Resource::String::ConfigurationModulePath, true },
-            Argument{ Execution::Args::Type::ConfigurationExportPackageId, Resource::String::ConfigurationModulePath },
-            Argument{ Execution::Args::Type::ConfigurationExportModule, Resource::String::ConfigurationModulePath },
-            Argument{ Execution::Args::Type::ConfigurationExportResource, Resource::String::ConfigurationModulePath },
+            Argument{ Execution::Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, true },
+            Argument{ Execution::Args::Type::ConfigurationExportPackageId, Resource::String::ConfigureExportPackageId },
+            Argument{ Execution::Args::Type::ConfigurationExportModule, Resource::String::ConfigureExportModule },
+            Argument{ Execution::Args::Type::ConfigurationExportResource, Resource::String::ConfigureExportResource },
             Argument{ Execution::Args::Type::ConfigurationModulePath, Resource::String::ConfigurationModulePath },
         };
     }
 
     Resource::LocString ConfigureExportCommand::ShortDescription() const
     {
-        // TODO
-        return { Resource::String::ConfigureShowCommandShortDescription };
+        return { Resource::String::ConfigureExportCommandShortDescription };
     }
 
     Resource::LocString ConfigureExportCommand::LongDescription() const
     {
-        // TODO
-        return { Resource::String::ConfigureShowCommandLongDescription };
+        return { Resource::String::ConfigureExportCommandLongDescription };
     }
 
     Utility::LocIndView ConfigureExportCommand::HelpLink() const
@@ -61,8 +58,7 @@ namespace AppInstaller::CLI
 
         if (!validInputArgs)
         {
-            // TODO: At least --packageId and/or --module with --resource must be used.
-            throw CommandException(Resource::String::ConfigurationEnableArgumentError);
+            throw CommandException(Resource::String::ConfigureExportArgumentError);
         }
     }
 }
