@@ -1410,6 +1410,10 @@ namespace AppInstaller::CLI::Workflow
                     context.Add<Execution::Data::InstalledPackageVersion>(installed->GetLatestVersion());
                 }
             }
+            else
+            {
+                context.Add<Execution::Data::InstalledPackageVersion>(nullptr);
+            }
         }
         else
         {
