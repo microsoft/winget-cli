@@ -89,8 +89,12 @@ namespace AppInstaller
         static constexpr inline size_t Index(Enum e) { return static_cast<size_t>(e) + 1; }
     };
 
+    // A callback function that can be used for logging map actions.
+    template <typename Enum>
+    using EnumBasedVariantMapActionCallback = void (*)(Enum value, bool isAdd);
+
     // Provides a map of the Enum to the mapped types.
-    template <typename Enum, template<Enum> typename Mapping>
+    template <typename Enum, template<Enum> typename Mapping, EnumBasedVariantMapActionCallback<Enum> Callback = nullptr>
     struct EnumBasedVariantMap
     {
         using Variant = EnumBasedVariant<Enum, Mapping>;
@@ -103,12 +107,20 @@ namespace AppInstaller
         template <Enum E>
         void Add(mapping_t<E>&& v)
         {
+            if constexpr (Callback)
+            {
+                Callback(E, true);
+            }
             m_data[E].emplace<Variant::Index(E)>(std::move(std::forward<mapping_t<E>>(v)));
         }
 
         template <Enum E>
         void Add(const mapping_t<E>& v)
         {
+            if constexpr (Callback)
+            {
+                Callback(E, true);
+            }
             m_data[E].emplace<Variant::Index(E)>(v);
         }
 
@@ -119,12 +131,20 @@ namespace AppInstaller
         template <Enum E>
         mapping_t<E>& Get()
         {
+            if constexpr (Callback)
+            {
+                Callback(E, false);
+            }
             return std::get<Variant::Index(E)>(GetVariant(E));
         }
 
         template <Enum E>
         const mapping_t<E>& Get() const
         {
+            if constexpr (Callback)
+            {
+                Callback(E, false);
+            }
             return std::get<Variant::Index(E)>(GetVariant(E));
         }
 

@@ -85,10 +85,13 @@ namespace AppInstaller::CLI::Execution
     bool WaitForAppShutdownEvent();
 #endif
 
+    // Callback to log data actions.
+    void ContextEnumBasedVariantMapActionCallback(Data data, bool isAdd);
+
     // The context within which all commands execute.
     // Contains input/output via Execution::Reporter and
     // arguments via Execution::Args.
-    struct Context : EnumBasedVariantMap<Data, details::DataMapping>
+    struct Context : EnumBasedVariantMap<Data, details::DataMapping, ContextEnumBasedVariantMapActionCallback>
     {
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 

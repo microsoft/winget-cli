@@ -13,6 +13,8 @@
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
 
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+
 using namespace std::string_literals;
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Pinning;
@@ -257,6 +259,18 @@ namespace AppInstaller::CLI::Workflow
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isFunc);
         m_func(context);
+    }
+
+    void WorkflowTask::Log() const
+    {
+        if (m_isFunc)
+        {
+            AICLI_LOG(Workflow, Info, << "Running task: 0x" << m_func << "[ln WindowsPackageManager!" << (reinterpret_cast<char*>(m_func) - reinterpret_cast<char*>(&__ImageBase)) << "]");
+        }
+        else
+        {
+            AICLI_LOG(Workflow, Info, << "Running task: " << m_name);
+        }
     }
 
     Repository::PredefinedSource DetermineInstalledSource(const Execution::Context& context)
@@ -1433,6 +1447,7 @@ AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::
         if (context.ShouldExecuteWorkflowTask(task))
 #endif
         {
+            task.Log();
             task(context);
         }
     }

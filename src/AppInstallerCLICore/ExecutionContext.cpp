@@ -487,6 +487,11 @@ namespace AppInstaller::CLI::Execution
     }
 #endif
 
+    void ContextEnumBasedVariantMapActionCallback(Data data, bool isAdd)
+    {
+        AICLI_LOG(Workflow, Info, << (isAdd ? 'S' : 'G') << "etting data item: " << data);
+    }
+
     std::string Context::GetResumeId()
     {
         return m_checkpointManager->GetResumeId();
