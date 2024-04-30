@@ -84,7 +84,8 @@ The client is built around the concept of sources; a set of packages effectively
 1. Clone the repository
 2. Configure your system, please use the [configuration file](.configurations/configuration.dsc.yaml). This can be applied by either:
    * [Dev Home](https://github.com/microsoft/devhome)'s machine configuration tool
-   * WinGet configuration. If you have the experimental feature enabled, run `winget configure .configurations/configuration.dsc.yaml` from the project root so relative paths resolve correctly
+   * WinGet configuration. Run `winget configure .configurations/configuration.dsc.yaml` from the project root so relative paths resolve correctly
+3. Run `vcpkg integrate install` from Developer Command Prompt for VS 2022
 
 ### Prerequisites
 
@@ -96,6 +97,7 @@ The client is built around the concept of sources; a set of packages effectively
   * .NET Desktop Development
   * Desktop Development with C++
   * Universal Windows Platform Development
+  * Check [.vsconfig file](.vsconfig) for full components list
 * [Windows SDK for Windows 11 (10.0.22000.194)](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive/)
   > **Note**: You can also get it through `winget install Microsoft.WindowsSDK --version 10.0.22000.832` (use --force if you have a newer version installed) or via Visual Studio > Get Tools and Features > Individual Components > Windows 10 SDK (10.0.22000.0)
 * The following extensions:
