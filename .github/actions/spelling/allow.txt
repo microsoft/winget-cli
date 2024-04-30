@@ -375,6 +375,7 @@ wcsicmp
 webpage
 WHOLECHAIN
 wil
+windbg
 wincrypt
 WINEVENT
 winget
