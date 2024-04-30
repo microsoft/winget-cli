@@ -85,7 +85,7 @@ The client is built around the concept of sources; a set of packages effectively
 2. Configure your system, please use the [configuration file](.configurations/configuration.dsc.yaml). This can be applied by either:
    * [Dev Home](https://github.com/microsoft/devhome)'s machine configuration tool
    * WinGet configuration. Run `winget configure .configurations/configuration.dsc.yaml` from the project root so relative paths resolve correctly
-3. Run `vcpkg integrate install` from Developer Command Prompt for VS 2022
+3. Run `vcpkg integrate install` from Developer Command Prompt for VS 2022. This is one time setup step until configuration file in step 2 is updated to work with vcpkg setup.
 
 ### Prerequisites
 
