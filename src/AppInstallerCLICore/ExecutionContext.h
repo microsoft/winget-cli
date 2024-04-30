@@ -86,7 +86,7 @@ namespace AppInstaller::CLI::Execution
 #endif
 
     // Callback to log data actions.
-    void ContextEnumBasedVariantMapActionCallback(Data data, bool isAdd);
+    void ContextEnumBasedVariantMapActionCallback(const void* map, Data data, EnumBasedVariantMapAction action);
 
     // The context within which all commands execute.
     // Contains input/output via Execution::Reporter and

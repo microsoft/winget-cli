@@ -487,9 +487,22 @@ namespace AppInstaller::CLI::Execution
     }
 #endif
 
-    void ContextEnumBasedVariantMapActionCallback(Data data, bool isAdd)
+    void ContextEnumBasedVariantMapActionCallback(const void* map, Data data, EnumBasedVariantMapAction action)
     {
-        AICLI_LOG(Workflow, Info, << (isAdd ? 'S' : 'G') << "etting data item: " << data);
+        switch (action)
+        {
+        case EnumBasedVariantMapAction::Add:
+            AICLI_LOG(Workflow, Info, << "Setting data item: " << data);
+            break;
+        case EnumBasedVariantMapAction::Contains:
+            AICLI_LOG(Workflow, Info, << "Checking data item: " << data);
+            break;
+        case EnumBasedVariantMapAction::Get:
+            AICLI_LOG(Workflow, Info, << "Getting data item: " << data);
+            break;
+        }
+
+        UNREFERENCED_PARAMETER(map);
     }
 
     std::string Context::GetResumeId()
