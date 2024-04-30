@@ -265,7 +265,8 @@ namespace AppInstaller::CLI::Workflow
     {
         if (m_isFunc)
         {
-            AICLI_LOG(Workflow, Info, << "Running task: 0x" << m_func << "[ln WindowsPackageManager!" << (reinterpret_cast<char*>(m_func) - reinterpret_cast<char*>(&__ImageBase)) << "]");
+            // Using `00000001`80000000` as base address default when loading dll into windbg as dump file.
+            AICLI_LOG(Workflow, Info, << "Running task: 0x" << m_func << " [ln 00000001`80000000+" << std::hex << (reinterpret_cast<char*>(m_func) - reinterpret_cast<char*>(&__ImageBase)) << "]");
         }
         else
         {
@@ -1382,10 +1383,10 @@ namespace AppInstaller::CLI::Workflow
 
     void GetInstalledPackageVersion(Execution::Context& context)
     {
-        std::shared_ptr<IPackage> installed = context.Get<Execution::Data::Package>()->GetInstalled();
-
         if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide))
         {
+            std::shared_ptr<IPackage> installed = context.Get<Execution::Data::Package>()->GetInstalled();
+
             if (installed)
             {
                 // TODO: This may need to be expanded dramatically to enable targeting across a variety of dimensions (architecture, etc.)
