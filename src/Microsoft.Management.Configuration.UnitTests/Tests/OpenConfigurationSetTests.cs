@@ -487,7 +487,7 @@ properties:
       directives:
         description: FakeDescription
         allowPrerelease: true
-        SecurityContext: elevated
+        securityContext: elevated
       settings:
         TestString: Hello
         TestBool: false
@@ -501,7 +501,7 @@ properties:
         - dependency3
       directives:
         description: FakeDescription2
-        SecurityContext: elevated
+        securityContext: elevated
       settings:
         TestString: Bye
         TestBool: true
@@ -529,14 +529,14 @@ properties:
             Assert.Equal("FakeModule", set.Units[0].Type);
             Assert.Equal(ConfigurationUnitIntent.Assert, set.Units[0].Intent);
             Assert.Equal("TestId", set.Units[0].Identifier);
-            this.VerifyValueSet(set.Units[0].Metadata, new ("description", "FakeDescription"), new ("allowPrerelease", true), new ("SecurityContext", "elevated"));
+            this.VerifyValueSet(set.Units[0].Metadata, new ("description", "FakeDescription"), new ("allowPrerelease", true), new ("securityContext", "elevated"));
             this.VerifyValueSet(set.Units[0].Settings, new ("TestString", "Hello"), new ("TestBool", false), new ("TestInt", 1234));
 
             Assert.Equal("FakeModule2", set.Units[1].Type);
             Assert.Equal(ConfigurationUnitIntent.Apply, set.Units[1].Intent);
             Assert.Equal("TestId2", set.Units[1].Identifier);
             this.VerifyStringArray(set.Units[1].Dependencies, "TestId", "dependency2", "dependency3");
-            this.VerifyValueSet(set.Units[1].Metadata, new ("description", "FakeDescription2"), new ("SecurityContext", "elevated"));
+            this.VerifyValueSet(set.Units[1].Metadata, new ("description", "FakeDescription2"), new ("securityContext", "elevated"));
 
             ValueSet mapping = new ValueSet();
             mapping.Add("Key", "TestValue");

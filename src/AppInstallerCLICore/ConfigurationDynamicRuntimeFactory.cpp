@@ -99,7 +99,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // Support for 0.2 schema via metadata value
                 // TODO: Support case insensitive lookup by iteration
                 auto unitMetadata = unit.Metadata();
-                auto securityContext = unitMetadata.TryLookup(L"SecurityContext");
+                auto securityContext = unitMetadata.TryLookup(L"securityContext");
                 if (securityContext)
                 {
                     auto securityContextProperty = securityContext.try_as<IPropertyValue>();
