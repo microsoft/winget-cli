@@ -1030,15 +1030,17 @@ namespace AppInstaller::CLI::Workflow
                 ValueSet directives;
                 directives.Insert(s_Directive_Module, PropertyValue::CreateString(moduleNameWide));
 
+                winrt::hstring description;
                 if (dependantUnit.has_value())
                 {
-                    directives.Insert(s_Directive_Description, PropertyValue::CreateString(L"Configure " + dependantUnit.value().Identifier()));
+                    description = L"Configure " + dependantUnit.value().Identifier();
                 }
                 else
                 {
-                    directives.Insert(s_Directive_Description, PropertyValue::CreateString(L"Configure " + resourceNameWide));
+                    description = L"Configure " + resourceNameWide;
                 }
 
+                directives.Insert(s_Directive_Description, PropertyValue::CreateString(description));
                 unit.Metadata(directives);
 
                 // Call processor to get settings for the unit.
@@ -1054,9 +1056,7 @@ namespace AppInstaller::CLI::Workflow
                         unit.Metadata(directives);
 
                         auto preReleaseResult = GetUnitSettings(context, unit);
-
-                        winrt::hresult preReleaseResultCode = preReleaseResult.ResultInformation().ResultCode();
-                        if (SUCCEEDED(preReleaseResultCode))
+                        if (SUCCEEDED(preReleaseResult.ResultInformation().ResultCode()))
                         {
                             isPreRelease = true;
                             getResult = preReleaseResult;

@@ -48,7 +48,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             std::string keyName = winrt::to_string(key);
 
-            emitter << AppInstaller::YAML::Key << keyName;
+            emitter << Key << keyName << Value;
             WriteYamlValue(emitter, value);
         }
 
@@ -77,15 +77,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             if (type == PropertyType::Boolean)
             {
-                emitter << AppInstaller::YAML::Value << property.GetBoolean();
+                emitter << property.GetBoolean();
             }
             else if (type == PropertyType::String)
             {
-                emitter << AppInstaller::YAML::Value << AppInstaller::Utility::ConvertToUTF8(property.GetString());
+                emitter << AppInstaller::Utility::ConvertToUTF8(property.GetString());
             }
             else if (type == PropertyType::Int64)
             {
-                emitter << AppInstaller::YAML::Value << property.GetInt64();
+                emitter << property.GetInt64();
             }
             else
             {

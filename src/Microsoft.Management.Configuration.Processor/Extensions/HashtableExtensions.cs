@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.Extensions
 {
     using System.Collections;
+    using Microsoft.Management.Configuration.Processor.Helpers;
     using Windows.Foundation.Collections;
 
     /// <summary>
@@ -31,21 +32,12 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                 }
 
                 // Ignore keys that are not strings.
-                string? key = entry.Key as string;
-                if (key != null)
+                if (entry.Key is string key)
                 {
-                    if (entry.Value.GetType() == typeof(Hashtable))
+                    var value = TypeHelpers.GetCompatibleValueSetValueOfProperty(entry.Value.GetType(), entry.Value);
+                    if (value != null)
                     {
-                        var innerHashtable = (Hashtable)entry.Value;
-                        valueSet.Add(key, innerHashtable.ToValueSet());
-                    }
-                    else if (entry.Value.GetType().IsEnum == true)
-                    {
-                        valueSet.Add(key, entry.Value.ToString());
-                    }
-                    else
-                    {
-                        valueSet.Add(key, entry.Value);
+                        valueSet.Add(key, value);
                     }
                 }
             }

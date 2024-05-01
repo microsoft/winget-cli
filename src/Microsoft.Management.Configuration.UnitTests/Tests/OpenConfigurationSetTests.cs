@@ -482,7 +482,7 @@ properties:
 properties:
   configurationVersion: 0.2
   assertions:
-    - resource: FakeModule
+    - resource: FakeModule/FakeResource
       id: TestId
       directives:
         description: FakeDescription
@@ -493,7 +493,7 @@ properties:
         TestBool: false
         TestInt: 1234  
   resources:
-    - resource: FakeModule2
+    - resource: FakeModule2/FakeResource2
       id: TestId2
       dependsOn:
         - TestId
@@ -526,17 +526,17 @@ properties:
             Assert.Equal("0.2", set.SchemaVersion);
             Assert.Equal(2, set.Units.Count);
 
-            Assert.Equal("FakeModule", set.Units[0].Type);
+            Assert.Equal("FakeResource", set.Units[0].Type);
             Assert.Equal(ConfigurationUnitIntent.Assert, set.Units[0].Intent);
             Assert.Equal("TestId", set.Units[0].Identifier);
-            this.VerifyValueSet(set.Units[0].Metadata, new ("description", "FakeDescription"), new ("allowPrerelease", true), new ("SecurityContext", "elevated"));
+            this.VerifyValueSet(set.Units[0].Metadata, new ("description", "FakeDescription"), new ("allowPrerelease", true), new ("SecurityContext", "elevated"), new ("module", "FakeModule"));
             this.VerifyValueSet(set.Units[0].Settings, new ("TestString", "Hello"), new ("TestBool", false), new ("TestInt", 1234));
 
-            Assert.Equal("FakeModule2", set.Units[1].Type);
+            Assert.Equal("FakeResource2", set.Units[1].Type);
             Assert.Equal(ConfigurationUnitIntent.Apply, set.Units[1].Intent);
             Assert.Equal("TestId2", set.Units[1].Identifier);
             this.VerifyStringArray(set.Units[1].Dependencies, "TestId", "dependency2", "dependency3");
-            this.VerifyValueSet(set.Units[1].Metadata, new ("description", "FakeDescription2"), new ("SecurityContext", "elevated"));
+            this.VerifyValueSet(set.Units[1].Metadata, new ("description", "FakeDescription2"), new ("SecurityContext", "elevated"), new ("module", "FakeModule2"));
 
             ValueSet mapping = new ValueSet();
             mapping.Add("Key", "TestValue");

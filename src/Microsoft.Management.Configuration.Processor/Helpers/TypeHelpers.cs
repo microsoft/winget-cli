@@ -90,7 +90,13 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             return result;
         }
 
-        private static object? GetCompatibleValueSetValueOfProperty(Type type, object? value)
+        /// <summary>
+        /// Gets a compatible type for a ValueSet value.
+        /// </summary>
+        /// <param name="type">Type.</param>
+        /// <param name="value">Value.</param>
+        /// <returns>Value converted to a compatible type.</returns>
+        public static object? GetCompatibleValueSetValueOfProperty(Type type, object? value)
         {
             if (value == null)
             {
@@ -107,19 +113,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             {
                 Hashtable hashtable = (Hashtable)value;
                 return hashtable.ToValueSet();
-            }
-            else if (type == typeof(string))
-            {
-                // Ignore empty strings.
-                string propertyString = (string)value;
-                if (!string.IsNullOrEmpty(propertyString))
-                {
-                    return propertyString;
-                }
-                else
-                {
-                    return null;
-                }
             }
             else if (type.IsArray)
             {
@@ -141,6 +134,19 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
                 }
 
                 return valueSetArray;
+            }
+            else if (type == typeof(string))
+            {
+                // Ignore empty strings.
+                string propertyString = (string)value;
+                if (!string.IsNullOrEmpty(propertyString))
+                {
+                    return propertyString;
+                }
+                else
+                {
+                    return null;
+                }
             }
             else if (type.IsValueType)
             {
