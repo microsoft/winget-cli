@@ -38,6 +38,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AuthenticationAccount),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Args::Type::SkipMicrosoftStorePackageLicense),
         };
     }
 

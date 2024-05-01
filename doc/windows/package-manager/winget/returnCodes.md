@@ -137,7 +137,12 @@ ms.localizationpriority: medium
 | 0x8A15007B | -1978335109 | APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED | Repair operation failed. |
 | 0x8A15007C | -1978335108 | APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED | The installer technology in use doesn't support repair. |
 | 0x8A15007D | -1978335107 | APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED | Repair operations involving administrator privileges are not permitted on packages installed within the user scope. |
-
+| 0x8A15007E | -1978335106 | APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED | The SQLite connection was terminated to prevent corruption. |
+| 0x8A15007F | -1978335105 | APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED | Failed to get Microsoft Store package catalog. |
+| 0x8A150080 | -1978335104 | APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE | No applicable Microsoft Store package found from Microsoft Store package catalog. |
+| 0x8A150081 | -1978335103 | APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED | Failed to get Microsoft Store package download infomation. |
+| 0x8A150082 | -1978335102 | APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSClIENT_PACKAGE | No applicable Microsoft Store package download infomation found. |
+| 0x8A150083 | -1978335101 | APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED | Failed to retrieve Microsoft Store package license. |
 
 ## Install errors.
 

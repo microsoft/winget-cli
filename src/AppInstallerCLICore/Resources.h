@@ -531,6 +531,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleCharAfterDashError);
         WINGET_DEFINE_RESOURCE_STRINGID(SkipDependenciesArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SkipMicrosoftStorePackageLicenseArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsDifferentArg);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsDifferentName);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsMatch);
