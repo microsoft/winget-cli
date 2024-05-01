@@ -53,26 +53,36 @@ namespace AppInstaller::YAML::Wrapper
             THROW_HR(E_UNEXPECTED);
         }
 
-        std::string ConvertYamlString(yaml_char_t* string, size_t length = std::string::npos)
-        {
-            if (length == std::string::npos)
-            {
-                return { reinterpret_cast<char*>(string) };
-            }
-            else
-            {
-                return { reinterpret_cast<char*>(string), length };
-            }
-        }
-
-        std::string ConvertScalarToString(yaml_node_t* node)
-        {
-            return ConvertYamlString(node->data.scalar.value, node->data.scalar.length);
-        }
-
         Mark ConvertMark(const yaml_mark_t& mark)
         {
             return { mark.line + 1, mark.column + 1 };
+        }
+
+        std::string ConvertYamlString(yaml_char_t* string, const yaml_mark_t& mark, size_t length = std::string::npos)
+        {
+            std::string_view resultView;
+
+            if (length == std::string::npos)
+            {
+                resultView = { reinterpret_cast<char*>(string) };
+            }
+            else
+            {
+                resultView = { reinterpret_cast<char*>(string), length };
+            }
+
+            size_t invalidCharacter = Utility::FindControlCodeToConvert(resultView);
+            if (invalidCharacter != std::string::npos)
+            {
+                THROW_EXCEPTION(Exception(Exception::Type::Policy, "unsupported control character", ConvertMark(mark)));
+            }
+
+            return std::string{ resultView };
+        }
+
+        std::string ConvertScalarToString(yaml_node_t* node, const yaml_mark_t& mark)
+        {
+            return ConvertYamlString(node->data.scalar.value, mark, node->data.scalar.length);
         }
     }
 
@@ -115,7 +125,7 @@ namespace AppInstaller::YAML::Wrapper
             return {};
         }
 
-        Node result(ConvertNodeType(root->type), ConvertYamlString(root->tag), ConvertMark(root->start_mark));
+        Node result(ConvertNodeType(root->type), ConvertYamlString(root->tag, root->start_mark), ConvertMark(root->start_mark));
 
         struct StackItem
         {
@@ -142,7 +152,7 @@ namespace AppInstaller::YAML::Wrapper
                 break;
             case YAML_SCALAR_NODE:
                 stackItem.node->SetScalar(
-                    ConvertScalarToString(stackItem.yamlNode),
+                    ConvertScalarToString(stackItem.yamlNode, stackItem.yamlNode->start_mark),
                     stackItem.yamlNode->data.scalar.style == YAML_SINGLE_QUOTED_SCALAR_STYLE ||
                     stackItem.yamlNode->data.scalar.style == YAML_DOUBLE_QUOTED_SCALAR_STYLE);
                 pop = true;
@@ -153,7 +163,7 @@ namespace AppInstaller::YAML::Wrapper
                 if (child < stackItem.yamlNode->data.sequence.items.top)
                 {
                     yaml_node_t* childYamlNode = GetNode(*child);
-                    Node& childNode = stackItem.node->AddSequenceNode(ConvertNodeType(childYamlNode->type), ConvertYamlString(childYamlNode->tag), ConvertMark(childYamlNode->start_mark));
+                    Node& childNode = stackItem.node->AddSequenceNode(ConvertNodeType(childYamlNode->type), ConvertYamlString(childYamlNode->tag, childYamlNode->start_mark), ConvertMark(childYamlNode->start_mark));
                     resultStack.emplace(childYamlNode, &childNode);
                 }
                 else
@@ -171,12 +181,12 @@ namespace AppInstaller::YAML::Wrapper
                     yaml_node_t* keyYamlNode = GetNode(child->key);
                     THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_INVALID_MAPPING_KEY, keyYamlNode->type != YAML_SCALAR_NODE);
 
-                    Node keyNode(ConvertNodeType(keyYamlNode->type), ConvertYamlString(keyYamlNode->tag), ConvertMark(keyYamlNode->start_mark));
-                    keyNode.SetScalar(ConvertScalarToString(keyYamlNode));
+                    Node keyNode(ConvertNodeType(keyYamlNode->type), ConvertYamlString(keyYamlNode->tag, keyYamlNode->start_mark), ConvertMark(keyYamlNode->start_mark));
+                    keyNode.SetScalar(ConvertScalarToString(keyYamlNode, keyYamlNode->start_mark));
 
                     yaml_node_t* valueYamlNode = GetNode(child->value);
 
-                    Node& childNode = stackItem.node->AddMappingNode(std::move(keyNode), ConvertNodeType(valueYamlNode->type), ConvertYamlString(valueYamlNode->tag), ConvertMark(valueYamlNode->start_mark));
+                    Node& childNode = stackItem.node->AddMappingNode(std::move(keyNode), ConvertNodeType(valueYamlNode->type), ConvertYamlString(valueYamlNode->tag, valueYamlNode->start_mark), ConvertMark(valueYamlNode->start_mark));
                     resultStack.emplace(valueYamlNode, &childNode);
                 }
                 else

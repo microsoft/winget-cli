@@ -120,5 +120,18 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.TestRepoName));
         }
+
+        /// <summary>
+        /// This test ensures that there is not significant overflow from large strings in the configuration file.
+        /// </summary>
+        [Test]
+        public void ShowTruncatedDetailsAndFileContent()
+        {
+            var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\LargeContentStrings.yml")} --verbose");
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains("<this value has been truncated; inspect the file contents for the complete text>"));
+            Assert.True(result.StdOut.Contains("Some of the data present in the configuration file was truncated for this output; inspect the file contents for the complete content."));
+            Assert.False(result.StdOut.Contains("Line5"));
+        }
     }
 }
