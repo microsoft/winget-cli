@@ -116,6 +116,7 @@ ECustom
 EFGH
 EFile
 efileresource
+EMalicious
 endregion
 ENDSESSION
 EPester
