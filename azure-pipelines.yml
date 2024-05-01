@@ -604,6 +604,4 @@ jobs:
       onefuzzOSes: 'Windows'
     env:
       onefuzzDropDirectory: '$(buildOutDir)\WinGetYamlFuzzing'
-      onefuzzDropPAT: $(onefuzzDropPAT)
-      onefuzzFilingBugPAT: $(onefuzzBugFilingPAT)
-      onefuzzCodeCoveragePAT: $(onefuzzCodeCoveragePAT)
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
