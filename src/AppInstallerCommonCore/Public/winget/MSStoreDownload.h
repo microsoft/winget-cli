@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <winget/Authentication.h>
 #include <AppInstallerArchitecture.h>
+#include "winget/Authentication.h"
 
 #include <string>
 #include <optional>
@@ -17,6 +17,7 @@ namespace AppInstaller::MSStore
         std::string Url;
         std::vector<BYTE> Sha256;
         std::string FileName;
+        UINT64 Version = 0;
     };
 
     struct MSStoreDownloadInfo

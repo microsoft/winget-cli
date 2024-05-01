@@ -465,6 +465,29 @@ namespace AppInstaller::Msix
         return { result };
     }
 
+    UINT64 GetPackageVersionFromFullName(std::string_view fullName)
+    {
+        std::wstring fullNameWide = Utility::ConvertToUTF16(fullName);
+
+        UINT32 length = 0;
+        LONG returnVal = PackageIdFromFullName(fullNameWide.c_str(), PACKAGE_INFORMATION_BASIC, &length, nullptr);
+        if (returnVal != ERROR_INSUFFICIENT_BUFFER)
+        {
+            LOG_WIN32(returnVal);
+            return 0;
+        }
+
+        THROW_HR_IF(E_UNEXPECTED, length == 0);
+
+        std::vector<BYTE> packageIdContent;
+        packageIdContent.resize(length);
+
+        returnVal = PackageIdFromFullName(fullNameWide.c_str(), PACKAGE_INFORMATION_BASIC, &length, packageIdContent.data());
+        PACKAGE_ID* packageId = (PACKAGE_ID*)packageIdContent.data();
+
+        return packageId->version.Version;
+    }
+
     GetCertContextResult GetCertContextFromMsix(const std::filesystem::path& msixPath)
     {
         // Retrieve raw signature from msix

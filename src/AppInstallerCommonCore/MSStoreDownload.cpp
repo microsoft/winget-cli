@@ -5,6 +5,7 @@
 #include <AppInstallerErrors.h>
 #include <AppinstallerLogging.h>
 #include <AppInstallerSHA256.h>
+#include "AppInstallerMsixInfo.h"
 #include "AppInstallerRuntime.h"
 #include "winget/Locale.h"
 #include "winget/JsonUtil.h"
@@ -556,8 +557,24 @@ namespace AppInstaller::MSStore
 #ifndef WINGET_DISABLE_FOR_FUZZING
     namespace SfsClientDetails
     {
-        const std::string SupportedPlatforms[] = { "Universal", "Desktop", "IoT", "Holographic", "Team" };
+        enum class TargetPlatform
+        {
+            Universal,
+            Desktop,
+            IoT,
+            Analog,
+            Ppi,
+        };
+
         const std::string SupportedFileTypes[] = { ".msix", ".msixbundle", ".appx", ".appxbundle" };
+        const std::vector<std::pair<std::string, TargetPlatform>> SupportedPlatforms =
+        {
+            { "Universal", TargetPlatform::Universal },
+            { "Desktop", TargetPlatform::Desktop },
+            { "IoT", TargetPlatform::IoT },
+            { "Analog", TargetPlatform::Analog },
+            { "Ppi", TargetPlatform::Ppi },
+        };
 
         Utility::Architecture ConvertFromSfsArchitecture(SFS::Architecture sfsArchitecture)
         {
@@ -578,39 +595,45 @@ namespace AppInstaller::MSStore
             return Utility::Architecture::Unknown;
         }
 
-        bool IsSfsPackageFilePlatformSupported(const SFS::AppFile& appFile)
+        std::vector<TargetPlatform> GetSfsPackageFileSupportedPlatforms(const SFS::AppFile& appFile)
         {
-            for (auto const& supportedPlatform : SupportedPlatforms)
+            std::vector<TargetPlatform> supportedPlatforms;
+
+            for (auto const& applicability : appFile.GetApplicabilityDetails().GetPlatformApplicabilityForPackage())
             {
-                for (auto const& applicability : appFile.GetApplicabilityDetails().GetPlatformApplicabilityForPackage())
+                for (auto const& platformPair : SupportedPlatforms)
                 {
-                    if (Utility::CaseInsensitiveStartsWith(applicability, supportedPlatform))
+                    if (Utility::CaseInsensitiveStartsWith(applicability, platformPair.first))
                     {
-                        return true;
+                        supportedPlatforms.emplace_back(platformPair.second);
+                        break;
                     }
                 }
             }
 
-            return false;
+            return supportedPlatforms;
         }
 
-        bool IsSfsPackageFileArchitectureSupported(const SFS::AppFile& appFile, Utility::Architecture architecture)
+        std::vector<Utility::Architecture> GetSfsPackageFileSupportedArchitectures(const SFS::AppFile& appFile, Utility::Architecture architecture)
         {
-            if (architecture == Utility::Architecture::Unknown)
-            {
-                // No required architecture
-                return true;
-            }
+            std::vector<Utility::Architecture> supportedArchitectures;
 
             for (auto const& sfsArchitecture : appFile.GetApplicabilityDetails().GetArchitectures())
             {
-                if (architecture == ConvertFromSfsArchitecture(sfsArchitecture))
+                auto convertedArchitecture = ConvertFromSfsArchitecture(sfsArchitecture);
+                if (convertedArchitecture == Utility::Architecture::Unknown)
                 {
-                    return true;
+                    continue;
+                }
+
+                if (architecture == Utility::Architecture::Unknown || // No required architecture
+                    convertedArchitecture == architecture)
+                {
+                    supportedArchitectures.emplace_back(convertedArchitecture);
                 }
             }
 
-            return false;
+            return supportedArchitectures;
         }
 
         // This also checks if the file type is supported. If not supported, the return is empty string.
@@ -684,20 +707,27 @@ namespace AppInstaller::MSStore
             return s_sfsClient;
         }
 
-        void PopulateSfsAppFileToMSStoreDownloadFileVector(
+        std::vector<MSStoreDownloadFile> PopulateSfsAppFileToMSStoreDownloadFileVector(
             const std::vector<SFS::AppFile>& appFiles,
-            std::vector<MSStoreDownloadFile>& downloadFiles,
-            std::set<std::string>& fileNames,
             Utility::Architecture architecture = Utility::Architecture::Unknown)
         {
+            using PlatformAndArchitectureKey = std::pair<TargetPlatform, Utility::Architecture>;
+
+            // Since the server may return multiple versions of the same package, we'll use ths map to record the one with latest version
+            // for each Platform|Architecture pair.
+            std::map<PlatformAndArchitectureKey, MSStoreDownloadFile> downloadFilesMap;
+
             for (auto const& appFile : appFiles)
             {
-                if (!IsSfsPackageFilePlatformSupported(appFile))
+                // Filter out unsupported packages
+                auto supportedPlatforms = GetSfsPackageFileSupportedPlatforms(appFile);
+                if (supportedPlatforms.empty())
                 {
                     AICLI_LOG(Core, Info, << "Package skipped due to unsupported platforms. FileId:" << appFile.GetFileId());
                     continue;
                 }
-                if (!IsSfsPackageFileArchitectureSupported(appFile, architecture))
+                auto supportedArchitectures = GetSfsPackageFileSupportedArchitectures(appFile, architecture);
+                if (supportedArchitectures.empty())
                 {
                     AICLI_LOG(Core, Info, << "Package skipped due to unsupported architecture. FileId:" << appFile.GetFileId());
                     continue;
@@ -708,20 +738,43 @@ namespace AppInstaller::MSStore
                     AICLI_LOG(Core, Info, << "Package skipped due to unsupported file type. FileId:" << appFile.GetFileId());
                     continue;
                 }
-                if (!fileNames.insert(Utility::ToLower(fileName)).second)
-                {
-                    AICLI_LOG(Core, Info, << "Package skipped due to duplicate entry. FileId:" << appFile.GetFileId());
-                    continue;
-                }
 
                 MSStoreDownloadFile downloadFile;
                 downloadFile.Url = appFile.GetUrl();
                 downloadFile.FileName = fileName;
                 // The sha256 hash was base64 encoded
                 downloadFile.Sha256 = JSON::Base64Decode(appFile.GetHashes().at(SFS::HashType::Sha256));
+                downloadFile.Version = Msix::GetPackageVersionFromFullName(appFile.GetFileMoniker());
 
-                downloadFiles.emplace_back(std::move(downloadFile));
+                // Update the platform architecture map with latest package if applicable
+                for (auto supportedPlatform : supportedPlatforms)
+                {
+                    for (auto supportedArchitecture : supportedArchitectures)
+                    {
+                        PlatformAndArchitectureKey downloadFileKey{ supportedPlatform, supportedArchitecture };
+                        if (downloadFile.Version > downloadFilesMap[downloadFileKey].Version)
+                        {
+                            downloadFilesMap[downloadFileKey] = downloadFile;
+                        }
+                    }
+                }
             }
+
+            // Generate MSStoreDownloadFile vector with deduping.
+            std::vector<MSStoreDownloadFile> result;
+            for (auto& downloadFileEntry : downloadFilesMap)
+            {
+                if (std::find_if(result.begin(), result.end(),
+                    [&](const MSStoreDownloadFile& downloadFile)
+                    {
+                        return Utility::CaseInsensitiveEquals(downloadFile.FileName, downloadFileEntry.second.FileName);
+                    }) == result.end())
+                {
+                    result.emplace_back(std::move(downloadFileEntry.second));
+                }
+            }
+
+            return result;
         }
 
         MSStoreDownloadInfo CallSfsClientAndGetMSStoreDownloadInfo(std::string_view wuCategoryId, Utility::Architecture architecture)
@@ -745,14 +798,13 @@ namespace AppInstaller::MSStore
             const auto& appContent = appContents.at(0);
 
             // Populate main packages
-            std::set<std::string> mainPackageFileNames;
-            PopulateSfsAppFileToMSStoreDownloadFileVector(appContent.GetFiles(), result.MainPackages, mainPackageFileNames, architecture);
+            result.MainPackages = PopulateSfsAppFileToMSStoreDownloadFileVector(appContent.GetFiles(), architecture);
 
             // Populate dependency packages
-            std::set<std::string> dependencyPackageFileNames;
             for (auto const& dependencyEntry : appContent.GetPrerequisites())
             {
-                PopulateSfsAppFileToMSStoreDownloadFileVector(dependencyEntry.GetFiles(), result.DependencyPackages, dependencyPackageFileNames);
+                auto dependencyPackages = PopulateSfsAppFileToMSStoreDownloadFileVector(dependencyEntry.GetFiles(), architecture);
+                std::move(dependencyPackages.begin(), dependencyPackages.end(), std::inserter(result.DependencyPackages, result.DependencyPackages.end()));
             }
 
             if (result.MainPackages.empty())
