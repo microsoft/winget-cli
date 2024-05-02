@@ -143,6 +143,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportPackageId);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportResource);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportUnitDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportUnitInstallDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureTestCommandLongDescription);

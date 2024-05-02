@@ -2926,7 +2926,12 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Failed exporting configuration.</value>
   </data>
   <data name="ConfigureExportUnitDescription" xml:space="preserve">
-    <value>Configure</value>
+    <value>Configure {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigureExportUnitInstallDescription" xml:space="preserve">
+    <value>Install {0}</value>
+    <comment>{Locked="{0}"}</comment>
   </data>
   <data name="ConfigurationWarningSetViewTruncated" xml:space="preserve">
     <value>Some of the data present in the configuration file was truncated for this output; inspect the file contents for the complete content.</value>

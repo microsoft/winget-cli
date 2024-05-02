@@ -1055,9 +1055,11 @@ namespace AppInstaller::CLI::Workflow
                 unit.Identifier(packageIdWide);
                 unit.Intent(ConfigurationUnitIntent::Apply);
 
+                auto description = Resource::String::ConfigureExportUnitInstallDescription(Utility::LocIndView{ packageId });
+
                 ValueSet directives;
                 directives.Insert(s_Directive_Module, PropertyValue::CreateString(s_Module_WinGetClient));
-                directives.Insert(s_Directive_Description, PropertyValue::CreateString(L"Install " + packageIdWide));
+                directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
                 directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
                 unit.Metadata(directives);
 
@@ -1110,18 +1112,17 @@ namespace AppInstaller::CLI::Workflow
                 ValueSet directives;
                 directives.Insert(s_Directive_Module, PropertyValue::CreateString(moduleNameWide));
 
-                winrt::hstring description;
-                auto localized = std::wstring{ Resource::String::ConfigureExportUnitDescription };
+                Utility::LocIndString description;
                 if (dependantUnit.has_value())
                 {
-                    description = winrt::to_hstring(localized.c_str()) + dependantUnit.value().Identifier();
+                    description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ Utility::ConvertToUTF8(dependantUnit.value().Identifier()) });
                 }
                 else
                 {
-                    description = winrt::to_hstring(localized.c_str()) + resourceNameWide;
+                    description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ resourceName });
                 }
 
-                directives.Insert(s_Directive_Description, PropertyValue::CreateString(description));
+                directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
                 unit.Metadata(directives);
 
                 // Call processor to get settings for the unit.
