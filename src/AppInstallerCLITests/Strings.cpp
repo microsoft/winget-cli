@@ -249,7 +249,7 @@ TEST_CASE("Format", "[strings]")
     REQUIRE("First {1}" == Format("{0} {1}", "First"));
 }
 
-TEST_CASE("SplitIntoLines", "[string]")
+TEST_CASE("SplitIntoLines", "[strings]")
 {
     REQUIRE(SplitIntoLines("Boring test") == std::vector<std::string>{ "Boring test" });
     REQUIRE(SplitIntoLines(
@@ -261,7 +261,7 @@ TEST_CASE("SplitIntoLines", "[string]")
         == std::vector<std::string>{ "You want my treasure?", "You can have it!", "I left everything I gathered in one place!", "You just have to find it!" });
 }
 
-TEST_CASE("SplitWithSeparator", "[string]")
+TEST_CASE("SplitWithSeparator", "[strings]")
 {
     std::vector<std::string> test1 = Split("first;second;third", ';');
     REQUIRE(test1.size() == 3);
@@ -280,10 +280,40 @@ TEST_CASE("SplitWithSeparator", "[string]")
     REQUIRE(test3[0] == "test");
 }
 
-TEST_CASE("ConvertGuid", "[string]")
+TEST_CASE("ConvertGuid", "[strings]")
 {
     std::string validGuidString = "{4d1e55b2-f16f-11cf-88cb-001111000030}";
     GUID guid = { 0x4d1e55b2, 0xf16f, 0x11cf, 0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30 };
 
     REQUIRE(CaseInsensitiveEquals(ConvertGuidToString(guid), validGuidString));
+}
+
+TEST_CASE("FindControlCodeToConvert", "[strings]")
+{
+    REQUIRE(FindControlCodeToConvert("No codes") == std::string::npos);
+    REQUIRE(FindControlCodeToConvert("Allowed codes: \t\r\n") == std::string::npos);
+    REQUIRE(FindControlCodeToConvert("\x1bSkipped code", 1) == std::string::npos);
+
+    REQUIRE(FindControlCodeToConvert("\x1bUnskipped code") == 0);
+    REQUIRE(FindControlCodeToConvert("Escape code: \x1b") == 13);
+
+    std::string_view allCodes{ "\x0\x1\x2\x3\x4\x5\x6\x7\x8\xb\xc\xe\xf\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f"sv };
+    for (size_t i = 0; i < allCodes.length(); ++i)
+    {
+        REQUIRE(FindControlCodeToConvert(allCodes, i) == i);
+    }
+}
+
+TEST_CASE("ConvertControlCodesToPictures", "[strings]")
+{
+    REQUIRE(ConvertControlCodesToPictures("No codes") == "No codes");
+    REQUIRE(ConvertControlCodesToPictures("Allowed codes: \t\r\n") == "Allowed codes: \t\r\n");
+
+    REQUIRE(ConvertControlCodesToPictures("\x1b Code First") == ConvertToUTF8(L"\x241b Code First"));
+    REQUIRE(ConvertControlCodesToPictures("Escape code: \x1b") == ConvertToUTF8(L"Escape code: \x241b"));
+
+    std::string_view allCodes{ "\x0\x1\x2\x3\x4\x5\x6\x7\x8\xb\xc\xe\xf\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x7f"sv };
+    std::wstring_view allPictures{ L"\x2400\x2401\x2402\x2403\x2404\x2405\x2406\x2407\x2408\x240b\x240c\x240e\x240f\x2410\x2411\x2412\x2413\x2414\x2415\x2416\x2417\x2418\x2419\x241a\x241b\x241c\x241d\x241e\x241f\x2421"sv };
+
+    REQUIRE(ConvertControlCodesToPictures(allCodes) == ConvertToUTF8(allPictures));
 }

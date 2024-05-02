@@ -344,6 +344,9 @@
     <ClCompile Include="RestInterface_1_7.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
+    <ClCompile Include="Yaml.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -973,6 +976,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Node-Mapping.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ContainsEscapeControlCode.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
