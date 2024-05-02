@@ -38,7 +38,8 @@ namespace AppInstaller::YAML
             Parser,
             Composer,
             Writer,
-            Emitter
+            Emitter,
+            Policy,
         };
 
         // Should only be used for Memory.

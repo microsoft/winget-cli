@@ -487,7 +487,7 @@ properties:
       directives:
         description: FakeDescription
         allowPrerelease: true
-        SecurityContext: elevated
+        securityContext: elevated
       settings:
         TestString: Hello
         TestBool: false
@@ -501,7 +501,7 @@ properties:
         - dependency3
       directives:
         description: FakeDescription2
-        SecurityContext: elevated
+        securityContext: elevated
       settings:
         TestString: Bye
         TestBool: true
