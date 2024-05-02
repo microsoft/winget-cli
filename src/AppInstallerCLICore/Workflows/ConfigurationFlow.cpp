@@ -1015,8 +1015,7 @@ namespace AppInstaller::CLI::Workflow
 
         std::optional<ConfigurationUnit> CreateConfigurationUnit(Execution::Context& context, const std::optional<ConfigurationUnit> dependantUnit)
         {
-            if (context.Args.Contains(Execution::Args::Type::ConfigurationExportModule) &&
-                context.Args.Contains(Execution::Args::Type::ConfigurationExportResource))
+            if (context.Args.Contains(Execution::Args::Type::ConfigurationExportModule, Execution::Args::Type::ConfigurationExportResource))
             {
                 std::string moduleName{ context.Args.GetArg(Args::Type::ConfigurationExportModule) };
                 std::wstring moduleNameWide = Utility::ConvertToUTF16(moduleName);
@@ -1031,13 +1030,14 @@ namespace AppInstaller::CLI::Workflow
                 directives.Insert(s_Directive_Module, PropertyValue::CreateString(moduleNameWide));
 
                 winrt::hstring description;
+                auto localized = std::wstring{ Resource::String::ConfigureExportUnitDescription };
                 if (dependantUnit.has_value())
                 {
-                    description = L"Configure " + dependantUnit.value().Identifier();
+                    description = winrt::to_hstring(localized.c_str()) + dependantUnit.value().Identifier();
                 }
                 else
                 {
-                    description = L"Configure " + resourceNameWide;
+                    description = winrt::to_hstring(localized.c_str()) + resourceNameWide;
                 }
 
                 directives.Insert(s_Directive_Description, PropertyValue::CreateString(description));
@@ -1634,30 +1634,38 @@ namespace AppInstaller::CLI::Workflow
 
     void WriteConfigFile(Execution::Context& context)
     {
-        std::string argPath{ context.Args.GetArg(Args::Type::OutputFile) };
-
-        context.Reporter.Info() << Resource::String::ConfigurationExportAddingToFile(Utility::LocIndView{ argPath }) << std::endl;
-
-        auto tempFilePath = Runtime::GetNewTempFilePath();
-
+        try
         {
-            std::ofstream tempStream{ tempFilePath };
-            tempStream << "# Created using winget configure export " << Runtime::GetClientVersion().get() << std::endl;
+            std::string argPath{ context.Args.GetArg(Args::Type::OutputFile) };
+
+            context.Reporter.Info() << Resource::String::ConfigurationExportAddingToFile(Utility::LocIndView{ argPath }) << std::endl;
+
+            auto tempFilePath = Runtime::GetNewTempFilePath();
+
+            {
+                std::ofstream tempStream{ tempFilePath };
+                tempStream << "# Created using winget configure export " << Runtime::GetClientVersion().get() << std::endl;
+            }
+
+            auto openAction = Streams::FileRandomAccessStream::OpenAsync(
+                tempFilePath.wstring(),
+                FileAccessMode::ReadWrite);
+
+            auto stream = openAction.get();
+            stream.Seek(stream.Size());
+
+            ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+            configContext.Set().Serialize(openAction.get());
+
+            auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPath });
+            std::filesystem::rename(tempFilePath, absolutePath);
+
+            context.Reporter.Info() << Resource::String::ConfigurationExportSuccessful << std::endl;
         }
-
-        auto openAction = Streams::FileRandomAccessStream::OpenAsync(
-            tempFilePath.wstring(),
-            FileAccessMode::ReadWrite);
-
-        auto stream = openAction.get();
-        stream.Seek(stream.Size());
-
-        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
-        configContext.Set().Serialize(openAction.get());
-
-        auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPath });
-        std::filesystem::copy_file(tempFilePath, absolutePath, std::filesystem::copy_options::overwrite_existing);
-
-        context.Reporter.Info() << Resource::String::ConfigurationExportSuccessful << std::endl;
+        catch (...)
+        {
+            context.Reporter.Error() << Resource::String::ConfigurationExportFailed << std::endl;
+            throw;
+        }
     }
 }

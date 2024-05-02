@@ -50,7 +50,7 @@ namespace AppInstaller::CLI
         Configuration::ValidateCommonArguments(execArgs);
 
         bool validInputArgs = false;
-        if ((execArgs.Contains(Execution::Args::Type::ConfigurationExportModule) && execArgs.Contains(Execution::Args::Type::ConfigurationExportResource)) ||
+        if (execArgs.Contains(Execution::Args::Type::ConfigurationExportModule, Execution::Args::Type::ConfigurationExportResource) ||
             execArgs.Contains(Execution::Args::Type::ConfigurationExportPackageId))
         {
             validInputArgs = true;

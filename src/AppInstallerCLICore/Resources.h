@@ -68,6 +68,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnableMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnablingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportAddingToFile);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportSuccessful);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToApply);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToGetDetails);
@@ -139,6 +140,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportModule);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportPackageId);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportResource);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportUnitDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureTestCommandLongDescription);

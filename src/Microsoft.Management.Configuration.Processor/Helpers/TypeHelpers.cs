@@ -80,11 +80,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             {
                 var key = property.Name;
                 var value = GetCompatibleValueSetValueOfProperty(property.PropertyType, property.GetValue(obj));
-
-                if (value != null)
-                {
-                    result.Add(key, value);
-                }
+                result.Add(key, value);
             }
 
             return result;
@@ -100,7 +96,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         {
             if (value == null)
             {
-                // Ignore null values.
                 return null;
             }
 

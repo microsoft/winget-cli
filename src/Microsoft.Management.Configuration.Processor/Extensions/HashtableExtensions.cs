@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.Extensions
 {
     using System.Collections;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Windows.Foundation.Collections;
 
@@ -26,19 +27,24 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
 
             foreach (DictionaryEntry entry in hashtable)
             {
-                if (entry.Value == null)
-                {
-                    continue;
-                }
-
-                // Ignore keys that are not strings.
                 if (entry.Key is string key)
                 {
-                    var value = TypeHelpers.GetCompatibleValueSetValueOfProperty(entry.Value.GetType(), entry.Value);
-                    if (value != null)
+                    if (entry.Value is null)
                     {
-                        valueSet.Add(key, value);
+                        valueSet.Add(key, null);
                     }
+                    else
+                    {
+                        var value = TypeHelpers.GetCompatibleValueSetValueOfProperty(entry.Value.GetType(), entry.Value);
+                        if (value != null)
+                        {
+                            valueSet.Add(key, value);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new UnitPropertyUnsupportedException(entry.Key.GetType());
                 }
             }
 

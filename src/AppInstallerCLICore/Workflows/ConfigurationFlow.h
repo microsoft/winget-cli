@@ -98,7 +98,7 @@ namespace AppInstaller::CLI::Workflow
     void AddWinGetPackageAndResource(Execution::Context& context);
 
     // Write the configuration file.
-    // Rquired Args: OutputFile
+    // Required Args: OutputFile
     // Inputs: ConfigurationProcessor, ConfigurationSet
     // Outputs: None
     void WriteConfigFile(Execution::Context& context);

@@ -15,6 +15,11 @@ using namespace winrt::Windows::Foundation;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    namespace anon
+    {
+        static constexpr std::string_view s_nullValue = "null";
+    }
+
     std::unique_ptr<ConfigurationSetSerializer> ConfigurationSetSerializer::CreateSerializer(hstring version)
     {
         // Create the parser based on the version selected
@@ -46,10 +51,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         for (const auto& [key, value] : valueSet)
         {
-            std::string keyName = winrt::to_string(key);
-
-            emitter << Key << keyName << Value;
-            WriteYamlValue(emitter, value);
+            if (value != nullptr)
+            {
+                std::string keyName = winrt::to_string(key);
+                emitter << Key << keyName << Value;
+                WriteYamlValue(emitter, value);
+            }
         }
 
         emitter << EndMap;
@@ -58,38 +65,45 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetSerializer::WriteYamlValue(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value)
     {
-        const auto& currentValueSet = value.try_as<Windows::Foundation::Collections::ValueSet>();
-        if (currentValueSet)
+        if (value == nullptr)
         {
-            if (currentValueSet.HasKey(L"treatAsArray"))
-            {
-                WriteYamlValueSetAsArray(emitter, currentValueSet);
-            }
-            else
-            {
-                WriteYamlValueSet(emitter, currentValueSet);
-            }
+            emitter << anon::s_nullValue;
         }
         else
         {
-            IPropertyValue property = value.as<IPropertyValue>();
-            auto type = property.Type();
-
-            if (type == PropertyType::Boolean)
+            const auto& currentValueSet = value.try_as<Windows::Foundation::Collections::ValueSet>();
+            if (currentValueSet)
             {
-                emitter << property.GetBoolean();
-            }
-            else if (type == PropertyType::String)
-            {
-                emitter << AppInstaller::Utility::ConvertToUTF8(property.GetString());
-            }
-            else if (type == PropertyType::Int64)
-            {
-                emitter << property.GetInt64();
+                if (currentValueSet.HasKey(L"treatAsArray"))
+                {
+                    WriteYamlValueSetAsArray(emitter, currentValueSet);
+                }
+                else
+                {
+                    WriteYamlValueSet(emitter, currentValueSet);
+                }
             }
             else
             {
-                THROW_HR(E_NOTIMPL);;
+                IPropertyValue property = value.as<IPropertyValue>();
+                auto type = property.Type();
+
+                if (type == PropertyType::Boolean)
+                {
+                    emitter << property.GetBoolean();
+                }
+                else if (type == PropertyType::String)
+                {
+                    emitter << AppInstaller::Utility::ConvertToUTF8(property.GetString());
+                }
+                else if (type == PropertyType::Int64)
+                {
+                    emitter << property.GetInt64();
+                }
+                else
+                {
+                    THROW_HR(E_NOTIMPL);;
+                }
             }
         }
     }

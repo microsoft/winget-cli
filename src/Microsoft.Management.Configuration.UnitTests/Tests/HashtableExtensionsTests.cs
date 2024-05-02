@@ -7,13 +7,16 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System.Collections;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
-    using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Windows.Foundation.Collections;
     using Xunit;
     using Xunit.Abstractions;
 
+    /// <summary>
+    /// Hashtable extension tests.
+    /// </summary>
     [Collection("UnitTestCollection")]
     public class HashtableExtensionsTests
     {
@@ -96,7 +99,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var ht = new Hashtable()
             {
-                { "arrayKey", new string[]
+                {
+                    "arrayKey", new string[]
                     {
                         "s1",
                         "s2",
@@ -111,6 +115,20 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var resultValueSet = (ValueSet)valueSet["arrayKey"];
             Assert.True(resultValueSet.ContainsKey("treatAsArray"));
             Assert.Equal(4, resultValueSet.Count);
+        }
+
+        /// <summary>
+        /// Test when a key is not a string.
+        /// </summary>
+        [Fact]
+        public void ToValueSet_KeyNotString()
+        {
+            var ht = new Hashtable()
+            {
+                { 1, "value" },
+            };
+
+            Assert.Throws<UnitPropertyUnsupportedException>(() => ht.ToValueSet());
         }
     }
 }

@@ -2922,4 +2922,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
     <value>The configuration unit failed getting its properties.</value>
   </data>
+  <data name="ConfigurationExportFailed" xml:space="preserve">
+    <value>Failed exporting configuration.</value>
+  </data>
+  <data name="ConfigureExportUnitDescription" xml:space="preserve">
+    <value>Configure</value>
+  </data>
 </root>

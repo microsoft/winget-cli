@@ -162,7 +162,11 @@ namespace AppInstaller::CLI::Execution
             Max
         };
 
-        bool Contains(Type arg) const { return (m_parsedArgs.count(arg) != 0); }
+        template<typename... T, std::enable_if_t<(... && std::is_same_v<T, Args::Type>), bool> = true>
+        bool Contains(T... arg) const
+        {
+            return (... && (m_parsedArgs.count(arg) != 0));
+        }
 
         const std::vector<std::string>* GetArgs(Type arg) const
         {

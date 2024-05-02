@@ -210,7 +210,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::ConfigurationModulePath:
             return { type, "module-path"_liv };
         case Execution::Args::Type::ConfigurationExportPackageId:
-            return { type, "packageId"_liv };
+            return { type, "package-id"_liv };
         case Execution::Args::Type::ConfigurationExportModule:
             return { type, "module"_liv };
         case Execution::Args::Type::ConfigurationExportResource:
