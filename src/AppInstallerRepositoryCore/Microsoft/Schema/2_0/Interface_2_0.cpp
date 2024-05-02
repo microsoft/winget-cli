@@ -105,7 +105,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     {
         EnsureInternalInterface(connection, true);
         SQLite::rowid_t manifestId = m_internalInterface->AddManifest(connection, manifest, relativePath);
-        PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), m_internalInterface->GetPropertyByManifestId(connection, manifestId, PackageVersionProperty::Id).value());
+        PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), m_internalInterface->GetPropertyByPrimaryId(connection, manifestId, PackageVersionProperty::Id).value());
         return manifestId;
     }
 
@@ -115,7 +115,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         std::pair<bool, SQLite::rowid_t> result = m_internalInterface->UpdateManifest(connection, manifest, relativePath);
         if (result.first)
         {
-            PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), m_internalInterface->GetPropertyByManifestId(connection, result.second, PackageVersionProperty::Id).value());
+            PackageUpdateTrackingTable::Update(connection, m_internalInterface.get(), m_internalInterface->GetPropertyByPrimaryId(connection, result.second, PackageVersionProperty::Id).value());
         }
         return result;
     }
@@ -137,7 +137,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
     void Interface::RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId)
     {
         EnsureInternalInterface(connection, true);
-        std::optional<std::string> identifier = m_internalInterface->GetPropertyByManifestId(connection, manifestId, PackageVersionProperty::Id);
+        std::optional<std::string> identifier = m_internalInterface->GetPropertyByPrimaryId(connection, manifestId, PackageVersionProperty::Id);
         m_internalInterface->RemoveManifestById(connection, manifestId);
         if (identifier)
         {
@@ -213,13 +213,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         return SearchInternal(connection, requestCopy);
     }
 
-    std::optional<std::string> Interface::GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
+    std::optional<std::string> Interface::GetPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
     {
         EnsureInternalInterface(connection);
 
         if (m_internalInterface)
         {
-            return m_internalInterface->GetPropertyByManifestId(connection, manifestId, property);
+            return m_internalInterface->GetPropertyByPrimaryId(connection, manifestId, property);
         }
 
         switch (property)
@@ -248,13 +248,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
+    std::vector<std::string> Interface::GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
     {
         EnsureInternalInterface(connection);
 
         if (m_internalInterface)
         {
-            return m_internalInterface->GetMultiPropertyByManifestId(connection, manifestId, property);
+            return m_internalInterface->GetMultiPropertyByPrimaryId(connection, manifestId, property);
         }
 
         switch (property)
@@ -403,7 +403,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         {
             std::vector<ISQLiteIndex::VersionKey> versionKeys = current->GetVersionKeysById(connection, packageMatch.first);
             ISQLiteIndex::VersionKey& latestVersionKey = versionKeys[0];
-            PackageUpdateTrackingTable::Update(connection, current, current->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value(), false);
+            PackageUpdateTrackingTable::Update(connection, current, current->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value(), false);
         }
 
         savepoint.Commit();
@@ -693,11 +693,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             std::vector<ISQLiteIndex::VersionKey> versionKeys = m_internalInterface->GetVersionKeysById(connection, packageMatch.first);
             ISQLiteIndex::VersionKey& latestVersionKey = versionKeys[0];
 
-            std::string packageIdentifier = m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value();
+            std::string packageIdentifier = m_internalInterface->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value();
 
             std::vector<PackagesTable::NameValuePair> packageData{
                 { PackagesTable::IdColumn::Name, packageIdentifier },
-                { PackagesTable::NameColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Name).value() },
+                { PackagesTable::NameColumn::Name, m_internalInterface->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Name).value() },
                 { PackagesTable::LatestVersionColumn::Name, latestVersionKey.VersionAndChannel.GetVersion().ToString() },
             };
 
@@ -709,9 +709,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
                     }
                 };
 
-            addIfPresent(PackagesTable::MonikerColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Moniker).value());
-            addIfPresent(PackagesTable::ARPMinVersionColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::ArpMinVersion).value());
-            addIfPresent(PackagesTable::ARPMaxVersionColumn::Name, m_internalInterface->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::ArpMaxVersion).value());
+            addIfPresent(PackagesTable::MonikerColumn::Name, m_internalInterface->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Moniker).value());
+            addIfPresent(PackagesTable::ARPMinVersionColumn::Name, m_internalInterface->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::ArpMinVersion).value());
+            addIfPresent(PackagesTable::ARPMaxVersionColumn::Name, m_internalInterface->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::ArpMaxVersion).value());
 
             SQLite::rowid_t packageId = PackagesTable::Insert(connection, packageData);
 
@@ -719,14 +719,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             for (const auto& versionKey : versionKeys)
             {
-                TagsTable::EnsureExistsAndInsert(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Tag), packageId);
-                CommandsTable::EnsureExistsAndInsert(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Command), packageId);
+                TagsTable::EnsureExistsAndInsert(connection, m_internalInterface->GetMultiPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Tag), packageId);
+                CommandsTable::EnsureExistsAndInsert(connection, m_internalInterface->GetMultiPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Command), packageId);
 
-                PackageFamilyNameTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::PackageFamilyName), packageId);
-                ProductCodeTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::ProductCode), packageId);
-                NormalizedPackageNameTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Name), packageId);
-                NormalizedPackagePublisherTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Publisher), packageId);
-                UpgradeCodeTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionMultiProperty::UpgradeCode), packageId);
+                PackageFamilyNameTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionMultiProperty::PackageFamilyName), packageId);
+                ProductCodeTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionMultiProperty::ProductCode), packageId);
+                NormalizedPackageNameTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Name), packageId);
+                NormalizedPackagePublisherTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionMultiProperty::Publisher), packageId);
+                UpgradeCodeTable::EnsureExists(connection, m_internalInterface->GetMultiPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionMultiProperty::UpgradeCode), packageId);
             }
         }
 

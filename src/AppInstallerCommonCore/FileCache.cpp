@@ -112,6 +112,21 @@ namespace AppInstaller::Caching
         }
     }
 
+    FileCache::Details::Details(FileCache::Type type, std::string identifier) :
+        Type(type), Identifier(std::move(identifier))
+    {
+        switch (type)
+        {
+        case Type::IndexV1_Manifest:
+        case Type::IndexV2_PackageVersionData:
+        case Type::IndexV2_Manifest:
+            BasePath = Runtime::PathName::Temp;
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+    }
+
     std::filesystem::path FileCache::Details::GetCachePath() const
     {
         std::filesystem::path result = Runtime::GetPathTo(BasePath);
@@ -122,22 +137,8 @@ namespace AppInstaller::Caching
     }
 
     FileCache::FileCache(Type type, std::string identifier, std::vector<std::string> sources) :
-        m_sources(std::move(sources))
+        m_details(type, std::move(identifier)), m_sources(std::move(sources))
     {
-        m_details.Type = type;
-        m_details.Identifier = std::move(identifier);
-
-        switch (type)
-        {
-        case Type::IndexV1_Manifest:
-        case Type::IndexV2_PackageVersionData:
-        case Type::IndexV2_Manifest:
-            m_details.BasePath = Runtime::PathName::Temp;
-            break;
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
-
         m_cacheBase = m_details.GetCachePath();
     }
 

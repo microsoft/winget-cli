@@ -21,7 +21,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_7
 
         // Version 1.0
         SQLite::Version GetVersion() const override;
-        std::vector<std::string> GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const override;
+        std::vector<std::string> GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const override;
 
     protected:
         void PrepareForPackaging(SQLite::Connection& connection, bool vacuum) override;

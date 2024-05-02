@@ -185,7 +185,7 @@ namespace AppInstaller::Repository::Microsoft
 
                     if (manifestId)
                     {
-                        return std::make_shared<PackageVersion>(source, manifestId.value());
+                        return std::make_shared<PackageVersion>(source, manifestId.value(), m_manifestCache);
                     }
 
                     return {};
@@ -221,7 +221,7 @@ namespace AppInstaller::Repository::Microsoft
 
                     if (manifestId)
                     {
-                        return std::make_shared<PackageVersion>(source, manifestId.value());
+                        return std::make_shared<PackageVersion>(source, manifestId.value(), m_manifestCache);
                     }
 
                     return {};
@@ -302,20 +302,53 @@ namespace AppInstaller::Repository::Microsoft
 
         namespace V2
         {
+            // Get the relative path and hash for the package version data manifest.
+            std::pair<std::string, std::string> CreatePackageVersionDataRelativePath(const std::shared_ptr<SQLiteIndexSource>& source, SQLiteIndex::IdType packageRowId)
+            {
+                static constexpr std::string_view s_fixedPathPart = "packages/";
+
+                const SQLiteIndex& index = source->GetIndex();
+
+                std::string hash = index.GetPropertyByPrimaryId(packageRowId, PackageVersionProperty::ManifestSHA256Hash).value();
+
+                // See PrepareForPackaging in the V2 interface for this format.
+                std::ostringstream stream;
+                stream <<
+                    s_fixedPathPart <<
+                    index.GetPropertyByPrimaryId(packageRowId, PackageVersionProperty::Id).value() << '/' <<
+                    hash << '/' <<
+                    Manifest::PackageVersionDataManifest::VersionManifestCompressedFileName();
+
+                return std::make_pair(std::move(stream).str(), std::move(hash));
+            }
+
+            // Gets package version data for the given package in the index.
+            Manifest::PackageVersionDataManifest GetPackageVersionData(const std::shared_ptr<SQLiteIndexSource>& source, SQLiteIndex::IdType packageRowId, const Caching::FileCache& fileCache)
+            {
+                auto pathAndHash = CreatePackageVersionDataRelativePath(source, packageRowId);
+                auto fileStream = fileCache.GetFile(pathAndHash.first, Utility::SHA256::ConvertToBytes(pathAndHash.second));
+                auto fileBytes = Utility::ReadEntireStreamAsByteArray(*fileStream);
+
+                Manifest::PackageVersionDataManifest result;
+                result.Deserialize(Manifest::PackageVersionDataManifest::CreateDecompressor().Decompress(fileBytes));
+
+                return result;
+            }
+
             // The IPackageVersion implementation for V2 index.
             struct PackageVersion : public SourceReference, public IPackageVersion
             {
-                // TODO: Much fixup here
-
                 PackageVersion(
                     const std::shared_ptr<SQLiteIndexSource>& source,
                     SQLiteIndex::IdType packageRowId,
+                    std::optional<Manifest::PackageVersionDataManifest::VersionData> packageVersionData,
                     const std::shared_ptr<Caching::FileCache>& manifestCache,
                     const std::shared_ptr<Caching::FileCache>& packageVersionDataCache) :
-                    SourceReference(source),
-                    m_packageRowId(packageRowId),
-                    m_manifestCache(manifestCache),
-                    m_packageVersionDataCache(packageVersionDataCache)
+                        SourceReference(source),
+                        m_packageRowId(packageRowId),
+                        m_packageVersionData(std::move(packageVersionData)),
+                        m_manifestCache(manifestCache),
+                        m_packageVersionDataCache(packageVersionDataCache)
                 {}
 
                 // Inherited via IPackageVersion
@@ -327,44 +360,111 @@ namespace AppInstaller::Repository::Microsoft
                         return LocIndString{ GetReferenceSource()->GetIdentifier() };
                     case PackageVersionProperty::SourceName:
                         return LocIndString{ GetReferenceSource()->GetDetails().Name };
+                    case PackageVersionProperty::RelativePath:
+                    case PackageVersionProperty::ManifestSHA256Hash:
+                    {
+                        // These values can only come from the version data.
+                        EnsurePackageVersionData();
+                        return GetPropertyFromVersionData(property);
+                    }
+                        break;
+                    case PackageVersionProperty::Publisher:
+                    {
+                        // These values can only come from the manifest.
+                        EnsureManifest();
+                        return GetPropertyFromManifest(property);
+                    }
+                        break;
+                    case PackageVersionProperty::Id:
+                    case PackageVersionProperty::Name:
+                    case PackageVersionProperty::Moniker:
+                    {
+                        // These properties can come from the manifest or the index.
+                        // The index values will be for the latest version rather than this specific one though.
+                        auto sharedLock = m_versionAndManifestLock.lock_shared();
+
+                        if (m_manifest)
+                        {
+                            return GetPropertyFromManifestWithLock(property);
+                        }
+                        else
+                        {
+                            return GetPropertyFromIndex(property);
+                        }
+                    }
+                        break;
+                    case PackageVersionProperty::Version:
+                    case PackageVersionProperty::Channel:
+                    case PackageVersionProperty::ArpMinVersion:
+                    case PackageVersionProperty::ArpMaxVersion:
+                    {
+                        // These properties can come from the manifest, version data, or the index.
+                        // The index values are only for the latest version, but we should always already have the version data
+                        // for any version that is not the latest.
+                        auto sharedLock = m_versionAndManifestLock.lock_shared();
+
+                        if (m_manifest)
+                        {
+                            return GetPropertyFromManifestWithLock(property);
+                        }
+                        else if (m_packageVersionData)
+                        {
+                            return GetPropertyFromVersionDataWithLock(property);
+                        }
+                        else
+                        {
+                            return GetPropertyFromIndex(property);
+                        }
+                    }
+                        break;
                     default:
-                        // Values coming from the index will always be localized/independent.
-                        std::optional<std::string> optValue = GetReferenceSource()->GetIndex().GetPropertyByPrimaryId(m_manifestId, property);
-                        return LocIndString{ optValue ? optValue.value() : std::string{} };
+                        THROW_HR(E_UNEXPECTED);
                     }
                 }
 
                 std::vector<Utility::LocIndString> GetMultiProperty(PackageVersionMultiProperty property) const override
                 {
-                    std::vector<Utility::LocIndString> result;
-
-                    for (auto&& value : GetReferenceSource()->GetIndex().GetMultiPropertyByPrimaryId(m_manifestId, property))
+                    switch (property)
                     {
-                        // Values coming from the index will always be localized/independent.
-                        result.emplace_back(std::move(value));
+                    case PackageVersionMultiProperty::Locale:
+                    {
+                        // These values can only come from the manifest.
+                        EnsureManifest();
+                        return GetMultiPropertyFromManifest(property);
                     }
+                        break;
+                    case PackageVersionMultiProperty::PackageFamilyName:
+                    case PackageVersionMultiProperty::ProductCode:
+                    case PackageVersionMultiProperty::UpgradeCode:
+                    case PackageVersionMultiProperty::Name:
+                    case PackageVersionMultiProperty::Publisher:
+                    case PackageVersionMultiProperty::Tag:
+                    case PackageVersionMultiProperty::Command:
+                    {
+                        // These properties can come from the manifest or the index.
+                        // The index values will be for all versions rather than this specific one though.
+                        auto sharedLock = m_versionAndManifestLock.lock_shared();
 
-                    return result;
+                        if (m_manifest)
+                        {
+                            return GetMultiPropertyFromManifestWithLock(property);
+                        }
+                        else
+                        {
+                            return GetMultiPropertyFromIndex(property);
+                        }
+                    }
+                    break;
+                    default:
+                        THROW_HR(E_UNEXPECTED);
+                    }
                 }
 
                 Manifest::Manifest GetManifest() override
                 {
-                    std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
-
-                    std::optional<std::string> relativePathOpt = source->GetIndex().GetPropertyByPrimaryId(m_manifestId, PackageVersionProperty::RelativePath);
-                    THROW_HR_IF(E_NOT_SET, !relativePathOpt);
-
-                    std::optional<std::string> manifestHashString = source->GetIndex().GetPropertyByPrimaryId(m_manifestId, PackageVersionProperty::ManifestSHA256Hash);
-                    THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, source->RequireManifestHash() && !manifestHashString);
-
-                    SHA256::HashBuffer manifestSHA256;
-                    if (manifestHashString)
-                    {
-                        manifestSHA256 = SHA256::ConvertToBytes(manifestHashString.value());
-                    }
-
-                    std::unique_ptr<std::istream> manifestStream = m_manifestCache->GetFile(relativePathOpt.value(), manifestSHA256);
-                    return Manifest::YamlParser::Create(Utility::ReadEntireStream(*manifestStream));
+                    EnsureManifest();
+                    auto sharedLock = m_versionAndManifestLock.lock_shared();
+                    return m_manifest.value();
                 }
 
                 Source GetSource() const override
@@ -374,20 +474,241 @@ namespace AppInstaller::Repository::Microsoft
 
                 IPackageVersion::Metadata GetMetadata() const override
                 {
-                    auto metadata = GetReferenceSource()->GetIndex().GetMetadataByManifestId(m_manifestId);
+                    return {};
+                }
 
-                    IPackageVersion::Metadata result;
-                    for (auto&& data : metadata)
+            private:
+                // Ensures that the package version data is present.
+                void EnsurePackageVersionData() const
+                {
                     {
-                        result.emplace(std::move(data));
+                        auto sharedLock = m_versionAndManifestLock.lock_shared();
+                        if (m_packageVersionData)
+                        {
+                            return;
+                        }
+                    }
+
+                    auto exclusiveLock = m_versionAndManifestLock.lock_exclusive();
+                    if (m_packageVersionData)
+                    {
+                        return;
+                    }
+
+                    Manifest::PackageVersionDataManifest packageVersionDataManifest = GetPackageVersionData(GetReferenceSource(), m_packageRowId, *m_packageVersionDataCache);
+
+                    for (const auto& versionData : packageVersionDataManifest.Versions())
+                    {
+                        // We should only ever be looking for the latest version here.
+                        if (!m_packageVersionData || m_packageVersionData->Version < versionData.Version)
+                        {
+                            m_packageVersionData = versionData;
+                        }
+                    }
+                }
+
+                // Ensures that the manifest is present.
+                void EnsureManifest() const
+                {
+                    {
+                        auto sharedLock = m_versionAndManifestLock.lock_shared();
+                        if (m_manifest)
+                        {
+                            return;
+                        }
+                    }
+
+                    // We will need the package version data to get the manifest.
+                    EnsurePackageVersionData();
+
+                    auto exclusiveLock = m_versionAndManifestLock.lock_exclusive();
+                    if (m_manifest)
+                    {
+                        return;
+                    }
+
+                    std::unique_ptr<std::istream> manifestStream =
+                        m_manifestCache->GetFile(m_packageVersionData->ManifestRelativePath, SHA256::ConvertToBytes(m_packageVersionData->ManifestHash));
+                    m_manifest = Manifest::YamlParser::Create(Utility::ReadEntireStream(*manifestStream));
+                    m_manifest->ApplyLocale();
+                }
+
+                Utility::LocIndString GetPropertyFromIndex(PackageVersionProperty property) const
+                {
+                    switch (property)
+                    {
+                    case PackageVersionProperty::Id:
+                    case PackageVersionProperty::Name:
+                    case PackageVersionProperty::Moniker:
+                    case PackageVersionProperty::Version:
+                    case PackageVersionProperty::ArpMinVersion:
+                    case PackageVersionProperty::ArpMaxVersion:
+                    {
+                        // Values coming from the index will always be localized/independent.
+                        std::optional<std::string> optValue = GetReferenceSource()->GetIndex().GetPropertyByPrimaryId(m_packageRowId, property);
+                        return LocIndString{ optValue ? optValue.value() : std::string{} };
+                    }
+                    default:
+                        return {};
+                    }
+                }
+
+                Utility::LocIndString GetPropertyFromVersionData(PackageVersionProperty property) const
+                {
+                    auto sharedLock = m_versionAndManifestLock.lock_shared();
+                    return GetPropertyFromVersionDataWithLock(property);
+                }
+
+                Utility::LocIndString GetPropertyFromVersionDataWithLock(PackageVersionProperty property) const
+                {
+                    std::string result;
+
+                    switch (property)
+                    {
+                    case PackageVersionProperty::RelativePath:
+                        result = m_packageVersionData->ManifestRelativePath;
+                        break;
+                    case PackageVersionProperty::ManifestSHA256Hash:
+                        result = m_packageVersionData->ManifestHash;
+                        break;
+                    case PackageVersionProperty::Version:
+                        result = m_packageVersionData->Version.ToString();
+                        break;
+                    case PackageVersionProperty::ArpMinVersion:
+                        result = m_packageVersionData->ArpMinVersion.value_or("");
+                        break;
+                    case PackageVersionProperty::ArpMaxVersion:
+                        result = m_packageVersionData->ArpMaxVersion.value_or("");
+                        break;
+                    }
+
+                    return LocIndString{ std::move(result) };
+                }
+
+                Utility::LocIndString GetPropertyFromManifest(PackageVersionProperty property) const
+                {
+                    auto sharedLock = m_versionAndManifestLock.lock_shared();
+                    return GetPropertyFromManifestWithLock(property);
+                }
+
+                Utility::LocIndString GetPropertyFromManifestWithLock(PackageVersionProperty property) const
+                {
+                    std::string result;
+
+                    switch (property)
+                    {
+                    case PackageVersionProperty::Publisher:
+                        result = m_manifest->CurrentLocalization.Get<Manifest::Localization::Publisher>();
+                        break;
+                    case PackageVersionProperty::Id:
+                        result = m_manifest->Id;
+                        break;
+                    case PackageVersionProperty::Name:
+                        result = m_manifest->CurrentLocalization.Get<Manifest::Localization::PackageName>();
+                        break;
+                    case PackageVersionProperty::Moniker:
+                        result = m_manifest->Moniker;
+                        break;
+                    case PackageVersionProperty::Version:
+                        result = m_manifest->Version;
+                        break;
+                    case PackageVersionProperty::Channel:
+                        result = m_manifest->Channel;
+                        break;
+                    case PackageVersionProperty::ArpMinVersion:
+                    {
+                        auto versionRange = m_manifest->GetArpVersionRange();
+                        if (!versionRange.IsEmpty())
+                        {
+                            result = versionRange.GetMinVersion().ToString();
+                        }
+                    }
+                        break;
+                    case PackageVersionProperty::ArpMaxVersion:
+                    {
+                        auto versionRange = m_manifest->GetArpVersionRange();
+                        if (!versionRange.IsEmpty())
+                        {
+                            result = versionRange.GetMaxVersion().ToString();
+                        }
+                    }
+                        break;
+                    }
+
+                    return LocIndString{ std::move(result) };
+                }
+
+                std::vector<Utility::LocIndString> GetMultiPropertyFromIndex(PackageVersionMultiProperty property) const
+                {
+                    std::vector<Utility::LocIndString> result;
+
+                    for (auto&& value : GetReferenceSource()->GetIndex().GetMultiPropertyByPrimaryId(m_packageRowId, property))
+                    {
+                        // Values coming from the index will always be localized/independent.
+                        result.emplace_back(std::move(value));
                     }
 
                     return result;
                 }
 
-            private:
+                std::vector<Utility::LocIndString> GetMultiPropertyFromManifest(PackageVersionMultiProperty property) const
+                {
+                    auto sharedLock = m_versionAndManifestLock.lock_shared();
+                    return GetMultiPropertyFromManifestWithLock(property);
+                }
+
+                std::vector<Utility::LocIndString> GetMultiPropertyFromManifestWithLock(PackageVersionMultiProperty property) const
+                {
+                    std::vector<Manifest::string_t> intermediate;
+
+                    switch (property)
+                    {
+                    case PackageVersionMultiProperty::PackageFamilyName:
+                        intermediate = m_manifest->GetPackageFamilyNames();
+                        break;
+                    case PackageVersionMultiProperty::ProductCode:
+                        intermediate = m_manifest->GetProductCodes();
+                        break;
+                    case PackageVersionMultiProperty::UpgradeCode:
+                        intermediate = m_manifest->GetUpgradeCodes();
+                        break;
+                    case PackageVersionMultiProperty::Name:
+                        intermediate = m_manifest->GetPackageNames();
+                        break;
+                    case PackageVersionMultiProperty::Publisher:
+                        intermediate = m_manifest->GetPublishers();
+                        break;
+                    case PackageVersionMultiProperty::Locale:
+                        for (const auto& localization : m_manifest->Localizations)
+                        {
+                            intermediate.emplace_back(localization.Locale);
+                        }
+                        break;
+                    case PackageVersionMultiProperty::Tag:
+                        intermediate = m_manifest->GetAggregatedTags();
+                        break;
+                    case PackageVersionMultiProperty::Command:
+                        intermediate = m_manifest->GetAggregatedCommands();
+                        break;
+                    }
+
+                    std::vector<Utility::LocIndString> result;
+
+                    for (auto&& value : intermediate)
+                    {
+                        // Values coming from the manifest will always be localized/independent.
+                        result.emplace_back(std::move(value));
+                    }
+
+                    return result;
+                }
+
                 SQLiteIndex::IdType m_packageRowId;
-                std::optional<Manifest::PackageVersionDataManifest::VersionData> m_packageVersionData;
+
+                mutable wil::srwlock m_versionAndManifestLock;
+                mutable std::optional<Manifest::PackageVersionDataManifest::VersionData> m_packageVersionData;
+                mutable std::optional<Manifest::Manifest> m_manifest;
+
                 std::shared_ptr<Caching::FileCache> m_manifestCache;
                 std::shared_ptr<Caching::FileCache> m_packageVersionDataCache;
             };
@@ -420,8 +741,10 @@ namespace AppInstaller::Repository::Microsoft
                     {
                     case PackageProperty::Id:
                         result = source->GetIndex().GetPropertyByPrimaryId(m_packageRowId, PackageVersionProperty::Id);
+                        break;
                     case PackageProperty::Name:
                         result = source->GetIndex().GetPropertyByPrimaryId(m_packageRowId, PackageVersionProperty::Name);
+                        break;
                     default:
                         THROW_HR(E_UNEXPECTED);
                     }
@@ -442,36 +765,17 @@ namespace AppInstaller::Repository::Microsoft
                         }
                     }
 
-                    auto exclusiveLock = m_versionKeysLock.lock_exclusive();
+                    EnsurePackageVersionData(source);
 
-                    if (!m_versionKeys.empty())
-                    {
-                        return m_versionKeys;
-                    }
-
-                    // Get the package version data manifest
-                    auto pathAndHash = CreatePackageVersionDataRelativePath(source);
-                    auto fileStream = m_packageVersionDataCache->GetFile(pathAndHash.first, Utility::SHA256::ConvertToBytes(pathAndHash.second));
-                    auto fileBytes = Utility::ReadEntireStreamAsByteArray(*fileStream);
-
-                    Manifest::PackageVersionDataManifest packageVersionDataManifest;
-                    packageVersionDataManifest.Deserialize(Manifest::PackageVersionDataManifest::CreateDecompressor().Decompress(fileBytes));
-
-                    for (const auto& versionData : packageVersionDataManifest.Versions())
-                    {
-                        std::string version = versionData.Version.ToString();
-                        std::string channel;
-                        m_versionKeys.emplace_back(source->GetIdentifier(), version, channel);
-                        m_versionKeysMap.emplace(MapKey{ std::move(version), std::move(channel) }, versionData);
-                    }
-
+                    auto sharedLock = m_versionKeysLock.lock_shared();
                     return m_versionKeys;
                 }
 
                 std::shared_ptr<IPackageVersion> GetLatestVersion() const override
                 {
                     std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
-                    return std::make_shared<PackageVersion>(source, m_packageRowId, m_manifestCache, m_packageVersionDataCache);
+                    auto sharedLock = m_versionKeysLock.lock_shared();
+                    return std::make_shared<PackageVersion>(source, m_packageRowId, m_latestVersionData, m_manifestCache, m_packageVersionDataCache);
                 }
 
                 std::shared_ptr<IPackageVersion> GetVersion(const PackageVersionKey& versionKey) const override
@@ -486,9 +790,14 @@ namespace AppInstaller::Repository::Microsoft
 
                     std::optional<Manifest::PackageVersionDataManifest::VersionData> versionData;
 
-                    // TODO: Optimization for latest version
+                    // Check for a latest version request.
+                    if (versionKey.Version.empty() && versionKey.Channel.empty())
+                    {
+                        auto sharedLock = m_versionKeysLock.lock_shared();
+                        return std::make_shared<PackageVersion>(source, m_packageRowId, m_latestVersionData, m_manifestCache, m_packageVersionDataCache);
+                    }
 
-                    // TODO: Move version key init to shared function and init here
+                    EnsurePackageVersionData(source);
 
                     {
                         MapKey requested{ versionKey.Version, versionKey.Channel };
@@ -503,7 +812,7 @@ namespace AppInstaller::Repository::Microsoft
 
                     if (versionData)
                     {
-                        return std::make_shared<PackageVersion>(source, std::move(versionData), m_manifestCache, m_packageVersionDataCache);
+                        return std::make_shared<PackageVersion>(source, m_packageRowId, std::move(versionData), m_manifestCache, m_packageVersionDataCache);
                     }
 
                     return {};
@@ -571,24 +880,39 @@ namespace AppInstaller::Repository::Microsoft
                     }
                 };
 
-                // Get the relative path and hash for the package version data manifest.
-                std::pair<std::string, std::string> CreatePackageVersionDataRelativePath(const std::shared_ptr<SQLiteIndexSource>& source) const
+                // Ensures that we have the package version data present.
+                void EnsurePackageVersionData(const std::shared_ptr<SQLiteIndexSource>& source) const
                 {
-                    static constexpr std::string_view s_fixedPathPart = "packages/";
+                    {
+                        auto sharedLock = m_versionKeysLock.lock_shared();
 
-                    const SQLiteIndex& index = source->GetIndex();
+                        if (!m_versionKeys.empty())
+                        {
+                            return;
+                        }
+                    }
 
-                    std::string hash = index.GetPropertyByPrimaryId(m_packageRowId, PackageVersionProperty::ManifestSHA256Hash).value();
+                    auto exclusiveLock = m_versionKeysLock.lock_exclusive();
 
-                    // See PrepareForPackaging in the V2 interface for this format.
-                    std::ostringstream stream;
-                    stream <<
-                        s_fixedPathPart <<
-                        index.GetPropertyByPrimaryId(m_packageRowId, PackageVersionProperty::Id).value() << '/' <<
-                        hash << '/' <<
-                        Manifest::PackageVersionDataManifest::VersionManifestCompressedFileName();
+                    if (!m_versionKeys.empty())
+                    {
+                        return;
+                    }
 
-                    return std::make_pair(std::move(stream).str(), std::move(hash));
+                    Manifest::PackageVersionDataManifest packageVersionDataManifest = GetPackageVersionData(source, m_packageRowId, *m_packageVersionDataCache);
+
+                    for (const auto& versionData : packageVersionDataManifest.Versions())
+                    {
+                        std::string version = versionData.Version.ToString();
+                        std::string channel;
+                        m_versionKeys.emplace_back(source->GetIdentifier(), version, channel);
+                        m_versionKeysMap.emplace(MapKey{ std::move(version), std::move(channel) }, versionData);
+
+                        if (!m_latestVersionData || m_latestVersionData->Version < versionData.Version)
+                        {
+                            m_latestVersionData = versionData;
+                        }
+                    }
                 }
 
                 SQLiteIndex::IdType m_packageRowId;
@@ -600,6 +924,7 @@ namespace AppInstaller::Repository::Microsoft
                 mutable wil::srwlock m_versionKeysLock;
                 mutable std::vector<PackageVersionKey> m_versionKeys;
                 mutable std::map<MapKey, Manifest::PackageVersionDataManifest::VersionData> m_versionKeysMap;
+                mutable std::optional<Manifest::PackageVersionDataManifest::VersionData> m_latestVersionData;
             };
         }
     }

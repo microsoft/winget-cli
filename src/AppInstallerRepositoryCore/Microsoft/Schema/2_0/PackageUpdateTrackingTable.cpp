@@ -103,10 +103,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             {
                 Manifest::PackageVersionDataManifest::VersionData versionData{
                     key.VersionAndChannel,
-                    internalIndex->GetPropertyByManifestId(connection, key.ManifestId, PackageVersionProperty::ArpMinVersion),
-                    internalIndex->GetPropertyByManifestId(connection, key.ManifestId, PackageVersionProperty::ArpMaxVersion),
-                    internalIndex->GetPropertyByManifestId(connection, key.ManifestId, PackageVersionProperty::RelativePath),
-                    internalIndex->GetPropertyByManifestId(connection, key.ManifestId, PackageVersionProperty::ManifestSHA256Hash)
+                    internalIndex->GetPropertyByPrimaryId(connection, key.ManifestId, PackageVersionProperty::ArpMinVersion),
+                    internalIndex->GetPropertyByPrimaryId(connection, key.ManifestId, PackageVersionProperty::ArpMaxVersion),
+                    internalIndex->GetPropertyByPrimaryId(connection, key.ManifestId, PackageVersionProperty::RelativePath),
+                    internalIndex->GetPropertyByPrimaryId(connection, key.ManifestId, PackageVersionProperty::ManifestSHA256Hash)
                 };
 
                 manifest.AddVersion(std::move(versionData));
@@ -189,7 +189,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             std::vector<ISQLiteIndex::VersionKey> versionKeys = internalIndex->GetVersionKeysById(connection, packageMatch.first);
             ISQLiteIndex::VersionKey& latestVersionKey = versionKeys[0];
 
-            std::string packageIdentifier = internalIndex->GetPropertyByManifestId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value();
+            std::string packageIdentifier = internalIndex->GetPropertyByPrimaryId(connection, latestVersionKey.ManifestId, PackageVersionProperty::Id).value();
 
             select.Reset();
             select.Bind(1, packageIdentifier);

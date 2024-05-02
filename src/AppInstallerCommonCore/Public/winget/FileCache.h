@@ -26,6 +26,8 @@ namespace AppInstaller::Caching
         // Contains information about a specific file cache instance.
         struct Details
         {
+            Details(Type type, std::string identifier);
+
             Runtime::PathName BasePath;
             Type Type;
             std::string Identifier;
