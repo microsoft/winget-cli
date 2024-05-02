@@ -5,6 +5,7 @@
 #include "ConfigureShowCommand.h"
 #include "ConfigureTestCommand.h"
 #include "ConfigureValidateCommand.h"
+#include "ConfigureExportCommand.h"
 #include "Workflows/ConfigurationFlow.h"
 #include "Workflows/MSStoreInstallerHandler.h"
 #include "ConfigurationCommon.h"
@@ -25,6 +26,7 @@ namespace AppInstaller::CLI
             std::make_unique<ConfigureShowCommand>(FullName()),
             std::make_unique<ConfigureTestCommand>(FullName()),
             std::make_unique<ConfigureValidateCommand>(FullName()),
+            std::make_unique<ConfigureExportCommand>(FullName()),
         });
     }
 
@@ -51,7 +53,6 @@ namespace AppInstaller::CLI
 
     Utility::LocIndView ConfigureCommand::HelpLink() const
     {
-        // TODO: Make this exist
         return "https://aka.ms/winget-command-configure"_liv;
     }
 

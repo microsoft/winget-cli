@@ -67,6 +67,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnableMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnablingMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportAddingToFile);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationExportSuccessful);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToApply);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToGetDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToTest);
@@ -79,6 +82,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileInvalidYAML);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileVersionUnknown);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationGettingDetails);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationGettingResourceSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInDesiredState);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInform);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInitializing);
@@ -128,8 +132,18 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPromptApply);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPromptTest);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningSetViewTruncated);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningValueTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportArgumentError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportModule);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportPackageId);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportResource);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportUnitDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportUnitInstallDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureTestCommandLongDescription);
@@ -533,6 +547,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceExplicitArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceExportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceExportCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListAdditionalSource);
@@ -541,12 +556,12 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListData);
+        WINGET_DEFINE_RESOURCE_STRINGID(SourceListExplicit);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListField);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListIdentifier);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListName);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoneFound);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListNoSources);
-        WINGET_DEFINE_RESOURCE_STRINGID(SourceListExplicit);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListTrustLevel);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListType);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceListUpdated);
@@ -561,7 +576,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRemoveOne);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceRequiresAuthentication);
-        WINGET_DEFINE_RESOURCE_STRINGID(SourceExplicitArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetAll);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceResetCommandShortDescription);

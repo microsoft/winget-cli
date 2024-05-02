@@ -2889,4 +2889,55 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
     <value>The MSStore package could not be found.</value>
   </data>
+  <data name="ConfigurationExportAddingToFile" xml:space="preserve">
+    <value>Adding configuration file: {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportSuccessful" xml:space="preserve">
+    <value>Successfully exported</value>
+  </data>
+  <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
+    <value>Getting configuration settings...</value>
+  </data>
+  <data name="ConfigureExportArgumentError" xml:space="preserve">
+    <value>At least --packageId and/or --module with --resource must be provided</value>
+    <comment>{Locked="--packageId,--module, --resource"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>Exports configuration resources to a configuration file. When used with --packageId, exports a WinGetPackage resource of the given package id. When used with --module and --resource, gets the settings of the resource and exports it to the configuration file. If the output configuration file already exists, appends the exported configuration resources.</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
+  <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
+    <value>Exports configuration resources to a configuration file.</value>
+  </data>
+  <data name="ConfigureExportModule" xml:space="preserve">
+    <value>The module of the resource to export.</value>
+  </data>
+  <data name="ConfigureExportPackageId" xml:space="preserve">
+    <value>The package identifier to export.</value>
+  </data>
+  <data name="ConfigureExportResource" xml:space="preserve">
+    <value>The configuration resource to export.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
+    <value>The configuration unit failed getting its properties.</value>
+  </data>
+  <data name="ConfigurationExportFailed" xml:space="preserve">
+    <value>Failed exporting configuration.</value>
+  </data>
+  <data name="ConfigureExportUnitDescription" xml:space="preserve">
+    <value>Configure {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigureExportUnitInstallDescription" xml:space="preserve">
+    <value>Install {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationWarningSetViewTruncated" xml:space="preserve">
+    <value>Some of the data present in the configuration file was truncated for this output; inspect the file contents for the complete content.</value>
+  </data>
+  <data name="ConfigurationWarningValueTruncated" xml:space="preserve">
+    <value>&lt;this value has been truncated; inspect the file contents for the complete text&gt;</value>
+    <comment>Keep some form of separator like the "&lt;&gt;" around the text so that it stands out from the preceding text.</comment>
+  </data>
 </root>

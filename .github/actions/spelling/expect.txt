@@ -116,6 +116,7 @@ ECustom
 EFGH
 EFile
 efileresource
+EMalicious
 endregion
 ENDSESSION
 EPester
@@ -160,6 +161,7 @@ GRPICONDIR
 GRPICONDIRENTRY
 guiddef
 Hackathon
+hashtables
 helplib
 helplibrary
 hhx
@@ -216,6 +218,7 @@ JToken
 JValue
 Kaido
 KNOWNFOLDERID
+kool
 ktf
 ldcase
 learnxinyminutes

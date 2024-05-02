@@ -266,6 +266,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFConfigureSelfElevation)
         WINGET_VALIDATE_PASS_THROUGH(EFStoreDownload)
         WINGET_VALIDATE_PASS_THROUGH(EFIndexV2)
+        WINGET_VALIDATE_PASS_THROUGH(EFConfigureExport)
         WINGET_VALIDATE_PASS_THROUGH(AnonymizePathForDisplay)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)

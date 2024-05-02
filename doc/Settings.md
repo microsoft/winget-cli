@@ -345,6 +345,17 @@ You can enable the feature as shown below.
    },
 ```
 
+### configureExport
+
+This feature enables exporting a configuration file.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "configureExport": true
+   },
+```
+
 ### indexV2
 
 This feature enables the `winget` source to retrieve the V2 index, which is significantly smaller.

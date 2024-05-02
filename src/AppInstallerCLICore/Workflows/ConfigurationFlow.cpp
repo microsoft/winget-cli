@@ -33,11 +33,20 @@ namespace AppInstaller::CLI::Workflow
     }
 #endif
 
-    namespace
+    namespace anon
     {
         constexpr std::wstring_view s_Directive_Description = L"description";
         constexpr std::wstring_view s_Directive_Module = L"module";
         constexpr std::wstring_view s_Directive_AllowPrerelease = L"allowPrerelease";
+
+        constexpr std::wstring_view s_Unit_WinGetPackage = L"WinGetPackage";
+
+        constexpr std::wstring_view s_Module_WinGetClient = L"Microsoft.WinGet.DSC";
+
+        constexpr std::wstring_view s_Setting_Id = L"id";
+        constexpr std::wstring_view s_Setting_Source = L"source";
+
+        constexpr std::wstring_view s_WinGetSource = L"winget";
 
         Logging::Level ConvertLevel(DiagnosticLevel level)
         {
@@ -106,7 +115,7 @@ namespace AppInstaller::CLI::Workflow
             return factory;
         }
 
-        std::optional<Utility::LocIndString> GetValueSetString(const ValueSet& valueSet, std::wstring_view value)
+        winrt::hstring GetValueSetString(const ValueSet& valueSet, std::wstring_view value)
         {
             if (valueSet.HasKey(value))
             {
@@ -114,7 +123,7 @@ namespace AppInstaller::CLI::Workflow
                 IPropertyValue property = object.try_as<IPropertyValue>();
                 if (property && property.Type() == PropertyType::String)
                 {
-                    return Utility::LocIndString{ Utility::ConvertToUTF8(property.GetString()) };
+                    return property.GetString();
                 }
             }
 
@@ -136,259 +145,344 @@ namespace AppInstaller::CLI::Workflow
             return {};
         }
 
-        void OutputPropertyValue(OutputStream& out, const IPropertyValue property)
+        // Contains the output functions and tracks whether any fields needed to be truncated.
+        struct OutputHelper
         {
-            switch (property.Type())
+            OutputHelper(Execution::Context& context) : m_context(context) {}
+
+            size_t ValuesTruncated = 0;
+
+            // Converts a string from the configuration API surface for output.
+            // All strings coming from the API are external data and not localizable by us.
+            Utility::LocIndString ConvertForOutput(const std::string& input, size_t maxLines)
             {
-            case PropertyType::String:
-                out << ' ' << Utility::ConvertToUTF8(property.GetString()) << '\n';
-                break;
-            case PropertyType::Boolean:
-                out << ' ' << (property.GetBoolean() ? Utility::LocIndView("true") : Utility::LocIndView("false")) << '\n';
-                break;
-            case PropertyType::Int64:
-                out << ' ' << property.GetInt64() << '\n';
-                break;
-            default:
-                out << " [Debug:PropertyType="_liv << property.Type() << "]\n"_liv;
-                break;
-            }
-        }
+                bool truncated = false;
+                auto lines = Utility::SplitIntoLines(input);
 
-        void OutputValueSet(OutputStream& out, const ValueSet& valueSet, size_t indent);
-
-        void OutputValueSetAsArray(OutputStream& out, const ValueSet& valueSetArray, size_t indent)
-        {
-            Utility::LocIndString indentString{ std::string(indent, ' ') };
-
-            std::vector<std::pair<int, winrt::Windows::Foundation::IInspectable>> arrayValues;
-            for (const auto& arrayValue : valueSetArray)
-            {
-                if (arrayValue.Key() != L"treatAsArray")
+                if (maxLines == 1 && lines.size() > 1)
                 {
-                    arrayValues.emplace_back(std::make_pair(std::stoi(arrayValue.Key().c_str()), arrayValue.Value()));
+                    // If the limit was one line, don't allow line breaks but do allow a second line of overflow
+                    lines.resize(1);
+                    maxLines = 2;
+                    truncated = true;
+                }
+
+                if (Utility::LimitOutputLines(lines, GetConsoleWidth(), maxLines))
+                {
+                    truncated = true;
+                }
+
+                if (truncated)
+                {
+                    ++ValuesTruncated;
+                }
+
+                return Utility::LocIndString{ Utility::Join("\n", lines) };
+            }
+
+            Utility::LocIndString ConvertForOutput(const winrt::hstring& input, size_t maxLines)
+            {
+                return ConvertForOutput(Utility::ConvertToUTF8(input), maxLines);
+            }
+
+            Utility::LocIndString ConvertIdentifier(const winrt::hstring& input)
+            {
+                return ConvertForOutput(input, 1);
+            }
+
+            Utility::LocIndString ConvertURI(const winrt::hstring& input)
+            {
+                return ConvertForOutput(input, 1);
+            }
+
+            Utility::LocIndString ConvertValue(const winrt::hstring& input)
+            {
+                return ConvertForOutput(input, 5);
+            }
+
+            Utility::LocIndString ConvertDetailsIdentifier(const winrt::hstring& input)
+            {
+                return ConvertForOutput(Utility::ConvertControlCodesToPictures(Utility::ConvertToUTF8(input)), 1);
+            }
+
+            Utility::LocIndString ConvertDetailsURI(const winrt::hstring& input)
+            {
+                return ConvertForOutput(Utility::ConvertControlCodesToPictures(Utility::ConvertToUTF8(input)), 1);
+            }
+
+            Utility::LocIndString ConvertDetailsValue(const winrt::hstring& input)
+            {
+                return ConvertForOutput(Utility::ConvertControlCodesToPictures(Utility::ConvertToUTF8(input)), 5);
+            }
+
+            void OutputValueWithTruncationWarningIfNeeded(const winrt::hstring& input)
+            {
+                size_t truncatedBefore = ValuesTruncated;
+                m_context.Reporter.Info() << ConvertValue(input) << '\n';
+
+                if (ValuesTruncated > truncatedBefore)
+                {
+                    m_context.Reporter.Warn() << Resource::String::ConfigurationWarningValueTruncated << std::endl;
                 }
             }
 
-            std::sort(
-                arrayValues.begin(),
-                arrayValues.end(),
-                [](const std::pair<int, winrt::Windows::Foundation::IInspectable>& a, const std::pair<int, winrt::Windows::Foundation::IInspectable>& b)
-                {
-                    return a.first < b.first;
-                });
-
-            for (const auto& arrayValue : arrayValues)
+            void OutputPropertyValue(const IPropertyValue property)
             {
-                auto arrayObject = arrayValue.second;
-                IPropertyValue arrayProperty = arrayObject.try_as<IPropertyValue>();
-
-                out << indentString << "-";
-                if (arrayProperty)
+                switch (property.Type())
                 {
-                    OutputPropertyValue(out, arrayProperty);
+                case PropertyType::String:
+                    m_context.Reporter.Info() << ' ';
+                    OutputValueWithTruncationWarningIfNeeded(property.GetString());
+                    break;
+                case PropertyType::Boolean:
+                    m_context.Reporter.Info() << ' ' << (property.GetBoolean() ? Utility::LocIndView("true") : Utility::LocIndView("false")) << '\n';
+                    break;
+                case PropertyType::Int64:
+                    m_context.Reporter.Info() << ' ' << property.GetInt64() << '\n';
+                    break;
+                default:
+                    m_context.Reporter.Info() << " [Debug:PropertyType="_liv << property.Type() << "]\n"_liv;
+                    break;
                 }
-                else
+            }
+
+            void OutputValueSetAsArray(const ValueSet& valueSetArray, size_t indent)
+            {
+                Utility::LocIndString indentString{ std::string(indent, ' ') };
+
+                std::vector<std::pair<int, winrt::Windows::Foundation::IInspectable>> arrayValues;
+                for (const auto& arrayValue : valueSetArray)
                 {
-                    ValueSet arraySubset = arrayObject.as<ValueSet>();
-                    auto size = arraySubset.Size();
-                    if (size > 0)
+                    if (arrayValue.Key() != L"treatAsArray")
                     {
-                        // First one is special.
-                        auto first = arraySubset.First().Current();
-                        out << ' ' << Utility::ConvertToUTF8(first.Key()) << ':';
-                        
-                        auto object = first.Value();
-                        IPropertyValue property = object.try_as<IPropertyValue>();
-                        if (property)
-                        {
-                            OutputPropertyValue(out, property);
-                        }
-                        else
-                        {
-                            // If not an IPropertyValue, it must be a ValueSet
-                            ValueSet subset = object.as<ValueSet>();
-                            out << '\n';
-                            OutputValueSet(out, subset, indent + 4);
-                        }
-
-                        if (size > 1)
-                        {
-                            arraySubset.Remove(first.Key());
-                            OutputValueSet(out, arraySubset, indent + 2);
-                            arraySubset.Insert(first.Key(), first.Value());
-                        }
+                        arrayValues.emplace_back(std::make_pair(std::stoi(arrayValue.Key().c_str()), arrayValue.Value()));
                     }
                 }
-            }
-        }
 
-        void OutputValueSet(OutputStream& out, const ValueSet& valueSet, size_t indent)
-        {
-            Utility::LocIndString indentString{ std::string(indent, ' ') };
-
-            for (const auto& value : valueSet)
-            {
-                out << indentString << Utility::ConvertToUTF8(value.Key()) << ':';
-
-                auto object = value.Value();
-
-                IPropertyValue property = object.try_as<IPropertyValue>();
-                if (property)
-                {
-                    OutputPropertyValue(out, property);
-                }
-                else
-                {
-                    // If not an IPropertyValue, it must be a ValueSet
-                    ValueSet subset = object.as<ValueSet>();
-                    out << '\n';
-                    if (subset.HasKey(L"treatAsArray"))
+                std::sort(
+                    arrayValues.begin(),
+                    arrayValues.end(),
+                    [](const std::pair<int, winrt::Windows::Foundation::IInspectable>& a, const std::pair<int, winrt::Windows::Foundation::IInspectable>& b)
                     {
-                        OutputValueSetAsArray(out, subset, indent + 2);
+                        return a.first < b.first;
+                    });
+
+                for (const auto& arrayValue : arrayValues)
+                {
+                    auto arrayObject = arrayValue.second;
+                    IPropertyValue arrayProperty = arrayObject.try_as<IPropertyValue>();
+
+                    m_context.Reporter.Info() << indentString << "-";
+                    if (arrayProperty)
+                    {
+                        OutputPropertyValue(arrayProperty);
                     }
                     else
                     {
-                        OutputValueSet(out, subset, indent + 2);
+                        ValueSet arraySubset = arrayObject.as<ValueSet>();
+                        auto size = arraySubset.Size();
+                        if (size > 0)
+                        {
+                            // First one is special.
+                            auto first = arraySubset.First().Current();
+                            m_context.Reporter.Info() << ' ' << ConvertIdentifier(first.Key()) << ':';
+
+                            auto object = first.Value();
+                            IPropertyValue property = object.try_as<IPropertyValue>();
+                            if (property)
+                            {
+                                OutputPropertyValue(property);
+                            }
+                            else
+                            {
+                                // If not an IPropertyValue, it must be a ValueSet
+                                ValueSet subset = object.as<ValueSet>();
+                                m_context.Reporter.Info() << '\n';
+                                OutputValueSet(subset, indent + 4);
+                            }
+
+                            if (size > 1)
+                            {
+                                arraySubset.Remove(first.Key());
+                                OutputValueSet(arraySubset, indent + 2);
+                                arraySubset.Insert(first.Key(), first.Value());
+                            }
+                        }
                     }
                 }
             }
-        }
 
-        // Converts a string from the configuration API surface for output.
-        // All strings coming from the API are external data and not localizable by us.
-        Utility::LocIndString ConvertForOutput(const winrt::hstring& input)
-        {
-            return Utility::LocIndString{ Utility::ConvertToUTF8(input) };
-        }
-
-        void OutputConfigurationUnitHeader(OutputStream& out, const ConfigurationUnit& unit, const winrt::hstring& name)
-        {
-            out << ConfigurationIntentEmphasis << ToResource(unit.Intent()) << " :: "_liv << ConfigurationUnitEmphasis << ConvertForOutput(name);
-
-            winrt::hstring identifier = unit.Identifier();
-            if (!identifier.empty())
+            void OutputValueSet(const ValueSet& valueSet, size_t indent)
             {
-                out << " ["_liv << ConvertForOutput(identifier) << ']';
-            }
+                Utility::LocIndString indentString{ std::string(indent, ' ') };
 
-            out << '\n';
-        }
-
-        void OutputConfigurationUnitInformation(OutputStream& out, const ConfigurationUnit& unit)
-        {
-            IConfigurationUnitProcessorDetails details = unit.Details();
-            ValueSet metadata = unit.Metadata();
-
-            if (details)
-            {
-                // -- Sample output when IConfigurationUnitProcessorDetails present --
-                // Intent :: UnitType <from details> [Identifier]
-                //   UnitDocumentationUri <if present>
-                //   Description <from details first, directives second>
-                //   "Module": ModuleName "by" Author / Publisher (IsLocal / ModuleSource)
-                //     "Signed by": SigningCertificateChain (leaf subject CN)
-                //     PublishedModuleUri / ModuleDocumentationUri <if present>
-                //     ModuleDescription
-                OutputConfigurationUnitHeader(out, unit, details.UnitType());
-
-                auto unitDocumentationUri = details.UnitDocumentationUri();
-                if (unitDocumentationUri)
+                for (const auto& value : valueSet)
                 {
-                    out << "  "_liv << ConvertForOutput(unitDocumentationUri.DisplayUri()) << '\n';
-                }
+                    m_context.Reporter.Info() << indentString << ConvertIdentifier(value.Key()) << ':';
 
-                winrt::hstring unitDescriptionFromDetails = details.UnitDescription();
-                if (!unitDescriptionFromDetails.empty())
-                {
-                    out << "  "_liv << ConvertForOutput(unitDescriptionFromDetails) << '\n';
-                }
-                else
-                {
-                    auto unitDescriptionFromDirectives = GetValueSetString(metadata, s_Directive_Description);
-                    if (unitDescriptionFromDirectives && !unitDescriptionFromDirectives.value().empty())
+                    auto object = value.Value();
+
+                    IPropertyValue property = object.try_as<IPropertyValue>();
+                    if (property)
                     {
-                        out << "  "_liv << unitDescriptionFromDirectives.value() << '\n';
+                        OutputPropertyValue(property);
+                    }
+                    else
+                    {
+                        // If not an IPropertyValue, it must be a ValueSet
+                        ValueSet subset = object.as<ValueSet>();
+                        m_context.Reporter.Info() << '\n';
+                        if (subset.HasKey(L"treatAsArray"))
+                        {
+                            OutputValueSetAsArray(subset, indent + 2);
+                        }
+                        else
+                        {
+                            OutputValueSet(subset, indent + 2);
+                        }
                     }
                 }
+            }
 
-                auto author = ConvertForOutput(details.Author());
-                if (author.empty())
+            void OutputConfigurationUnitHeader(const ConfigurationUnit& unit, const winrt::hstring& name)
+            {
+                m_context.Reporter.Info() << ConfigurationIntentEmphasis << ToResource(unit.Intent()) << " :: "_liv << ConfigurationUnitEmphasis << ConvertIdentifier(name);
+
+                winrt::hstring identifier = unit.Identifier();
+                if (!identifier.empty())
                 {
-                    author = ConvertForOutput(details.Publisher());
+                    m_context.Reporter.Info() << " ["_liv << ConvertIdentifier(identifier) << ']';
                 }
-                if (details.IsLocal())
+
+                m_context.Reporter.Info() << '\n';
+            }
+
+            void OutputConfigurationUnitInformation(const ConfigurationUnit& unit)
+            {
+                IConfigurationUnitProcessorDetails details = unit.Details();
+                ValueSet metadata = unit.Metadata();
+
+                if (details)
                 {
-                    out << "  "_liv << Resource::String::ConfigurationModuleWithDetails(ConvertForOutput(details.ModuleName()), author, Resource::String::ConfigurationLocal) << '\n';
+                    // -- Sample output when IConfigurationUnitProcessorDetails present --
+                    // Intent :: UnitType <from details> [Identifier]
+                    //   UnitDocumentationUri <if present>
+                    //   Description <from details first, directives second>
+                    //   "Module": ModuleName "by" Author / Publisher (IsLocal / ModuleSource)
+                    //     "Signed by": SigningCertificateChain (leaf subject CN)
+                    //     PublishedModuleUri / ModuleDocumentationUri <if present>
+                    //     ModuleDescription
+                    OutputConfigurationUnitHeader(unit, details.UnitType());
+
+                    auto unitDocumentationUri = details.UnitDocumentationUri();
+                    if (unitDocumentationUri)
+                    {
+                        m_context.Reporter.Info() << "  "_liv << ConvertDetailsURI(unitDocumentationUri.DisplayUri()) << '\n';
+                    }
+
+                    winrt::hstring unitDescriptionFromDetails = details.UnitDescription();
+                    if (!unitDescriptionFromDetails.empty())
+                    {
+                        m_context.Reporter.Info() << "  "_liv << ConvertDetailsValue(unitDescriptionFromDetails) << '\n';
+                    }
+                    else
+                    {
+                        auto unitDescriptionFromDirectives = GetValueSetString(metadata, s_Directive_Description);
+                        if (!unitDescriptionFromDirectives.empty())
+                        {
+                            m_context.Reporter.Info() << "  "_liv;
+                            OutputValueWithTruncationWarningIfNeeded(unitDescriptionFromDirectives);
+                        }
+                    }
+
+                    auto author = ConvertDetailsIdentifier(details.Author());
+                    if (author.empty())
+                    {
+                        author = ConvertDetailsIdentifier(details.Publisher());
+                    }
+                    if (details.IsLocal())
+                    {
+                        m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationModuleWithDetails(ConvertDetailsIdentifier(details.ModuleName()), author, Resource::String::ConfigurationLocal) << '\n';
+                    }
+                    else
+                    {
+                        m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationModuleWithDetails(ConvertDetailsIdentifier(details.ModuleName()), author, ConvertDetailsIdentifier(details.ModuleSource())) << '\n';
+                    }
+
+                    // TODO: Currently the signature information is only for the top files. Maybe each item should be tagged?
+                    // TODO: Output signing information with additional details (like whether the certificate is trusted). Doing this with the validate command
+                    //       seems like a good time, as that will also need to do the check in order to inform the user on the validation.
+                    //       Just saying "Signed By: Foo" is going to lead to a false sense of trust if the signature is valid but not actually trusted.
+
+                    auto moduleUri = details.PublishedModuleUri();
+                    if (!moduleUri)
+                    {
+                        moduleUri = details.ModuleDocumentationUri();
+                    }
+                    if (moduleUri)
+                    {
+                        m_context.Reporter.Info() << "    "_liv << ConvertDetailsURI(moduleUri.DisplayUri()) << '\n';
+                    }
+
+                    winrt::hstring moduleDescription = details.ModuleDescription();
+                    if (!moduleDescription.empty())
+                    {
+                        m_context.Reporter.Info() << "    "_liv << ConvertDetailsValue(moduleDescription) << '\n';
+                    }
                 }
                 else
                 {
-                    out << "  "_liv << Resource::String::ConfigurationModuleWithDetails(ConvertForOutput(details.ModuleName()), author, ConvertForOutput(details.ModuleSource())) << '\n';
+                    // -- Sample output when no IConfigurationUnitProcessorDetails present --
+                    // Intent :: Type <from unit> [identifier]
+                    //   Description (from directives)
+                    //   "Module": module <directive>
+                    OutputConfigurationUnitHeader(unit, unit.Type());
+
+                    auto description = GetValueSetString(metadata, s_Directive_Description);
+                    if (!description.empty())
+                    {
+                        m_context.Reporter.Info() << "  "_liv;
+                        OutputValueWithTruncationWarningIfNeeded(description);
+                    }
+
+                    auto module = GetValueSetString(metadata, s_Directive_Module);
+                    if (!module.empty())
+                    {
+                        m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationModuleNameOnly(ConvertIdentifier(module)) << '\n';
+                    }
                 }
 
-                // TODO: Currently the signature information is only for the top files. Maybe each item should be tagged?
-                // TODO: Output signing information with additional details (like whether the certificate is trusted). Doing this with the validate command
-                //       seems like a good time, as that will also need to do the check in order to inform the user on the validation.
-                //       Just saying "Signed By: Foo" is going to lead to a false sense of trust if the signature is valid but not actually trusted.
-
-                auto moduleUri = details.PublishedModuleUri();
-                if (!moduleUri)
+                // -- Sample output footer --
+                //   Dependencies: dep1, dep2, ...
+                //   Settings:
+                //     <... settings splat>
+                auto dependencies = unit.Dependencies();
+                if (dependencies.Size() > 0)
                 {
-                    moduleUri = details.ModuleDocumentationUri();
-                }
-                if (moduleUri)
-                {
-                    out << "    "_liv << ConvertForOutput(moduleUri.DisplayUri()) << '\n';
-                }
-
-                winrt::hstring moduleDescription = details.ModuleDescription();
-                if (!moduleDescription.empty())
-                {
-                    out << "    "_liv << ConvertForOutput(moduleDescription) << '\n';
-                }
-            }
-            else
-            {
-                // -- Sample output when no IConfigurationUnitProcessorDetails present --
-                // Intent :: Type <from unit> [identifier]
-                //   Description (from directives)
-                //   "Module": module <directive>
-                OutputConfigurationUnitHeader(out, unit, unit.Type());
-
-                auto description = GetValueSetString(metadata, s_Directive_Description);
-                if (description && !description.value().empty())
-                {
-                    out << "  "_liv << description.value() << '\n';
+                    std::ostringstream allDependencies;
+                    for (const winrt::hstring& dependency : dependencies)
+                    {
+                        allDependencies << ' ' << ConvertIdentifier(dependency);
+                    }
+                    m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationDependencies(Utility::LocIndString{ std::move(allDependencies).str() }) << '\n';
                 }
 
-                auto module = GetValueSetString(metadata, s_Directive_Module);
-                if (module && !module.value().empty())
+                ValueSet settings = unit.Settings();
+                if (settings.Size() > 0)
                 {
-                    out << "  "_liv << Resource::String::ConfigurationModuleNameOnly(module.value()) << '\n';
+                    m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationSettings << '\n';
+                    OutputValueSet(settings, 4);
                 }
             }
 
-            // -- Sample output footer --
-            //   Dependencies: dep1, dep2, ...
-            //   Settings:
-            //     <... settings splat>
-            auto dependencies = unit.Dependencies();
-            if (dependencies.Size() > 0)
-            {
-                std::ostringstream allDependencies;
-                for (const winrt::hstring& dependency : dependencies)
-                {
-                    allDependencies << ' ' << Utility::ConvertToUTF8(dependency);
-                }
-                out << "  "_liv << Resource::String::ConfigurationDependencies(Utility::LocIndString{ std::move(allDependencies).str() }) << '\n';
-            }
+        private:
+            Execution::Context& m_context;
+        };
 
-            ValueSet settings = unit.Settings();
-            if (settings.Size() > 0)
-            {
-                out << "  "_liv << Resource::String::ConfigurationSettings << '\n';
-                OutputValueSet(out, settings, 4);
-            }
+        void OutputConfigurationUnitHeader(Execution::Context& context, const ConfigurationUnit& unit, const winrt::hstring& name)
+        {
+            OutputHelper helper{ context };
+            helper.OutputConfigurationUnitHeader(unit, name);
         }
 
         void LogFailedGetConfigurationUnitDetails(const ConfigurationUnit& unit, const IConfigurationUnitResultInformation& resultInformation)
@@ -701,8 +795,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     m_unitsSeen.insert(unitInstance);
 
-                    OutputStream out = m_context.Reporter.Info();
-                    OutputConfigurationUnitHeader(out, unit, unit.Details() ? unit.Details().UnitType() : unit.Type());
+                    OutputConfigurationUnitHeader(m_context, unit, unit.Details() ? unit.Details().UnitType() : unit.Type());
                 }
             }
 
@@ -758,10 +851,7 @@ namespace AppInstaller::CLI::Workflow
 
                 EndProgress();
 
-                {
-                    OutputStream info = m_context.Reporter.Info();
-                    OutputConfigurationUnitHeader(info, unit, unit.Details() ? unit.Details().UnitType() : unit.Type());
-                }
+                OutputConfigurationUnitHeader(m_context, unit, unit.Details() ? unit.Details().UnitType() : unit.Type());
 
                 switch (testResult)
                 {
@@ -837,6 +927,254 @@ namespace AppInstaller::CLI::Workflow
 
             return validationOrder;
         }
+
+        void SetNameAndOrigin(ConfigurationSet& set, std::filesystem::path& absolutePath)
+        {
+            // TODO: Consider how to properly determine a good value for name and origin.
+            set.Name(absolutePath.filename().wstring());
+            set.Origin(absolutePath.parent_path().wstring());
+            set.Path(absolutePath.wstring());
+        }
+
+        void OpenConfigurationSet(Execution::Context& context, const std::string& argPath, bool allowRemote)
+        {
+            auto progressScope = context.Reporter.BeginAsyncProgress(true);
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationReadingConfigFile());
+
+            std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
+            bool isRemote = Utility::IsUrlRemote(argPath);
+            std::filesystem::path absolutePath;
+            Streams::IInputStream inputStream = nullptr;
+
+            if (isRemote)
+            {
+                if (!allowRemote)
+                {
+                    AICLI_LOG(Config, Error, << "Remote files are not supported");
+                    AICLI_TERMINATE_CONTEXT(ERROR_NOT_SUPPORTED);
+                }
+
+                std::ostringstream stringStream;
+                ProgressCallback emptyCallback;
+                Utility::DownloadToStream(argPath, stringStream, Utility::DownloadType::ConfigurationFile, emptyCallback);
+
+                auto strContent = stringStream.str();
+                std::vector<BYTE> byteContent{ strContent.begin(), strContent.end() };
+
+                Streams::InMemoryRandomAccessStream memoryStream;
+                Streams::DataWriter streamWriter{ memoryStream };
+                streamWriter.WriteBytes(byteContent);
+                streamWriter.StoreAsync().get();
+                streamWriter.DetachStream();
+                memoryStream.Seek(0);
+                inputStream = memoryStream;
+            }
+            else
+            {
+                absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });
+                auto openAction = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read);
+                auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
+                inputStream = openAction.get();
+            }
+
+            OpenConfigurationSetResult openResult = nullptr;
+            {
+                auto openAction = context.Get<Data::ConfigurationContext>().Processor().OpenConfigurationSetAsync(inputStream);
+                auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
+                openResult = openAction.get();
+            }
+
+            progressScope.reset();
+
+            if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))
+            {
+                AICLI_LOG(Config, Error, << "Failed to open configuration set at " << (isRemote ? argPath : absolutePath.u8string()) << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
+
+                switch (openResult.ResultCode())
+                {
+                case WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE:
+                    context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidType(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
+                    break;
+                case WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE:
+                    context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidValue(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }, Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
+                    break;
+                case WINGET_CONFIG_ERROR_MISSING_FIELD:
+                    context.Reporter.Error() << Resource::String::ConfigurationFieldMissing(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
+                    break;
+                case WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION:
+                    context.Reporter.Error() << Resource::String::ConfigurationFileVersionUnknown(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
+                    break;
+                case WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE:
+                case WINGET_CONFIG_ERROR_INVALID_YAML:
+                default:
+                    context.Reporter.Error() << Resource::String::ConfigurationFileInvalidYAML << std::endl;
+                    break;
+                }
+
+                if (openResult.Line() != 0)
+                {
+                    context.Reporter.Error() << Resource::String::SeeLineAndColumn(openResult.Line(), openResult.Column()) << std::endl;
+                }
+
+                AICLI_TERMINATE_CONTEXT(openResult.ResultCode());
+            }
+
+            ConfigurationSet result = openResult.Set();
+
+            // Temporary block on using schema 0.3 while experimental
+            if (result.SchemaVersion() == L"0.3")
+            {
+                AICLI_RETURN_IF_TERMINATED(context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::Configuration03));
+            }
+
+            // Fill out the information about the set based on it coming from a file.
+            if (isRemote)
+            {
+                result.Name(Utility::GetFileNameFromURI(argPath).wstring());
+                result.Origin(argPathWide);
+                // Do not set path. This means ${WinGetConfigRoot} not supported in remote configs.
+            }
+            else
+            {
+                SetNameAndOrigin(result, absolutePath);
+            }
+
+            context.Get<Data::ConfigurationContext>().Set(result);
+        }
+
+        std::optional<ConfigurationUnit> CreateWinGetUnit(const Execution::Context& context)
+        {
+            if (context.Args.Contains(Execution::Args::Type::ConfigurationExportPackageId))
+            {
+                // Maybe we can add some checks to validate the package id exists.
+                std::string packageId{ context.Args.GetArg(Args::Type::ConfigurationExportPackageId) };
+                std::wstring packageIdWide = Utility::ConvertToUTF16(packageId);
+
+                ConfigurationUnit unit;
+                unit.Type(s_Unit_WinGetPackage);
+                unit.Identifier(packageIdWide);
+                unit.Intent(ConfigurationUnitIntent::Apply);
+
+                auto description = Resource::String::ConfigureExportUnitInstallDescription(Utility::LocIndView{ packageId });
+
+                ValueSet directives;
+                directives.Insert(s_Directive_Module, PropertyValue::CreateString(s_Module_WinGetClient));
+                directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
+                directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+                unit.Metadata(directives);
+
+                ValueSet settings;
+                settings.Insert(s_Setting_Id, PropertyValue::CreateString(packageIdWide));
+                settings.Insert(s_Setting_Source, PropertyValue::CreateString(s_WinGetSource));
+                unit.Settings(settings);
+
+                return unit;
+            }
+
+            return {};
+        }
+
+        GetConfigurationUnitSettingsResult GetUnitSettings(Execution::Context& context, ConfigurationUnit& unit)
+        {
+            // This assumes there are no required properties for Get, but for example WinGetPackage requires the Id.
+            // It is obviously wrong and will be wrong until Export is implemented for DSC v2 and a proper way to inform
+            // about input to winget configure export is implemented. Drink the kool-aid and transcend.
+            unit.Intent(ConfigurationUnitIntent::Inform);
+
+            auto progressScope = context.Reporter.BeginAsyncProgress(true);
+
+            progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationGettingResourceSettings());
+
+            GetConfigurationUnitSettingsResult getResult = nullptr;
+            {
+                auto getAction = context.Get<Data::ConfigurationContext>().Processor().GetUnitSettingsAsync(unit);
+                auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { getAction.Cancel(); });
+                getResult = getAction.get();
+            }
+
+            progressScope.reset();
+            return getResult;
+        }
+
+        std::optional<ConfigurationUnit> CreateConfigurationUnit(Execution::Context& context, const std::optional<ConfigurationUnit> dependantUnit)
+        {
+            if (context.Args.Contains(Execution::Args::Type::ConfigurationExportModule, Execution::Args::Type::ConfigurationExportResource))
+            {
+                std::string moduleName{ context.Args.GetArg(Args::Type::ConfigurationExportModule) };
+                std::wstring moduleNameWide = Utility::ConvertToUTF16(moduleName);
+
+                std::string resourceName{ context.Args.GetArg(Args::Type::ConfigurationExportResource) };
+                std::wstring resourceNameWide = Utility::ConvertToUTF16(resourceName);
+
+                ConfigurationUnit unit;
+                unit.Type(resourceNameWide);
+
+                ValueSet directives;
+                directives.Insert(s_Directive_Module, PropertyValue::CreateString(moduleNameWide));
+
+                Utility::LocIndString description;
+                if (dependantUnit.has_value())
+                {
+                    description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ Utility::ConvertToUTF8(dependantUnit.value().Identifier()) });
+                }
+                else
+                {
+                    description = Resource::String::ConfigureExportUnitDescription(Utility::LocIndView{ resourceName });
+                }
+
+                directives.Insert(s_Directive_Description, PropertyValue::CreateString(winrt::to_hstring(description.get())));
+                unit.Metadata(directives);
+
+                // Call processor to get settings for the unit.
+                auto getResult = GetUnitSettings(context, unit);
+                winrt::hresult resultCode = getResult.ResultInformation().ResultCode();
+                if (FAILED(resultCode))
+                {
+                    // Retry if it fails with not found in the case the module is a pre-released one.
+                    bool isPreRelease = false;
+                    if (resultCode == WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY)
+                    {
+                        directives.Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+                        unit.Metadata(directives);
+
+                        auto preReleaseResult = GetUnitSettings(context, unit);
+                        if (SUCCEEDED(preReleaseResult.ResultInformation().ResultCode()))
+                        {
+                            isPreRelease = true;
+                            getResult = preReleaseResult;
+                        }
+                        else
+                        {
+                            AICLI_LOG(Config, Error, << "Failed Get allowing prerelease modules");
+                            LogFailedGetConfigurationUnitDetails(unit, preReleaseResult.ResultInformation());
+                        }
+                    }
+
+                    if (!isPreRelease)
+                    {
+                        OutputUnitRunFailure(context, unit, getResult.ResultInformation());
+                        THROW_HR(WINGET_CONFIG_ERROR_GET_FAILED);
+                    }
+                }
+
+                unit.Settings(getResult.Settings());
+
+                // GetUnitSettings will set it to Inform.
+                unit.Intent(ConfigurationUnitIntent::Apply);
+
+                // Add dependency if needed.
+                if (dependantUnit.has_value())
+                {
+                    auto dependencies = winrt::single_threaded_vector<winrt::hstring>();
+                    dependencies.Append(dependantUnit.value().Identifier());
+                    unit.Dependencies(std::move(dependencies));
+                }
+
+                return unit;
+            }
+
+            return {};
+        }
     }
 
     void CreateConfigurationProcessor(Context& context)
@@ -844,10 +1182,10 @@ namespace AppInstaller::CLI::Workflow
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
 
-        ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory(context)};
+        ConfigurationProcessor processor{ anon::CreateConfigurationSetProcessorFactory(context)};
 
         // Set the processor to the current level of the logging.
-        processor.MinimumLevel(ConvertLevel(Logging::Log().GetLevel()));
+        processor.MinimumLevel(anon::ConvertLevel(Logging::Log().GetLevel()));
         processor.Caller(L"winget");
         // Use same activity as the overall winget command
         processor.ActivityIdentifier(*Logging::Telemetry().GetActivityId());
@@ -857,7 +1195,7 @@ namespace AppInstaller::CLI::Workflow
         // Route the configuration diagnostics into the context's diagnostics logging
         processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const IDiagnosticInformation& diagnostics)
             {
-                context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, ConvertLevel(diagnostics.Level()), Utility::ConvertToUTF8(diagnostics.Message()));
+                context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, anon::ConvertLevel(diagnostics.Level()), Utility::ConvertToUTF8(diagnostics.Message()));
             });
 
         ConfigurationContext configurationContext;
@@ -868,106 +1206,30 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenConfigurationSet(Context& context)
     {
-        auto progressScope = context.Reporter.BeginAsyncProgress(true);
-        progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationReadingConfigFile());
-
         std::string argPath{ context.Args.GetArg(Args::Type::ConfigurationFile) };
-        std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
-        bool isRemote = Utility::IsUrlRemote(argPath);
-        std::filesystem::path absolutePath;
-        Streams::IInputStream inputStream = nullptr;
+        anon::OpenConfigurationSet(context, argPath, true);
+    }
 
-        if (isRemote)
+    void CreateOrOpenConfigurationSet(Context& context)
+    {
+        std::string argPath{ context.Args.GetArg(Args::Type::OutputFile) };
+
+        if (std::filesystem::exists(argPath))
         {
-            std::ostringstream stringStream;
-            ProgressCallback emptyCallback;
-            Utility::DownloadToStream(argPath, stringStream, Utility::DownloadType::ConfigurationFile, emptyCallback);
-
-            auto strContent = stringStream.str();
-            std::vector<BYTE> byteContent{ strContent.begin(), strContent.end() };
-
-            Streams::InMemoryRandomAccessStream memoryStream;
-            Streams::DataWriter streamWriter{ memoryStream };
-            streamWriter.WriteBytes(byteContent);
-            streamWriter.StoreAsync().get();
-            streamWriter.DetachStream();
-            memoryStream.Seek(0);
-            inputStream = memoryStream;
+            anon::OpenConfigurationSet(context, argPath, false);
         }
         else
         {
-            absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });
-            auto openAction = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read);
-            auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
-            inputStream = openAction.get();
+            // TODO: support other schema versions or pick up latest.
+            ConfigurationSet set;
+            set.SchemaVersion(L"0.2");
+
+            std::wstring argPathWide = Utility::ConvertToUTF16(argPath);
+            auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPathWide });
+            anon::SetNameAndOrigin(set, absolutePath);
+
+            context.Get<Data::ConfigurationContext>().Set(set);
         }
-
-        OpenConfigurationSetResult openResult = nullptr;
-        {
-            auto openAction = context.Get<Data::ConfigurationContext>().Processor().OpenConfigurationSetAsync(inputStream);
-            auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
-            openResult = openAction.get();
-        }
-
-        progressScope.reset();
-
-        if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))
-        {
-            AICLI_LOG(Config, Error, << "Failed to open configuration set at " << (isRemote ? argPath : absolutePath.u8string()) << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
-
-            switch (openResult.ResultCode())
-            {
-            case WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE:
-                context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidType(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
-                break;
-            case WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE:
-                context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidValue(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }, Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
-                break;
-            case WINGET_CONFIG_ERROR_MISSING_FIELD:
-                context.Reporter.Error() << Resource::String::ConfigurationFieldMissing(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
-                break;
-            case WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION:
-                context.Reporter.Error() << Resource::String::ConfigurationFileVersionUnknown(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
-                break;
-            case WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE:
-            case WINGET_CONFIG_ERROR_INVALID_YAML:
-            default:
-                context.Reporter.Error() << Resource::String::ConfigurationFileInvalidYAML << std::endl;
-                break;
-            }
-
-            if (openResult.Line() != 0)
-            {
-                context.Reporter.Error() << Resource::String::SeeLineAndColumn(openResult.Line(), openResult.Column()) << std::endl;
-            }
-
-            AICLI_TERMINATE_CONTEXT(openResult.ResultCode());
-        }
-
-        ConfigurationSet result = openResult.Set();
-
-        // Temporary block on using schema 0.3 while experimental
-        if (result.SchemaVersion() == L"0.3")
-        {
-            AICLI_RETURN_IF_TERMINATED(context << EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::Configuration03));
-        }
-
-        // Fill out the information about the set based on it coming from a file.
-        if (isRemote)
-        {
-            result.Name(Utility::GetFileNameFromURI(argPath).wstring());
-            result.Origin(argPathWide);
-            // Do not set path. This means ${WinGetConfigRoot} not supported in remote configs.
-        }
-        else
-        {
-            // TODO: Consider how to properly determine a good value for name and origin.
-            result.Name(absolutePath.filename().wstring());
-            result.Origin(absolutePath.parent_path().wstring());
-            result.Path(absolutePath.wstring());
-        }
-
-        context.Get<Data::ConfigurationContext>().Set(result);
     }
 
     void ShowConfigurationSet(Context& context)
@@ -986,9 +1248,9 @@ namespace AppInstaller::CLI::Workflow
         progressScope->Callback().SetProgressMessage(gettingDetailString);
 
         auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::ReadOnly);
-        auto unification = CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
+        auto unification = anon::CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
 
-        OutputStream out = context.Reporter.Info();
+        anon::OutputHelper outputHelper{ context };
         uint32_t unitsShown = 0;
 
         getDetailsOperation.Progress([&](const IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult>& operation, const GetConfigurationUnitDetailsResult&)
@@ -1001,8 +1263,8 @@ namespace AppInstaller::CLI::Workflow
                 for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
                 {
                     GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
-                    OutputConfigurationUnitInformation(out, unitResult.Unit());
+                    anon::LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+                    outputHelper.OutputConfigurationUnitInformation(unitResult.Unit());
                 }
 
                 progressScope = context.Reporter.BeginAsyncProgress(true);
@@ -1046,8 +1308,8 @@ namespace AppInstaller::CLI::Workflow
                 for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
                 {
                     GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
-                    OutputConfigurationUnitInformation(out, unitResult.Unit());
+                    anon::LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+                    outputHelper.OutputConfigurationUnitInformation(unitResult.Unit());
                 }
             }
         }
@@ -1057,7 +1319,13 @@ namespace AppInstaller::CLI::Workflow
         for (unitsShown; unitsShown < allUnits.Size(); ++unitsShown)
         {
             ConfigurationUnit unit = allUnits.GetAt(unitsShown);
-            OutputConfigurationUnitInformation(out, unit);
+            outputHelper.OutputConfigurationUnitInformation(unit);
+        }
+
+        if (outputHelper.ValuesTruncated)
+        {
+            // Using error to make this stand out from other warnings
+            context.Reporter.Error() << Resource::String::ConfigurationWarningSetViewTruncated << std::endl;
         }
     }
 
@@ -1093,7 +1361,7 @@ namespace AppInstaller::CLI::Workflow
 
         {
             auto applyOperation = configContext.Processor().ApplySetAsync(configContext.Set(), ApplyConfigurationSetFlags::None);
-            ApplyConfigurationSetProgressOutput progress{ context, applyOperation };
+            anon::ApplyConfigurationSetProgressOutput progress{ context, applyOperation };
 
             result = applyOperation.get();
             progress.HandleUnreportedProgress(result);
@@ -1120,7 +1388,7 @@ namespace AppInstaller::CLI::Workflow
 
         {
             auto testOperation = configContext.Processor().TestSetAsync(configContext.Set());
-            TestConfigurationSetProgressOutput progress{ context, testOperation };
+            anon::TestConfigurationSetProgressOutput progress{ context, testOperation };
 
             result = testOperation.get();
             progress.HandleUnreportedProgress(result);
@@ -1183,8 +1451,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     ConfigurationUnit unit = unitResult.Unit();
 
-                    auto out = context.Reporter.Info();
-                    OutputConfigurationUnitHeader(out, unit, unit.Type());
+                    anon::OutputConfigurationUnitHeader(context, unit, unit.Type());
 
                     switch (resultCode)
                     {
@@ -1220,7 +1487,7 @@ namespace AppInstaller::CLI::Workflow
         progressScope->Callback().SetProgressMessage(gettingDetailString);
 
         auto getLocalDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::Local);
-        auto unification = CreateProgressCancellationUnification(std::move(progressScope), getLocalDetailsOperation);
+        auto unification = anon::CreateProgressCancellationUnification(std::move(progressScope), getLocalDetailsOperation);
 
         HRESULT getLocalHR = S_OK;
         GetConfigurationSetDetailsResult getLocalResult = nullptr;
@@ -1254,7 +1521,7 @@ namespace AppInstaller::CLI::Workflow
         progressScope->Callback().SetProgressMessage(gettingDetailString);
 
         auto getCatalogDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::Catalog);
-        unification = CreateProgressCancellationUnification(std::move(progressScope), getCatalogDetailsOperation);
+        unification = anon::CreateProgressCancellationUnification(std::move(progressScope), getCatalogDetailsOperation);
 
         HRESULT getCatalogHR = S_OK;
         GetConfigurationSetDetailsResult getCatalogResult = nullptr;
@@ -1314,14 +1581,14 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (needsHeader)
                 {
-                    auto out = context.Reporter.Info();
-                    OutputConfigurationUnitHeader(out, unit, unit.Type());
+                    anon::OutputConfigurationUnitHeader(context, unit, unit.Type());
+
                     needsHeader = false;
                     foundIssue = true;
                 }
             };
 
-            if (GetValueSetString(unit.Metadata(), s_Directive_Module).value_or(Utility::LocIndString{}).empty())
+            if (anon::GetValueSetString(unit.Metadata(), anon::s_Directive_Module).empty())
             {
                 outputHeaderIfNeeded();
                 context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitModuleNotProvidedWarning << std::endl;
@@ -1344,23 +1611,23 @@ namespace AppInstaller::CLI::Workflow
             if (FAILED(catalogUnitResult.ResultInformation().ResultCode()))
             {
                 outputHeaderIfNeeded();
-                OutputUnitRunFailure(context, unit, catalogUnitResult.ResultInformation());
+                anon::OutputUnitRunFailure(context, unit, catalogUnitResult.ResultInformation());
                 continue;
             }
 
             // If not already prerelease, try with prerelease and warn if found
-            std::optional<bool> allowPrereleaseDirective = GetValueSetBool(unit.Metadata(), s_Directive_AllowPrerelease);
+            std::optional<bool> allowPrereleaseDirective = anon::GetValueSetBool(unit.Metadata(), anon::s_Directive_AllowPrerelease);
             if (!allowPrereleaseDirective || !allowPrereleaseDirective.value())
             {
                 // Check if the configuration unit is prerelease but the author forgot it
                 ConfigurationUnit clone = unit.Copy();
-                clone.Metadata().Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+                clone.Metadata().Insert(anon::s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
 
                 progressScope = context.Reporter.BeginAsyncProgress(true);
                 progressScope->Callback().SetProgressMessage(gettingDetailString);
 
                 auto getUnitDetailsOperation = configContext.Processor().GetUnitDetailsAsync(clone, ConfigurationUnitDetailFlags::Catalog);
-                auto unitUnification = CreateProgressCancellationUnification(std::move(progressScope), getUnitDetailsOperation);
+                auto unitUnification = anon::CreateProgressCancellationUnification(std::move(progressScope), getUnitDetailsOperation);
 
                 IConfigurationUnitProcessorDetails prereleaseDetails;
 
@@ -1404,7 +1671,7 @@ namespace AppInstaller::CLI::Workflow
     {
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
         auto units = configContext.Set().Units();
-        auto validationOrder = GetConfigurationSetUnitValidationOrder(units.GetView());
+        auto validationOrder = anon::GetConfigurationSetUnitValidationOrder(units.GetView());
 
         Configuration::WingetDscModuleUnitValidator wingetUnitValidator;
 
@@ -1433,5 +1700,59 @@ namespace AppInstaller::CLI::Workflow
     void ValidateAllGoodMessage(Execution::Context& context)
     {
         context.Reporter.Info() << Resource::String::ConfigurationValidationFoundNoIssues << std::endl;
+    }
+
+    void AddWinGetPackageAndResource(Execution::Context& context)
+    {
+        auto wingetUnit = anon::CreateWinGetUnit(context);
+        auto configUnit = anon::CreateConfigurationUnit(context, wingetUnit);
+
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+        if (wingetUnit.has_value())
+        {
+            configContext.Set().Units().Append(wingetUnit.value());
+        }
+
+        if (configUnit.has_value())
+        {
+            configContext.Set().Units().Append(configUnit.value());
+        }
+    }
+
+    void WriteConfigFile(Execution::Context& context)
+    {
+        try
+        {
+            std::string argPath{ context.Args.GetArg(Args::Type::OutputFile) };
+
+            context.Reporter.Info() << Resource::String::ConfigurationExportAddingToFile(Utility::LocIndView{ argPath }) << std::endl;
+
+            auto tempFilePath = Runtime::GetNewTempFilePath();
+
+            {
+                std::ofstream tempStream{ tempFilePath };
+                tempStream << "# Created using winget configure export " << Runtime::GetClientVersion().get() << std::endl;
+            }
+
+            auto openAction = Streams::FileRandomAccessStream::OpenAsync(
+                tempFilePath.wstring(),
+                FileAccessMode::ReadWrite);
+
+            auto stream = openAction.get();
+            stream.Seek(stream.Size());
+
+            ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+            configContext.Set().Serialize(openAction.get());
+
+            auto absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ argPath });
+            std::filesystem::rename(tempFilePath, absolutePath);
+
+            context.Reporter.Info() << Resource::String::ConfigurationExportSuccessful << std::endl;
+        }
+        catch (...)
+        {
+            context.Reporter.Error() << Resource::String::ConfigurationExportFailed << std::endl;
+            throw;
+        }
     }
 }

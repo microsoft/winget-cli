@@ -222,9 +222,13 @@
     <ClInclude Include="ApplyGroupSettingsResult.h">
       <Filter>Internals</Filter>
     </ClInclude>
-    <ClInclude Include="ConfigurationSetSerializer.h" />
-    <ClInclude Include="ConfigurationSetSerializer_0_2.h" />
     <ClInclude Include="ConfigurationSetUtilities.h">
+      <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetSerializer.h">
+      <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetSerializer_0_2.h">
       <Filter>Parser</Filter>
     </ClInclude>
   </ItemGroup>

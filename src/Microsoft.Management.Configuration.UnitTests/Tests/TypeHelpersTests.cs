@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TypeHelpersTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -6,6 +6,7 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
+    using System.Collections;
     using System.Collections.Generic;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
@@ -135,6 +136,76 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.True(set.ContainsKey("Property3"));
             Assert.True(set.TryGetValue("Property3", out object v3));
             Assert.Equal(e.ToString(), v3);
+        }
+
+        /// <summary>
+        /// Verifies when a property is a Hashtable. It must be converted to a ValueSet.
+        /// </summary>
+        [Fact]
+        public void GetAllPropertiesValuesTest_Hashtable()
+        {
+            string k1 = "key1";
+            string k2 = "key2";
+            int v1 = 7;
+            string v2 = "value2";
+            dynamic obj = new
+            {
+                Property1 = new Hashtable
+                {
+                    { k1, v1 },
+                    { k2, v2 },
+                },
+            };
+
+            ValueSet set = TypeHelpers.GetAllPropertiesValues(obj);
+            Assert.Single(set);
+
+            Assert.True(set.ContainsKey("Property1"));
+            Assert.True(set.TryGetValue("Property1", out object valueSetResultObj));
+
+            ValueSet? valueSetResult = valueSetResultObj as ValueSet;
+            Assert.NotNull(valueSetResult);
+            Assert.Equal(2, valueSetResult.Count);
+            Assert.True(valueSetResult.ContainsKey(k1));
+            Assert.Equal(v1, (int)valueSetResult[k1]);
+            Assert.True(valueSetResult.ContainsKey(k2));
+            Assert.Equal(v2, (string)valueSetResult[k2]);
+        }
+
+        /// <summary>
+        /// Verifies when a property is an array. It must generate a ValueSet
+        /// where the keys are the index and a key treatAsArray means the value
+        /// must be treated an array.
+        /// </summary>
+        [Fact]
+        public void GetAllPropertiesValuesTest_Array()
+        {
+            dynamic obj = new
+            {
+                Property1 = new int[]
+                {
+                    1,
+                    2,
+                    3,
+                    4,
+                },
+            };
+
+            ValueSet set = TypeHelpers.GetAllPropertiesValues(obj);
+            Assert.Single(set);
+
+            Assert.True(set.ContainsKey("Property1"));
+            Assert.True(set.TryGetValue("Property1", out object valueSetResultObj));
+
+            ValueSet? valueSetResult = valueSetResultObj as ValueSet;
+            Assert.NotNull(valueSetResult);
+            Assert.Equal(5, valueSetResult.Count);
+
+            Assert.True(valueSetResult.ContainsKey("treatAsArray"));
+            Assert.True(valueSetResult.ContainsKey("0"));
+            Assert.True(valueSetResult.ContainsKey("1"));
+            Assert.True(valueSetResult.ContainsKey("2"));
+            Assert.True(valueSetResult.ContainsKey("3"));
         }
     }
 }

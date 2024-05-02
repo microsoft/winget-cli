@@ -54,6 +54,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFStoreDownload>();
             case ExperimentalFeature::Feature::IndexV2:
                 return userSettings.Get<Setting::EFIndexV2>();
+            case ExperimentalFeature::Feature::ConfigureExport:
+                return userSettings.Get<Setting::EFConfigureExport>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -97,6 +99,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Store Download", "storeDownload", "https://aka.ms/winget-settings", Feature::StoreDownload };
         case Feature::IndexV2:
             return ExperimentalFeature{ "Index V2", "indexV2", "https://aka.ms/winget-settings", Feature::IndexV2 };
+        case Feature::ConfigureExport:
+            return ExperimentalFeature{ "Configure Export", "configureExport", "https://aka.ms/winget-settings", Feature::ConfigureExport };
         default:
             THROW_HR(E_UNEXPECTED);
         }

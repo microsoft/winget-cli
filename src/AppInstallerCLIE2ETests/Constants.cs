@@ -307,6 +307,7 @@ namespace AppInstallerCLIE2ETests
             public const int CONFIG_ERROR_MISSING_FIELD = unchecked((int)0x8A15C00E);
             public const int CONFIG_ERROR_TEST_FAILED = unchecked((int)0x8A15C00F);
             public const int CONFIG_ERROR_TEST_NOT_RUN = unchecked((int)0x8A15C010);
+            public const int WINGET_CONFIG_ERROR_GET_FAILED = unchecked((int)0x8A15C011);
 
             public const int CONFIG_ERROR_UNIT_NOT_INSTALLED = unchecked((int)0x8A15C101);
             public const int CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY = unchecked((int)0x8A15C102);
