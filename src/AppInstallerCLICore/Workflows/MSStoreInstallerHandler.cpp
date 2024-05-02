@@ -78,11 +78,12 @@ namespace AppInstaller::CLI::Workflow
         {
             try
             {
-                // Create a new Context to execute the package download
+                // Create a sub context to execute the package download
                 auto subContextPtr = context.CreateSubContext();
                 Execution::Context& subContext = *subContextPtr;
                 auto previousThreadGlobals = subContext.SetForCurrentThread();
 
+                // Populate Installer and temp download path for sub context
                 Manifest::ManifestInstaller installer;
                 installer.Url = downloadFile.Url;
                 installer.Sha256 = downloadFile.Sha256;
@@ -118,7 +119,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        AICLI_LOG(CLI, Warning, << "Microsoft Store package hash mismatch");
+                        AICLI_LOG(CLI, Warning, << "Microsoft Store package hash mismatch, but overrided.");
                         subContext.Reporter.Warn() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
                     }
                 }

@@ -5,6 +5,7 @@
 #include "winget/ManagedFile.h"
 #include "winget/Manifest.h"
 #include "winget/MsixManifest.h"
+#include <AppInstallerVersions.h>
 
 #include <AppxPackaging.h>
 
@@ -47,7 +48,7 @@ namespace AppInstaller::Msix
     std::optional<std::filesystem::path> GetPackageLocationFromFullName(std::string_view fullName);
 
     // Gets the package version from the given full name.
-    UINT64 GetPackageVersionFromFullName(std::string_view fullName);
+    AppInstaller::Utility::UInt64Version GetPackageVersionFromFullName(std::string_view fullName);
 
     // MsixInfo class handles all appx/msix related query.
     struct MsixInfo

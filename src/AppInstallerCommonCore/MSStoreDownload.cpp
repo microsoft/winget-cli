@@ -46,7 +46,6 @@ namespace AppInstaller::MSStore
         constexpr std::string_view Details = "Details"sv;
         constexpr std::string_view Neutral = "Neutral"sv;
 
-
         enum class DisplayCatalogPackageFormatEnum
         {
             Unknown,
@@ -97,8 +96,8 @@ namespace AppInstaller::MSStore
             std::string ContentId;
         };
 
-        // Display catalog package comparison logic
-
+        // Display catalog package comparison logic.
+        // The comparator follows similar logic as ManifestComparator.
         namespace DisplayCatalogPackageComparison
         {
             struct DisplayCatalogPackageComparisonField
@@ -392,6 +391,19 @@ namespace AppInstaller::MSStore
             return JSON::GetUtilityString(restEndpoint);
         }
 
+        // Response format:
+        // {
+        //   "Product": {
+        //     "DisplaySkuAvailabilities": [
+        //       {
+        //         "Sku": {
+        //           "SkuId": "0010",
+        //           ... Sku Contents ...
+        //         }
+        //       }
+        //     ]
+        //   }
+        // }
         std::reference_wrapper<const web::json::value> GetSkuNodeFromDisplayCatalogResponse(const web::json::value& responseObject)
         {
             AICLI_LOG(Core, Info, << "Started parsing display catalog response. Try to find target sku: " << TargetSkuIdValue);
@@ -438,6 +450,25 @@ namespace AppInstaller::MSStore
             THROW_HR(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE);
         }
 
+        // Response format:
+        // {
+        //   "Sku": {
+        //     "Properties": {
+        //       "Packages": [
+        //         {
+        //           "PackageId": "package id",
+        //           "Architectures": [ "x86", "x64" ],
+        //           "Languages": [ "en", "fr" ],
+        //           "PackageFormat": "AppxBundle",
+        //           "ContentId": "guid",
+        //           "FulfillmentData": {
+        //             "WuCategoryId": "guid",
+        //           }
+        //         }
+        //       ]
+        //     }
+        //   }
+        // }
         std::vector<DisplayCatalogPackage> GetDisplayCatalogPackagesFromSkuNode(const web::json::value& jsonObject)
         {
             AICLI_LOG(Core, Info, << "Started extracting display catalog packages from sku.");
@@ -830,6 +861,16 @@ namespace AppInstaller::MSStore
         constexpr std::string_view ContentId = "contentId"sv;
         constexpr std::string_view From = "From"sv;
 
+        // Response:
+        // {
+        //   "license": {
+        //     "keys": [ // returned as array for future, for now only 1 key
+        //       {
+        //         "value": "base64 encoded string"
+        //       }
+        //     ]
+        //   }
+        // }
         std::vector<BYTE> GetLicencing(std::string_view contentId, const Http::HttpClientHelper::HttpRequestHeaders& authHeaders)
         {
             AICLI_LOG(Core, Error, << "GetLicencing with ContentId: " << contentId);
@@ -912,10 +953,15 @@ namespace AppInstaller::MSStore
 
     MSStoreDownloadInfo MSStoreDownloadContext::GetDownloadInfo()
     {
+#ifndef WINGET_DISABLE_FOR_FUZZING
+
         auto displayCatalogPackage = DisplayCatalogDetails::CallDisplayCatalogAndGetPreferredPackage(m_productId, m_locale, m_architecture);
         auto downloadInfo = SfsClientDetails::CallSfsClientAndGetMSStoreDownloadInfo(displayCatalogPackage.WuCategoryId, m_architecture);
         m_contentId = displayCatalogPackage.ContentId;
         return downloadInfo;
+#else
+        return {};
+#endif
     }
 
     std::vector<BYTE> MSStoreDownloadContext::GetLicense()

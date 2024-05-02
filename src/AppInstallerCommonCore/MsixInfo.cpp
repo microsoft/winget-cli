@@ -465,7 +465,7 @@ namespace AppInstaller::Msix
         return { result };
     }
 
-    UINT64 GetPackageVersionFromFullName(std::string_view fullName)
+    Utility::UInt64Version GetPackageVersionFromFullName(std::string_view fullName)
     {
         std::wstring fullNameWide = Utility::ConvertToUTF16(fullName);
 
@@ -483,6 +483,12 @@ namespace AppInstaller::Msix
         packageIdContent.resize(length);
 
         returnVal = PackageIdFromFullName(fullNameWide.c_str(), PACKAGE_INFORMATION_BASIC, &length, packageIdContent.data());
+        if (returnVal != ERROR_SUCCESS)
+        {
+            LOG_WIN32(returnVal);
+            return 0;
+        }
+
         PACKAGE_ID* packageId = (PACKAGE_ID*)packageIdContent.data();
 
         return packageId->version.Version;

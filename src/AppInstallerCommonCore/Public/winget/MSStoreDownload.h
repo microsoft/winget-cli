@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerArchitecture.h>
+#include <AppInstallerVersions.h>
 #include "winget/Authentication.h"
 
 #include <string>
@@ -12,12 +13,13 @@
 
 namespace AppInstaller::MSStore
 {
+    // Struct representing 1 MSStore package file download info
     struct MSStoreDownloadFile
     {
         std::string Url;
         std::vector<BYTE> Sha256;
         std::string FileName;
-        UINT64 Version = 0;
+        AppInstaller::Utility::UInt64Version Version = 0;
     };
 
     struct MSStoreDownloadInfo
