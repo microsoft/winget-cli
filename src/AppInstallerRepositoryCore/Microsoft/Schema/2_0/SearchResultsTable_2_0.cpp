@@ -7,9 +7,12 @@
 #include "Microsoft/Schema/2_0/PackagesTable.h"
 #include "Microsoft/Schema/2_0/TagsTable.h"
 #include "Microsoft/Schema/2_0/CommandsTable.h"
+#include "Microsoft/Schema/2_0/PackageFamilyNameTable.h"
+#include "Microsoft/Schema/2_0/ProductCodeTable.h"
+#include "Microsoft/Schema/2_0/UpgradeCodeTable.h"
+#include "Microsoft/Schema/2_0/NormalizedPackageNameTable.h"
+#include "Microsoft/Schema/2_0/NormalizedPackagePublisherTable.h"
 
-
-// TODO :: The code here was copied from a previous schema version and is currently a placeholder !!!
 
 namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 {
@@ -18,7 +21,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         using namespace std::string_literals;
         using namespace std::string_view_literals;
 
-        constexpr std::string_view s_SearchResultsTable_Manifest = "manifest"sv;
+        constexpr std::string_view s_SearchResultsTable_Package = "package"sv;
         constexpr std::string_view s_SearchResultsTable_MatchField = "field"sv;
         constexpr std::string_view s_SearchResultsTable_MatchType = "match"sv;
         constexpr std::string_view s_SearchResultsTable_MatchValue = "value"sv;
@@ -28,7 +31,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         constexpr std::string_view s_SearchResultsTable_Index_Suffix = "_i_m"sv;
 
         constexpr std::string_view s_SearchResultsTable_SubSelect_TableAlias = "valueTable"sv;
-        constexpr std::string_view s_SearchResultsTable_SubSelect_ManifestAlias = "m"sv;
+        constexpr std::string_view s_SearchResultsTable_SubSelect_PackageAlias = "p"sv;
         constexpr std::string_view s_SearchResultsTable_SubSelect_ValueAlias = "v"sv;
     }
 
@@ -41,7 +44,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             StatementBuilder builder;
             builder.CreateTable(GetQualifiedName()).BeginColumns();
 
-            builder.Column(ColumnBuilder(s_SearchResultsTable_Manifest, Type::RowId).NotNull());
+            builder.Column(ColumnBuilder(s_SearchResultsTable_Package, Type::RowId).NotNull());
             builder.Column(ColumnBuilder(s_SearchResultsTable_MatchField, Type::Int).NotNull());
             builder.Column(ColumnBuilder(s_SearchResultsTable_MatchType, Type::Int).NotNull());
             builder.Column(ColumnBuilder(s_SearchResultsTable_MatchValue, Type::Text).NotNull());
@@ -62,7 +65,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             index.Table = indexName;
 
             StatementBuilder builder;
-            builder.CreateIndex(indexName).On(GetQualifiedName().Table).Columns(s_SearchResultsTable_Manifest);
+            builder.CreateIndex(indexName).On(GetQualifiedName().Table).Columns(s_SearchResultsTable_Package);
 
             builder.Execute(m_connection);
         }
@@ -77,12 +80,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Create an insert statement to select values into the table as requested.
         // The goal is a statement like this:
         //      INSERT INTO <tempTable>
-        //      SELECT valueTable.m, <field>, <match>, valueTable.v, <sort>, <filter> FROM
-        //      (SELECT manifest.rowid as m, manifest.id as v from manifest join ids on manifest.id = ids.rowid where ids.id = <value>) AS valueTable
+        //      SELECT valueTable.p, <field>, <match>, valueTable.v, <sort>, <filter> FROM
+        //      (SELECT packages.rowid as p, packages.id as v from packages where packages.id = <value>) AS valueTable
         // Where the subselect is built by the owning table.
         StatementBuilder builder;
         builder.InsertInto(GetQualifiedName()).Select().
-            Column(QualifiedColumn(s_SearchResultsTable_SubSelect_TableAlias, s_SearchResultsTable_SubSelect_ManifestAlias)).
+            Column(QualifiedColumn(s_SearchResultsTable_SubSelect_TableAlias, s_SearchResultsTable_SubSelect_PackageAlias)).
             Value(filter.Field).
             Value(filter.Type).
             Column(QualifiedColumn(s_SearchResultsTable_SubSelect_TableAlias, s_SearchResultsTable_SubSelect_ValueAlias)).
@@ -107,22 +110,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         AICLI_LOG(SQL, Verbose, << "Search found " << m_connection.GetChanges() << " rows");
     }
 
-    void SearchResultsTable::RemoveDuplicateManifestRows()
+    void SearchResultsTable::RemoveDuplicatePackageRows()
     {
         using namespace SQLite::Builder;
 
-        // Create a delete statement to leave only one row with a given manifest.
+        // Create a delete statement to leave only one row with a given package.
         // This will arbitrarily choose one of the rows if multiple have the same lowest sort order.
         // The goal is a statement like this:
         //      DELETE from <temp> where rowid not in (
         //          SELECT rowid from (
-        //              SELECT rowid, min(sort) from <temp> group by manifest
+        //              SELECT rowid, min(sort) from <temp> group by package
         //          )
         //      )
         StatementBuilder builder;
         builder.DeleteFrom(GetQualifiedName()).Where(SQLite::RowIDName).Not().In().BeginParenthetical().
             Select(SQLite::RowIDName).From().BeginParenthetical().
-                Select().Column(SQLite::RowIDName).Column(Aggregate::Min, s_SearchResultsTable_SortValue).From(GetQualifiedName()).GroupBy(s_SearchResultsTable_Manifest).
+                Select().Column(SQLite::RowIDName).Column(Aggregate::Min, s_SearchResultsTable_SortValue).From(GetQualifiedName()).GroupBy(s_SearchResultsTable_Package).
             EndParenthetical().
         EndParenthetical();
 
@@ -146,14 +149,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Create an update statement to mark rows that are found by the search.
         // This will arbitrarily choose one of the rows if multiple have the same lowest sort order.
         // The goal is a statement like this:
-        //      UPDATE <temp> set filter = 1 where manifest in (
-        //          SELECT m from (
-        //              SELECT manifest.rowid as m, manifest.id as v from manifest join ids on manifest.id = ids.rowid where ids.id = <value>
+        //      UPDATE <temp> set filter = 1 where package in (
+        //          SELECT p from (
+        //              SELECT packages.rowid as p, packages.id as v from packages where packages.id = <value>
         //          )
         //      )
         StatementBuilder builder;
-        builder.Update(GetQualifiedName()).Set().Column(s_SearchResultsTable_Filter).Equals(true).Where(s_SearchResultsTable_Manifest).In().BeginParenthetical().
-            Select(s_SearchResultsTable_SubSelect_ManifestAlias).From().BeginParenthetical();
+        builder.Update(GetQualifiedName()).Set().Column(s_SearchResultsTable_Filter).Equals(true).Where(s_SearchResultsTable_Package).In().BeginParenthetical().
+            Select(s_SearchResultsTable_SubSelect_PackageAlias).From().BeginParenthetical();
 
         // Add the field specific portion
         std::vector<int> bindIndex = BuildSearchStatement(builder, filter.Field, filter.Type);
@@ -184,26 +187,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     ISQLiteIndex::SearchResult SearchResultsTable::GetSearchResults(size_t limit)
     {
-        constexpr std::string_view tempTableAlias = "t"sv;
-
         using namespace SQLite::Builder;
         using QCol = QualifiedColumn;
 
-        // Select all unique ids from the results table, and their highest ordered match.
-        // The goal is a statement like this:
-        //  SELECT m.id, field, match, value, min(sort) from <temp> join manifest on rowid = manifest group by m.id order by t.sort
-        // Through the "group by m.id", we will only ever have one row per id, and the "min(sort)" returns us one of the rows that matched
-        // through the earliest search.  We also order by the sort value to have the earliest search matches first in the list
+        // Select all of the results from the table; it is expected that RemoveDuplicatePackageRows has been called.
         StatementBuilder builder;
-        //builder.Select().
-        //    Column(QCol(ManifestTable::TableName(), IdTable::ValueName())).
-        //    Column(QCol(tempTableAlias, s_SearchResultsTable_MatchField)).
-        //    Column(QCol(tempTableAlias, s_SearchResultsTable_MatchType)).
-        //    Column(QCol(tempTableAlias, s_SearchResultsTable_MatchValue)).
-        //    Column(Aggregate::Min, QCol(tempTableAlias, s_SearchResultsTable_SortValue)).
-        //From(GetQualifiedName()).As(tempTableAlias).
-        //    Join(ManifestTable::TableName()).On(QCol(tempTableAlias, s_SearchResultsTable_Manifest), QCol(ManifestTable::TableName(), SQLite::RowIDName)).
-        //    GroupBy(QCol(ManifestTable::TableName(), IdTable::ValueName())).OrderBy(QCol(tempTableAlias, s_SearchResultsTable_SortValue));
+        builder.Select({
+            s_SearchResultsTable_Package,
+            s_SearchResultsTable_MatchField,
+            s_SearchResultsTable_MatchType,
+            s_SearchResultsTable_MatchValue,
+        }).
+        From(GetQualifiedName()).OrderBy(s_SearchResultsTable_SortValue);
 
         SQLite::Statement select = builder.Prepare(m_connection);
 
@@ -226,7 +221,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
     std::vector<int> SearchResultsTable::BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, PackageMatchField field, MatchType match) const
     {
-        return BuildSearchStatement(builder, field, s_SearchResultsTable_SubSelect_ManifestAlias, s_SearchResultsTable_SubSelect_ValueAlias, MatchUsesLike(match));
+        return BuildSearchStatement(builder, field, s_SearchResultsTable_SubSelect_PackageAlias, s_SearchResultsTable_SubSelect_ValueAlias, MatchUsesLike(match));
     }
 
     std::vector<int> SearchResultsTable::BuildSearchStatement(
@@ -236,21 +231,40 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         std::string_view valueAlias,
         bool useLike) const
     {
+        std::vector<int> result;
+
         switch (field)
         {
         case PackageMatchField::Id:
-            return PackagesTable::BuildSearchStatement<PackagesTable::IdColumn>(builder, manifestAlias, valueAlias, useLike);
+            result.push_back(PackagesTable::BuildSearchStatement(builder, PackagesTable::IdColumn::Name, manifestAlias, valueAlias, useLike));
+            break;
         case PackageMatchField::Name:
-            return PackagesTable::BuildSearchStatement<PackagesTable::NameColumn>(builder, manifestAlias, valueAlias, useLike);
+            result.push_back(PackagesTable::BuildSearchStatement(builder, PackagesTable::NameColumn::Name, manifestAlias, valueAlias, useLike));
+            break;
         case PackageMatchField::Moniker:
-            return PackagesTable::BuildSearchStatement<PackagesTable::MonikerColumn>(builder, manifestAlias, valueAlias, useLike);
-        //case PackageMatchField::Tag:
-        //    return PackagesTable::BuildSearchStatement<TagsTable>(builder, manifestAlias, valueAlias, useLike);
-        //case PackageMatchField::Command:
-        //    return PackagesTable::BuildSearchStatement<CommandsTable>(builder, manifestAlias, valueAlias, useLike);
-        default:
-            return {};
+            result.push_back(PackagesTable::BuildSearchStatement(builder, PackagesTable::MonikerColumn::Name, manifestAlias, valueAlias, useLike));
+            break;
+        case PackageMatchField::Tag:
+            result.push_back(TagsTable::BuildSearchStatement(builder, manifestAlias, valueAlias, useLike));
+            break;
+        case PackageMatchField::Command:
+            result.push_back(CommandsTable::BuildSearchStatement(builder, manifestAlias, valueAlias, useLike));
+            break;
+        case PackageMatchField::PackageFamilyName:
+            result.push_back(PackageFamilyNameTable::BuildSearchStatement(builder, manifestAlias, valueAlias, useLike));
+            break;
+        case PackageMatchField::ProductCode:
+            result.push_back(ProductCodeTable::BuildSearchStatement(builder, manifestAlias, valueAlias, useLike));
+            break;
+        case PackageMatchField::UpgradeCode:
+            result.push_back(UpgradeCodeTable::BuildSearchStatement(builder, manifestAlias, valueAlias, useLike));
+            break;
+        case PackageMatchField::NormalizedNameAndPublisher:
+            result = NormalizedPackageNameTable::BuildPairedSearchStatement<NormalizedPackagePublisherTable>(builder, manifestAlias, valueAlias, useLike);
+            break;
         }
+
+        return result;
     }
 
     bool SearchResultsTable::MatchUsesLike(MatchType match)
@@ -297,5 +311,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
 
         BindStatementForMatchType(statement, filter.Type, bindIndex[0], filter.Value);
+
+        if (filter.Field == PackageMatchField::NormalizedNameAndPublisher)
+        {
+            BindStatementForMatchType(statement, filter.Type, bindIndex[1], filter.Additional.value());
+        }
     }
 }

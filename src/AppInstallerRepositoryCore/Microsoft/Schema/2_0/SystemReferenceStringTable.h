@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteStatementBuilder.h>
 #include <AppInstallerStrings.h>
 #include <string>
 #include <string_view>
@@ -42,6 +43,28 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         // Determines if the table is empty.
         bool SystemReferenceStringTableIsEmpty(SQLite::Connection& connection, std::string_view tableName);
+
+        // Builds the search select statement base on the given value.
+        // The return value is the bind index of the value to match against.
+        int SystemReferenceStringTableBuildSearchStatement(
+            SQLite::Builder::StatementBuilder& builder,
+            std::string_view tableName,
+            std::string_view valueName,
+            std::string_view primaryAlias,
+            std::string_view valueAlias,
+            bool useLike);
+
+        // Builds the search select statement base on the given value.
+        // The return value is the bind index of the value to match against.
+        std::vector<int> SystemReferenceStringTableBuildPairedSearchStatement(
+            SQLite::Builder::StatementBuilder& builder,
+            std::string_view tableName,
+            std::string_view valueName,
+            std::string_view pairedTableName,
+            std::string_view pairedValueName,
+            std::string_view primaryAlias,
+            std::string_view valueAlias,
+            bool useLike);
     }
 
     // A table that represents a value that is 1:N with a primary entry.
@@ -95,6 +118,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         static bool IsEmpty(SQLite::Connection& connection)
         {
             return details::SystemReferenceStringTableIsEmpty(connection, TableInfo::TableName());
+        }
+
+        // Builds the search select statement base on the given value.
+        // The return value is the bind index of the value to match against.
+        static int BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, std::string_view primaryAlias, std::string_view valueAlias, bool useLike)
+        {
+            return details::SystemReferenceStringTableBuildSearchStatement(builder, TableInfo::TableName(), TableInfo::ValueName(), primaryAlias, valueAlias, useLike);
+        }
+
+        // Builds the search select statement base on the given value.
+        // The return value is the bind index of the value to match against.
+        template<typename PairedTable>
+        static std::vector<int> BuildPairedSearchStatement(SQLite::Builder::StatementBuilder& builder, std::string_view primaryAlias, std::string_view valueAlias, bool useLike)
+        {
+            return details::SystemReferenceStringTableBuildPairedSearchStatement(builder, TableInfo::TableName(), TableInfo::ValueName(), PairedTable::TableName(), PairedTable::ValueName(), primaryAlias, valueAlias, useLike);
         }
     };
 }

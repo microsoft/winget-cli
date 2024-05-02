@@ -27,8 +27,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Performs the requested search type on the requested field.
         void SearchOnField(const PackageMatchFilter& filter);
 
-        // Removes rows with manifest ids whose sort order is below the highest one.
-        void RemoveDuplicateManifestRows();
+        // Removes rows with package ids whose sort order is below the highest one.
+        void RemoveDuplicatePackageRows();
 
         // Prepares the table for a filtering pass.
         void PrepareToFilter();

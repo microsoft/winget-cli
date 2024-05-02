@@ -595,7 +595,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         }
 
         // Remove any duplicate manifest entries
-        resultsTable->RemoveDuplicateManifestRows();
+        resultsTable->RemoveDuplicatePackageRows();
 
         // Second phase, for remaining filters, flag matching search results, then remove unflagged values.
         for (size_t i = filterIndex; i < request.Filters.size(); ++i)

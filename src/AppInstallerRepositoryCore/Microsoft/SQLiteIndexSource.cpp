@@ -971,7 +971,6 @@ namespace AppInstaller::Repository::Microsoft
     {
         auto indexResults = m_index.Search(request);
 
-        // TODO: FIX SEARCH FOR V2!!!
         SearchResult result;
         std::shared_ptr<SQLiteIndexSource> sharedThis = NonConstSharedFromThis();
         uint32_t majorVersion = m_index.GetVersion().MajorVersion;

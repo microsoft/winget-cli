@@ -44,14 +44,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             std::initializer_list<std::string_view> columns,
             bool stepAndVerify = true);
 
-        // Builds the search select statement base on the given values.
-        std::vector<int> PackagesTableBuildSearchStatement(
-            SQLite::Builder::StatementBuilder& builder,
-            std::initializer_list<std::string_view> columns,
-            std::string_view manifestAlias,
-            std::string_view valueAlias,
-            bool useLike);
-
         // Prepares a statement to update the value of a single column for the manifest with the given rowid.
         // The first bind value will be the value to set.
         // The second bind value will be the manifest rowid to modify.
@@ -179,14 +171,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             else { return std::nullopt; }
         }
 
-        // Builds the search select statement base on the given values.
-        // If more than one table is provided, no value will be captured.
-        // The return value is the bind indices of the values to match against.
-        template <typename... Columns>
-        static std::vector<int> BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, std::string_view primaryAlias, std::string_view valueAlias, bool useLike)
-        {
-            return details::PackagesTableBuildSearchStatement(builder, { Columns::Name... }, primaryAlias, valueAlias, useLike);
-        }
+        // Builds the search select statement base on the given value.
+        // The return value is the bind index of the value to match against.
+        static int BuildSearchStatement(SQLite::Builder::StatementBuilder& builder, std::string_view valueName, std::string_view primaryAlias, std::string_view valueAlias, bool useLike);
 
         // Update the value of a single column for the package with the given rowid.
         template <typename Column>
