@@ -30,13 +30,13 @@ namespace AppInstaller::CLI
 
     Utility::LocIndView ConfigureShowCommand::HelpLink() const
     {
-        // TODO: Make this exist
         return "https://aka.ms/winget-command-configure#show"_liv;
     }
 
     void ConfigureShowCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
+            VerifyIsFullPackage <<
             VerifyFileOrUri(Execution::Args::Type::ConfigurationFile) <<
             CreateConfigurationProcessor <<
             OpenConfigurationSet <<

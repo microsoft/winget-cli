@@ -195,6 +195,9 @@ Installation failed. Restart your PC then try again. |
 | 0x8A15C00C | -1978286068 | WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE | The dependency graph contains a cycle which cannot be resolved. |
 | 0x8A15C00D | -1978286067 | WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE | The configuration has an invalid field value. |
 | 0x8A15C00E | -1978286066 | WINGET_CONFIG_ERROR_MISSING_FIELD | The configuration is missing a field. |
+| 0x8A15C00F | -1978286065 | WINGET_CONFIG_ERROR_TEST_FAILED | Some of the configuration units failed while testing their state. |
+| 0x8A15C010 | -1978286064 | WINGET_CONFIG_ERROR_TEST_NOT_RUN | Configuration state was not tested. |
+| 0x8A15C011 | -1978286063 | WINGET_CONFIG_ERROR_GET_FAILED | The configuration unit failed getting its properties. |
 
 ## Configuration Processor Errors
 
@@ -211,3 +214,4 @@ Installation failed. Restart your PC then try again. |
 | 0x8A15C109 | -1978285815 | WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT | The configuration unit returned an unexpected result during execution. |
 | 0x8A15C110 | -1978285814 | WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT | A unit contains a setting that requires the config root. |
 | 0x8A15C111 | -1978285813 | WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN | Loading the module for the configuration unit failed because it requires administrator privileges to run. |
+| 0x8A15C112 | -1978285812 | WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR | Operation is not supported by the configuration processor. |

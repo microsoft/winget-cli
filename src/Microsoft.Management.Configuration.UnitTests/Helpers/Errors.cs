@@ -31,6 +31,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public static readonly int WINGET_CONFIG_ERROR_MISSING_FIELD                        = unchecked((int)0x8A15C00E);
         public static readonly int WINGET_CONFIG_ERROR_TEST_FAILED                          = unchecked((int)0x8A15C00F);
         public static readonly int WINGET_CONFIG_ERROR_TEST_NOT_RUN                         = unchecked((int)0x8A15C010);
+        public static readonly int WINGET_CONFIG_ERROR_GET_FAILED                           = unchecked((int)0x8A15C011);
 
         // Configuration Processor Errors
         public static readonly int WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED                   = unchecked((int)0x8A15C101);

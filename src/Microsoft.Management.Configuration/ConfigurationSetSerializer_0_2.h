@@ -18,5 +18,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationSetSerializer_0_2& operator=(ConfigurationSetSerializer_0_2&&) = default;
 
         hstring Serialize(ConfigurationSet* configurationSet) override;
+
+    protected:
+        winrt::hstring GetResourceName(const ConfigurationUnit& unit) override;
+        void WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit) override;
     };
 }

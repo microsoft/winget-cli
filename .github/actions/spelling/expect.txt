@@ -161,6 +161,7 @@ GRPICONDIR
 GRPICONDIRENTRY
 guiddef
 Hackathon
+hashtables
 helplib
 helplibrary
 hhx
@@ -217,6 +218,7 @@ JToken
 JValue
 Kaido
 KNOWNFOLDERID
+kool
 ktf
 ldcase
 learnxinyminutes

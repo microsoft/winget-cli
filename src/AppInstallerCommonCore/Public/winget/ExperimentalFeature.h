@@ -29,6 +29,7 @@ namespace AppInstaller::Settings
             SideBySide = 0x10,
             ConfigureSelfElevation = 0x20,
             StoreDownload = 0x40,
+            ConfigureExport = 0x80,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command
