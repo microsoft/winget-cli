@@ -283,7 +283,8 @@ namespace AppInstaller::Repository
     {
         TestPackage,
         RestPackage,
-        SQLitePackage,
+        SQLitePackage1,
+        SQLitePackage2,
         PinnablePackage,
         CompositeInstalledPackage,
     };

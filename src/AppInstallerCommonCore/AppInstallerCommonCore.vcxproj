@@ -400,6 +400,7 @@
     <ClInclude Include="Authentication\WebAccountManagerAuthenticator.h" />
     <ClInclude Include="DODownloader.h" />
     <ClInclude Include="Public\winget\Authentication.h" />
+    <ClInclude Include="Public\winget\FileCache.h" />
     <ClInclude Include="Public\winget\FolderFileWatcher.h" />
     <ClInclude Include="Public\winget\MsixManifest.h" />
     <ClInclude Include="Public\winget\AdminSettings.h" />
@@ -437,7 +438,7 @@
     <ClInclude Include="Public\winget\MsixManifestValidation.h" />
     <ClInclude Include="Public\winget\MSStore.h" />
     <ClInclude Include="Public\winget\MSStoreDownload.h">
-        <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Public\winget\NameNormalization.h" />
     <ClInclude Include="Public\winget\Filesystem.h" />
@@ -466,6 +467,7 @@
     <ClCompile Include="Debugging.cpp" />
     <ClCompile Include="DependenciesGraph.cpp" />
     <ClCompile Include="DODownloader.cpp" />
+    <ClCompile Include="FileCache.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FolderFileWatcher.cpp" />
     <ClCompile Include="Deployment.cpp" />
@@ -493,7 +495,7 @@
     <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="MSStore.cpp" />
     <ClCompile Include="MSStoreDownload.cpp">
-        <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="NetworkSettings.cpp" />
@@ -504,7 +506,7 @@
     <ClCompile Include="Reboot.cpp" />
     <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Rest.cpp">
-        <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="pch.cpp">

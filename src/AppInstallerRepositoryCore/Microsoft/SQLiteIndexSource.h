@@ -3,7 +3,7 @@
 #pragma once
 #include "Microsoft/SQLiteIndex.h"
 #include "ISource.h"
-
+#include <winget/FileCache.h>
 #include <memory>
 
 
@@ -57,6 +57,8 @@ namespace AppInstaller::Repository::Microsoft
         SourceDetails m_details;
         bool m_requireManifestHash;
         bool m_isInstalled;
+        std::shared_ptr<Caching::FileCache> m_manifestCache;
+        std::shared_ptr<Caching::FileCache> m_packageVersionDataCache;
 
     protected:
         SQLiteIndex m_index;

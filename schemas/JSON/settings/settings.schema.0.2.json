@@ -290,6 +290,11 @@
           "description": "Enable support for downloading packages from the Microsoft Store",
           "type": "boolean",
           "default": false
+        },
+        "indexV2": {
+          "description": "Enable retrieving the V2 index for the winget source",
+          "type": "boolean",
+          "default": false
         }
       }
     }
