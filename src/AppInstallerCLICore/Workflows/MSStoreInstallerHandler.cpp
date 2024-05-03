@@ -73,70 +73,6 @@ namespace AppInstaller::CLI::Workflow
 
             THROW_IF_FAILED(hr);
         }
-
-        HRESULT DownloadMSStorePackageFile(const MSStoreDownloadFile& downloadFile, const std::filesystem::path& downloadDirectory, Execution::Context& context)
-        {
-            try
-            {
-                // Create a sub context to execute the package download
-                auto subContextPtr = context.CreateSubContext();
-                Execution::Context& subContext = *subContextPtr;
-                auto previousThreadGlobals = subContext.SetForCurrentThread();
-
-                // Populate Installer and temp download path for sub context
-                Manifest::ManifestInstaller installer;
-                installer.Url = downloadFile.Url;
-                installer.Sha256 = downloadFile.Sha256;
-                subContext.Add<Execution::Data::Installer>(std::move(installer));
-
-                auto tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
-                tempInstallerPath /= Utility::SHA256::ConvertToString(downloadFile.Sha256);
-                AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
-                subContext.Add<Execution::Data::InstallerPath>(tempInstallerPath);
-
-                subContext << Workflow::DownloadInstallerFile;
-                if (subContext.IsTerminated())
-                {
-                    RETURN_HR(subContext.GetTerminationHR());
-                }
-
-                // Verify hash
-                const auto& hashPair = subContext.Get<Execution::Data::HashPair>();
-                if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
-                {
-                    AICLI_LOG(CLI, Info, << "Microsoft Store package hash verified");
-                    subContext.Reporter.Info() << Resource::String::MSStoreDownloadPackageHashVerified << std::endl;
-                    // Trust direct download from Store if hash matched
-                    Utility::ApplyMotwIfApplicable(tempInstallerPath, URLZONE_TRUSTED);
-                }
-                else
-                {
-                    if (!subContext.Args.Contains(Execution::Args::Type::HashOverride))
-                    {
-                        AICLI_LOG(CLI, Error, << "Microsoft Store package hash mismatch");
-                        subContext.Reporter.Error() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
-                        RETURN_HR(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
-                    }
-                    else
-                    {
-                        AICLI_LOG(CLI, Warning, << "Microsoft Store package hash mismatch, but overridden.");
-                        subContext.Reporter.Warn() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
-                    }
-                }
-
-                auto renamedDownloadedPackage = downloadDirectory / Utility::ConvertToUTF16(downloadFile.FileName);
-                Filesystem::RenameFile(tempInstallerPath, renamedDownloadedPackage);
-                subContext.Reporter.Info() << Resource::String::MSStoreDownloadPackageDownloaded(Utility::LocIndView{ renamedDownloadedPackage.u8string() }) << std::endl;
-
-                return S_OK;
-            }
-            catch (...)
-            {
-                AICLI_LOG(CLI, Error, << "Microsoft Store package download failed. File: " << downloadFile.FileName);
-                context.Reporter.Error() << Resource::String::MSStoreDownloadPackageDownloadFailed(Utility::LocIndView{ downloadFile.FileName }) << std::endl;
-                RETURN_HR(APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED);
-            }
-        }
     }
 
     void MSStoreInstall(Execution::Context& context)
@@ -262,6 +198,68 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void DownloadMSStorePackageFile::operator()(Execution::Context& context) const
+    {
+        try
+        {
+            // Create a sub context to execute the package download
+            auto subContextPtr = context.CreateSubContext();
+            Execution::Context& subContext = *subContextPtr;
+            auto previousThreadGlobals = subContext.SetForCurrentThread();
+
+            // Populate Installer and temp download path for sub context
+            Manifest::ManifestInstaller installer;
+            installer.Url = m_downloadFile.Url;
+            installer.Sha256 = m_downloadFile.Sha256;
+            subContext.Add<Execution::Data::Installer>(std::move(installer));
+
+            auto tempInstallerPath = Runtime::GetPathTo(Runtime::PathName::Temp);
+            tempInstallerPath /= Utility::SHA256::ConvertToString(m_downloadFile.Sha256);
+            AICLI_LOG(CLI, Info, << "Generated temp download path: " << tempInstallerPath);
+            subContext.Add<Execution::Data::InstallerPath>(tempInstallerPath);
+
+            subContext << Workflow::DownloadInstallerFile;
+            if (subContext.IsTerminated())
+            {
+                THROW_HR(subContext.GetTerminationHR());
+            }
+
+            // Verify hash
+            const auto& hashPair = subContext.Get<Execution::Data::HashPair>();
+            if (std::equal(hashPair.first.begin(), hashPair.first.end(), hashPair.second.begin()))
+            {
+                AICLI_LOG(CLI, Info, << "Microsoft Store package hash verified");
+                subContext.Reporter.Info() << Resource::String::MSStoreDownloadPackageHashVerified << std::endl;
+                // Trust direct download from Store if hash matched
+                Utility::ApplyMotwIfApplicable(tempInstallerPath, URLZONE_TRUSTED);
+            }
+            else
+            {
+                if (!subContext.Args.Contains(Execution::Args::Type::HashOverride))
+                {
+                    AICLI_LOG(CLI, Error, << "Microsoft Store package hash mismatch");
+                    subContext.Reporter.Error() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
+                    THROW_HR(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Warning, << "Microsoft Store package hash mismatch, but overridden.");
+                    subContext.Reporter.Warn() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
+                }
+            }
+
+            auto renamedDownloadedPackage = m_downloadDirectory / Utility::ConvertToUTF16(m_downloadFile.FileName);
+            Filesystem::RenameFile(tempInstallerPath, renamedDownloadedPackage);
+            subContext.Reporter.Info() << Resource::String::MSStoreDownloadPackageDownloaded(Utility::LocIndView{ renamedDownloadedPackage.u8string() }) << std::endl;
+        }
+        catch (...)
+        {
+            AICLI_LOG(CLI, Error, << "Microsoft Store package download failed. File: " << m_downloadFile.FileName);
+            context.Reporter.Error() << Resource::String::MSStoreDownloadPackageDownloadFailed(Utility::LocIndView{ m_downloadFile.FileName }) << std::endl;
+            THROW_HR(APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED);
+        }
+    }
+
     void MSStoreDownload(Execution::Context& context)
     {
         if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
@@ -347,7 +345,7 @@ namespace AppInstaller::CLI::Workflow
 
             for (auto const& dependencyPackage : downloadInfo.DependencyPackages)
             {
-                THROW_IF_FAILED(DownloadMSStorePackageFile(dependencyPackage, dependenciesDirectory, context));
+                context << DownloadMSStorePackageFile(dependencyPackage, dependenciesDirectory);
             }
         }
 
@@ -357,7 +355,7 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Downloading MSStore main packages");
             context.Reporter.Info() << Resource::String::MSStoreDownloadMainPackages << std::endl;
 
-            THROW_IF_FAILED(DownloadMSStorePackageFile(mainPackage, downloadDirectory, context));
+            context << DownloadMSStorePackageFile(mainPackage, downloadDirectory);
         }
 
         context.Reporter.Info() << Resource::String::MSStoreDownloadPackageDownloadSuccess << std::endl;

@@ -408,6 +408,7 @@ servercertificate
 setmetadatabymanifestid
 SETTINGCHANGE
 SETTINGMAPPING
+sfs
 sfsclient
 SHCONTF
 SHGDN
