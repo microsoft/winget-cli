@@ -222,20 +222,48 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    PlatformEnum ConvertToPlatformEnum(const std::string& in)
+    PlatformEnum ConvertToPlatformEnum(std::string_view in)
     {
-        PlatformEnum result = PlatformEnum::Unknown;
+        std::string inStrLower = Utility::ToLower(in);
 
-        if (Utility::CaseInsensitiveEquals(in, "windows.desktop"))
+        if (inStrLower == "windows.desktop")
         {
-            result = PlatformEnum::Desktop;
+            return PlatformEnum::Desktop;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "windows.universal"))
+        else if (inStrLower == "windows.universal")
         {
-            result = PlatformEnum::Universal;
+            return PlatformEnum::Universal;
         }
 
-        return result;
+        return PlatformEnum::Unknown;
+    }
+
+    PlatformEnum ConvertToPlatformEnumForMSStoreDownload(std::string_view in)
+    {
+        std::string inStrLower = Utility::ToLower(in);
+
+        if (inStrLower == "windows.desktop")
+        {
+            return PlatformEnum::Desktop;
+        }
+        else if (inStrLower == "windows.universal")
+        {
+            return PlatformEnum::Universal;
+        }
+        else if (inStrLower == "windows.iot")
+        {
+            return PlatformEnum::IoT;
+        }
+        else if (inStrLower == "windows.team")
+        {
+            return PlatformEnum::Team;
+        }
+        else if (inStrLower == "windows.holographic")
+        {
+            return PlatformEnum::Holographic;
+        }
+
+        return PlatformEnum::Unknown;
     }
 
     ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in)

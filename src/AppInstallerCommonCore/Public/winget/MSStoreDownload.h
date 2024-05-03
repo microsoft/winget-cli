@@ -4,6 +4,7 @@
 #include <AppInstallerArchitecture.h>
 #include <AppInstallerVersions.h>
 #include "winget/Authentication.h"
+#include "winget/ManifestCommon.h"
 
 #include <string>
 #include <optional>
@@ -30,7 +31,12 @@ namespace AppInstaller::MSStore
 
     struct MSStoreDownloadContext
     {
-        MSStoreDownloadContext(std::string productId, AppInstaller::Utility::Architecture architecture, std::string locale, AppInstaller::Authentication::AuthenticationArguments authArgs);
+        MSStoreDownloadContext(
+            std::string productId,
+            AppInstaller::Utility::Architecture architecture,
+            AppInstaller::Manifest::PlatformEnum platform,
+            std::string locale,
+            AppInstaller::Authentication::AuthenticationArguments authArgs);
 
         // Calls display catalog API and sfs-client to get download info.
         MSStoreDownloadInfo GetDownloadInfo();

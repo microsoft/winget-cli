@@ -2950,4 +2950,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
     <value>Skips retrieving Microsoft Store package offline license. Retrieving Microsoft Store package license requires administrator account in a Microsoft Entra Id tenant</value>
   </data>
+  <data name="PlatformArgumentDescription" xml:space="preserve">
+    <value>Select the target platform</value>
+  </data>
 </root>

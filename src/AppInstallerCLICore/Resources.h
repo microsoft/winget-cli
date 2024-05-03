@@ -409,6 +409,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetUseForceArg);
         WINGET_DEFINE_RESOURCE_STRINGID(PinType);
         WINGET_DEFINE_RESOURCE_STRINGID(PinVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(PlatformArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableAliasAdded);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverridden);

@@ -168,6 +168,9 @@ namespace AppInstaller::Manifest
         Unknown,
         Universal,
         Desktop,
+        IoT,
+        Team,
+        Holographic,
     };
 
     enum class ElevationRequirementEnum
@@ -364,6 +367,8 @@ namespace AppInstaller::Manifest
     InstallModeEnum ConvertToInstallModeEnum(const std::string& in);
 
     PlatformEnum ConvertToPlatformEnum(const std::string& in);
+
+    PlatformEnum ConvertToPlatformEnumForMSStoreDownload(std::string_view in);
 
     ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in);
 

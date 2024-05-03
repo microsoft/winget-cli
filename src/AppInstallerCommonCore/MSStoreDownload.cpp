@@ -588,24 +588,33 @@ namespace AppInstaller::MSStore
 #ifndef WINGET_DISABLE_FOR_FUZZING
     namespace SfsClientDetails
     {
-        enum class TargetPlatform
-        {
-            Universal,
-            Desktop,
-            IoT,
-            Analog,
-            Ppi,
-        };
-
         const std::string SupportedFileTypes[] = { ".msix", ".msixbundle", ".appx", ".appxbundle" };
-        const std::vector<std::pair<std::string, TargetPlatform>> SupportedPlatforms =
+
+        Manifest::PlatformEnum ConvertFromSfsPlatform(std::string_view applicability)
         {
-            { "Universal", TargetPlatform::Universal },
-            { "Desktop", TargetPlatform::Desktop },
-            { "IoT", TargetPlatform::IoT },
-            { "Analog", TargetPlatform::Analog },
-            { "Ppi", TargetPlatform::Ppi },
-        };
+            if (Utility::CaseInsensitiveStartsWith(applicability, "universal"))
+            {
+                return Manifest::PlatformEnum::Universal;
+            }
+            else if (Utility::CaseInsensitiveStartsWith(applicability, "desktop"))
+            {
+                return Manifest::PlatformEnum::Desktop;
+            }
+            else if (Utility::CaseInsensitiveStartsWith(applicability, "iot"))
+            {
+                return Manifest::PlatformEnum::IoT;
+            }
+            else if (Utility::CaseInsensitiveStartsWith(applicability, "analog"))
+            {
+                return Manifest::PlatformEnum::Holographic;
+            }
+            else if (Utility::CaseInsensitiveStartsWith(applicability, "ppi"))
+            {
+                return Manifest::PlatformEnum::Team;
+            }
+
+            return Manifest::PlatformEnum::Unknown;
+        }
 
         Utility::Architecture ConvertFromSfsArchitecture(SFS::Architecture sfsArchitecture)
         {
@@ -626,26 +635,24 @@ namespace AppInstaller::MSStore
             return Utility::Architecture::Unknown;
         }
 
-        std::vector<TargetPlatform> GetSfsPackageFileSupportedPlatforms(const SFS::AppFile& appFile)
+        std::vector<Manifest::PlatformEnum> GetSfsPackageFileSupportedPlatforms(const SFS::AppFile& appFile, Manifest::PlatformEnum requiredPlatform)
         {
-            std::vector<TargetPlatform> supportedPlatforms;
+            std::vector<Manifest::PlatformEnum> supportedPlatforms;
 
             for (auto const& applicability : appFile.GetApplicabilityDetails().GetPlatformApplicabilityForPackage())
             {
-                for (auto const& platformPair : SupportedPlatforms)
+                auto platform = ConvertFromSfsPlatform(applicability);
+                if (platform != Manifest::PlatformEnum::Unknown &&
+                    (platform == requiredPlatform || requiredPlatform == Manifest::PlatformEnum::Unknown))
                 {
-                    if (Utility::CaseInsensitiveStartsWith(applicability, platformPair.first))
-                    {
-                        supportedPlatforms.emplace_back(platformPair.second);
-                        break;
-                    }
+                    supportedPlatforms.emplace_back(platform);
                 }
             }
 
             return supportedPlatforms;
         }
 
-        std::vector<Utility::Architecture> GetSfsPackageFileSupportedArchitectures(const SFS::AppFile& appFile, Utility::Architecture architecture)
+        std::vector<Utility::Architecture> GetSfsPackageFileSupportedArchitectures(const SFS::AppFile& appFile, Utility::Architecture requiredArchitecture)
         {
             std::vector<Utility::Architecture> supportedArchitectures;
 
@@ -657,8 +664,8 @@ namespace AppInstaller::MSStore
                     continue;
                 }
 
-                if (architecture == Utility::Architecture::Unknown || // No required architecture
-                    convertedArchitecture == architecture)
+                if (requiredArchitecture == Utility::Architecture::Unknown || // No required architecture
+                    convertedArchitecture == requiredArchitecture)
                 {
                     supportedArchitectures.emplace_back(convertedArchitecture);
                 }
@@ -740,9 +747,10 @@ namespace AppInstaller::MSStore
 
         std::vector<MSStoreDownloadFile> PopulateSfsAppFileToMSStoreDownloadFileVector(
             const std::vector<SFS::AppFile>& appFiles,
-            Utility::Architecture architecture = Utility::Architecture::Unknown)
+            Utility::Architecture requiredArchitecture = Utility::Architecture::Unknown,
+            Manifest::PlatformEnum requiredPlatform = Manifest::PlatformEnum::Unknown)
         {
-            using PlatformAndArchitectureKey = std::pair<TargetPlatform, Utility::Architecture>;
+            using PlatformAndArchitectureKey = std::pair<Manifest::PlatformEnum, Utility::Architecture>;
 
             // Since the server may return multiple versions of the same package, we'll use ths map to record the one with latest version
             // for each Platform|Architecture pair.
@@ -751,13 +759,13 @@ namespace AppInstaller::MSStore
             for (auto const& appFile : appFiles)
             {
                 // Filter out unsupported packages
-                auto supportedPlatforms = GetSfsPackageFileSupportedPlatforms(appFile);
+                auto supportedPlatforms = GetSfsPackageFileSupportedPlatforms(appFile, requiredPlatform);
                 if (supportedPlatforms.empty())
                 {
                     AICLI_LOG(Core, Info, << "Package skipped due to unsupported platforms. FileId:" << appFile.GetFileId());
                     continue;
                 }
-                auto supportedArchitectures = GetSfsPackageFileSupportedArchitectures(appFile, architecture);
+                auto supportedArchitectures = GetSfsPackageFileSupportedArchitectures(appFile, requiredArchitecture);
                 if (supportedArchitectures.empty())
                 {
                     AICLI_LOG(Core, Info, << "Package skipped due to unsupported architecture. FileId:" << appFile.GetFileId());

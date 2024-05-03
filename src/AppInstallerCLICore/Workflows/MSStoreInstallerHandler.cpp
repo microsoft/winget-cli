@@ -280,17 +280,22 @@ namespace AppInstaller::CLI::Workflow
         const auto& installer = context.Get<Execution::Data::Installer>().value();
 
         Utility::Architecture requiredArchitecture = Utility::Architecture::Unknown;
+        Manifest::PlatformEnum requiredPlatform = Manifest::PlatformEnum::Unknown;
         std::string requiredLocale;
         if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
         {
             requiredArchitecture = Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallArchitecture));
+        }
+        if (context.Args.Contains(Execution::Args::Type::Platform))
+        {
+            requiredPlatform = Manifest::ConvertToPlatformEnumForMSStoreDownload(context.Args.GetArg(Execution::Args::Type::Platform));
         }
         if (context.Args.Contains(Execution::Args::Type::Locale))
         {
             requiredLocale = context.Args.GetArg(Execution::Args::Type::Locale);
         }
 
-        MSStoreDownloadContext downloadContext{ installer.ProductId, requiredArchitecture, requiredLocale, GetAuthenticationArguments(context) };
+        MSStoreDownloadContext downloadContext{ installer.ProductId, requiredArchitecture, requiredPlatform, requiredLocale, GetAuthenticationArguments(context) };
 
         MSStoreDownloadInfo downloadInfo;
         try

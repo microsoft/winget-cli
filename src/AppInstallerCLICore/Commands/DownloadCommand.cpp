@@ -7,6 +7,7 @@
 #include "Workflows/PromptFlow.h"
 #include "Resources.h"
 #include <AppInstallerRuntime.h>
+#include <winget/ManifestCommon.h>
 
 namespace AppInstaller::CLI
 {
@@ -39,6 +40,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::SkipMicrosoftStorePackageLicense),
+            Argument::ForType(Args::Type::Platform),
         };
     }
 
@@ -60,6 +62,18 @@ namespace AppInstaller::CLI
     void DownloadCommand::ValidateArgumentsInternal(Args& execArgs) const
     {
         Argument::ValidateCommonArguments(execArgs);
+
+        if (execArgs.Contains(Execution::Args::Type::Platform))
+        {
+            Manifest::PlatformEnum selectedPlatform = Manifest::ConvertToPlatformEnumForMSStoreDownload(std::string(execArgs.GetArg(Execution::Args::Type::Platform)));
+            if (selectedPlatform == Manifest::PlatformEnum::Unknown)
+            {
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{
+                    "Windows.Universal"_lis, "Windows.Desktop"_lis, "Windows.IoT"_lis, "Windows.Team"_lis, "Windows.Holographic"_lis
+                });
+                throw CommandException(Resource::String::InvalidArgumentValueError(Argument::ForType(Execution::Args::Type::Platform).Name(), validOptions));
+            }
+        }
     }
 
     void DownloadCommand::ExecuteInternal(Context& context) const
