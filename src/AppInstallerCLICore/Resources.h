@@ -507,6 +507,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallationNotes);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstaller);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerLocale);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerOfflineDistributionSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerProductId);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerReleaseDate);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerSha256);

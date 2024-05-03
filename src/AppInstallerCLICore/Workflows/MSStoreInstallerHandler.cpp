@@ -119,7 +119,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        AICLI_LOG(CLI, Warning, << "Microsoft Store package hash mismatch, but overrided.");
+                        AICLI_LOG(CLI, Warning, << "Microsoft Store package hash mismatch, but overridden.");
                         subContext.Reporter.Warn() << Resource::String::MSStoreDownloadPackageHashMismatch << std::endl;
                     }
                 }
@@ -311,7 +311,7 @@ namespace AppInstaller::CLI::Workflow
             switch (re.GetErrorCode())
             {
             case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE:
-            case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSClIENT_PACKAGE:
+            case APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE:
                 context.Reporter.Error() << Resource::String::MSStoreDownloadPackageNotFound << std::endl;
                 break;
             default:

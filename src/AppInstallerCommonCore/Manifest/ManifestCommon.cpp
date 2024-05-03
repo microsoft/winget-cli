@@ -666,6 +666,12 @@ namespace AppInstaller::Manifest
             return "Windows.Desktop"sv;
         case PlatformEnum::Universal:
             return "Windows.Universal"sv;
+        case PlatformEnum::IoT:
+            return "Windows.IoT"sv;
+        case PlatformEnum::Holographic:
+            return "Windows.Holographic"sv;
+        case PlatformEnum::Team:
+            return "Windows.Team"sv;
         }
 
         return "Unknown"sv;

@@ -366,7 +366,7 @@ namespace AppInstaller::Manifest
 
     InstallModeEnum ConvertToInstallModeEnum(const std::string& in);
 
-    PlatformEnum ConvertToPlatformEnum(const std::string& in);
+    PlatformEnum ConvertToPlatformEnum(std::string_view in);
 
     PlatformEnum ConvertToPlatformEnumForMSStoreDownload(std::string_view in);
 

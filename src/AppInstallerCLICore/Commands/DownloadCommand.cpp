@@ -65,7 +65,7 @@ namespace AppInstaller::CLI
 
         if (execArgs.Contains(Execution::Args::Type::Platform))
         {
-            Manifest::PlatformEnum selectedPlatform = Manifest::ConvertToPlatformEnumForMSStoreDownload(std::string(execArgs.GetArg(Execution::Args::Type::Platform)));
+            Manifest::PlatformEnum selectedPlatform = Manifest::ConvertToPlatformEnumForMSStoreDownload(execArgs.GetArg(Execution::Args::Type::Platform));
             if (selectedPlatform == Manifest::PlatformEnum::Unknown)
             {
                 auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{

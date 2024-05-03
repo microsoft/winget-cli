@@ -799,7 +799,7 @@ namespace AppInstaller::MSStore
                 }
             }
 
-            // Generate MSStoreDownloadFile vector with deduping.
+            // Generate MSStoreDownloadFile vector and remove duplication.
             std::vector<MSStoreDownloadFile> result;
             for (auto& downloadFileEntry : downloadFilesMap)
             {
@@ -816,9 +816,9 @@ namespace AppInstaller::MSStore
             return result;
         }
 
-        MSStoreDownloadInfo CallSfsClientAndGetMSStoreDownloadInfo(std::string_view wuCategoryId, Utility::Architecture architecture)
+        MSStoreDownloadInfo CallSfsClientAndGetMSStoreDownloadInfo(std::string_view wuCategoryId, Utility::Architecture requiredArchitecture, Manifest::PlatformEnum requiredPlatform)
         {
-            AICLI_LOG(Core, Info, << "CallSfsClientAndGetMSStoreDownloadInfo with WuCategoryId: " << wuCategoryId << " Architecture: " << Utility::ToString(architecture));
+            AICLI_LOG(Core, Info, << "CallSfsClientAndGetMSStoreDownloadInfo with WuCategoryId: " << wuCategoryId << " Architecture: " << Utility::ToString(requiredArchitecture) << " Platform: " << Manifest::PlatformToString(requiredPlatform));
 
             SFS::RequestParams sfsClientRequest;
             sfsClientRequest.productRequests = { {std::string{ wuCategoryId }, {}} };
@@ -837,19 +837,20 @@ namespace AppInstaller::MSStore
             const auto& appContent = appContents.at(0);
 
             // Populate main packages
-            result.MainPackages = PopulateSfsAppFileToMSStoreDownloadFileVector(appContent.GetFiles(), architecture);
+            result.MainPackages = PopulateSfsAppFileToMSStoreDownloadFileVector(appContent.GetFiles(), requiredArchitecture, requiredPlatform);
 
             // Populate dependency packages
             for (auto const& dependencyEntry : appContent.GetPrerequisites())
             {
-                auto dependencyPackages = PopulateSfsAppFileToMSStoreDownloadFileVector(dependencyEntry.GetFiles(), architecture);
+                // Not passing in required platform for dependencies. Dependencies are mostly Windows.Universal.
+                auto dependencyPackages = PopulateSfsAppFileToMSStoreDownloadFileVector(dependencyEntry.GetFiles(), requiredArchitecture);
                 std::move(dependencyPackages.begin(), dependencyPackages.end(), std::inserter(result.DependencyPackages, result.DependencyPackages.end()));
             }
 
             if (result.MainPackages.empty())
             {
                 AICLI_LOG(Core, Error, << "No applicable SFS main package.");
-                THROW_HR(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSClIENT_PACKAGE);
+                THROW_HR(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE);
             }
 
             return result;
@@ -945,9 +946,10 @@ namespace AppInstaller::MSStore
     MSStoreDownloadContext::MSStoreDownloadContext(
         std::string productId,
         AppInstaller::Utility::Architecture architecture,
+        Manifest::PlatformEnum platform,
         std::string locale,
         AppInstaller::Authentication::AuthenticationArguments authArgs) :
-        m_productId(std::move(productId)), m_architecture(architecture), m_locale(std::move(locale))
+        m_productId(std::move(productId)), m_architecture(architecture), m_platform(platform), m_locale(std::move(locale))
     {
         Authentication::MicrosoftEntraIdAuthenticationInfo licensingMicrosoftEntraIdAuthInfo;
         licensingMicrosoftEntraIdAuthInfo.Resource = "c5e1cb0d-5d24-4b1a-b291-ec684152b2ba";
@@ -964,7 +966,7 @@ namespace AppInstaller::MSStore
 #ifndef WINGET_DISABLE_FOR_FUZZING
 
         auto displayCatalogPackage = DisplayCatalogDetails::CallDisplayCatalogAndGetPreferredPackage(m_productId, m_locale, m_architecture);
-        auto downloadInfo = SfsClientDetails::CallSfsClientAndGetMSStoreDownloadInfo(displayCatalogPackage.WuCategoryId, m_architecture);
+        auto downloadInfo = SfsClientDetails::CallSfsClientAndGetMSStoreDownloadInfo(displayCatalogPackage.WuCategoryId, m_architecture, m_platform);
         m_contentId = displayCatalogPackage.ContentId;
         return downloadInfo;
 #else

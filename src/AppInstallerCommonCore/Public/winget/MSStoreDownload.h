@@ -48,6 +48,7 @@ namespace AppInstaller::MSStore
     private:
         std::string m_productId;
         AppInstaller::Utility::Architecture m_architecture = AppInstaller::Utility::Architecture::Unknown;
+        AppInstaller::Manifest::PlatformEnum m_platform = AppInstaller::Manifest::PlatformEnum::Unknown;
         std::string m_locale;
         std::unique_ptr<AppInstaller::Authentication::Authenticator> m_licensingAuthenticator;
         std::string m_contentId;

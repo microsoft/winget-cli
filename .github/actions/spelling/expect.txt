@@ -408,6 +408,7 @@ servercertificate
 setmetadatabymanifestid
 SETTINGCHANGE
 SETTINGMAPPING
+sfsclient
 SHCONTF
 SHGDN
 SHOWNORMAL
@@ -429,6 +430,7 @@ srs
 startswith
 STARTUPINFOW
 STDMETHODCALLTYPE
+storeapps
 storeorigin
 STRRET
 stylecop

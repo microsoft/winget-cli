@@ -1173,6 +1173,9 @@ Do you agree to the terms?</value>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
     <value>Release Date:</value>
   </data>
+  <data name="ShowLabelInstallerOfflineDistributionSupported" xml:space="preserve">
+    <value>Offline Distribution Supported:</value>
+  </data>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
     <value>Publisher Url:</value>
   </data>
@@ -2892,7 +2895,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED" xml:space="preserve">
     <value>Failed to get Microsoft Store package download infomation.</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSClIENT_PACKAGE" xml:space="preserve">
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
     <value>No applicable Microsoft Store package download infomation found.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
