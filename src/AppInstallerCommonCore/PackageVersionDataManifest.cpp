@@ -4,6 +4,7 @@
 #include "Public/winget/PackageVersionDataManifest.h"
 #include "Public/winget/Yaml.h"
 #include <AppInstallerErrors.h>
+#include <AppInstallerLogging.h>
 
 using namespace std::string_view_literals;
 
@@ -152,6 +153,8 @@ namespace AppInstaller::Manifest
 
     void PackageVersionDataManifest::Deserialize(std::string_view input)
     {
+        AICLI_LOG_LARGE_STRING(Core, Verbose, << "PackageVersionDataManifest deserializing:", input);
+
         YAML::Node document = YAML::Load(input);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, !document.IsMap());
 

@@ -17,6 +17,9 @@ namespace AppInstaller::Caching
             case FileCache::Type::IndexV1_Manifest: return "IndexV1_Manifest";
             case FileCache::Type::IndexV2_PackageVersionData: return "IndexV2_PackageVersionData";
             case FileCache::Type::IndexV2_Manifest: return "IndexV2_Manifest";
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            case FileCache::Type::Tests: return "Tests";
+#endif
             }
 
             THROW_HR(E_UNEXPECTED);
@@ -120,6 +123,9 @@ namespace AppInstaller::Caching
         case Type::IndexV1_Manifest:
         case Type::IndexV2_PackageVersionData:
         case Type::IndexV2_Manifest:
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        case Type::Tests:
+#endif
             BasePath = Runtime::PathName::Temp;
             break;
         default:
@@ -152,36 +158,52 @@ namespace AppInstaller::Caching
         std::filesystem::path cachedFilePath = m_cacheBase / Utility::ConvertToUTF16(relativePath);
 
         // Check cache for matching file
-        if (std::filesystem::is_regular_file(cachedFilePath))
+        try
         {
-            std::ifstream fileStream{ cachedFilePath, std::ios_base::in | std::ios_base::binary };
-            std::string fileContents = Utility::ReadEntireStream(fileStream);
-
-            auto fileContentsHash = Utility::SHA256::ComputeHash(fileContents);
-
-            if (Utility::SHA256::AreEqual(expectedHash, fileContentsHash))
+            if (std::filesystem::is_regular_file(cachedFilePath))
             {
-                return std::make_unique<std::istringstream>(std::move(fileContents));
-            }
-            else
-            {
-                AICLI_LOG(Core, Verbose, << "Removing cached file [" << cachedFilePath << "] due to hash mismatch; expected [" <<
-                    Utility::SHA256::ConvertToString(expectedHash) << "] but was [" << Utility::SHA256::ConvertToString(fileContentsHash) << "]");
-                std::filesystem::remove(cachedFilePath);
+                AICLI_LOG(Core, Verbose, << "Reading cached file [" << cachedFilePath << "]");
+
+                std::ifstream fileStream{ cachedFilePath, std::ios_base::in | std::ios_base::binary };
+                std::string fileContents = Utility::ReadEntireStream(fileStream);
+
+                auto fileContentsHash = Utility::SHA256::ComputeHash(fileContents);
+
+                if (Utility::SHA256::AreEqual(expectedHash, fileContentsHash))
+                {
+                    return std::make_unique<std::istringstream>(std::move(fileContents));
+                }
+                else
+                {
+                    AICLI_LOG(Core, Verbose, << "Removing cached file [" << cachedFilePath << "] due to hash mismatch; expected [" <<
+                        Utility::SHA256::ConvertToString(expectedHash) << "] but was [" << Utility::SHA256::ConvertToString(fileContentsHash) << "]");
+                }
             }
         }
+        catch (...)
+        {
+            LOG_CAUGHT_EXCEPTION_MSG("Error while attempting to read cached file");
+        }
+
+        std::error_code ignoredError;
+        std::filesystem::remove_all(cachedFilePath, ignoredError);
 
         // Making it here means that we do not have a cached file or it needed to be updated and was removed.
         auto result = GetUpstreamFile(relativePath, expectedHash);
 
         // GetUpstreamFile only returns with a successfully verified hash, we just need to write the file out.
         // Only log failures as caching is an optimization.
+        try
         {
             AICLI_LOG(Core, Verbose, << "Writing cached file [" << cachedFilePath << "]");
             std::ofstream fileStream{ cachedFilePath, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc };
             LOG_LAST_ERROR_IF(fileStream.fail());
             fileStream << result->str() << std::flush;
             LOG_LAST_ERROR_IF(fileStream.fail());
+        }
+        catch (...)
+        {
+            LOG_CAUGHT_EXCEPTION_MSG("Error while attempting to write cached file");
         }
 
         return result;
@@ -207,6 +229,12 @@ namespace AppInstaller::Caching
             }
         }
 
-        std::rethrow_exception(firstException);
+        if (firstException)
+        {
+            std::rethrow_exception(firstException);
+        }
+
+        // Somewhat arbitrary error that should only happen if no upstream sources provided.
+        THROW_HR(E_NOT_SET);
     }
 }

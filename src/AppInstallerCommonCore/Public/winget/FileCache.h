@@ -9,7 +9,7 @@
 
 namespace AppInstaller::Caching
 {
-    // A file cache that stores data 
+    // A file cache for relatively small files (they are always full loaded into memory due to the hash enforcement).
     struct FileCache
     {
         // The supported file cache types.
@@ -21,6 +21,10 @@ namespace AppInstaller::Caching
             IndexV2_PackageVersionData,
             // Manifests for index V2.
             IndexV2_Manifest,
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            // The test type.
+            Tests,
+#endif
         };
 
         // Contains information about a specific file cache instance.
