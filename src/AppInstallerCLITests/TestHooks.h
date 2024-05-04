@@ -13,6 +13,8 @@
 #include <winget/Filesystem.h>
 #include <winget/IconExtraction.h>
 #include <winget/Authentication.h>
+#include <winget/HttpClientHelper.h>
+#include <sfsclient/SFSClient.h>
 
 #ifdef AICLI_DISABLE_TEST_HOOKS
 static_assert(false, "Test hooks have been disabled");
@@ -80,6 +82,15 @@ namespace AppInstaller
     namespace Authentication
     {
         void TestHook_SetAuthenticationResult_Override(Authentication::AuthenticationResult* authResult);
+    }
+
+    namespace MSStore::TestHooks
+    {
+        void SetDisplayCatalogHttpCLientHelper_Override(Http::HttpClientHelper* value);
+
+        void SetSfsClientAppContents_Override(std::vector<SFS::AppContent>* value);
+
+        void SetLicensingHttpCLientHelper_Override(Http::HttpClientHelper* value);
     }
 }
 
@@ -233,5 +244,53 @@ namespace TestHook
 
     private:
         AppInstaller::Authentication::AuthenticationResult m_authResult;
+    };
+
+    struct SetDisplayCatalogHttpClientHelper_Override
+    {
+        SetDisplayCatalogHttpClientHelper_Override(AppInstaller::Http::HttpClientHelper value) : m_httpClientHelper(value)
+        {
+            AppInstaller::MSStore::TestHooks::SetDisplayCatalogHttpCLientHelper_Override(&m_httpClientHelper);
+        }
+
+        ~SetDisplayCatalogHttpClientHelper_Override()
+        {
+            AppInstaller::MSStore::TestHooks::SetDisplayCatalogHttpCLientHelper_Override(nullptr);
+        }
+
+    private:
+        AppInstaller::Http::HttpClientHelper m_httpClientHelper;
+    };
+
+    struct SetSfsClientAppContents_Override
+    {
+        SetSfsClientAppContents_Override(std::vector<SFS::AppContent>&& value) : m_appContents(std::move(value))
+        {
+            AppInstaller::MSStore::TestHooks::SetSfsClientAppContents_Override(&m_appContents);
+        }
+
+        ~SetSfsClientAppContents_Override()
+        {
+            AppInstaller::MSStore::TestHooks::SetSfsClientAppContents_Override(nullptr);
+        }
+
+    private:
+        std::vector<SFS::AppContent> m_appContents;
+    };
+
+    struct SetLicensingHttpClientHelper_Override
+    {
+        SetLicensingHttpClientHelper_Override(AppInstaller::Http::HttpClientHelper value) : m_httpClientHelper(value)
+        {
+            AppInstaller::MSStore::TestHooks::SetLicensingHttpCLientHelper_Override(&m_httpClientHelper);
+        }
+
+        ~SetLicensingHttpClientHelper_Override()
+        {
+            AppInstaller::MSStore::TestHooks::SetLicensingHttpCLientHelper_Override(nullptr);
+        }
+
+    private:
+        AppInstaller::Http::HttpClientHelper m_httpClientHelper;
     };
 }

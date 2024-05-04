@@ -21,6 +21,32 @@ namespace AppInstaller::MSStore
 {
     using namespace std::string_view_literals;
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    namespace TestHooks
+    {
+        static Http::HttpClientHelper* s_DisplayCatalog_HttpCLientHelper_Override = nullptr;
+
+        void SetDisplayCatalogHttpCLientHelper_Override(Http::HttpClientHelper* value)
+        {
+            s_DisplayCatalog_HttpCLientHelper_Override = value;
+        }
+
+        static std::vector<SFS::AppContent>* s_SfsClient_AppContents_Override = nullptr;
+
+        void SetSfsClientAppContents_Override(std::vector<SFS::AppContent>* value)
+        {
+            s_SfsClient_AppContents_Override = value;
+        }
+
+        static Http::HttpClientHelper* s_Licensing_HttpCLientHelper_Override = nullptr;
+
+        void SetLicensingHttpCLientHelper_Override(Http::HttpClientHelper* value)
+        {
+            s_Licensing_HttpCLientHelper_Override = value;
+        }
+    }
+#endif
+
     namespace DisplayCatalogDetails
     {
         // Default preferred sku to use
@@ -552,6 +578,14 @@ namespace AppInstaller::MSStore
             auto displayCatalogApi = GetDisplayCatalogRestApi(productId, locale);
 
             AppInstaller::Http::HttpClientHelper httpClientHelper;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (TestHooks::s_DisplayCatalog_HttpCLientHelper_Override)
+            {
+                httpClientHelper = *TestHooks::s_DisplayCatalog_HttpCLientHelper_Override;
+            }
+#endif
+
             std::optional<web::json::value> displayCatalogResponseObject = httpClientHelper.HandleGet(displayCatalogApi);
 
             if (!displayCatalogResponseObject)
@@ -635,9 +669,9 @@ namespace AppInstaller::MSStore
             return Utility::Architecture::Unknown;
         }
 
-        std::vector<Manifest::PlatformEnum> GetSfsPackageFileSupportedPlatforms(const SFS::AppFile& appFile, Manifest::PlatformEnum requiredPlatform)
+        std::vector<std::string> GetSfsPackageFileSupportedPlatforms(const SFS::AppFile& appFile, Manifest::PlatformEnum requiredPlatform)
         {
-            std::vector<Manifest::PlatformEnum> supportedPlatforms;
+            std::vector<std::string> supportedPlatforms;
 
             for (auto const& applicability : appFile.GetApplicabilityDetails().GetPlatformApplicabilityForPackage())
             {
@@ -645,7 +679,7 @@ namespace AppInstaller::MSStore
                 if (platform != Manifest::PlatformEnum::Unknown &&
                     (platform == requiredPlatform || requiredPlatform == Manifest::PlatformEnum::Unknown))
                 {
-                    supportedPlatforms.emplace_back(platform);
+                    supportedPlatforms.emplace_back(applicability);
                 }
             }
 
@@ -750,7 +784,7 @@ namespace AppInstaller::MSStore
             Utility::Architecture requiredArchitecture = Utility::Architecture::Unknown,
             Manifest::PlatformEnum requiredPlatform = Manifest::PlatformEnum::Unknown)
         {
-            using PlatformAndArchitectureKey = std::pair<Manifest::PlatformEnum, Utility::Architecture>;
+            using PlatformAndArchitectureKey = std::pair<std::string, Utility::Architecture>;
 
             // Since the server may return multiple versions of the same package, we'll use ths map to record the one with latest version
             // for each Platform|Architecture pair.
@@ -820,20 +854,33 @@ namespace AppInstaller::MSStore
         {
             AICLI_LOG(Core, Info, << "CallSfsClientAndGetMSStoreDownloadInfo with WuCategoryId: " << wuCategoryId << " Architecture: " << Utility::ToString(requiredArchitecture) << " Platform: " << Manifest::PlatformToString(requiredPlatform));
 
-            SFS::RequestParams sfsClientRequest;
-            sfsClientRequest.productRequests = { {std::string{ wuCategoryId }, {}} };
-
             std::vector<SFS::AppContent> appContents;
-            auto requestResult = GetSfsClientInstance()->GetLatestAppDownloadInfo(sfsClientRequest, appContents);
-            if (!requestResult)
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (TestHooks::s_SfsClient_AppContents_Override)
             {
-                AICLI_LOG(Core, Error, << "Failed to call SfsClient GetLatestAppDownloadInfo. Error code:" << requestResult.GetCode() << " Message: " << requestResult.GetMsg());
-                THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to call SfsClient GetLatestAppDownloadInfo. ErrorCode: " + requestResult.GetCode());
+                appContents = std::move(*TestHooks::s_SfsClient_AppContents_Override);
             }
+            else
+            {
+#endif
+                SFS::RequestParams sfsClientRequest;
+                sfsClientRequest.productRequests = { {std::string{ wuCategoryId }, {}} };
+
+                auto requestResult = GetSfsClientInstance()->GetLatestAppDownloadInfo(sfsClientRequest, appContents);
+                if (!requestResult)
+                {
+                    AICLI_LOG(Core, Error, << "Failed to call SfsClient GetLatestAppDownloadInfo. Error code:" << requestResult.GetCode() << " Message: " << requestResult.GetMsg());
+                    THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to call SfsClient GetLatestAppDownloadInfo. ErrorCode: " + requestResult.GetCode());
+                }
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            }
+#endif
 
             THROW_HR_IF(E_UNEXPECTED, appContents.empty());
 
             MSStoreDownloadInfo result;
+            // Currently for app downloads, the result vector is always size 1.
             const auto& appContent = appContents.at(0);
 
             // Populate main packages
@@ -885,6 +932,13 @@ namespace AppInstaller::MSStore
             AICLI_LOG(Core, Error, << "GetLicencing with ContentId: " << contentId);
 
             AppInstaller::Http::HttpClientHelper httpClientHelper;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            if (TestHooks::s_Licensing_HttpCLientHelper_Override)
+            {
+                httpClientHelper = *TestHooks::s_Licensing_HttpCLientHelper_Override;
+            }
+#endif
 
             web::json::value requestBody;
             requestBody[JSON::GetUtilityString(ContentId)] = web::json::value::string(JSON::GetUtilityString(contentId));
@@ -977,6 +1031,13 @@ namespace AppInstaller::MSStore
     std::vector<BYTE> MSStoreDownloadContext::GetLicense()
     {
         THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_contentId.empty(), "GetDownloadInfo() must be called before GetLicense()");
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (TestHooks::s_Licensing_HttpCLientHelper_Override)
+        {
+            return LicensingDetails::GetLicencing(m_contentId, {});
+        }
+#endif
 
         return LicensingDetails::GetLicencing(m_contentId, GetAuthHeaders(m_licensingAuthenticator));
     }

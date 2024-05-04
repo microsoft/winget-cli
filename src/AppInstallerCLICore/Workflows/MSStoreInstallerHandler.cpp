@@ -350,10 +350,10 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Download main packages
+        context.Reporter.Info() << Resource::String::MSStoreDownloadMainPackages << std::endl;
         for (auto const& mainPackage : downloadInfo.MainPackages)
         {
             AICLI_LOG(CLI, Info, << "Downloading MSStore main packages");
-            context.Reporter.Info() << Resource::String::MSStoreDownloadMainPackages << std::endl;
 
             context << DownloadMSStorePackageFile(mainPackage, downloadDirectory);
         }

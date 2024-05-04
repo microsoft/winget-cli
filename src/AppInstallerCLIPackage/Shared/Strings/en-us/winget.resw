@@ -2951,7 +2951,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Microsoft Store package download requires Microsoft Entra Id authentication. Authentication prompt may appear when necessary. Authenticated information will be shared with Microsoft services for access authorization. For Microsoft Store package licensing, the Microsoft Entra Id account needs to have administrator access to the Microsoft Entra Id tenant.</value>
   </data>
   <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
-    <value>Skips retrieving Microsoft Store package offline license. Retrieving Microsoft Store package license requires administrator account in a Microsoft Entra Id tenant</value>
+    <value>Skips retrieving Microsoft Store package offline license</value>
   </data>
   <data name="PlatformArgumentDescription" xml:space="preserve">
     <value>Select the target platform</value>
