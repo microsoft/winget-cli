@@ -771,8 +771,8 @@ namespace AppInstaller::MSStore
                     auto result = SFS::SFSClient::Make(config, s_sfsClient);
                     if (!result)
                     {
-                        AICLI_LOG(Core, Error, << "Failed to initialize SfsClient. Error code:" << result.GetCode() << " Message: " << result.GetMsg());
-                        THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to initialize SfsClient. ErrorCode: " + result.GetCode());
+                        AICLI_LOG(Core, Error, << "Failed to initialize SfsClient. Error code: " << result.GetCode() << " Message: " << result.GetMsg());
+                        THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to initialize SfsClient. ErrorCode: %lu Message: %hs", result.GetCode(), result.GetMsg().c_str());
                     }
                 });
 
@@ -870,8 +870,8 @@ namespace AppInstaller::MSStore
                 auto requestResult = GetSfsClientInstance()->GetLatestAppDownloadInfo(sfsClientRequest, appContents);
                 if (!requestResult)
                 {
-                    AICLI_LOG(Core, Error, << "Failed to call SfsClient GetLatestAppDownloadInfo. Error code:" << requestResult.GetCode() << " Message: " << requestResult.GetMsg());
-                    THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to call SfsClient GetLatestAppDownloadInfo. ErrorCode: " + requestResult.GetCode());
+                    AICLI_LOG(Core, Error, << "Failed to call SfsClient GetLatestAppDownloadInfo. Error code: " << requestResult.GetCode() << " Message: " << requestResult.GetMsg());
+                    THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to call SfsClient GetLatestAppDownloadInfo. ErrorCode: %lu Message: %hs", requestResult.GetCode(), requestResult.GetMsg().c_str());
                 }
 #ifndef AICLI_DISABLE_TEST_HOOKS
             }
