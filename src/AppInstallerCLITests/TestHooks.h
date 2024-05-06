@@ -86,11 +86,11 @@ namespace AppInstaller
 
     namespace MSStore::TestHooks
     {
-        void SetDisplayCatalogHttpCLientHelper_Override(Http::HttpClientHelper* value);
+        void SetDisplayCatalogHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value);
 
-        void SetSfsClientAppContents_Override(std::vector<SFS::AppContent>* value);
+        void SetSfsClientAppContents_Override(std::function<std::vector<SFS::AppContent>(std::string_view)>* value);
 
-        void SetLicensingHttpCLientHelper_Override(Http::HttpClientHelper* value);
+        void SetLicensingHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value);
     }
 }
 
@@ -246,27 +246,24 @@ namespace TestHook
         AppInstaller::Authentication::AuthenticationResult m_authResult;
     };
 
-    struct SetDisplayCatalogHttpClientHelper_Override
+    struct SetDisplayCatalogHttpPipelineStage_Override
     {
-        SetDisplayCatalogHttpClientHelper_Override(AppInstaller::Http::HttpClientHelper value) : m_httpClientHelper(value)
+        SetDisplayCatalogHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value)
         {
-            AppInstaller::MSStore::TestHooks::SetDisplayCatalogHttpCLientHelper_Override(&m_httpClientHelper);
+            AppInstaller::MSStore::TestHooks::SetDisplayCatalogHttpPipelineStage_Override(value);
         }
 
-        ~SetDisplayCatalogHttpClientHelper_Override()
+        ~SetDisplayCatalogHttpPipelineStage_Override()
         {
-            AppInstaller::MSStore::TestHooks::SetDisplayCatalogHttpCLientHelper_Override(nullptr);
+            AppInstaller::MSStore::TestHooks::SetDisplayCatalogHttpPipelineStage_Override(nullptr);
         }
-
-    private:
-        AppInstaller::Http::HttpClientHelper m_httpClientHelper;
     };
 
     struct SetSfsClientAppContents_Override
     {
-        SetSfsClientAppContents_Override(std::vector<SFS::AppContent>&& value) : m_appContents(std::move(value))
+        SetSfsClientAppContents_Override(std::function<std::vector<SFS::AppContent>(std::string_view)> value) : m_appContentsFunction(std::move(value))
         {
-            AppInstaller::MSStore::TestHooks::SetSfsClientAppContents_Override(&m_appContents);
+            AppInstaller::MSStore::TestHooks::SetSfsClientAppContents_Override(&m_appContentsFunction);
         }
 
         ~SetSfsClientAppContents_Override()
@@ -275,22 +272,19 @@ namespace TestHook
         }
 
     private:
-        std::vector<SFS::AppContent> m_appContents;
+        std::function<std::vector<SFS::AppContent>(std::string_view)> m_appContentsFunction;
     };
 
-    struct SetLicensingHttpClientHelper_Override
+    struct SetLicensingHttpPipelineStage_Override
     {
-        SetLicensingHttpClientHelper_Override(AppInstaller::Http::HttpClientHelper value) : m_httpClientHelper(value)
+        SetLicensingHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value)
         {
-            AppInstaller::MSStore::TestHooks::SetLicensingHttpCLientHelper_Override(&m_httpClientHelper);
+            AppInstaller::MSStore::TestHooks::SetLicensingHttpPipelineStage_Override(value);
         }
 
-        ~SetLicensingHttpClientHelper_Override()
+        ~SetLicensingHttpPipelineStage_Override()
         {
-            AppInstaller::MSStore::TestHooks::SetLicensingHttpCLientHelper_Override(nullptr);
+            AppInstaller::MSStore::TestHooks::SetLicensingHttpPipelineStage_Override(nullptr);
         }
-
-    private:
-        AppInstaller::Http::HttpClientHelper m_httpClientHelper;
     };
 }

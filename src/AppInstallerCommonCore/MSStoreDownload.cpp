@@ -24,25 +24,25 @@ namespace AppInstaller::MSStore
 #ifndef AICLI_DISABLE_TEST_HOOKS
     namespace TestHooks
     {
-        static Http::HttpClientHelper* s_DisplayCatalog_HttpCLientHelper_Override = nullptr;
+        static std::shared_ptr<web::http::http_pipeline_stage> s_DisplayCatalog_HttpPipelineStage_Override = nullptr;
 
-        void SetDisplayCatalogHttpCLientHelper_Override(Http::HttpClientHelper* value)
+        void SetDisplayCatalogHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value)
         {
-            s_DisplayCatalog_HttpCLientHelper_Override = value;
+            s_DisplayCatalog_HttpPipelineStage_Override = value;
         }
 
-        static std::vector<SFS::AppContent>* s_SfsClient_AppContents_Override = nullptr;
+        static std::function<std::vector<SFS::AppContent>(std::string_view)>* s_SfsClient_AppContents_Override = nullptr;
 
-        void SetSfsClientAppContents_Override(std::vector<SFS::AppContent>* value)
+        void SetSfsClientAppContents_Override(std::function<std::vector<SFS::AppContent>(std::string_view)>* value)
         {
             s_SfsClient_AppContents_Override = value;
         }
 
-        static Http::HttpClientHelper* s_Licensing_HttpCLientHelper_Override = nullptr;
+        static std::shared_ptr<web::http::http_pipeline_stage> s_Licensing_HttpPipelineStage_Override = nullptr;
 
-        void SetLicensingHttpCLientHelper_Override(Http::HttpClientHelper* value)
+        void SetLicensingHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value)
         {
-            s_Licensing_HttpCLientHelper_Override = value;
+            s_Licensing_HttpPipelineStage_Override = value;
         }
     }
 #endif
@@ -550,7 +550,7 @@ namespace AppInstaller::MSStore
                     continue;
                 }
                 // WuCategoryId
-                std::optional<std::reference_wrapper<const web::json::value>> fulfillmentData = JSON::GetJsonValueFromNode(propertiesValue, JSON::GetUtilityString(FulfillmentData));
+                std::optional<std::reference_wrapper<const web::json::value>> fulfillmentData = JSON::GetJsonValueFromNode(packageEntry, JSON::GetUtilityString(FulfillmentData));
                 if (!fulfillmentData)
                 {
                     AICLI_LOG(Core, Warning, << "Missing FulfillmentData");
@@ -580,9 +580,9 @@ namespace AppInstaller::MSStore
             AppInstaller::Http::HttpClientHelper httpClientHelper;
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-            if (TestHooks::s_DisplayCatalog_HttpCLientHelper_Override)
+            if (TestHooks::s_DisplayCatalog_HttpPipelineStage_Override)
             {
-                httpClientHelper = *TestHooks::s_DisplayCatalog_HttpCLientHelper_Override;
+                httpClientHelper = AppInstaller::Http::HttpClientHelper{ TestHooks::s_DisplayCatalog_HttpPipelineStage_Override };
             }
 #endif
 
@@ -859,7 +859,7 @@ namespace AppInstaller::MSStore
 #ifndef AICLI_DISABLE_TEST_HOOKS
             if (TestHooks::s_SfsClient_AppContents_Override)
             {
-                appContents = std::move(*TestHooks::s_SfsClient_AppContents_Override);
+                appContents = (*TestHooks::s_SfsClient_AppContents_Override)(wuCategoryId);
             }
             else
             {
@@ -934,9 +934,9 @@ namespace AppInstaller::MSStore
             AppInstaller::Http::HttpClientHelper httpClientHelper;
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-            if (TestHooks::s_Licensing_HttpCLientHelper_Override)
+            if (TestHooks::s_Licensing_HttpPipelineStage_Override)
             {
-                httpClientHelper = *TestHooks::s_Licensing_HttpCLientHelper_Override;
+                httpClientHelper = AppInstaller::Http::HttpClientHelper{ TestHooks::s_Licensing_HttpPipelineStage_Override };
             }
 #endif
 
@@ -1018,7 +1018,6 @@ namespace AppInstaller::MSStore
     MSStoreDownloadInfo MSStoreDownloadContext::GetDownloadInfo()
     {
 #ifndef WINGET_DISABLE_FOR_FUZZING
-
         auto displayCatalogPackage = DisplayCatalogDetails::CallDisplayCatalogAndGetPreferredPackage(m_productId, m_locale, m_architecture);
         auto downloadInfo = SfsClientDetails::CallSfsClientAndGetMSStoreDownloadInfo(displayCatalogPackage.WuCategoryId, m_architecture, m_platform);
         m_contentId = displayCatalogPackage.ContentId;
@@ -1033,7 +1032,7 @@ namespace AppInstaller::MSStore
         THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_contentId.empty(), "GetDownloadInfo() must be called before GetLicense()");
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        if (TestHooks::s_Licensing_HttpCLientHelper_Override)
+        if (TestHooks::s_Licensing_HttpPipelineStage_Override)
         {
             return LicensingDetails::GetLicencing(m_contentId, {});
         }

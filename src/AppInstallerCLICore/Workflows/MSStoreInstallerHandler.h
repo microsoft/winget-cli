@@ -3,11 +3,6 @@
 #pragma once
 #include "ExecutionContext.h"
 
-namespace AppInstaller::MSStore
-{
-    struct MSStoreDownloadFile;
-}
-
 // MSStoreInstallerHandler handles msstore installers.
 namespace AppInstaller::CLI::Workflow
 {
@@ -28,22 +23,6 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Installer
     // Outputs: None
     void MSStoreRepair(Execution::Context& context);
-
-    // Download a single MSStore package file
-    // Required Args: None
-    // Inputs: None
-    // Outputs: None
-    struct DownloadMSStorePackageFile : public WorkflowTask
-    {
-        DownloadMSStorePackageFile(const AppInstaller::MSStore::MSStoreDownloadFile& downloadFile, const std::filesystem::path& downloadDirectory) :
-            WorkflowTask("DownloadMSStorePackageFile"), m_downloadFile(downloadFile), m_downloadDirectory(downloadDirectory) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        const AppInstaller::MSStore::MSStoreDownloadFile& m_downloadFile;
-        const std::filesystem::path& m_downloadDirectory;
-    };
 
     // Downloads the Store app installer.
     // Required Args: None

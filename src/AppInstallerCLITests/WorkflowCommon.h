@@ -139,4 +139,6 @@ namespace TestCommon
     void OverrideEnableWindowsFeaturesDependencies(TestContext& context);
 
     void OverrideRegisterStartupAfterReboot(TestContext& context);
+
+    void OverrideDownloadInstallerFileForMSStoreDownload(TestContext& context);
 }
