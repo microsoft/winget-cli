@@ -14,9 +14,9 @@ namespace AppInstaller::Caching
         {
             switch (type)
             {
-            case FileCache::Type::IndexV1_Manifest: return "IndexV1_Manifest";
-            case FileCache::Type::IndexV2_PackageVersionData: return "IndexV2_PackageVersionData";
-            case FileCache::Type::IndexV2_Manifest: return "IndexV2_Manifest";
+            case FileCache::Type::IndexV1_Manifest: return "V1_M";
+            case FileCache::Type::IndexV2_PackageVersionData: return "V2_PVD";
+            case FileCache::Type::IndexV2_Manifest: return "V2_M";
 #ifndef AICLI_DISABLE_TEST_HOOKS
             case FileCache::Type::Tests: return "Tests";
 #endif
@@ -136,7 +136,7 @@ namespace AppInstaller::Caching
     std::filesystem::path FileCache::Details::GetCachePath() const
     {
         std::filesystem::path result = Runtime::GetPathTo(BasePath);
-        result /= "WinGet/cache";
+        result /= "cache";
         result /= anon::GetNameForType(Type);
         result /= Utility::ConvertToUTF16(Identifier);
         return result;
@@ -191,12 +191,12 @@ namespace AppInstaller::Caching
         // Making it here means that we do not have a cached file or it needed to be updated and was removed.
         auto result = GetUpstreamFile(relativePath, expectedHash);
 
-        std::filesystem::create_directories(cachedFilePath.parent_path());
-
         // GetUpstreamFile only returns with a successfully verified hash, we just need to write the file out.
         // Only log failures as caching is an optimization.
         try
         {
+            std::filesystem::create_directories(cachedFilePath.parent_path());
+
             AICLI_LOG(Core, Verbose, << "Writing cached file [" << cachedFilePath << "]");
             std::ofstream fileStream{ cachedFilePath, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc };
             LOG_LAST_ERROR_IF(fileStream.fail());
