@@ -783,7 +783,7 @@ namespace AppInstaller::Repository::Microsoft
                     std::optional<Manifest::PackageVersionDataManifest::VersionData> versionData;
 
                     // Check for a latest version request.
-                    if (versionKey.Version.empty() && versionKey.Channel.empty())
+                    if (versionKey.IsDefaultLatest())
                     {
                         auto sharedLock = m_versionKeysLock.lock_shared();
                         return std::make_shared<PackageVersion>(source, m_packageRowId, m_latestVersionData, m_manifestCache, m_packageVersionDataCache);
