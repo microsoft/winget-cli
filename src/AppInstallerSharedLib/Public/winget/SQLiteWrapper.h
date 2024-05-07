@@ -9,6 +9,8 @@
 #include <AppInstallerLanguageUtilities.h>
 
 #include <memory>
+#include <optional>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -121,6 +123,50 @@ namespace AppInstaller::SQLite
             static E GetColumn(sqlite3_stmt* stmt, int column)
             {
                 return ToEnum<E>(ParameterSpecificsImpl<std::underlying_type_t<E>>::GetColumn(stmt, column));
+            }
+        };
+
+        template <typename Opt>
+        struct ParameterSpecificsImpl<std::optional<Opt>>
+        {
+            using Optional = std::optional<Opt>;
+
+            static auto ToLog(const Optional& v)
+            {
+                std::ostringstream result;
+                if (v)
+                {
+                    result << ParameterSpecificsImpl<Opt>::ToLog(v.value());
+                }
+                else
+                {
+                    result << "{null}";
+                }
+                return std::move(result).str();
+            }
+
+            static void Bind(sqlite3_stmt* stmt, int index, const Optional& v)
+            {
+                if (v)
+                {
+                    ParameterSpecificsImpl<Opt>::Bind(stmt, index, v.value());
+                }
+                else
+                {
+                    ParameterSpecificsImpl<nullptr_t>::Bind(stmt, index, nullptr);
+                }
+            }
+
+            static Optional GetColumn(sqlite3_stmt* stmt, int column)
+            {
+                if (sqlite3_column_type(stmt, column) == SQLITE_NULL)
+                {
+                    return std::nullopt;
+                }
+                else
+                {
+                    return ParameterSpecificsImpl<Opt>::GetColumn(stmt, column);
+                }
             }
         };
 

@@ -213,67 +213,67 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         return SearchInternal(connection, requestCopy);
     }
 
-    std::optional<std::string> Interface::GetPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
+    std::optional<std::string> Interface::GetPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionProperty property) const
     {
         EnsureInternalInterface(connection);
 
         if (m_internalInterface)
         {
-            return m_internalInterface->GetPropertyByPrimaryId(connection, manifestId, property);
+            return m_internalInterface->GetPropertyByPrimaryId(connection, primaryId, property);
         }
 
         switch (property)
         {
         case PackageVersionProperty::Id:
-            return PackagesTable::GetValueById<PackagesTable::IdColumn>(connection, manifestId);
+            return PackagesTable::GetValueById<PackagesTable::IdColumn>(connection, primaryId);
         case PackageVersionProperty::Name:
-            return PackagesTable::GetValueById<PackagesTable::NameColumn>(connection, manifestId);
+            return PackagesTable::GetValueById<PackagesTable::NameColumn>(connection, primaryId);
         case PackageVersionProperty::Version:
-            return PackagesTable::GetValueById<PackagesTable::LatestVersionColumn>(connection, manifestId);
+            return PackagesTable::GetValueById<PackagesTable::LatestVersionColumn>(connection, primaryId);
         case PackageVersionProperty::Channel:
             return "";
         case PackageVersionProperty::ManifestSHA256Hash:
         {
-            std::optional<SQLite::blob_t> hash = PackagesTable::GetValueById<PackagesTable::HashColumn>(connection, manifestId);
+            std::optional<SQLite::blob_t> hash = PackagesTable::GetValueById<PackagesTable::HashColumn>(connection, primaryId);
             return (!hash || hash->empty()) ? std::optional<std::string>{} : Utility::SHA256::ConvertToString(hash.value());
         }
         case PackageVersionProperty::ArpMinVersion:
-            return PackagesTable::GetValueById<PackagesTable::ARPMinVersionColumn>(connection, manifestId);
+            return PackagesTable::GetValueById<PackagesTable::ARPMinVersionColumn>(connection, primaryId);
         case PackageVersionProperty::ArpMaxVersion:
-            return PackagesTable::GetValueById<PackagesTable::ARPMaxVersionColumn>(connection, manifestId);
+            return PackagesTable::GetValueById<PackagesTable::ARPMaxVersionColumn>(connection, primaryId);
         case PackageVersionProperty::Moniker:
-            return PackagesTable::GetValueById<PackagesTable::MonikerColumn>(connection, manifestId);
+            return PackagesTable::GetValueById<PackagesTable::MonikerColumn>(connection, primaryId);
         default:
             return {};
         }
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
+    std::vector<std::string> Interface::GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const
     {
         EnsureInternalInterface(connection);
 
         if (m_internalInterface)
         {
-            return m_internalInterface->GetMultiPropertyByPrimaryId(connection, manifestId, property);
+            return m_internalInterface->GetMultiPropertyByPrimaryId(connection, primaryId, property);
         }
 
         switch (property)
         {
         case PackageVersionMultiProperty::PackageFamilyName:
-            return PackageFamilyNameTable::GetValuesByPrimaryId(connection, manifestId);
+            return PackageFamilyNameTable::GetValuesByPrimaryId(connection, primaryId);
         case PackageVersionMultiProperty::ProductCode:
-            return ProductCodeTable::GetValuesByPrimaryId(connection, manifestId);
+            return ProductCodeTable::GetValuesByPrimaryId(connection, primaryId);
             // These values are not right, as they are normalized.  But they are good enough for now and all we have.
         case PackageVersionMultiProperty::Name:
-            return NormalizedPackageNameTable::GetValuesByPrimaryId(connection, manifestId);
+            return NormalizedPackageNameTable::GetValuesByPrimaryId(connection, primaryId);
         case PackageVersionMultiProperty::Publisher:
-            return NormalizedPackagePublisherTable::GetValuesByPrimaryId(connection, manifestId);
+            return NormalizedPackagePublisherTable::GetValuesByPrimaryId(connection, primaryId);
         case PackageVersionMultiProperty::UpgradeCode:
-            return UpgradeCodeTable::GetValuesByPrimaryId(connection, manifestId);
+            return UpgradeCodeTable::GetValuesByPrimaryId(connection, primaryId);
         case PackageVersionMultiProperty::Tag:
-            return TagsTable::GetValuesByPrimaryId(connection, manifestId);
+            return TagsTable::GetValuesByPrimaryId(connection, primaryId);
         case PackageVersionMultiProperty::Command:
-            return CommandsTable::GetValuesByPrimaryId(connection, manifestId);
+            return CommandsTable::GetValuesByPrimaryId(connection, primaryId);
         default:
             return {};
         }

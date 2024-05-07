@@ -58,6 +58,8 @@ SQLiteVersion TestPrepareForRead(SQLiteIndex& index)
     SQLiteVersion versionMinus1 = SQLiteVersion{ 1, 7 };
     SQLiteVersion versionMinus2 = SQLiteVersion{ 1, 6 };
 
+    index.PrepareForPackaging();
+
     if (index.GetVersion() == versionMinus2)
     {
         // Degenerate case where we don't need to do anything
@@ -74,13 +76,7 @@ SQLiteVersion TestPrepareForRead(SQLiteIndex& index)
     }
     else if (index.GetVersion() == latestVersion)
     {
-        SQLiteVersion version = GENERATE_COPY(SQLiteVersion{ versionMinus2 }, SQLiteVersion{ versionMinus1 }, SQLiteVersion{ latestVersion });
-
-        if (version != latestVersion)
-        {
-            index.ForceVersion(version);
-            return version;
-        }
+        // This crosses major versions, so leave it at 2.0 always
     }
 
     return index.GetVersion();
@@ -311,7 +307,7 @@ bool IsManifestMetadataSupported(const SQLiteIndex& index, const SQLiteVersion& 
 bool AreManifestHashesSupported(const SQLiteIndex& index, const SQLiteVersion& testVersion)
 {
     UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
-    return (index.GetVersion() >= SQLiteVersion{ 1, 3 } && testVersion >= SQLiteVersion{ 1, 3 });
+    return (index.GetVersion() >= SQLiteVersion{ 1, 3 } && testVersion >= SQLiteVersion{ 1, 3 } && index.GetVersion() < SQLiteVersion{ 2, 0 });
 }
 
 bool AreArpVersionsSupported(const SQLiteIndex& index, const SQLiteVersion& testVersion)
@@ -331,27 +327,56 @@ bool IsMapDataFolded(const SQLiteIndex& index)
     return (index.GetVersion() >= SQLiteVersion{ 1, 7 });
 }
 
-std::string GetPropertyStringByKey(const SQLiteIndex& index, rowid_t manifestId, PackageVersionProperty property)
+bool AreVersionKeysSupported(const SQLiteIndex& index)
 {
-    auto result = index.GetPropertyByPrimaryId(manifestId, property);
+    return (index.GetVersion() < SQLiteVersion{ 2, 0 });
+}
+
+bool AreChannelsSupported(const SQLiteIndex& index)
+{
+    return (index.GetVersion() < SQLiteVersion{ 2, 0 });
+}
+
+bool AreManifestPathsSupported(const SQLiteIndex& index)
+{
+    return (index.GetVersion() < SQLiteVersion{ 2, 0 });
+}
+
+std::string GetPropertyStringByKey(const SQLiteIndex& index, rowid_t primaryId, PackageVersionProperty property)
+{
+    auto result = index.GetPropertyByPrimaryId(primaryId, property);
     REQUIRE(result);
     return result.value();
 }
 
 std::string GetPropertyStringByKey(const SQLiteIndex& index, rowid_t id, PackageVersionProperty property, std::string_view version, std::string_view channel)
 {
-    auto manifestId = index.GetManifestIdByKey(id, version, channel);
-    REQUIRE(manifestId);
-    auto result = index.GetPropertyByPrimaryId(manifestId.value(), property);
-    REQUIRE(result);
-    return result.value();
+    if (AreVersionKeysSupported(index))
+    {
+        auto manifestId = index.GetManifestIdByKey(id, version, channel);
+        REQUIRE(manifestId);
+        auto result = index.GetPropertyByPrimaryId(manifestId.value(), property);
+        REQUIRE(result);
+        return result.value();
+    }
+    else
+    {
+        return GetPropertyStringByKey(index, id, property);
+    }
 }
 
 std::string GetPropertyStringById(const SQLiteIndex& index, rowid_t id, PackageVersionProperty property)
 {
-    auto versions = index.GetVersionKeysById(id);
-    REQUIRE(!versions.empty());
-    return GetPropertyStringByKey(index, versions[0].ManifestId, property);
+    if (AreVersionKeysSupported(index))
+    {
+        auto versions = index.GetVersionKeysById(id);
+        REQUIRE(!versions.empty());
+        return GetPropertyStringByKey(index, versions[0].ManifestId, property);
+    }
+    else
+    {
+        return GetPropertyStringByKey(index, id, property);
+    }
 }
 
 std::string GetIdStringById(const SQLiteIndex& index, rowid_t id)
@@ -992,7 +1017,7 @@ TEST_CASE("SQLiteIndex_ValidateManifestWhenManifestIsDependency_StructureBroken_
         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED);
 }
 
-TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex]")
+TEST_CASE("SQLiteIndex_RemoveManifest_EnsureConsistentRowId", "[sqliteindex][V1_7]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -1708,8 +1733,15 @@ TEST_CASE("SQLiteIndex_Search_MultipleMatch", "[sqliteindex]")
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetVersionKeysById(results.Matches[0].first);
-    REQUIRE(result.size() == 2);
+    if (AreVersionKeysSupported(index))
+    {
+        auto result = index.GetVersionKeysById(results.Matches[0].first);
+        REQUIRE(result.size() == 2);
+    }
+    else
+    {
+        REQUIRE_THROWS_HR(index.GetVersionKeysById(results.Matches[0].first), E_NOT_VALID_STATE);
+    }
 }
 
 TEST_CASE("SQLiteIndex_Search_NoMatch", "[sqliteindex]")
@@ -1780,6 +1812,11 @@ TEST_CASE("SQLiteIndex_PathString", "[sqliteindex]")
 
     TestPrepareForRead(index);
 
+    if (!AreManifestPathsSupported(index))
+    {
+        return;
+    }
+
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
 
@@ -1806,6 +1843,11 @@ TEST_CASE("SQLiteIndex_PathlessString", "[sqliteindex]")
     index.AddManifest(manifest);
 
     TestPrepareForRead(index);
+
+    if (!AreManifestPathsSupported(index))
+    {
+        return;
+    }
 
     SearchRequest request;
     request.Query = RequestMatch(MatchType::Exact, manifest.Id);
@@ -1837,10 +1879,17 @@ TEST_CASE("SQLiteIndex_Versions", "[sqliteindex]")
     auto results = index.Search(request);
     REQUIRE(results.Matches.size() == 1);
 
-    auto result = index.GetVersionKeysById(results.Matches[0].first);
-    REQUIRE(result.size() == 1);
-    REQUIRE(result[0].VersionAndChannel.GetVersion().ToString() == manifest.Version);
-    REQUIRE(result[0].VersionAndChannel.GetChannel().ToString() == manifest.Channel);
+    if (AreVersionKeysSupported(index))
+    {
+        auto result = index.GetVersionKeysById(results.Matches[0].first);
+        REQUIRE(result.size() == 1);
+        REQUIRE(result[0].VersionAndChannel.GetVersion().ToString() == manifest.Version);
+        REQUIRE(result[0].VersionAndChannel.GetChannel().ToString() == manifest.Channel);
+    }
+    else
+    {
+        REQUIRE_THROWS_HR(index.GetVersionKeysById(results.Matches[0].first), E_NOT_VALID_STATE);
+    }
 }
 
 TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
@@ -1872,6 +1921,11 @@ TEST_CASE("SQLiteIndex_Search_VersionSorting", "[sqliteindex]")
         });
 
     TestPrepareForRead(index);
+
+    if (!AreChannelsSupported(index))
+    {
+        return;
+    }
 
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Id");
@@ -1923,6 +1977,11 @@ TEST_CASE("SQLiteIndex_PathString_VersionSorting", "[sqliteindex]")
 
     TestPrepareForRead(index);
 
+    if (!AreChannelsSupported(index))
+    {
+        return;
+    }
+
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Id");
 
@@ -1959,6 +2018,11 @@ TEST_CASE("SQLiteIndex_PathString_CaseInsensitive", "[sqliteindex]")
         });
 
     TestPrepareForRead(index);
+
+    if (!AreChannelsSupported(index))
+    {
+        return;
+    }
 
     SearchRequest request;
     request.Filters.emplace_back(PackageMatchField::Id, MatchType::Exact, "Id");
@@ -2995,7 +3059,10 @@ TEST_CASE("SQLiteIndex_ManifestHash_Missing", "[sqliteindex]")
 
     auto hashResult = index.GetPropertyByPrimaryId(results.Matches[0].first, PackageVersionProperty::ManifestSHA256Hash);
 
-    REQUIRE(!hashResult);
+    if (AreManifestHashesSupported(index, testVersion))
+    {
+        REQUIRE(!hashResult);
+    }
 }
 
 TEST_CASE("SQLiteIndex_ManifestArpVersion_Present_Add", "[sqliteindex]")
@@ -3251,7 +3318,7 @@ TEST_CASE("SQLiteIndex_CheckConsistency_FindEmbeddedNull", "[sqliteindex]")
     REQUIRE(!index.CheckConsistency(true));
 }
 
-TEST_CASE("SQLiteIndex_MapDataFolding_Tags", "[sqliteindex][mapdatafolding][V1_7]")
+TEST_CASE("SQLiteIndex_MapDataFolding_Tags", "[sqliteindex][mapdatafolding]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -3262,10 +3329,7 @@ TEST_CASE("SQLiteIndex_MapDataFolding_Tags", "[sqliteindex][mapdatafolding][V1_7
     SQLiteIndex index = SearchTestSetup(tempFile, {
         { "Id", "Name", "Publisher", "Moniker", "Version1", "", { tag1 }, { "Command" }, "Path1", {}, { "PC1" } },
         { "Id", "Name", "Publisher", "Moniker", "Version2", "", { tag2 }, { "Command" }, "Path2", {}, { "PC2" } },
-        }, SQLiteVersion{ 1, 7 });
-
-    // Apply the map data folding if it is present in the created test index.
-    index.PrepareForPackaging();
+        });
 
     SQLiteVersion testVersion = TestPrepareForRead(index);
 
@@ -3275,14 +3339,14 @@ TEST_CASE("SQLiteIndex_MapDataFolding_Tags", "[sqliteindex][mapdatafolding][V1_7
 
     SearchRequest request2;
     request2.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Tag, MatchType::Exact, tag2));
-    auto results2 = index.Search(request1);
+    auto results2 = index.Search(request2);
 
     REQUIRE(results1.Matches.size() == 1);
     REQUIRE(results2.Matches.size() == 1);
     REQUIRE(results1.Matches[0].first == results2.Matches[0].first);
 }
 
-TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding][V1_7]")
+TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -3293,12 +3357,14 @@ TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding][V1_7
     SQLiteIndex index = SearchTestSetup(tempFile, {
         { "Id", "Name", "Publisher", "Moniker", "Version1", "", { }, { "Command" }, "Path1", { pfn1 }, { } },
         { "Id", "Name", "Publisher", "Moniker", "Version2", "", { }, { "Command" }, "Path2", { pfn2 }, { } },
-        }, SQLiteVersion{ 1, 7 });
-
-    // Apply the map data folding if it is present in the created test index.
-    index.PrepareForPackaging();
+        });
 
     SQLiteVersion testVersion = TestPrepareForRead(index);
+
+    if (!AreChannelsSupported(index))
+    {
+        return;
+    }
 
     SearchRequest request1;
     request1.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, pfn1));
@@ -3306,7 +3372,7 @@ TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding][V1_7
 
     SearchRequest request2;
     request2.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, pfn2));
-    auto results2 = index.Search(request1);
+    auto results2 = index.Search(request2);
 
     REQUIRE(results1.Matches.size() == 1);
     REQUIRE(results2.Matches.size() == 1);
@@ -3350,7 +3416,7 @@ TEST_CASE("SQLiteIndex_MapDataFolding_PFNs", "[sqliteindex][mapdatafolding][V1_7
     }
 }
 
-TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafolding][V1_7]")
+TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafolding]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -3361,12 +3427,14 @@ TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafoldi
     SQLiteIndex index = SearchTestSetup(tempFile, {
         { "Id", "Name", "Publisher", "Moniker", "Version1", "", { }, { "Command" }, "Path1", { }, { pc1 } },
         { "Id", "Name", "Publisher", "Moniker", "Version2", "", { }, { "Command" }, "Path2", { }, { pc2 } },
-        }, SQLiteVersion{ 1, 7 });
-
-    // Apply the map data folding if it is present in the created test index.
-    index.PrepareForPackaging();
+        });
 
     SQLiteVersion testVersion = TestPrepareForRead(index);
+
+    if (!AreChannelsSupported(index))
+    {
+        return;
+    }
 
     SearchRequest request1;
     request1.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, pc1));
@@ -3374,7 +3442,7 @@ TEST_CASE("SQLiteIndex_MapDataFolding_ProductCodes", "[sqliteindex][mapdatafoldi
 
     SearchRequest request2;
     request2.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, pc2));
-    auto results2 = index.Search(request1);
+    auto results2 = index.Search(request2);
 
     REQUIRE(results1.Matches.size() == 1);
     REQUIRE(results2.Matches.size() == 1);

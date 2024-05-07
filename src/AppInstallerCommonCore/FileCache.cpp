@@ -191,6 +191,8 @@ namespace AppInstaller::Caching
         // Making it here means that we do not have a cached file or it needed to be updated and was removed.
         auto result = GetUpstreamFile(relativePath, expectedHash);
 
+        std::filesystem::create_directories(cachedFilePath.parent_path());
+
         // GetUpstreamFile only returns with a successfully verified hash, we just need to write the file out.
         // Only log failures as caching is an optimization.
         try

@@ -159,15 +159,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         template <typename... Columns>
         static auto GetValuesById(const SQLite::Connection& connection, SQLite::rowid_t rowid)
         {
-            return details::PackagesTableGetValuesById_Statement(connection, rowid, { Columns::Name... }).GetRow<typename SQLite::Builder::TypeInfo<Columns::Type>::value_t...>();
+            return details::PackagesTableGetValuesById_Statement(connection, rowid, { Columns::Name... }).GetRow<typename SQLite::Builder::TypeInfo<Columns::Type, Columns::AllowNull>::value_t...>();
         }
 
         // Gets the value requested for the package with the given rowid, if it exists.
         template <typename Column>
-        static std::optional<typename SQLite::Builder::TypeInfo<Column::Type>::value_t> GetValueById(const SQLite::Connection& connection, SQLite::rowid_t rowid)
+        static std::optional<typename SQLite::Builder::TypeInfo<Column::Type, false>::value_t> GetValueById(const SQLite::Connection& connection, SQLite::rowid_t rowid)
         {
             auto statement = details::PackagesTableGetValuesById_Statement(connection, rowid, { Column::Name }, false);
-            if (statement.Step()) { return statement.GetColumn<typename SQLite::Builder::TypeInfo<Column::Type>::value_t>(0); }
+            if (statement.Step()) { return statement.GetColumn<typename SQLite::Builder::TypeInfo<Column::Type, Column::AllowNull>::value_t>(0); }
             else { return std::nullopt; }
         }
 
@@ -177,7 +177,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
         // Update the value of a single column for the package with the given rowid.
         template <typename Column>
-        static void UpdateValueIdById(SQLite::Connection& connection, SQLite::rowid_t id, const typename SQLite::Builder::TypeInfo<Column::Type>::value_t& value)
+        static void UpdateValueIdById(SQLite::Connection& connection, SQLite::rowid_t id, const typename SQLite::Builder::TypeInfo<Column::Type, Column::AllowNull>::value_t& value)
         {
             auto stmt = details::PackagesTableUpdateValueIdById_Statement(connection, Column::Name);
             stmt.Bind(1, value);
