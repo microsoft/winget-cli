@@ -153,9 +153,9 @@ namespace AppInstaller::Caching
         return m_details;
     }
 
-    std::unique_ptr<std::istream> FileCache::GetFile(const std::string& relativePath, const Utility::SHA256::HashBuffer& expectedHash) const
+    std::unique_ptr<std::istream> FileCache::GetFile(const std::filesystem::path& relativePath, const Utility::SHA256::HashBuffer& expectedHash) const
     {
-        std::filesystem::path cachedFilePath = m_cacheBase / Utility::ConvertToUTF16(relativePath);
+        std::filesystem::path cachedFilePath = m_cacheBase / relativePath;
 
         // Check cache for matching file
         try
@@ -179,17 +179,16 @@ namespace AppInstaller::Caching
                         Utility::SHA256::ConvertToString(expectedHash) << "] but was [" << Utility::SHA256::ConvertToString(fileContentsHash) << "]");
                 }
             }
+
+            std::filesystem::remove_all(cachedFilePath);
         }
         catch (...)
         {
             LOG_CAUGHT_EXCEPTION_MSG("Error while attempting to read cached file");
         }
 
-        std::error_code ignoredError;
-        std::filesystem::remove_all(cachedFilePath, ignoredError);
-
         // Making it here means that we do not have a cached file or it needed to be updated and was removed.
-        auto result = GetUpstreamFile(relativePath, expectedHash);
+        auto result = GetUpstreamFile(relativePath.u8string(), expectedHash);
 
         // GetUpstreamFile only returns with a successfully verified hash, we just need to write the file out.
         // Only log failures as caching is an optimization.

@@ -45,7 +45,7 @@ static std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& fil
 
     if (versionToUse.MajorVersion == 2)
     {
-        index.SetProperty(SQLiteIndex::Property::IntermediateFileOutputPath, (sourceFilesDirectoryPath / "packages").u8string());
+        index.SetProperty(SQLiteIndex::Property::IntermediateFileOutputPath, sourceFilesDirectoryPath.u8string());
     }
 
     index.PrepareForPackaging();

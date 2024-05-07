@@ -84,7 +84,7 @@ namespace AppInstaller::Repository::Microsoft
                         manifestSHA256 = SHA256::ConvertToBytes(manifestHashString.value());
                     }
 
-                    std::unique_ptr<std::istream> manifestStream = m_manifestCache->GetFile(relativePathOpt.value(), manifestSHA256);
+                    std::unique_ptr<std::istream> manifestStream = m_manifestCache->GetFile(Utility::ConvertToUTF16(relativePathOpt.value()), manifestSHA256);
                     return Manifest::YamlParser::Create(Utility::ReadEntireStream(*manifestStream));
                 }
 
@@ -303,23 +303,15 @@ namespace AppInstaller::Repository::Microsoft
         namespace V2
         {
             // Get the relative path and hash for the package version data manifest.
-            std::pair<std::string, std::string> CreatePackageVersionDataRelativePath(const std::shared_ptr<SQLiteIndexSource>& source, SQLiteIndex::IdType packageRowId)
+            std::pair<std::filesystem::path, std::string> CreatePackageVersionDataRelativePath(const std::shared_ptr<SQLiteIndexSource>& source, SQLiteIndex::IdType packageRowId)
             {
-                static constexpr std::string_view s_fixedPathPart = "packages/";
-
                 const SQLiteIndex& index = source->GetIndex();
 
+                std::string identifier = index.GetPropertyByPrimaryId(packageRowId, PackageVersionProperty::Id).value();
                 std::string hash = index.GetPropertyByPrimaryId(packageRowId, PackageVersionProperty::ManifestSHA256Hash).value();
+                std::filesystem::path relativePath = Manifest::PackageVersionDataManifest::GetRelativeDirectoryPath(identifier, hash) / Manifest::PackageVersionDataManifest::VersionManifestCompressedFileName();
 
-                // See PrepareForPackaging in the V2 interface for this format.
-                std::ostringstream stream;
-                stream <<
-                    s_fixedPathPart <<
-                    index.GetPropertyByPrimaryId(packageRowId, PackageVersionProperty::Id).value() << '/' <<
-                    hash << '/' <<
-                    Manifest::PackageVersionDataManifest::VersionManifestCompressedFileName();
-
-                return std::make_pair(std::move(stream).str(), std::move(hash));
+                return std::make_pair(std::move(relativePath), std::move(hash));
             }
 
             // Gets package version data for the given package in the index.
@@ -528,7 +520,7 @@ namespace AppInstaller::Repository::Microsoft
                     }
 
                     std::unique_ptr<std::istream> manifestStream =
-                        m_manifestCache->GetFile(m_packageVersionData->ManifestRelativePath, SHA256::ConvertToBytes(m_packageVersionData->ManifestHash));
+                        m_manifestCache->GetFile(Utility::ConvertToUTF16(m_packageVersionData->ManifestRelativePath), SHA256::ConvertToBytes(m_packageVersionData->ManifestHash));
                     m_manifest = Manifest::YamlParser::Create(Utility::ReadEntireStream(*manifestStream));
                     m_manifest->ApplyLocale();
                 }

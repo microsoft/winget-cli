@@ -646,13 +646,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         // Output all of the changed package version manifests since the base time to the target location
         for (const auto& packageData : PackageUpdateTrackingTable::GetUpdatesSince(connection, updateBaseTime))
         {
-            // Must keep CreatePackageVersionDataRelativePath in the SQLiteIndexSource consistent with this format.
-            std::filesystem::path packageDirectory = baseOutputDirectory / Utility::ConvertToUTF16(packageData.PackageIdentifier);
-            std::filesystem::path hashDirectory = packageDirectory / Utility::SHA256::ConvertToWideString(packageData.Hash);
+            std::filesystem::path packageDirectory = baseOutputDirectory /
+                Manifest::PackageVersionDataManifest::GetRelativeDirectoryPath(packageData.PackageIdentifier, Utility::SHA256::ConvertToString(packageData.Hash));
 
-            std::filesystem::create_directories(hashDirectory);
+            std::filesystem::create_directories(packageDirectory);
 
-            std::filesystem::path manifestPath = hashDirectory / Manifest::PackageVersionDataManifest::VersionManifestCompressedFileName();
+            std::filesystem::path manifestPath = packageDirectory / Manifest::PackageVersionDataManifest::VersionManifestCompressedFileName();
 
             AICLI_LOG(Repo, Info, << "Writing PackageVersionDataManifest for [" << packageData.PackageIdentifier << "] to [" << manifestPath << "]");
 

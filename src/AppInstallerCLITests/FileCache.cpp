@@ -69,7 +69,7 @@ struct TestFileCache
 
     std::unique_ptr<std::istream> GetFile(const UpstreamFileInfo& upstreamFileInfo)
     {
-        return CachePtr->GetFile(upstreamFileInfo.Offset.u8string(), upstreamFileInfo.ContentHash);
+        return CachePtr->GetFile(upstreamFileInfo.Offset, upstreamFileInfo.ContentHash);
     }
 
     void RequireCachedFile(const UpstreamFileInfo& upstreamFileInfo)
@@ -224,4 +224,17 @@ TEST_CASE("FileCache_NoUpstreamSources", "[file_cache]")
     INFO("Cache location: " << testFileCache->GetDetails().GetCachePath().u8string());
 
     REQUIRE_THROWS_HR(testFileCache->GetFile("any_file", SHA256::ComputeHash("garbage")), E_NOT_SET);
+}
+
+TEST_CASE("FileCache_PathTooLong", "[file_cache]")
+{
+    TestFileCache testFileCache(std::string(260, 'a'));
+    INFO("Cache location: " << testFileCache->GetDetails().GetCachePath().u8string());
+
+    auto sourceFile = testFileCache.PrepareUpstreamFile("Manifest-Good-SystemReferenceComplex.yaml");
+
+    auto cachedStream = testFileCache.GetFile(sourceFile);
+
+    REQUIRE(cachedStream);
+    REQUIRE(SHA256::AreEqual(sourceFile.ContentHash, SHA256::ComputeHash(ReadEntireStreamAsByteArray(*cachedStream))));
 }

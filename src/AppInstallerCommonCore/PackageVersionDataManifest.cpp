@@ -5,6 +5,7 @@
 #include "Public/winget/Yaml.h"
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
+#include <AppInstallerStrings.h>
 
 using namespace std::string_view_literals;
 
@@ -69,6 +70,14 @@ namespace AppInstaller::Manifest
     std::string_view PackageVersionDataManifest::VersionManifestCompressedFileName()
     {
         return "versionData.mszyml"sv;
+    }
+
+    std::filesystem::path PackageVersionDataManifest::GetRelativeDirectoryPath(std::string_view packageIdentifier, std::string_view manifestHash)
+    {
+        std::filesystem::path result = "packages";
+        result /= Utility::ConvertToUTF16(packageIdentifier);
+        result /= manifestHash.substr(0, 8);
+        return result;
     }
 
     Compression::Compressor PackageVersionDataManifest::CreateCompressor()

@@ -364,6 +364,7 @@ PSHOST
 psobject
 ptstr
 publickey
+PVD
 pvk
 pvm
 pwabuilder
