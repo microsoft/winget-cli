@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetSettingsHelper.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -71,24 +71,6 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
-        /// Converts a hashtable to json and writes to the settings file.
-        /// </summary>
-        /// <param name="settingsJson">Settings to set.</param>
-        public static void SetWingetSettings(Hashtable settingsJson)
-        {
-            SetWingetSettings(JsonConvert.SerializeObject(settingsJson, Formatting.Indented));
-        }
-
-        /// <summary>
-        /// Writes string to settings file.
-        /// </summary>
-        /// <param name="settings">Settings as string.</param>
-        public static void SetWingetSettings(string settings)
-        {
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settings);
-        }
-
-        /// <summary>
         /// Configure experimental features.
         /// </summary>
         /// <param name="featureName">Feature name.</param>
@@ -99,7 +81,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var experimentalFeatures = settingsJson["experimentalFeatures"];
             experimentalFeatures[featureName] = status;
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -113,7 +95,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var installBehavior = settingsJson["installBehavior"];
             installBehavior[settingName] = value;
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -134,7 +116,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var preferences = installBehavior["preferences"];
             preferences[settingName] = value;
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -155,7 +137,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var preferences = installBehavior["preferences"];
             preferences[settingName] = new JArray(value);
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -176,7 +158,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var requirements = installBehavior["requirements"];
             requirements[settingName] = value;
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -197,7 +179,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var requirements = installBehavior["requirements"];
             requirements[settingName] = new JArray(value);
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -224,6 +206,33 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             return settingsJson;
+        }
+
+        /// <summary>
+        /// Converts a hashtable to json and writes to the settings file.
+        /// </summary>
+        /// <param name="settingsJson">Settings to set.</param>
+        private static void SetWingetSettings(Hashtable settingsJson)
+        {
+            SetWingetSettings(JsonConvert.SerializeObject(settingsJson, Formatting.Indented));
+        }
+
+        /// <summary>
+        /// Converts a JObject to a string and writes to the settings file.
+        /// </summary>
+        /// <param name="settingsJson">Settings to set.</param>
+        private static void SetWingetSettings(JObject settingsJson)
+        {
+            SetWingetSettings(settingsJson.ToString());
+        }
+
+        /// <summary>
+        /// Writes string to settings file.
+        /// </summary>
+        /// <param name="settings">Settings as string.</param>
+        private static void SetWingetSettings(string settings)
+        {
+            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settings);
         }
     }
 }
