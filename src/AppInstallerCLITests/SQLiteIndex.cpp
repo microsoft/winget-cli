@@ -316,6 +316,12 @@ bool AreArpVersionsSupported(const SQLiteIndex& index, const SQLiteVersion& test
     return (index.GetVersion() >= SQLiteVersion{ 1, 5 } && testVersion >= SQLiteVersion{ 1, 5 });
 }
 
+bool AreArpVersionsNullable(const SQLiteIndex& index)
+{
+    UNSCOPED_INFO("Index " << index.GetVersion());
+    return (index.GetVersion() >= SQLiteVersion{ 2, 0 });
+}
+
 bool IsMapDataFoldingSupported(const SQLiteIndex& index, const SQLiteVersion& testVersion)
 {
     UNSCOPED_INFO("Index " << index.GetVersion() << " | Test " << testVersion);
@@ -324,21 +330,25 @@ bool IsMapDataFoldingSupported(const SQLiteIndex& index, const SQLiteVersion& te
 
 bool IsMapDataFolded(const SQLiteIndex& index)
 {
+    UNSCOPED_INFO("Index " << index.GetVersion());
     return (index.GetVersion() >= SQLiteVersion{ 1, 7 });
 }
 
 bool AreVersionKeysSupported(const SQLiteIndex& index)
 {
+    UNSCOPED_INFO("Index " << index.GetVersion());
     return (index.GetVersion() < SQLiteVersion{ 2, 0 });
 }
 
 bool AreChannelsSupported(const SQLiteIndex& index)
 {
+    UNSCOPED_INFO("Index " << index.GetVersion());
     return (index.GetVersion() < SQLiteVersion{ 2, 0 });
 }
 
 bool AreManifestPathsSupported(const SQLiteIndex& index)
 {
+    UNSCOPED_INFO("Index " << index.GetVersion());
     return (index.GetVersion() < SQLiteVersion{ 2, 0 });
 }
 
@@ -3027,16 +3037,14 @@ TEST_CASE("SQLiteIndex_ManifestHash_Present", "[sqliteindex]")
 
     auto hashResult = index.GetPropertyByPrimaryId(results.Matches[0].first, PackageVersionProperty::ManifestSHA256Hash);
 
+    // Regardless of what hash, it should still be a SHA256 hash
+    REQUIRE(hashResult);
+    auto hashResultBytes = SHA256::ConvertToBytes(hashResult.value());
+    REQUIRE(hash.size() == hashResultBytes.size());
+
     if (AreManifestHashesSupported(index, testVersion))
     {
-        REQUIRE(hashResult);
-        auto hashResultBytes = SHA256::ConvertToBytes(hashResult.value());
-        REQUIRE(hash.size() == hashResultBytes.size());
         REQUIRE(std::equal(hash.begin(), hash.end(), hashResultBytes.begin()));
-    }
-    else
-    {
-        REQUIRE(!hashResult);
     }
 }
 
@@ -3081,7 +3089,7 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_Present_Add", "[sqliteindex]")
     manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
     manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion = "1.1";
-    
+
     index.AddManifest(manifest, "path");
 
     SQLiteVersion testVersion = TestPrepareForRead(index);
@@ -3095,9 +3103,9 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_Present_Add", "[sqliteindex]")
     if (AreArpVersionsSupported(index, testVersion))
     {
         REQUIRE(arpMin);
-        REQUIRE(arpMin.value() == "1.0");
+        REQUIRE(UtilityVersion(arpMin.value()) == UtilityVersion(manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion));
         REQUIRE(arpMax);
-        REQUIRE(arpMax.value() == "1.1");
+        REQUIRE(UtilityVersion(arpMax.value()) == UtilityVersion(manifest.Installers[0].AppsAndFeaturesEntries[1].DisplayVersion));
     }
     else
     {
@@ -3171,7 +3179,7 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_Empty", "[sqliteindex]")
     auto arpMin = index.GetPropertyByPrimaryId(results.Matches[0].first, PackageVersionProperty::ArpMinVersion);
     auto arpMax = index.GetPropertyByPrimaryId(results.Matches[0].first, PackageVersionProperty::ArpMaxVersion);
 
-    if (AreArpVersionsSupported(index, testVersion))
+    if (AreArpVersionsSupported(index, testVersion) && !AreArpVersionsNullable(index))
     {
         REQUIRE(arpMin);
         REQUIRE(arpMin.value() == "");
@@ -3604,8 +3612,10 @@ std::filesystem::path GetOnlyChild(const std::filesystem::path& parent)
     return result;
 }
 
-void CheckIntermediates(const std::filesystem::path& intermediatesDirectory, const std::vector<std::vector<ManifestAndPath>>& expectedIntermediatesData, std::chrono::seconds sleep = 1s)
+void CheckIntermediates(const std::filesystem::path& baseDirectory, const std::vector<std::vector<ManifestAndPath>>& expectedIntermediatesData, std::chrono::seconds sleep = 1s)
 {
+    std::filesystem::path intermediatesDirectory = baseDirectory / "packages";
+
     size_t intermediatePackageCount = std::count_if(std::filesystem::directory_iterator{ intermediatesDirectory }, std::filesystem::directory_iterator{}, [](const auto&){ return true; });
     REQUIRE(intermediatePackageCount == expectedIntermediatesData.size());
 
@@ -3618,12 +3628,9 @@ void CheckIntermediates(const std::filesystem::path& intermediatesDirectory, con
         REQUIRE(std::filesystem::exists(packageDirectory));
         std::filesystem::path hashDirectory = GetOnlyChild(packageDirectory);
 
-        SHA256::HashBuffer hashBytes = SHA256::ConvertToBytes(hashDirectory.filename().u8string());
         std::filesystem::path versionDataFile = GetOnlyChild(hashDirectory);
         std::ifstream versionDataStream{ versionDataFile, std::ios_base::in | std::ios_base::binary };
         auto versionDataBytes = ReadEntireStreamAsByteArray(versionDataStream);
-        SHA256::HashBuffer versionDataHash = SHA256::ComputeHash(versionDataBytes);
-        REQUIRE(SHA256::AreEqual(hashBytes, versionDataHash));
 
         PackageVersionDataManifest versionDataManifest;
         versionDataManifest.Deserialize(PackageVersionDataManifest::CreateDecompressor().Decompress(versionDataBytes));
