@@ -5,6 +5,9 @@ parameters:
   type: boolean
 - name: filter
   type: string
+- name: experimentalFeatures
+  type: string
+  default: ''
 
 steps:
   - task: CmdLine@2
@@ -28,14 +31,16 @@ steps:
                                       -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
                                       -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
                                       -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer
-                                      -SkipTestSource true'
+                                      -SkipTestSource true
+                                      -ForcedExperimentalFeatures ${{ parameters.experimentalFeatures }}'
       ${{ else }}:
           overrideTestrunParameters: '-PackagedContext false
                                       -AICLIPath $(packageLayoutDir)\AppInstallerCLI\winget.exe
                                       -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
                                       -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
                                       -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer
-                                      -SkipTestSource true'
+                                      -SkipTestSource true
+                                      -ForcedExperimentalFeatures ${{ parameters.experimentalFeatures }}'
 
   - task: CmdLine@2
     displayName: Complete COM trace for ${{ parameters.title }}

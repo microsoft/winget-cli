@@ -1,4 +1,4 @@
-﻿# How to Run End-To-End Tests for Windows Package Manager Client
+# How to Run End-To-End Tests for Windows Package Manager Client
 
 Most of the tests require having the local test source added into winget. The local test source must be hosted in a localhost web server.
 
@@ -68,6 +68,7 @@ The localhost web server needs to be running for the duration of the tests. The 
 | **Port** | Optional | Port number [Default Port Number: 5001] |
 | **OutCertFile** | Optional | The exported certificate used |
 | **LocalSourceJson** | Optional | The local source definition. If set generates the source. |
+| **ForcedExperimentalFeatures** | Optional | Experimental features that should be forcibly enabled always. |
 
 ### How to create and trust an ASP.NET Core HTTPS Development Certificate
 Windows Package Manager Client (WinGet.exe) requires new sources added to the WinGet repositories be securely accessed through HTTPS. Therefore, in order to verify the LocalhostWebServer, you will need to create a self-signed development certificate to verify the localhost address. 
