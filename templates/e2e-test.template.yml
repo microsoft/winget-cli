@@ -7,7 +7,7 @@ parameters:
   type: string
 - name: experimentalFeatures
   type: string
-  default: ''
+  default: 'none'
 
 steps:
   - task: CmdLine@2

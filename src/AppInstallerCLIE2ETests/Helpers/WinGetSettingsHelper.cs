@@ -38,16 +38,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// </summary>
         public static void InitializeWingetSettings()
         {
-            Hashtable experimentalFeatures =
-                    new Hashtable()
-                    {
-                        { "experimentalArg", false },
-                        { "experimentalCmd", false },
-                        { "directMSI", false },
-                        { "windowsFeature", false },
-                        { "resume", false },
-                        { "reboot", false },
-                    };
+            Hashtable experimentalFeatures = new Hashtable();
 
             var forcedExperimentalFeatures = ForcedExperimentalFeatures;
             foreach (var feature in forcedExperimentalFeatures)

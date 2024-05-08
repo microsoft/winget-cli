@@ -170,7 +170,7 @@ namespace Microsoft.WinGetSourceCreator
             }
 
             string appxManifestFile = Path.Combine(this.workingDirectory, "AppxManifest.xml");
-            File.Copy(inputAppxManifestFile, appxManifestFile);
+            File.Copy(inputAppxManifestFile, appxManifestFile, true);
 
             if (signature != null && signature.Publisher != null)
             {
@@ -180,7 +180,7 @@ namespace Microsoft.WinGetSourceCreator
             string mappingFile = Path.Combine(this.workingDirectory, "MappingFile.txt");
 
             {
-                using StreamWriter outputFile = new(mappingFile);
+                using StreamWriter outputFile = new(mappingFile, false);
                 outputFile.WriteLine("[Files]");
                 outputFile.WriteLine($"\"{indexPath}\" \"Public\\{Path.GetFileName(indexPath)}\"");
                 outputFile.WriteLine($"\"{appxManifestFile}\" \"AppxManifest.xml\"");
