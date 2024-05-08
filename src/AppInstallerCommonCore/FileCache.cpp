@@ -210,8 +210,11 @@ namespace AppInstaller::Caching
         return result;
     }
 
-    std::unique_ptr<std::stringstream> FileCache::GetUpstreamFile(const std::string& relativePath, const Utility::SHA256::HashBuffer& expectedHash) const
+    std::unique_ptr<std::stringstream> FileCache::GetUpstreamFile(std::string relativePath, const Utility::SHA256::HashBuffer& expectedHash) const
     {
+        // Replace backslashes with forward slashes for HTTP requests (since local can handle them).
+        Utility::FindAndReplace(relativePath, "\\", "/");
+
         std::exception_ptr firstException;
 
         for (const auto& upstream : m_sources)

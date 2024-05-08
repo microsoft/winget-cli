@@ -53,7 +53,7 @@ namespace AppInstaller::Caching
     private:
         // Gets a stream containing the contents of the requested file from an upstream source.
         // The hash must match for this function to return successfully.
-        std::unique_ptr<std::stringstream> GetUpstreamFile(const std::string& relativePath, const Utility::SHA256::HashBuffer& expectedHash) const;
+        std::unique_ptr<std::stringstream> GetUpstreamFile(std::string relativePath, const Utility::SHA256::HashBuffer& expectedHash) const;
 
         Details m_details;
         std::vector<std::string> m_sources;
