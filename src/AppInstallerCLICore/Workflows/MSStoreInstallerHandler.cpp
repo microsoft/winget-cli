@@ -329,7 +329,7 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::path dependenciesDirectory = downloadDirectory / L"Dependencies";
 
         // Create directories if needed.
-        auto directoryToCreate = skipDependencies ? downloadDirectory : dependenciesDirectory;
+        auto directoryToCreate = (skipDependencies || downloadInfo.DependencyPackages.empty()) ? downloadDirectory : dependenciesDirectory;
         if (!std::filesystem::exists(directoryToCreate))
         {
             std::filesystem::create_directories(directoryToCreate);

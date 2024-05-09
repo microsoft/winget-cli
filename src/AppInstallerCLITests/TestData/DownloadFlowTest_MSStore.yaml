@@ -30,4 +30,9 @@ Installers:
     InstallerType: msstore
     ProductId: 9WZDNCRFJ364
     Language: ja-JP
+  - Arch: arm64
+    Url: https://ThisIsNotUsed
+    InstallerType: msstore
+    ProductId: 9WZDNCRFJ364
+    Language: en-US
 ManifestVersion: 0.2.0-msstore
