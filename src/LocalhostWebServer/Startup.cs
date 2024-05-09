@@ -59,7 +59,7 @@ namespace LocalhostWebServer
             provider.Mappings[".msi"] = "application/msi";
             provider.Mappings[".appx"] = "application/vns.ms-appx";
             provider.Mappings[".appxbundle"] = "application/vns.ms-appx";
-            provider.Mappings[".mszyml"] = "application/x-msz-yaml";
+            provider.Mappings[".mszyml"] = "application/x-ms-zip-yaml";
 
 
             //Enable static file serving
