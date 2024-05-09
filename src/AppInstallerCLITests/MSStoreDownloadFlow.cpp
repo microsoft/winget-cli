@@ -228,7 +228,7 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
     return result;
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Success", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Success", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
@@ -273,7 +273,7 @@ TEST_CASE("MSStoreDowndloadFlow_Success", "[MSStoreDownloadFlow][workflow]")
     REQUIRE_FALSE(std::filesystem::exists(tempDirectory.GetPath() / L"TestCategoryIdEnglish.Data_1.0.0.0_arm__8wekyb3d8bbwe.cab"));
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Success_SkipDependencies", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Success_SkipDependencies", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
@@ -314,7 +314,7 @@ TEST_CASE("MSStoreDowndloadFlow_Success_SkipDependencies", "[MSStoreDownloadFlow
     REQUIRE(licenseFileStr == "TestLicense");
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Success_SkipLicense", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Success_SkipLicense", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
@@ -349,7 +349,7 @@ TEST_CASE("MSStoreDowndloadFlow_Success_SkipLicense", "[MSStoreDownloadFlow][wor
     REQUIRE_FALSE(std::filesystem::exists(tempDirectory.GetPath() / L"9WZDNCRFJ364_License.xml"));
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Success_SpecificLocale", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Success_SpecificLocale", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
@@ -389,7 +389,7 @@ TEST_CASE("MSStoreDowndloadFlow_Success_SpecificLocale", "[MSStoreDownloadFlow][
     REQUIRE(licenseFileStr == "TestLicense");
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Success_SpecificArchitecture", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Success_SpecificArchitecture", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
@@ -430,7 +430,7 @@ TEST_CASE("MSStoreDowndloadFlow_Success_SpecificArchitecture", "[MSStoreDownload
     REQUIRE(licenseFileStr == "TestLicense");
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Success_SpecificPlatform", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Success_SpecificPlatform", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
@@ -471,7 +471,7 @@ TEST_CASE("MSStoreDowndloadFlow_Success_SpecificPlatform", "[MSStoreDownloadFlow
     REQUIRE(licenseFileStr == "TestLicense");
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Fail_TargetSkuNotFound", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Fail_TargetSkuNotFound", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
@@ -490,7 +490,7 @@ TEST_CASE("MSStoreDowndloadFlow_Fail_TargetSkuNotFound", "[MSStoreDownloadFlow][
     INFO(downloadOutput.str());
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Fail_LocaleNotApplicable", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Fail_LocaleNotApplicable", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
@@ -509,7 +509,7 @@ TEST_CASE("MSStoreDowndloadFlow_Fail_LocaleNotApplicable", "[MSStoreDownloadFlow
     INFO(downloadOutput.str());
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Fail_ArchitectureNotApplicable", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Fail_ArchitectureNotApplicable", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
@@ -529,7 +529,7 @@ TEST_CASE("MSStoreDowndloadFlow_Fail_ArchitectureNotApplicable", "[MSStoreDownlo
     INFO(downloadOutput.str());
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Fail_PlatformNotApplicable", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Fail_PlatformNotApplicable", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
@@ -550,7 +550,7 @@ TEST_CASE("MSStoreDowndloadFlow_Fail_PlatformNotApplicable", "[MSStoreDownloadFl
     INFO(downloadOutput.str());
 }
 
-TEST_CASE("MSStoreDowndloadFlow_Fail_Licensing", "[MSStoreDownloadFlow][workflow]")
+TEST_CASE("MSStoreDownloadFlow_Fail_Licensing", "[MSStoreDownloadFlow][workflow]")
 {
     auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
 
