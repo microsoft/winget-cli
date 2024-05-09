@@ -338,6 +338,7 @@ TEST_CASE("MSStoreDownloadFlow_Success_SkipLicense", "[MSStoreDownloadFlow][work
     OverrideDownloadInstallerFileForMSStoreDownload(context);
     TestHook::SetDisplayCatalogHttpPipelineStage_Override displayCatalogOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestDisplayCatalogResponse));
     TestHook::SetSfsClientAppContents_Override sfsClientOverride({ &GetSfsAppContentsOverrideFunction });
+    TestHook::SetLicensingHttpPipelineStage_Override licensingOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestLicensingResponse));
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("DownloadFlowTest_MSStore.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::DownloadDirectory, tempDirectory);
     context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
@@ -493,6 +494,8 @@ TEST_CASE("MSStoreDownloadFlow_Fail_TargetSkuNotFound", "[MSStoreDownloadFlow][w
     TestContext context{ downloadOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     TestHook::SetDisplayCatalogHttpPipelineStage_Override displayCatalogOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestDisplayCatalogResponse_TargetSkuNotFound));
+    TestHook::SetSfsClientAppContents_Override sfsClientOverride({ &GetSfsAppContentsOverrideFunction });
+    TestHook::SetLicensingHttpPipelineStage_Override licensingOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestLicensingResponse));
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("DownloadFlowTest_MSStore.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::DownloadDirectory, tempDirectory);
     context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
@@ -512,6 +515,8 @@ TEST_CASE("MSStoreDownloadFlow_Fail_LocaleNotApplicable", "[MSStoreDownloadFlow]
     TestContext context{ downloadOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     TestHook::SetDisplayCatalogHttpPipelineStage_Override displayCatalogOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestDisplayCatalogResponse));
+    TestHook::SetSfsClientAppContents_Override sfsClientOverride({ &GetSfsAppContentsOverrideFunction });
+    TestHook::SetLicensingHttpPipelineStage_Override licensingOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestLicensingResponse));
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("DownloadFlowTest_MSStore.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::DownloadDirectory, tempDirectory);
     context.Args.AddArg(Execution::Args::Type::Locale, "ja-JP"sv);
@@ -531,6 +536,8 @@ TEST_CASE("MSStoreDownloadFlow_Fail_ArchitectureNotApplicable", "[MSStoreDownloa
     TestContext context{ downloadOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     TestHook::SetDisplayCatalogHttpPipelineStage_Override displayCatalogOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestDisplayCatalogResponse));
+    TestHook::SetSfsClientAppContents_Override sfsClientOverride({ &GetSfsAppContentsOverrideFunction });
+    TestHook::SetLicensingHttpPipelineStage_Override licensingOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestLicensingResponse));
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("DownloadFlowTest_MSStore.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::DownloadDirectory, tempDirectory);
     context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
@@ -552,6 +559,7 @@ TEST_CASE("MSStoreDownloadFlow_Fail_PlatformNotApplicable", "[MSStoreDownloadFlo
     auto previousThreadGlobals = context.SetForCurrentThread();
     TestHook::SetDisplayCatalogHttpPipelineStage_Override displayCatalogOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestDisplayCatalogResponse));
     TestHook::SetSfsClientAppContents_Override sfsClientOverride({ &GetSfsAppContentsOverrideFunction });
+    TestHook::SetLicensingHttpPipelineStage_Override licensingOverride(GetTestRestRequestHandler(web::http::status_codes::OK, TestLicensingResponse));
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("DownloadFlowTest_MSStore.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::DownloadDirectory, tempDirectory);
     context.Args.AddArg(Execution::Args::Type::Locale, "en-US"sv);
