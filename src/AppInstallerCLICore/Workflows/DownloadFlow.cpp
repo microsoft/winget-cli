@@ -149,11 +149,10 @@ namespace AppInstaller::CLI::Workflow
 
                 // It is assumed that the parent of the installer path will always be a directory
                 // If it isn't, then something went severely wrong. However, we will check that
-                // it is a directory here just to be safe. If it is an empty directory, remove it
+                // it is a directory here just to be safe. If it is an empty directory, remove it.
 
                 if (std::filesystem::is_directory(path.parent_path()) &&
-                    std::filesystem::is_empty(path.parent_path())
-                    )
+                    std::filesystem::is_empty(path.parent_path()))
                 {
                     std::filesystem::remove(path.parent_path());
                 }
