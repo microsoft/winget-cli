@@ -2893,10 +2893,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>No applicable Microsoft Store package found from Microsoft Store package catalog.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED" xml:space="preserve">
-    <value>Failed to get Microsoft Store package download infomation.</value>
+    <value>Failed to get Microsoft Store package download information.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
-    <value>No applicable Microsoft Store package download infomation found.</value>
+    <value>No applicable Microsoft Store package download information found.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
     <value>Failed to retrieve Microsoft Store package license.</value>
@@ -2922,10 +2922,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Microsoft Store package download completed</value>
   </data>
   <data name="MSStoreDownloadMainPackages" xml:space="preserve">
-    <value>Downloading main packages...</value>
+    <value>Downloading main packages from Microsoft Store...</value>
   </data>
   <data name="MSStoreDownloadDependencyPackages" xml:space="preserve">
-    <value>Downloading dependency packages...</value>
+    <value>Downloading dependency packages from Microsoft Store...</value>
   </data>
   <data name="MSStoreDownloadGetDownloadInfo" xml:space="preserve">
     <value>Retrieving Microsoft Store package download information</value>
@@ -2944,7 +2944,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Failed to retrieve Microsoft Store package license</value>
   </data>
   <data name="MSStoreDownloadRenameNotSupported" xml:space="preserve">
-    <value>Microsoft Store package download does not support --rename argument. Microsoft Store package will use names provided by Microsoft Store catalog</value>
+    <value>Microsoft Store package download does not support --rename argument. Microsoft Store package will use names provided by Microsoft Store catalog.</value>
     <comment>{Locked="--rename"}</comment>
   </data>
   <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">

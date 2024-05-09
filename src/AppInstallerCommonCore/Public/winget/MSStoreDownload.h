@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerArchitecture.h>
+#include <AppInstallerSHA256.h>
 #include <AppInstallerVersions.h>
 #include "winget/Authentication.h"
 #include "winget/ManifestCommon.h"
@@ -18,7 +19,7 @@ namespace AppInstaller::MSStore
     struct MSStoreDownloadFile
     {
         std::string Url;
-        std::vector<BYTE> Sha256;
+        AppInstaller::Utility::SHA256::HashBuffer Sha256;
         std::string FileName;
         AppInstaller::Utility::UInt64Version Version = 0;
     };
@@ -27,6 +28,8 @@ namespace AppInstaller::MSStore
     {
         std::vector<MSStoreDownloadFile> MainPackages;
         std::vector<MSStoreDownloadFile> DependencyPackages;
+
+        std::string ContentId;
     };
 
     struct MSStoreDownloadContext
@@ -41,9 +44,8 @@ namespace AppInstaller::MSStore
         // Calls display catalog API and sfs-client to get download info.
         MSStoreDownloadInfo GetDownloadInfo();
 
-        // Gets license for the corresponding package returned by previous GetDownloadInfo().
-        // GetDownloadInfo() must be called before calling this method.
-        std::vector<BYTE> GetLicense();
+        // Gets license for the corresponding packages
+        std::vector<BYTE> GetLicense(std::string_view contentId);
 
     private:
         std::string m_productId;
@@ -51,6 +53,5 @@ namespace AppInstaller::MSStore
         AppInstaller::Manifest::PlatformEnum m_platform = AppInstaller::Manifest::PlatformEnum::Unknown;
         std::string m_locale;
         std::unique_ptr<AppInstaller::Authentication::Authenticator> m_licensingAuthenticator;
-        std::string m_contentId;
     };
 }

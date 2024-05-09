@@ -4,7 +4,6 @@
 #include <AppInstallerStrings.h>
 #include <AppInstallerErrors.h>
 #include <AppinstallerLogging.h>
-#include <AppInstallerSHA256.h>
 #include "AppInstallerMsixInfo.h"
 #include "AppInstallerRuntime.h"
 #include "winget/Locale.h"
@@ -862,8 +861,8 @@ namespace AppInstaller::MSStore
                 appContents = (*TestHooks::s_SfsClient_AppContents_Override)(wuCategoryId);
             }
             else
-            {
 #endif
+            {
                 SFS::RequestParams sfsClientRequest;
                 sfsClientRequest.productRequests = { {std::string{ wuCategoryId }, {}} };
 
@@ -873,9 +872,7 @@ namespace AppInstaller::MSStore
                     AICLI_LOG(Core, Error, << "Failed to call SfsClient GetLatestAppDownloadInfo. Error code: " << requestResult.GetCode() << " Message: " << requestResult.GetMsg());
                     THROW_HR_MSG(APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED, "Failed to call SfsClient GetLatestAppDownloadInfo. ErrorCode: %lu Message: %hs", requestResult.GetCode(), requestResult.GetMsg().c_str());
                 }
-#ifndef AICLI_DISABLE_TEST_HOOKS
             }
-#endif
 
             THROW_HR_IF(E_UNEXPECTED, appContents.empty());
 
@@ -927,9 +924,9 @@ namespace AppInstaller::MSStore
         //     ]
         //   }
         // }
-        std::vector<BYTE> GetLicencing(std::string_view contentId, const Http::HttpClientHelper::HttpRequestHeaders& authHeaders)
+        std::vector<BYTE> GetLicensing(std::string_view contentId, const Http::HttpClientHelper::HttpRequestHeaders& authHeaders)
         {
-            AICLI_LOG(Core, Error, << "GetLicencing with ContentId: " << contentId);
+            AICLI_LOG(Core, Error, << "GetLicensing with ContentId: " << contentId);
 
             AppInstaller::Http::HttpClientHelper httpClientHelper;
 
@@ -1012,8 +1009,8 @@ namespace AppInstaller::MSStore
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (!TestHooks::s_Licensing_HttpPipelineStage_Override)
-        {
 #endif
+        {
             Authentication::MicrosoftEntraIdAuthenticationInfo licensingMicrosoftEntraIdAuthInfo;
             licensingMicrosoftEntraIdAuthInfo.Resource = "c5e1cb0d-5d24-4b1a-b291-ec684152b2ba";
             Authentication::AuthenticationInfo licensingAuthInfo;
@@ -1022,9 +1019,7 @@ namespace AppInstaller::MSStore
 
             // Not moving authArgs because we'll have auth for display catalog and sfs client in the near future.
             m_licensingAuthenticator = std::make_unique<Authentication::Authenticator>(std::move(licensingAuthInfo), authArgs);
-#ifndef AICLI_DISABLE_TEST_HOOKS
         }
-#endif
     }
 
     MSStoreDownloadInfo MSStoreDownloadContext::GetDownloadInfo()
@@ -1032,17 +1027,15 @@ namespace AppInstaller::MSStore
 #ifndef WINGET_DISABLE_FOR_FUZZING
         auto displayCatalogPackage = DisplayCatalogDetails::CallDisplayCatalogAndGetPreferredPackage(m_productId, m_locale, m_architecture);
         auto downloadInfo = SfsClientDetails::CallSfsClientAndGetMSStoreDownloadInfo(displayCatalogPackage.WuCategoryId, m_architecture, m_platform);
-        m_contentId = displayCatalogPackage.ContentId;
+        downloadInfo.ContentId = displayCatalogPackage.ContentId;
         return downloadInfo;
 #else
         return {};
 #endif
     }
 
-    std::vector<BYTE> MSStoreDownloadContext::GetLicense()
+    std::vector<BYTE> MSStoreDownloadContext::GetLicense(std::string_view contentId)
     {
-        THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_contentId.empty(), "GetDownloadInfo() must be called before GetLicense()");
-
-        return LicensingDetails::GetLicencing(m_contentId, GetAuthHeaders(m_licensingAuthenticator));
+        return LicensingDetails::GetLicensing(contentId, GetAuthHeaders(m_licensingAuthenticator));
     }
 }

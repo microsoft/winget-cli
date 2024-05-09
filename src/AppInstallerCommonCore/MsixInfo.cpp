@@ -479,17 +479,16 @@ namespace AppInstaller::Msix
 
         THROW_HR_IF(E_UNEXPECTED, length == 0);
 
-        std::vector<BYTE> packageIdContent;
-        packageIdContent.resize(length);
+        std::unique_ptr<BYTE[]> packageIdContent = std::make_unique<BYTE[]>(length);
 
-        returnVal = PackageIdFromFullName(fullNameWide.c_str(), PACKAGE_INFORMATION_BASIC, &length, packageIdContent.data());
+        returnVal = PackageIdFromFullName(fullNameWide.c_str(), PACKAGE_INFORMATION_BASIC, &length, packageIdContent.get());
         if (returnVal != ERROR_SUCCESS)
         {
             LOG_WIN32(returnVal);
             return 0;
         }
 
-        PACKAGE_ID* packageId = (PACKAGE_ID*)packageIdContent.data();
+        PACKAGE_ID* packageId = (PACKAGE_ID*)packageIdContent.get();
 
         return packageId->version.Version;
     }

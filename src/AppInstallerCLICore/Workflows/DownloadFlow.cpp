@@ -245,13 +245,11 @@ namespace AppInstaller::CLI::Workflow
                 if (installerDownloadOnly)
                 {
                     context <<
+                        EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::StoreDownload) <<
                         MSStoreDownload <<
                         ExportManifest;
                 }
-                else
-                {
-                    // Nothing to do here
-                }
+
                 return;
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));

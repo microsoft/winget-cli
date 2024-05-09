@@ -264,11 +264,6 @@ namespace AppInstaller::CLI::Workflow
 
     void MSStoreDownload(Execution::Context& context)
     {
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::StoreDownload))
-        {
-            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-        }
-
         if (context.Args.Contains(Execution::Args::Type::Rename))
         {
             context.Reporter.Warn() << Resource::String::MSStoreDownloadRenameNotSupported << std::endl;
@@ -324,7 +319,6 @@ namespace AppInstaller::CLI::Workflow
         bool skipDependencies = context.Args.Contains(Execution::Args::Type::SkipDependencies);
 
         // Prepare directories
-        THROW_HR_IF(E_UNEXPECTED, !context.Contains(Execution::Data::DownloadDirectory));
         std::filesystem::path downloadDirectory = context.Get<Execution::Data::DownloadDirectory>();
         std::filesystem::path dependenciesDirectory = downloadDirectory / L"Dependencies";
 
@@ -352,11 +346,10 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Download main packages
+        AICLI_LOG(CLI, Info, << "Downloading MSStore main packages");
         context.Reporter.Info() << Resource::String::MSStoreDownloadMainPackages << std::endl;
         for (auto const& mainPackage : downloadInfo.MainPackages)
         {
-            AICLI_LOG(CLI, Info, << "Downloading MSStore main packages");
-
             THROW_IF_FAILED(DownloadMSStorePackageFile(mainPackage, downloadDirectory, context));
         }
 
@@ -371,7 +364,7 @@ namespace AppInstaller::CLI::Workflow
             std::vector<BYTE> licenseContent;
             try
             {
-                licenseContent = downloadContext.GetLicense();
+                licenseContent = downloadContext.GetLicense(downloadInfo.ContentId);
             }
             catch (const wil::ResultException& re)
             {
