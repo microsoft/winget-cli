@@ -202,6 +202,7 @@
 #define WINGET_CONFIG_ERROR_MISSING_FIELD                       ((HRESULT)0x8A15C00E)
 #define WINGET_CONFIG_ERROR_TEST_FAILED                         ((HRESULT)0x8A15C00F)
 #define WINGET_CONFIG_ERROR_TEST_NOT_RUN                        ((HRESULT)0x8A15C010)
+#define WINGET_CONFIG_ERROR_GET_FAILED                          ((HRESULT)0x8A15C011)
 
 // Configuration Processor Errors
 #define WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED              ((HRESULT)0x8A15C101)

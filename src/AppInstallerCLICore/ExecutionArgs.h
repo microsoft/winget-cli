@@ -79,7 +79,6 @@ namespace AppInstaller::CLI::Execution
             Position,
 
             // Export Command
-            OutputFile,
             IncludeVersions,
 
             // Import Command
@@ -128,6 +127,9 @@ namespace AppInstaller::CLI::Execution
             ConfigurationEnable,
             ConfigurationDisable,
             ConfigurationModulePath,
+            ConfigurationExportPackageId,
+            ConfigurationExportModule,
+            ConfigurationExportResource,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs
@@ -140,6 +142,7 @@ namespace AppInstaller::CLI::Execution
             Wait, // Prompts the user to press any key before exiting
             OpenLogs, // Opens the default logs directory after executing the command
             Force, // Forces the execution of the workflow with non security related issues
+            OutputFile,
 
             DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header
@@ -161,7 +164,11 @@ namespace AppInstaller::CLI::Execution
             Max
         };
 
-        bool Contains(Type arg) const { return (m_parsedArgs.count(arg) != 0); }
+        template<typename... T, std::enable_if_t<(... && std::is_same_v<T, Args::Type>), bool> = true>
+        bool Contains(T... arg) const
+        {
+            return (... && (m_parsedArgs.count(arg) != 0));
+        }
 
         const std::vector<std::string>* GetArgs(Type arg) const
         {

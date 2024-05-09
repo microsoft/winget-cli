@@ -344,3 +344,14 @@ You can enable the feature as shown below.
        "storeDownload": true
    },
 ```
+
+### configureExport
+
+This feature enables exporting a configuration file.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "configureExport": true
+   },
+```

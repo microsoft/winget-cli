@@ -52,6 +52,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFConfigureSelfElevation>();
             case ExperimentalFeature::Feature::StoreDownload:
                 return userSettings.Get<Setting::EFStoreDownload>();
+            case ExperimentalFeature::Feature::ConfigureExport:
+                return userSettings.Get<Setting::EFConfigureExport>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -93,6 +95,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Configure Self Elevation", "configureSelfElevate", "https://aka.ms/winget-settings", Feature::ConfigureSelfElevation };
         case Feature::StoreDownload:
             return ExperimentalFeature{ "Store Download", "storeDownload", "https://aka.ms/winget-settings", Feature::StoreDownload };
+        case Feature::ConfigureExport:
+            return ExperimentalFeature{ "Configure Export", "configureExport", "https://aka.ms/winget-settings", Feature::ConfigureExport };
         default:
             THROW_HR(E_UNEXPECTED);
         }

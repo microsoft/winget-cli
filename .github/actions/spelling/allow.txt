@@ -351,6 +351,7 @@ und
 UNICODESTRING
 uninstalling
 Unmarshal
+unskipped
 untimes
 updatefile
 updatemanifest
@@ -377,6 +378,7 @@ wcsicmp
 webpage
 WHOLECHAIN
 wil
+windbg
 wincrypt
 WINEVENT
 winget

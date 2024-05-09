@@ -76,6 +76,7 @@ namespace AppInstaller::Settings
         EFProxy,
         EFConfigureSelfElevation,
         EFStoreDownload,
+        EFConfigureExport,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -159,6 +160,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFProxy, bool, bool, false, ".experimentalFeatures.proxy"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureSelfElevation, bool, bool, false, ".experimentalFeatures.configureSelfElevate"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFStoreDownload, bool, bool, false, ".experimentalFeatures.storeDownload"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureExport, bool, bool, false, ".experimentalFeatures.configureExport"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior

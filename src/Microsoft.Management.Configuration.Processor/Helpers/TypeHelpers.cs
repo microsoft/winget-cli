@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TypeHelpers.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -6,8 +6,12 @@
 
 namespace Microsoft.Management.Configuration.Processor.Helpers
 {
+    using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Reflection;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
+    using Microsoft.Management.Configuration.Processor.Extensions;
     using Windows.Foundation.Collections;
 
     /// <summary>
@@ -74,18 +78,78 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             var result = new ValueSet();
             foreach (PropertyInfo property in obj.GetType().GetProperties())
             {
-                // Specialize here.
-                if (property.PropertyType.IsEnum)
-                {
-                    result.Add(property.Name, property.GetValue(obj)?.ToString());
-                }
-                else
-                {
-                    result.Add(property.Name, property.GetValue(obj));
-                }
+                var key = property.Name;
+                var value = GetCompatibleValueSetValueOfProperty(property.PropertyType, property.GetValue(obj));
+                result.Add(key, value);
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Gets a compatible type for a ValueSet value.
+        /// </summary>
+        /// <param name="type">Type.</param>
+        /// <param name="value">Value.</param>
+        /// <returns>Value converted to a compatible type.</returns>
+        public static object? GetCompatibleValueSetValueOfProperty(Type type, object? value)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+
+            // Specialize here.
+            if (type.IsEnum)
+            {
+                return value.ToString();
+            }
+            else if (type == typeof(Hashtable))
+            {
+                Hashtable hashtable = (Hashtable)value;
+                return hashtable.ToValueSet();
+            }
+            else if (type.IsArray)
+            {
+                var valueSetArray = new ValueSet();
+                int index = 0;
+                foreach (object arrayObj in (Array)value)
+                {
+                    var arrayValue = GetCompatibleValueSetValueOfProperty(arrayObj.GetType(), arrayObj);
+                    if (arrayValue != null)
+                    {
+                        valueSetArray.Add(index.ToString(), arrayValue);
+                        index++;
+                    }
+                }
+
+                if (valueSetArray.Count > 0)
+                {
+                    valueSetArray.Add("treatAsArray", true);
+                }
+
+                return valueSetArray;
+            }
+            else if (type == typeof(string))
+            {
+                // Ignore empty strings.
+                string propertyString = (string)value;
+                if (!string.IsNullOrEmpty(propertyString))
+                {
+                    return propertyString;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else if (type.IsValueType)
+            {
+                return value;
+            }
+
+            // This might be too restrictive but anything else is going to be some object that we don't support anyway.
+            throw new UnitPropertyUnsupportedException(value.GetType());
         }
     }
 }

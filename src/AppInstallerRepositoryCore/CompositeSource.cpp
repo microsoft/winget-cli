@@ -10,7 +10,7 @@ namespace AppInstaller::Repository
 {
     using namespace std::string_view_literals;
 
-    namespace
+    namespace anon
     {
         Utility::VersionAndChannel GetVACFromVersion(IPackageVersion* packageVersion)
         {
@@ -1364,6 +1364,8 @@ namespace AppInstaller::Repository
             return {};
         }
     }
+
+    using namespace anon;
 
     CompositeSource::CompositeSource(std::string identifier)
     {
