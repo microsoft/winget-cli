@@ -163,7 +163,3 @@ ReplaceWhileCopying\(L.*\)
 
 # devil fruits
 \s([A-Z]{3,}|[A-Z][a-z]{2,}|[a-z]{3,})\s\g{-1}\sno Mi
-
-# base64 encoded strings in tests
-^VGVzdExpY2Vuc2U=$
-^cuQJn3eLXBwG06quV6kYGkjD6oNZn6ditXjpMUpt/P8=$

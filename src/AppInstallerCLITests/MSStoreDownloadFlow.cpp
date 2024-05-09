@@ -4,6 +4,9 @@
 #include "TestHooks.h"
 #include "TestRestRequestHandler.h"
 #include "WorkflowCommon.h"
+#include <AppInstallerStrings.h>
+#include <AppInstallerSHA256.h>
+#include <winget/JsonUtil.h>
 #include <Commands/DownloadCommand.h>
 
 using namespace TestCommon;
@@ -50,17 +53,23 @@ utility::string_t TestDisplayCatalogResponse = _XPLATSTR(
       }
     })delimiter");
 
-utility::string_t TestLicensingResponse = _XPLATSTR(
+utility::string_t TestLicensingResponseRaw = _XPLATSTR(
     R"delimiter(
     {
       "license": {
         "keys": [
           {
-            "value": "VGVzdExpY2Vuc2U="
+            "value": "<LicenseContent>"
           }
         ]
       }
     })delimiter");
+
+std::string LicenseContent = "TestLicense";
+
+utility::string_t TestLicensingResponse = AppInstaller::Utility::ReplaceWhileCopying(
+    TestLicensingResponseRaw, L"<LicenseContent>",
+    AppInstaller::Utility::ConvertToUTF16(AppInstaller::JSON::Base64Encode(std::vector<BYTE>{ LicenseContent.begin(), LicenseContent.end() })));
 
 utility::string_t TestDisplayCatalogResponse_TargetSkuNotFound = _XPLATSTR(
     R"delimiter(
@@ -101,6 +110,9 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
     std::vector<SFS::AppFile> packages;
     std::unique_ptr<SFS::AppContent> appContent;
 
+    std::vector<BYTE> sha256Bytes = AppInstaller::Utility::SHA256::ConvertToBytes("69D84CA8899800A5575CE31798223CD4FEBAB1D734A07C2E51E56A28E0DF8123");
+    std::string base64EncodedSha256 = AppInstaller::JSON::Base64Encode(sha256Bytes);
+
     {
         // Create dependencies content
         std::unique_ptr<SFS::ContentId> dependencyContentId;
@@ -114,7 +126,7 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
             wuCategoryIdStr + ".appx",
             "https://NotUsed/" + wuCategoryIdStr + "/dependency/x64",
             100,
-            { { SFS::HashType::Sha256, "cuQJn3eLXBwG06quV6kYGkjD6oNZn6ditXjpMUpt/P8=" } },
+            { { SFS::HashType::Sha256, base64EncodedSha256 } },
             { SFS::Architecture::Amd64 },
             { "Universal=10.0.0.0" },
             wuCategoryIdStr + ".Dependency_1.2.3.4_x64__8wekyb3d8bbwe",
@@ -126,7 +138,7 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
             wuCategoryIdStr + ".appx",
             "https://NotUsed/" + wuCategoryIdStr + "/dependency/arm",
             100,
-            { { SFS::HashType::Sha256, "cuQJn3eLXBwG06quV6kYGkjD6oNZn6ditXjpMUpt/P8=" } },
+            { { SFS::HashType::Sha256, base64EncodedSha256 } },
             { SFS::Architecture::Arm },
             { "Universal=10.0.0.0" },
             wuCategoryIdStr + ".Dependency_1.2.3.4_arm__8wekyb3d8bbwe",
@@ -147,7 +159,7 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
             wuCategoryIdStr + ".appx",
             "https://NotUsed/" + wuCategoryIdStr + "/x64",
             100,
-            { { SFS::HashType::Sha256, "cuQJn3eLXBwG06quV6kYGkjD6oNZn6ditXjpMUpt/P8=" } },
+            { { SFS::HashType::Sha256, base64EncodedSha256 } },
             { SFS::Architecture::Amd64 },
             { "Desktop=10.0.0.0" },
             wuCategoryIdStr + "_1.0.0.0_x64__8wekyb3d8bbwe",
@@ -160,7 +172,7 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
             wuCategoryIdStr + ".appx",
             "https://NotUsed/" + wuCategoryIdStr + "/arm",
             100,
-            { { SFS::HashType::Sha256, "cuQJn3eLXBwG06quV6kYGkjD6oNZn6ditXjpMUpt/P8=" } },
+            { { SFS::HashType::Sha256, base64EncodedSha256 } },
             { SFS::Architecture::Arm },
             { "Desktop=10.0.0.0" },
             wuCategoryIdStr + "_1.0.0.0_arm__8wekyb3d8bbwe",
@@ -173,7 +185,7 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
             wuCategoryIdStr + ".appx",
             "https://NotUsed/" + wuCategoryIdStr + "/IoT/arm",
             100,
-            { { SFS::HashType::Sha256, "cuQJn3eLXBwG06quV6kYGkjD6oNZn6ditXjpMUpt/P8=" } },
+            { { SFS::HashType::Sha256, base64EncodedSha256 } },
             { SFS::Architecture::Arm },
             { "IoT=10.0.0.0" },
             wuCategoryIdStr + ".IoT_1.0.0.0_arm__8wekyb3d8bbwe",
@@ -186,7 +198,7 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
             wuCategoryIdStr + ".appx",
             "https://NotUsed/" + wuCategoryIdStr + "/IoT/arm/2.0",
             100,
-            { { SFS::HashType::Sha256, "cuQJn3eLXBwG06quV6kYGkjD6oNZn6ditXjpMUpt/P8=" } },
+            { { SFS::HashType::Sha256, base64EncodedSha256 } },
             { SFS::Architecture::Arm },
             { "IoT=10.0.0.0" },
             wuCategoryIdStr + ".IoT_2.0.0.0_arm__8wekyb3d8bbwe",
@@ -199,7 +211,7 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
             wuCategoryIdStr + ".appx",
             "https://NotUsed/" + wuCategoryIdStr + "/Xbox/arm",
             100,
-            { { SFS::HashType::Sha256, "cuQJn3eLXBwG06quV6kYGkjD6oNZn6ditXjpMUpt/P8=" } },
+            { { SFS::HashType::Sha256, base64EncodedSha256 } },
             { SFS::Architecture::Amd64 },
             { "Xbox=10.0.0.0" },
             wuCategoryIdStr + ".Xbox_1.0.0.0_arm__8wekyb3d8bbwe",
@@ -212,7 +224,7 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
             wuCategoryIdStr + ".cab",
             "https://NotUsed/" + wuCategoryIdStr + "/cab",
             100,
-            { { SFS::HashType::Sha256, "cuQJn3eLXBwG06quV6kYGkjD6oNZn6ditXjpMUpt/P8=" } },
+            { { SFS::HashType::Sha256, base64EncodedSha256 } },
             { SFS::Architecture::Amd64 },
             { "Desktop=10.0.0.0" },
             wuCategoryIdStr + ".Data_1.0.0.0_arm__8wekyb3d8bbwe",
@@ -265,7 +277,7 @@ TEST_CASE("MSStoreDownloadFlow_Success", "[MSStoreDownloadFlow][workflow]")
     REQUIRE(licenseFile.is_open());
     std::string licenseFileStr;
     std::getline(licenseFile, licenseFileStr);
-    REQUIRE(licenseFileStr == "TestLicense");
+    REQUIRE(licenseFileStr == LicenseContent);
 
     // Verify unsupported packages filtered out
     REQUIRE_FALSE(std::filesystem::exists(tempDirectory.GetPath() / L"TestCategoryIdEnglish.IoT_1.0.0.0_arm__8wekyb3d8bbwe.appx"));
@@ -311,7 +323,7 @@ TEST_CASE("MSStoreDownloadFlow_Success_SkipDependencies", "[MSStoreDownloadFlow]
     REQUIRE(licenseFile.is_open());
     std::string licenseFileStr;
     std::getline(licenseFile, licenseFileStr);
-    REQUIRE(licenseFileStr == "TestLicense");
+    REQUIRE(licenseFileStr == LicenseContent);
 }
 
 TEST_CASE("MSStoreDownloadFlow_Success_SkipLicense", "[MSStoreDownloadFlow][workflow]")
@@ -386,7 +398,7 @@ TEST_CASE("MSStoreDownloadFlow_Success_SpecificLocale", "[MSStoreDownloadFlow][w
     REQUIRE(licenseFile.is_open());
     std::string licenseFileStr;
     std::getline(licenseFile, licenseFileStr);
-    REQUIRE(licenseFileStr == "TestLicense");
+    REQUIRE(licenseFileStr == LicenseContent);
 }
 
 TEST_CASE("MSStoreDownloadFlow_Success_SpecificArchitecture", "[MSStoreDownloadFlow][workflow]")
@@ -427,7 +439,7 @@ TEST_CASE("MSStoreDownloadFlow_Success_SpecificArchitecture", "[MSStoreDownloadF
     REQUIRE(licenseFile.is_open());
     std::string licenseFileStr;
     std::getline(licenseFile, licenseFileStr);
-    REQUIRE(licenseFileStr == "TestLicense");
+    REQUIRE(licenseFileStr == LicenseContent);
 }
 
 TEST_CASE("MSStoreDownloadFlow_Success_SpecificPlatform", "[MSStoreDownloadFlow][workflow]")
@@ -468,7 +480,7 @@ TEST_CASE("MSStoreDownloadFlow_Success_SpecificPlatform", "[MSStoreDownloadFlow]
     REQUIRE(licenseFile.is_open());
     std::string licenseFileStr;
     std::getline(licenseFile, licenseFileStr);
-    REQUIRE(licenseFileStr == "TestLicense");
+    REQUIRE(licenseFileStr == LicenseContent);
 }
 
 TEST_CASE("MSStoreDownloadFlow_Fail_TargetSkuNotFound", "[MSStoreDownloadFlow][workflow]")
