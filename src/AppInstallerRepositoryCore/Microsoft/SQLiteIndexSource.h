@@ -81,4 +81,19 @@ namespace AppInstaller::Repository::Microsoft
         // Removes a package version from the source.
         void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
     };
+
+    namespace details
+    {
+        // The base for the package objects.
+        struct SourceReference
+        {
+            SourceReference(const std::shared_ptr<SQLiteIndexSource>& source);
+
+        protected:
+            std::shared_ptr<SQLiteIndexSource> GetReferenceSource() const;
+
+        private:
+            std::weak_ptr<SQLiteIndexSource> m_source;
+        };
+    }
 }

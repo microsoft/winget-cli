@@ -456,6 +456,12 @@
     <ClInclude Include="Microsoft\Schema\SQLiteIndexContextData.h">
       <Filter>Microsoft\Schema</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\SQLiteIndexSourceV1.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\SQLiteIndexSourceV2.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -709,6 +715,12 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\2_0\PackageUpdateTrackingTable.cpp">
       <Filter>Microsoft\Schema\2_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\SQLiteIndexSourceV1.cpp">
+      <Filter>Microsoft</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\SQLiteIndexSourceV2.cpp">
+      <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
