@@ -983,6 +983,11 @@ namespace AppInstaller::MSStore
     {
         Http::HttpClientHelper::HttpRequestHeaders GetAuthHeaders(std::unique_ptr<Authentication::Authenticator>& authenticator)
         {
+            if (!authenticator)
+            {
+                return {};
+            }
+
             Http::HttpClientHelper::HttpRequestHeaders result;
 
             auto authResult = authenticator->AuthenticateForToken();
@@ -1005,14 +1010,21 @@ namespace AppInstaller::MSStore
         AppInstaller::Authentication::AuthenticationArguments authArgs) :
         m_productId(std::move(productId)), m_architecture(architecture), m_platform(platform), m_locale(std::move(locale))
     {
-        Authentication::MicrosoftEntraIdAuthenticationInfo licensingMicrosoftEntraIdAuthInfo;
-        licensingMicrosoftEntraIdAuthInfo.Resource = "c5e1cb0d-5d24-4b1a-b291-ec684152b2ba";
-        Authentication::AuthenticationInfo licensingAuthInfo;
-        licensingAuthInfo.Type = Authentication::AuthenticationType::MicrosoftEntraId;
-        licensingAuthInfo.MicrosoftEntraIdInfo = std::move(licensingMicrosoftEntraIdAuthInfo);
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (!TestHooks::s_Licensing_HttpPipelineStage_Override)
+        {
+#endif
+            Authentication::MicrosoftEntraIdAuthenticationInfo licensingMicrosoftEntraIdAuthInfo;
+            licensingMicrosoftEntraIdAuthInfo.Resource = "c5e1cb0d-5d24-4b1a-b291-ec684152b2ba";
+            Authentication::AuthenticationInfo licensingAuthInfo;
+            licensingAuthInfo.Type = Authentication::AuthenticationType::MicrosoftEntraId;
+            licensingAuthInfo.MicrosoftEntraIdInfo = std::move(licensingMicrosoftEntraIdAuthInfo);
 
-        // Not moving authArgs because we'll have auth for display catalog and sfs client in the near future.
-        m_licensingAuthenticator = std::make_unique<Authentication::Authenticator>(std::move(licensingAuthInfo), authArgs);
+            // Not moving authArgs because we'll have auth for display catalog and sfs client in the near future.
+            m_licensingAuthenticator = std::make_unique<Authentication::Authenticator>(std::move(licensingAuthInfo), authArgs);
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        }
+#endif
     }
 
     MSStoreDownloadInfo MSStoreDownloadContext::GetDownloadInfo()
@@ -1030,13 +1042,6 @@ namespace AppInstaller::MSStore
     std::vector<BYTE> MSStoreDownloadContext::GetLicense()
     {
         THROW_HR_IF_MSG(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_contentId.empty(), "GetDownloadInfo() must be called before GetLicense()");
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        if (TestHooks::s_Licensing_HttpPipelineStage_Override)
-        {
-            return LicensingDetails::GetLicencing(m_contentId, {});
-        }
-#endif
 
         return LicensingDetails::GetLicencing(m_contentId, GetAuthHeaders(m_licensingAuthenticator));
     }
