@@ -94,3 +94,9 @@ TEST_CASE("MsixInfo_ValidateMsixTrustInfo", "[msixinfo]")
         UninstallCertFromSignedPackage(testSigned);
     }
 }
+
+TEST_CASE("MsixInfo_GetPackageVersionFromFullName", "[msixinfo]")
+{
+    REQUIRE(Msix::GetPackageVersionFromFullName("Microsoft.NET.Native.Framework.2.2_2.2.29512.0_arm64__8wekyb3d8bbwe") == Utility::UInt64Version{ "2.2.29512.0" });
+    REQUIRE(Msix::GetPackageVersionFromFullName("Microsoft.DoesNotExist_1.2.3.4_neutral_~_8wekyb3d8bbwe") == Utility::UInt64Version{ "1.2.3.4" });
+}

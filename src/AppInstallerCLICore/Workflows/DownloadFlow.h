@@ -24,6 +24,7 @@ namespace AppInstaller::CLI::Workflow
     void GetInstallerDownloadPath(Execution::Context& context);
 
     // Downloads the file referenced by the Installer.
+    // This workflow task is also used by MSStoreDownload task.
     // Required Args: None
     // Inputs: Installer, Manifest
     // Outputs: HashPair, InstallerPath

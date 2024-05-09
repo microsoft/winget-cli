@@ -259,6 +259,9 @@ namespace TestCommon
         case Settings::ExperimentalFeature::Feature::SideBySide:
             result->Set<Settings::Setting::EFSideBySide>(true);
             break;
+        case Settings::ExperimentalFeature::Feature::StoreDownload:
+            result->Set<Settings::Setting::EFStoreDownload>(true);
+            break;
         default:
             THROW_HR(E_NOTIMPL);
         }

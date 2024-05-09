@@ -146,6 +146,9 @@
     <ClCompile Include="ManifestComparator.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="MSStoreDownloadFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
     <ClCompile Include="MsiExecArguments.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
@@ -616,6 +619,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\DownloadFlowTest_DownloadCommandProhibited.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\DownloadFlowTest_MSStore.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">

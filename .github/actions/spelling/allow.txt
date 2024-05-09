@@ -141,6 +141,7 @@ INSTALLPATH
 INSTALLUILEVEL
 INVALIDARG
 INVALIDSID
+iot
 IPinning
 IPortable
 ISAPPROVEDFOROUTPUT
@@ -255,6 +256,7 @@ resetpins
 resheader
 resmimetype
 RESOLVESOURCE
+RESTAPI
 RESTARTAPPS
 resw
 resx
@@ -398,6 +400,7 @@ wrl
 WTD
 wtypesbase
 Xamarin
+Xbox
 XElement
 Xlang
 XResource

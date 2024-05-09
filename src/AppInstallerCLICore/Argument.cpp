@@ -219,6 +219,10 @@ namespace AppInstaller::CLI
         // Download command
         case Execution::Args::Type::DownloadDirectory:
             return { type, "download-directory"_liv, 'd', ArgTypeCategory::None };
+        case Execution::Args::Type::Platform:
+            return { type, "platform"_liv, ArgTypeCategory::None };
+        case Execution::Args::Type::SkipMicrosoftStorePackageLicense:
+            return { type, "skip-microsoft-store-package-license"_liv, "skip-license"_liv, ArgTypeCategory::None };
 
         // Common arguments
         case Execution::Args::Type::NoVT:
@@ -398,6 +402,10 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::ForceArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::DownloadDirectory:
             return Argument{ type, Resource::String::DownloadDirectoryArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
+        case Args::Type::SkipMicrosoftStorePackageLicense:
+            return Argument{ type, Resource::String::SkipMicrosoftStorePackageLicenseArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help, false };
+        case Args::Type::Platform:
+            return Argument{ type, Resource::String::PlatformArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
         case Args::Type::InstallerType:
             return Argument{ type, Resource::String::InstallerTypeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
         case Args::Type::ResumeId:

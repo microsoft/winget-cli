@@ -11,9 +11,6 @@
 #include <winget/GroupPolicy.h>
 #include <winget/ManifestYamlWriter.h>
 #include <winget/NetworkSettings.h>
-#include <winget/HttpClientHelper.h>
-#include <winget/Rest.h>
-
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -247,14 +244,13 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::MSStore:
                 if (installerDownloadOnly)
                 {
-                    context << MSStoreDownload;
-                    break;
+                    context <<
+                        EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::StoreDownload) <<
+                        MSStoreDownload <<
+                        ExportManifest;
                 }
-                else
-                {
-                    // Nothing to do here
-                    return;
-                }
+
+                return;
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
@@ -619,7 +615,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (context.Args.Contains(Execution::Args::Type::DownloadDirectory))
         {
-            context.Add<Execution::Data::DownloadDirectory>(std::filesystem::path{ context.Args.GetArg(Execution::Args::Type::DownloadDirectory) });
+            context.Add<Execution::Data::DownloadDirectory>(std::filesystem::path{ Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::DownloadDirectory)) });
         }
         else
         {
@@ -631,8 +627,12 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            std::string packageDownloadFolderName = manifest.Id + '_' + manifest.Version;
-            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / packageDownloadFolderName);
+            std::string packageDownloadFolderName = manifest.Id;
+            if (!Utility::Version{ manifest.Version }.IsUnknown())
+            {
+                packageDownloadFolderName += '_' + manifest.Version;
+            }
+            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / Utility::ConvertToUTF16(packageDownloadFolderName));
         }
     }
 
