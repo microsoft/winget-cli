@@ -302,16 +302,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### proxy
-
-This feature enables the use of web proxies.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "proxy": true
-   },
-```
 ### sideBySide
 
 This feature enables experimental improvements for supporting multiple instances of a package being installed on a system.

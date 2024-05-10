@@ -18,7 +18,7 @@ using namespace AppInstaller::Certificates;
 TEST_CASE("ExtractJsonResponse_UnsupportedMimeType", "[RestSource][RestSearch]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, L"", web::http::details::mime_types::text_plain) };
-    REQUIRE_THROWS_HR(helper.HandleGet(L"https://testUri"), APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE);
+    REQUIRE_THROWS_HR(helper.HandleGet(L"https://testUri"), APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE);
 }
 
 TEST_CASE("ValidateAndExtractResponse_ServiceUnavailable", "[RestSource]")
@@ -30,7 +30,7 @@ TEST_CASE("ValidateAndExtractResponse_ServiceUnavailable", "[RestSource]")
 TEST_CASE("ValidateAndExtractResponse_NotFound", "[RestSource]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
-    REQUIRE_THROWS_HR(helper.HandleGet(L"https://testUri"), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
+    REQUIRE_THROWS_HR(helper.HandleGet(L"https://testUri"), APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND);
 }
 
 TEST_CASE("EnsureDefaultUserAgent", "[RestSource]")

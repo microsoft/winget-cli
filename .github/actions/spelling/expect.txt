@@ -108,8 +108,6 @@ dsc
 DUPLICATEALIAS
 dustojnikhummer
 dvinns
-EAppx
-eappxbundle
 ecfr
 ecfrbrowse
 ECustom
@@ -414,6 +412,8 @@ servercertificate
 setmetadatabymanifestid
 SETTINGCHANGE
 SETTINGMAPPING
+sfs
+sfsclient
 SHCONTF
 SHGDN
 SHOWNORMAL
@@ -435,6 +435,7 @@ srs
 startswith
 STARTUPINFOW
 STDMETHODCALLTYPE
+storeapps
 storeorigin
 STRRET
 stylecop

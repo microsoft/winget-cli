@@ -808,7 +808,7 @@ namespace AppInstaller::CLI::Workflow
     }
     CATCH_LOG()
 
-        void ReportARPChanges(Execution::Context& context) try
+    void ReportARPChanges(Execution::Context& context) try
     {
         if (!context.Contains(Execution::Data::ARPCorrelationData))
         {

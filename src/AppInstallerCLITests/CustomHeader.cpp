@@ -95,7 +95,7 @@ TEST_CASE("RestSourceSearch_NoCustomHeader", "[RestSource][CustomHeader]")
     headers.emplace(CustomHeaderName, customHeader);
 
     V1_1::Interface v1_1{ "https://restsource.com/api", std::move(helper), {}, {} };
-    REQUIRE_THROWS_HR(v1_1.Search({}), APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR);
+    REQUIRE_THROWS_HR(v1_1.Search({}), APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR);
 }
 
 TEST_CASE("RestSourceSearch_CustomHeaderExceedingSize", "[RestSource][CustomHeader]")

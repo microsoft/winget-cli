@@ -336,7 +336,21 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MsixArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreAppBlocked);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadAuthenticationNotice);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadDependencyPackages);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadGetDownloadInfo);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadGetDownloadInfoFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadGetLicense);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadGetLicenseFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadGetLicenseSuccess);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadMainPackages);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageDownloaded);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageDownloadFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageDownloadSuccess);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageHashMismatch);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageHashVerified);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadPackageNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreDownloadRenameNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallTryGetEntitlement);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreRepairFailed);
@@ -409,6 +423,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetUseForceArg);
         WINGET_DEFINE_RESOURCE_STRINGID(PinType);
         WINGET_DEFINE_RESOURCE_STRINGID(PinVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(PlatformArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableAliasAdded);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverridden);
@@ -506,6 +521,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallationNotes);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstaller);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerLocale);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerOfflineDistributionSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerProductId);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerReleaseDate);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelInstallerSha256);
@@ -531,6 +547,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleCharAfterDashError);
         WINGET_DEFINE_RESOURCE_STRINGID(SkipDependenciesArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SkipMicrosoftStorePackageLicenseArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsDifferentArg);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsDifferentName);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsMatch);

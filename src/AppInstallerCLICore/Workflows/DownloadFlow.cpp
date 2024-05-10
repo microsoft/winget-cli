@@ -11,9 +11,6 @@
 #include <winget/GroupPolicy.h>
 #include <winget/ManifestYamlWriter.h>
 #include <winget/NetworkSettings.h>
-#include <winget/HttpClientHelper.h>
-#include <winget/Rest.h>
-
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -149,6 +146,16 @@ namespace AppInstaller::CLI::Workflow
             try
             {
                 std::filesystem::remove(path);
+
+                // It is assumed that the parent of the installer path will always be a directory
+                // If it isn't, then something went severely wrong. However, we will check that
+                // it is a directory here just to be safe. If it is an empty directory, remove it.
+
+                if (std::filesystem::is_directory(path.parent_path()) &&
+                    std::filesystem::is_empty(path.parent_path()))
+                {
+                    std::filesystem::remove(path.parent_path());
+                }
             }
             catch (const std::exception& e)
             {
@@ -236,14 +243,13 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::MSStore:
                 if (installerDownloadOnly)
                 {
-                    context << MSStoreDownload;
-                    break;
+                    context <<
+                        EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::StoreDownload) <<
+                        MSStoreDownload <<
+                        ExportManifest;
                 }
-                else
-                {
-                    // Nothing to do here
-                    return;
-                }
+
+                return;
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
@@ -608,7 +614,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (context.Args.Contains(Execution::Args::Type::DownloadDirectory))
         {
-            context.Add<Execution::Data::DownloadDirectory>(std::filesystem::path{ context.Args.GetArg(Execution::Args::Type::DownloadDirectory) });
+            context.Add<Execution::Data::DownloadDirectory>(std::filesystem::path{ Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::DownloadDirectory)) });
         }
         else
         {
@@ -620,8 +626,12 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            std::string packageDownloadFolderName = manifest.Id + '_' + manifest.Version;
-            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / packageDownloadFolderName);
+            std::string packageDownloadFolderName = manifest.Id;
+            if (!Utility::Version{ manifest.Version }.IsUnknown())
+            {
+                packageDownloadFolderName += '_' + manifest.Version;
+            }
+            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / Utility::ConvertToUTF16(packageDownloadFolderName));
         }
     }
 
