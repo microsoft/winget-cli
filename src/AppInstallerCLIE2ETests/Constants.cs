@@ -29,6 +29,7 @@ namespace AppInstallerCLIE2ETests
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
         public const string PowerShellModulePathParameter = "PowerShellModulePath";
         public const string SkipTestSourceParameter = "SkipTestSource";
+        public const string ForcedExperimentalFeaturesParameter = "ForcedExperimentalFeatures";
 
         // Test Sources
         public const string DefaultWingetSourceName = @"winget";

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerProgress.h>
 #include <AppxPackaging.h>
@@ -36,8 +37,8 @@ namespace TestCommon
         TempFile(const TempFile&) = delete;
         TempFile& operator=(const TempFile&) = delete;
 
-        TempFile(TempFile&&) = delete;
-        TempFile& operator=(TempFile&&) = delete;
+        TempFile(TempFile&&) = default;
+        TempFile& operator=(TempFile&&) = default;
 
         ~TempFile();
 
@@ -47,6 +48,8 @@ namespace TestCommon
 
         void Rename(const std::filesystem::path& newFilePath);
 
+        void Release();
+
         static void SetDestructorBehavior(TempFileDestructionBehavior behavior);
 
         static void SetTestFailed(bool failed);
@@ -54,6 +57,7 @@ namespace TestCommon
     protected:
         TempFile() = default;
         std::filesystem::path _filepath;
+        AppInstaller::DestructionToken m_destructionToken{ true };
     };
 
     // Use to create a temporary directory for testing.

@@ -138,16 +138,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         return SearchInternal(connection, updatedRequest);
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
+    std::vector<std::string> Interface::GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const
     {
         switch (property)
         {
         case PackageVersionMultiProperty::PackageFamilyName:
-            return PackageFamilyNameTable::GetValuesByManifestId(connection, manifestId);
+            return PackageFamilyNameTable::GetValuesByManifestId(connection, primaryId);
         case PackageVersionMultiProperty::ProductCode:
-            return ProductCodeTable::GetValuesByManifestId(connection, manifestId);
+            return ProductCodeTable::GetValuesByManifestId(connection, primaryId);
         default:
-            return V1_0::Interface::GetMultiPropertyByManifestId(connection, manifestId, property);
+            return V1_0::Interface::GetMultiPropertyByPrimaryId(connection, primaryId, property);
         }
     }
 

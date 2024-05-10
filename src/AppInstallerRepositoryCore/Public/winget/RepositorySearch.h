@@ -269,6 +269,9 @@ namespace AppInstaller::Repository
         // Determines if a well defined key (this one) is matched by the provided key.
         // The provided key may use empty values to indicate no specific matching requirements.
         bool IsMatch(const PackageVersionKey& other) const;
+
+        // Determines if this version is the simple "latest" targeting version (version and channel are both empty).
+        bool IsDefaultLatest() const;
     };
 
     // A property of a package.
@@ -283,7 +286,8 @@ namespace AppInstaller::Repository
     {
         TestPackage,
         RestPackage,
-        SQLitePackage,
+        SQLitePackage1,
+        SQLitePackage2,
         PinnablePackage,
         CompositeInstalledPackage,
     };

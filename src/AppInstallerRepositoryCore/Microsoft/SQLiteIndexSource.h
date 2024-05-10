@@ -3,7 +3,7 @@
 #pragma once
 #include "Microsoft/SQLiteIndex.h"
 #include "ISource.h"
-
+#include <winget/FileCache.h>
 #include <memory>
 
 
@@ -57,6 +57,8 @@ namespace AppInstaller::Repository::Microsoft
         SourceDetails m_details;
         bool m_requireManifestHash;
         bool m_isInstalled;
+        std::shared_ptr<Caching::FileCache> m_manifestCache;
+        std::shared_ptr<Caching::FileCache> m_packageVersionDataCache;
 
     protected:
         SQLiteIndex m_index;
@@ -79,4 +81,19 @@ namespace AppInstaller::Repository::Microsoft
         // Removes a package version from the source.
         void RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);
     };
+
+    namespace details
+    {
+        // For the IPackage(Version) implementations that need to hold a weak reference to a SQLiteIndexSource.
+        struct SourceReference
+        {
+            SourceReference(const std::shared_ptr<SQLiteIndexSource>& source);
+
+        protected:
+            std::shared_ptr<SQLiteIndexSource> GetReferenceSource() const;
+
+        private:
+            std::weak_ptr<SQLiteIndexSource> m_source;
+        };
+    }
 }

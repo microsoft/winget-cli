@@ -87,16 +87,19 @@ namespace TestCommon
 
     TempFile::~TempFile() try
     {
-        switch (s_TempFileDestructorBehavior)
+        if (m_destructionToken)
         {
-        case TempFileDestructionBehavior::Delete:
-            std::filesystem::remove_all(_filepath);
-            break;
-        case TempFileDestructionBehavior::Keep:
-            break;
-        case TempFileDestructionBehavior::ShellExecuteOnFailure:
-            s_TempFilesOnFile.emplace_back(std::move(_filepath));
-            break;
+            switch (s_TempFileDestructorBehavior)
+            {
+            case TempFileDestructionBehavior::Delete:
+                std::filesystem::remove_all(_filepath);
+                break;
+            case TempFileDestructionBehavior::Keep:
+                break;
+            case TempFileDestructionBehavior::ShellExecuteOnFailure:
+                s_TempFilesOnFile.emplace_back(std::move(_filepath));
+                break;
+            }
         }
     }
     CATCH_LOG_RETURN()
@@ -105,6 +108,11 @@ namespace TestCommon
     {
         std::filesystem::rename(GetPath(), newFilePath);
         _filepath = newFilePath;
+    }
+
+    void TempFile::Release()
+    {
+        m_destructionToken = false;
     }
 
     void TempFile::SetDestructorBehavior(TempFileDestructionBehavior behavior)

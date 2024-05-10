@@ -515,19 +515,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         return resultsTable->GetSearchResults(request.MaximumResults);
     }
 
-    std::optional<std::string> Interface::GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const
+    std::optional<std::string> Interface::GetPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionProperty property) const
     {
-        return GetPropertyByManifestIdInternal(connection, manifestId, property);
+        return GetPropertyByManifestIdInternal(connection, primaryId, property);
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t rowid, PackageVersionMultiProperty property) const
+    std::vector<std::string> Interface::GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const
     {
         switch (property)
         {
         case PackageVersionMultiProperty::Tag:
-            return TagsTable::GetValuesByManifestId(connection, rowid);
+            return TagsTable::GetValuesByManifestId(connection, primaryId);
         case PackageVersionMultiProperty::Command:
-            return CommandsTable::GetValuesByManifestId(connection, rowid);
+            return CommandsTable::GetValuesByManifestId(connection, primaryId);
         default:
             return {};
         }

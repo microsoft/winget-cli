@@ -102,7 +102,8 @@
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
     <VcpkgApplocalDeps>false</VcpkgApplocalDeps>
     <VcpkgInstalledDir>$(ProjectDir)..\vcpkg_installed</VcpkgInstalledDir>
-    <VcpkgUseStatic></VcpkgUseStatic>
+    <VcpkgUseStatic>
+    </VcpkgUseStatic>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <VcpkgTriplet>arm</VcpkgTriplet>
@@ -251,6 +252,7 @@
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="ExportFlow.cpp" />
+    <ClCompile Include="FileCache.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FolderFileWatcher.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />

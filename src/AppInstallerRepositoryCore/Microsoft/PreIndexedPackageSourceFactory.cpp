@@ -11,6 +11,7 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerMsixInfo.h>
 #include <winget/ManagedFile.h>
+#include <winget/ExperimentalFeature.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -20,6 +21,7 @@ namespace AppInstaller::Repository::Microsoft
     namespace
     {
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageFileName = "source.msix"sv;
+        static constexpr std::string_view s_PreIndexedPackageSourceFactory_V2_PackageFileName = "source2.msix"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_PackageVersionHeader = "x-ms-meta-sourceversion"sv;
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFileName = "index.db"sv;
         // TODO: This being hard coded to force using the Public directory name is not ideal.
@@ -38,17 +40,31 @@ namespace AppInstaller::Repository::Microsoft
             return result;
         }
 
-        std::string GetPrimaryPackageLocation(const SourceDetails& details, std::string_view fileName)
+        // Gets the set of package locations that should be tried, in order.
+        std::vector<std::string> GetPackageLocations(const SourceDetails& details)
         {
             THROW_HR_IF(E_INVALIDARG, details.Arg.empty());
-            return GetPackageLocation(details.Arg, fileName);
-        }
 
-        std::string GetAlternatePackageLocation(const SourceDetails& details, std::string_view fileName)
-        {
-            return (details.AlternateArg.empty() ?
-                std::string{} :
-                GetPackageLocation(details.AlternateArg, fileName));
+            std::vector<std::string> result;
+
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::IndexV2))
+            {
+                result.emplace_back(GetPackageLocation(details.Arg, s_PreIndexedPackageSourceFactory_V2_PackageFileName));
+            }
+
+            result.emplace_back(GetPackageLocation(details.Arg, s_PreIndexedPackageSourceFactory_PackageFileName));
+
+            if (!details.AlternateArg.empty())
+            {
+                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::IndexV2))
+                {
+                    result.emplace_back(GetPackageLocation(details.AlternateArg, s_PreIndexedPackageSourceFactory_V2_PackageFileName));
+                }
+
+                result.emplace_back(GetPackageLocation(details.AlternateArg, s_PreIndexedPackageSourceFactory_PackageFileName));
+            }
+
+            return result;
         }
 
         // Abstracts the fallback for package location when the MsixInfo is needed.
@@ -57,44 +73,34 @@ namespace AppInstaller::Repository::Microsoft
             template <typename LocationCheck>
             PreIndexedPackageInfo(const SourceDetails& details, LocationCheck&& locationCheck)
             {
-                // Get both locations to force the alternate location check
-                m_packageLocation = GetPrimaryPackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
-                locationCheck(m_packageLocation);
+                std::vector<std::string> potentialLocations = GetPackageLocations(details);
 
-                std::string alternateLocation = GetAlternatePackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
-                if (!alternateLocation.empty())
+                for (const auto& location : potentialLocations)
                 {
-                    locationCheck(alternateLocation);
+                    locationCheck(location);
                 }
 
-                // Try getting the primary location's info
-                HRESULT primaryHR = S_OK;
+                std::exception_ptr primaryException;
 
-                try
+                for (const auto& location : potentialLocations)
                 {
-                    m_msixInfo = std::make_unique<Msix::MsixInfo>(m_packageLocation);
-                    return;
-                }
-                catch (...)
-                {
-                    if (alternateLocation.empty())
+                    try
                     {
-                        throw;
+                        m_msixInfo = std::make_unique<Msix::MsixInfo>(location);
+                        m_packageLocation = location;
+                        return;
                     }
-                    primaryHR = LOG_CAUGHT_EXCEPTION_MSG("PreIndexedPackageInfo failed on primary location");
+                    catch (...)
+                    {
+                        LOG_CAUGHT_EXCEPTION_MSG("PreIndexedPackageInfo failed on location: %hs", location.c_str());
+                        if (!primaryException)
+                        {
+                            primaryException = std::current_exception();
+                        }
+                    }
                 }
 
-                // Try alternate location
-                m_packageLocation = std::move(alternateLocation);
-
-                try
-                {
-                    m_msixInfo = std::make_unique<Msix::MsixInfo>(m_packageLocation);
-                    return;
-                }
-                CATCH_LOG_MSG("PreIndexedPackageInfo failed on alternate location");
-
-                THROW_HR(primaryHR);
+                std::rethrow_exception(primaryException);
             }
 
             const std::string& PackageLocation() const { return m_packageLocation; }
@@ -110,36 +116,27 @@ namespace AppInstaller::Repository::Microsoft
         {
             PreIndexedPackageUpdateCheck(const SourceDetails& details)
             {
-                m_packageLocation = GetPrimaryPackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
-                std::string alternateLocation = GetAlternatePackageLocation(details, s_PreIndexedPackageSourceFactory_PackageFileName);
+                std::vector<std::string> potentialLocations = GetPackageLocations(details);
 
-                // Try getting the primary location's info
                 std::exception_ptr primaryException;
 
-                try
+                for (const auto& location : potentialLocations)
                 {
-                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation);
-                    return;
-                }
-                catch (...)
-                {
-                    if (alternateLocation.empty())
+                    try
                     {
-                        throw;
+                        m_availableVersion = GetAvailableVersionFrom(location);
+                        m_packageLocation = location;
+                        return;
                     }
-                    LOG_CAUGHT_EXCEPTION_MSG("PreIndexedPackageUpdateCheck failed on primary location");
-                    primaryException = std::current_exception();
+                    catch (...)
+                    {
+                        LOG_CAUGHT_EXCEPTION_MSG("PreIndexedPackageUpdateCheck failed on location: %hs", location.c_str());
+                        if (!primaryException)
+                        {
+                            primaryException = std::current_exception();
+                        }
+                    }
                 }
-
-                // Try alternate location
-                m_packageLocation = std::move(alternateLocation);
-
-                try
-                {
-                    m_availableVersion = GetAvailableVersionFrom(m_packageLocation);
-                    return;
-                }
-                CATCH_LOG_MSG("PreIndexedPackageUpdateCheck failed on alternate location");
 
                 std::rethrow_exception(primaryException);
             }

@@ -667,6 +667,9 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="useGroupPolicyForTestSource">Use group policy.</param>
         public static void SetupTestSource(bool useGroupPolicyForTestSource = false)
         {
+            // Remove the test source so that its package is also removed.
+            RunAICLICommand("source remove", Constants.TestSourceName);
+
             RunAICLICommand("source reset", "--force");
             RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
             RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);

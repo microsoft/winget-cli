@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace WinGetSourceCreator.Model
@@ -64,12 +64,20 @@ namespace WinGetSourceCreator.Model
 
         public string GetIndexName()
         {
-            return $"index.db";
+            return "index.db";
         }
 
-        public string GetSourceName()
+        public string GetSourceName(int version)
         {
-            return "source.msix";
+            switch (version)
+            {
+                case 1:
+                    return "source.msix";
+                case 2:
+                    return "source2.msix";
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(version), version, "Unknown source major version");
         }
     }
 }

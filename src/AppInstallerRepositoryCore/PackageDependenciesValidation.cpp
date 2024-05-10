@@ -141,7 +141,7 @@ namespace AppInstaller::Repository
                     [&](std::pair<SQLite::rowid_t, Utility::NormalizedString> row)
                     {
                         auto manifestRowId = index->GetManifestIdByKey(row.first, "", "");
-                        auto packageId = index->GetPropertyByManifestId(manifestRowId.value(), PackageVersionProperty::Id);
+                        auto packageId = index->GetPropertyByPrimaryId(manifestRowId.value(), PackageVersionProperty::Id);
                         Dependency dep(DependencyType::Package, packageId.value(), row.second);
                         depList.Add(dep);
                     });
@@ -183,8 +183,8 @@ namespace AppInstaller::Repository
             [&](std::pair<SQLite::rowid_t, Utility::Version> current)
             {
                 DependentManifestInfo dependentManifestInfo;
-                dependentManifestInfo.Id = index->GetPropertyByManifestId(current.first, PackageVersionProperty::Id).value();
-                dependentManifestInfo.Version = index->GetPropertyByManifestId(current.first, PackageVersionProperty::Version).value();
+                dependentManifestInfo.Id = index->GetPropertyByPrimaryId(current.first, PackageVersionProperty::Id).value();
+                dependentManifestInfo.Version = index->GetPropertyByPrimaryId(current.first, PackageVersionProperty::Version).value();
 
                 dependentManifestInfoToVersionPair.emplace_back(std::make_pair(dependentManifestInfo, current.second));
             });

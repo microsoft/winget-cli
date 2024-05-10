@@ -172,5 +172,95 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             return countStatement.GetColumn<int>(0) == 0;
         }
+
+        int SystemReferenceStringTableBuildSearchStatement(
+            SQLite::Builder::StatementBuilder& builder,
+            std::string_view tableName,
+            std::string_view valueName,
+            std::string_view primaryAlias,
+            std::string_view valueAlias,
+            bool useLike)
+        {
+            using QCol = SQLite::Builder::QualifiedColumn;
+
+            // Build a statement like:
+            //      SELECT table.package as p, table.value as v from table
+            //      where table.value = <value>
+            builder.Select().
+                Column(s_SystemReferenceStringTable_PrimaryName).As(primaryAlias).
+                Column(valueName).As(valueAlias).
+                From(tableName).
+                Where(valueName);
+
+            int result = -1;
+
+            if (useLike)
+            {
+                builder.Like(SQLite::Builder::Unbound);
+                result = builder.GetLastBindIndex();
+                builder.Escape(SQLite::EscapeCharForLike);
+            }
+            else
+            {
+                builder.Equals(SQLite::Builder::Unbound);
+                result = builder.GetLastBindIndex();
+            }
+
+            return result;
+        }
+
+        std::vector<int> SystemReferenceStringTableBuildPairedSearchStatement(
+            SQLite::Builder::StatementBuilder& builder,
+            std::string_view tableName,
+            std::string_view valueName,
+            std::string_view pairedTableName,
+            std::string_view pairedValueName,
+            std::string_view primaryAlias,
+            std::string_view valueAlias,
+            bool useLike)
+        {
+            using QCol = SQLite::Builder::QualifiedColumn;
+
+            // Build a statement like:
+            //      SELECT table.package as p, '' as v from table
+            //      join paired on table.package = paired.package
+            //      where table.value = <value1> and paired.pairedValue = <value2>
+            builder.Select().
+                Column(QCol(tableName, s_SystemReferenceStringTable_PrimaryName)).As(primaryAlias).
+                LiteralColumn("").As(valueAlias).
+                From(tableName).
+                Join(pairedTableName).On(QCol(tableName, s_SystemReferenceStringTable_PrimaryName), QCol(pairedTableName, s_SystemReferenceStringTable_PrimaryName)).
+                Where(QCol(tableName, valueName));
+
+            std::vector<int> result;
+
+            if (useLike)
+            {
+                builder.Like(SQLite::Builder::Unbound);
+                result.push_back(builder.GetLastBindIndex());
+                builder.Escape(SQLite::EscapeCharForLike);
+            }
+            else
+            {
+                builder.Equals(SQLite::Builder::Unbound);
+                result.push_back(builder.GetLastBindIndex());
+            }
+
+            builder.And(QCol(pairedTableName, pairedValueName));
+
+            if (useLike)
+            {
+                builder.Like(SQLite::Builder::Unbound);
+                result.push_back(builder.GetLastBindIndex());
+                builder.Escape(SQLite::EscapeCharForLike);
+            }
+            else
+            {
+                builder.Equals(SQLite::Builder::Unbound);
+                result.push_back(builder.GetLastBindIndex());
+            }
+
+            return result;
+        }
     }
 }

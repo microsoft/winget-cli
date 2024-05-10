@@ -144,6 +144,20 @@ namespace AppInstaller::Repository
         // for the default (first) available package. If we ever need to consider other sources, this function needs to be revisited.
         std::string GetMappedInstalledVersion(const std::string& installedVersion, const std::shared_ptr<IPackage>& availablePackage)
         {
+            // Perform an initial check to see if the latest version has a mapping; if it does not, do not attempt any more.
+            auto latestVersion = availablePackage->GetLatestVersion();
+            if (latestVersion)
+            {
+                auto version = latestVersion->GetProperty(PackageVersionProperty::Version);
+                auto arpMinVersion = latestVersion->GetProperty(PackageVersionProperty::ArpMinVersion);
+                auto arpMaxVersion = latestVersion->GetProperty(PackageVersionProperty::ArpMaxVersion);
+
+                if ((arpMinVersion.empty() || arpMinVersion == version) && (arpMaxVersion.empty() || arpMaxVersion == version))
+                {
+                    return installedVersion;
+                }
+            }
+
             // Stores raw versions value strings to run a preliminary check whether version mapping is needed.
             std::vector<std::tuple<std::string, std::string, std::string>> rawVersionValues;
             auto versionKeys = availablePackage->GetVersionKeys();

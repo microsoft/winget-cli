@@ -75,6 +75,7 @@ namespace AppInstaller::Settings
         EFSideBySide,
         EFConfigureSelfElevation,
         EFStoreDownload,
+        EFIndexV2,
         EFConfigureExport,
         // Telemetry
         TelemetryDisable,
@@ -148,7 +149,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::ProgressBarVisualStyle, std::string, VisualStyle, VisualStyle::Accent, ".visual.progressBar"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::AnonymizePathForDisplay, bool, bool, true, ".visual.anonymizeDisplayedPaths"sv);
         // Source
-        SETTINGMAPPING_SPECIALIZATION_POLICY(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv, ValuePolicy::SourceAutoUpdateIntervalInMinutes);
+        SETTINGMAPPING_SPECIALIZATION_POLICY(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 15min, ".source.autoUpdateIntervalInMinutes"sv, ValuePolicy::SourceAutoUpdateIntervalInMinutes);
         // Experimental
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalCmd, bool, bool, false, ".experimentalFeatures.experimentalCmd"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
@@ -158,6 +159,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFSideBySide, bool, bool, false, ".experimentalFeatures.sideBySide"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureSelfElevation, bool, bool, false, ".experimentalFeatures.configureSelfElevate"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFStoreDownload, bool, bool, false, ".experimentalFeatures.storeDownload"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFIndexV2, bool, bool, false, ".experimentalFeatures.indexV2"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureExport, bool, bool, false, ".experimentalFeatures.configureExport"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);

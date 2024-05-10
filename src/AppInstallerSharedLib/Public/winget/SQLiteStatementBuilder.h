@@ -114,21 +114,33 @@ namespace AppInstaller::SQLite::Builder
         Integer, // Type for specifying a primary key column as a row id alias.
     };
 
-    template <Type type>
+    template <Type type, bool allowNull>
     struct TypeInfo
     {
     };
 
     template <>
-    struct TypeInfo<Type::Text>
+    struct TypeInfo<Type::Text, false>
     {
         using value_t = std::string;
     };
 
     template <>
-    struct TypeInfo<Type::Blob>
+    struct TypeInfo<Type::Text, true>
+    {
+        using value_t = std::optional<std::string>;
+    };
+
+    template <>
+    struct TypeInfo<Type::Blob, false>
     {
         using value_t = SQLite::blob_t;
+    };
+
+    template <>
+    struct TypeInfo<Type::Blob, true>
+    {
+        using value_t = std::optional<SQLite::blob_t>;
     };
 
     // Aggregate functions.
