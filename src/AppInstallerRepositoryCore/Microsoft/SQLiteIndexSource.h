@@ -84,7 +84,7 @@ namespace AppInstaller::Repository::Microsoft
 
     namespace details
     {
-        // The base for the package objects.
+        // For the IPackage(Version) implementations that need to hold a weak reference to a SQLiteIndexSource.
         struct SourceReference
         {
             SourceReference(const std::shared_ptr<SQLiteIndexSource>& source);
