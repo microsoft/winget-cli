@@ -419,9 +419,9 @@ namespace AppInstaller::CLI
         case Args::Type::TargetVersion:
             return Argument{ type, Resource::String::TargetVersionArgumentDescription, ArgumentType::Standard };
         case Args::Type::Proxy:
-            return Argument{ type, Resource::String::ProxyArgumentDescription, ArgumentType::Standard, ExperimentalFeature::Feature::Proxy, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
+            return Argument{ type, Resource::String::ProxyArgumentDescription, ArgumentType::Standard, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         case Args::Type::NoProxy:
-            return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Proxy, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
+            return Argument{ type, Resource::String::NoProxyArgumentDescription, ArgumentType::Flag, TogglePolicy::Policy::ProxyCommandLineOptions, BoolAdminSetting::ProxyCommandLineOptions };
         default:
             THROW_HR(E_UNEXPECTED);
         }

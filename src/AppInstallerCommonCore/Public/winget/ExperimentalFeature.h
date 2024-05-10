@@ -25,11 +25,10 @@ namespace AppInstaller::Settings
             DirectMSI = 0x1,
             Resume = 0x2,
             Configuration03 = 0x4,
-            Proxy = 0x8,
-            SideBySide = 0x10,
-            ConfigureSelfElevation = 0x20,
-            StoreDownload = 0x40,
-            ConfigureExport = 0x80,
+            SideBySide = 0x8,
+            ConfigureSelfElevation = 0x10,
+            StoreDownload = 0x20,
+            ConfigureExport = 0x40,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command
