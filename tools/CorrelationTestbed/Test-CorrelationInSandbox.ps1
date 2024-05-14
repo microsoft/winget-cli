@@ -172,50 +172,16 @@ $apiLatestUrl = 'https://api.github.com/repos/microsoft/winget-cli/releases/late
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $WebClient = New-Object System.Net.WebClient
 
-function Get-LatestUrl {
-  ((Invoke-WebRequest $apiLatestUrl -UseBasicParsing | ConvertFrom-Json).assets | Where-Object { $_.name -match '^Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle$' }).browser_download_url
-}
-
-function Get-LatestHash {
-  $shaUrl = ((Invoke-WebRequest $apiLatestUrl -UseBasicParsing | ConvertFrom-Json).assets | Where-Object { $_.name -match '^Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.txt$' }).browser_download_url
-
-  $shaFile = Join-Path -Path $tempFolder -ChildPath 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.txt'
-  $WebClient.DownloadFile($shaUrl, $shaFile)
-
-  Get-Content $shaFile
-}
-
-# Hide the progress bar of Invoke-WebRequest
-$oldProgressPreference = $ProgressPreference
-$ProgressPreference = 'SilentlyContinue'
-
-$desktopAppInstaller = @{
-  fileName = 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'
-  url      = $(Get-LatestUrl)
-  hash     = $(Get-LatestHash)
-}
-
-$ProgressPreference = $oldProgressPreference
-
 $vcLibsUwp = @{
   fileName = 'Microsoft.VCLibs.x64.14.00.Desktop.appx'
   url      = 'https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx'
   hash     = '9BFDE6CFCC530EF073AB4BC9C4817575F63BE1251DD75AAA58CB89299697A569'
   folderInLocal = Join-Path ${env:ProgramFiles(x86)} "Microsoft SDKs\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs.Desktop\14.0\Appx\Retail\x64"
 }
-$uiLibsUwp = @{
-  fileName = 'Microsoft.UI.Xaml.2.7.zip'
-  url = 'https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml/2.7.0'
-  hash = "422FD24B231E87A842C4DAEABC6A335112E0D35B86FAC91F5CE7CF327E36A591"
-}
 
 if ($UseDev)
 {
   $dependencies = @($vcLibsUwp)
-}
-else
-{
-  $dependencies = @($desktopAppInstaller, $vcLibsUwp, $uiLibsUwp)
 }
 
 # Clean temp directory
@@ -271,20 +237,6 @@ foreach ($dependency in $dependencies)
   }
 }
 
-if (-not $UseDev)
-{
-  # Extract Microsoft.UI.Xaml from zip (if freshly downloaded).
-  # This is a workaround until https://github.com/microsoft/winget-cli/issues/1861 is resolved.
-
-  if (-Not (Test-Path (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)))
-  {
-    Expand-Archive -Path $uiLibsUwp.file -DestinationPath ($tempFolder + "\Microsoft.UI.Xaml.2.7") -Force
-  }
-  $uiLibsUwp.file = (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
-  $uiLibsUwp.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
-  Write-Host
-}
-
 if ($MetadataCollection)
 { 
   Copy-Item -Path $WingetUtilPath -Destination $tempFolder -Force
@@ -309,20 +261,12 @@ foreach ($packageIdentifier in $PackageIdentifiers)
     {
       $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)')"
     }
-    else
-    {
-      $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)', '$($uiLibsUwp.pathInSandbox)')"
-    }
 
     $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox' -System32Path '$system32PathInSandbox'"
 
     if ($UseDev)
     {
       $bootstrapPs1Content += " -UseDev"
-    }
-    else
-    {
-      $bootstrapPs1Content += " -DesktopAppInstallerPath '$($desktopAppInstaller.pathInSandbox)'"
     }
     
     if ($MetadataCollection)
