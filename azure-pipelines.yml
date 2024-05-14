@@ -349,7 +349,7 @@ jobs:
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
       diagnosticsEnabled: true
-    condition: and(succeededOrFailed(), eq(variables.buildPlatform, 'x86'))
+    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
