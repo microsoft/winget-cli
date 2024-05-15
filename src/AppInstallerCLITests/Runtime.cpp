@@ -7,6 +7,7 @@
 #include <winget/Filesystem.h>
 
 using namespace AppInstaller;
+using namespace AppInstaller::Filesystem;
 using namespace AppInstaller::Runtime;
 using namespace TestCommon;
 

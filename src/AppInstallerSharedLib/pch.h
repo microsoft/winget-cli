@@ -4,6 +4,7 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <AclAPI.h>
 #include <appmodel.h>
 #include <icu.h>
 #include <sddl.h>
@@ -32,6 +33,7 @@
 #include <functional>
 #include <iomanip>
 #include <limits>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <optional>

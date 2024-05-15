@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #pragma once
 #include <filesystem>
+#include <map>
+#include <optional>
 #include <shtypes.h>
 
 namespace AppInstaller::Filesystem
@@ -46,4 +48,59 @@ namespace AppInstaller::Filesystem
 
     // Verifies that the paths are on the same volume.
     bool IsSameVolume(const std::filesystem::path& path1, const std::filesystem::path& path2);
+
+    // The principal that an ACE applies to.
+    enum class ACEPrincipal : uint32_t
+    {
+        CurrentUser,
+        Admins,
+        System,
+    };
+
+    // The permissions granted to a specific ACE.
+    enum class ACEPermissions : uint32_t
+    {
+        // This is not "Deny All", but rather, "Not mentioned"
+        None = 0x0,
+        Read = 0x1,
+        Write = 0x2,
+        Execute = 0x4,
+        ReadWrite = Read | Write,
+        ReadExecute = Read | Execute,
+        ReadWriteExecute = Read | Write | Execute,
+        // All means that full control will be granted
+        All = 0xFFFFFFFF
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ACEPermissions);
+
+    // Information about a path that we use and how to set it up.
+    struct PathDetails
+    {
+        std::filesystem::path Path;
+        // Default to creating the directory with inherited ownership and permissions
+        bool Create = true;
+        std::optional<ACEPrincipal> Owner;
+        std::map<ACEPrincipal, ACEPermissions> ACL;
+
+        // Shorthand for setting Owner and giving them ACEPermissions::All
+        void SetOwner(ACEPrincipal owner);
+
+        // Determines if the ACL should be applied.
+        bool ShouldApplyACL() const;
+
+        // Applies the ACL unconditionally.
+        void ApplyACL() const;
+    };
+
+    // Initializes from the given details and returns the path to it.
+    // The path is moved out of the details.
+    std::filesystem::path InitializeAndGetPathTo(PathDetails&& details);
+
+    // Gets the path to the requested location.
+    template <class PathEnum>
+    std::filesystem::path GetPathTo(PathEnum path, bool forDisplay = false)
+    {
+        return InitializeAndGetPathTo(GetPathDetailsFor(path, forDisplay));
+    }
 }
