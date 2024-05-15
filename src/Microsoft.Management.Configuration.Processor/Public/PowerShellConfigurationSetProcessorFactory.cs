@@ -8,9 +8,7 @@ namespace Microsoft.Management.Configuration.Processor
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.IO;
-    using System.Linq;
     using System.Management.Automation;
     using System.Runtime.CompilerServices;
     using System.Text;

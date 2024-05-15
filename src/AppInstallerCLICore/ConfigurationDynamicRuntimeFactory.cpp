@@ -14,6 +14,27 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 {
     namespace anonymous
     {
+#ifndef DISABLE_TEST_HOOKS
+        constexpr std::wstring_view DisableRunAsGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
+        constexpr std::wstring_view DisableSerialization = L"02f64b7d-6c2e-43fa-87dd-1f265800681d";
+
+        // Checks for a specific guid to control the behavior of a specific flow.
+        bool GetBehaviorForTestGuid(ConfigurationSet configurationSet, const std::wstring_view& testGuid)
+        {
+            auto disableRunAsBehavior = configurationSet.Metadata().TryLookup(testGuid);
+            if (disableRunAsBehavior)
+            {
+                auto disableRunAsProperty = disableRunAsBehavior.try_as<IPropertyValue>();
+                if (disableRunAsProperty && disableRunAsProperty.Type() == PropertyType::Boolean)
+                {
+                    return disableRunAsProperty.GetBoolean();
+                }
+            }
+
+            return false;
+        }
+#endif
+
         struct DynamicProcessorInfo
         {
             IConfigurationSetProcessorFactory Factory;
@@ -138,7 +159,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 std::vector<ConfigurationUnit> highIntegrityUnits;
                 auto units = m_configurationSet.Units();
 
-                for (auto unit : units)
+                for (auto unit : units) 
                 {
                     if (unit.IsActive() && GetIntegrityLevelForUnit(unit) == Security::IntegrityLevel::High)
                     {
@@ -172,7 +193,16 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // If we got here, the only option is that the current integrity level is not High.
                 if (integrityLevel == Security::IntegrityLevel::High)
                 {
-                    factory = CreateOutOfProcessFactory(true, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
+                    bool useRunAs = true;
+
+#ifndef DISABLE_TEST_HOOKS
+                    if (GetBehaviorForTestGuid(m_configurationSet, DisableRunAsGuid))
+                    {
+                        useRunAs = false;
+                    }
+#endif
+
+                    factory = CreateOutOfProcessFactory(useRunAs, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
                 }
                 else
                 {

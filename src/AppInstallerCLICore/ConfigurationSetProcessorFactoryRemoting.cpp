@@ -190,9 +190,16 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 execInfo.lpParameters = arguments.c_str();
                 execInfo.nShow = SW_HIDE;
 
-                if (useRunAs)
+                if (useRunAs &&
+#ifndef DISABLE_TEST_HOOKS // Always set to false so that userunAs is never included for unit tests.
+                    true
+#elif
+                    true
+#endif
+                )
                 {
                     execInfo.lpVerb = L"runas";
+                    AICLI_LOG(Config, Verbose, << "Process set with runas verb.");
                 }
 
                 THROW_LAST_ERROR_IF(!ShellExecuteExW(&execInfo) || !execInfo.hProcess);

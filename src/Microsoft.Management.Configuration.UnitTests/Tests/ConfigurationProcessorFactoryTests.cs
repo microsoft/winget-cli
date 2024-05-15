@@ -10,7 +10,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
-    using Moq;
     using WinRT;
     using Xunit;
     using Xunit.Abstractions;
