@@ -15,19 +15,19 @@ namespace AppInstaller::CLI::ConfigurationRemoting
     namespace anonymous
     {
 #ifndef DISABLE_TEST_HOOKS
-        constexpr std::wstring_view DisableRunAsGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
-        constexpr std::wstring_view DisableSerialization = L"02f64b7d-6c2e-43fa-87dd-1f265800681d";
+        constexpr std::wstring_view DisableRunAsTestGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
+        constexpr std::wstring_view DisableHighIntegritySetSerializationTestGuid = L"02f64b7d-6c2e-43fa-87dd-1f265800681d";
 
-        // Checks for a specific guid to control the behavior of a specific flow.
-        bool GetBehaviorForTestGuid(ConfigurationSet configurationSet, const std::wstring_view& testGuid)
+        // Checks the configuration set metadata for a specific test guid that controls the behavior flow.
+        bool GetTestBehavior(const ConfigurationSet& configurationSet, const std::wstring_view& testGuid)
         {
-            auto disableRunAsBehavior = configurationSet.Metadata().TryLookup(testGuid);
-            if (disableRunAsBehavior)
+            auto testBehavior = configurationSet.Metadata().TryLookup(testGuid);
+            if (testBehavior)
             {
-                auto disableRunAsProperty = disableRunAsBehavior.try_as<IPropertyValue>();
-                if (disableRunAsProperty && disableRunAsProperty.Type() == PropertyType::Boolean)
+                auto testBehaviorProperty = testBehavior.try_as<IPropertyValue>();
+                if (testBehaviorProperty && testBehaviorProperty.Type() == PropertyType::Boolean)
                 {
-                    return disableRunAsProperty.GetBoolean();
+                    return testBehaviorProperty.GetBoolean();
                 }
             }
 
@@ -161,7 +161,13 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 for (auto unit : units) 
                 {
-                    if (unit.IsActive() && GetIntegrityLevelForUnit(unit) == Security::IntegrityLevel::High)
+                    if (unit.IsActive() && GetIntegrityLevelForUnit(unit) == Security::IntegrityLevel::High &&
+#ifndef DISABLE_TEST_HOOKS
+                        !GetTestBehavior(m_configurationSet, DisableHighIntegritySetSerializationTestGuid)
+#elif
+                        true
+#endif
+                        )
                     {
                         highIntegrityUnits.emplace_back(unit);
                     }
@@ -196,7 +202,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     bool useRunAs = true;
 
 #ifndef DISABLE_TEST_HOOKS
-                    if (GetBehaviorForTestGuid(m_configurationSet, DisableRunAsGuid))
+                    if (GetTestBehavior(m_configurationSet, DisableRunAsTestGuid))
                     {
                         useRunAs = false;
                     }

@@ -7,13 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.CodeAnalysis;
-    using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
@@ -54,34 +48,43 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Version version = new Version("0.0.0.1");
 
             ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.Metadata.Add(Helpers.Constants.DisableRunAsTestGuid, true);
 
-            ConfigurationUnit configurationUnit1 = this.ConfigurationUnit();
-            configurationUnit1.Metadata.Add("securityContext", "elevated");
-            configurationUnit1.Metadata.Add("version", version.ToString());
-            configurationUnit1.Metadata.Add("module", moduleName);
-            configurationUnit1.Metadata.Add("secretCode", "123456789");
-            configurationUnit1.Type = resourceName;
-            configurationUnit1.Intent = ConfigurationUnitIntent.Apply;
+            ConfigurationUnit elevationRequiredUnit = this.ConfigurationUnit();
+            elevationRequiredUnit.Metadata.Add("securityContext", "elevated");
+            elevationRequiredUnit.Metadata.Add("version", version.ToString());
+            elevationRequiredUnit.Metadata.Add("module", moduleName);
+            elevationRequiredUnit.Metadata.Add("secretCode", "123456789");
+            elevationRequiredUnit.Type = resourceName;
+            elevationRequiredUnit.Intent = ConfigurationUnitIntent.Apply;
 
-            ConfigurationUnit configurationUnit2 = this.ConfigurationUnit();
-            configurationUnit2.Metadata.Add("version", version.ToString());
-            configurationUnit2.Metadata.Add("module", moduleName);
-            configurationUnit2.Metadata.Add("secretCode", "123456789");
-            configurationUnit2.Type = resourceName;
-            configurationUnit2.Intent = ConfigurationUnitIntent.Apply;
+            ConfigurationUnit unit = this.ConfigurationUnit();
+            unit.Metadata.Add("version", version.ToString());
+            unit.Metadata.Add("module", moduleName);
+            unit.Metadata.Add("secretCode", "123456789");
+            unit.Type = resourceName;
+            unit.Intent = ConfigurationUnitIntent.Apply;
 
-            configurationSet.Units = new ConfigurationUnit[] { configurationUnit1, configurationUnit2 };
+            configurationSet.Units = new ConfigurationUnit[] { elevationRequiredUnit, unit };
 
-            IConfigurationSetProcessorFactory dynamicFactory = await this.fixture.ConfigurationStatics.CreateConfigurationSetProcessorFactoryAsync("{73fea39f-6f4a-41c9-ba94-6fd14d633e40}");
+            IConfigurationSetProcessorFactory dynamicFactory = await this.fixture.ConfigurationStatics.CreateConfigurationSetProcessorFactoryAsync(Helpers.Constants.DynamicRuntimeHandlerIdentifier);
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(dynamicFactory);
 
-            TestConfigurationSetResult result = processor.TestSet(configurationSet);
+            ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
             Assert.NotNull(result);
-            Assert.Equal(1, result.UnitResults.Count);
+            Assert.Null(result.ResultCode);
+            Assert.Equal(2, result.UnitResults.Count);
 
-            ApplyConfigurationSetResult applyResult = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
-            Assert.NotNull(applyResult);
+            foreach (var unitResult in result.UnitResults)
+            {
+                Assert.NotNull(unitResult);
+                Assert.False(unitResult.PreviouslyInDesiredState);
+                Assert.False(unitResult.RebootRequired);
+                Assert.NotNull(unitResult.ResultInformation);
+                Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+            }
         }
 
         /// <summary>
@@ -96,34 +99,35 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Version version = new Version("0.0.0.1");
 
             ConfigurationSet configurationSet = this.ConfigurationSet();
+            configurationSet.Metadata.Add(Helpers.Constants.DisableRunAsTestGuid, true);
+            configurationSet.Metadata.Add(Helpers.Constants.DisableHighIntegriySerializationTestGuid, true);
 
-            ConfigurationUnit configurationUnit1 = this.ConfigurationUnit();
-            configurationUnit1.Metadata.Add("securityContext", "elevated");
-            configurationUnit1.Metadata.Add("version", version.ToString());
-            configurationUnit1.Metadata.Add("module", moduleName);
-            configurationUnit1.Metadata.Add("secretCode", "123456789");
-            configurationUnit1.Type = resourceName;
-            configurationUnit1.Intent = ConfigurationUnitIntent.Apply;
+            ConfigurationUnit elevationRequiredUnit1 = this.ConfigurationUnit();
+            elevationRequiredUnit1.Metadata.Add("securityContext", "elevated");
+            elevationRequiredUnit1.Metadata.Add("version", version.ToString());
+            elevationRequiredUnit1.Metadata.Add("module", moduleName);
+            elevationRequiredUnit1.Metadata.Add("secretCode", "123456789");
+            elevationRequiredUnit1.Type = resourceName;
+            elevationRequiredUnit1.Intent = ConfigurationUnitIntent.Apply;
 
-            ConfigurationUnit configurationUnit2 = this.ConfigurationUnit();
-            configurationUnit2.Metadata.Add("version", version.ToString());
-            configurationUnit2.Metadata.Add("module", moduleName);
-            configurationUnit2.Metadata.Add("secretCode", "123456789");
-            configurationUnit2.Type = resourceName;
-            configurationUnit2.Intent = ConfigurationUnitIntent.Apply;
+            //ConfigurationUnit elevationRequiredUnit2 = this.ConfigurationUnit();
+            //elevationRequiredUnit2.Metadata.Add("securityContext", "elevated");
+            //elevationRequiredUnit2.Metadata.Add("version", version.ToString());
+            //elevationRequiredUnit2.Metadata.Add("module", moduleName);
+            //elevationRequiredUnit2.Metadata.Add("secretCode", "123456789");
+            //elevationRequiredUnit2.Type = resourceName;
+            //elevationRequiredUnit2.Intent = ConfigurationUnitIntent.Apply;
 
-            configurationSet.Units = new ConfigurationUnit[] { configurationUnit1, configurationUnit2 };
+            configurationSet.Units = new ConfigurationUnit[] { elevationRequiredUnit1 };
 
-            IConfigurationSetProcessorFactory dynamicFactory = await this.fixture.ConfigurationStatics.CreateConfigurationSetProcessorFactoryAsync("{73fea39f-6f4a-41c9-ba94-6fd14d633e40}");
+            IConfigurationSetProcessorFactory dynamicFactory = await this.fixture.ConfigurationStatics.CreateConfigurationSetProcessorFactoryAsync(Helpers.Constants.DynamicRuntimeHandlerIdentifier);
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(dynamicFactory);
 
-            TestConfigurationSetResult result = processor.TestSet(configurationSet);
+            ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
             Assert.NotNull(result);
-            Assert.Equal(1, result.UnitResults.Count);
-
-            ApplyConfigurationSetResult applyResult = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
-            Assert.NotNull(applyResult);
+            Assert.Null(result.ResultCode);
+            Assert.Equal(2, result.UnitResults.Count);
         }
     }
 }
