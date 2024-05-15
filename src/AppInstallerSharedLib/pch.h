@@ -7,6 +7,7 @@
 #include <appmodel.h>
 #include <icu.h>
 #include <sddl.h>
+#include <Shlobj.h>
 #include <compressapi.h>
 
 #define YAML_DECLARE_STATIC
