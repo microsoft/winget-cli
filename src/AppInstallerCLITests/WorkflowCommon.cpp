@@ -722,4 +722,17 @@ namespace TestCommon
         {
         } });
     }
+
+    void OverrideDownloadInstallerFileForMSStoreDownload(TestContext& context)
+    {
+        context.Override({ DownloadInstallerFile, [](TestContext& context)
+        {
+            const auto& installer = context.Get<Data::Installer>().value();
+            const auto& installerPath = context.Get<Data::InstallerPath>();
+            std::ofstream file(installerPath, std::ofstream::out | std::ofstream::trunc);
+            file << installer.Url;
+            file.close();
+            context.Add<Data::HashPair>({ {}, {} });
+        } });
+    }
 }

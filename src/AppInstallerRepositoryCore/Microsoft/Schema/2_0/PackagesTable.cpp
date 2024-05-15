@@ -98,70 +98,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
             return result;
         }
 
-        std::vector<int> PackagesTableBuildSearchStatement(
-            SQLite::Builder::StatementBuilder& builder,
-            std::initializer_list<std::string_view> columns,
-            std::string_view primaryAlias,
-            std::string_view valueAlias,
-            bool useLike)
-        {
-            using QCol = SQLite::Builder::QualifiedColumn;
-
-            // Build a statement like:
-            //      SELECT manifest.rowid as m, ids.id as v from manifest
-            //      join ids on manifest.id = ids.rowid
-            //      where ids.id = <value>
-            // OR
-            //      SELECT manifest.rowid as m, tags.tag as v from manifest
-            //      join tags_map on manifest.rowid = tags_map.manifest
-            //      join tags on tags_map.tag = tags.rowid
-            //      where tags.tag = <value>
-            // Where the joins and where portions are repeated for each table in question.
-            builder.Select().
-                Column(QCol(s_PackagesTable_Table_Name, SQLite::RowIDName)).As(primaryAlias);
-
-            // Value will be captured for single tables references, and left empty for multi-tables
-            if (columns.size() == 1)
-            {
-                builder.Column(*columns.begin());
-            }
-            else
-            {
-                builder.LiteralColumn("");
-            }
-
-            builder.As(valueAlias).From(s_PackagesTable_Table_Name);
-
-            std::vector<int> result;
-
-            // Create where clause
-            for (const auto& column : columns)
-            {
-                if (result.empty())
-                {
-                    builder.Where(column);
-                }
-                else
-                {
-                    builder.And(column);
-                }
-
-                if (useLike)
-                {
-                    builder.Like(SQLite::Builder::Unbound);
-                    result.push_back(builder.GetLastBindIndex());
-                    builder.Escape(SQLite::EscapeCharForLike);
-                }
-                else
-                {
-                    builder.Equals(SQLite::Builder::Unbound);
-                    result.push_back(builder.GetLastBindIndex());
-                }
-            }
-
-            return result;
-        }
-
         SQLite::Statement PackagesTableUpdateValueIdById_Statement(SQLite::Connection& connection, std::string_view valueName)
         {
             SQLite::Builder::StatementBuilder builder;
@@ -343,6 +279,40 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
         THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
 
         return static_cast<uint64_t>(countStatement.GetColumn<SQLite::rowid_t>(0));
+    }
+
+    int PackagesTable::BuildSearchStatement(
+        SQLite::Builder::StatementBuilder& builder,
+        std::string_view valueName,
+        std::string_view primaryAlias,
+        std::string_view valueAlias,
+        bool useLike)
+    {
+        using QCol = SQLite::Builder::QualifiedColumn;
+
+        // Build a statement like:
+        //      SELECT packages.rowid as p, packages.id as v from packages
+        //      where packages.id = <value>
+        builder.Select().
+            Column(QCol(s_PackagesTable_Table_Name, SQLite::RowIDName)).As(primaryAlias).
+            Column(QCol(s_PackagesTable_Table_Name, valueName)).As(valueAlias).
+        From(s_PackagesTable_Table_Name).Where(QCol(s_PackagesTable_Table_Name, valueName));
+
+        int result = -1;
+
+        if (useLike)
+        {
+            builder.Like(SQLite::Builder::Unbound);
+            result = builder.GetLastBindIndex();
+            builder.Escape(SQLite::EscapeCharForLike);
+        }
+        else
+        {
+            builder.Equals(SQLite::Builder::Unbound);
+            result = builder.GetLastBindIndex();
+        }
+
+        return result;
     }
 
     bool PackagesTable::IsEmpty(SQLite::Connection& connection)

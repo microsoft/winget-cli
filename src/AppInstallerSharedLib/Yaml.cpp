@@ -45,6 +45,8 @@ namespace AppInstaller::YAML
                 return "Writer"sv;
             case Exception::Type::Emitter:
                 return "Emitter"sv;
+            case Exception::Type::Policy:
+                return "Policy"sv;
             }
 
             return "Unknown"sv;

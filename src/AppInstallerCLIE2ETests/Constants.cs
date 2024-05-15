@@ -29,6 +29,7 @@ namespace AppInstallerCLIE2ETests
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
         public const string PowerShellModulePathParameter = "PowerShellModulePath";
         public const string SkipTestSourceParameter = "SkipTestSource";
+        public const string ForcedExperimentalFeaturesParameter = "ForcedExperimentalFeatures";
 
         // Test Sources
         public const string DefaultWingetSourceName = @"winget";
@@ -206,16 +207,16 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_UNSUPPORTED_RESTSOURCE = unchecked((int)0x8A150038);
             public const int ERROR_RESTSOURCE_INVALID_DATA = unchecked((int)0x8A150039);
             public const int ERROR_BLOCKED_BY_POLICY = unchecked((int)0x8A15003A);
-            public const int ERROR_RESTSOURCE_INTERNAL_ERROR = unchecked((int)0x8A15003B);
+            public const int ERROR_RESTAPI_INTERNAL_ERROR = unchecked((int)0x8A15003B);
             public const int ERROR_RESTSOURCE_INVALID_URL = unchecked((int)0x8A15003C);
-            public const int ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE = unchecked((int)0x8A15003D);
+            public const int ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE = unchecked((int)0x8A15003D);
             public const int ERROR_RESTSOURCE_INVALID_VERSION = unchecked((int)0x8A15003E);
             public const int ERROR_SOURCE_DATA_INTEGRITY_FAILURE = unchecked((int)0x8A15003F);
             public const int ERROR_STREAM_READ_FAILURE = unchecked((int)0x8A150040);
             public const int ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED = unchecked((int)0x8A150041);
             public const int ERROR_PROMPT_INPUT_ERROR = unchecked((int)0x8A150042);
             public const int ERROR_UNSUPPORTED_SOURCE_REQUEST = unchecked((int)0x8A150043);
-            public const int ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND = unchecked((int)0x8A150044);
+            public const int ERROR_RESTAPI_ENDPOINT_NOT_FOUND = unchecked((int)0x8A150044);
             public const int ERROR_SOURCE_OPEN_FAILED = unchecked((int)0x8A150045);
             public const int ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED = unchecked((int)0x8A150046);
             public const int ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH = unchecked((int)0x8A150047);
@@ -307,6 +308,7 @@ namespace AppInstallerCLIE2ETests
             public const int CONFIG_ERROR_MISSING_FIELD = unchecked((int)0x8A15C00E);
             public const int CONFIG_ERROR_TEST_FAILED = unchecked((int)0x8A15C00F);
             public const int CONFIG_ERROR_TEST_NOT_RUN = unchecked((int)0x8A15C010);
+            public const int WINGET_CONFIG_ERROR_GET_FAILED = unchecked((int)0x8A15C011);
 
             public const int CONFIG_ERROR_UNIT_NOT_INSTALLED = unchecked((int)0x8A15C101);
             public const int CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY = unchecked((int)0x8A15C102);

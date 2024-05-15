@@ -412,6 +412,8 @@
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
+    <ClInclude Include="Microsoft\SQLiteIndexSourceV1.h" />
+    <ClInclude Include="Microsoft\SQLiteIndexSourceV2.h" />
     <ClInclude Include="PackageDependenciesValidation.h" />
     <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
     <ClInclude Include="pch.h" />
@@ -511,6 +513,8 @@
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndexSource.cpp" />
+    <ClCompile Include="Microsoft\SQLiteIndexSourceV1.cpp" />
+    <ClCompile Include="Microsoft\SQLiteIndexSourceV2.cpp" />
     <ClCompile Include="PackageDependenciesValidation.cpp" />
     <ClCompile Include="PackageInstalledStatus.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />

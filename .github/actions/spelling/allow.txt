@@ -141,6 +141,7 @@ INSTALLPATH
 INSTALLUILEVEL
 INVALIDARG
 INVALIDSID
+iot
 IPinning
 IPortable
 ISAPPROVEDFOROUTPUT
@@ -255,6 +256,7 @@ resetpins
 resheader
 resmimetype
 RESOLVESOURCE
+RESTAPI
 RESTARTAPPS
 resw
 resx
@@ -349,6 +351,7 @@ und
 UNICODESTRING
 uninstalling
 Unmarshal
+unskipped
 untimes
 updatefile
 updatemanifest
@@ -375,6 +378,7 @@ wcsicmp
 webpage
 WHOLECHAIN
 wil
+windbg
 wincrypt
 WINEVENT
 winget
@@ -396,6 +400,7 @@ wrl
 WTD
 wtypesbase
 Xamarin
+Xbox
 XElement
 Xlang
 XResource

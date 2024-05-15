@@ -302,16 +302,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### proxy
-
-This feature enables the use of web proxies.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "proxy": true
-   },
-```
 ### sideBySide
 
 This feature enables experimental improvements for supporting multiple instances of a package being installed on a system.
@@ -342,5 +332,33 @@ You can enable the feature as shown below.
 ```json
    "experimentalFeatures": {
        "storeDownload": true
+   },
+```
+
+### configureExport
+
+This feature enables exporting a configuration file.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "configureExport": true
+   },
+```
+
+### indexV2
+
+This feature enables the `winget` source to retrieve the V2 index, which is significantly smaller.
+Regardless of the state of this feature, if the index on the machine contains a V2 index, it will be used.
+If there is a bug with the V2 index stopping the `winget` CLI from working, disable the feature in your settings file and run this command:
+```
+> winget uninstall -s msstore Microsoft.Winget.Source_8wekyb3d8bbwe
+```
+
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "indexV2": true
    },
 ```

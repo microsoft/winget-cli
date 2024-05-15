@@ -54,7 +54,7 @@ namespace AppInstaller::Repository::Microsoft
                 return std::nullopt;
             }
 
-            return cacheData.GetPropertyByManifestId(versionKey->ManifestId, PackageVersionProperty::Name);
+            return cacheData.GetPropertyByPrimaryId(versionKey->ManifestId, PackageVersionProperty::Name);
         }
 
         // Populates the index with the entries from MSIX.

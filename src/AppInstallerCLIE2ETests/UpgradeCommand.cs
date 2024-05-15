@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="UpgradeCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -15,6 +15,18 @@ namespace AppInstallerCLIE2ETests
     /// </summary>
     public class UpgradeCommand : BaseCommand
     {
+        private static readonly string DenyUpgradePackage = "AppInstallerTest.TestUpgradeDeny";
+
+        /// <summary>
+        /// Tear down.
+        /// </summary>
+        [TearDown]
+        public void TearDown()
+        {
+            // Due to its properties, this being present is problematic.
+            TestCommon.RunAICLICommand("uninstall", DenyUpgradePackage);
+        }
+
         /// <summary>
         /// Test upgrade portable package.
         /// </summary>
@@ -117,7 +129,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void UpgradeBehaviorDeny()
         {
-            string packageId = "AppInstallerTest.TestUpgradeDeny";
+            string packageId = DenyUpgradePackage;
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -v 1.0.0.0");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);

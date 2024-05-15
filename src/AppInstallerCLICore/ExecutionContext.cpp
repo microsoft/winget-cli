@@ -487,6 +487,24 @@ namespace AppInstaller::CLI::Execution
     }
 #endif
 
+    void ContextEnumBasedVariantMapActionCallback(const void* map, Data data, EnumBasedVariantMapAction action)
+    {
+        switch (action)
+        {
+        case EnumBasedVariantMapAction::Add:
+            AICLI_LOG(Workflow, Info, << "Setting data item: " << data);
+            break;
+        case EnumBasedVariantMapAction::Contains:
+            AICLI_LOG(Workflow, Info, << "Checking data item: " << data);
+            break;
+        case EnumBasedVariantMapAction::Get:
+            AICLI_LOG(Workflow, Info, << "Getting data item: " << data);
+            break;
+        }
+
+        UNREFERENCED_PARAMETER(map);
+    }
+
     std::string Context::GetResumeId()
     {
         return m_checkpointManager->GetResumeId();

@@ -18,7 +18,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         void RemoveManifestById(SQLite::Connection& connection, SQLite::rowid_t manifestId) override;
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
-        std::vector<std::string> GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const override;
+        std::vector<std::string> GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const override;
 
         // Version 1.7
         void DropTables(SQLite::Connection& connection) override;

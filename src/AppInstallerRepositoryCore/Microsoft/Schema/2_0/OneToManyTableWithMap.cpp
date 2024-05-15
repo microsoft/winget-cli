@@ -407,5 +407,44 @@ namespace AppInstaller::Repository::Microsoft::Schema::V2_0
 
             return ((countStatement.GetColumn<int>(0) == 0) && (countMapStatement.GetColumn<int>(0) == 0));
         }
+
+        int OneToManyTableWithMapBuildSearchStatement(
+            SQLite::Builder::StatementBuilder& builder,
+            std::string_view tableName,
+            std::string_view valueName,
+            std::string_view primaryAlias,
+            std::string_view valueAlias,
+            bool useLike)
+        {
+            using QCol = SQLite::Builder::QualifiedColumn;
+            constexpr std::string_view s_map = "map"sv;
+
+            // Build a statement like:
+            //      SELECT map.package as p, table.value as v from table
+            //      join map on table.rowid = map.value
+            //      where table.value = <value>
+            builder.Select().
+                Column(QCol(s_map, s_OneToManyTableWithMap_MapTable_PrimaryName)).As(primaryAlias).
+                Column(QCol(tableName, valueName)).As(valueAlias).
+                From(tableName).
+                Join({ tableName, s_OneToManyTableWithMap_MapTable_Suffix }).As(s_map).On(QCol(tableName, SQLite::RowIDName), QCol(s_map, valueName)).
+                Where(QCol(tableName, valueName));
+
+            int result = -1;
+
+            if (useLike)
+            {
+                builder.Like(SQLite::Builder::Unbound);
+                result = builder.GetLastBindIndex();
+                builder.Escape(SQLite::EscapeCharForLike);
+            }
+            else
+            {
+                builder.Equals(SQLite::Builder::Unbound);
+                result = builder.GetLastBindIndex();
+            }
+
+            return result;
+        }
     }
 }

@@ -234,17 +234,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
         return result;
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
+    std::vector<std::string> Interface::GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const
     {
         switch (property)
         {
             // These values are not right, as they are normalized.  But they are good enough for now and all we have.
         case PackageVersionMultiProperty::Name:
-            return NormalizedPackageNameTable::GetValuesByManifestId(connection, manifestId);
+            return NormalizedPackageNameTable::GetValuesByManifestId(connection, primaryId);
         case PackageVersionMultiProperty::Publisher:
-            return NormalizedPackagePublisherTable::GetValuesByManifestId(connection, manifestId);
+            return NormalizedPackagePublisherTable::GetValuesByManifestId(connection, primaryId);
         default:
-            return V1_1::Interface::GetMultiPropertyByManifestId(connection, manifestId, property);
+            return V1_1::Interface::GetMultiPropertyByPrimaryId(connection, primaryId, property);
         }
     }
 

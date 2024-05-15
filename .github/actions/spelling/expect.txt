@@ -1,6 +1,7 @@
 abcd
 ABORTIFHUNG
 accepteula
+ACCESSTOKEN
 adjacents
 adml
 admx
@@ -108,14 +109,13 @@ dsc
 DUPLICATEALIAS
 dustojnikhummer
 dvinns
-EAppx
-eappxbundle
 ecfr
 ecfrbrowse
 ECustom
 EFGH
 EFile
 efileresource
+EMalicious
 endregion
 ENDSESSION
 EPester
@@ -160,6 +160,7 @@ GRPICONDIR
 GRPICONDIRENTRY
 guiddef
 Hackathon
+hashtables
 helplib
 helplibrary
 hhx
@@ -216,6 +217,7 @@ JToken
 JValue
 Kaido
 KNOWNFOLDERID
+kool
 ktf
 ldcase
 learnxinyminutes
@@ -361,6 +363,7 @@ PSHOST
 psobject
 ptstr
 publickey
+PVD
 pvk
 pvm
 pwabuilder
@@ -410,6 +413,8 @@ servercertificate
 setmetadatabymanifestid
 SETTINGCHANGE
 SETTINGMAPPING
+sfs
+sfsclient
 SHCONTF
 SHGDN
 SHOWNORMAL
@@ -431,6 +436,7 @@ srs
 startswith
 STARTUPINFOW
 STDMETHODCALLTYPE
+storeapps
 storeorigin
 STRRET
 stylecop

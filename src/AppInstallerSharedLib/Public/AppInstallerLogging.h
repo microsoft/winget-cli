@@ -56,9 +56,10 @@ namespace AppInstaller::Logging
         Core = 0x20,
         Test = 0x40,
         Config = 0x80,
+        Workflow = 0x100,
         None = 0,
         All = 0xFFFFFFFF,
-        Defaults = All & ~SQL,
+        Defaults = All & ~(SQL | Workflow),
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(Channel);

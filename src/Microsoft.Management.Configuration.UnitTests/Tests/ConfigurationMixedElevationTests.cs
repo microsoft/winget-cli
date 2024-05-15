@@ -54,14 +54,15 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             elevationRequiredUnit.Metadata.Add("securityContext", "elevated");
             elevationRequiredUnit.Metadata.Add("version", version.ToString());
             elevationRequiredUnit.Metadata.Add("module", moduleName);
-            elevationRequiredUnit.Metadata.Add("secretCode", "123456789");
+
+            elevationRequiredUnit.Settings.Add("secretCode", "123456789");
             elevationRequiredUnit.Type = resourceName;
             elevationRequiredUnit.Intent = ConfigurationUnitIntent.Apply;
 
             ConfigurationUnit unit = this.ConfigurationUnit();
             unit.Metadata.Add("version", version.ToString());
             unit.Metadata.Add("module", moduleName);
-            unit.Metadata.Add("secretCode", "123456789");
+            unit.Settings.Add("secretCode", "123456789");
             unit.Type = resourceName;
             unit.Intent = ConfigurationUnitIntent.Apply;
 
@@ -106,17 +107,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             elevationRequiredUnit1.Metadata.Add("securityContext", "elevated");
             elevationRequiredUnit1.Metadata.Add("version", version.ToString());
             elevationRequiredUnit1.Metadata.Add("module", moduleName);
-            elevationRequiredUnit1.Metadata.Add("secretCode", "123456789");
+
+            elevationRequiredUnit1.Settings.Add("secretCode", "123456789");
             elevationRequiredUnit1.Type = resourceName;
             elevationRequiredUnit1.Intent = ConfigurationUnitIntent.Apply;
-
-            //ConfigurationUnit elevationRequiredUnit2 = this.ConfigurationUnit();
-            //elevationRequiredUnit2.Metadata.Add("securityContext", "elevated");
-            //elevationRequiredUnit2.Metadata.Add("version", version.ToString());
-            //elevationRequiredUnit2.Metadata.Add("module", moduleName);
-            //elevationRequiredUnit2.Metadata.Add("secretCode", "123456789");
-            //elevationRequiredUnit2.Type = resourceName;
-            //elevationRequiredUnit2.Intent = ConfigurationUnitIntent.Apply;
 
             configurationSet.Units = new ConfigurationUnit[] { elevationRequiredUnit1 };
 
@@ -126,8 +120,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
             Assert.NotNull(result);
-            Assert.Null(result.ResultCode);
-            Assert.Equal(2, result.UnitResults.Count);
+            Assert.NotNull(result.ResultCode);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_SET_APPLY_FAILED, result.ResultCode.HResult);
+            Assert.Equal(1, result.UnitResults.Count);
         }
     }
 }

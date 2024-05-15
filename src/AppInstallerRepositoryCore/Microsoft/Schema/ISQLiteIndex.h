@@ -95,11 +95,11 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Performs a search based on the given criteria.
         virtual SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const = 0;
 
-        // Gets the string for the given property and manifest id, if present.
-        virtual std::optional<std::string> GetPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const = 0;
+        // Gets the string for the given property and primary id, if present.
+        virtual std::optional<std::string> GetPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionProperty property) const = 0;
 
-        // Gets the string values for the given property and manifest id, if present.
-        virtual std::vector<std::string> GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const = 0;
+        // Gets the string values for the given property and primary id, if present.
+        virtual std::vector<std::string> GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const = 0;
 
         // Gets the manifest id for the given { id, version, channel }, if present.
         // If version is empty, gets the value for the 'latest' version.

@@ -245,6 +245,13 @@ jobs:
 
   - template: templates/e2e-test.template.yml
     parameters:
+      title: "E2E Tests Packaged (Index V2)"
+      isPackaged: true
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+      experimentalFeatures: indexV2
+
+  - template: templates/e2e-test.template.yml
+    parameters:
       title: "Microsoft.Management.Deployment E2E Tests (In-process)"
       isPackaged: false
       filter: "TestCategory=InProcess"
@@ -342,7 +349,7 @@ jobs:
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
       diagnosticsEnabled: true
-    condition: and(succeededOrFailed(), eq(variables.buildPlatform, 'x86'))
+    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
@@ -604,6 +611,4 @@ jobs:
       onefuzzOSes: 'Windows'
     env:
       onefuzzDropDirectory: '$(buildOutDir)\WinGetYamlFuzzing'
-      onefuzzDropPAT: $(onefuzzDropPAT)
-      onefuzzFilingBugPAT: $(onefuzzBugFilingPAT)
-      onefuzzCodeCoveragePAT: $(onefuzzCodeCoveragePAT)
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)

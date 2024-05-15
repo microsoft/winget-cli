@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerVersions.h>
 #include <winget/Compression.h>
+#include <filesystem>
 
 
 namespace AppInstaller::Manifest
@@ -15,6 +16,9 @@ namespace AppInstaller::Manifest
 
         // The file name to use for the compressed package version data manifest.
         static std::string_view VersionManifestCompressedFileName();
+
+        // Gets the relative path to the package version manifest from the inputs.
+        static std::filesystem::path GetRelativeDirectoryPath(std::string_view packageIdentifier, std::string_view manifestHash);
 
         // Creates the compressor used by the PackageVersionDataManifest.
         static Compression::Compressor CreateCompressor();

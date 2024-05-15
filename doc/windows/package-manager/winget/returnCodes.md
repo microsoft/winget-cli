@@ -70,16 +70,16 @@ ms.localizationpriority: medium
 | 0x8A150038 | -1978335176 | APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE | The configured rest source is not supported |
 | 0x8A150039 | -1978335175 | APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA | Invalid data returned by rest source |
 | 0x8A15003A | -1978335174 | APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY | Operation is blocked by Group Policy |
-| 0x8A15003B | -1978335173 | APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR | Rest source internal error |
+| 0x8A15003B | -1978335173 | APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR | Rest API internal error |
 | 0x8A15003C | -1978335172 | APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL | Invalid rest source url |
-| 0x8A15003D | -1978335171 | APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE | Unsupported MIME type returned by rest source |
+| 0x8A15003D | -1978335171 | APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE | Unsupported MIME type returned by rest API |
 | 0x8A15003E | -1978335170 | APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION | Invalid rest source contract version |
 | 0x8A15003F | -1978335169 | APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE | The source data is corrupted or tampered |
 | 0x8A150040 | -1978335168 | APPINSTALLER_CLI_ERROR_STREAM_READ_FAILURE | Error reading from the stream |
 | 0x8A150041 | -1978335167 | APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED | Package agreements were not agreed to |
 | 0x8A150042 | -1978335166 | APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR | Error reading input in prompt |
 | 0x8A150043 | -1978335165 | APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST | The search request is not supported by one or more sources |
-| 0x8A150044 | -1978335164 | APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND | The rest source endpoint is not found. |
+| 0x8A150044 | -1978335164 | APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND | The rest API endpoint is not found. |
 | 0x8A150045 | -1978335163 | APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED | Failed to open the source. |
 | 0x8A150046 | -1978335162 | APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED | Source agreements were not agreed to |
 | 0x8A150047 | -1978335161 | APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH | Header size exceeds the allowable limit of 1024 characters. Please reduce the size and try again. |
@@ -137,7 +137,12 @@ ms.localizationpriority: medium
 | 0x8A15007B | -1978335109 | APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED | Repair operation failed. |
 | 0x8A15007C | -1978335108 | APPINSTALLER_CLI_ERROR_REPAIR_NOT_SUPPORTED | The installer technology in use doesn't support repair. |
 | 0x8A15007D | -1978335107 | APPINSTALLER_CLI_ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED | Repair operations involving administrator privileges are not permitted on packages installed within the user scope. |
-
+| 0x8A15007E | -1978335106 | APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED | The SQLite connection was terminated to prevent corruption. |
+| 0x8A15007F | -1978335105 | APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED | Failed to get Microsoft Store package catalog. |
+| 0x8A150080 | -1978335104 | APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE | No applicable Microsoft Store package found from Microsoft Store package catalog. |
+| 0x8A150081 | -1978335103 | APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED | Failed to get Microsoft Store package download infomation. |
+| 0x8A150082 | -1978335102 | APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE | No applicable Microsoft Store package download infomation found. |
+| 0x8A150083 | -1978335101 | APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED | Failed to retrieve Microsoft Store package license. |
 
 ## Install errors.
 
@@ -195,6 +200,9 @@ Installation failed. Restart your PC then try again. |
 | 0x8A15C00C | -1978286068 | WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE | The dependency graph contains a cycle which cannot be resolved. |
 | 0x8A15C00D | -1978286067 | WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE | The configuration has an invalid field value. |
 | 0x8A15C00E | -1978286066 | WINGET_CONFIG_ERROR_MISSING_FIELD | The configuration is missing a field. |
+| 0x8A15C00F | -1978286065 | WINGET_CONFIG_ERROR_TEST_FAILED | Some of the configuration units failed while testing their state. |
+| 0x8A15C010 | -1978286064 | WINGET_CONFIG_ERROR_TEST_NOT_RUN | Configuration state was not tested. |
+| 0x8A15C011 | -1978286063 | WINGET_CONFIG_ERROR_GET_FAILED | The configuration unit failed getting its properties. |
 
 ## Configuration Processor Errors
 
@@ -211,3 +219,4 @@ Installation failed. Restart your PC then try again. |
 | 0x8A15C109 | -1978285815 | WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT | The configuration unit returned an unexpected result during execution. |
 | 0x8A15C110 | -1978285814 | WINGET_CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT | A unit contains a setting that requires the config root. |
 | 0x8A15C111 | -1978285813 | WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN | Loading the module for the configuration unit failed because it requires administrator privileges to run. |
+| 0x8A15C112 | -1978285812 | WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR | Operation is not supported by the configuration processor. |

@@ -197,8 +197,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_5
                 auto versionKeys = GetVersionKeysById(connection, match.first);
                 for (auto const& versionKey : versionKeys)
                 {
-                    auto arpMinVersion = GetPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionProperty::ArpMinVersion).value_or("");
-                    auto arpMaxVersion = GetPropertyByManifestId(connection, versionKey.ManifestId, PackageVersionProperty::ArpMaxVersion).value_or("");
+                    auto arpMinVersion = GetPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionProperty::ArpMinVersion).value_or("");
+                    auto arpMaxVersion = GetPropertyByPrimaryId(connection, versionKey.ManifestId, PackageVersionProperty::ArpMaxVersion).value_or("");
 
                     // Either both empty or both not empty
                     THROW_HR_IF(E_UNEXPECTED, arpMinVersion.empty() != arpMaxVersion.empty());

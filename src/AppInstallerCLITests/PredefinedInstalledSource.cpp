@@ -117,11 +117,11 @@ void VerifyMetadataString(const SQLiteIndex::MetadataResult& metadata, PackageVe
 
 void VerifyEntryAgainstIndex(const SQLiteIndex& index, SQLiteIndex::IdType manifestId, const ARPEntry& entry)
 {
-    REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Name) == entry.DisplayName);
-    REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Version) == entry.DisplayVersion);
+    REQUIRE(index.GetPropertyByPrimaryId(manifestId, PackageVersionProperty::Name) == entry.DisplayName);
+    REQUIRE(index.GetPropertyByPrimaryId(manifestId, PackageVersionProperty::Version) == entry.DisplayVersion);
 
-    REQUIRE(index.GetMultiPropertyByManifestId(manifestId, PackageVersionMultiProperty::PackageFamilyName).empty());
-    auto productCodes = index.GetMultiPropertyByManifestId(manifestId, PackageVersionMultiProperty::ProductCode);
+    REQUIRE(index.GetMultiPropertyByPrimaryId(manifestId, PackageVersionMultiProperty::PackageFamilyName).empty());
+    auto productCodes = index.GetMultiPropertyByPrimaryId(manifestId, PackageVersionMultiProperty::ProductCode);
     REQUIRE(productCodes.size() == 1);
     REQUIRE(productCodes[0] == FoldCase(static_cast<std::string_view>(entry.EntryName)));
 

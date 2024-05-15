@@ -762,9 +762,11 @@ namespace AppInstaller::Utility
             // If not, round up to the next line count (by rounding down through integer division after subtracting 1 + 1).
             size_t currentLineActualLineCount = (currentLineWidth ? (currentLineWidth - 1) / lineWidth : 0) + 1;
 
-            // The current line may be too big to be the last line.
+            // The current line may be too big to be the last line, or it may be just the right size but we will end up trimming
+            // additional lines. In either case, append an ellipsis to indicate that we trimmed the value.
             size_t availableLines = maximum - totalLines;
-            if (currentLineActualLineCount > availableLines)
+            if (currentLineActualLineCount > availableLines ||
+                (currentLineActualLineCount == availableLines && currentLine != lines.size() - 1))
             {
                 size_t actualWidth = 0;
                 std::string trimmedLine = UTF8TrimRightToColumnWidth(lines[currentLine], (availableLines * lineWidth) - 1, actualWidth);
@@ -827,7 +829,8 @@ namespace AppInstaller::Utility
         return result;
     }
 
-    LocIndString Join(LocIndView separator, const std::vector<LocIndString>& vector)
+    template <typename StringLike>
+    static std::string JoinInternal(std::string_view separator, const std::vector<StringLike>& vector)
     {
         auto vectorSize = vector.size();
         if (vectorSize == 0)
@@ -841,7 +844,17 @@ namespace AppInstaller::Utility
         {
             ssJoin << separator << vector[i];
         }
-        return LocIndString{ ssJoin.str() };
+        return ssJoin.str();
+    }
+
+    LocIndString Join(LocIndView separator, const std::vector<LocIndString>& vector)
+    {
+        return LocIndString{ JoinInternal(separator, vector) };
+    }
+
+    std::string Join(std::string_view separator, const std::vector<std::string>& vector)
+    {
+        return JoinInternal(separator, vector);
     }
 
     std::vector<std::string> Split(const std::string& input, char separator, bool trim)
@@ -908,5 +921,75 @@ namespace AppInstaller::Utility
         {
             return false;
         }
+    }
+
+    size_t FindControlCodeToConvert(std::string_view input, size_t offset)
+    {
+        size_t nextControl = offset;
+        while (nextControl < input.size())
+        {
+            char currentChar = input[nextControl];
+
+            // Convert all low controls except tab, line feed and carriage return
+            if (currentChar >= 0 && currentChar < 0x20 &&
+                currentChar != '\t' &&
+                currentChar != '\n' &&
+                currentChar != '\r')
+            {
+                break;
+            }
+
+            // Convert the Delete control
+            if (currentChar == 0x7F)
+            {
+                break;
+            }
+
+            ++nextControl;
+        }
+
+        return nextControl < input.size() ? nextControl : std::string::npos;
+    }
+
+    std::string ConvertControlCodesToPictures(std::string_view input)
+    {
+        std::string result;
+        size_t pos = 0;
+
+        while (pos < input.size())
+        {
+            size_t nextControl = FindControlCodeToConvert(input, pos);
+
+            if (nextControl == std::string::npos)
+            {
+                // No more control codes found
+                result += input.substr(pos);
+                break;
+            }
+            else
+            {
+                result += input.substr(pos, nextControl - pos);
+
+                char currentChar = input[nextControl];
+
+                if (currentChar >= 0 && currentChar < 0x20)
+                {
+                    // ASCII 0x00 - 0x1F => UTF-8 0x2400 - 0x241F
+                    // Then manually converted to UTF-8 since only the last character is affected
+                    result += '\xE2';
+                    result += '\x90';
+                    result += ('\x80' + currentChar);
+                }
+                else if (currentChar == 0x7F)
+                {
+                    // UTF-8 for control picture of DELETE
+                    result += "\xE2\x90\xA1";
+                }
+
+                pos = nextControl + 1;
+            }
+        }
+
+        return result;
     }
 }

@@ -1,0 +1,38 @@
+Id: AppInstallerCliTest.TestMSStoreDownload
+Version: Latest
+Name: AppInstaller Test MSStore Download
+Publisher: Microsoft Corporation
+AppMoniker: AICLITestMSStore
+License: Test
+Installers: 
+  - Arch: x64
+    Url: https://ThisIsNotUsed
+    InstallerType: msstore
+    ProductId: 9WZDNCRFJ364
+    Language: en-US
+  - Arch: x64
+    Url: https://ThisIsNotUsed
+    InstallerType: msstore
+    ProductId: 9WZDNCRFJ364
+    Language: fr-FR
+  - Arch: arm
+    Url: https://ThisIsNotUsed
+    InstallerType: msstore
+    ProductId: 9WZDNCRFJ364
+    Language: en-US
+  - Arch: arm
+    Url: https://ThisIsNotUsed
+    InstallerType: msstore
+    ProductId: 9WZDNCRFJ364
+    Language: fr-FR
+  - Arch: x64
+    Url: https://ThisIsNotUsed
+    InstallerType: msstore
+    ProductId: 9WZDNCRFJ364
+    Language: ja-JP
+  - Arch: arm64
+    Url: https://ThisIsNotUsed
+    InstallerType: msstore
+    ProductId: 9WZDNCRFJ364
+    Language: en-US
+ManifestVersion: 0.2.0-msstore

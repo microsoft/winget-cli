@@ -271,11 +271,6 @@
           "type": "boolean",
           "default": false
         },
-        "proxy": {
-          "description": "Enable support for proxies",
-          "type": "boolean",
-          "default": false
-        },
         "sideBySide": {
           "description": "Enable support for improved side-by-side handling",
           "type": "boolean",
@@ -288,6 +283,16 @@
         },
         "storeDownload": {
           "description": "Enable support for downloading packages from the Microsoft Store",
+          "type": "boolean",
+          "default": false
+        },
+        "configureExport": {
+          "description": "Enable support for the configure export command",
+          "type": "boolean",
+          "default": false
+        },
+        "indexV2": {
+          "description": "Enable retrieving the V2 index for the winget source",
           "type": "boolean",
           "default": false
         }

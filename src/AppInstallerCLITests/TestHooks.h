@@ -13,6 +13,8 @@
 #include <winget/Filesystem.h>
 #include <winget/IconExtraction.h>
 #include <winget/Authentication.h>
+#include <winget/HttpClientHelper.h>
+#include <sfsclient/SFSClient.h>
 
 #ifdef AICLI_DISABLE_TEST_HOOKS
 static_assert(false, "Test hooks have been disabled");
@@ -80,6 +82,15 @@ namespace AppInstaller
     namespace Authentication
     {
         void TestHook_SetAuthenticationResult_Override(Authentication::AuthenticationResult* authResult);
+    }
+
+    namespace MSStore::TestHooks
+    {
+        void SetDisplayCatalogHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value);
+
+        void SetSfsClientAppContents_Override(std::function<std::vector<SFS::AppContent>(std::string_view)>* value);
+
+        void SetLicensingHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value);
     }
 }
 
@@ -233,5 +244,47 @@ namespace TestHook
 
     private:
         AppInstaller::Authentication::AuthenticationResult m_authResult;
+    };
+
+    struct SetDisplayCatalogHttpPipelineStage_Override
+    {
+        SetDisplayCatalogHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value)
+        {
+            AppInstaller::MSStore::TestHooks::SetDisplayCatalogHttpPipelineStage_Override(value);
+        }
+
+        ~SetDisplayCatalogHttpPipelineStage_Override()
+        {
+            AppInstaller::MSStore::TestHooks::SetDisplayCatalogHttpPipelineStage_Override(nullptr);
+        }
+    };
+
+    struct SetSfsClientAppContents_Override
+    {
+        SetSfsClientAppContents_Override(std::function<std::vector<SFS::AppContent>(std::string_view)> value) : m_appContentsFunction(std::move(value))
+        {
+            AppInstaller::MSStore::TestHooks::SetSfsClientAppContents_Override(&m_appContentsFunction);
+        }
+
+        ~SetSfsClientAppContents_Override()
+        {
+            AppInstaller::MSStore::TestHooks::SetSfsClientAppContents_Override(nullptr);
+        }
+
+    private:
+        std::function<std::vector<SFS::AppContent>(std::string_view)> m_appContentsFunction;
+    };
+
+    struct SetLicensingHttpPipelineStage_Override
+    {
+        SetLicensingHttpPipelineStage_Override(std::shared_ptr<web::http::http_pipeline_stage> value)
+        {
+            AppInstaller::MSStore::TestHooks::SetLicensingHttpPipelineStage_Override(value);
+        }
+
+        ~SetLicensingHttpPipelineStage_Override()
+        {
+            AppInstaller::MSStore::TestHooks::SetLicensingHttpPipelineStage_Override(nullptr);
+        }
     };
 }

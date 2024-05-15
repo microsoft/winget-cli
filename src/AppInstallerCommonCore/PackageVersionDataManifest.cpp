@@ -4,6 +4,8 @@
 #include "Public/winget/PackageVersionDataManifest.h"
 #include "Public/winget/Yaml.h"
 #include <AppInstallerErrors.h>
+#include <AppInstallerLogging.h>
+#include <AppInstallerStrings.h>
 
 using namespace std::string_view_literals;
 
@@ -68,6 +70,14 @@ namespace AppInstaller::Manifest
     std::string_view PackageVersionDataManifest::VersionManifestCompressedFileName()
     {
         return "versionData.mszyml"sv;
+    }
+
+    std::filesystem::path PackageVersionDataManifest::GetRelativeDirectoryPath(std::string_view packageIdentifier, std::string_view manifestHash)
+    {
+        std::filesystem::path result = "packages";
+        result /= Utility::ConvertToUTF16(packageIdentifier);
+        result /= manifestHash.substr(0, 8);
+        return result;
     }
 
     Compression::Compressor PackageVersionDataManifest::CreateCompressor()
@@ -152,6 +162,8 @@ namespace AppInstaller::Manifest
 
     void PackageVersionDataManifest::Deserialize(std::string_view input)
     {
+        AICLI_LOG_LARGE_STRING(Core, Verbose, << "PackageVersionDataManifest deserializing:", input);
+
         YAML::Node document = YAML::Load(input);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST, !document.IsMap());
 

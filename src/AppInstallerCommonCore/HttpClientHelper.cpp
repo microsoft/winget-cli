@@ -98,7 +98,7 @@ namespace AppInstaller::Http
         const HttpClientHelper::HttpRequestHeaders& authHeaders) const
     {
         web::http::http_response httpResponse;
-        HttpClientHelper::Post(uri, body, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
+        Post(uri, body, headers, authHeaders).then([&httpResponse](const web::http::http_response& response)
             {
                 httpResponse = response;
             }).wait();
@@ -184,14 +184,14 @@ namespace AppInstaller::Http
             break;
 
         case web::http::status_codes::NotFound:
-            THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
+            THROW_HR(APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND);
 
         case web::http::status_codes::NoContent:
             result = {};
             break;
 
         case web::http::status_codes::BadRequest:
-            THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR);
+            THROW_HR(APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR);
 
         case web::http::status_codes::TooManyRequests:
         case web::http::status_codes::ServiceUnavailable:
@@ -208,7 +208,7 @@ namespace AppInstaller::Http
     {
         utility::string_t contentType = response.headers().content_type();
 
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE,
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE,
             !contentType._Starts_with(web::http::details::mime_types::application_json));
 
         return response.extract_json().get();

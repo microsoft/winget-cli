@@ -224,16 +224,16 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->Search(m_dbconn, request);
     }
 
-    std::optional<std::string> SQLiteIndex::GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const
+    std::optional<std::string> SQLiteIndex::GetPropertyByPrimaryId(IdType primaryId, PackageVersionProperty property) const
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        return m_interface->GetPropertyByManifestId(m_dbconn, manifestId, property);
+        return m_interface->GetPropertyByPrimaryId(m_dbconn, primaryId, property);
     }
 
-    std::vector<std::string> SQLiteIndex::GetMultiPropertyByManifestId(IdType manifestId, PackageVersionMultiProperty property) const
+    std::vector<std::string> SQLiteIndex::GetMultiPropertyByPrimaryId(IdType primaryId, PackageVersionMultiProperty property) const
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        return m_interface->GetMultiPropertyByManifestId(m_dbconn, manifestId, property);
+        return m_interface->GetMultiPropertyByPrimaryId(m_dbconn, primaryId, property);
     }
 
     std::optional<SQLiteIndex::IdType> SQLiteIndex::GetManifestIdByKey(IdType id, std::string_view version, std::string_view channel) const

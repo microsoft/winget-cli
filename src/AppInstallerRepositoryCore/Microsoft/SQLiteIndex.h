@@ -116,11 +116,11 @@ namespace AppInstaller::Repository::Microsoft
         // Performs a search based on the given criteria.
         SearchResult Search(const SearchRequest& request) const;
 
-        // Gets the string for the given property and manifest id, if present.
-        std::optional<std::string> GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const;
+        // Gets the string for the given property and primary id, if present.
+        std::optional<std::string> GetPropertyByPrimaryId(IdType primaryId, PackageVersionProperty property) const;
 
-        // Gets the string values for the given property and manifest id, if present.
-        std::vector<std::string> GetMultiPropertyByManifestId(IdType manifestId, PackageVersionMultiProperty property) const;
+        // Gets the string values for the given property and primary id, if present.
+        std::vector<std::string> GetMultiPropertyByPrimaryId(IdType primaryId, PackageVersionMultiProperty property) const;
 
         // Gets the manifest id for the given { id, version, channel }, if present.
         // If version is empty, gets the value for the 'latest' version.
