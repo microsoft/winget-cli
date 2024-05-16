@@ -32,8 +32,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public const string DisableRunAsTestGuid = "1e62d683-2999-44e7-81f7-6f8f35e8d731";
 
         /// <summary>
-        /// Test guid for disabling the serialization of high integrity units.
+        /// Test guid for forcing the creation of high integrity unit processors.
         /// </summary>
-        public const string DisableHighIntegriySerializationTestGuid = "02f64b7d-6c2e-43fa-87dd-1f265800681d";
+        public const string ForceHighIntegrityUnitProcessorsTestGuid = "02f64b7d-6c2e-43fa-87dd-1f265800681d";
     }
 }

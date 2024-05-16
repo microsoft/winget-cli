@@ -345,6 +345,7 @@ jobs:
       testSelector: 'testAssemblies'
       testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
       searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
+      testFiltercriteria: 'Category!=OutOfProcOnly'
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'

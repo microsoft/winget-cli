@@ -16,18 +16,18 @@ namespace AppInstaller::CLI::ConfigurationRemoting
     {
 #ifndef DISABLE_TEST_HOOKS
         constexpr std::wstring_view DisableRunAsTestGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
-        constexpr std::wstring_view DisableHighIntegritySetSerializationTestGuid = L"02f64b7d-6c2e-43fa-87dd-1f265800681d";
+        constexpr std::wstring_view ForceHighIntegrityUnitProcessorsTestGuid = L"02f64b7d-6c2e-43fa-87dd-1f265800681d";
 
         // Checks the configuration set metadata for a specific test guid that controls the behavior flow.
-        bool GetTestBehavior(const ConfigurationSet& configurationSet, const std::wstring_view& testGuid)
+        bool GetConfigurationSetMetadataOverride(const ConfigurationSet& configurationSet, const std::wstring_view& testGuid)
         {
-            auto testBehavior = configurationSet.Metadata().TryLookup(testGuid);
-            if (testBehavior)
+            auto metadataOverride = configurationSet.Metadata().TryLookup(testGuid);
+            if (metadataOverride)
             {
-                auto testBehaviorProperty = testBehavior.try_as<IPropertyValue>();
-                if (testBehaviorProperty && testBehaviorProperty.Type() == PropertyType::Boolean)
+                auto metadataOverrideProperty = metadataOverride.try_as<IPropertyValue>();
+                if (metadataOverrideProperty && metadataOverrideProperty.Type() == PropertyType::Boolean)
                 {
-                    return testBehaviorProperty.GetBoolean();
+                    return metadataOverrideProperty.GetBoolean();
                 }
             }
 
@@ -67,8 +67,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     {
                         for (const auto& existingUnit : m_configurationSet.Units())
                         {
+#ifndef DISABLE_TEST_HOOKS
+                            Security::IntegrityLevel requiredIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, ForceHighIntegrityUnitProcessorsTestGuid) ? Security::IntegrityLevel::High : GetIntegrityLevelForUnit(existingUnit);
+#elif
                             Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(existingUnit);
-
+#endif
                             if (m_setProcessors.find(requiredIntegrityLevel) == m_setProcessors.end())
                             {
                                 CreateSetProcessorForIntegrityLevel(requiredIntegrityLevel);
@@ -77,7 +80,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     });
 
                 // Create set and unit processor for current unit.
+#ifndef DISABLE_TEST_HOOKS
+                Security::IntegrityLevel requiredIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, ForceHighIntegrityUnitProcessorsTestGuid) ? Security::IntegrityLevel::High : GetIntegrityLevelForUnit(unit);
+#elif
                 Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(unit);
+#endif
 
                 auto itr = m_setProcessors.find(requiredIntegrityLevel);
                 if (itr == m_setProcessors.end())
@@ -159,15 +166,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 std::vector<ConfigurationUnit> highIntegrityUnits;
                 auto units = m_configurationSet.Units();
 
-                for (auto unit : units) 
+                for (auto unit : units)
                 {
-                    if (unit.IsActive() && GetIntegrityLevelForUnit(unit) == Security::IntegrityLevel::High &&
-#ifndef DISABLE_TEST_HOOKS
-                        !GetTestBehavior(m_configurationSet, DisableHighIntegritySetSerializationTestGuid)
-#elif
-                        true
-#endif
-                        )
+                    if (unit.IsActive() && GetIntegrityLevelForUnit(unit) == Security::IntegrityLevel::High)
                     {
                         highIntegrityUnits.emplace_back(unit);
                     }
@@ -202,7 +203,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     bool useRunAs = true;
 
 #ifndef DISABLE_TEST_HOOKS
-                    if (GetTestBehavior(m_configurationSet, DisableRunAsTestGuid))
+                    if (GetConfigurationSetMetadataOverride(m_configurationSet, DisableRunAsTestGuid))
                     {
                         useRunAs = false;
                     }

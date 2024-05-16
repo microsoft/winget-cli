@@ -325,7 +325,6 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
     IConfigurationSetProcessorFactory CreateOutOfProcessFactory(bool useRunAs, const std::string& properties, const std::string& restrictions)
     {
-        AICLI_LOG(CLI, Info, << restrictions);
         return winrt::make<RemoteFactory>(useRunAs, properties, restrictions);
     }
 }

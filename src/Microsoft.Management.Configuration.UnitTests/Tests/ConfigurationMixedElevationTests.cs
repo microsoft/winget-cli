@@ -19,6 +19,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// </summary>
     [Collection("UnitTestCollection")]
     [OutOfProc]
+    [OutOfProcOnly]
     public class ConfigurationMixedElevationTests : ConfigurationProcessorTestBase
     {
         private readonly UnitTestFixture fixture;
@@ -89,11 +90,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// Verifies that a unit not in the limitation set will fail.
+        /// Verifies that creating a high integrity unit processor for a non elevated unit should return an invalid operation result.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Fact]
-        public async Task ApplyUnitNotInLimitationSet()
+        public async Task ApplyElevatedUnitNotInLimitationSet()
         {
             string resourceName = "E2ETestResource";
             string moduleName = "xE2ETestResource";
@@ -101,18 +102,26 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             ConfigurationSet configurationSet = this.ConfigurationSet();
             configurationSet.Metadata.Add(Helpers.Constants.DisableRunAsTestGuid, true);
-            configurationSet.Metadata.Add(Helpers.Constants.DisableHighIntegriySerializationTestGuid, true);
+            configurationSet.Metadata.Add(Helpers.Constants.ForceHighIntegrityUnitProcessorsTestGuid, true);
 
-            ConfigurationUnit elevationRequiredUnit1 = this.ConfigurationUnit();
-            elevationRequiredUnit1.Metadata.Add("securityContext", "elevated");
-            elevationRequiredUnit1.Metadata.Add("version", version.ToString());
-            elevationRequiredUnit1.Metadata.Add("module", moduleName);
+            ConfigurationUnit elevationRequiredUnit = this.ConfigurationUnit();
+            elevationRequiredUnit.Metadata.Add("securityContext", "elevated");
+            elevationRequiredUnit.Metadata.Add("version", version.ToString());
+            elevationRequiredUnit.Metadata.Add("module", moduleName);
 
-            elevationRequiredUnit1.Settings.Add("secretCode", "123456789");
-            elevationRequiredUnit1.Type = resourceName;
-            elevationRequiredUnit1.Intent = ConfigurationUnitIntent.Apply;
+            elevationRequiredUnit.Settings.Add("secretCode", "123456789");
+            elevationRequiredUnit.Type = resourceName;
+            elevationRequiredUnit.Intent = ConfigurationUnitIntent.Apply;
 
-            configurationSet.Units = new ConfigurationUnit[] { elevationRequiredUnit1 };
+            ConfigurationUnit nonElevatedUnit = this.ConfigurationUnit();
+            nonElevatedUnit.Metadata.Add("version", version.ToString());
+            nonElevatedUnit.Metadata.Add("module", moduleName);
+
+            nonElevatedUnit.Settings.Add("secretCode", "123456789");
+            nonElevatedUnit.Type = resourceName;
+            nonElevatedUnit.Intent = ConfigurationUnitIntent.Apply;
+
+            configurationSet.Units = new ConfigurationUnit[] { elevationRequiredUnit, nonElevatedUnit };
 
             IConfigurationSetProcessorFactory dynamicFactory = await this.fixture.ConfigurationStatics.CreateConfigurationSetProcessorFactoryAsync(Helpers.Constants.DynamicRuntimeHandlerIdentifier);
 
@@ -122,7 +131,26 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotNull(result);
             Assert.NotNull(result.ResultCode);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_SET_APPLY_FAILED, result.ResultCode.HResult);
-            Assert.Equal(1, result.UnitResults.Count);
+            Assert.Equal(2, result.UnitResults.Count);
+
+            // First unit should succeed since it is a unit that requires elevation.
+            ApplyConfigurationUnitResult firstUnitResult = result.UnitResults[0];
+            Assert.NotNull(firstUnitResult);
+            Assert.False(firstUnitResult.PreviouslyInDesiredState);
+            Assert.False(firstUnitResult.RebootRequired);
+            Assert.NotNull(firstUnitResult.ResultInformation);
+            Assert.Null(firstUnitResult.ResultInformation.ResultCode);
+            Assert.Equal(ConfigurationUnitResultSource.None, firstUnitResult.ResultInformation.ResultSource);
+
+            // Second unit should fail as it was not included in the limitation set.
+            ApplyConfigurationUnitResult secondUnitResult = result.UnitResults[1];
+            Assert.NotNull(secondUnitResult);
+            Assert.False(secondUnitResult.PreviouslyInDesiredState);
+            Assert.False(secondUnitResult.RebootRequired);
+            Assert.NotNull(secondUnitResult.ResultInformation);
+            Assert.NotNull(secondUnitResult.ResultInformation.ResultCode);
+            Assert.Equal(Errors.COR_E_INVALIDOPERATION, secondUnitResult.ResultInformation.ResultCode.HResult);
+            Assert.Equal(ConfigurationUnitResultSource.None, secondUnitResult.ResultInformation.ResultSource);
         }
     }
 }
