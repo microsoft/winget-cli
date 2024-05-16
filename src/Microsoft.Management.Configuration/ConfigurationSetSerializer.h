@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ConfigurationSetSerializer.h"
+#include "ConfigurationSetUtilities.h"
 #include "ConfigurationSet.h"
 
 #include <winget/Yaml.h>
+#include <initializer_list>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -26,7 +28,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationSetSerializer() = default;
 
         void WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const std::vector<ConfigurationUnit>& units);
-        void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet);
+        void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, std::initializer_list<ConfigurationField> exclusions = {});
         void WriteYamlValue(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value);
         void WriteYamlValueSetAsArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSetArray);
         winrt::hstring GetSchemaVersionComment(winrt::hstring version);

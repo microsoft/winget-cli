@@ -28,7 +28,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // TODO: Consider having the version/uri/type information all together in the future
         if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 1)
         {
-            throw E_NOTIMPL;
+            THROW_HR(E_NOTIMPL);
         }
         else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 2)
         {
@@ -36,22 +36,31 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
         else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 3)
         {
-            throw E_NOTIMPL;
+            THROW_HR(E_NOTIMPL);
         }
         else
         {
             AICLI_LOG(Config, Error, << "Unknown configuration version: " << schemaVersion.ToString());
-            throw E_UNEXPECTED;
+            THROW_HR(E_UNEXPECTED);
         }
     }
 
-    void ConfigurationSetSerializer::WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet)
+    void ConfigurationSetSerializer::WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, std::initializer_list<ConfigurationField> exclusions)
     {
+        // Create a sorted list of the field names to exclude
+        std::vector<winrt::hstring> exclusionStrings;
+        for (ConfigurationField field : exclusions)
+        {
+            exclusionStrings.emplace_back(GetConfigurationFieldNameHString(field));
+        }
+        std::sort(exclusionStrings.begin(), exclusionStrings.end());
+
         emitter << BeginMap;
 
         for (const auto& [key, value] : valueSet)
         {
-            if (value != nullptr)
+            if (value != nullptr &&
+                !std::binary_search(exclusionStrings.begin(), exclusionStrings.end(), key))
             {
                 std::string keyName = winrt::to_string(key);
                 emitter << Key << keyName << Value;
