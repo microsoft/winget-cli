@@ -191,6 +191,6 @@ namespace AppInstaller::CLI
 #endif
 
         // Explicitly set default channel and level before user settings from PackageManagerSettings
-        AppInstaller::CLI::Execution::COMContext::SetLoggers(AppInstaller::Logging::Channel::Defaults, AppInstaller::Logging::Level::Verbose);
+        AppInstaller::CLI::Execution::COMContext::SetLoggers(AppInstaller::Logging::Channel::Defaults, AppInstaller::Logging::Level::Info);
     }
 }
