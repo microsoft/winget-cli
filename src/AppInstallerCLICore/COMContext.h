@@ -66,7 +66,7 @@ namespace AppInstaller::CLI::Execution
 
         // Set Diagnostic and Telemetry loggers, Wil failure callback
         // This should be called only once per COM Server instance
-        static void SetLoggers();
+        static void SetLoggers(std::optional<AppInstaller::Logging::Channel> channel = std::nullopt, std::optional<AppInstaller::Logging::Level> level = std::nullopt);
 
         // Set COM call context for diagnostic and telemetry loggers
         // This should be called for every COMContext object instance

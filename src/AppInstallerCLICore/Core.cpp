@@ -180,4 +180,17 @@ namespace AppInstaller::CLI
 
         AppInstaller::CLI::Execution::COMContext::SetLoggers();
     }
+
+    void InProcInitialize()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+#endif
+
+        // Explicitly set default channel and level before user settings from PackageManagerSettings
+        AppInstaller::CLI::Execution::COMContext::SetLoggers(AppInstaller::Logging::Channel::Defaults, AppInstaller::Logging::Level::Info);
+    }
 }

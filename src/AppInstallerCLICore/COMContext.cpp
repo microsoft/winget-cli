@@ -75,10 +75,10 @@ namespace AppInstaller::CLI::Execution
         return m_correlationData;
     }
 
-    void COMContext::SetLoggers()
+    void COMContext::SetLoggers(std::optional<AppInstaller::Logging::Channel> channel, std::optional<AppInstaller::Logging::Level> level)
     {
-        Logging::Log().EnableChannel(Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
-        Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
+        Logging::Log().EnableChannel(channel.has_value() ? channel.value() : Settings::User().Get<Settings::Setting::LoggingChannelPreference>());
+        Logging::Log().SetLevel(level.has_value() ? level.value() : Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
 
         // TODO: Log to file for COM API calls only when debugging in visual studio
         Logging::FileLogger::Add(s_comLogFileNamePrefix);
