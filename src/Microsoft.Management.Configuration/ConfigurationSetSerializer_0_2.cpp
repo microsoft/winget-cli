@@ -73,15 +73,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetSerializer_0_2::WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit)
     {
-        auto metadata = unit.Metadata();
-
-        const auto moduleKey = GetConfigurationFieldNameHString(ConfigurationField::ModuleDirective);
-        if (metadata.HasKey(moduleKey))
-        {
-            metadata.Remove(moduleKey);
-        }
-
         emitter << Key << GetConfigurationFieldName(ConfigurationField::Directives);
-        WriteYamlValueSet(emitter, metadata);
+        WriteYamlValueSet(emitter, unit.Metadata(), { ConfigurationField::ModuleDirective });
     }
 }
