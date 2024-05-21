@@ -103,4 +103,17 @@ namespace AppInstaller::Filesystem
     {
         return InitializeAndGetPathTo(GetPathDetailsFor(path, forDisplay));
     }
+
+    // A shared path .
+    enum class PathName
+    {
+        // Local state root that is specifically unpackaged (even if used from a packaged process).
+        UnpackagedLocalStateRoot,
+        // Local settings root that is specifically unpackaged (even if used from a packaged process).
+        UnpackagedSettingsRoot,
+    };
+
+    // Gets the PathDetails used for the given path.
+    // This is exposed primarily to allow for testing, GetPathTo should be preferred.
+    PathDetails GetPathDetailsFor(PathName path, bool forDisplay = false);
 }
