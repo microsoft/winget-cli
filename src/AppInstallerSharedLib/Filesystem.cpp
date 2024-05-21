@@ -1,13 +1,56 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Public/winget/Filesystem.h"
 #include "Public/AppInstallerStrings.h"
-#include "public/winget/Filesystem.h"
+#include "Public/AppInstallerLogging.h"
+#include "Public/winget/Runtime.h"
+
+using namespace std::chrono_literals;
+using namespace std::string_view_literals;
+using namespace AppInstaller::Runtime;
 
 namespace AppInstaller::Filesystem
 {
-    using namespace std::chrono_literals;
-    using namespace std::string_view_literals;
+    namespace anon
+    {
+        // Contains the information about an ACE entry for a given principal.
+        struct ACEDetails
+        {
+            ACEPrincipal Principal;
+            PSID SID;
+            TRUSTEE_TYPE TrusteeType;
+        };
+
+        DWORD AccessPermissionsFrom(ACEPermissions permissions)
+        {
+            DWORD result = 0;
+
+            if (permissions == ACEPermissions::All)
+            {
+                result |= GENERIC_ALL;
+            }
+            else
+            {
+                if (WI_IsFlagSet(permissions, ACEPermissions::Read))
+                {
+                    result |= GENERIC_READ;
+                }
+
+                if (WI_IsFlagSet(permissions, ACEPermissions::Write))
+                {
+                    result |= GENERIC_WRITE | FILE_DELETE_CHILD;
+                }
+
+                if (WI_IsFlagSet(permissions, ACEPermissions::Execute))
+                {
+                    result |= GENERIC_EXECUTE;
+                }
+            }
+
+            return result;
+        }
+    }
 
     DWORD GetVolumeInformationFlagsByHandle(HANDLE anyFileHandle)
     {
@@ -254,5 +297,128 @@ namespace AppInstaller::Filesystem
             return false;
         }
         return Utility::ICUCaseInsensitiveEquals(Utility::ConvertToUTF8(volumeName1), Utility::ConvertToUTF8(volumeName2));
+    }
+
+    void PathDetails::SetOwner(ACEPrincipal owner)
+    {
+        Owner = owner;
+        ACL[owner] = ACEPermissions::All;
+    }
+
+    bool PathDetails::ShouldApplyACL() const
+    {
+        // Could be expanded to actually check the current owner/ACL on the path, but isn't worth it currently
+        return !ACL.empty();
+    }
+
+    void PathDetails::ApplyACL() const
+    {
+        bool hasCurrentUser = ACL.count(ACEPrincipal::CurrentUser) != 0;
+        bool hasSystem = ACL.count(ACEPrincipal::System) != 0;
+
+        // Configuring permissions for both CurrentUser and SYSTEM while not having owner set as one of them is not valid because
+        // below we use only the owner permissions in the case of running as SYSTEM.
+        if ((hasCurrentUser && hasSystem) &&
+            IsRunningAsSystem() &&
+            (!Owner || (Owner.value() != ACEPrincipal::CurrentUser && Owner.value() != ACEPrincipal::System)))
+        {
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+        }
+
+        auto userToken = wil::get_token_information<TOKEN_USER>();
+        auto adminSID = wil::make_static_sid(SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+        auto systemSID = wil::make_static_sid(SECURITY_NT_AUTHORITY, SECURITY_LOCAL_SYSTEM_RID);
+        PSID ownerSID = nullptr;
+
+        anon::ACEDetails aceDetails[] =
+        {
+            { ACEPrincipal::CurrentUser, userToken->User.Sid, TRUSTEE_IS_USER },
+            { ACEPrincipal::Admins, adminSID.get(), TRUSTEE_IS_WELL_KNOWN_GROUP},
+            { ACEPrincipal::System, systemSID.get(), TRUSTEE_IS_USER},
+        };
+
+        ULONG entriesCount = 0;
+        std::array<EXPLICIT_ACCESS_W, ARRAYSIZE(aceDetails)> explicitAccess;
+
+        // If the current user is SYSTEM, we want to take either the owner or the only configured set of permissions.
+        // The check above should prevent us from getting into situations outside of the ones below.
+        std::optional<ACEPrincipal> principalToIgnore;
+        if (hasCurrentUser && hasSystem && EqualSid(userToken->User.Sid, systemSID.get()))
+        {
+            principalToIgnore = (Owner.value() == ACEPrincipal::CurrentUser ? ACEPrincipal::System : ACEPrincipal::CurrentUser);
+        }
+
+        for (const auto& ace : aceDetails)
+        {
+            if (principalToIgnore && principalToIgnore.value() == ace.Principal)
+            {
+                continue;
+            }
+
+            if (Owner && Owner.value() == ace.Principal)
+            {
+                ownerSID = ace.SID;
+            }
+
+            auto itr = ACL.find(ace.Principal);
+            if (itr != ACL.end())
+            {
+                EXPLICIT_ACCESS_W& entry = explicitAccess[entriesCount++];
+                entry = {};
+
+                entry.grfAccessPermissions = anon::AccessPermissionsFrom(itr->second);
+                entry.grfAccessMode = SET_ACCESS;
+                entry.grfInheritance = CONTAINER_INHERIT_ACE | OBJECT_INHERIT_ACE;
+
+                entry.Trustee.pMultipleTrustee = nullptr;
+                entry.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
+                entry.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+                entry.Trustee.TrusteeType = ace.TrusteeType;
+                entry.Trustee.ptstrName = reinterpret_cast<LPWCH>(ace.SID);
+            }
+        }
+
+        wil::unique_any<PACL, decltype(&::LocalFree), ::LocalFree> acl;
+        THROW_IF_WIN32_ERROR(SetEntriesInAclW(entriesCount, explicitAccess.data(), nullptr, &acl));
+
+        std::wstring path = Path.wstring();
+        SECURITY_INFORMATION securityInformation = DACL_SECURITY_INFORMATION | PROTECTED_DACL_SECURITY_INFORMATION;
+
+        if (ownerSID)
+        {
+            securityInformation |= OWNER_SECURITY_INFORMATION;
+        }
+
+        THROW_IF_WIN32_ERROR(SetNamedSecurityInfoW(&path[0], SE_FILE_OBJECT, securityInformation, ownerSID, nullptr, acl.get(), nullptr));
+    }
+
+    std::filesystem::path InitializeAndGetPathTo(PathDetails&& details)
+    {
+        if (details.Create)
+        {
+            if (details.Path.is_absolute())
+            {
+                if (std::filesystem::exists(details.Path) && !std::filesystem::is_directory(details.Path))
+                {
+                    std::filesystem::remove(details.Path);
+                }
+
+                std::filesystem::create_directories(details.Path);
+
+                // Set the ACLs on the directory if needed. We do this after creating the directory because an attacker could
+                // have created the directory beforehand so we must be able to place the correct ACL on any directory or fail
+                // to operate.
+                if (details.ShouldApplyACL())
+                {
+                    details.ApplyACL();
+                }
+            }
+            else
+            {
+                AICLI_LOG(Core, Warning, << "InitializeAndGetPathTo directory creation requested for path that was not absolute: " << details.Path);
+            }
+        }
+
+        return std::move(details.Path);
     }
 }

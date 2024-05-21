@@ -411,6 +411,7 @@
     <ClInclude Include="Public\winget\Certificates.h" />
     <ClInclude Include="Public\winget\Compression.h" />
     <ClInclude Include="Public\winget\ConfigurationSetProcessorHandlers.h" />
+    <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="Public\winget\IConfigurationStaticsInternals.h" />
     <ClInclude Include="Public\winget\ILifetimeWatcher.h" />
@@ -439,6 +440,7 @@
     <ClCompile Include="Compression.cpp" />
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Errors.cpp" />
+    <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>

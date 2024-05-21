@@ -441,7 +441,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Public\winget\NameNormalization.h" />
-    <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\NetworkSettings.h" />
     <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h" />
     <ClInclude Include="Public\winget\PackageVersionDataManifest.h" />
@@ -468,7 +467,6 @@
     <ClCompile Include="DependenciesGraph.cpp" />
     <ClCompile Include="DODownloader.cpp" />
     <ClCompile Include="FileCache.cpp" />
-    <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FolderFileWatcher.cpp" />
     <ClCompile Include="Deployment.cpp" />
     <ClCompile Include="Downloader.cpp" />
