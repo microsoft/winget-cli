@@ -111,6 +111,15 @@
     <ClCompile Include="ConfigurationSetUtilities.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
+    <ClCompile Include="Database\ConfigurationDatabase.cpp">
+      <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="Database\Schema\IConfigurationDatabase.cpp">
+      <Filter>Database\Schema</Filter>
+    </ClCompile>
+    <ClCompile Include="Database\Schema\0_1\Interface_0_1.cpp">
+      <Filter>Database\Schema\0_1</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -231,6 +240,15 @@
     <ClInclude Include="ConfigurationSetSerializer_0_2.h">
       <Filter>Parser</Filter>
     </ClInclude>
+    <ClInclude Include="Database\ConfigurationDatabase.h">
+      <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="Database\Schema\IConfigurationDatabase.h">
+      <Filter>Database\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Database\Schema\0_1\Interface.h">
+      <Filter>Database\Schema\0_1</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Microsoft.Management.Configuration.idl" />
@@ -255,6 +273,15 @@
     </Filter>
     <Filter Include="Telemetry">
       <UniqueIdentifier>{5a02f1a5-14f3-4a28-8bed-212f3e6b1a00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Database">
+      <UniqueIdentifier>{c82c1df2-4ef3-4d54-9c18-a13ade2ab16a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Database\Schema">
+      <UniqueIdentifier>{6f544d8a-2c3f-4d26-9b53-84dbd2144d43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Database\Schema\0_1">
+      <UniqueIdentifier>{efb71f71-31e4-42db-9105-f10c2e89e1d5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
