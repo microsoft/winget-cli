@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Database/ConfigurationDatabase.h"
+#include "Database/Schema/IConfigurationDatabase.h"
 #include <winget/Filesystem.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
@@ -26,20 +27,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         if (!m_database)
         {
-            std::filesystem::path databaseDirectoryName = AppInstaller::Filesystem::GetPathTo(PathName::LocalState) / anon::s_Database_DirectoryName;
-            std::filesystem::path databaseFileName = databaseDirectoryName / anon::s_Database_FileName;
+            std::filesystem::path databaseDirectory = AppInstaller::Filesystem::GetPathTo(PathName::LocalState) / anon::s_Database_DirectoryName;
+            std::filesystem::path databaseFile = databaseDirectory / anon::s_Database_FileName;
 
             {
                 // TODO: Create and acquire named mutex for database
-                if (!std::filesystem::is_regular_file(databaseFileName))
+                if (!std::filesystem::is_regular_file(databaseFile) && createIfNeeded)
                 {
-                    if (std::filesystem::exists(databaseFileName))
+                    if (std::filesystem::exists(databaseFile))
                     {
-                        std::filesystem::remove_all(databaseDirectoryName);
+                        std::filesystem::remove_all(databaseDirectory);
                     }
 
+                    std::filesystem::create_directories(databaseDirectory);
 
+                    m_connection = StorageBaseDerivedThing::Create(databaseFile, LATEST_VERSION);
+                    m_database = IConfigurationDatabase::CreateFor(m_connection);
+                    m_database->InitializeDatabase();
                 }
+            }
+
+            if (!m_database && std::filesystem::is_regular_file(databaseFile))
+            {
+                m_connection = StorageBaseDerivedThing::Open(databaseFile, ReadWrite);
+                m_database = IConfigurationDatabase::CreateFor(m_connection);
             }
         }
     }
@@ -47,12 +58,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // Gets all of the configuration sets from the database.
     std::vector<ConfigurationDatabase::ConfigurationSetPtr> ConfigurationDatabase::GetSetHistory() const
     {
+        if (!m_database)
+        {
+            return {};
+        }
+
         THROW_HR(E_NOTIMPL);
     }
 
     // Writes the given set to the database history, attempting to merge with a matching set if one exists unless forceNewHistory is true.
     void ConfigurationDatabase::WriteSetHistory(const Configuration::ConfigurationSet& configurationSet, bool forceNewHistory)
     {
+        THROW_HR_IF_NULL(E_POINTER, configurationSet);
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
+
         THROW_HR(E_NOTIMPL);
     }
 }

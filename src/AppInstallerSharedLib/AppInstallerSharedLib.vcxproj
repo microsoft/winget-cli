@@ -424,6 +424,7 @@
     <ClInclude Include="Public\winget\Runtime.h" />
     <ClInclude Include="Public\winget\Security.h" />
     <ClInclude Include="Public\winget\SharedThreadGlobals.h" />
+    <ClInclude Include="Public\winget\SQLiteDynamicStorage.h" />
     <ClInclude Include="Public\winget\SQLiteMetadataTable.h" />
     <ClInclude Include="Public\winget\SQLiteStatementBuilder.h" />
     <ClInclude Include="Public\winget\SQLiteStorageBase.h" />
