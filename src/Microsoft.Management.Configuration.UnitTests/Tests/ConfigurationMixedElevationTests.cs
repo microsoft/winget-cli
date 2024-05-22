@@ -19,6 +19,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// </summary>
     [Collection("UnitTestCollection")]
     [OutOfProc]
+    [OutOfProcOnly]
     public class ConfigurationMixedElevationTests : ConfigurationProcessorTestBase
     {
         private readonly UnitTestFixture fixture;
