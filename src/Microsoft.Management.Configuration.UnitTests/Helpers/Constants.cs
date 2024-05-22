@@ -30,10 +30,5 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Test guid for disabling the dynamic factory from setting the 'RunAs' start process verb.
         /// </summary>
         public const string DisableRunAsTestGuid = "1e62d683-2999-44e7-81f7-6f8f35e8d731";
-
-        /// <summary>
-        /// Test guid for forcing the creation of high integrity unit processors.
-        /// </summary>
-        public const string ForceHighIntegrityUnitProcessorsTestGuid = "02f64b7d-6c2e-43fa-87dd-1f265800681d";
     }
 }

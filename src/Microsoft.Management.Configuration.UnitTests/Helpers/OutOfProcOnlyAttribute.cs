@@ -10,9 +10,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     using Xunit.Sdk;
 
     /// <summary>
-    /// Trait used to mark a test as only for the out of proc scenario. These tests should not run for the in-proc scenario.
+    /// Trait used to mark a test as only for the out of proc scenario. Should not be run for the in-proc scenario
     /// </summary>
-    [TraitDiscoverer(OutOfProcDiscoverer.TypeName, Constants.AssemblyNameForTraits)]
+    [TraitDiscoverer(OutOfProcOnlyDiscoverer.TypeName, Constants.AssemblyNameForTraits)]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
     public class OutOfProcOnlyAttribute : Attribute, ITraitAttribute
     {
