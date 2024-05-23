@@ -109,6 +109,14 @@ namespace AppInstaller::SQLite
             static blob_t GetColumn(sqlite3_stmt* stmt, int column);
         };
 
+        template <>
+        struct ParameterSpecificsImpl<GUID>
+        {
+            static std::string ToLog(const GUID& v);
+            static void Bind(sqlite3_stmt* stmt, int index, const GUID& v);
+            static GUID GetColumn(sqlite3_stmt* stmt, int column);
+        };
+
         template <typename E>
         struct ParameterSpecificsImpl<E, typename std::enable_if_t<std::is_enum_v<E>>>
         {

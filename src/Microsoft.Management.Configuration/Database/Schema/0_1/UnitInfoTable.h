@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "winrt/Microsoft.Management.Configuration.h"
+#include "Database/Schema/IConfigurationDatabase.h"
 #include <winget/SQLiteWrapper.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation::Database::Schema::V0_1
@@ -15,13 +16,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
         // Adds the given configuration unit to the table.
         void Add(const Configuration::ConfigurationUnit& configurationUnit, AppInstaller::SQLite::rowid_t setRowId);
-
-        // Contains the column numbers for the statement returned by GetAllUnitsForSetStatement.
-        struct GetAllUnitsForSetStatementColumns
-        {
-            constexpr static int RowID = 0;
-            constexpr static int InstanceIdentifier = 1;
-        };
 
         // Gets all of the units for the given set.
         std::vector<IConfigurationDatabase::ConfigurationUnitPtr> GetAllUnitsForSet(AppInstaller::SQLite::rowid_t setRowId);

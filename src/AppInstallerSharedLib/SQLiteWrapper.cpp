@@ -149,6 +149,32 @@ namespace AppInstaller::SQLite
             }
         }
 
+        std::string ParameterSpecificsImpl<GUID>::ToLog(const GUID& v)
+        {
+            std::ostringstream strstr;
+            strstr << v;
+            return strstr.str();
+        }
+
+        void ParameterSpecificsImpl<GUID>::Bind(sqlite3_stmt* stmt, int index, const GUID& v)
+        {
+            static_assert(sizeof(v) == 16);
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_blob64(stmt, index, &v, sizeof(v), SQLITE_TRANSIENT), sqlite3_db_handle(stmt));
+        }
+
+        GUID ParameterSpecificsImpl<GUID>::GetColumn(sqlite3_stmt* stmt, int column)
+        {
+            GUID result{};
+
+            const void* blobPtr = sqlite3_column_blob(stmt, column);
+            if (blobPtr)
+            {
+                result = *reinterpret_cast<const GUID*>(blobPtr);
+            }
+
+            return result;
+        }
+
         void SharedConnection::Disable()
         {
             m_active = false;

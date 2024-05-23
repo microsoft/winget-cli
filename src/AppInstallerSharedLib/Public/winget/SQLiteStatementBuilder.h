@@ -112,6 +112,7 @@ namespace AppInstaller::SQLite::Builder
         Text,
         Blob,
         Integer, // Type for specifying a primary key column as a row id alias.
+        None, // Does not declare a type
     };
 
     template <Type type, bool allowNull>
