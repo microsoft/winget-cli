@@ -81,6 +81,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_firstApply;
     }
 
+    void ConfigurationSet::FirstApply(clock::time_point value)
+    {
+        m_firstApply = value;
+    }
+
     clock::time_point ConfigurationSet::ApplyBegun()
     {
         return clock::time_point{};

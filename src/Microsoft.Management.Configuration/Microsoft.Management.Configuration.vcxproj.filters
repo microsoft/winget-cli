@@ -120,6 +120,18 @@
     <ClCompile Include="Database\Schema\0_1\Interface_0_1.cpp">
       <Filter>Database\Schema\0_1</Filter>
     </ClCompile>
+    <ClCompile Include="Filesystem.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Database\Schema\0_1\SetInfoTable.cpp">
+      <Filter>Database\Schema\0_1</Filter>
+    </ClCompile>
+    <ClCompile Include="Database\Schema\0_1\UnitInfoTable.cpp">
+      <Filter>Database\Schema\0_1</Filter>
+    </ClCompile>
+    <ClCompile Include="Database\Schema\0_1\ValueSetTable.cpp">
+      <Filter>Database\Schema\0_1</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -247,6 +259,18 @@
       <Filter>Database\Schema</Filter>
     </ClInclude>
     <ClInclude Include="Database\Schema\0_1\Interface.h">
+      <Filter>Database\Schema\0_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Filesystem.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="Database\Schema\0_1\SetInfoTable.h">
+      <Filter>Database\Schema\0_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Database\Schema\0_1\UnitInfoTable.h">
+      <Filter>Database\Schema\0_1</Filter>
+    </ClInclude>
+    <ClInclude Include="Database\Schema\0_1\ValueSetTable.h">
       <Filter>Database\Schema\0_1</Filter>
     </ClInclude>
   </ItemGroup>

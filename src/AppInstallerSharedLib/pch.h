@@ -10,6 +10,7 @@
 #include <sddl.h>
 #include <Shlobj.h>
 #include <compressapi.h>
+#include <concurrencysal.h>
 
 #define YAML_DECLARE_STATIC
 #include <yaml.h>

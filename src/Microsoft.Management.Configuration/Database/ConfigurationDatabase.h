@@ -3,6 +3,7 @@
 #pragma once
 #include "ConfigurationSet.h"
 #include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteDynamicStorage.h>
 #include <memory>
 #include <vector>
 
@@ -34,12 +35,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Gets all of the configuration sets from the database.
         std::vector<ConfigurationSetPtr> GetSetHistory() const;
 
-        // Writes the given set to the database history, attempting to merge with a matching set if one exists unless forceNewHistory is true.
-        void WriteSetHistory(const Configuration::ConfigurationSet& configurationSet, bool forceNewHistory);
+        // Writes the given set to the database history, attempting to merge with a matching set if one exists unless preferNewHistory is true.
+        void WriteSetHistory(const Configuration::ConfigurationSet& configurationSet, bool preferNewHistory);
 
     private:
-        // TODO: change to a new dynamic storagebase wrapper that for when schema versions might change on us
-        std::shared_ptr<AppInstaller::SQLite::Connection> m_connection;
-        std::unique_ptr<IConfigurationDatabase> m_database;
+        std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> m_connection;
+        mutable std::unique_ptr<IConfigurationDatabase> m_database;
+
+        using TransactionLock = decltype(m_connection->TryBeginTransaction({}));
+
+        // Begins a transaction, which may require upgrading to a newer schema version.
+        TransactionLock BeginTransaction(std::string_view name) const;
     };
 }

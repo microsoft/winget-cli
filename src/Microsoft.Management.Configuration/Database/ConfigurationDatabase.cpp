@@ -4,13 +4,18 @@
 #include "Database/ConfigurationDatabase.h"
 #include "Database/Schema/IConfigurationDatabase.h"
 #include <winget/Filesystem.h>
+#include "Filesystem.h"
+
+using namespace AppInstaller::SQLite;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    namespace anon
+    namespace
     {
-        constexpr std::string_view s_Database_DirectoryName = "history"sv;
+        constexpr std::string_view s_Database_DirectoryName = "History"sv;
         constexpr std::string_view s_Database_FileName = "config.db"sv;
+
+        #define s_Database_MutexName L"WindowsPackageManager_Configuration_DatabaseMutex"
     }
 
     ConfigurationDatabase::ConfigurationDatabase() = default;
@@ -20,18 +25,23 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     ConfigurationDatabase::~ConfigurationDatabase() = default;
 
-    // Ensures that the database connection is established and the schema interface is created appropriately.
-    // If `createIfNeeded` is false, this function will not create the database if it does not exist.
-    // If not connected, any read methods will return empty results and any write methods will throw.
     void ConfigurationDatabase::EnsureOpened(bool createIfNeeded)
     {
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        // While under development, treat errors escaping this function as a test hook.
+        try
+        {
+#endif
         if (!m_database)
         {
-            std::filesystem::path databaseDirectory = AppInstaller::Filesystem::GetPathTo(PathName::LocalState) / anon::s_Database_DirectoryName;
-            std::filesystem::path databaseFile = databaseDirectory / anon::s_Database_FileName;
+            std::filesystem::path databaseDirectory = AppInstaller::Filesystem::GetPathTo(PathName::LocalState) / s_Database_DirectoryName;
+            std::filesystem::path databaseFile = databaseDirectory / s_Database_FileName;
 
             {
-                // TODO: Create and acquire named mutex for database
+                wil::unique_mutex databaseMutex;
+                databaseMutex.create(s_Database_MutexName);
+                auto databaseLock = databaseMutex.acquire();
+
                 if (!std::filesystem::is_regular_file(databaseFile) && createIfNeeded)
                 {
                     if (std::filesystem::exists(databaseFile))
@@ -41,7 +51,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
                     std::filesystem::create_directories(databaseDirectory);
 
-                    m_connection = StorageBaseDerivedThing::Create(databaseFile, LATEST_VERSION);
+                    m_connection = std::make_shared<SQLiteDynamicStorage>(databaseFile, IConfigurationDatabase::GetLatestVersion());
                     m_database = IConfigurationDatabase::CreateFor(m_connection);
                     m_database->InitializeDatabase();
                 }
@@ -49,29 +59,81 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             if (!m_database && std::filesystem::is_regular_file(databaseFile))
             {
-                m_connection = StorageBaseDerivedThing::Open(databaseFile, ReadWrite);
+                m_connection = std::make_shared<SQLiteDynamicStorage>(databaseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
                 m_database = IConfigurationDatabase::CreateFor(m_connection);
             }
         }
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        }
+        CATCH_LOG();
+#endif
     }
 
-    // Gets all of the configuration sets from the database.
     std::vector<ConfigurationDatabase::ConfigurationSetPtr> ConfigurationDatabase::GetSetHistory() const
     {
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        // While under development, treat errors escaping this function as a test hook.
+        try
+        {
+#endif
         if (!m_database)
         {
             return {};
         }
 
-        THROW_HR(E_NOTIMPL);
+        auto transaction = BeginTransaction("GetSetHistory");
+        return m_database->GetSets();
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        }
+        CATCH_LOG();
+
+        return {};
+#endif
     }
 
-    // Writes the given set to the database history, attempting to merge with a matching set if one exists unless forceNewHistory is true.
-    void ConfigurationDatabase::WriteSetHistory(const Configuration::ConfigurationSet& configurationSet, bool forceNewHistory)
+    void ConfigurationDatabase::WriteSetHistory(const Configuration::ConfigurationSet& configurationSet, bool preferNewHistory)
     {
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        // While under development, treat errors escaping this function as a test hook.
+        try
+        {
+#endif
         THROW_HR_IF_NULL(E_POINTER, configurationSet);
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
 
-        THROW_HR(E_NOTIMPL);
+        auto transaction = BeginTransaction("WriteSetHistory");
+
+        if (!preferNewHistory)
+        {
+            // TODO: Use conflict detection code to check for a matching set
+        }
+
+        m_database->AddSet(configurationSet);
+        m_connection->SetLastWriteTime();
+
+        transaction->Commit();
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        }
+        CATCH_LOG();
+#endif
+    }
+
+    ConfigurationDatabase::TransactionLock ConfigurationDatabase::BeginTransaction(std::string_view name) const
+    {
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_connection);
+
+        TransactionLock result = m_connection->TryBeginTransaction(name);
+
+        while (!result)
+        {
+            {
+                auto connectionLock = m_connection->LockConnection();
+                m_database = IConfigurationDatabase::CreateFor(m_connection);
+            }
+
+            result = m_connection->TryBeginTransaction(name);
+        }
+
+        return result;
     }
 }

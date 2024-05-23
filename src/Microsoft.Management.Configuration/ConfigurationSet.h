@@ -19,6 +19,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         ConfigurationSet(const guid& instanceIdentifier);
+        void FirstApply(clock::time_point value);
         void Units(std::vector<Configuration::ConfigurationUnit>&& units);
         void Parameters(std::vector<Configuration::ConfigurationParameter>&& value);
 

@@ -462,6 +462,7 @@
     <ClCompile Include="JsonSchemaValidation.cpp" />
     <ClCompile Include="JsonUtil.cpp" />
     <ClCompile Include="ManagedFile.cpp" />
+    <ClCompile Include="SQLiteDynamicStorage.cpp" />
     <ClCompile Include="SQLiteMetadataTable.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Resources.cpp" />

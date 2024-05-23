@@ -56,7 +56,7 @@ namespace AppInstaller::SQLite
         static Version GetSchemaVersion(Connection& connection);
 
         // Writes the current version to the given database.
-        void SetSchemaVersion(Connection& connection);
+        void SetSchemaVersion(Connection& connection) const;
     };
 
     // Output the version

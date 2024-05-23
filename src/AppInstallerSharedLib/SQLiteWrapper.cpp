@@ -335,6 +335,9 @@ namespace AppInstaller::SQLite
         m_state = State::Prepared;
     }
 
+    Savepoint::Savepoint() : m_inProgress(false)
+    {}
+
     Savepoint::Savepoint(Connection& connection, std::string&& name) :
         m_name(std::move(name))
     {

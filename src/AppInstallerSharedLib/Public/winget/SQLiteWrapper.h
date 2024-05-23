@@ -370,6 +370,8 @@ namespace AppInstaller::SQLite
         // Creates a savepoint, beginning it.
         static Savepoint Create(Connection& connection, std::string name);
 
+        Savepoint();
+
         Savepoint(const Savepoint&) = delete;
         Savepoint& operator=(const Savepoint&) = delete;
 
