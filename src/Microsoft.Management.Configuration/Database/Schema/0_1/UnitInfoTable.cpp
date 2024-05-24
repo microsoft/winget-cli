@@ -180,7 +180,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             unit->Type(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(3)) });
             unit->Identifier(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(4)) });
             unit->Intent(statement.GetColumn<ConfigurationUnitIntent>(5));
-            unit->Dependencies(valueSetTable.GetStringVector(statement.GetColumn<rowid_t>(6)));
+            auto dependecies = valueSetTable.GetArray<Windows::Foundation::PropertyType::String>(statement.GetColumn<rowid_t>(6));
+            if (dependecies)
+            {
+                unit->Dependencies(std::move(dependecies).value());
+            }
             unit->Metadata(valueSetTable.GetValueSet(statement.GetColumn<rowid_t>(7)));
             unit->Settings(valueSetTable.GetValueSet(statement.GetColumn<rowid_t>(8)));
             unit->IsActive(statement.GetColumn<bool>(9));

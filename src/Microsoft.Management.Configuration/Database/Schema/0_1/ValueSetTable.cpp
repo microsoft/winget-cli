@@ -43,9 +43,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         //  Guid :: GUID
         //  *Array :: rowid_t (the rowid of another root)
         constexpr std::string_view s_ValueSetTable_Column_Value = "value"sv;
+
+        // Gets a standard row insert statement for the table.
+        // Binds:
+        //  1 :: ValueSetRootRowId
+        //  2 :: ParentRowId
+        //  3 :: Name
+        //  4 :: Type
+        //  5 :: Value
+        Statement GetRowInsertStatement(Connection& connection)
+        {
+            StatementBuilder resultBuilder;
+            resultBuilder.InsertInto(s_ValueSetTable_Table).Columns({
+                s_ValueSetTable_Column_ValueSetRootRowId,
+                s_ValueSetTable_Column_ParentRowId,
+                s_ValueSetTable_Column_Name,
+                s_ValueSetTable_Column_Type,
+                s_ValueSetTable_Column_Value,
+            }).Values(Unbound, Unbound, Unbound, Unbound, Unbound);
+
+            return resultBuilder.Prepare(connection);
+        }
     }
 
-    ValueSetTable::ValueSetTable(AppInstaller::SQLite::Connection& connection) : m_connection(connection) {}
+    ValueSetTable::ValueSetTable(Connection& connection) : m_connection(connection) {}
 
     void ValueSetTable::Create()
     {
@@ -73,7 +94,34 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
     AppInstaller::SQLite::rowid_t ValueSetTable::Add(const winrt::Windows::Foundation::Collections::ValueSet& valueSet)
     {
+        Statement rowInsert = GetRowInsertStatement(m_connection);
 
+        // Insert sentinel row
+        rowInsert.Bind(1, nullptr);
+        rowInsert.Bind(2, nullptr);
+        rowInsert.Bind(3, ""sv);
+        rowInsert.Bind(4, valueSet ? Windows::Foundation::PropertyType::Inspectable : Windows::Foundation::PropertyType::Empty);
+        rowInsert.Bind(5, nullptr);
+
+        rowInsert.Execute();
+        rowid_t resultRowId = m_connection.GetLastInsertRowID();
+        rowInsert.Bind(1, resultRowId);
+
+        if (valueSet)
+        {
+            for (const auto& values : valueSet)
+            {
+                rowInsert.Reset();
+
+                // TODO: Set binds properly
+                rowInsert.Bind(2, nullptr);
+                rowInsert.Bind(3, ""sv);
+                rowInsert.Bind(4, valueSet ? Windows::Foundation::PropertyType::Inspectable : Windows::Foundation::PropertyType::Empty);
+                rowInsert.Bind(5, nullptr);
+            }
+        }
+
+        return resultRowId;
     }
 
     AppInstaller::SQLite::rowid_t ValueSetTable::Add(const winrt::Windows::Foundation::Collections::IVector<winrt::hstring>& values)
@@ -82,11 +130,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
     }
 
     winrt::Windows::Foundation::Collections::ValueSet ValueSetTable::GetValueSet(AppInstaller::SQLite::rowid_t rootRowId)
-    {
-
-    }
-
-    std::vector<winrt::hstring> ValueSetTable::GetStringVector(AppInstaller::SQLite::rowid_t rootRowId)
     {
 
     }
