@@ -47,6 +47,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public static readonly int WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE_ADMIN             = unchecked((int)0x8A15C111);
         public static readonly int WINGET_CONFIG_ERROR_NOT_SUPPORTED_BY_PROCESSOR           = unchecked((int)0x8A15C112);
 
+        // Limitation Set Errors
+        public static readonly int CORE_INVALID_OPERATION = unchecked((int)0x80131509);
+
 #pragma warning restore SA1025 // Code should not contain multiple whitespace in a row
 #pragma warning restore SA1600 // Elements should be documented
 #pragma warning restore SA1310 // Field names should not contain underscore

@@ -15,7 +15,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
     namespace anonymous
     {
 #ifndef DISABLE_TEST_HOOKS
-        constexpr std::wstring_view DisableRunAsTestGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
+        constexpr std::wstring_view EnableTestModeTestGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
+        constexpr std::wstring_view ForceHighIntegrityLevelUnitsTestGuid = L"f698d20f-3584-4f28-bc75-28037e08e651";
+        constexpr std::wstring_view EnableRestrictedIntegrityLevelTestGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
 
         // Checks the configuration set metadata for a specific test guid that controls the behavior flow.
         bool GetConfigurationSetMetadataOverride(const ConfigurationSet& configurationSet, const std::wstring_view& testGuid)
@@ -46,7 +48,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             DynamicSetProcessor(IConfigurationSetProcessorFactory defaultRemoteFactory, IConfigurationSetProcessor defaultRemoteSetProcessor, const ConfigurationSet& configurationSet) : m_configurationSet(configurationSet)
             {
+#ifndef DISABLE_TEST_HOOKS
+                m_currentIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid) ? Security::IntegrityLevel::Medium : Security::GetEffectiveIntegrityLevel();
+#elif
                 m_currentIntegrityLevel = Security::GetEffectiveIntegrityLevel();
+#endif
+
                 m_setProcessors.emplace(m_currentIntegrityLevel, DynamicProcessorInfo{ defaultRemoteFactory, defaultRemoteSetProcessor });
             }
 
@@ -76,7 +83,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     });
 
                 // Create set and unit processor for current unit.
+#ifndef DISABLE_TEST_HOOKS
+                Security::IntegrityLevel requiredIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, ForceHighIntegrityLevelUnitsTestGuid) ? Security::IntegrityLevel::High : GetIntegrityLevelForUnit(unit);
+#elif
                 Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(unit);
+#endif
 
                 auto itr = m_setProcessors.find(requiredIntegrityLevel);
                 if (itr == m_setProcessors.end())
@@ -99,11 +110,23 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 }
                 else if (securityContextLower == L"restricted")
                 {
+#ifndef DISABLE_TEST_HOOKS
+                    if (GetConfigurationSetMetadataOverride(m_configurationSet, EnableRestrictedIntegrityLevelTestGuid))
+                    {
+                        return Security::IntegrityLevel::Medium;
+                    }
+                    else
+                    {
+                        THROW_WIN32(ERROR_NOT_SUPPORTED);
+                    }
+#elif
+
                     // Not supporting elevated callers downgrading at the moment.
                     THROW_WIN32(ERROR_NOT_SUPPORTED);
 
                     // Technically this means the default level of the user token, so if UAC is disabled it would be the only integrity level (aka current).
                     //return Security::IntegrityLevel::Medium;
+#endif
                 }
                 else if (securityContextLower == L"current")
                 {
@@ -192,13 +215,10 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // If we got here, the only option is that the current integrity level is not High.
                 if (integrityLevel == Security::IntegrityLevel::High)
                 {
-                    bool useRunAs = true;
-
 #ifndef DISABLE_TEST_HOOKS
-                    if (GetConfigurationSetMetadataOverride(m_configurationSet, DisableRunAsTestGuid))
-                    {
-                        useRunAs = false;
-                    }
+                    bool useRunAs = !GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
+#elif
+                    bool useRunAs = true;
 #endif
 
                     factory = CreateOutOfProcessFactory(useRunAs, SerializeSetProperties(), SerializeHighIntegrityLevelSet());

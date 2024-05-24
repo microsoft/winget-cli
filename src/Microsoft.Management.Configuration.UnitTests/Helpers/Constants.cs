@@ -27,8 +27,18 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public const string DynamicRuntimeHandlerIdentifier = "{73fea39f-6f4a-41c9-ba94-6fd14d633e40}";
 
         /// <summary>
-        /// Test guid for disabling the dynamic factory from setting the 'RunAs' start process verb.
+        /// Test guid for enabling test mode for the dynamic runtime factory. Forces factory to exclude 'runas' verb and sets current IL to medium.
         /// </summary>
-        public const string DisableRunAsTestGuid = "1e62d683-2999-44e7-81f7-6f8f35e8d731";
+        public const string EnableDynamicFactoryTestMode = "1e62d683-2999-44e7-81f7-6f8f35e8d731";
+
+        /// <summary>
+        /// Test guid for allowing the restricted integrity level to be supported.
+        /// </summary>
+        public const string EnableRestrictedIntegrityLevelTestGuid = "5cae3226-185f-4289-815c-3c089d238dc6";
+
+        /// <summary>
+        /// Test guid for forcing units to have a high integrity level during the final routing of unit processor creation.
+        /// </summary>
+        public const string ForceHighIntegrityLevelUnitsTestGuid = "f698d20f-3584-4f28-bc75-28037e08e651";
     }
 }
