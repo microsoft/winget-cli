@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ValueSetTable.h"
+#include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerStrings.h>
 #include <winget/SQLiteStatementBuilder.h>
 
@@ -94,33 +95,151 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
     AppInstaller::SQLite::rowid_t ValueSetTable::Add(const winrt::Windows::Foundation::Collections::ValueSet& valueSet)
     {
+        return Add(valueSet, std::nullopt);
+    }
+
+    AppInstaller::SQLite::rowid_t ValueSetTable::Add(const winrt::Windows::Foundation::Collections::ValueSet& valueSet, std::optional<rowid_t> valueSetRowId)
+    {
+        using namespace Windows::Foundation;
+
+        Savepoint savepoint = Savepoint::Create(m_connection, "ValueSetTable_AddValueSet_0_1");
+
         Statement rowInsert = GetRowInsertStatement(m_connection);
 
         // Insert sentinel row
         rowInsert.Bind(1, nullptr);
         rowInsert.Bind(2, nullptr);
         rowInsert.Bind(3, ""sv);
-        rowInsert.Bind(4, valueSet ? Windows::Foundation::PropertyType::Inspectable : Windows::Foundation::PropertyType::Empty);
+        rowInsert.Bind(4, valueSet ? PropertyType::Inspectable : PropertyType::Empty);
         rowInsert.Bind(5, nullptr);
 
         rowInsert.Execute();
         rowid_t resultRowId = m_connection.GetLastInsertRowID();
-        rowInsert.Bind(1, resultRowId);
+
+        if (!valueSetRowId)
+        {
+            valueSetRowId = resultRowId;
+        }
+        rowInsert.Bind(1, valueSetRowId.value());
 
         if (valueSet)
         {
-            for (const auto& values : valueSet)
+            for (const auto& value : valueSet)
             {
                 rowInsert.Reset();
 
-                // TODO: Set binds properly
-                rowInsert.Bind(2, nullptr);
-                rowInsert.Bind(3, ""sv);
-                rowInsert.Bind(4, valueSet ? Windows::Foundation::PropertyType::Inspectable : Windows::Foundation::PropertyType::Empty);
-                rowInsert.Bind(5, nullptr);
+                rowInsert.Bind(2, resultRowId);
+                rowInsert.Bind(3, ConvertToUTF8(value.Key()));
+
+                IInspectable object = value.Value();
+
+                if (Collections::ValueSet childValueSet = object.try_as<Collections::ValueSet>())
+                {
+                    rowInsert.Bind(4, PropertyType::Inspectable);
+                    rowInsert.Bind(5, Add(childValueSet, valueSetRowId));
+                }
+                else if (IPropertyValue childValue = object.try_as<IPropertyValue>())
+                {
+                    PropertyType propertyType = childValue.Type();
+                    rowInsert.Bind(4, propertyType);
+                    constexpr static int32_t ArrayBaseValue = 1024;
+
+                    if (AppInstaller::ToIntegral(propertyType) >= ArrayBaseValue)
+                    {
+                        switch (AppInstaller::ToEnum<PropertyType>(AppInstaller::ToIntegral(propertyType) - ArrayBaseValue))
+                        {
+                        case PropertyType::UInt8:
+                            childValue.GetUInt8Array()
+                            break;
+                        case PropertyType::Int16:
+                            break;
+                        case PropertyType::UInt16:
+                            break;
+                        case PropertyType::Int32:
+                            break;
+                        case PropertyType::UInt32:
+                            break;
+                        case PropertyType::Int64:
+                            break;
+                        case PropertyType::UInt64:
+                            break;
+                        case PropertyType::Single:
+                            break;
+                        case PropertyType::Double:
+                            break;
+                        case PropertyType::Char16:
+                            break;
+                        case PropertyType::Boolean:
+                            break;
+                        case PropertyType::String:
+                            break;
+                        case PropertyType::Inspectable:
+                            break;
+                        case PropertyType::DateTime:
+                            break;
+                        case PropertyType::TimeSpan:
+                            break;
+                        case PropertyType::Guid:
+                            break;
+                        default:
+                            THROW_WIN32(ERROR_NOT_SUPPORTED);
+                        }
+                    }
+                    else
+                    {
+                        switch (propertyType)
+                        {
+                        case PropertyType::UInt8:
+                            rowInsert.Bind(5, childValue.GetUInt8());
+                            break;
+                        case PropertyType::Int16:
+                            rowInsert.Bind(5, childValue.GetInt16());
+                            break;
+                        case PropertyType::UInt16:
+                            rowInsert.Bind(5, childValue.GetUInt16());
+                            break;
+                        case PropertyType::Int32:
+                            break;
+                        case PropertyType::UInt32:
+                            break;
+                        case PropertyType::Int64:
+                            break;
+                        case PropertyType::UInt64:
+                            break;
+                        case PropertyType::Single:
+                            break;
+                        case PropertyType::Double:
+                            break;
+                        case PropertyType::Char16:
+                            break;
+                        case PropertyType::Boolean:
+                            break;
+                        case PropertyType::String:
+                            break;
+                        case PropertyType::Inspectable:
+                            break;
+                        case PropertyType::DateTime:
+                            break;
+                        case PropertyType::TimeSpan:
+                            break;
+                        case PropertyType::Guid:
+                            break;
+                        default:
+                            THROW_WIN32(ERROR_NOT_SUPPORTED);
+                        }
+                    }
+                }
+                else
+                {
+                    // ValueSet is only supposed to contain property values and value sets
+                    THROW_HR(E_UNEXPECTED);
+                }
+
+                rowInsert.Execute();
             }
         }
 
+        savepoint.Commit();
         return resultRowId;
     }
 

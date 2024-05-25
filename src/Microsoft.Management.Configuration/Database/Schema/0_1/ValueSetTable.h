@@ -84,6 +84,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         }
 
     private:
+        // Adds the given value set to the table; optionally using the given value set rowid.
+        // Returns the row id of the added set.
+        AppInstaller::SQLite::rowid_t Add(const winrt::Windows::Foundation::Collections::ValueSet& valueSet, std::optional<rowid_t> valueSetRowId);
+
         // Gets a value of the template type using the statement and column provided.
         // The property type is not verified.
         template <Windows::Foundation::PropertyType PropertyType>
