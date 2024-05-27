@@ -45,6 +45,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
+    std::string ConfigurationSetSerializer::SerializeValueSet(const Windows::Foundation::Collections::ValueSet& valueSet)
+    {
+        Emitter emitter;
+        WriteYamlValueSet(emitter, valueSet);
+        return emitter.str();
+    }
+
+    std::string ConfigurationSetSerializer::SerializeStringArray(const Windows::Foundation::Collections::IVector<hstring>& stringArray)
+    {
+        Emitter emitter;
+        WriteYamlStringArray(emitter, stringArray);
+        return emitter.str();
+    }
+
     void ConfigurationSetSerializer::WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, std::initializer_list<ConfigurationField> exclusions)
     {
         // Create a sorted list of the field names to exclude
@@ -71,6 +85,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         emitter << EndMap;
     }
 
+    void ConfigurationSetSerializer::WriteYamlStringArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<hstring>& values)
+    {
+        emitter << BeginSeq;
+
+        for (const auto& value : values)
+        {
+            emitter << AppInstaller::Utility::ConvertToUTF8(value);
+        }
+
+        emitter << EndSeq;
+    }
 
     void ConfigurationSetSerializer::WriteYamlValue(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value)
     {
@@ -111,7 +136,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 }
                 else
                 {
-                    THROW_HR(E_NOTIMPL);;
+                    THROW_HR(E_NOTIMPL);
                 }
             }
         }

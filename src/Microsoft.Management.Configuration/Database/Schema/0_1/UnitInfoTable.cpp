@@ -4,6 +4,7 @@
 #include "UnitInfoTable.h"
 #include "ConfigurationUnit.h"
 #include "ConfigurationSetParser.h"
+#include "ConfigurationSetSerializer.h"
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerStrings.h>
 #include <winget/SQLiteStatementBuilder.h>
@@ -64,7 +65,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         savepoint.Commit();
     }
 
-    void UnitInfoTable::Add(const Configuration::ConfigurationUnit& configurationUnit, AppInstaller::SQLite::rowid_t setRowId)
+    void UnitInfoTable::Add(const Configuration::ConfigurationUnit& configurationUnit, AppInstaller::SQLite::rowid_t setRowId, hstring schemaVersion)
     {
         Savepoint savepoint = Savepoint::Create(m_connection, "UnitInfoTable_Add_0_1");
 
@@ -105,6 +106,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
         std::queue<UnitsToInsert> unitsToInsert;
         unitsToInsert.emplace(UnitsToInsert{ std::nullopt, configurationUnit });
+        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion);
 
         while (!unitsToInsert.empty())
         {
@@ -120,9 +122,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             insertStatement.Bind(4, ConvertToUTF8(current.Unit.Type()));
             insertStatement.Bind(5, ConvertToUTF8(current.Unit.Identifier()));
             insertStatement.Bind(6, AppInstaller::ToIntegral(current.Unit.Intent()));
-            insertStatement.Bind(7, valueSetTable.Add(current.Unit.Dependencies()));
-            insertStatement.Bind(8, valueSetTable.Add(current.Unit.Metadata()));
-            insertStatement.Bind(9, valueSetTable.Add(current.Unit.Settings()));
+            insertStatement.Bind(7, serializer->SerializeStringArray(current.Unit.Dependencies()));
+            insertStatement.Bind(8, serializer->SerializeValueSet(current.Unit.Metadata()));
+            insertStatement.Bind(9, serializer->SerializeValueSet(current.Unit.Settings()));
             insertStatement.Bind(10, current.Unit.IsActive());
             insertStatement.Bind(11, isGroup);
 

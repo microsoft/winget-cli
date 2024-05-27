@@ -113,6 +113,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Parse the sequence named `field` from the given `node`.
         void ParseSequence(const AppInstaller::YAML::Node& node, ConfigurationField field, bool required, std::optional<AppInstaller::YAML::Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation);
 
+        // Parse the sequence from the given `node`.
+        void ParseSequence(const AppInstaller::YAML::Node& node, std::string_view nameForErrors, std::optional<AppInstaller::YAML::Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation);
+
         // Gets the string value in `field` from the given `node`, setting this value on `unit` using the `propertyFunction`.
         void GetStringValueForUnit(const AppInstaller::YAML::Node& node, ConfigurationField field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value));
 

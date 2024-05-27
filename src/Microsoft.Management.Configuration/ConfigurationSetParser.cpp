@@ -325,6 +325,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return result;
     }
 
+    std::vector<hstring> ConfigurationSetParser::ParseStringArray(std::string_view input)
+    {
+        std::vector<hstring> result;
+        ParseSequence(Load(input), "string_array", Node::Type::Scalar, [&](const AppInstaller::YAML::Node& item)
+        {
+            result.emplace_back(item.as<std::wstring>());
+        });
+        return result;
+    }
+
     void ConfigurationSetParser::SetError(hresult result, std::string_view field, std::string_view value, uint32_t line, uint32_t column)
     {
         AICLI_LOG(Config, Error, << "ConfigurationSetParser error: " << AppInstaller::Logging::SetHRFormat << result << " for " << field << " with value `" << value << "` at [line " << line << ", col " << column << "]");
@@ -419,11 +429,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return;
         }
 
+        ParseSequence(sequenceNode, GetConfigurationFieldName(field), elementType, operation);
+    }
+
+    void ConfigurationSetParser::ParseSequence(const AppInstaller::YAML::Node& node, std::string_view nameForErrors, std::optional<Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation)
+    {
         std::ostringstream strstr;
-        strstr << GetConfigurationFieldName(field);
+        strstr << nameForErrors;
         size_t index = 0;
 
-        for (const Node& item : sequenceNode.Sequence())
+        for (const Node& item : node.Sequence())
         {
             if (elementType && item.GetType() != elementType.value())
             {

@@ -58,8 +58,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         Savepoint savepoint = Savepoint::Create(m_connection, "SetInfoTable_Add_0_1");
 
         THROW_HR_IF(E_NOTIMPL, configurationSet.Parameters().Size() > 0);
-        std::string schemaVersion = ConvertToUTF8(configurationSet.SchemaVersion());
-        auto serializer = ConfigurationSetSerializer::CreateForSchemaVersion(schemaVersion);
+        hstring schemaVersion = configurationSet.SchemaVersion();
+        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion);
 
         StatementBuilder builder;
         builder.InsertInto(s_SetInfoTable_Table).Columns({
@@ -77,7 +77,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             ConvertToUTF8(configurationSet.Origin()),
             ConvertToUTF8(configurationSet.Path()),
             GetCurrentUnixEpoch(),
-            schemaVersion,
+            ConvertToUTF8(schemaVersion),
             serializer->SerializeValueSet(configurationSet.Metadata()),
             serializer->SerializeValueSet(configurationSet.Variables())
         );

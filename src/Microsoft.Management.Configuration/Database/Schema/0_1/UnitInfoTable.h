@@ -15,7 +15,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         void Create();
 
         // Adds the given configuration unit to the table.
-        void Add(const Configuration::ConfigurationUnit& configurationUnit, AppInstaller::SQLite::rowid_t setRowId);
+        void Add(const Configuration::ConfigurationUnit& configurationUnit, AppInstaller::SQLite::rowid_t setRowId, hstring schemaVersion);
 
         // Gets all of the units for the given set.
         std::vector<IConfigurationDatabase::ConfigurationUnitPtr> GetAllUnitsForSet(AppInstaller::SQLite::rowid_t setRowId, std::string_view schemaVersion);

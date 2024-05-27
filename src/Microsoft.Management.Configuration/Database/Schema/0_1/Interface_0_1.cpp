@@ -42,13 +42,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
         UnitInfoTable unitInfoTable(*m_storage);
 
+        hstring schemaVersion = configurationSet.SchemaVersion();
+
         auto winrtUnits = configurationSet.Units();
         std::vector<ConfigurationUnit> units{ winrtUnits.Size() };
         winrtUnits.GetMany(0, units);
 
         for (const ConfigurationUnit& unit : units)
         {
-            unitInfoTable.Add(unit, setRowId);
+            unitInfoTable.Add(unit, setRowId, schemaVersion);
         }
 
         savepoint.Commit();
@@ -81,7 +83,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             configurationSet->Variables(parser->ParseValueSet(getAllSets.GetColumn<std::string>(Columns::Variables)));
 
             std::vector<Configuration::ConfigurationUnit> winrtUnits;
-            for (const auto& unit : unitInfoTable.GetAllUnitsForSet(getAllSets.GetColumn<rowid_t>(Columns::RowID)))
+            for (const auto& unit : unitInfoTable.GetAllUnitsForSet(getAllSets.GetColumn<rowid_t>(Columns::RowID), schemaVersion))
             {
                 winrtUnits.emplace_back(*unit);
             }
