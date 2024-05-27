@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "UnitInfoTable.h"
-#include "ValueSetTable.h"
 #include "ConfigurationUnit.h"
+#include "ConfigurationSetParser.h"
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerStrings.h>
 #include <winget/SQLiteStatementBuilder.h>
@@ -47,9 +47,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             ColumnBuilder(s_UnitInfoTable_Column_Type, Type::Text).NotNull(),
             ColumnBuilder(s_UnitInfoTable_Column_Identifier, Type::Text).NotNull(),
             ColumnBuilder(s_UnitInfoTable_Column_Intent, Type::Int).NotNull(),
-            ColumnBuilder(s_UnitInfoTable_Column_Dependencies, Type::RowId).NotNull(),
-            ColumnBuilder(s_UnitInfoTable_Column_Metadata, Type::RowId).NotNull(),
-            ColumnBuilder(s_UnitInfoTable_Column_Settings, Type::RowId).NotNull(),
+            ColumnBuilder(s_UnitInfoTable_Column_Dependencies, Type::Text).NotNull(),
+            ColumnBuilder(s_UnitInfoTable_Column_Metadata, Type::Text).NotNull(),
+            ColumnBuilder(s_UnitInfoTable_Column_Settings, Type::Text).NotNull(),
             ColumnBuilder(s_UnitInfoTable_Column_IsActive, Type::Bool).NotNull(),
             ColumnBuilder(s_UnitInfoTable_Column_IsGroup, Type::Bool).NotNull(),
             });
@@ -67,8 +67,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
     void UnitInfoTable::Add(const Configuration::ConfigurationUnit& configurationUnit, AppInstaller::SQLite::rowid_t setRowId)
     {
         Savepoint savepoint = Savepoint::Create(m_connection, "UnitInfoTable_Add_0_1");
-
-        ValueSetTable valueSetTable(m_connection);
 
         StatementBuilder builder;
         builder.InsertInto(s_UnitInfoTable_Table).Columns({
@@ -150,7 +148,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         savepoint.Commit();
     }
 
-    std::vector<IConfigurationDatabase::ConfigurationUnitPtr> UnitInfoTable::GetAllUnitsForSet(AppInstaller::SQLite::rowid_t setRowId)
+    std::vector<IConfigurationDatabase::ConfigurationUnitPtr> UnitInfoTable::GetAllUnitsForSet(AppInstaller::SQLite::rowid_t setRowId, std::string_view schemaVersion)
     {
         StatementBuilder builder;
         builder.Select({
@@ -168,10 +166,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         }).From(s_UnitInfoTable_Table).Where(s_UnitInfoTable_Column_SetRowId).Equals(setRowId);
 
         Statement statement = builder.Prepare(m_connection);
-        ValueSetTable valueSetTable(m_connection);
 
         std::vector<IConfigurationDatabase::ConfigurationUnitPtr> result;
         std::map<rowid_t, Configuration::ConfigurationUnit> rowToUnitMap;
+        auto parser = ConfigurationSetParser::CreateForSchemaVersion(std::string{ schemaVersion });
 
         while (statement.Step())
         {
@@ -180,13 +178,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             unit->Type(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(3)) });
             unit->Identifier(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(4)) });
             unit->Intent(statement.GetColumn<ConfigurationUnitIntent>(5));
-            auto dependecies = valueSetTable.GetArray<Windows::Foundation::PropertyType::String>(statement.GetColumn<rowid_t>(6));
-            if (dependecies)
-            {
-                unit->Dependencies(std::move(dependecies).value());
-            }
-            unit->Metadata(valueSetTable.GetValueSet(statement.GetColumn<rowid_t>(7)));
-            unit->Settings(valueSetTable.GetValueSet(statement.GetColumn<rowid_t>(8)));
+            unit->Dependencies(parser->ParseStringArray(statement.GetColumn<std::string>(6)));
+            unit->Metadata(parser->ParseValueSet(statement.GetColumn<std::string>(7)));
+            unit->Settings(parser->ParseValueSet(statement.GetColumn<std::string>(8)));
             unit->IsActive(statement.GetColumn<bool>(9));
             unit->IsGroup(statement.GetColumn<bool>(10));
 

@@ -18,7 +18,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         void Add(const Configuration::ConfigurationUnit& configurationUnit, AppInstaller::SQLite::rowid_t setRowId);
 
         // Gets all of the units for the given set.
-        std::vector<IConfigurationDatabase::ConfigurationUnitPtr> GetAllUnitsForSet(AppInstaller::SQLite::rowid_t setRowId);
+        std::vector<IConfigurationDatabase::ConfigurationUnitPtr> GetAllUnitsForSet(AppInstaller::SQLite::rowid_t setRowId, std::string_view schemaVersion);
 
     private:
         AppInstaller::SQLite::Connection& m_connection;

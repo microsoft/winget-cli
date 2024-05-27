@@ -4,7 +4,7 @@
 #include "Interface.h"
 #include "SetInfoTable.h"
 #include "UnitInfoTable.h"
-#include "ValueSetTable.h"
+#include "ConfigurationSetParser.h"
 #include <AppInstallerDateTime.h>
 #include <AppInstallerStrings.h>
 
@@ -29,9 +29,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
         UnitInfoTable unitInfoTable(*m_storage);
         unitInfoTable.Create();
-
-        ValueSetTable valueSetTable(*m_storage);
-        valueSetTable.Create();
 
         savepoint.Commit();
     }
@@ -63,7 +60,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
         SetInfoTable setInfoTable(*m_storage);
         UnitInfoTable unitInfoTable(*m_storage);
-        ValueSetTable valueSetTable(*m_storage);
 
         Statement getAllSets = setInfoTable.GetAllSetsStatement();
         while (getAllSets.Step())
@@ -75,10 +71,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             configurationSet->Origin(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(Columns::Origin)) });
             configurationSet->Path(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(Columns::Path)) });
             configurationSet->FirstApply(clock::from_sys(ConvertUnixEpochToSystemClock(getAllSets.GetColumn<int64_t>(Columns::FirstApply))));
-            configurationSet->SchemaVersion(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(Columns::SchemaVersion)) });
-            configurationSet->Metadata(valueSetTable.GetValueSet(getAllSets.GetColumn<rowid_t>(Columns::Metadata)));
+
+            std::string schemaVersion = getAllSets.GetColumn<std::string>(Columns::SchemaVersion);
+            configurationSet->SchemaVersion(hstring{ ConvertToUTF16(schemaVersion) });
+
+            auto parser = ConfigurationSetParser::CreateForSchemaVersion(schemaVersion);
+            configurationSet->Metadata(parser->ParseValueSet(getAllSets.GetColumn<std::string>(Columns::Metadata)));
             THROW_HR_IF(E_NOTIMPL, !getAllSets.GetColumn<std::string>(Columns::Parameters).empty());
-            configurationSet->Variables(valueSetTable.GetValueSet(getAllSets.GetColumn<rowid_t>(Columns::Variables)));
+            configurationSet->Variables(parser->ParseValueSet(getAllSets.GetColumn<std::string>(Columns::Variables)));
 
             std::vector<Configuration::ConfigurationUnit> winrtUnits;
             for (const auto& unit : unitInfoTable.GetAllUnitsForSet(getAllSets.GetColumn<rowid_t>(Columns::RowID)))

@@ -211,20 +211,27 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         // Create the parser based on the version selected
-        SemanticVersion schemaVersion(std::move(schemaVersionString));
+        auto result = CreateForSchemaVersion(std::move(schemaVersionString));
+        result->SetDocument(std::move(document));
+        return result;
+    }
+
+    std::unique_ptr<ConfigurationSetParser> ConfigurationSetParser::CreateForSchemaVersion(std::string input)
+    {
+        SemanticVersion schemaVersion(std::move(input));
 
         // TODO: Consider having the version/uri/type information all together in the future
         if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 1)
         {
-            return std::make_unique<ConfigurationSetParser_0_1>(std::move(document));
+            return std::make_unique<ConfigurationSetParser_0_1>();
         }
         else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 2)
         {
-            return std::make_unique<ConfigurationSetParser_0_2>(std::move(document));
+            return std::make_unique<ConfigurationSetParser_0_2>();
         }
         else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 3)
         {
-            return std::make_unique<ConfigurationSetParser_0_3>(std::move(document));
+            return std::make_unique<ConfigurationSetParser_0_3>();
         }
 
         AICLI_LOG(Config, Error, << "Unknown configuration version: " << schemaVersion.ToString());
@@ -309,6 +316,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     hstring ConfigurationSetParser::LatestVersion()
     {
         return hstring{ std::rbegin(SchemaVersionAndUriMap)->VersionWide };
+    }
+
+    Windows::Foundation::Collections::ValueSet ConfigurationSetParser::ParseValueSet(std::string_view input)
+    {
+        Windows::Foundation::Collections::ValueSet result;
+        FillValueSetFromMap(Load(input), result);
+        return result;
     }
 
     void ConfigurationSetParser::SetError(hresult result, std::string_view field, std::string_view value, uint32_t line, uint32_t column)

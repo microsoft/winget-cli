@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SetInfoTable.h"
-#include "ValueSetTable.h"
+#include "ConfigurationSetSerializer.h"
 #include <AppInstallerDateTime.h>
 #include <AppInstallerStrings.h>
 #include <winget/SQLiteStatementBuilder.h>
@@ -43,9 +43,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             ColumnBuilder(s_SetInfoTable_Column_Path, Type::Text).NotNull(),
             ColumnBuilder(s_SetInfoTable_Column_FirstApply, Type::Int64).NotNull(),
             ColumnBuilder(s_SetInfoTable_Column_SchemaVersion, Type::Text).NotNull(),
-            ColumnBuilder(s_SetInfoTable_Column_Metadata, Type::RowId).NotNull(),
+            ColumnBuilder(s_SetInfoTable_Column_Metadata, Type::Text).NotNull(),
             ColumnBuilder(s_SetInfoTable_Column_Parameters, Type::Text).NotNull(),
-            ColumnBuilder(s_SetInfoTable_Column_Variables, Type::RowId).NotNull(),
+            ColumnBuilder(s_SetInfoTable_Column_Variables, Type::Text).NotNull(),
         });
 
         tableBuilder.Execute(m_connection);
@@ -58,8 +58,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         Savepoint savepoint = Savepoint::Create(m_connection, "SetInfoTable_Add_0_1");
 
         THROW_HR_IF(E_NOTIMPL, configurationSet.Parameters().Size() > 0);
-
-        ValueSetTable valueSetTable(m_connection);
+        std::string schemaVersion = ConvertToUTF8(configurationSet.SchemaVersion());
+        auto serializer = ConfigurationSetSerializer::CreateForSchemaVersion(schemaVersion);
 
         StatementBuilder builder;
         builder.InsertInto(s_SetInfoTable_Table).Columns({
@@ -77,9 +77,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             ConvertToUTF8(configurationSet.Origin()),
             ConvertToUTF8(configurationSet.Path()),
             GetCurrentUnixEpoch(),
-            ConvertToUTF8(configurationSet.SchemaVersion()),
-            valueSetTable.Add(configurationSet.Metadata()),
-            valueSetTable.Add(configurationSet.Variables())
+            schemaVersion,
+            serializer->SerializeValueSet(configurationSet.Metadata()),
+            serializer->SerializeValueSet(configurationSet.Variables())
         );
 
         builder.Execute(m_connection);
