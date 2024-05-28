@@ -19,6 +19,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return s_schemaVersion;
     }
 
+    void ConfigurationSetParser_0_2::SetDocument(AppInstaller::YAML::Node&& document)
+    {
+        m_document = std::move(document);
+    }
+
     void ConfigurationSetParser_0_2::ParseConfigurationUnit(ConfigurationUnit* unit, const Node& unitNode, ConfigurationUnitIntent intent)
     {
         CHECK_ERROR(ConfigurationSetParser_0_1::ParseConfigurationUnit(unit, unitNode, intent));

@@ -11,7 +11,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // Parser for schema version 0.3
     struct ConfigurationSetParser_0_3 : public ConfigurationSetParser
     {
-        ConfigurationSetParser_0_3(AppInstaller::YAML::Node&& document) : m_document(std::move(document)) {}
+        ConfigurationSetParser_0_3() = default;
 
         virtual ~ConfigurationSetParser_0_3() noexcept = default;
 
@@ -27,6 +27,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring GetSchemaVersion() override;
 
     protected:
+        // Sets (or resets) the document to parse.
+        void SetDocument(AppInstaller::YAML::Node&& document) override;
+
         void ParseParameters(ConfigurationSetParser::ConfigurationSetPtr& set);
         void ParseParameter(ConfigurationParameter* parameter, const AppInstaller::YAML::Node& node);
         void ParseParameterType(ConfigurationParameter* parameter, const AppInstaller::YAML::Node& node);

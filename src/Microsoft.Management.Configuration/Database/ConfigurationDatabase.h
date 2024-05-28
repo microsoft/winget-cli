@@ -15,7 +15,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // Allows access to the configuration database.
     struct ConfigurationDatabase
     {
-        using ConfigurationSetPtr = decltype(make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>());
+        using ConfigurationSetPtr = winrt::com_ptr<implementation::ConfigurationSet>;
 
         ConfigurationDatabase();
 

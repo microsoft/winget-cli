@@ -14,8 +14,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // Interface for interacting with the configuration database.
     struct IConfigurationDatabase
     {
-        using ConfigurationSetPtr = decltype(make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>());
-        using ConfigurationUnitPtr = decltype(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnit>>());
+        using ConfigurationSetPtr = winrt::com_ptr<implementation::ConfigurationSet>;
+        using ConfigurationUnitPtr = winrt::com_ptr<implementation::ConfigurationUnit>;
 
         virtual ~IConfigurationDatabase() = default;
 

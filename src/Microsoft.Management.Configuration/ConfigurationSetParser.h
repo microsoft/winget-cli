@@ -55,10 +55,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Retrieves the schema version of the parser.
         virtual hstring GetSchemaVersion() = 0;
 
-        // Sets (or resets) the document to parse.
-        virtual void SetDocument(AppInstaller::YAML::Node&& document) = 0;
-
-        using ConfigurationSetPtr = decltype(make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>());
+        using ConfigurationSetPtr = decltype(make_self<implementation::ConfigurationSet>());
 
         // Retrieve the configuration set from the parser.
         ConfigurationSetPtr GetConfigurationSet() const { return m_configurationSet; }
@@ -86,6 +83,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     protected:
         ConfigurationSetParser() = default;
+
+        // Sets (or resets) the document to parse.
+        virtual void SetDocument(AppInstaller::YAML::Node&& document) = 0;
 
         // Set the error state
         void SetError(hresult result, std::string_view field = {}, std::string_view value = {}, uint32_t line = 0, uint32_t column = 0);

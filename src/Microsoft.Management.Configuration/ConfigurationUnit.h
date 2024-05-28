@@ -3,12 +3,13 @@
 #pragma once
 #include "ConfigurationUnit.g.h"
 #include <winget/ILifetimeWatcher.h>
+#include <winget/ModuleCountBase.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationUnit : ConfigurationUnitT<ConfigurationUnit, winrt::cloaked<AppInstaller::WinRT::ILifetimeWatcher>>, AppInstaller::WinRT::LifetimeWatcherBase
+    struct ConfigurationUnit : ConfigurationUnitT<ConfigurationUnit, winrt::cloaked<AppInstaller::WinRT::ILifetimeWatcher>>, AppInstaller::WinRT::LifetimeWatcherBase, AppInstaller::WinRT::ModuleCountBase
     {
         ConfigurationUnit();
 

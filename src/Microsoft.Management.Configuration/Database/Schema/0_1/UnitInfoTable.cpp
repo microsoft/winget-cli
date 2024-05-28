@@ -135,10 +135,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
                 rowid_t currentRowId = m_connection.GetLastInsertRowID();
 
                 auto winrtUnits = current.Unit.Units();
-                std::vector<ConfigurationUnit> units{ winrtUnits.Size() };
+                std::vector<Configuration::ConfigurationUnit> units{ winrtUnits.Size() };
                 winrtUnits.GetMany(0, units);
 
-                for (const ConfigurationUnit& unit : units)
+                for (const auto& unit : units)
                 {
                     unitsToInsert.emplace(UnitsToInsert{ currentRowId, unit });
                 }
@@ -170,12 +170,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         Statement statement = builder.Prepare(m_connection);
 
         std::vector<IConfigurationDatabase::ConfigurationUnitPtr> result;
-        std::map<rowid_t, Configuration::ConfigurationUnit> rowToUnitMap;
+        std::map<rowid_t, IConfigurationDatabase::ConfigurationUnitPtr> rowToUnitMap;
         auto parser = ConfigurationSetParser::CreateForSchemaVersion(std::string{ schemaVersion });
 
         while (statement.Step())
         {
-            auto unit = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnit>>(statement.GetColumn<GUID>(2));
+            auto unit = make_self<implementation::ConfigurationUnit>(statement.GetColumn<GUID>(2));
 
             unit->Type(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(3)) });
             unit->Identifier(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(4)) });
@@ -192,7 +192,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             }
             else
             {
-                rowToUnitMap.at(statement.GetColumn<rowid_t>(1)).Units().Append(*unit);
+                rowToUnitMap.at(statement.GetColumn<rowid_t>(1))->Units().Append(*unit);
             }
 
             rowToUnitMap.emplace(statement.GetColumn<rowid_t>(0), unit);

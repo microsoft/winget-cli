@@ -419,6 +419,7 @@
     <ClInclude Include="Public\winget\JsonUtil.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Public\winget\ManagedFile.h" />
+    <ClInclude Include="Public\winget\ModuleCountBase.h" />
     <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\Resources.h" />
     <ClInclude Include="Public\winget\Runtime.h" />

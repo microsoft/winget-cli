@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
+#include "pch.h"
 #include "Interface.h"
 #include "SetInfoTable.h"
 #include "UnitInfoTable.h"
@@ -45,10 +45,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         hstring schemaVersion = configurationSet.SchemaVersion();
 
         auto winrtUnits = configurationSet.Units();
-        std::vector<ConfigurationUnit> units{ winrtUnits.Size() };
+        std::vector<Configuration::ConfigurationUnit> units{ winrtUnits.Size() };
         winrtUnits.GetMany(0, units);
 
-        for (const ConfigurationUnit& unit : units)
+        for (const auto& unit : units)
         {
             unitInfoTable.Add(unit, setRowId, schemaVersion);
         }
@@ -67,7 +67,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         while (getAllSets.Step())
         {
             using Columns = SetInfoTable::GetAllSetsStatementColumns;
-            auto configurationSet = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>(getAllSets.GetColumn<GUID>(Columns::InstanceIdentifier));
+            auto configurationSet = make_self<implementation::ConfigurationSet>(getAllSets.GetColumn<GUID>(Columns::InstanceIdentifier));
 
             configurationSet->Name(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(Columns::Name)) });
             configurationSet->Origin(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(Columns::Origin)) });
