@@ -17,33 +17,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         // Returns the row id of the added set.
         AppInstaller::SQLite::rowid_t Add(const Configuration::ConfigurationSet& configurationSet);
 
-        // Contains the column numbers for the statement returned by GetAllSetsStatement.
-        struct GetAllSetsStatementColumns
-        {
-            // Type: rowid_t
-            constexpr static int RowID = 0;
-            // Type: GUID
-            constexpr static int InstanceIdentifier = 1;
-            // Type: string
-            constexpr static int Name = 2;
-            // Type: string
-            constexpr static int Origin = 3;
-            // Type: string
-            constexpr static int Path = 4;
-            // Type: int64_t (unix epoch)
-            constexpr static int FirstApply = 5;
-            // Type: string
-            constexpr static int SchemaVersion = 6;
-            // Type: rowid_t (ValueSet)
-            constexpr static int Metadata = 7;
-            // Type: string (YAML)
-            constexpr static int Parameters = 8;
-            // Type: rowid_t (ValueSet)
-            constexpr static int Variables = 9;
-        };
+        // Updates the set with the target row id using the given set.
+        void Update(AppInstaller::SQLite::rowid_t target, const Configuration::ConfigurationSet& configurationSet);
 
-        // Gets a prepared statement for reading all of the sets from the table.
-        AppInstaller::SQLite::Statement GetAllSetsStatement();
+        // Removes the set with the target row id.
+        void Remove(AppInstaller::SQLite::rowid_t target);
+
+        // Gets all of the sets from the table.
+        std::vector<IConfigurationDatabase::ConfigurationSetPtr> GetAllSets();
+
+        // Gets the row id of the set with the given instance identifier.
+        std::optional<AppInstaller::SQLite::rowid_t> GetSetRowId(const GUID& instanceIdentifier);
 
     private:
         AppInstaller::SQLite::Connection& m_connection;

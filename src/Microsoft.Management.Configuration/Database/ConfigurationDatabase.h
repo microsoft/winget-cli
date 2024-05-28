@@ -38,6 +38,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Writes the given set to the database history, attempting to merge with a matching set if one exists unless preferNewHistory is true.
         void WriteSetHistory(const Configuration::ConfigurationSet& configurationSet, bool preferNewHistory);
 
+        // Removes the given set from the database history if it is present.
+        void RemoveSetHistory(const Configuration::ConfigurationSet& configurationSet);
+
     private:
         std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> m_connection;
         mutable std::unique_ptr<IConfigurationDatabase> m_database;

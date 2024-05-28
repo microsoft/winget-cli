@@ -98,6 +98,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Temporary entry point to enable experimental schema support.
         void SetSupportsSchema03(bool value);
 
+        // Removes the history for the given set.
+        void RemoveHistory(const ConfigurationSet& configurationSet);
+
     private:
         Windows::Foundation::Collections::IVector<ConfigurationSet> GetConfigurationHistoryImpl(AppInstaller::WinRT::AsyncCancellation cancellation = {});
 

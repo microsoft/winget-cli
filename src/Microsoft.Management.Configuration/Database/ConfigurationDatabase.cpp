@@ -103,13 +103,59 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         auto transaction = BeginTransaction("WriteSetHistory");
 
-        if (!preferNewHistory)
+        std::optional<rowid_t> setRowId = m_database->GetSetRowId(configurationSet.InstanceIdentifier());
+
+        if (!setRowId && !preferNewHistory)
         {
             // TODO: Use conflict detection code to check for a matching set
         }
 
-        m_database->AddSet(configurationSet);
+        if (setRowId)
+        {
+            m_database->UpdateSet(setRowId.value(), configurationSet);
+        }
+        else
+        {
+            m_database->AddSet(configurationSet);
+        }
+
         m_connection->SetLastWriteTime();
+
+        transaction->Commit();
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        }
+        CATCH_LOG();
+#endif
+    }
+
+    void ConfigurationDatabase::RemoveSetHistory(const Configuration::ConfigurationSet& configurationSet)
+    {
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        // While under development, treat errors escaping this function as a test hook.
+        try
+        {
+#endif
+        THROW_HR_IF_NULL(E_POINTER, configurationSet);
+
+        if (!m_database)
+        {
+            return;
+        }
+
+        auto transaction = BeginTransaction("RemoveSetHistory");
+
+        std::optional<rowid_t> setRowId = m_database->GetSetRowId(configurationSet.InstanceIdentifier());
+
+        if (!setRowId)
+        {
+            // TODO: Use conflict detection code to check for a matching set
+        }
+
+        if (setRowId)
+        {
+            m_database->RemoveSet(setRowId.value());
+            m_connection->SetLastWriteTime();
+        }
 
         transaction->Commit();
 #ifdef AICLI_DISABLE_TEST_HOOKS

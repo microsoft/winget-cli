@@ -12,7 +12,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         // Version 0.1
         void InitializeDatabase() override;
         void AddSet(const Configuration::ConfigurationSet& configurationSet) override;
+        void UpdateSet(AppInstaller::SQLite::rowid_t target, const Configuration::ConfigurationSet& configurationSet) override;
+        void RemoveSet(AppInstaller::SQLite::rowid_t target) override;
         std::vector<ConfigurationSetPtr> GetSets() override;
+        std::optional<AppInstaller::SQLite::rowid_t> GetSetRowId(const GUID& instanceIdentifier) override;
 
     private:
         std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> m_storage;

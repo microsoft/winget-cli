@@ -5,6 +5,7 @@
 #include "ConfigurationSet.g.cpp"
 #include "ConfigurationSetParser.h"
 #include "ConfigurationSetSerializer.h"
+#include "Database/ConfigurationDatabase.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -17,7 +18,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
-        m_instanceIdentifier(instanceIdentifier)
+        m_instanceIdentifier(instanceIdentifier), m_fromHistory(true)
     {
     }
 
@@ -31,9 +32,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_parameters = winrt::multi_threaded_vector<Configuration::ConfigurationParameter>(std::move(value));
     }
 
+    void ConfigurationSet::OriginProcessor(winrt::com_ptr<implementation::ConfigurationProcessor>&& processor)
+    {
+        m_processorOrigin = std::move(processor);
+    }
+
     bool ConfigurationSet::IsFromHistory() const
     {
-        return false;
+        return m_fromHistory;
     }
 
     hstring ConfigurationSet::Name()
@@ -144,7 +150,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSet::Remove()
     {
-        THROW_HR(E_NOTIMPL);
+        if (m_processorOrigin)
+        {
+            m_processorOrigin->RemoveHistory(*get_strong());
+        }
+        else
+        {
+            ConfigurationDatabase database;
+            database.EnsureOpened(false);
+            database.RemoveSetHistory(*get_strong());
+        }
     }
 
     Windows::Foundation::Collections::ValueSet ConfigurationSet::Metadata()

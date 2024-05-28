@@ -33,7 +33,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Adds the given set to the database.
         virtual void AddSet(const Configuration::ConfigurationSet& configurationSet) = 0;
 
+        // Updates the set with the given row id using the given set.
+        virtual void UpdateSet(AppInstaller::SQLite::rowid_t target, const Configuration::ConfigurationSet& configurationSet) = 0;
+
+        // Removes the set with the given row id from the database.
+        virtual void RemoveSet(AppInstaller::SQLite::rowid_t target) = 0;
+
         // Gets all of the sets in the database.
         virtual std::vector<ConfigurationSetPtr> GetSets() = 0;
+
+        // Gets the row id of the set with the given instance identifier, if present.
+        virtual std::optional<AppInstaller::SQLite::rowid_t> GetSetRowId(const GUID& instanceIdentifier) = 0;
     };
 }

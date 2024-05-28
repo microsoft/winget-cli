@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SetInfoTable.h"
+#include "UnitInfoTable.h"
 #include "ConfigurationSetSerializer.h"
+#include "ConfigurationSetParser.h"
 #include <AppInstallerDateTime.h>
 #include <AppInstallerStrings.h>
 #include <winget/SQLiteStatementBuilder.h>
@@ -85,26 +87,88 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         builder.Execute(m_connection);
         rowid_t result = m_connection.GetLastInsertRowID();
 
+        UnitInfoTable unitInfoTable(m_connection);
+
+        auto winrtUnits = configurationSet.Units();
+        std::vector<Configuration::ConfigurationUnit> units{ winrtUnits.Size() };
+        winrtUnits.GetMany(0, units);
+
+        for (const auto& unit : units)
+        {
+            unitInfoTable.Add(unit, result, schemaVersion);
+        }
+
         savepoint.Commit();
         return result;
     }
 
-    Statement SetInfoTable::GetAllSetsStatement()
+    void SetInfoTable::Update(rowid_t target, const Configuration::ConfigurationSet& configurationSet)
+    {
+        THROW_HR(E_NOTIMPL);
+    }
+
+    void SetInfoTable::Remove(rowid_t target)
     {
         StatementBuilder builder;
+        builder.DeleteFrom(s_SetInfoTable_Table).Where(RowIDName).Equals(target);
+        builder.Execute(m_connection);
+
+        UnitInfoTable unitInfoTable(m_connection);
+        unitInfoTable.RemoveSet(target);
+    }
+
+    std::vector<IConfigurationDatabase::ConfigurationSetPtr> SetInfoTable::GetAllSets()
+    {
+        std::vector<IConfigurationDatabase::ConfigurationSetPtr> result;
+
+        StatementBuilder builder;
         builder.Select({
-            RowIDName,
-            s_SetInfoTable_Column_InstanceIdentifier,
-            s_SetInfoTable_Column_Name,
-            s_SetInfoTable_Column_Origin,
-            s_SetInfoTable_Column_Path,
-            s_SetInfoTable_Column_FirstApply,
-            s_SetInfoTable_Column_SchemaVersion,
-            s_SetInfoTable_Column_Metadata,
-            s_SetInfoTable_Column_Parameters,
-            s_SetInfoTable_Column_Variables,
+            RowIDName,                                  // 0
+            s_SetInfoTable_Column_InstanceIdentifier,   // 1
+            s_SetInfoTable_Column_Name,                 // 2
+            s_SetInfoTable_Column_Origin,               // 3
+            s_SetInfoTable_Column_Path,                 // 4
+            s_SetInfoTable_Column_FirstApply,           // 5
+            s_SetInfoTable_Column_SchemaVersion,        // 6
+            s_SetInfoTable_Column_Metadata,             // 7
+            s_SetInfoTable_Column_Parameters,           // 8
+            s_SetInfoTable_Column_Variables,            // 9
         }).From(s_SetInfoTable_Table);
 
-        return builder.Prepare(m_connection);
+        Statement getAllSets = builder.Prepare(m_connection);
+
+        UnitInfoTable unitInfoTable(m_connection);
+
+        while (getAllSets.Step())
+        {
+            auto configurationSet = make_self<implementation::ConfigurationSet>(getAllSets.GetColumn<GUID>(1));
+
+            configurationSet->Name(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(2)) });
+            configurationSet->Origin(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(3)) });
+            configurationSet->Path(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(4)) });
+            configurationSet->FirstApply(clock::from_sys(ConvertUnixEpochToSystemClock(getAllSets.GetColumn<int64_t>(5))));
+
+            std::string schemaVersion = getAllSets.GetColumn<std::string>(6);
+            configurationSet->SchemaVersion(hstring{ ConvertToUTF16(schemaVersion) });
+
+            auto parser = ConfigurationSetParser::CreateForSchemaVersion(schemaVersion);
+            configurationSet->Metadata(parser->ParseValueSet(getAllSets.GetColumn<std::string>(7)));
+            THROW_HR_IF(E_NOTIMPL, !getAllSets.GetColumn<std::string>(8).empty());
+            configurationSet->Variables(parser->ParseValueSet(getAllSets.GetColumn<std::string>(9)));
+
+            std::vector<Configuration::ConfigurationUnit> winrtUnits;
+            for (const auto& unit : unitInfoTable.GetAllUnitsForSet(getAllSets.GetColumn<rowid_t>(0), schemaVersion))
+            {
+                winrtUnits.emplace_back(*unit);
+            }
+            configurationSet->Units(std::move(winrtUnits));
+        }
+
+        return result;
+    }
+
+    std::optional<rowid_t> SetInfoTable::GetSetRowId(const GUID& instanceIdentifier)
+    {
+        THROW_HR(E_NOTIMPL);
     }
 }

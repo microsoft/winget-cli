@@ -55,7 +55,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Retrieves the schema version of the parser.
         virtual hstring GetSchemaVersion() = 0;
 
-        using ConfigurationSetPtr = decltype(make_self<implementation::ConfigurationSet>());
+        using ConfigurationSetPtr = winrt::com_ptr<implementation::ConfigurationSet>;
 
         // Retrieve the configuration set from the parser.
         ConfigurationSetPtr GetConfigurationSet() const { return m_configurationSet; }

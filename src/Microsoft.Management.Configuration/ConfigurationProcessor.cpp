@@ -353,6 +353,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::vector<ConfigurationSet> result;
         for (const auto& set : m_database.GetSetHistory())
         {
+            set->OriginProcessor(get_strong());
             result.emplace_back(*set);
         }
 
@@ -860,6 +861,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationProcessor::SetSupportsSchema03(bool value)
     {
         m_supportSchema03 = value;
+    }
+
+    void ConfigurationProcessor::RemoveHistory(const ConfigurationSet& configurationSet)
+    {
+        m_database.EnsureOpened(false);
+        m_database.RemoveSetHistory(configurationSet);
     }
 
     void ConfigurationProcessor::SendDiagnosticsImpl(const IDiagnosticInformation& information)
