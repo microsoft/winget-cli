@@ -241,7 +241,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -257,7 +257,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -274,7 +274,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -294,7 +294,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)sfs-client\client\include\sfsclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -304,7 +304,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)sfs-client\client\include\sfsclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -315,7 +315,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";NDEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";NDEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)sfs-client\client\include\sfsclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -325,7 +325,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";NDEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";NDEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)sfs-client\client\include\sfsclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -336,7 +336,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";NDEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";NDEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)sfs-client\client\include\sfsclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -346,7 +346,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";NDEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";NDEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)sfs-client\client\include\sfsclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -357,7 +357,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";_DEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";_DEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)sfs-client\client\include\sfsclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -367,7 +367,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";_DEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";_DEBUG;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)sfs-client\client\include\sfsclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
@@ -377,7 +377,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="cf18b35";_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CURL_STATICLIB;GUID_WINDOWS;SFS_VERSION="1.0.0";_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)sfs-client\client\include\sfsclient;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
