@@ -17,7 +17,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 #ifndef DISABLE_TEST_HOOKS
         constexpr std::wstring_view EnableTestModeTestGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
         constexpr std::wstring_view ForceHighIntegrityLevelUnitsTestGuid = L"f698d20f-3584-4f28-bc75-28037e08e651";
-        constexpr std::wstring_view EnableRestrictedIntegrityLevelTestGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
+        constexpr std::wstring_view EnableRestrictedIntegrityLevelTestGuid = L"5cae3226-185f-4289-815c-3c089d238dc6";
 
         // Checks the configuration set metadata for a specific test guid that controls the behavior flow.
         bool GetConfigurationSetMetadataOverride(const ConfigurationSet& configurationSet, const std::wstring_view& testGuid)
