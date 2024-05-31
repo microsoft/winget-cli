@@ -43,7 +43,11 @@ namespace AppInstaller::Settings
     NetworkSettings::NetworkSettings()
     {
         // Get the default proxy
-        m_proxyUri = GetAdminSetting(StringAdminSetting::DefaultProxy);
+        try
+        {
+            m_proxyUri = GetAdminSetting(StringAdminSetting::DefaultProxy);
+        }
+        CATCH_LOG()
         AICLI_LOG(Core, Info, << "Default proxy is " << (m_proxyUri ? m_proxyUri.value() : "not set"));
     }
 
