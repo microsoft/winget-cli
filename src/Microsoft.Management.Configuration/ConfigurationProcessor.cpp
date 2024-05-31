@@ -353,7 +353,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::vector<ConfigurationSet> result;
         for (const auto& set : m_database.GetSetHistory())
         {
-            set->OriginProcessor(get_strong());
+            PropagateLifetimeWatcher(*set);
             result.emplace_back(*set);
         }
 

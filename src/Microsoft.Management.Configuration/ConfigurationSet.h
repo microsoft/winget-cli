@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ConfigurationSet.g.h"
-#include "ConfigurationProcessor.h"
 #include <winget/ILifetimeWatcher.h>
 #include <winget/ModuleCountBase.h>
 #include <winrt/Windows.Foundation.h>
@@ -24,7 +23,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void FirstApply(clock::time_point value);
         void Units(std::vector<Configuration::ConfigurationUnit>&& units);
         void Parameters(std::vector<Configuration::ConfigurationParameter>&& value);
-        void OriginProcessor(winrt::com_ptr<implementation::ConfigurationProcessor>&& processor);
 
         bool IsFromHistory() const;
 #endif
@@ -90,7 +88,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Uri m_schemaUri = nullptr;
         std::string m_inputHash;
         bool m_fromHistory = false;
-        winrt::com_ptr<implementation::ConfigurationProcessor> m_processorOrigin;
 #endif
     };
 }

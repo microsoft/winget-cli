@@ -150,6 +150,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         savepoint.Commit();
     }
 
+    void UnitInfoTable::UpdateForSet(AppInstaller::SQLite::rowid_t target, const Windows::Foundation::Collections::IVector<Configuration::ConfigurationUnit>& winrtUnits, hstring schemaVersion)
+    {
+        Savepoint savepoint = Savepoint::Create(m_connection, "UnitInfoTable_UpdateForSet_0_1");
+
+        RemoveForSet(target);
+
+        std::vector<Configuration::ConfigurationUnit> units{ winrtUnits.Size() };
+        winrtUnits.GetMany(0, units);
+
+        for (const auto& unit : units)
+        {
+            Add(unit, target, schemaVersion);
+        }
+
+        savepoint.Commit();
+    }
+
+    void UnitInfoTable::RemoveForSet(AppInstaller::SQLite::rowid_t target)
+    {
+        StatementBuilder builder;
+        builder.DeleteFrom(s_UnitInfoTable_Table).Where(s_UnitInfoTable_Column_SetRowId).Equals(target);
+        builder.Execute(m_connection);
+    }
+
     std::vector<IConfigurationDatabase::ConfigurationUnitPtr> UnitInfoTable::GetAllUnitsForSet(AppInstaller::SQLite::rowid_t setRowId, std::string_view schemaVersion)
     {
         StatementBuilder builder;

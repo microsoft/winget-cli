@@ -57,9 +57,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
     rowid_t SetInfoTable::Add(const Configuration::ConfigurationSet& configurationSet)
     {
+        THROW_HR_IF(E_NOTIMPL, configurationSet.Parameters().Size() > 0);
+
         Savepoint savepoint = Savepoint::Create(m_connection, "SetInfoTable_Add_0_1");
 
-        THROW_HR_IF(E_NOTIMPL, configurationSet.Parameters().Size() > 0);
         hstring schemaVersion = configurationSet.SchemaVersion();
         auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion);
 
@@ -104,17 +105,43 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
     void SetInfoTable::Update(rowid_t target, const Configuration::ConfigurationSet& configurationSet)
     {
-        THROW_HR(E_NOTIMPL);
+        THROW_HR_IF(E_NOTIMPL, configurationSet.Parameters().Size() > 0);
+
+        Savepoint savepoint = Savepoint::Create(m_connection, "SetInfoTable_Update_0_1");
+
+        hstring schemaVersion = configurationSet.SchemaVersion();
+        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion);
+
+        StatementBuilder builder;
+        builder.Update(s_SetInfoTable_Table).Set().
+            Column(s_SetInfoTable_Column_Name).Equals(ConvertToUTF8(configurationSet.Name())).
+            Column(s_SetInfoTable_Column_Origin).Equals(ConvertToUTF8(configurationSet.Origin())).
+            Column(s_SetInfoTable_Column_Path).Equals(ConvertToUTF8(configurationSet.Path())).
+            Column(s_SetInfoTable_Column_SchemaVersion).Equals(ConvertToUTF8(schemaVersion)).
+            Column(s_SetInfoTable_Column_Metadata).Equals(serializer->SerializeValueSet(configurationSet.Metadata())).
+            Column(s_SetInfoTable_Column_Variables).Equals(serializer->SerializeValueSet(configurationSet.Variables())).
+        Where(RowIDName).Equals(target);
+
+        builder.Execute(m_connection);
+
+        UnitInfoTable unitInfoTable(m_connection);
+        unitInfoTable.UpdateForSet(target, configurationSet.Units(), schemaVersion);
+
+        savepoint.Commit();
     }
 
     void SetInfoTable::Remove(rowid_t target)
     {
+        Savepoint savepoint = Savepoint::Create(m_connection, "SetInfoTable_Remove_0_1");
+
         StatementBuilder builder;
         builder.DeleteFrom(s_SetInfoTable_Table).Where(RowIDName).Equals(target);
         builder.Execute(m_connection);
 
         UnitInfoTable unitInfoTable(m_connection);
-        unitInfoTable.RemoveSet(target);
+        unitInfoTable.RemoveForSet(target);
+
+        savepoint.Commit();
     }
 
     std::vector<IConfigurationDatabase::ConfigurationSetPtr> SetInfoTable::GetAllSets()
@@ -169,6 +196,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
     std::optional<rowid_t> SetInfoTable::GetSetRowId(const GUID& instanceIdentifier)
     {
-        THROW_HR(E_NOTIMPL);
+        StatementBuilder builder;
+        builder.Select(RowIDName).From(s_SetInfoTable_Table).Where(s_SetInfoTable_Column_InstanceIdentifier).Equals(instanceIdentifier);
+
+        Statement select = builder.Prepare(m_connection);
+
+        if (select.Step())
+        {
+            return select.GetColumn<rowid_t>(0);
+        }
+
+        return std::nullopt;
     }
 }

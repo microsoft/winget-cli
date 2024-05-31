@@ -32,11 +32,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_parameters = winrt::multi_threaded_vector<Configuration::ConfigurationParameter>(std::move(value));
     }
 
-    void ConfigurationSet::OriginProcessor(winrt::com_ptr<implementation::ConfigurationProcessor>&& processor)
-    {
-        m_processorOrigin = std::move(processor);
-    }
-
     bool ConfigurationSet::IsFromHistory() const
     {
         return m_fromHistory;
@@ -150,16 +145,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSet::Remove()
     {
-        if (m_processorOrigin)
-        {
-            m_processorOrigin->RemoveHistory(*get_strong());
-        }
-        else
-        {
-            ConfigurationDatabase database;
-            database.EnsureOpened(false);
-            database.RemoveSetHistory(*get_strong());
-        }
+        ConfigurationDatabase database;
+        database.EnsureOpened(false);
+        database.RemoveSetHistory(*get_strong());
     }
 
     Windows::Foundation::Collections::ValueSet ConfigurationSet::Metadata()

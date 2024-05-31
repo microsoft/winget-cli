@@ -2,7 +2,10 @@
 // Licensed under the MIT License.
 #pragma once
 #include "winrt/Microsoft.Management.Configuration.h"
+#include "Database/Schema/IConfigurationDatabase.h"
 #include <winget/SQLiteWrapper.h>
+#include <optional>
+#include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation::Database::Schema::V0_1
 {
