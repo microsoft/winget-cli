@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <memory>
+#include <vector>
 
 namespace winrt::Microsoft::Management::Configuration
 {
@@ -18,6 +19,8 @@ namespace AppInstaller::CLI::Execution
 
     struct ConfigurationContext
     {
+        using ConfigurationSet = winrt::Microsoft::Management::Configuration::ConfigurationSet;
+
         ConfigurationContext();
         ~ConfigurationContext();
 
@@ -32,10 +35,14 @@ namespace AppInstaller::CLI::Execution
         void Processor(const winrt::Microsoft::Management::Configuration::ConfigurationProcessor& value);
         void Processor(winrt::Microsoft::Management::Configuration::ConfigurationProcessor&& value);
 
-        winrt::Microsoft::Management::Configuration::ConfigurationSet& Set();
-        const winrt::Microsoft::Management::Configuration::ConfigurationSet& Set() const;
-        void Set(const winrt::Microsoft::Management::Configuration::ConfigurationSet& value);
-        void Set(winrt::Microsoft::Management::Configuration::ConfigurationSet&& value);
+        ConfigurationSet& Set();
+        const ConfigurationSet& Set() const;
+        void Set(const ConfigurationSet& value);
+        void Set(ConfigurationSet&& value);
+
+        std::vector<ConfigurationSet>& History();
+        const std::vector<ConfigurationSet>& History() const;
+        void History(const winrt::Windows::Foundation::Collections::IVector<ConfigurationSet>& value);
 
     private:
         std::unique_ptr<details::ConfigurationContextData> m_data;

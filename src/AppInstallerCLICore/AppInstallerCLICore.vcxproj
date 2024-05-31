@@ -355,6 +355,7 @@
     <ClInclude Include="Commands\COMCommand.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
     <ClInclude Include="Commands\ConfigureCommand.h" />
+    <ClInclude Include="Commands\ConfigureListCommand.h" />
     <ClInclude Include="Commands\ConfigureShowCommand.h" />
     <ClInclude Include="Commands\ConfigureTestCommand.h" />
     <ClInclude Include="Commands\ConfigureValidateCommand.h" />
@@ -432,6 +433,7 @@
     <ClCompile Include="CheckpointManager.cpp" />
     <ClCompile Include="Commands\COMCommand.cpp" />
     <ClCompile Include="Commands\ConfigureCommand.cpp" />
+    <ClCompile Include="Commands\ConfigureListCommand.cpp" />
     <ClCompile Include="Commands\ConfigureShowCommand.cpp" />
     <ClCompile Include="Commands\ConfigureTestCommand.cpp" />
     <ClCompile Include="Commands\ConfigureValidateCommand.cpp" />

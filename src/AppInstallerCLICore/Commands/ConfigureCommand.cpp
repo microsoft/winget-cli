@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigureCommand.h"
+#include "ConfigureListCommand.h"
 #include "ConfigureShowCommand.h"
 #include "ConfigureTestCommand.h"
 #include "ConfigureValidateCommand.h"
@@ -24,6 +25,7 @@ namespace AppInstaller::CLI
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
             std::make_unique<ConfigureShowCommand>(FullName()),
+            std::make_unique<ConfigureListCommand>(FullName()),
             std::make_unique<ConfigureTestCommand>(FullName()),
             std::make_unique<ConfigureValidateCommand>(FullName()),
             std::make_unique<ConfigureExportCommand>(FullName()),

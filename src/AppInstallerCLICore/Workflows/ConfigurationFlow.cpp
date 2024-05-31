@@ -3,9 +3,11 @@
 #include "pch.h"
 #include "ConfigurationFlow.h"
 #include "PromptFlow.h"
+#include "TableOutput.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include "ConfigurationCommon.h"
 #include "ConfigurationWingetDscModuleUnitValidation.h"
+#include <AppInstallerDateTime.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerRuntime.h>
@@ -113,6 +115,28 @@ namespace AppInstaller::CLI::Workflow
             }
 
             return factory;
+        }
+
+        void ConfigureProcessorForUse(Execution::Context& context, ConfigurationProcessor&& processor)
+        {
+            // Set the processor to the current level of the logging.
+            processor.MinimumLevel(anon::ConvertLevel(Logging::Log().GetLevel()));
+            processor.Caller(L"winget");
+            // Use same activity as the overall winget command
+            processor.ActivityIdentifier(*Logging::Telemetry().GetActivityId());
+            // Apply winget telemetry setting to configuration
+            processor.GenerateTelemetryEvents(!Settings::User().Get<Settings::Setting::TelemetryDisable>());
+
+            // Route the configuration diagnostics into the context's diagnostics logging
+            processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const IDiagnosticInformation& diagnostics)
+                {
+                    context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, anon::ConvertLevel(diagnostics.Level()), Utility::ConvertToUTF8(diagnostics.Message()));
+                });
+
+            ConfigurationContext configurationContext;
+            configurationContext.Processor(std::move(processor));
+
+            context.Add<Data::ConfigurationContext>(std::move(configurationContext));
         }
 
         winrt::hstring GetValueSetString(const ValueSet& valueSet, std::wstring_view value)
@@ -1175,6 +1199,16 @@ namespace AppInstaller::CLI::Workflow
 
             return {};
         }
+
+        bool HistorySetMatchesInput(const ConfigurationSet& set, const std::string& foldedInput)
+        {
+            if (Utility::FoldCase(Utility::NormalizedString{ set.Name() }) == foldedInput)
+            {
+                return;
+            }
+
+            std::ostringstream
+        }
     }
 
     void CreateConfigurationProcessor(Context& context)
@@ -1182,26 +1216,12 @@ namespace AppInstaller::CLI::Workflow
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
 
-        ConfigurationProcessor processor{ anon::CreateConfigurationSetProcessorFactory(context)};
+        anon::ConfigureProcessorForUse(context, ConfigurationProcessor{ anon::CreateConfigurationSetProcessorFactory(context) });
+    }
 
-        // Set the processor to the current level of the logging.
-        processor.MinimumLevel(anon::ConvertLevel(Logging::Log().GetLevel()));
-        processor.Caller(L"winget");
-        // Use same activity as the overall winget command
-        processor.ActivityIdentifier(*Logging::Telemetry().GetActivityId());
-        // Apply winget telemetry setting to configuration
-        processor.GenerateTelemetryEvents(!Settings::User().Get<Settings::Setting::TelemetryDisable>());
-
-        // Route the configuration diagnostics into the context's diagnostics logging
-        processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const IDiagnosticInformation& diagnostics)
-            {
-                context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, anon::ConvertLevel(diagnostics.Level()), Utility::ConvertToUTF8(diagnostics.Message()));
-            });
-
-        ConfigurationContext configurationContext;
-        configurationContext.Processor(std::move(processor));
-
-        context.Add<Data::ConfigurationContext>(std::move(configurationContext));
+    void CreateConfigurationProcessorWithoutFactory(Execution::Context& context)
+    {
+        anon::ConfigureProcessorForUse(context, ConfigurationProcessor{ IConfigurationSetProcessorFactory{ nullptr } });
     }
 
     void OpenConfigurationSet(Context& context)
@@ -1754,5 +1774,94 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::ConfigurationExportFailed << std::endl;
             throw;
         }
+    }
+
+    void GetConfigurationSetHistory(Execution::Context& context)
+    {
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+        configContext.History(configContext.Processor().GetConfigurationHistory());
+    }
+
+    void ShowConfigurationSetHistory(Execution::Context& context)
+    {
+        const auto& history = context.Get<Data::ConfigurationContext>().History();
+
+        if (history.empty())
+        {
+            context.Reporter.Info() << Resource::String::ConfigurationHistoryEmpty << std::endl;
+        }
+        else
+        {
+            TableOutput<4> historyTable{ context.Reporter, { Resource::String::ConfigureListIdentifier, Resource::String::ConfigureListName, Resource::String::ConfigureListFirstApplied, Resource::String::ConfigureListOrigin } };
+
+            for (const auto& set : history)
+            {
+                std::ostringstream stream;
+                Utility::OutputTimePoint(stream, winrt::clock::to_sys(set.FirstApply()));
+
+                winrt::hstring origin = set.Path();
+                if (origin.empty())
+                {
+                    origin = set.Origin();
+                }
+
+                historyTable.OutputLine({ Utility::ConvertGuidToString(set.InstanceIdentifier()), Utility::ConvertToUTF8(set.Name()), std::move(stream).str(), Utility::ConvertToUTF8(origin)});
+            }
+
+            historyTable.Complete();
+        }
+    }
+
+    void SelectSetFromHistory(Execution::Context& context)
+    {
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+        ConfigurationSet selectedSet{ nullptr };
+
+        std::string foldedInput = Utility::FoldCase(context.Args.GetArg(Execution::Args::Type::ConfigurationHistoryItem));
+
+        for (const ConfigurationSet& historySet : configContext.History())
+        {
+            if (anon::HistorySetMatchesInput(historySet, foldedInput))
+            {
+                if (selectedSet)
+                {
+                    selectedSet = nullptr;
+                    break;
+                }
+                else
+                {
+                    selectedSet = historySet;
+                }
+            }
+        }
+
+        if (!selectedSet)
+        {
+            context.Reporter.Warn() << Resource::String::ConfigurationHistoryItemNotFound << std::endl;
+            context << ShowConfigurationSetHistory;
+            AICLI_TERMINATE_CONTEXT(WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND);
+        }
+
+        configContext.Set(std::move(selectedSet));
+    }
+
+    void RemoveConfigurationSetHistory(Execution::Context& context)
+    {
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        context.Get<Data::ConfigurationContext>().Set().Remove();
+    }
+
+    void ShowSingleConfigurationSetHistory(Execution::Context& context)
+    {
+        const auto& set = context.Get<Data::ConfigurationContext>().Set();
+
+        context.Reporter.Info() <<
+            Resource::String::ConfigureListIdentifier << Utility::ConvertGuidToString(set.InstanceIdentifier()) << std::endl <<
+            Resource::String::ConfigureListName << Utility::ConvertToUTF8(set.Name()) << std::endl <<
+            Resource::String::ConfigureListFirstApplied << winrt::clock::to_sys(set.FirstApply()) << std::endl <<
+            Resource::String::ConfigureListOrigin << Utility::ConvertToUTF8(set.Origin()) << std::endl <<
+            Resource::String::ConfigureListPath << Utility::ConvertToUTF8(set.Path()) << std::endl;
     }
 }

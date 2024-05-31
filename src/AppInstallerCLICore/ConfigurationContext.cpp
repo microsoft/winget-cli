@@ -14,6 +14,7 @@ namespace AppInstaller::CLI::Execution
         {
             ConfigurationProcessor Processor = nullptr;
             ConfigurationSet Set = nullptr;
+            std::vector<ConfigurationSet> History;
         };
     }
 
@@ -64,5 +65,22 @@ namespace AppInstaller::CLI::Execution
     void ConfigurationContext::Set(ConfigurationSet&& value)
     {
         m_data->Set = std::move(value);
+    }
+
+    std::vector<ConfigurationSet>& ConfigurationContext::History()
+    {
+        return m_data->History;
+    }
+
+    const std::vector<ConfigurationSet>& ConfigurationContext::History() const
+    {
+        return m_data->History;
+    }
+
+    void ConfigurationContext::History(const winrt::Windows::Foundation::Collections::IVector<ConfigurationSet>& value)
+    {
+        std::vector<ConfigurationSet> history{ value.Size() };
+        value.GetMany(0, history);
+        m_data->History = std::move(history);
     }
 }

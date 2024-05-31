@@ -5,11 +5,17 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Composite flow that chooses what to do based on the installer type.
+    // Creates a configuration processor with a processor factory for full functionality.
     // Required Args: None
     // Inputs: None
     // Outputs: ConfigurationProcessor
     void CreateConfigurationProcessor(Execution::Context& context);
+
+    // Creates a configuration processor without a processor factory for reduced functionality.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: ConfigurationProcessor
+    void CreateConfigurationProcessorWithoutFactory(Execution::Context& context);
 
     // Opens the configuration set.
     // Required Args: ConfigurationFile
@@ -102,4 +108,34 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: ConfigurationProcessor, ConfigurationSet
     // Outputs: None
     void WriteConfigFile(Execution::Context& context);
+
+    // Gets the configuration set history.
+    // Required Args: None
+    // Inputs: ConfigurationProcessor
+    // Outputs: ConfigurationSetHistory
+    void GetConfigurationSetHistory(Execution::Context& context);
+
+    // Outputs the configuration set history.
+    // Required Args: None
+    // Inputs: ConfigurationSetHistory
+    // Outputs: None
+    void ShowConfigurationSetHistory(Execution::Context& context);
+
+    // Outputs the configuration set history.
+    // Required Args: ConfigurationHistoryItem
+    // Inputs: ConfigurationSetHistory
+    // Outputs: ConfigurationSet
+    void SelectSetFromHistory(Execution::Context& context);
+
+    // Outputs the configuration set history.
+    // Required Args: None
+    // Inputs: ConfigurationSet
+    // Outputs: None
+    void RemoveConfigurationSetHistory(Execution::Context& context);
+
+    // Outputs a single configuration set (from history).
+    // Required Args: None
+    // Inputs: ConfigurationSet
+    // Outputs: None
+    void ShowSingleConfigurationSetHistory(Execution::Context& context);
 }

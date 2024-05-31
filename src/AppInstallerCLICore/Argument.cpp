@@ -215,6 +215,10 @@ namespace AppInstaller::CLI
             return { type, "module"_liv };
         case Execution::Args::Type::ConfigurationExportResource:
             return { type, "resource"_liv };
+        case Execution::Args::Type::ConfigurationHistoryItem:
+            return { type, "history"_liv, 'h'};
+        case Execution::Args::Type::ConfigurationHistoryRemove:
+            return { type, "remove"_liv };
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:

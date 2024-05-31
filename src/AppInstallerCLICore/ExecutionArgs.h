@@ -130,6 +130,8 @@ namespace AppInstaller::CLI::Execution
             ConfigurationExportPackageId,
             ConfigurationExportModule,
             ConfigurationExportResource,
+            ConfigurationHistoryItem,
+            ConfigurationHistoryRemove,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs
