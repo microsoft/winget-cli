@@ -11,7 +11,7 @@
 using namespace AppInstaller::SQLite;
 using namespace std::string_literals;
 
-TEST_CASE("SQLiteDynamicStorage_UpgradeDetection", "[sqlitedynamic]")
+TEST_CASE("SQLiteDynamicStorage_UpgradeDetection", "[sqlite_dynamic]")
 {
     TestCommon::TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());

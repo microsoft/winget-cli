@@ -8,6 +8,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
@@ -73,8 +75,224 @@ properties:
 ", new string[] { "AssertIdentifier2" });
         }
 
+        /// <summary>
+        /// Checks that the history matches the applied set.
+        /// </summary>
+        [Fact]
+        public void ApplySet_HistoryMatches_0_2()
+        {
+            this.RunApplyHistoryMatchTest(
+                @"
+properties:
+  configurationVersion: 0.2
+  assertions:
+    - resource: Module/Assert
+      id: AssertIdentifier1
+      settings:
+        Setting1: '1'
+        Setting2: 2
+    - resource: Module/Assert
+      id: AssertIdentifier2
+      dependsOn:
+        - AssertIdentifier1
+      directives:
+        description: Describe!
+      settings:
+        Setting1:
+          Setting2: 2
+  parameters:
+    - resource: Module2/Inform
+      id: InformIdentifier1
+      settings:
+        Setting1:
+          Setting2:
+            Setting3: 3
+  resources:
+    - resource: Apply
+", new string[] { "AssertIdentifier2" });
+        }
+
+        /// <summary>
+        /// Checks that the history matches the applied set.
+        /// </summary>
+        [Fact]
+        public void ApplySet_HistoryMatches_0_3()
+        {
+            this.RunApplyHistoryMatchTest(
+                @"
+$schema: https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2023/08/config/document.json
+metadata:
+  a: 1
+  b: '2'
+variables:
+  v1: var1
+  v2: 42
+resources:
+  - name: Name
+    type: Module/Resource
+    metadata:
+      e: '5'
+      f: 6
+    properties:
+      c: 3
+      d: '4'
+  - name: Name2
+    type: Module/Resource2
+    dependsOn:
+      - Name
+    properties:
+      l: '10'
+    metadata:
+      i: '7'
+      j: 8
+      q: 42
+  - name: Group
+    type: Module2/Resource
+    metadata:
+      isGroup: true
+    properties:
+      resources:
+        - name: Child1
+          type: Module3/Resource
+          metadata:
+            e: '5'
+            f: 6
+          properties:
+            c: 3
+            d: '4'
+        - name: Child2
+          type: Module4/Resource2
+          properties:
+            l: '10'
+          metadata:
+            i: '7'
+            j: 8
+            q: 42
+", new string[] { "AssertIdentifier2" });
+        }
+
+        /// <summary>
+        /// Applies a set, reads the history, changes the read set and reapplies it.
+        /// </summary>
+        [Fact]
+        public void ApplySet_ChangeHistory()
+        {
+            string disabledIdentifier = "AssertIdentifier2";
+
+            ConfigurationSet returnedSet = this.RunApplyHistoryMatchTest(
+                @"
+properties:
+  configurationVersion: 0.2
+  assertions:
+    - resource: Module/Assert
+      id: AssertIdentifier1
+      settings:
+        Setting1: '1'
+        Setting2: 2
+    - resource: Module/Assert
+      id: AssertIdentifier2
+      dependsOn:
+        - AssertIdentifier1
+      directives:
+        description: Describe!
+      settings:
+        Setting1:
+          Setting2: 2
+  parameters:
+    - resource: Module2/Inform
+      id: InformIdentifier1
+      settings:
+        Setting1:
+          Setting2:
+            Setting3: 3
+  resources:
+    - resource: Apply
+", new string[] { disabledIdentifier });
+
+            foreach (ConfigurationUnit unit in returnedSet.Units)
+            {
+                if (unit.Identifier == disabledIdentifier)
+                {
+                    unit.IsActive = true;
+                }
+            }
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            ApplyConfigurationSetResult result = processor.ApplySet(returnedSet, ApplyConfigurationSetFlags.None);
+            Assert.NotNull(result);
+            Assert.Null(result.ResultCode);
+
+            ConfigurationSet? historySet = null;
+
+            foreach (ConfigurationSet set in processor.GetConfigurationHistory())
+            {
+                if (set.InstanceIdentifier == returnedSet.InstanceIdentifier)
+                {
+                    historySet = set;
+                }
+            }
+
+            this.AssertSetsEqual(returnedSet, historySet);
+        }
+
+        /// <summary>
+        /// Applies a set, reads the history and removes it.
+        /// </summary>
+        [Fact]
+        public void ApplySet_RemoveHistory()
+        {
+            ConfigurationSet returnedSet = this.RunApplyHistoryMatchTest(
+                @"
+properties:
+  configurationVersion: 0.2
+  assertions:
+    - resource: Module/Assert
+      id: AssertIdentifier1
+      settings:
+        Setting1: '1'
+        Setting2: 2
+    - resource: Module/Assert
+      id: AssertIdentifier2
+      dependsOn:
+        - AssertIdentifier1
+      directives:
+        description: Describe!
+      settings:
+        Setting1:
+          Setting2: 2
+  parameters:
+    - resource: Module2/Inform
+      id: InformIdentifier1
+      settings:
+        Setting1:
+          Setting2:
+            Setting3: 3
+  resources:
+    - resource: Apply
+");
+
+            returnedSet.Remove();
+
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            ConfigurationSet? historySet = null;
+
+            foreach (ConfigurationSet set in processor.GetConfigurationHistory())
+            {
+                if (set.InstanceIdentifier == returnedSet.InstanceIdentifier)
+                {
+                    historySet = set;
+                }
+            }
+
+            Assert.Null(historySet);
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/2927")]
-        private void RunApplyHistoryMatchTest(string contents, string[]? inactiveIdentifiers = null)
+        private ConfigurationSet RunApplyHistoryMatchTest(string contents, string[]? inactiveIdentifiers = null)
         {
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
@@ -116,9 +334,10 @@ properties:
             }
 
             this.AssertSetsEqual(configurationSet, historySet);
+            return historySet;
         }
 
-        private void AssertSetsEqual(ConfigurationSet expectedSet, ConfigurationSet? actualSet)
+        private void AssertSetsEqual(ConfigurationSet expectedSet, [NotNull] ConfigurationSet? actualSet)
         {
             Assert.NotNull(actualSet);
             Assert.Equal(expectedSet.Name, actualSet.Name);
