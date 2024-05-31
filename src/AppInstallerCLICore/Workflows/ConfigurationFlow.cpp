@@ -1202,12 +1202,31 @@ namespace AppInstaller::CLI::Workflow
 
         bool HistorySetMatchesInput(const ConfigurationSet& set, const std::string& foldedInput)
         {
-            if (Utility::FoldCase(Utility::NormalizedString{ set.Name() }) == foldedInput)
+            if (foldedInput.empty())
             {
-                return;
+                return false;
             }
 
-            std::ostringstream
+            if (Utility::FoldCase(Utility::NormalizedString{ set.Name() }) == foldedInput)
+            {
+                return true;
+            }
+
+            std::ostringstream identifierStream;
+            identifierStream << set.InstanceIdentifier();
+            std::string identifier = identifierStream.str();
+            THROW_HR_IF(E_UNEXPECTED, identifier.empty());
+
+            std::size_t startPosition = 0;
+            if (identifier[0] == '{' && foldedInput[0] != '{')
+            {
+                startPosition = 1;
+            }
+
+            std::string_view identifierView = identifier;
+            identifierView = identifierView.substr(startPosition);
+
+            return Utility::CaseInsensitiveStartsWith(identifierView, foldedInput);
         }
     }
 
@@ -1857,11 +1876,17 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& set = context.Get<Data::ConfigurationContext>().Set();
 
-        context.Reporter.Info() <<
-            Resource::String::ConfigureListIdentifier << Utility::ConvertGuidToString(set.InstanceIdentifier()) << std::endl <<
-            Resource::String::ConfigureListName << Utility::ConvertToUTF8(set.Name()) << std::endl <<
-            Resource::String::ConfigureListFirstApplied << winrt::clock::to_sys(set.FirstApply()) << std::endl <<
-            Resource::String::ConfigureListOrigin << Utility::ConvertToUTF8(set.Origin()) << std::endl <<
-            Resource::String::ConfigureListPath << Utility::ConvertToUTF8(set.Path()) << std::endl;
+        std::ostringstream stream;
+        Utility::OutputTimePoint(stream, winrt::clock::to_sys(set.FirstApply()));
+
+        Execution::TableOutput<2> table(context.Reporter, { Resource::String::SourceListField, Resource::String::SourceListValue });
+
+        table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListIdentifier }, Utility::ConvertGuidToString(set.InstanceIdentifier()) });
+        table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListName }, Utility::ConvertToUTF8(set.Name()) });
+        table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListFirstApplied }, std::move(stream).str() });
+        table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListOrigin }, Utility::ConvertToUTF8(set.Origin()) });
+        table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListPath }, Utility::ConvertToUTF8(set.Path()) });
+
+        table.Complete();
     }
 }
