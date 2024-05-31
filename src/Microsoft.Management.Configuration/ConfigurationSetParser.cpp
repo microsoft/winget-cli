@@ -313,9 +313,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return {};
     }
 
-    hstring ConfigurationSetParser::LatestVersion()
+    std::pair<hstring, Windows::Foundation::Uri> ConfigurationSetParser::LatestVersion()
     {
-        return hstring{ std::rbegin(SchemaVersionAndUriMap)->VersionWide };
+        auto latest = std::rbegin(SchemaVersionAndUriMap);
+        return { hstring{ latest->VersionWide }, Windows::Foundation::Uri{ latest->UriWide } };
     }
 
     Windows::Foundation::Collections::ValueSet ConfigurationSetParser::ParseValueSet(std::string_view input)

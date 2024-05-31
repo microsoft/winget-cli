@@ -12,7 +12,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     namespace
     {
+        // Use an alternate location for the dev build history.
+#ifdef AICLI_DISABLE_TEST_HOOKS
         constexpr std::string_view s_Database_DirectoryName = "History"sv;
+#else
+        constexpr std::string_view s_Database_DirectoryName = "DevHistory"sv;
+#endif
+
         constexpr std::string_view s_Database_FileName = "config.db"sv;
 
         #define s_Database_MutexName L"WindowsPackageManager_Configuration_DatabaseMutex"

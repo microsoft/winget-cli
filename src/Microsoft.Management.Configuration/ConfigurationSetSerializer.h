@@ -12,7 +12,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ConfigurationSetSerializer
     {
-        static std::unique_ptr<ConfigurationSetSerializer> CreateSerializer(hstring version);
+        static std::unique_ptr<ConfigurationSetSerializer> CreateSerializer(hstring version, bool forHistory = false);
 
         virtual ~ConfigurationSetSerializer() noexcept = default;
 

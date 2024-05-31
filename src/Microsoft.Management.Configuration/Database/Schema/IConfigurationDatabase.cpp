@@ -17,8 +17,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using StorageT = std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage>;
         const AppInstaller::SQLite::Version& version = storage->GetVersion();
 
-        if (version.MajorVersion == 0 ||
-            version.IsLatest())
+        if (version.MajorVersion == 0)
         {
             constexpr std::array<std::unique_ptr<IConfigurationDatabase>(*)(StorageT&& s), 1> versionCreatorMap =
             {
@@ -26,9 +25,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             };
 
             size_t minorVersion = static_cast<size_t>(version.MinorVersion);
-            if (minorVersion < versionCreatorMap.size())
+            if (minorVersion >= 1 && minorVersion <= versionCreatorMap.size())
             {
-                return versionCreatorMap[minorVersion](std::move(storage));
+                return versionCreatorMap[minorVersion - 1](std::move(storage));
             }
         }
 

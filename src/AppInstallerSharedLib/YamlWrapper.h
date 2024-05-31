@@ -41,7 +41,7 @@ namespace AppInstaller::YAML::Wrapper
         Node GetRoot();
 
         // Adds a scalar node to the document.
-        int AddScalar(std::string_view value);
+        int AddScalar(std::string_view value, ScalarStyle style = ScalarStyle::Any);
 
         // Adds a sequence node to the document.
         int AddSequence();

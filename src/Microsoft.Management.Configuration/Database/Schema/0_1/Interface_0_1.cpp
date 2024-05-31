@@ -16,10 +16,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
     void Interface::InitializeDatabase()
     {
-        Savepoint savepoint = Savepoint::Create(*m_storage, "InitializeDatabase_0_1");
+        // Must enable WAL mode outside of a transaction
+        THROW_HR_IF(E_UNEXPECTED, !m_storage->GetConnection().SetJournalMode("WAL"));
 
-        Statement setJournalMode = Statement::Create(*m_storage, "PRAGMA journal_mode=WAL");
-        setJournalMode.Execute();
+        Savepoint savepoint = Savepoint::Create(*m_storage, "InitializeDatabase_0_1");
 
         SetInfoTable setInfoTable(*m_storage);
         setInfoTable.Create();

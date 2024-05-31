@@ -9,6 +9,7 @@
 #include <functional>
 #include <memory>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
@@ -40,7 +41,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         static std::string GetSchemaVersionForUri(std::string_view value);
 
         // Gets the latest schema version.
-        static hstring LatestVersion();
+        static std::pair<hstring, Windows::Foundation::Uri> LatestVersion();
 
         virtual ~ConfigurationSetParser() noexcept = default;
 

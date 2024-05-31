@@ -259,6 +259,11 @@ namespace AppInstaller::SQLite
         // Sets the busy timeout for the connection.
         void SetBusyTimeout(std::chrono::milliseconds timeout);
 
+        // Sets the journal mode.
+        // Returns true if successful, false if not.
+        // Must be performed outside of a transaction.
+        bool SetJournalMode(std::string_view mode);
+
         operator sqlite3* () const { return m_dbconn->Get(); }
 
     protected:

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Public/winget/SQLiteWrapper.h"
 #include "Public/AppInstallerErrors.h"
+#include "Public/AppInstallerStrings.h"
 #include "ICU/SQLiteICU.h"
 
 #include <wil/result_macros.h>
@@ -236,6 +237,18 @@ namespace AppInstaller::SQLite
     void Connection::SetBusyTimeout(std::chrono::milliseconds timeout)
     {
         THROW_IF_SQLITE_FAILED(sqlite3_busy_timeout(m_dbconn->Get(), static_cast<int>(timeout.count())), m_dbconn->Get());
+    }
+
+    bool Connection::SetJournalMode(std::string_view mode)
+    {
+        using namespace AppInstaller::Utility;
+
+        std::ostringstream stream;
+        stream << "PRAGMA journal_mode=" << mode;
+
+        Statement setJournalMode = Statement::Create(*this, stream.str());
+        THROW_HR_IF(E_UNEXPECTED, !setJournalMode.Step());
+        return ToLower(setJournalMode.GetColumn<std::string>(0)) == ToLower(mode);
     }
 
     std::shared_ptr<details::SharedConnection> Connection::GetSharedConnection() const

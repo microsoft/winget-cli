@@ -62,7 +62,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         Savepoint savepoint = Savepoint::Create(m_connection, "SetInfoTable_Add_0_1");
 
         hstring schemaVersion = configurationSet.SchemaVersion();
-        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion);
+        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion, true);
 
         StatementBuilder builder;
         builder.InsertInto(s_SetInfoTable_Table).Columns({
@@ -73,6 +73,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             s_SetInfoTable_Column_FirstApply,
             s_SetInfoTable_Column_SchemaVersion,
             s_SetInfoTable_Column_Metadata,
+            s_SetInfoTable_Column_Parameters,
             s_SetInfoTable_Column_Variables,
         }).Values(
             static_cast<GUID>(configurationSet.InstanceIdentifier()),
@@ -82,6 +83,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             GetCurrentUnixEpoch(),
             ConvertToUTF8(schemaVersion),
             serializer->SerializeValueSet(configurationSet.Metadata()),
+            std::string{}, // Parameters
             serializer->SerializeValueSet(configurationSet.Variables())
         );
 
@@ -110,7 +112,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         Savepoint savepoint = Savepoint::Create(m_connection, "SetInfoTable_Update_0_1");
 
         hstring schemaVersion = configurationSet.SchemaVersion();
-        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion);
+        auto serializer = ConfigurationSetSerializer::CreateSerializer(schemaVersion, true);
 
         StatementBuilder builder;
         builder.Update(s_SetInfoTable_Table).Set().
@@ -189,6 +191,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
                 winrtUnits.emplace_back(*unit);
             }
             configurationSet->Units(std::move(winrtUnits));
+
+            result.emplace_back(std::move(configurationSet));
         }
 
         return result;

@@ -14,7 +14,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         GUID instanceIdentifier;
         THROW_IF_FAILED(CoCreateGuid(&instanceIdentifier));
         m_instanceIdentifier = instanceIdentifier;
-        m_schemaVersion = ConfigurationSetParser::LatestVersion();
+        std::tie(m_schemaVersion, m_schemaUri) = ConfigurationSetParser::LatestVersion();
     }
 
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
