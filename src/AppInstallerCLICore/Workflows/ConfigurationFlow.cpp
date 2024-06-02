@@ -1245,8 +1245,19 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenConfigurationSet(Context& context)
     {
-        std::string argPath{ context.Args.GetArg(Args::Type::ConfigurationFile) };
-        anon::OpenConfigurationSet(context, argPath, true);
+        if (context.Args.Contains(Args::Type::ConfigurationFile))
+        {
+            std::string argPath{ context.Args.GetArg(Args::Type::ConfigurationFile) };
+            anon::OpenConfigurationSet(context, argPath, true);
+        }
+        else
+        {
+            THROW_HR_IF(E_UNEXPECTED, !context.Args.Contains(Args::Type::ConfigurationHistoryItem));
+
+            context <<
+                GetConfigurationSetHistory <<
+                SelectSetFromHistory;
+        }
     }
 
     void CreateOrOpenConfigurationSet(Context& context)

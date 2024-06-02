@@ -13,7 +13,8 @@ namespace AppInstaller::CLI
     {
         return {
             // Required for now, make exclusive when history implemented
-            Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional },
+            Argument{ Execution::Args::Type::ConfigurationHistoryItem, Resource::String::ConfigurationHistoryItemArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::ConfigurationModulePath, Resource::String::ConfigurationModulePath, ArgumentType::Positional },
         };
     }
@@ -45,6 +46,6 @@ namespace AppInstaller::CLI
 
     void ConfigureShowCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        Configuration::ValidateCommonArguments(execArgs);
+        Configuration::ValidateCommonArguments(execArgs, true);
     }
 }

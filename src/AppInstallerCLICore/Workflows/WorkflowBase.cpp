@@ -1172,6 +1172,12 @@ namespace AppInstaller::CLI::Workflow
 
     void VerifyFileOrUri::operator()(Execution::Context& context) const
     {
+        // Argument requirement is handled elsewhere.
+        if (!context.Args.Contains(m_arg))
+        {
+            return;
+        }
+
         auto path = context.Args.GetArg(m_arg);
 
         // try uri first
