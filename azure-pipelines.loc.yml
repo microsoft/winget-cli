@@ -19,7 +19,6 @@ jobs:
   variables:
     skipComponentGovernanceDetection: true
     tdbuildTeamId: 8343
-    tdbuildServiceConnection: AppInstallerTDBuild
   steps:
     # Upload client resources
   - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@4
@@ -27,7 +26,7 @@ jobs:
     inputs:
       teamId: $(tdbuildTeamId)
       authType: FederatedIdentity
-      FederatedIdentityServiceConnection: $(tdbuildServiceConnection)
+      FederatedIdentityServiceConnection: AppInstallerTDBuild
       isPreview: false
       relativePathRoot: src\AppInstallerCLIPackage\Shared\Strings\en-us
       resourceFilePath: '*.resw'
@@ -40,7 +39,7 @@ jobs:
     inputs:
       teamId: $(tdbuildTeamId)
       authType: FederatedIdentity
-      FederatedIdentityServiceConnection: $(tdbuildServiceConnection)
+      FederatedIdentityServiceConnection: AppInstallerTDBuild
       isPreview: false
       relativePathRoot: doc\admx\en-US
       resourceFilePath: '*.adml'
