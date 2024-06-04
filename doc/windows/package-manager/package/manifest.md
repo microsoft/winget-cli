@@ -202,10 +202,16 @@ You can often figure out what silent `Switches` are available for an installer b
 
 | Installer | Command  | Documentation |
 | :--- | :-- | :--- |
-| MSI | `/q` | [MSI Command-Line Options](https://docs.microsoft.com/windows/win32/msi/command-line-options) |
-| InstallShield | `/s`  | [InstallShield Command-Line Parameters](https://docs.flexera.com/installshield19helplib/helplibrary/IHelpSetup_EXECmdLine.htm) |
-| Inno Setup | `/SILENT or /VERYSILENT` | [Inno Setup documentation](https://jrsoftware.org/ishelp/) |
+| MSI | `/passive` (`/qb`) or `/quiet` (`/qn`) | [MSI Command-Line Options](https://docs.microsoft.com/windows/win32/msi/command-line-options) |
+| InstallShield (EXE) | `/s` or `/S /V/passive` or `/S /V/quiet` | [InstallShield Command-Line Parameters](https://docs.revenera.com/installshield/helplibrary/IHelpSetup_EXECmdLine.htm) |
+| Inno Setup | `/SILENT` or `/VERYSILENT` | [Inno Setup documentation](https://jrsoftware.org/ishelp/) |
 | Nullsoft | `/S` | [Nullsoft Silent Installers/Uninstallers](https://nsis.sourceforge.io/Docs/Chapter4.html#silent) |
+| Advanced Installer (EXE) | `/exenoui /passive` or `/exenoui /quiet` | [Advanced Installer Command-Line Switches](https://www.advancedinstaller.com/user-guide/exe-setup-file.html) |
+| InstallBuilder | `--mode unattended --unattendedmodeui minimal` or `--mode unattended --unattendedmodeui none` ||
+| install4j | `-q -splash ""` or `-q` | [install4j Command-Line Options](https://www.ej-technologies.com/resources/install4j/help/doc/installers/options.html) |
+| Setup Factory | `/S` | [Setup Factory Command-Line Options](https://www.indigorose.com/webhelp/suf9/Program_Reference/Command_Line_Options.htm) |
+| Actual Installer | `/S` | [Actual Installer Command-Line Parameters](https://www.actualinstaller.com/help/command-line.html) |
+| InstallMate | `/q1` or `/q2` | [InstallMate Command-Line Syntax](https://tarma.com/support/im9/setup/cmdline.htm) |
 
 ## Tips and best practices
 
