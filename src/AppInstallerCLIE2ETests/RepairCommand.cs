@@ -6,12 +6,9 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using System;
     using System.IO;
     using AppInstallerCLIE2ETests.Helpers;
-    using Markdig.Extensions.Figures;
     using NUnit.Framework;
-    using WinGetSourceCreator.Model;
 
     /// <summary>
     /// Test Repair command.
