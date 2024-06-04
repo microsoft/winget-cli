@@ -217,7 +217,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 {
                     bool useRunAs = true;
 #ifndef DISABLE_TEST_HOOKS
-                    bool useRunAs = !GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
+                    useRunAs = !GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
 #endif
 
                     factory = CreateOutOfProcessFactory(useRunAs, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
