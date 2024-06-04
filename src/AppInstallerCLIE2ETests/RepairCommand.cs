@@ -21,6 +21,8 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
+            // Try clean up AppInstallerTest.TestMsiInstaller for failure cases where cleanup is not successful
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestMsiInstaller");
         }
 
         /// <summary>
