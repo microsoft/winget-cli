@@ -215,10 +215,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // If we got here, the only option is that the current integrity level is not High.
                 if (integrityLevel == Security::IntegrityLevel::High)
                 {
+                    bool useRunAs = true;
 #ifndef DISABLE_TEST_HOOKS
                     bool useRunAs = !GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
-#elif
-                    bool useRunAs = true;
 #endif
 
                     factory = CreateOutOfProcessFactory(useRunAs, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
