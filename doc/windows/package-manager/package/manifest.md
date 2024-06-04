@@ -206,6 +206,7 @@ You can often figure out what silent `Switches` are available for an installer b
 | InstallShield (EXE) | `/s` or `/S /V/passive` or `/S /V/quiet` | [InstallShield Command-Line Parameters](https://docs.revenera.com/installshield/helplibrary/IHelpSetup_EXECmdLine.htm) |
 | Inno Setup | `/SILENT` or `/VERYSILENT` | [Inno Setup documentation](https://jrsoftware.org/ishelp/) |
 | Nullsoft | `/S` | [Nullsoft Silent Installers/Uninstallers](https://nsis.sourceforge.io/Docs/Chapter4.html#silent) |
+| Squirrel | `--silent` or `-s` ||
 | Advanced Installer (EXE) | `/exenoui /passive` or `/exenoui /quiet` | [Advanced Installer Command-Line Switches](https://www.advancedinstaller.com/user-guide/exe-setup-file.html) |
 | InstallBuilder | `--mode unattended --unattendedmodeui minimal` or `--mode unattended --unattendedmodeui none` ||
 | install4j | `-q -splash ""` or `-q` | [install4j Command-Line Options](https://www.ej-technologies.com/resources/install4j/help/doc/installers/options.html) |
