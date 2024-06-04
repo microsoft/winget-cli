@@ -25,6 +25,7 @@ namespace AppInstallerCLIE2ETests
         public const string LocalServerCertPathParameter = "LocalServerCertPath";
         public const string ExeInstallerPathParameter = "ExeTestInstallerPath";
         public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
+        public const string MsiInstallerV2PathParameter = "MsiTestInstallerV2Path";
         public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
         public const string PowerShellModulePathParameter = "PowerShellModulePath";
@@ -58,6 +59,7 @@ namespace AppInstallerCLIE2ETests
         public const string ZipInstaller = "AppInstallerTestZipInstaller";
         public const string ExeInstallerFileName = "AppInstallerTestExeInstaller.exe";
         public const string MsiInstallerFileName = "AppInstallerTestMsiInstaller.msi";
+        public const string MsiInstallerV2FileName = "AppInstallerTestMsiInstallerV2.msi";
         public const string MsixInstallerFileName = "AppInstallerTestMsixInstaller.msix";
         public const string ZipInstallerFileName = "AppInstallerTestZipInstaller.zip";
         public const string IndexPackage = "source.msix";
@@ -91,6 +93,7 @@ namespace AppInstallerCLIE2ETests
         public const string TestExeInstalledFileName = "TestExeInstalled.txt";
         public const string TestExeUninstallerFileName = "UninstallTestExe.bat";
         public const string TestExeUninstalledFileName = "TestExeUninstalled.txt";
+        public const string TestExeRepairCompletedFileName = "TestExeRepairCompleted.txt";
 
         // PowerShell Cmdlets
         public const string FindCmdlet = "Find-WinGetPackage";

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestIndex.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -22,6 +22,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             // Expected path for the installers.
             TestIndex.ExeInstaller = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.ExeInstaller, Constants.ExeInstallerFileName);
             TestIndex.MsiInstaller = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.MsiInstaller, Constants.MsiInstallerFileName);
+            TestIndex.MsiInstallerV2 = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.MsiInstaller, Constants.MsiInstallerV2FileName);
             TestIndex.MsixInstaller = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.MsixInstaller, Constants.MsixInstallerFileName);
             TestIndex.ZipInstaller = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.ZipInstaller, Constants.ZipInstallerFileName);
         }
@@ -35,6 +36,11 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the signed msi installer path used by the manifests in the E2E test.
         /// </summary>
         public static string MsiInstaller { get; private set; }
+
+        /// <summary>
+        /// Gets the signed msi installerV2 path used by the manifests in the E2E test.
+        /// </summary>
+        public static string MsiInstallerV2 { get; private set; }
 
         /// <summary>
         /// Gets the signed msix installer path used by the manifests in the E2E test.
@@ -71,6 +77,16 @@ namespace AppInstallerCLIE2ETests.Helpers
             if (!File.Exists(testParams.MsiInstallerPath))
             {
                 throw new FileNotFoundException(testParams.MsiInstallerPath);
+            }
+
+            if (string.IsNullOrEmpty(testParams.MsiInstallerV2Path))
+            {
+                throw new ArgumentNullException($"{Constants.MsiInstallerV2PathParameter} is required");
+            }
+
+            if (!File.Exists(testParams.MsiInstallerV2Path))
+            {
+                throw new FileNotFoundException(testParams.MsiInstallerV2Path);
             }
 
             if (string.IsNullOrEmpty(testParams.MsixInstallerPath))
@@ -116,6 +132,13 @@ namespace AppInstallerCLIE2ETests.Helpers
                         Name = Path.Combine(Constants.MsiInstaller, Constants.MsiInstallerFileName),
                         Input = testParams.MsiInstallerPath,
                         HashToken = "<MSIHASH>",
+                    },
+                    new LocalInstaller
+                    {
+                        Type = InstallerType.Msi,
+                        Name = Path.Combine(Constants.MsiInstaller, Constants.MsiInstallerV2FileName),
+                        Input = testParams.MsiInstallerPath,
+                        HashToken = "<MSIHASHV2>",
                     },
                     new LocalInstaller
                     {

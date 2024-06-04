@@ -50,8 +50,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="TestData\AppInstallerTestMsiInstallerV2.msi" />
     <None Remove="TestData\Configuration\ShowDetails_TestRepo_0_3.yml" />
     <None Remove="TestData\Configuration\WithParameters_0_3.yml" />
+    <None Remove="TestData\Manifests\TestBurnInstaller.ModifyRepair.yaml" />
+    <None Remove="TestData\Manifests\TestExeInstaller.UninstallerRepair.yaml" />
+    <None Remove="TestData\Manifests\TestInnoInstaller.InstallerRepair.yaml" />
+    <None Remove="TestData\Manifests\TestNullsoftInstaller.UninstallerRepair.yaml" />
     <Content Include="..\..\doc\admx\DesktopAppInstaller.admx" Link="TestData\DesktopAppInstaller.admx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -77,6 +82,9 @@
     <None Update="Test.runsettings">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Update="TestData\Manifests\TestBurnInstaller.ModifyRepair.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
