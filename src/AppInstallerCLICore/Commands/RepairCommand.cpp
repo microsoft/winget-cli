@@ -104,11 +104,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::ReportManifestIdentity <<
                 Workflow::SearchSourceUsingManifest <<
-                Workflow::EnsureOneMatchFromSearchResult(OperationType::Repair) <<
-                Workflow::GetInstalledPackageVersion <<
-                Workflow::SelectInstaller <<
-                Workflow::EnsureApplicableInstaller <<
-                Workflow::RepairSinglePackage;
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Repair);
         }
         else
         {
@@ -116,10 +112,12 @@ namespace AppInstaller::CLI
                 Workflow::SearchSourceForSingle <<
                 Workflow::HandleSearchResultFailures <<
                 Workflow::EnsureOneMatchFromSearchResult(OperationType::Repair) <<
-                Workflow::ReportPackageIdentity <<
-                Workflow::GetInstalledPackageVersion <<
-                Workflow::SelectApplicablePackageVersion <<
-                Workflow::RepairSinglePackage;
+                Workflow::ReportPackageIdentity;
         }
+
+        context <<
+            Workflow::GetInstalledPackageVersion <<
+            Workflow::SelectApplicableInstallerWhenEssential <<
+            Workflow::RepairSinglePackage;
     }
 }

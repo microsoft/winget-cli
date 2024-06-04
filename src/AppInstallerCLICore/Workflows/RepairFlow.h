@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionContext.h"
+#include "winget/ManifestCommon.h"
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -41,11 +42,24 @@ namespace AppInstaller::CLI::Workflow
     // Outputs:None
     void RepairMsixPackage(Execution::Context& context);
 
+    // Perform the repair operation for the MSIX NonStore package.
+    // RequiredArgs:None
+    // Inputs:PackageFamilyNames , InstallScope?
+    // Outputs:None
+    void RepairMsixNonStorePackage(Execution::Context& context);
+
     // Select the applicable package version by matching the installed package version with the available package version.
     // RequiredArgs:None
     // Inputs: Package,InstalledPackageVersion, AvailablePackageVersions
     // Outputs:Manifest, PackageVersion, Installer
     void SelectApplicablePackageVersion(Execution::Context& context);
+
+    /// <summary>
+    /// Select the applicable installer for the installed package is essential.
+    // RequiredArgs:None
+    // Inputs: Package,InstalledPackageVersion, AvailablePackageVersions
+    // Outputs:Manifest, PackageVersion, Installer
+    void SelectApplicableInstallerWhenEssential(Execution::Context& context);
 
     // Perform the repair operation for the single package.
     // RequiredArgs:None
