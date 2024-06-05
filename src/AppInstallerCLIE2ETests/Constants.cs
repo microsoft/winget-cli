@@ -266,6 +266,10 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INVALID_RESUME_STATE = unchecked((int)0x8A150070);
             public const int ERROR_CANNOT_OPEN_CHECKPOINT_INDEX = unchecked((int)0x8A150071);
 
+            public const int ERROR_NO_REPAIR_INFO_FOUND = unchecked((int)0x8A150079);
+            public const int ERROR_REPAIR_NOT_SUPPORTED = unchecked((int)0x8A15007C);
+            public const int ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED = unchecked((int)0x8A15007D);
+
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);
             public const int ERROR_INSTALL_FILE_IN_USE = unchecked((int)0x8A150103);

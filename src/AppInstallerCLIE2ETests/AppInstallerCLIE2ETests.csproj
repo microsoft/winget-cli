@@ -53,8 +53,12 @@
     <None Remove="TestData\AppInstallerTestMsiInstallerV2.msi" />
     <None Remove="TestData\Configuration\ShowDetails_TestRepo_0_3.yml" />
     <None Remove="TestData\Configuration\WithParameters_0_3.yml" />
+    <None Remove="TestData\Manifests\TestBurnInstaller.MisisngRepairBehavior.yaml" />
     <None Remove="TestData\Manifests\TestBurnInstaller.ModifyRepair.yaml" />
+    <None Remove="TestData\Manifests\TestBurnInstaller.ModifyRepairWithNoModify.yaml" />
+    <None Remove="TestData\Manifests\TestBurnInstaller.UserScopeInstallRepairInAdminContext.yaml" />
     <None Remove="TestData\Manifests\TestExeInstaller.UninstallerRepair.yaml" />
+    <None Remove="TestData\Manifests\TestExeInstaller.UninstallerRepairWithNoRepair.yaml" />
     <None Remove="TestData\Manifests\TestInnoInstaller.InstallerRepair.yaml" />
     <None Remove="TestData\Manifests\TestNullsoftInstaller.UninstallerRepair.yaml" />
     <Content Include="..\..\doc\admx\DesktopAppInstaller.admx" Link="TestData\DesktopAppInstaller.admx">

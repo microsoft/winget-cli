@@ -584,6 +584,22 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Best effort test exe cleanup and install directory cleanup.
+        /// </summary>
+        /// <param name="installDir">Install directory.</param>
+        public static void CleanupTestExeAndDirectory(string installDir)
+        {
+            // Always try clean up and ignore clean up failure
+            BestEffortTestExeCleanup(installDir);
+
+            // Delete the install directory to reclaim disk space
+            if (Directory.Exists(installDir))
+            {
+                Directory.Delete(installDir, true);
+            }
+        }
+
+        /// <summary>
         /// Verify exe installer correctly and then uninstall it.
         /// </summary>
         /// <param name="installDir">Install directory.</param>
@@ -608,12 +624,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         public static bool VerifyTestExeRepairCompletedAndCleanup(string installDir, string expectedContent = null)
         {
             bool verifyRepairSuccess = VerifyTestExeRepairSuccessful(installDir, expectedContent);
-
-            // Always try clean up and ignore clean up failure
-            BestEffortTestExeCleanup(installDir);
-
-            // Delete the install directory to reclaim disk space
-            Directory.Delete(installDir, true);
+            CleanupTestExeAndDirectory(installDir);
 
             return verifyRepairSuccess;
         }
