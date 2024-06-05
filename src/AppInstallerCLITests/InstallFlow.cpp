@@ -514,6 +514,24 @@ TEST_CASE("ExtractInstallerFromArchive_InvalidZip", "[InstallFlow][workflow]")
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ExtractArchiveFailed).get()) != std::string::npos);
 }
 
+TEST_CASE("ExtractInstallerFromArchiveWithTar_InvalidZip", "[InstallFlow][workflow]")
+{
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::InstallExtractWithTar>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
+    context.Add<Data::Manifest>(manifest);
+    context.Add<Data::Installer>(manifest.Installers.at(0));
+    // Provide an invalid zip file which should be handled appropriately.
+    context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    context << ExtractFilesFromArchive;
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ExtractArchiveFailed).get()) != std::string::npos);
+}
+
 TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestMSStoreInstalled.txt");

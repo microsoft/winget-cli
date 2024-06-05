@@ -65,5 +65,14 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: InstallerPath
     // Outputs: None
-    void ShellExecuteExtractArchive(Execution::Context& context);
+    struct ShellExecuteExtractArchive : public WorkflowTask
+    {
+        ShellExecuteExtractArchive(const std::filesystem::path& archivePath, const std::filesystem::path& destPath) : WorkflowTask("ShellExecuteExtractArchive"), m_archivePath(archivePath), m_destPath(destPath) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        std::filesystem::path m_archivePath;
+        std::filesystem::path m_destPath;
+    };
 }

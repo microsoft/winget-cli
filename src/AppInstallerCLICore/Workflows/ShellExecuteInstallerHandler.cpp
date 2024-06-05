@@ -539,21 +539,13 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ShellExecuteExtractArchive(Execution::Context& context)
+    void ShellExecuteExtractArchive::operator()(Execution::Context& context) const
     {
-        const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        std::filesystem::path destinationFolder = installerPath.parent_path() / L"extracted";
-        std::filesystem::create_directory(destinationFolder);
-
-        AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
-        context.Reporter.Info() << Resource::String::ExtractingArchive << std::endl;
-
-
         auto tarExecPath = AppInstaller::Filesystem::GetExpandedPath("%windir%\\system32\\tar.exe");
 
-        std::string args = "-xf " + installerPath.u8string() + " -C " + destinationFolder.u8string();
+        std::string args = "-xf " + m_archivePath.u8string() + " -C " + m_destPath.u8string();
 
-        auto extractResult = context.Reporter.ExecuteWithProgress(
+        auto extractArchiveResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeShellExecuteEx,
                 tarExecPath,
                 args,
@@ -561,23 +553,21 @@ namespace AppInstaller::CLI::Workflow
                 SW_HIDE,
                 std::placeholders::_1));
 
-        if (!extractResult)
+        if (!extractArchiveResult)
         {
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
 
-        DWORD extractResultValue = extractResult.value();
-
-        if (extractResult.value() != ERROR_SUCCESS)
-        {
-            AICLI_LOG(CLI, Info, << "Failed to extract archive with code " << extractResultValue);
-            context.Reporter.Error() << Resource::String::ExtractArchiveFailed << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
-        }
-        else
+        if (extractArchiveResult.value() == ERROR_SUCCESS)
         {
             AICLI_LOG(CLI, Info, << "Successfully extracted archive");
             context.Reporter.Info() << Resource::String::ExtractArchiveSucceeded << std::endl;
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "Failed to extract archive with exit code " << extractArchiveResult.value());
+            context.Reporter.Error() << Resource::String::ExtractArchiveFailed << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
         }
     }
 }

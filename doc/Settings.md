@@ -99,12 +99,12 @@ The 'skipDependencies' behavior affects whether dependencies are installed for a
     },
 ```
 
-### Extract With Tar Executable ('tar.exe')
-The 'extractWithTar' behavior affects whether installer archives are extracted using the tar executable. Defaults to 'false' if value is not set or is invalid.
+### Extract Archive With Tar Executable
+The 'extractArchiveWithTar' behavior affects whether installer archives are extracted using the tar executable ('tar.exe'). Defaults to 'false' if value is not set or is invalid.
 
 ```json
     "installBehavior": {
-        "extractWithTar": true
+        "extractArchiveWithTar": true
     },
 ```
 

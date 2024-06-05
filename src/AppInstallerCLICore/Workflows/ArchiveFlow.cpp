@@ -3,9 +3,11 @@
 #include "pch.h"
 #include "ArchiveFlow.h"
 #include "PortableFlow.h"
+#include "ShellExecuteInstallerHandler.h"
 #include <winget/AdminSettings.h>
 #include <winget/Archive.h>
 #include <winget/Filesystem.h>
+
 
 using namespace AppInstaller::Manifest;
 
@@ -52,18 +54,26 @@ namespace AppInstaller::CLI::Workflow
 
         AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
         context.Reporter.Info() << Resource::String::ExtractingArchive << std::endl;
-        HRESULT result = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder);
 
-        if (SUCCEEDED(result))
+        if (Settings::User().Get<Settings::Setting::InstallExtractWithTar>())
         {
-            AICLI_LOG(CLI, Info, << "Successfully extracted archive");
-            context.Reporter.Info() << Resource::String::ExtractArchiveSucceeded << std::endl;
+            context << ShellExecuteExtractArchive(installerPath, destinationFolder);
         }
         else
         {
-            AICLI_LOG(CLI, Info, << "Failed to extract archive with code " << result);
-            context.Reporter.Error() << Resource::String::ExtractArchiveFailed << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
+            HRESULT result = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder);
+
+            if (SUCCEEDED(result))
+            {
+                AICLI_LOG(CLI, Info, << "Successfully extracted archive");
+                context.Reporter.Info() << Resource::String::ExtractArchiveSucceeded << std::endl;
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "Failed to extract archive with code " << result);
+                context.Reporter.Error() << Resource::String::ExtractArchiveFailed << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
+            }
         }
     }
 
