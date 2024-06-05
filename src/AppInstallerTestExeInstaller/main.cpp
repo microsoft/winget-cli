@@ -121,7 +121,9 @@ void WriteToUninstallRegistry(
     const std::wstring& displayName,
     const std::wstring& displayVersion,
     const std::wstring& installLocation,
-    bool useHKLM)
+    bool useHKLM,
+    bool noRepair,
+    bool noModify)
 {
     HKEY hkey;
     LONG lReg;
@@ -203,6 +205,26 @@ void WriteToUninstallRegistry(
             out << "Failed to write ModifyPath value. Error Code: " << res << std::endl;
         }
 
+        if(noRepair)
+        {
+            // Set NoRepair Property Value
+            DWORD noRepairValue = 1;
+            if (LONG res = RegSetValueEx(hkey, L"NoRepair", NULL, REG_DWORD, (LPBYTE)&noRepairValue, sizeof(noRepairValue)) != ERROR_SUCCESS)
+            {
+                out << "Failed to write NoRepair value. Error Code: " << res << std::endl;
+            }
+        }
+
+        if(noModify)
+        {
+            // Set NoModify Property Value
+            DWORD noModifyValue = 1;
+            if (LONG res = RegSetValueEx(hkey, L"NoModify", NULL, REG_DWORD, (LPBYTE)&noModifyValue, sizeof(noModifyValue)) != ERROR_SUCCESS)
+            {
+                out << "Failed to write NoModify value. Error Code: " << res << std::endl;
+            }
+        }
+
         out << "Write to registry key completed" << std::endl;
     }
     else {
@@ -271,7 +293,7 @@ void HandleRepairOperation(const std::wstring& productID, const std::wstringstre
     WriteToFile(outFilePath, outContent);
 }
 
-void HandleInstallationOperation(std::wostream& out, const path& installDirectory, const std::wstringstream& outContent, const std::wstring& productCode, bool useHKLM, const std::wstring& displayName, const std::wstring& displayVersion)
+void HandleInstallationOperation(std::wostream& out, const path& installDirectory, const std::wstringstream& outContent, const std::wstring& productCode, bool useHKLM, const std::wstring& displayName, const std::wstring& displayVersion, bool noRepair, bool noModify)
 {
     path outFilePath = installDirectory;
     outFilePath /= "TestExeInstalled.txt";
@@ -283,7 +305,7 @@ void HandleInstallationOperation(std::wostream& out, const path& installDirector
     path uninstallerPath = GenerateUninstaller(out, installDirectory, productCode, useHKLM);
     path modifyPath = GenerateModifyPath(installDirectory);
 
-    WriteToUninstallRegistry(out, productCode, uninstallerPath, modifyPath, displayName, displayVersion, installDirectory.wstring(), useHKLM);
+    WriteToUninstallRegistry(out, productCode, uninstallerPath, modifyPath, displayName, displayVersion, installDirectory.wstring(), useHKLM, noRepair, noModify);
 }
 
 // The installer prints all args to an output file and writes to the Uninstall registry key
@@ -300,6 +322,8 @@ int wmain(int argc, const wchar_t** argv)
     bool noOperation = false;
     int exitCode = 0;
     bool isRepair = false;
+    bool noRepair = false;
+    bool noModify = false;
 
     // Output to cout by default, but swap to a file if requested
     std::wostream* out = &std::wcout;
@@ -403,6 +427,16 @@ int wmain(int argc, const wchar_t** argv)
             isRepair = true;
         }
 
+        else if (_wcsicmp(argv[i], L"/NoRepair") == 0)
+        {
+            noRepair = true;
+        }
+
+        else if (_wcsicmp(argv[i], L"/NoModify") == 0)
+        {
+            noModify = true;
+        }
+
         // Returns the success exit code to emulate being invoked by another caller.
         else if (_wcsicmp(argv[i], L"/NoOperation") == 0)
         {
@@ -453,7 +487,7 @@ int wmain(int argc, const wchar_t** argv)
     }
     else
     {
-        HandleInstallationOperation(*out, installDirectory, outContent, productCode, useHKLM, displayName, displayVersion);
+        HandleInstallationOperation(*out, installDirectory, outContent, productCode, useHKLM, displayName, displayVersion, noRepair, noModify);
     }
 
     return exitCode;
