@@ -6,6 +6,7 @@
 #include "ShellExecuteInstallerHandler.h"
 #include <winget/AdminSettings.h>
 #include <winget/Archive.h>
+#include <winget/Filesystem.h>
 
 using namespace AppInstaller::Manifest;
 
