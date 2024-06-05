@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/winget/Archive.h"
-#include <winget/Filesystem.h>
 
 // TODO: Move include statement to pch.h and resolve build errors
 #pragma warning( push )

@@ -6,8 +6,6 @@
 #include "ShellExecuteInstallerHandler.h"
 #include <winget/AdminSettings.h>
 #include <winget/Archive.h>
-#include <winget/Filesystem.h>
-
 
 using namespace AppInstaller::Manifest;
 
@@ -55,7 +53,7 @@ namespace AppInstaller::CLI::Workflow
         AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
         context.Reporter.Info() << Resource::String::ExtractingArchive << std::endl;
 
-        if (Settings::User().Get<Settings::Setting::InstallExtractWithTar>())
+        if (Settings::User().Get<Settings::Setting::InstallExtractArchiveWithTar>())
         {
             context << ShellExecuteExtractArchive(installerPath, destinationFolder);
         }

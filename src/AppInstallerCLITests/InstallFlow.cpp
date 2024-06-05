@@ -517,7 +517,7 @@ TEST_CASE("ExtractInstallerFromArchive_InvalidZip", "[InstallFlow][workflow]")
 TEST_CASE("ExtractInstallerFromArchiveWithTar_InvalidZip", "[InstallFlow][workflow]")
 {
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::InstallExtractWithTar>(true);
+    testSettings.Set<Setting::InstallExtractArchiveWithTar>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };

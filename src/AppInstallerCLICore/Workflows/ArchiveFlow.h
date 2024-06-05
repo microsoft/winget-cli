@@ -16,7 +16,7 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallerPath
     // Outputs: None
     void ExtractFilesFromArchive(Execution::Context& context);
-    
+
     // Verifies that the NestedInstaller exists and sets the InstallerPath
     // Required Args: None
     // Inputs: Installer, InstallerPath
