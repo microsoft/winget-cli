@@ -270,6 +270,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
         WINGET_VALIDATE_PASS_THROUGH(InstallSkipDependencies)
+        WINGET_VALIDATE_PASS_THROUGH(InstallExtractWithTar)
         WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
         WINGET_VALIDATE_PASS_THROUGH(NetworkWingetAlternateSourceURL)

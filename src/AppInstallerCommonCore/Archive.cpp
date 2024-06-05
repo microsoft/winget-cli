@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/winget/Archive.h"
+#include <winget/Filesystem.h>
 
 // TODO: Move include statement to pch.h and resolve build errors
 #pragma warning( push )
@@ -48,7 +49,6 @@ namespace AppInstaller::Archive
         RETURN_IF_FAILED(pFileOperation->PerformOperations());
         return S_OK;
     }
-
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
     static bool* s_ScanArchiveResult_TestHook_Override = nullptr;

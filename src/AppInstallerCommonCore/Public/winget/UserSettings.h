@@ -90,6 +90,7 @@ namespace AppInstaller::Settings
         InstallerTypeRequirement,
         InstallDefaultRoot,
         InstallSkipDependencies,
+        InstallExtractWithTar,
         DisableInstallNotes,
         PortablePackageUserRoot,
         PortablePackageMachineRoot,
@@ -173,6 +174,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallerTypePreference, std::vector<std::string>, std::vector<Manifest::InstallerTypeEnum>, {}, ".installBehavior.preferences.installerTypes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallerTypeRequirement, std::vector<std::string>, std::vector<Manifest::InstallerTypeEnum>, {}, ".installBehavior.requirements.installerTypes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallSkipDependencies, bool, bool, false, ".installBehavior.skipDependencies"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallExtractWithTar, bool, bool, false, ".installBehavior.extractWithTar"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::DisableInstallNotes, bool, bool, false, ".installBehavior.disableInstallNotes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageMachineRoot"sv);

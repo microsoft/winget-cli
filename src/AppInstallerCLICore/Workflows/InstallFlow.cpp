@@ -264,9 +264,11 @@ namespace AppInstaller::CLI::Workflow
         // Outputs: None
         void ArchiveInstall(Execution::Context& context)
         {
+            bool useTarForExtraction = Settings::User().Get<Settings::Setting::InstallExtractWithTar>();
+
             context <<
                 ScanArchiveFromLocalManifest <<
-                ExtractFilesFromArchive <<
+                (useTarForExtraction ? ShellExecuteExtractArchive : ExtractFilesFromArchive) <<
                 VerifyAndSetNestedInstaller <<
                 ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().NestedInstallerType);
         }

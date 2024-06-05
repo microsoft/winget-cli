@@ -60,4 +60,10 @@ namespace AppInstaller::CLI::Workflow
     private:
         std::string_view m_featureName;
     };
+
+    // Extracts the installer archive using the tar executable.
+    // Required Args: None
+    // Inputs: InstallerPath
+    // Outputs: None
+    void ShellExecuteExtractArchive(Execution::Context& context);
 }
