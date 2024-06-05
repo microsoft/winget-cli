@@ -53,7 +53,7 @@
     <None Remove="TestData\AppInstallerTestMsiInstallerV2.msi" />
     <None Remove="TestData\Configuration\ShowDetails_TestRepo_0_3.yml" />
     <None Remove="TestData\Configuration\WithParameters_0_3.yml" />
-    <None Remove="TestData\Manifests\TestBurnInstaller.MisisngRepairBehavior.yaml" />
+    <None Remove="TestData\Manifests\TestBurnInstaller.MissingRepairBehavior.yaml" />
     <None Remove="TestData\Manifests\TestBurnInstaller.ModifyRepair.yaml" />
     <None Remove="TestData\Manifests\TestBurnInstaller.ModifyRepairWithNoModify.yaml" />
     <None Remove="TestData\Manifests\TestBurnInstaller.UserScopeInstallRepairInAdminContext.yaml" />
