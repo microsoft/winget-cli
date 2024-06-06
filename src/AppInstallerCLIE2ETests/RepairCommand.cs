@@ -26,14 +26,6 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Set up.
-        /// </summary>
-        [SetUp]
-        public void Setup()
-        {
-        }
-
-        /// <summary>
         /// Test  MSI installer repair.
         /// </summary>
         [Test]
