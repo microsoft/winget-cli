@@ -52,6 +52,7 @@ namespace AppInstaller::MSStore
         AppInstaller::Utility::Architecture m_architecture = AppInstaller::Utility::Architecture::Unknown;
         AppInstaller::Manifest::PlatformEnum m_platform = AppInstaller::Manifest::PlatformEnum::Unknown;
         std::string m_locale;
+        std::unique_ptr<AppInstaller::Authentication::Authenticator> m_displayCatalogAuthenticator;
         std::unique_ptr<AppInstaller::Authentication::Authenticator> m_licensingAuthenticator;
     };
 }
