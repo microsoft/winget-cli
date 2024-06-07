@@ -543,7 +543,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto tarExecPath = AppInstaller::Filesystem::GetExpandedPath("%windir%\\system32\\tar.exe");
 
-        std::string args = "-xf '" + m_archivePath.u8string() + "' -C '" + m_destPath.u8string() + "'";
+        std::string args = "-xf \"" + m_archivePath.u8string() + "\" -C \"" + m_destPath.u8string() + "\"";
 
         auto extractArchiveResult = context.Reporter.ExecuteWithProgress(
             std::bind(InvokeShellExecuteEx,
