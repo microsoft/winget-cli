@@ -17,6 +17,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Unit tests for getting details on processors.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     [OutOfProc]
     public class ConfigurationProcessorGetTests : ConfigurationProcessorTestBase
     {

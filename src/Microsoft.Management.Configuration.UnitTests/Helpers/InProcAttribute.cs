@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// <copyright file="OutOfProcOnlyAttribute.cs" company="Microsoft Corporation">
+// <copyright file="InProcAttribute.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -10,16 +10,16 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     using Xunit.Sdk;
 
     /// <summary>
-    /// Trait used to mark a test as only for the out of proc scenario. Should not be run for the in-proc scenario
+    /// Trait used to mark a test as only for the in proc scenario.
     /// </summary>
-    [TraitDiscoverer(OutOfProcOnlyDiscoverer.TypeName, Constants.AssemblyNameForTraits)]
+    [TraitDiscoverer(InProcDiscoverer.TypeName, Constants.AssemblyNameForTraits)]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-    public class OutOfProcOnlyAttribute : Attribute, ITraitAttribute
+    public class InProcAttribute : Attribute, ITraitAttribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="OutOfProcOnlyAttribute"/> class.
+        /// Initializes a new instance of the <see cref="InProcAttribute"/> class.
         /// </summary>
-        public OutOfProcOnlyAttribute()
+        public InProcAttribute()
         {
         }
     }

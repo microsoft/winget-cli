@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using WinRT;
     using Xunit;
     using Xunit.Abstractions;
@@ -19,6 +20,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Tests ConfigurationProcessorFactory.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     public class ConfigurationProcessorFactoryTests
     {
         private readonly UnitTestFixture fixture;

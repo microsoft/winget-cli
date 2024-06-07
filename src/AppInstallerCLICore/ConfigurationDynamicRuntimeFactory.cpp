@@ -49,8 +49,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             DynamicSetProcessor(IConfigurationSetProcessorFactory defaultRemoteFactory, IConfigurationSetProcessor defaultRemoteSetProcessor, const ConfigurationSet& configurationSet) : m_configurationSet(configurationSet)
             {
 #ifndef DISABLE_TEST_HOOKS
-                m_currentIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid) ? Security::IntegrityLevel::Medium : Security::GetEffectiveIntegrityLevel();
-#elif
+                m_enableTestMode = GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
+                m_enableRestrictedIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, EnableRestrictedIntegrityLevelTestGuid);
+                m_forceHighIntegrityLevelUnits = GetConfigurationSetMetadataOverride(m_configurationSet, ForceHighIntegrityLevelUnitsTestGuid);
+
+                m_currentIntegrityLevel = m_enableTestMode ? Security::IntegrityLevel::Medium : Security::GetEffectiveIntegrityLevel();
+#else
                 m_currentIntegrityLevel = Security::GetEffectiveIntegrityLevel();
 #endif
 
@@ -84,8 +88,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 // Create set and unit processor for current unit.
 #ifndef DISABLE_TEST_HOOKS
-                Security::IntegrityLevel requiredIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, ForceHighIntegrityLevelUnitsTestGuid) ? Security::IntegrityLevel::High : GetIntegrityLevelForUnit(unit);
-#elif
+                Security::IntegrityLevel requiredIntegrityLevel = m_forceHighIntegrityLevelUnits ? Security::IntegrityLevel::High : GetIntegrityLevelForUnit(unit);
+#else
                 Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(unit);
 #endif
 
@@ -111,22 +115,19 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 else if (securityContextLower == L"restricted")
                 {
 #ifndef DISABLE_TEST_HOOKS
-                    if (GetConfigurationSetMetadataOverride(m_configurationSet, EnableRestrictedIntegrityLevelTestGuid))
+                    if (m_enableRestrictedIntegrityLevel)
                     {
                         return Security::IntegrityLevel::Medium;
                     }
                     else
-                    {
-                        THROW_WIN32(ERROR_NOT_SUPPORTED);
-                    }
-#elif
-
-                    // Not supporting elevated callers downgrading at the moment.
-                    THROW_WIN32(ERROR_NOT_SUPPORTED);
-
-                    // Technically this means the default level of the user token, so if UAC is disabled it would be the only integrity level (aka current).
-                    //return Security::IntegrityLevel::Medium;
 #endif
+                    {
+                        // Not supporting elevated callers downgrading at the moment.
+                        THROW_WIN32(ERROR_NOT_SUPPORTED);
+
+                        // Technically this means the default level of the user token, so if UAC is disabled it would be the only integrity level (aka current).
+                        // return Security::IntegrityLevel::Medium;
+                    }
                 }
                 else if (securityContextLower == L"current")
                 {
@@ -217,7 +218,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 {
                     bool useRunAs = true;
 #ifndef DISABLE_TEST_HOOKS
-                    useRunAs = !GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
+                    useRunAs = !m_enableTestMode;
 #endif
 
                     factory = CreateOutOfProcessFactory(useRunAs, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
@@ -234,6 +235,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             ProcessorMap m_setProcessors;
             ConfigurationSet m_configurationSet;
             std::once_flag m_createUnitSetProcessorsOnce;
+
+#ifndef DISABLE_TEST_HOOKS
+            bool m_enableTestMode = false;
+            bool m_enableRestrictedIntegrityLevel = false;
+            bool m_forceHighIntegrityLevelUnits = false;
+#endif
         };
 
         // This is implemented completely in the packaged context for now, if we want to make it more configurable, we will probably want to move it to configuration and
