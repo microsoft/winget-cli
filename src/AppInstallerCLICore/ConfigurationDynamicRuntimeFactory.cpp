@@ -14,7 +14,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 {
     namespace anonymous
     {
-#ifndef DISABLE_TEST_HOOKS
+#ifndef AICLI_DISABLE_TEST_HOOKS
         constexpr std::wstring_view EnableTestModeTestGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
         constexpr std::wstring_view ForceHighIntegrityLevelUnitsTestGuid = L"f698d20f-3584-4f28-bc75-28037e08e651";
         constexpr std::wstring_view EnableRestrictedIntegrityLevelTestGuid = L"5cae3226-185f-4289-815c-3c089d238dc6";
@@ -48,7 +48,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             DynamicSetProcessor(IConfigurationSetProcessorFactory defaultRemoteFactory, IConfigurationSetProcessor defaultRemoteSetProcessor, const ConfigurationSet& configurationSet) : m_configurationSet(configurationSet)
             {
-#ifndef DISABLE_TEST_HOOKS
+#ifndef AICLI_DISABLE_TEST_HOOKS
                 m_enableTestMode = GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
                 m_enableRestrictedIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, EnableRestrictedIntegrityLevelTestGuid);
                 m_forceHighIntegrityLevelUnits = GetConfigurationSetMetadataOverride(m_configurationSet, ForceHighIntegrityLevelUnitsTestGuid);
@@ -87,7 +87,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     });
 
                 // Create set and unit processor for current unit.
-#ifndef DISABLE_TEST_HOOKS
+#ifndef AICLI_DISABLE_TEST_HOOKS
                 Security::IntegrityLevel requiredIntegrityLevel = m_forceHighIntegrityLevelUnits ? Security::IntegrityLevel::High : GetIntegrityLevelForUnit(unit);
 #else
                 Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(unit);
@@ -114,7 +114,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 }
                 else if (securityContextLower == L"restricted")
                 {
-#ifndef DISABLE_TEST_HOOKS
+#ifndef AICLI_DISABLE_TEST_HOOKS
                     if (m_enableRestrictedIntegrityLevel)
                     {
                         return Security::IntegrityLevel::Medium;
@@ -217,7 +217,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 if (integrityLevel == Security::IntegrityLevel::High)
                 {
                     bool useRunAs = true;
-#ifndef DISABLE_TEST_HOOKS
+#ifndef AICLI_DISABLE_TEST_HOOKS
                     useRunAs = !m_enableTestMode;
 #endif
 
@@ -236,7 +236,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             ConfigurationSet m_configurationSet;
             std::once_flag m_createUnitSetProcessorsOnce;
 
-#ifndef DISABLE_TEST_HOOKS
+#ifndef AICLI_DISABLE_TEST_HOOKS
             bool m_enableTestMode = false;
             bool m_enableRestrictedIntegrityLevel = false;
             bool m_forceHighIntegrityLevelUnits = false;
