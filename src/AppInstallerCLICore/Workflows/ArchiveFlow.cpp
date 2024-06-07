@@ -54,7 +54,7 @@ namespace AppInstaller::CLI::Workflow
         AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
         context.Reporter.Info() << Resource::String::ExtractingArchive << std::endl;
 
-        if (Settings::User().Get<Settings::Setting::InstallExtractArchiveWithTar>())
+        if (Settings::User().Get<Settings::Setting::ArchiveExtractionMethod>() == Archive::ExtractionMethod::Tar)
         {
             context << ShellExecuteExtractArchive(installerPath, destinationFolder);
         }

@@ -99,12 +99,13 @@ The 'skipDependencies' behavior affects whether dependencies are installed for a
     },
 ```
 
-### Extract Archive With Tar Executable
-The 'extractArchiveWithTar' behavior affects whether installer archives are extracted using the tar executable ('tar.exe'). Defaults to 'false' if value is not set or is invalid.
+### Archive Extraction Method
+The 'archiveExtractionMethod' behavior affects how installer archives are extracted. Currently there are two supported values: `Tar` or `ShellApi`.
+`Tar` indicates that the archive should be extracted using the tar executable ('tar.exe') while `shellApi` indicates using the Windows Shell API. Defaults to `shellApi` if value is not set or is invalid.
 
 ```json
     "installBehavior": {
-        "extractArchiveWithTar": true
+        "archiveExtractionMethod": "tar" | "shellApi"
     },
 ```
 

@@ -270,7 +270,6 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
         WINGET_VALIDATE_PASS_THROUGH(InstallSkipDependencies)
-        WINGET_VALIDATE_PASS_THROUGH(InstallExtractArchiveWithTar)
         WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
         WINGET_VALIDATE_PASS_THROUGH(NetworkWingetAlternateSourceURL)
@@ -289,6 +288,23 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(PortablePackageMachineRoot)
         {
             return ValidatePathValue(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(ArchiveExtractionMethod)
+        {
+            static constexpr std::string_view s_archiveExtractionMethod_shellApi = "shellApi";
+            static constexpr std::string_view s_archiveExtractionMethod_tar = "tar";
+
+            if (Utility::CaseInsensitiveEquals(value, s_archiveExtractionMethod_tar))
+            {
+                return Archive::ExtractionMethod::Tar;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_archiveExtractionMethod_shellApi))
+            {
+                return Archive::ExtractionMethod::ShellApi;
+            }
+
+            return {};
         }
 
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
