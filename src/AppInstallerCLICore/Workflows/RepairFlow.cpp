@@ -380,10 +380,6 @@ namespace AppInstaller::CLI::Workflow
         // MSIX based installers, msix, msstore.
         case InstallerTypeEnum::Msix:
         case InstallerTypeEnum::MSStore:
-        {
-            context <<
-                SetPackageFamilyNamesInContext;
-        }
         break;
         case InstallerTypeEnum::Portable:
         default:
@@ -408,6 +404,7 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 context <<
+                    SetPackageFamilyNamesInContext <<
                     RepairMsixNonStorePackage;
             }
         }
