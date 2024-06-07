@@ -26,20 +26,13 @@ namespace AppInstaller::CLI::Workflow
     // Internal implementation details
     namespace
     {
-        // Handles  Repair behavior Unknown scenario.
-        // RequiredArgs:None
-        // Inputs:None
-        // Outputs:None
+
         void HandleUnknownRepair(Execution::Context& context)
         {
             context.Reporter.Error() << Resource::String::NoRepairInfoFound << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_REPAIR_INFO_FOUND);
         }
 
-        // Sets the uninstall string in the context.
-        // RequiredArgs:
-        // Inputs:InstalledPackageVersion
-        // Outputs:SilentUninstallString, UninstallString
         void SetUninstallStringInContext(Execution::Context& context)
         {
             const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
@@ -66,10 +59,6 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::UninstallString>(uninstallCommandItr->second);
         }
 
-        // Sets the modify path in the context.
-        // RequiredArgs:None
-        // Inputs:InstalledPackageVersion
-        // Outputs:ModifyPath
         void SetModifyPathInContext(Execution::Context& context)
         {
             const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
@@ -85,10 +74,6 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::ModifyPath>(modifyPathItr->second);
         }
 
-        // Sets the product codes in the context.
-        // RequiredArgs:None
-        // Inputs:InstalledPackageVersion
-        // Outputs:ProductCodes
         void SetProductCodesInContext(Execution::Context& context)
         {
             const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
@@ -102,10 +87,6 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::ProductCodes>(productCodes);
         }
 
-        // Sets the package family names in the context.
-        // RequiredArgs:None
-        // Inputs:InstalledPackageVersion
-        // Outputs:PackageFamilyNames
         void SetPackageFamilyNamesInContext(Execution::Context& context)
         {
             const auto& installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
@@ -119,10 +100,6 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::PackageFamilyNames>(packageFamilyNames);
         }
 
-        // Obtains the installer type from the installed package.
-        // RequiredArgs: None
-        // Inputs: InstalledPackageVersion
-        // Outputs: InstallerTypeEnum
         InstallerTypeEnum GetInstalledPackageInstallerType(Execution::Context& context)
         {
             const auto& installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
@@ -130,10 +107,6 @@ namespace AppInstaller::CLI::Workflow
             return ConvertToInstallerTypeEnum(installedType);
         }
 
-        // The function performs a preliminary check on the installed package by reading its ARP registry flags for NoModify and NoRepair to confirm if the repair operation is applicable.
-        // RequiredArgs:None
-        // Inputs:InstalledPackageVersion, NoModify ?, NoRepair ?
-        // Outputs:None
         void ApplicabilityCheckForInstalledPackage(Execution::Context& context)
         {
             // Installed Package repair applicability check
@@ -163,10 +136,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        // This function performs a preliminary check on the available matching package by reading its manifest entries for repair behavior to determine the type of repair operation and repair switch are applicable
-        // RequiredArgs:None
-        // Inputs:InstallerType, RepairBehavior
-        // Outputs:None
         void ApplicabilityCheckForAvailablePackage(Execution::Context& context)
         {
             InstallerTypeEnum installedPackageInstallerType = GetInstalledPackageInstallerType(context);
@@ -196,20 +165,12 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        // Sets the repair string in the context based on the repair behavior and installer type.
-        // RequiredArgs:None
-        // Inputs:Installer, RepairBehavior, InstalledPackageVersion, InstallerArgs
-        // Outputs:RepairString
         void HandleModifyRepairBehavior(Execution::Context& context, std::string& repairCommand)
         {
             SetModifyPathInContext(context);
             repairCommand += context.Get<Execution::Data::ModifyPath>();
         }
 
-        // Sets the repair string in the context based on the repair behavior and installer type.
-        // RequiredArgs:None
-        // Inputs:Installer, RepairBehavior, InstalledPackageVersion, InstallerArgs
-        // Outputs:RepairString
         void HandleInstallerRepairBehavior(Execution::Context& context, InstallerTypeEnum installerType)
         {
             context <<
@@ -226,20 +187,12 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        // Sets the repair string in the context based on the repair behavior and installer type.
-        // RequiredArgs:None
-        // Inputs:Installer, RepairBehavior, InstalledPackageVersion, InstallerArgs
-        // Outputs:RepairString
         void HandleUninstallerRepairBehavior(Execution::Context& context, std::string& repairCommand)
         {
             SetUninstallStringInContext(context);
             repairCommand += context.Get<Execution::Data::UninstallString>();
         }
 
-        // Generate the repair string based on the repair behavior and installer type.
-        // RequiredArgs:None
-        // Inputs:BaseInstallerType, RepairBehavior, ModifyPath?, UninstallString?, InstallerArgs
-        // Outputs:RepairString
         void GenerateRepairString(Execution::Context& context)
         {
             const auto& installer = context.Get<Execution::Data::Installer>();
@@ -284,10 +237,6 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::RepairString>(repairCommand);
         }
 
-        // Determines if installer mapping is required for the given installed package.
-        // RequiredArgs: None
-        // Inputs: InstalledPackageVersion
-        // Outputs: None
         bool IsInstallerMappingRequired(Execution::Context& context)
         {
             const auto& installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
@@ -306,10 +255,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        // Manages the repair operation for the installed package, specifically for the repair behavior types 'Modify' and 'Uninstall'.
-        // RequiredArgs: None
-        // Inputs: RepairBehavior
-        // Outputs: None
         void HandleModifyOrUninstallerRepair(Execution::Context& context, RepairBehaviorEnum repairBehavior)
         {
             context <<
@@ -317,10 +262,6 @@ namespace AppInstaller::CLI::Workflow
                 ReportRepairResult(RepairBehaviorToString(repairBehavior), APPINSTALLER_CLI_ERROR_EXEC_REPAIR_FAILED);
         }
 
-        // Manages the repair operation for the installed package, specifically for the repair behavior type 'Installer'.
-        // RequiredArgs: None
-        // Inputs: RepairBehavior
-        // Outputs: None
         void HandleInstallerRepair(Execution::Context& context, RepairBehaviorEnum repairBehavior)
         {
             context <<
