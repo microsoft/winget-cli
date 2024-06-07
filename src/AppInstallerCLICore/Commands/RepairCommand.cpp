@@ -117,7 +117,7 @@ namespace AppInstaller::CLI
 
         context <<
             Workflow::GetInstalledPackageVersion <<
-            Workflow::SelectApplicableInstallerWhenEssential <<
+            Workflow::SelectApplicableInstallerIfNecessary <<
             Workflow::RepairSinglePackage;
     }
 }

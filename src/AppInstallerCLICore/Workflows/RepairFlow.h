@@ -58,7 +58,7 @@ namespace AppInstaller::CLI::Workflow
     // RequiredArgs:None
     // Inputs: Package,InstalledPackageVersion, AvailablePackageVersions
     // Outputs:Manifest, PackageVersion, Installer
-    void SelectApplicableInstallerWhenEssential(Execution::Context& context);
+    void SelectApplicableInstallerIfNecessary(Execution::Context& context);
 
     // Perform the repair operation for the single package.
     // RequiredArgs:None
