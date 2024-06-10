@@ -39,7 +39,7 @@ namespace AppInstaller::CLI::Workflow
     // RequiredArgs:None
     // Inputs:PackageFamilyNames , InstallScope?
     // Outputs:None
-    void RepairMsixNonStorePackage(Execution::Context& context);
+    void RepairMsixPackage(Execution::Context& context);
 
     // Select the applicable package version by matching the installed package version with the available package version.
     // RequiredArgs:None

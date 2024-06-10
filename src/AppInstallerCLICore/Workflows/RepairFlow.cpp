@@ -343,7 +343,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Msix:
         {
             context <<
-                RepairMsixNonStorePackage;
+                RepairMsixPackage;
         }
         break;
         case InstallerTypeEnum::MSStore:
@@ -397,7 +397,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void RepairMsixNonStorePackage(Execution::Context& context)
+    void RepairMsixPackage(Execution::Context& context)
     {
         bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
 
