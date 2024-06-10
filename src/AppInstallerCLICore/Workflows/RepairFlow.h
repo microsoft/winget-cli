@@ -35,12 +35,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs:RepairString?, ProductCodes?, PackageFamilyNames?
     void GetRepairInfo(Execution::Context& context);
 
-    // Perform the repair operation for the MSIX package.
-    // RequiredArgs:None
-    // Inputs:PackageFamilyNames , InstallScope?
-    // Outputs:None
-    void RepairMsixPackage(Execution::Context& context);
-
     // Perform the repair operation for the MSIX NonStore package.
     // RequiredArgs:None
     // Inputs:PackageFamilyNames , InstallScope?

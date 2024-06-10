@@ -304,7 +304,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ExecuteRepair(Execution::Context& context)
     {
-        InstallerTypeEnum installerTypeEnum = GetInstalledType(context);
+        InstallerTypeEnum installerTypeEnum = context.Contains(Execution::Data::Installer) ? context.Get<Execution::Data::Installer>()->EffectiveInstallerType() : GetInstalledType(context);
 
         Synchronization::CrossProcessInstallLock lock;
 
@@ -341,10 +341,16 @@ namespace AppInstaller::CLI::Workflow
         }
         break;
         case InstallerTypeEnum::Msix:
+        {
+            context <<
+                RepairMsixNonStorePackage;
+        }
+        break;
         case InstallerTypeEnum::MSStore:
         {
             context <<
-                RepairMsixPackage;
+                EnsureStorePolicySatisfied <<
+                MSStoreRepair;
         }
         break;
         case InstallerTypeEnum::Portable:
@@ -355,11 +361,11 @@ namespace AppInstaller::CLI::Workflow
 
     void GetRepairInfo(Execution::Context& context)
     {
-        InstallerTypeEnum installerTypeEnum = GetInstalledType(context);
+        InstallerTypeEnum installerTypeEnum = context.Contains(Execution::Data::Installer) ? context.Get<Execution::Data::Installer>()->BaseInstallerType : GetInstalledType(context);
 
         switch (installerTypeEnum)
         {
-        // Exe based installers, for installed package all gets mapped to exe extension.
+            // Exe based installers, for installed package all gets mapped to exe extension.
         case InstallerTypeEnum::Burn:
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Inno:
@@ -377,40 +383,16 @@ namespace AppInstaller::CLI::Workflow
                 SetProductCodesInContext;
         }
         break;
-        // MSIX based installers, msix, msstore.
+        // MSIX based installers, msix.
         case InstallerTypeEnum::Msix:
+        {
+            context <<
+                SetPackageFamilyNamesInContext;
+        }
         case InstallerTypeEnum::MSStore:
-        break;
+            break;
         case InstallerTypeEnum::Portable:
         default:
-            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-        }
-    }
-
-    void RepairMsixPackage(Execution::Context& context)
-    {
-        const auto& installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
-        std::string installedType = installedPackage->GetMetadata()[PackageVersionMetadata::InstalledType];
-
-        if (ConvertToInstallerTypeEnum(installedType) == InstallerTypeEnum::Msix)
-        {
-            // If the installed package is from Microsoft Store, then we attempt to repair it using MSStoreRepair else do package re-registration.
-            if (installedPackage->GetSource() == WellKnownSource::MicrosoftStore)
-            {
-                context <<
-                    EnsureStorePolicySatisfied <<
-                    MSStoreRepair;
-            }
-            else
-            {
-                context <<
-                    SetPackageFamilyNamesInContext <<
-                    RepairMsixNonStorePackage;
-            }
-        }
-        else
-        {
-            // This should never happen as the installer type should be one of the above.
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
     }
@@ -473,7 +455,7 @@ namespace AppInstaller::CLI::Workflow
     void SelectApplicablePackageVersion(Execution::Context& context)
     {
         // If the repair flow is initiated with manifest, then we don't need to select the applicable package version.
-        if(context.Args.Contains(Args::Type::Manifest))
+        if (context.Args.Contains(Args::Type::Manifest))
         {
             return;
         }
@@ -527,7 +509,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (repairResult != 0)
         {
-            auto& repairPackage = IsInstallerMappingRequired(context) ?
+            auto& repairPackage = context.Contains(Execution::Data::PackageVersion) ?
                 context.Get<Execution::Data::PackageVersion>() :
                 context.Get<Execution::Data::InstalledPackageVersion>();
 
