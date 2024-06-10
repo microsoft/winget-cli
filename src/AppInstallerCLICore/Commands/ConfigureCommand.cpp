@@ -100,4 +100,12 @@ namespace AppInstaller::CLI
             Configuration::ValidateCommonArguments(execArgs, true);
         }
     }
+
+    void ConfigureCommand::Complete(Execution::Context& context, Execution::Args::Type argType) const
+    {
+        if (argType == Execution::Args::Type::ConfigurationHistoryItem)
+        {
+            context << CompleteConfigurationHistoryItem;
+        }
+    }
 }

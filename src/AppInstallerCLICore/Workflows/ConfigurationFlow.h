@@ -121,21 +121,33 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ShowConfigurationSetHistory(Execution::Context& context);
 
-    // Outputs the configuration set history.
+    // Selects a specific configuration set history item.
     // Required Args: ConfigurationHistoryItem
     // Inputs: ConfigurationSetHistory
     // Outputs: ConfigurationSet
     void SelectSetFromHistory(Execution::Context& context);
 
-    // Outputs the configuration set history.
+    // Removes the configuration set from history.
     // Required Args: None
     // Inputs: ConfigurationSet
     // Outputs: None
     void RemoveConfigurationSetHistory(Execution::Context& context);
+
+    // Write the configuration set history item to a file.
+    // Required Args: OutputFile
+    // Inputs: ConfigurationSet
+    // Outputs: None
+    void SerializeConfigurationSetHistory(Execution::Context& context);
 
     // Outputs a single configuration set (from history).
     // Required Args: None
     // Inputs: ConfigurationSet
     // Outputs: None
     void ShowSingleConfigurationSetHistory(Execution::Context& context);
+
+    // Completes the configuration history item.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void CompleteConfigurationHistoryItem(Execution::Context& context);
 }

@@ -1883,6 +1883,17 @@ namespace AppInstaller::CLI::Workflow
         context.Get<Data::ConfigurationContext>().Set().Remove();
     }
 
+    void SerializeConfigurationSetHistory(Execution::Context& context)
+    {
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        std::filesystem::path absolutePath = std::filesystem::weakly_canonical(std::filesystem::path{ Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::OutputFile)) });
+        auto openAction = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::ReadWrite, StorageOpenOptions::None, Streams::FileOpenDisposition::CreateAlways);
+        auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
+        auto outputStream = openAction.get();
+
+        context.Get<Data::ConfigurationContext>().Set().Serialize(outputStream);
+    }
+
     void ShowSingleConfigurationSetHistory(Execution::Context& context)
     {
         const auto& set = context.Get<Data::ConfigurationContext>().Set();
@@ -1899,5 +1910,30 @@ namespace AppInstaller::CLI::Workflow
         table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListPath }, Utility::ConvertToUTF8(set.Path()) });
 
         table.Complete();
+    }
+
+    void CompleteConfigurationHistoryItem(Execution::Context& context)
+    {
+        const std::string& word = context.Get<Data::CompletionData>().Word();
+        auto stream = context.Reporter.Completion();
+
+        for (const auto& historyItem : ConfigurationProcessor{ IConfigurationSetProcessorFactory{ nullptr } }.GetConfigurationHistory())
+        {
+            std::ostringstream identifierStream;
+            identifierStream << historyItem.InstanceIdentifier();
+            std::string identifier = identifierStream.str();
+
+            if (word.empty() || Utility::CaseInsensitiveContainsSubstring(identifier, word))
+            {
+                stream << '"' << identifier << '"' << std::endl;
+            }
+
+            std::string name = Utility::ConvertToUTF8(historyItem.Name());
+
+            if (word.empty() || Utility::CaseInsensitiveStartsWith(name, word))
+            {
+                stream << '"' << name << '"' << std::endl;
+            }
+        }
     }
 }

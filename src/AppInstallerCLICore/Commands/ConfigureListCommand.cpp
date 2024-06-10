@@ -13,6 +13,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument{ Execution::Args::Type::ConfigurationHistoryItem, Resource::String::ConfigurationHistoryItemArgumentDescription, ArgumentType::Standard },
+            Argument{ Execution::Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::ConfigurationHistoryRemove, Resource::String::ConfigurationHistoryRemoveArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
@@ -43,6 +44,11 @@ namespace AppInstaller::CLI
         {
             context << SelectSetFromHistory;
 
+            if (context.Args.Contains(Execution::Args::Type::OutputFile))
+            {
+                context << SerializeConfigurationSetHistory;
+            }
+
             if (context.Args.Contains(Execution::Args::Type::ConfigurationHistoryRemove))
             {
                 context << RemoveConfigurationSetHistory;
@@ -60,10 +66,19 @@ namespace AppInstaller::CLI
 
     void ConfigureListCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::ConfigurationHistoryRemove) &&
+        if ((execArgs.Contains(Execution::Args::Type::ConfigurationHistoryRemove) ||
+             execArgs.Contains(Execution::Args::Type::OutputFile)) &&
             !execArgs.Contains(Execution::Args::Type::ConfigurationHistoryItem))
         {
             throw CommandException(Resource::String::RequiredArgError(ArgumentCommon::ForType(Execution::Args::Type::ConfigurationHistoryItem).Name));
+        }
+    }
+
+    void ConfigureListCommand::Complete(Execution::Context& context, Execution::Args::Type argType) const
+    {
+        if (argType == Execution::Args::Type::ConfigurationHistoryItem)
+        {
+            context << CompleteConfigurationHistoryItem;
         }
     }
 }
