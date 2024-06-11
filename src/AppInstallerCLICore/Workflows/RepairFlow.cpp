@@ -237,18 +237,15 @@ namespace AppInstaller::CLI::Workflow
 
         bool IsInstallerMappingRequired(Execution::Context& context)
         {
-            const auto& installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
-            std::string installedType = installedPackage->GetMetadata()[PackageVersionMetadata::InstalledType];
             InstallerTypeEnum installerTypeEnum = GetInstalledType(context);
 
-            // Installer mapping is not required for MSI and MSIX (Non-store) repair, as we rely on platform support and its dependency on the installed package.
-            if (installerTypeEnum == InstallerTypeEnum::Msi
-                || (installerTypeEnum == InstallerTypeEnum::Msix && installedPackage->GetSource() != WellKnownSource::MicrosoftStore))
+            switch (installerTypeEnum)
             {
+            case InstallerTypeEnum::Msi:
                 return false;
-            }
-            else
-            {
+            case InstallerTypeEnum::Msix:
+                return context.Contains(Execution::Data::PackageVersion) && context.Get<Execution::Data::PackageVersion>()->GetSource().IsWellKnownSource(WellKnownSource::MicrosoftStore);
+            default:
                 return true;
             }
         }
@@ -462,6 +459,14 @@ namespace AppInstaller::CLI::Workflow
 
         const auto& installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
 
+        InstallerTypeEnum installerTypeEnum = GetInstalledType(context);
+
+        // We don't need to select the applicable package version for MSI installers.
+        if (installerTypeEnum == InstallerTypeEnum::Msi)
+        {
+            return;
+        }
+
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         if (installedVersion.IsUnknown())
         {
@@ -484,6 +489,18 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        // For MSIX packages that are not from the Microsoft Store, selecting an installer is not required.
+        if (installerTypeEnum == InstallerTypeEnum::Msix)
+        {
+            PackageVersionKey key("", requestedVersion, context.Args.GetArg(Execution::Args::Type::Channel));
+            auto packageVersion = packageVersions->GetVersion(key);
+
+            if (!packageVersion || !packageVersion->GetSource().IsWellKnownSource(WellKnownSource::MicrosoftStore))
+            {
+                return;
+            }
+        }
+
         context <<
             GetManifestWithVersionFromPackage(
                 requestedVersion,
@@ -492,12 +509,14 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectApplicableInstallerIfNecessary(Execution::Context& context)
     {
+        context <<
+            SelectApplicablePackageVersion;
+
         // For MSI installers, the platform provides built-in support for repair via msiexec, hence no need to select an installer.
         // Similarly, for MSIX packages that are not from the Microsoft Store, selecting an installer is not required.
         if (IsInstallerMappingRequired(context))
         {
             context <<
-                SelectApplicablePackageVersion <<
                 SelectInstaller <<
                 EnsureApplicableInstaller;
         }
