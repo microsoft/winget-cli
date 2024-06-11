@@ -315,4 +315,7 @@
   <data name="WinGetConfigUnitSettingConfigRoot" xml:space="preserve">
     <value>A unit contains a setting that requires the config root.</value>
   </data>
+  <data name="ConfigurationReadingConfigHistory" xml:space="preserve">
+    <value>Reading configuration history</value>
+  </data>
 </root>

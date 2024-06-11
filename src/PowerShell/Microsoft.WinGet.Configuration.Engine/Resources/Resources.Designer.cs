@@ -268,6 +268,15 @@ namespace Microsoft.WinGet.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reading configuration history.
+        /// </summary>
+        internal static string ConfigurationReadingConfigHistory {
+            get {
+                return ResourceManager.GetString("ConfigurationReadingConfigHistory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Settings:.
         /// </summary>
         internal static string ConfigurationSettings {

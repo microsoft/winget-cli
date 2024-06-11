@@ -96,7 +96,62 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
                 async () =>
                 {
+                    return (await this.OpenConfigurationSetAsync(openParams)) !;
+                });
+
+            this.Wait(runningTask);
+            this.Write(StreamType.Object, runningTask.Result);
+        }
+
+        /// <summary>
+        /// Open a configuration set from history.
+        /// </summary>
+        /// <param name="instanceIdentifier">Instance identifier.</param>
+        /// <param name="modulePath">The module path to use.</param>
+        /// <param name="executionPolicy">Execution policy.</param>
+        /// <param name="canUseTelemetry">If telemetry can be used.</param>
+        public void GetFromHistory(
+            string instanceIdentifier,
+            string modulePath,
+            ExecutionPolicy executionPolicy,
+            bool canUseTelemetry)
+        {
+            var openParams = new OpenConfigurationParameters(
+                this, instanceIdentifier, modulePath, executionPolicy, canUseTelemetry, fromHistory: true);
+
+            // Start task.
+            var runningTask = this.RunOnMTA<PSConfigurationSet?>(
+                async () =>
+                {
                     return await this.OpenConfigurationSetAsync(openParams);
+                });
+
+            this.Wait(runningTask);
+            if (runningTask.Result != null)
+            {
+                this.Write(StreamType.Object, runningTask.Result);
+            }
+        }
+
+        /// <summary>
+        /// Opens all configuration sets from history.
+        /// </summary>
+        /// <param name="modulePath">The module path to use.</param>
+        /// <param name="executionPolicy">Execution policy.</param>
+        /// <param name="canUseTelemetry">If telemetry can be used.</param>
+        public void GetAllFromHistory(
+            string modulePath,
+            ExecutionPolicy executionPolicy,
+            bool canUseTelemetry)
+        {
+            var openParams = new OpenConfigurationParameters(
+                this, modulePath, executionPolicy, canUseTelemetry);
+
+            // Start task.
+            var runningTask = this.RunOnMTA<PSConfigurationSet[]>(
+                async () =>
+                {
+                    return await this.GetConfigurationSetHistoryAsync(openParams);
                 });
 
             this.Wait(runningTask);
@@ -272,6 +327,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             psConfigurationJob.StartCommand.Cancel();
         }
 
+        /// <summary>
+        /// Removes a configuration set from history.
+        /// </summary>
+        /// <param name="psConfigurationSet">PSConfiguration set.</param>
+        public void Remove(PSConfigurationSet psConfigurationSet)
+        {
+            psConfigurationSet.Set.Remove();
+        }
+
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
         {
             // Signal the command that it can write to streams and wait for task.
@@ -296,30 +360,72 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             return factory;
         }
 
-        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(OpenConfigurationParameters openParams)
+        private async Task<PSConfigurationSet?> OpenConfigurationSetAsync(OpenConfigurationParameters openParams)
         {
             this.Write(StreamType.Verbose, Resources.ConfigurationInitializing);
 
             var psProcessor = new PSConfigurationProcessor(this.CreateFactory(openParams), this, openParams.CanUseTelemetry);
 
-            this.Write(StreamType.Verbose, Resources.ConfigurationReadingConfigFile);
-            var stream = await FileRandomAccessStream.OpenAsync(openParams.ConfigFile, FileAccessMode.Read);
-
-            OpenConfigurationSetResult openResult = await psProcessor.Processor.OpenConfigurationSetAsync(stream);
-            if (openResult.ResultCode != null)
+            if (!openParams.FromHistory)
             {
-                throw new OpenConfigurationSetException(openResult, openParams.ConfigFile);
+                this.Write(StreamType.Verbose, Resources.ConfigurationReadingConfigFile);
+                var stream = await FileRandomAccessStream.OpenAsync(openParams.ConfigFile, FileAccessMode.Read);
+
+                OpenConfigurationSetResult openResult = await psProcessor.Processor.OpenConfigurationSetAsync(stream);
+                if (openResult.ResultCode != null)
+                {
+                    throw new OpenConfigurationSetException(openResult, openParams.ConfigFile);
+                }
+
+                var set = openResult.Set;
+
+                // This should match winget's OpenConfigurationSet or OpenConfigurationSetAsync
+                // should be modify to take the full path and handle it.
+                set.Name = Path.GetFileName(openParams.ConfigFile);
+                set.Origin = Path.GetDirectoryName(openParams.ConfigFile);
+                set.Path = openParams.ConfigFile;
+
+                return new PSConfigurationSet(psProcessor, set);
+            }
+            else
+            {
+                Guid instanceIdentifier = Guid.Parse(openParams.ConfigFile);
+
+                this.Write(StreamType.Verbose, Resources.ConfigurationReadingConfigHistory);
+
+                var historySets = await psProcessor.Processor.GetConfigurationHistoryAsync();
+
+                ConfigurationSet? result = null;
+                foreach (var historySet in historySets)
+                {
+                    if (historySet.InstanceIdentifier == instanceIdentifier)
+                    {
+                        result = historySet;
+                        break;
+                    }
+                }
+
+                return result != null ? new PSConfigurationSet(psProcessor, result) : null;
+            }
+        }
+
+        private async Task<PSConfigurationSet[]> GetConfigurationSetHistoryAsync(OpenConfigurationParameters openParams)
+        {
+            this.Write(StreamType.Verbose, Resources.ConfigurationInitializing);
+
+            var psProcessor = new PSConfigurationProcessor(this.CreateFactory(openParams), this, openParams.CanUseTelemetry);
+
+            this.Write(StreamType.Verbose, Resources.ConfigurationReadingConfigHistory);
+
+            var historySets = await psProcessor.Processor.GetConfigurationHistoryAsync();
+
+            PSConfigurationSet[] result = new PSConfigurationSet[historySets.Count];
+            for (int i = 0; i < historySets.Count; ++i)
+            {
+                result[i] = new PSConfigurationSet(psProcessor, historySets[i]);
             }
 
-            var set = openResult.Set;
-
-            // This should match winget's OpenConfigurationSet or OpenConfigurationSetAsync
-            // should be modify to take the full path and handle it.
-            set.Name = Path.GetFileName(openParams.ConfigFile);
-            set.Origin = Path.GetDirectoryName(openParams.ConfigFile);
-            set.Path = openParams.ConfigFile;
-
-            return new PSConfigurationSet(psProcessor, set);
+            return result;
         }
 
         private PSConfigurationJob StartApplyInternal(PSConfigurationSet psConfigurationSet)

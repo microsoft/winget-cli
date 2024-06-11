@@ -59,6 +59,7 @@ class WinGetModule
 
     [void]PrepareScriptFiles()
     {
+        Write-Verbose "Copying files: $($this.ModuleRoot) -> $($this.Output)"
         xcopy $this.ModuleRoot $this.Output /d /s /f /y
     }
 

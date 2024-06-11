@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PSConfigurationSet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -6,6 +6,7 @@
 
 namespace Microsoft.WinGet.Configuration.Engine.PSObjects
 {
+    using System;
     using Microsoft.Management.Configuration;
 
     /// <summary>
@@ -36,6 +37,17 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
             get
             {
                 return this.Set.Name;
+            }
+        }
+
+        /// <summary>
+        /// Gets the instance identifier.
+        /// </summary>
+        public Guid InstanceIdentifier
+        {
+            get
+            {
+                return this.Set.InstanceIdentifier;
             }
         }
 
