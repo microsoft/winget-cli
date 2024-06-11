@@ -913,6 +913,36 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Gets the instance identifier of the first configuration history item with name in its output line.
+        /// </summary>
+        /// <param name="name">The string to search for.</param>
+        /// <returns>The instance identifier of a configuration that matched the search, or any empty string if none did.</returns>
+        public static string GetConfigurationInstanceIdentifierFor(string name)
+        {
+            var result = TestCommon.RunAICLICommand("configure list", string.Empty);
+            Assert.AreEqual(0, result.ExitCode);
+
+            string[] lines = result.StdOut.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string line in lines)
+            {
+                if (line.Contains(name))
+                {
+                    // Find the first GUID in the output
+                    int left = line.IndexOf('{');
+                    int right = line.IndexOfAny(new char[] { '}', '…' });
+                    Assert.AreNotEqual(-1, left);
+                    Assert.AreNotEqual(-1, right);
+                    Assert.LessOrEqual(right - left, 38);
+
+                    return line.Substring(left, right - left);
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Run winget command via direct process.
         /// </summary>
         /// <param name="command">Command to run.</param>
@@ -928,6 +958,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             p.StartInfo = new ProcessStartInfo(TestSetup.Parameters.AICLIPath, command + ' ' + parameters);
             p.StartInfo.UseShellExecute = false;
 
+            p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
             p.StartInfo.RedirectStandardOutput = true;
             StringBuilder outputData = new ();
             p.OutputDataReceived += (sender, args) =>
@@ -938,6 +969,7 @@ namespace AppInstallerCLIE2ETests.Helpers
                 }
             };
 
+            p.StartInfo.StandardErrorEncoding = Encoding.UTF8;
             p.StartInfo.RedirectStandardError = true;
             StringBuilder errorData = new ();
             p.ErrorDataReceived += (sender, args) =>
@@ -981,7 +1013,7 @@ namespace AppInstallerCLIE2ETests.Helpers
 
                 if (TestSetup.Parameters.VerboseLogging && !string.IsNullOrEmpty(result.StdOut))
                 {
-                    TestContext.Out.WriteLine("Command run output. Output: " + result.StdOut);
+                    TestContext.Out.WriteLine("Command run output. Output:\n" + result.StdOut);
                 }
             }
             else if (throwOnTimeout)

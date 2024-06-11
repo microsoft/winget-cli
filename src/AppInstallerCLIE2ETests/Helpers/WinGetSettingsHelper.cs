@@ -41,9 +41,12 @@ namespace AppInstallerCLIE2ETests.Helpers
             Hashtable experimentalFeatures = new Hashtable();
 
             var forcedExperimentalFeatures = ForcedExperimentalFeatures;
-            foreach (var feature in forcedExperimentalFeatures)
+            if (forcedExperimentalFeatures != null)
             {
-                experimentalFeatures[feature] = true;
+                foreach (var feature in forcedExperimentalFeatures)
+                {
+                    experimentalFeatures[feature] = true;
+                }
             }
 
             var settingsJson = new Hashtable()
