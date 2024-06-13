@@ -41,6 +41,7 @@ bcp
 BEFACEF
 BFirst
 bght
+bigcatalog
 BITMAPINFOHEADER
 bitspace
 bkup
