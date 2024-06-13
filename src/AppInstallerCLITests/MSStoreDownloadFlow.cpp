@@ -22,7 +22,7 @@ utility::string_t TestDisplayCatalogResponse = _XPLATSTR(
         "DisplaySkuAvailabilities": [
           {
             "Sku": {
-              "SkuId": "0010",
+              "SkuId": "0015",
               "Properties": {
                 "Packages": [
                   {
