@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------
-// <copyright file="RemoveWinGetConfigurationHistoryCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="ConvertToWinGetConfigurationYamlCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -11,11 +11,11 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
     /// <summary>
-    /// Remove-WinGetConfigurationHistory.
-    /// Removes the given configuration set from history.
+    /// ConvertTo-WinGetConfigurationYaml
+    /// Serializes a PSConfigurationSet to a YAML string.
     /// </summary>
-    [Cmdlet(VerbsCommon.Remove, "WinGetConfigurationHistory")]
-    public sealed class RemoveWinGetConfigurationHistoryCmdlet : PSCmdlet
+    [Cmdlet(VerbsData.ConvertTo, "WinGetConfigurationYaml")]
+    public sealed class ConvertToWinGetConfigurationYamlCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the configuration set.
@@ -28,12 +28,12 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         public PSConfigurationSet Set { get; set; }
 
         /// <summary>
-        /// Removes the given set from history.
+        /// Converts the given set to a string.
         /// </summary>
         protected override void ProcessRecord()
         {
             var configCommand = new ConfigurationCommand(this);
-            configCommand.Remove(this.Set);
+            configCommand.Serialize(this.Set);
         }
     }
 }

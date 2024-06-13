@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
+    using System.Text;
     using System.Threading.Tasks;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
@@ -336,6 +337,22 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             psConfigurationSet.Set.Remove();
         }
 
+        /// <summary>
+        /// Serializes a configuration set and outputs the string.
+        /// </summary>
+        /// <param name="psConfigurationSet">PSConfiguration set.</param>
+        public void Serialize(PSConfigurationSet psConfigurationSet)
+        {
+            // Start task.
+            var result = this.RunOnMTA<string>(
+                () =>
+                {
+                    return this.SerializeMTA(psConfigurationSet);
+                });
+
+            this.Write(StreamType.Object, result);
+        }
+
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
         {
             // Signal the command that it can write to streams and wait for task.
@@ -579,6 +596,18 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
 
             return psConfigurationSet;
+        }
+
+        /// <summary>
+        /// Serializes a configuration set and outputs the string.
+        /// </summary>
+        /// <param name="psConfigurationSet">PSConfiguration set.</param>
+        /// <returns>The string version of the set.</returns>
+        private string SerializeMTA(PSConfigurationSet psConfigurationSet)
+        {
+            MemoryStream stream = new MemoryStream();
+            psConfigurationSet.Set.Serialize(stream.AsOutputStream());
+            return Encoding.UTF8.GetString(stream.ToArray());
         }
     }
 }

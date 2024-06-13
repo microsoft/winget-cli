@@ -15,6 +15,7 @@ namespace Microsoft.WinGet.Configuration.Helpers
         internal static class ParameterSet
         {
             internal const string OpenConfigurationSetFromFile = "OpenConfigurationSetFromFile";
+            internal const string OpenConfigurationSetFromString = "OpenConfigurationSetFromString";
             internal const string OpenConfigurationSetFromHistory = "OpenConfigurationSetFromHistory";
             internal const string OpenAllConfigurationSetsFromHistory = "OpenAllConfigurationSetsFromHistory";
         }
