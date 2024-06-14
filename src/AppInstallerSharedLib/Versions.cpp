@@ -41,7 +41,7 @@ namespace AppInstaller::Utility
 
     void Version::Assign(std::string version, std::string_view splitChars)
     {
-        m_version = std::move(version);
+        m_version = std::move(Utility::Trim(version));
 
         // Process approximate comparator if applicable
         std::string baseVersion = m_version;
@@ -281,7 +281,8 @@ namespace AppInstaller::Utility
 
     Version::Part::Part(const std::string& part)
     {
-        const char* begin = part.c_str();
+        std::string interimPart = Utility::Trim(part.c_str());
+        const char* begin = interimPart.c_str();
         char* end = nullptr;
         errno = 0;
         Integer = strtoull(begin, &end, 10);
@@ -289,9 +290,9 @@ namespace AppInstaller::Utility
         if (errno == ERANGE)
         {
             Integer = 0;
-            Other = part;
+            Other = interimPart;
         }
-        else if (static_cast<size_t>(end - begin) != part.length())
+        else if (static_cast<size_t>(end - begin) != interimPart.length())
         {
             Other = end;
         }
@@ -300,7 +301,7 @@ namespace AppInstaller::Utility
     }
 
     Version::Part::Part(uint64_t integer, std::string other) :
-        Integer(integer), Other(std::move(other))
+        Integer(integer), Other(std::move(Utility::Trim(other)))
     {
         m_foldedOther = Utility::FoldCase(static_cast<std::string_view>(Other));
     }
@@ -468,7 +469,7 @@ namespace AppInstaller::Utility
         THROW_HR_IF(E_INVALIDARG, splitChars != DefaultSplitChars);
 
         // First split off any trailing build metadata
-        std::string interimVersion = version;
+        std::string interimVersion = Utility::Trim(version);
         size_t buildMetadataPos = interimVersion.find('+', 0);
 
         if (buildMetadataPos != std::string::npos)
