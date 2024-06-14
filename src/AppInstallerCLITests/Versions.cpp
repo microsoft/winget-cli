@@ -43,6 +43,19 @@ TEST_CASE("VersionParsePlusDash", "[versions]")
     REQUIRE(parts[4].Other == "alpha");
 }
 
+TEST_CASE("VersionParseWithWhitespace", "[versions]")
+{
+    Version version("1. 2.3 . 4 ");
+    const auto& parts = version.GetParts();
+    REQUIRE(parts.size() == 4);
+    for (size_t i = 0; i < parts.size(); ++i)
+    {
+        INFO(i);
+        REQUIRE(parts[i].Integer == static_cast<uint64_t>(i + 1));
+        REQUIRE(parts[i].Other == "");
+    }
+}
+
 TEST_CASE("VersionParseCorner", "[versions]")
 {
     Version version1("");
@@ -70,6 +83,14 @@ TEST_CASE("VersionParseCorner", "[versions]")
     REQUIRE(parts.size() == 1);
     REQUIRE(parts[0].Integer == 0);
     REQUIRE(parts[0].Other == "version");
+
+    Version version6(". 1 ");
+    parts = version6.GetParts();
+    REQUIRE(parts.size() == 2);
+    REQUIRE(parts[0].Integer == 0);
+    REQUIRE(parts[0].Other == "");
+    REQUIRE(parts[1].Integer == 1);
+    REQUIRE(parts[1].Other == "");
 }
 
 void RequireLessThan(std::string_view a, std::string_view b)
@@ -113,6 +134,9 @@ TEST_CASE("VersionCompare", "[versions]")
     RequireLessThan("13.9.8", "14.1");
 
     RequireEqual("1.0", "1.0.0");
+    // Ensure whitespace doesn't affect equality
+    RequireEqual("1.0", "1.0 ");
+    RequireEqual("1.0", "1. 0");
 }
 
 TEST_CASE("VersionAndChannelSort", "[versions]")
