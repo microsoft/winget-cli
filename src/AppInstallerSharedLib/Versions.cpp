@@ -16,7 +16,7 @@ namespace AppInstaller::Utility
 
     Version::Version(std::string&& version, std::string_view splitChars)
     {
-        Assign(std::move(Utility::Trim(version)), splitChars);
+        Assign(std::move(version), splitChars);
     }
 
     Version::Version(Version baseVersion, ApproximateComparator approximateComparator) : Version(std::move(baseVersion))
@@ -438,12 +438,12 @@ namespace AppInstaller::Utility
 
     UInt64Version::UInt64Version(std::string&& version, std::string_view splitChars)
     {
-        Assign(std::move(Utility::Trim(version)), splitChars);
+        Assign(std::move(version), splitChars);
     }
 
     void UInt64Version::Assign(std::string version, std::string_view splitChars)
     {
-        Version::Assign(std::move(Utility::Trim(version)), splitChars);
+        Version::Assign(std::move(version), splitChars);
 
         // After trimming trailing parts (0 or empty),
         // at most 4 parts must be present
@@ -460,7 +460,7 @@ namespace AppInstaller::Utility
 
     SemanticVersion::SemanticVersion(std::string&& version)
     {
-        Assign(std::move(Utility::Trim(version)), DefaultSplitChars);
+        Assign(std::move(version), DefaultSplitChars);
     }
 
     void SemanticVersion::Assign(std::string version, std::string_view splitChars)
