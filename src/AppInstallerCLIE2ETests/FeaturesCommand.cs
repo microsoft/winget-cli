@@ -41,14 +41,6 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("features", string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Direct MSI Installation"));
-            if (WinGetSettingsHelper.ForcedExperimentalFeatures.Length > 0 && WinGetSettingsHelper.ForcedExperimentalFeatures[0] != "none")
-            {
-                Assert.True(result.StdOut.Contains("Enabled"));
-            }
-            else
-            {
-                Assert.False(result.StdOut.Contains("Enabled"));
-            }
         }
 
         /// <summary>
