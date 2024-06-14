@@ -338,4 +338,10 @@ namespace AppInstaller::Deployment
 
         WaitForDeployment(deployOperation, id, callback);
     }
+
+    bool IsExpectedDigestsSupported()
+    {
+        static bool s_IsExpectedDigestsSupported = Metadata::ApiInformation::IsPropertyPresent(winrt::name_of<AddPackageOptions>(), L"ExpectedDigests");
+        return s_IsExpectedDigestsSupported;
+    }
 }

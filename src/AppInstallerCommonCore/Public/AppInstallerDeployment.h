@@ -52,4 +52,7 @@ namespace AppInstaller::Deployment
     void RegisterPackage(
         std::string_view packageFamilyName,
         IProgressCallback& callback);
+
+    // Determines if the ExpectedDigests property (and thus feture) is supported on the current version of Windows.
+    bool IsExpectedDigestsSupported();
 }

@@ -625,6 +625,24 @@ namespace AppInstaller::Msix
         return Utility::SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
     }
 
+    std::wstring MsixInfo::GetDigest()
+    {
+        ComPtr<IAppxDigestProvider> digestProvider;
+        if (m_isBundle)
+        {
+            THROW_IF_FAILED(m_bundleReader.As(&digestProvider));
+        }
+        else
+        {
+            THROW_IF_FAILED(m_packageReader.As(&digestProvider));
+        }
+
+        wil::unique_cotaskmem_string result;
+        THROW_IF_FAILED(digestProvider->GetDigest(&result));
+
+        return result.get();
+    }
+
     std::wstring MsixInfo::GetPackageFullNameWide()
     {
         ComPtr<IAppxManifestPackageId> packageId;
