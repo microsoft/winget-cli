@@ -64,7 +64,20 @@ namespace AppInstaller::Utility
             size_t newPos = baseVersion.find_first_of(splitChars, pos);
 
             size_t length = (newPos == std::string::npos ? baseVersion.length() : newPos) - pos;
-            m_parts.emplace_back(baseVersion.substr(pos, length));
+            std::string interimPart = baseVersion.substr(pos, length);
+
+            // For the first version part, if there is a digit before the split character, trim off all leading non-digit characters
+            if (pos == 0)
+            {
+                size_t digitPos = interimPart.find_first_of(AICLI_DIGIT_CHARS);
+                if (digitPos != std::string::npos)
+                {
+                    interimPart.erase(0, digitPos);
+                }
+            }
+            // If the part contains any leading or trailing whitespace, it will be trimmed off as part of the constructor which
+            // emplaces it into the m_parts vector
+            m_parts.emplace_back(interimPart);
 
             pos += length + 1;
         }
