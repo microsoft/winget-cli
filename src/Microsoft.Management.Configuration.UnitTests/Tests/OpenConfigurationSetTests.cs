@@ -25,6 +25,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Unit tests for parsing configuration sets from streams.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     [OutOfProc]
     public class OpenConfigurationSetTests : ConfigurationProcessorTestBase
     {

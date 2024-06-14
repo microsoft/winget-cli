@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="PowerShellHelperTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -9,6 +9,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -16,6 +17,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// PowerShell helper tests.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     public class PowerShellHelperTests
     {
         private readonly UnitTestFixture fixture;

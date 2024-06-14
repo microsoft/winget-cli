@@ -19,6 +19,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Unit tests for configuration set authoring (creating objects).
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     [OutOfProc]
     public class ConfigurationSetAuthoringTests : ConfigurationProcessorTestBase
     {
