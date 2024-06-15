@@ -48,7 +48,7 @@ namespace AppInstaller::CLI::Workflow
     void SelectApplicablePackageVersion(Execution::Context& context);
 
     /// <summary>
-    /// Select the applicable installer for the installed package is essential.
+    /// Select the applicable installer for the installed package if necessary.
     // RequiredArgs:None
     // Inputs: Package,InstalledPackageVersion, AvailablePackageVersions
     // Outputs:Manifest, PackageVersion, Installer

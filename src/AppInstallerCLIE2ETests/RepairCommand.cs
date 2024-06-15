@@ -49,7 +49,7 @@ namespace AppInstallerCLIE2ETests
             // This would allow the 'msiexec repair' command to function as expected.
             string installerSourceDir = TestCommon.CopyInstallerFileToARPInstallSourceDirectory(TestCommon.GetTestDataFile("AppInstallerTestMsiInstallerV2.msi"), Constants.MsiInstallerProductCode, true);
 
-            result = TestCommon.RunAICLICommand("repair", $"AppInstallerTest.TestMsiRepair");
+            result = TestCommon.RunAICLICommand("repair", "AppInstallerTest.TestMsiRepair");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Repair operation completed successfully"));
             Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
@@ -87,7 +87,7 @@ namespace AppInstallerCLIE2ETests
         {
             // Selecting Microsoft.Paint_8wekyb3d8bbwe because it's a system package suitable for this scenario.
             // First, we need to ensure this package is installed, otherwise, we skip the test.
-            var result = TestCommon.RunAICLICommand("list", $"Microsoft.Paint_8wekyb3d8bbwe");
+            var result = TestCommon.RunAICLICommand("list", "Microsoft.Paint_8wekyb3d8bbwe");
 
             if (result.ExitCode != Constants.ErrorCode.S_OK)
             {
@@ -96,7 +96,7 @@ namespace AppInstallerCLIE2ETests
 
             Assert.True(result.StdOut.Contains("Microsoft.Paint_8wekyb3d8bbwe"));
 
-            result = TestCommon.RunAICLICommand("repair", $"Microsoft.Paint_8wekyb3d8bbwe --scope machine");
+            result = TestCommon.RunAICLICommand("repair", "Microsoft.Paint_8wekyb3d8bbwe --scope machine");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_SYSTEM_NOT_SUPPORTED, result.ExitCode);
             Assert.True(result.StdOut.Contains("The current system configuration does not support the repair of this package."));
         }
