@@ -462,7 +462,7 @@ jobs:
       alertWarningLevel: 'High'
 
   # Run BimSkim for all the binaries
-  - task: BinSkim@3
+  - task: BinSkim@4
     displayName: 'Run BinSkim '
     inputs:
       arguments: 'analyze
