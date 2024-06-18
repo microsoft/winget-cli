@@ -539,19 +539,38 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    std::optional<DWORD> s_ExtractArchiveWithTarResult_Override{};
+
+    void TestHook_SetExtractArchiveWithTarResult_Override(std::optional<DWORD>&& result)
+    {
+        s_ExtractArchiveWithTarResult_Override = std::move(result);
+    }
+#endif
+
     void ShellExecuteExtractArchive::operator()(Execution::Context& context) const
     {
         auto tarExecPath = AppInstaller::Filesystem::GetExpandedPath("%windir%\\system32\\tar.exe");
 
         std::string args = "-xf \"" + m_archivePath.u8string() + "\" -C \"" + m_destPath.u8string() + "\"";
 
-        auto extractArchiveResult = context.Reporter.ExecuteWithProgress(
-            std::bind(InvokeShellExecuteEx,
-                tarExecPath,
-                args,
-                false,
-                SW_HIDE,
-                std::placeholders::_1));
+        std::optional<DWORD> extractArchiveResult;
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_ExtractArchiveWithTarResult_Override)
+        {
+            extractArchiveResult =  *s_ExtractArchiveWithTarResult_Override;
+        }
+        else
+#endif
+        {
+            extractArchiveResult = context.Reporter.ExecuteWithProgress(
+                std::bind(InvokeShellExecuteEx,
+                    tarExecPath,
+                    args,
+                    false,
+                    SW_HIDE,
+                    std::placeholders::_1));
+        }
 
         if (!extractArchiveResult)
         {
