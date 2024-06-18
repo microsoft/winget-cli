@@ -3,6 +3,7 @@
 #pragma once
 #include "AppInstallerStrings.h"
 #include "AppInstallerLogging.h"
+#include "winget/Archive.h"
 #include "winget/GroupPolicy.h"
 #include "winget/Resources.h"
 #include "winget/ManifestCommon.h"
@@ -89,6 +90,7 @@ namespace AppInstaller::Settings
         InstallerTypeRequirement,
         InstallDefaultRoot,
         InstallSkipDependencies,
+        ArchiveExtractionMethod,
         DisableInstallNotes,
         PortablePackageUserRoot,
         PortablePackageMachineRoot,
@@ -171,6 +173,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallerTypePreference, std::vector<std::string>, std::vector<Manifest::InstallerTypeEnum>, {}, ".installBehavior.preferences.installerTypes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallerTypeRequirement, std::vector<std::string>, std::vector<Manifest::InstallerTypeEnum>, {}, ".installBehavior.requirements.installerTypes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallSkipDependencies, bool, bool, false, ".installBehavior.skipDependencies"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::ArchiveExtractionMethod, std::string, Archive::ExtractionMethod, Archive::ExtractionMethod::ShellApi, ".installBehavior.archiveExtractionMethod"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::DisableInstallNotes, bool, bool, false, ".installBehavior.disableInstallNotes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageMachineRoot"sv);

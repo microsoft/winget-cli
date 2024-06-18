@@ -507,6 +507,59 @@ TEST_CASE("ExtractInstallerFromArchive_InvalidZip", "[InstallFlow][workflow]")
     auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
     context.Add<Data::Manifest>(manifest);
     context.Add<Data::Installer>(manifest.Installers.at(0));
+
+    // Provide an invalid zip file which should be handled appropriately.
+    context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    context << ExtractFilesFromArchive;
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ExtractArchiveFailed).get()) != std::string::npos);
+}
+
+TEST_CASE("ExtractInstallerFromArchiveWithTar", "[InstallFlow][workflow]")
+{
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::ArchiveExtractionMethod>(AppInstaller::Archive::ExtractionMethod::Tar);
+
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+
+    OverrideForShellExecute(context);
+    OverrideForVerifyAndSetNestedInstaller(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+
+    TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(true);
+    TestHook::SetExtractArchiveWithTarResult_Override setExtractArchiveWithTarResultOverride(ERROR_SUCCESS);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ExtractArchiveSucceeded).get()) != std::string::npos);
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
+TEST_CASE("ExtractInstallerFromArchiveWithTar_InvalidZip", "[InstallFlow][workflow]")
+{
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::ArchiveExtractionMethod>(AppInstaller::Archive::ExtractionMethod::Tar);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
+    context.Add<Data::Manifest>(manifest);
+    context.Add<Data::Installer>(manifest.Installers.at(0));
+
     // Provide an invalid zip file which should be handled appropriately.
     context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
     context << ExtractFilesFromArchive;

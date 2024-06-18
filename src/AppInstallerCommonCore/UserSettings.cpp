@@ -289,6 +289,23 @@ namespace AppInstaller::Settings
             return ValidatePathValue(value);
         }
 
+        WINGET_VALIDATE_SIGNATURE(ArchiveExtractionMethod)
+        {
+            static constexpr std::string_view s_archiveExtractionMethod_shellApi = "shellApi";
+            static constexpr std::string_view s_archiveExtractionMethod_tar = "tar";
+
+            if (Utility::CaseInsensitiveEquals(value, s_archiveExtractionMethod_tar))
+            {
+                return Archive::ExtractionMethod::Tar;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_archiveExtractionMethod_shellApi))
+            {
+                return Archive::ExtractionMethod::ShellApi;
+            }
+
+            return {};
+        }
+
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
         {
             std::vector<Utility::Architecture> archs;

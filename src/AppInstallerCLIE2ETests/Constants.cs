@@ -119,6 +119,7 @@ namespace AppInstallerCLIE2ETests
         public const string PathSubKey_Machine = @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
 
         // User settings
+        public const string ArchiveExtractionMethod = "archiveExtractionMethod";
         public const string PortablePackageUserRoot = "portablePackageUserRoot";
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
         public const string InstallBehaviorScope = "scope";
