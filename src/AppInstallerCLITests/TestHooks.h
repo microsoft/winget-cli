@@ -71,6 +71,7 @@ namespace AppInstaller
     {
         void TestHook_SetEnableWindowsFeatureResult_Override(std::optional<DWORD>&& result);
         void TestHook_SetDoesWindowsFeatureExistResult_Override(std::optional<DWORD>&& result);
+        void TestHook_SetExtractArchiveWithTarResult_Override(std::optional<DWORD>&& result);
     }
 
     namespace Reboot
@@ -180,6 +181,19 @@ namespace TestHook
         ~SetDoesWindowsFeatureExistResult_Override()
         {
             AppInstaller::CLI::Workflow::TestHook_SetDoesWindowsFeatureExistResult_Override({});
+        }
+    };
+
+    struct SetExtractArchiveWithTarResult_Override
+    {
+        SetExtractArchiveWithTarResult_Override(DWORD result)
+        {
+            AppInstaller::CLI::Workflow::TestHook_SetExtractArchiveWithTarResult_Override(result);
+        }
+
+        ~SetExtractArchiveWithTarResult_Override()
+        {
+            AppInstaller::CLI::Workflow::TestHook_SetExtractArchiveWithTarResult_Override({});
         }
     };
 
