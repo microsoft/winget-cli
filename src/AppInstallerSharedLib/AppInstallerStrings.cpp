@@ -8,6 +8,9 @@
 
 namespace AppInstaller::Utility
 {
+    // Same as std::isspace(char)
+#define AICLI_SPACE_CHARS " \f\n\r\t\v"sv
+
     using namespace std::string_view_literals;
     constexpr std::string_view s_SpaceChars = AICLI_SPACE_CHARS;
     constexpr std::wstring_view s_WideSpaceChars = L"" AICLI_SPACE_CHARS;

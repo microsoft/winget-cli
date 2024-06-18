@@ -10,10 +10,6 @@
 
 namespace AppInstaller::Utility
 {
-    // Same as std::isspace(char)
-#define AICLI_SPACE_CHARS " \f\n\r\t\v"sv
-#define AICLI_DIGIT_CHARS "0123456789"sv
-
     // Converts the given UTF16 string to UTF8
     std::string ConvertToUTF8(std::wstring_view input);
 

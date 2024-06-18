@@ -8,6 +8,7 @@ namespace AppInstaller::Utility
 {
     using namespace std::string_view_literals;
 
+    static constexpr std::string_view s_Digit_Characters = "0123456789"sv;
     static constexpr std::string_view s_Version_Part_Latest = "Latest"sv;
     static constexpr std::string_view s_Version_Part_Unknown = "Unknown"sv;
 
@@ -56,6 +57,14 @@ namespace AppInstaller::Utility
             baseVersion = m_version.substr(s_Approximate_Greater_Than.length(), m_version.length() - s_Approximate_Greater_Than.length());
         }
 
+        // If there is a digit before the split character, or no split characters exist, trim off all leading non-digit characters
+        size_t digitPos = baseVersion.find_first_of(s_Digit_Characters);
+        size_t splitPos = baseVersion.find_first_of(splitChars);
+        if (digitPos != std::string::npos && (splitPos == std::string::npos || digitPos < splitPos))
+        {
+            baseVersion.erase(0, digitPos);
+        }
+
         // Then parse the base version
         size_t pos = 0;
 
@@ -64,20 +73,7 @@ namespace AppInstaller::Utility
             size_t newPos = baseVersion.find_first_of(splitChars, pos);
 
             size_t length = (newPos == std::string::npos ? baseVersion.length() : newPos) - pos;
-            std::string interimPart = baseVersion.substr(pos, length);
-
-            // For the first version part, if there is a digit before the split character, trim off all leading non-digit characters
-            if (pos == 0)
-            {
-                size_t digitPos = interimPart.find_first_of(AICLI_DIGIT_CHARS);
-                if (digitPos != std::string::npos)
-                {
-                    interimPart.erase(0, digitPos);
-                }
-            }
-            // If the part contains any leading or trailing whitespace, it will be trimmed off as part of the constructor which
-            // emplaces it into the m_parts vector
-            m_parts.emplace_back(interimPart);
+            m_parts.emplace_back(baseVersion.substr(pos, length));
 
             pos += length + 1;
         }

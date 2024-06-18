@@ -165,7 +165,7 @@ TEST_CASE("VersionCompare", "[versions]")
     RequireEqual("foo1", "bar1");
     RequireLessThan("v0.0.1", "0.0.2");
     RequireLessThan("v0.0.1", "v0.0.2");
-    RequireLessThan("1.a1", "1.b2");
+    RequireLessThan("1.a2", "1.b1");
     RequireLessThan("alpha", "beta");
 }
 
