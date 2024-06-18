@@ -50,6 +50,7 @@ namespace AppInstallerCLIE2ETests
 
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";
+        public const string AICLIPackagePublisherHash = "8wekyb3d8bbwe";
         public const string AICLIAppId = "WinGetDev";
 
         public const string TestPackage = "TëstPackage.msix";
