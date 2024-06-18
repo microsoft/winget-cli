@@ -7,6 +7,7 @@ namespace AppInstaller::Archive
 {
     enum class ExtractionMethod
     {
+        // Default archive extraction method is ShellApi.
         ShellApi,
         Tar,
     };
