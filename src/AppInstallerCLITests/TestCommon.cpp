@@ -264,9 +264,6 @@ namespace TestCommon
         // Due to the template usage, this needs to be updated for any features that want to use it.
         switch (feature)
         {
-        case Settings::ExperimentalFeature::Feature::SideBySide:
-            result->Set<Settings::Setting::EFSideBySide>(true);
-            break;
         case Settings::ExperimentalFeature::Feature::StoreDownload:
             result->Set<Settings::Setting::EFStoreDownload>(true);
             break;
