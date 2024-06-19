@@ -130,10 +130,7 @@ namespace AppInstaller::Utility
     struct RawVersion : protected Version
     {
         RawVersion() { m_trimPrefix = false; }
-
-        RawVersion(const std::string& version, std::string_view splitChars = DefaultSplitChars) :
-            RawVersion(std::string(version), splitChars) { m_trimPrefix = false; }
-        RawVersion(std::string&& version, std::string_view splitChars = DefaultSplitChars);
+        RawVersion(std::string version, std::string_view splitChars = DefaultSplitChars);
 
         using Version::GetParts;
     };

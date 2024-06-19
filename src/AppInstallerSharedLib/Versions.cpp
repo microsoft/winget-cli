@@ -20,7 +20,7 @@ namespace AppInstaller::Utility
         Assign(std::move(version), splitChars);
     }
 
-    RawVersion::RawVersion(std::string&& version, std::string_view splitChars)
+    RawVersion::RawVersion(std::string version, std::string_view splitChars)
     {
         m_trimPrefix = false;
         Assign(std::move(version), splitChars);
