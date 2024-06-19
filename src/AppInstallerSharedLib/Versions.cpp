@@ -20,6 +20,12 @@ namespace AppInstaller::Utility
         Assign(std::move(version), splitChars);
     }
 
+    RawVersion::RawVersion(std::string&& version, std::string_view splitChars)
+    {
+        m_trimPrefix = false;
+        Assign(std::move(version), splitChars);
+    }
+
     Version::Version(Version baseVersion, ApproximateComparator approximateComparator) : Version(std::move(baseVersion))
     {
         if (approximateComparator == ApproximateComparator::None)
@@ -60,7 +66,7 @@ namespace AppInstaller::Utility
         // If there is a digit before the split character, or no split characters exist, trim off all leading non-digit characters
         size_t digitPos = baseVersion.find_first_of(s_Digit_Characters);
         size_t splitPos = baseVersion.find_first_of(splitChars);
-        if (digitPos != std::string::npos && (splitPos == std::string::npos || digitPos < splitPos))
+        if (m_trimPrefix && digitPos != std::string::npos && (splitPos == std::string::npos || digitPos < splitPos))
         {
             baseVersion.erase(0, digitPos);
         }
@@ -466,7 +472,7 @@ namespace AppInstaller::Utility
             THROW_HR_IF(E_INVALIDARG, part.Integer >> 16 != 0);
         }
     }
-
+    
     SemanticVersion::SemanticVersion(std::string&& version)
     {
         Assign(std::move(version), DefaultSplitChars);
