@@ -72,7 +72,6 @@ namespace AppInstaller::Settings
         EFDirectMSI,
         EFResume,
         EFConfiguration03,
-        EFSideBySide,
         EFConfigureSelfElevation,
         EFStoreDownload,
         EFIndexV2,
@@ -156,7 +155,6 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfiguration03, bool, bool, false, ".experimentalFeatures.configuration03"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFSideBySide, bool, bool, false, ".experimentalFeatures.sideBySide"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureSelfElevation, bool, bool, false, ".experimentalFeatures.configureSelfElevate"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFStoreDownload, bool, bool, false, ".experimentalFeatures.storeDownload"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFIndexV2, bool, bool, false, ".experimentalFeatures.indexV2"sv);
