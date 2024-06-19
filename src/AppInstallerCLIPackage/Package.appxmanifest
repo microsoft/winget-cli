@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Package 
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
@@ -61,7 +61,7 @@
         </uap5:Extension>
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:ExeServer Executable="WinGetServer\WindowsPackageManagerServer.exe" DisplayName="Windows Package Manager Server" LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;WD)(A;;11;;;RC)(A;;11;;;AC)(A;;11;;;AN)S:P(ML;;NX;;;S-1-16-0)">
+            <com:ExeServer Executable="WinGetServer\WindowsPackageManagerServer.exe" DisplayName="Windows Package Manager Server" LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;WD)(A;;11;;;AC)S:P(ML;;NX;;;S-1-16-4096)">
               <com:Class Id ="74CB3139-B7C5-4B9E-9388-E6616DEA288C" DisplayName="PackageManager Server">
               </com:Class>
               <com:Class Id ="1BD8FF3A-EC50-4F69-AEEE-DF4C9D3BAA96" DisplayName="FindPackagesOptions Server">
@@ -74,11 +74,17 @@
               </com:Class>
               <com:Class Id ="AA2A5C04-1AD9-46C4-B74F-6B334AD7EB8C" DisplayName="UninstallOptions Server">
               </com:Class>
-              <com:Class Id ="C9ED7917-66AB-4E31-A92A-F65F18EF7933" DisplayName="Configuration Statics Server">
-              </com:Class>
               <com:Class Id ="8EF324ED-367C-4880-83E5-BB2ABD0B72F6" DisplayName="DownloadOptions Server">
               </com:Class>
               <com:Class Id ="6484A61D-50FA-41F0-B71E-F4370C6EB37C" DisplayName="AuthenticationArguments Server">
+              </com:Class>
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="WinGetServer\WindowsPackageManagerServer.exe" DisplayName="Windows Package Manager Configuration Server" LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;WD)S:P(ML;;NX;;;S-1-16-8192)">
+              <com:Class Id ="C9ED7917-66AB-4E31-A92A-F65F18EF7933" DisplayName="Configuration Statics Server">
               </com:Class>
             </com:ExeServer>
           </com:ComServer>
