@@ -472,7 +472,7 @@ namespace AppInstaller::Utility
             THROW_HR_IF(E_INVALIDARG, part.Integer >> 16 != 0);
         }
     }
-    
+
     SemanticVersion::SemanticVersion(std::string&& version)
     {
         Assign(std::move(version), DefaultSplitChars);
