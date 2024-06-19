@@ -65,6 +65,7 @@ namespace AppInstaller::CLI::Execution
         DownloadDirectory,
         ModifyPath,
         RepairString,
+        MsixDigests,
         Max
     };
 
@@ -276,11 +277,17 @@ namespace AppInstaller::CLI::Execution
             using value_t = std::string;
         };
 
-
         template<>
         struct DataMapping<Data::RepairString>
         {
             using value_t = std::string;
+        };
+
+        template<>
+        struct DataMapping<Data::MsixDigests>
+        {
+            // The pair is { URL, Digest }
+            using value_t = std::vector<std::pair<std::string, std::wstring>>;
         };
     }
 }
