@@ -312,17 +312,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### sideBySide
-
-This feature enables experimental improvements for supporting multiple instances of a package being installed on a system.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "sideBySide": true
-   },
-```
-
 ### configureSelfElevate
 
 This feature enables configure commands to request elevation as needed.

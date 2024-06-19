@@ -702,9 +702,6 @@ namespace AppInstaller::Repository
             {
                 if (availablePackage)
                 {
-                    // Disable primary if feature not enabled
-                    setPrimary = setPrimary && ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide);
-
                     m_availablePackages.emplace_back(OnlyAvailable(availablePackage));
 
                     if (setPrimary)
@@ -1162,11 +1159,6 @@ namespace AppInstaller::Repository
             //          the installed source.  This would allow for folding even when the package is not in any available source.
             void FoldResults()
             {
-                if (!ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide))
-                {
-                    return;
-                }
-
                 // The key to uniquely identify the package in the map
                 struct InstalledResultFoldKey
                 {
@@ -1626,112 +1618,85 @@ namespace AppInstaller::Repository
                     // Correlate against installed (allow exceptions out as we own the installed source)
                     SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
 
-                    if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide))
+                    for (const auto& installedMatch : installedCrossRef.Matches)
                     {
-                        for (const auto& installedMatch : installedCrossRef.Matches)
+                        if (!IsStrongMatchField(installedMatch.MatchCriteria.Field))
                         {
-                            if (!IsStrongMatchField(installedMatch.MatchCriteria.Field))
+                            // For weak correlations, do an installed -> available check to ensure that there are no other strong correlations.
+                            SearchResult correlationConfirmation;
+                            if (source.GetDetails().SupportInstalledSearchCorrelation)
                             {
-                                // For weak correlations, do an installed -> available check to ensure that there are no other strong correlations.
-                                SearchResult correlationConfirmation;
-                                if (source.GetDetails().SupportInstalledSearchCorrelation)
-                                {
-                                    correlationConfirmation = result.SearchAndHandleFailures(source, result.GetSystemReferenceStrings(installedMatch.Package->GetInstalled().get()).CreateInclusionsSearchRequest(SearchPurpose::CorrelationToAvailable));
-                                }
-
-                                if (correlationConfirmation.Matches.empty())
-                                {
-                                    // We probably made the correlation due to tracking data, keep it.
-                                }
-                                else if (correlationConfirmation.Matches.size() > 1)
-                                {
-                                    // There is contention for the correlation.
-                                    AICLI_LOG(Repo, Verbose, << " ... installed package [" << installedMatch.Package->GetProperty(PackageProperty::Id) <<
-                                        "] had multiple correlations and is being ignored as a match for [" << match.Package->GetProperty(PackageProperty::Id) << "]");
-                                    continue;
-                                }
-                                else if (!OnlyAvailable(correlationConfirmation.Matches[0].Package)->IsSame(OnlyAvailable(match.Package).get()))
-                                {
-                                    // The only correlation is not to the current package.
-                                    AICLI_LOG(Repo, Verbose, << " ... installed package [" << installedMatch.Package->GetProperty(PackageProperty::Id) <<
-                                        "] was found through available package [" << match.Package->GetProperty(PackageProperty::Id) << "], but only correlated to [" <<
-                                        correlationConfirmation.Matches[0].Package->GetProperty(PackageProperty::Id) << "] and is being ignored");
-                                    continue;
-                                }
+                                correlationConfirmation = result.SearchAndHandleFailures(source, result.GetSystemReferenceStrings(installedMatch.Package->GetInstalled().get()).CreateInclusionsSearchRequest(SearchPurpose::CorrelationToAvailable));
                             }
 
-                            // Now that we know we need to add this available package, determine how exactly
-                            std::shared_ptr<CompositePackage> resultPackage = result.FindInstalledPackage(installedMatch.Package->GetInstalled().get());
-
-                            if (resultPackage)
+                            if (correlationConfirmation.Matches.empty())
                             {
-                                // Check for a package from the same source already present on the result package.
-                                bool foundSameSource = false;
-
-                                for (const auto& availablePackage : resultPackage->GetAvailablePackages())
-                                {
-                                    if (availablePackage->GetSource() == source)
-                                    {
-                                        // TODO: May need to add more data so that we can choose the proper correlation, but it may also be very difficult to get through
-                                        //       the gauntlet of other checks and arrive in this situation.
-                                        AICLI_LOG(Repo, Verbose, << " ... found [" << availablePackage->GetProperty(PackageProperty::Id) <<
-                                            "] already correlated to [" << installedMatch.Package->GetProperty(PackageProperty::Id) << "] from the same source [" <<
-                                            source.GetDetails().Name << "] as [" << match.Package->GetProperty(PackageProperty::Id) << "]; ignoring the second correlation");
-                                        foundSameSource = true;
-                                    }
-                                }
-
-                                if (foundSameSource)
-                                {
-                                    continue;
-                                }
+                                // We probably made the correlation due to tracking data, keep it.
                             }
-                            else
+                            else if (correlationConfirmation.Matches.size() > 1)
                             {
-                                result.Matches.emplace_back(std::make_shared<CompositePackage>(installedMatch.Package), match.MatchCriteria);
-                                resultPackage = result.Matches.back().Package;
+                                // There is contention for the correlation.
+                                AICLI_LOG(Repo, Verbose, << " ... installed package [" << installedMatch.Package->GetProperty(PackageProperty::Id) <<
+                                    "] had multiple correlations and is being ignored as a match for [" << match.Package->GetProperty(PackageProperty::Id) << "]");
+                                continue;
                             }
-
-                            bool setPrimary = false;
-                            if (trackingPackage)
+                            else if (!OnlyAvailable(correlationConfirmation.Matches[0].Package)->IsSame(OnlyAvailable(match.Package).get()))
                             {
-                                auto trackingPackageTime = GetLatestTrackingWriteTime(trackingPackage);
-
-                                if (trackingPackageTime > resultPackage->GetTrackingPackageWriteTime())
-                                {
-                                    resultPackage->SetTracking(source, std::move(trackingPackage), trackingPackageTime);
-                                    setPrimary = true;
-                                }
+                                // The only correlation is not to the current package.
+                                AICLI_LOG(Repo, Verbose, << " ... installed package [" << installedMatch.Package->GetProperty(PackageProperty::Id) <<
+                                    "] was found through available package [" << match.Package->GetProperty(PackageProperty::Id) << "], but only correlated to [" <<
+                                    correlationConfirmation.Matches[0].Package->GetProperty(PackageProperty::Id) << "] and is being ignored");
+                                continue;
                             }
-
-                            resultPackage->AddAvailablePackage(std::move(match.Package), setPrimary);
-
-                            foundInstalledMatch = true;
                         }
-                    }
-                    else
-                    {
-                        auto installedPackage = GetMatchingPackage(installedCrossRef.Matches,
-                            [&]() {
-                                AICLI_LOG(Repo, Info,
-                                << "Found multiple matches for available package [" << match.Package->GetProperty(PackageProperty::Id) <<
-                                "] in source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
-                            }, [&] {
-                                AICLI_LOG(Repo, Warning, << "  Appropriate installed package could not be determined");
-                                });
 
-                        if (installedPackage && !result.ContainsInstalledPackage(installedPackage->GetInstalled().get()))
+                        // Now that we know we need to add this available package, determine how exactly
+                        std::shared_ptr<CompositePackage> resultPackage = result.FindInstalledPackage(installedMatch.Package->GetInstalled().get());
+
+                        if (resultPackage)
                         {
-                            // TODO: Needs a whole separate change to fix the fact that we don't support multiple available packages and what the different search behaviors mean
-                            foundInstalledMatch = true;
-                            auto compositePackage = std::make_shared<CompositePackage>(installedPackage, std::move(match.Package));
-                            if (trackingPackage)
+                            // Check for a package from the same source already present on the result package.
+                            bool foundSameSource = false;
+
+                            for (const auto& availablePackage : resultPackage->GetAvailablePackages())
                             {
-                                auto trackingPackageTime = GetLatestTrackingWriteTime(trackingPackage);
-                                compositePackage->SetTracking(source, std::move(trackingPackage), trackingPackageTime);
+                                if (availablePackage->GetSource() == source)
+                                {
+                                    // TODO: May need to add more data so that we can choose the proper correlation, but it may also be very difficult to get through
+                                    //       the gauntlet of other checks and arrive in this situation.
+                                    AICLI_LOG(Repo, Verbose, << " ... found [" << availablePackage->GetProperty(PackageProperty::Id) <<
+                                        "] already correlated to [" << installedMatch.Package->GetProperty(PackageProperty::Id) << "] from the same source [" <<
+                                        source.GetDetails().Name << "] as [" << match.Package->GetProperty(PackageProperty::Id) << "]; ignoring the second correlation");
+                                    foundSameSource = true;
+                                }
                             }
-                            result.Matches.emplace_back(std::move(compositePackage), match.MatchCriteria);
+
+                            if (foundSameSource)
+                            {
+                                continue;
+                            }
                         }
+                        else
+                        {
+                            result.Matches.emplace_back(std::make_shared<CompositePackage>(installedMatch.Package), match.MatchCriteria);
+                            resultPackage = result.Matches.back().Package;
+                        }
+
+                        bool setPrimary = false;
+                        if (trackingPackage)
+                        {
+                            auto trackingPackageTime = GetLatestTrackingWriteTime(trackingPackage);
+
+                            if (trackingPackageTime > resultPackage->GetTrackingPackageWriteTime())
+                            {
+                                resultPackage->SetTracking(source, std::move(trackingPackage), trackingPackageTime);
+                                setPrimary = true;
+                            }
+                        }
+
+                        resultPackage->AddAvailablePackage(std::move(match.Package), setPrimary);
+
+                        foundInstalledMatch = true;
                     }
                 }
 

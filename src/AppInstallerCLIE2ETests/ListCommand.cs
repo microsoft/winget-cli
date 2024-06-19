@@ -23,7 +23,8 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("list", Constants.AICLIPackageFamilyName);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains(Constants.AICLIPackageFamilyName));
+            Assert.True(result.StdOut.Contains(Constants.AICLIPackageName));
+            Assert.True(result.StdOut.Contains(Constants.AICLIPackagePublisherHash));
         }
 
         /// <summary>
