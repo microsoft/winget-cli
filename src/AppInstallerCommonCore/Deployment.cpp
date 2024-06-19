@@ -66,49 +66,108 @@ namespace AppInstaller::Deployment
 
             return S_OK;
         }
+
+        bool ShouldUseReputationCheck(const Options& options)
+        {
+            return options.ExpectedDigests.empty() && !options.SkipReputationCheck;
+        }
+
+        IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> StartAddPackage(PackageManager& packageManager, const winrt::Windows::Foundation::Uri& uri, const Options& options)
+        {
+            if (!options.ExpectedDigests.empty())
+            {
+                // Must use API that supports digests
+                THROW_WIN32_IF(ERROR_NOT_SUPPORTED, !IsExpectedDigestsSupported());
+
+                AddPackageOptions addPackageOptions;
+
+                for (const auto& digest : options.ExpectedDigests)
+                {
+                    addPackageOptions.ExpectedDigests().Insert(Uri{ Utility::ConvertToUTF16(digest.first) }, digest.second);
+                }
+
+                return packageManager.AddPackageByUriAsync(uri, addPackageOptions);
+            }
+            else if (options.SkipReputationCheck)
+            {
+                return packageManager.AddPackageAsync(
+                    uri,
+                    nullptr, /*dependencyPackageUris*/
+                    DeploymentOptions::None,
+                    nullptr, /*targetVolume*/
+                    nullptr, /*optionalAndRelatedPackageFamilyNames*/
+                    nullptr, /*optionalPackageUris*/
+                    nullptr /*relatedPackageUris*/);
+            }
+            else
+            {
+                return packageManager.RequestAddPackageAsync(
+                    uri,
+                    nullptr, /*dependencyPackageUris*/
+                    DeploymentOptions::None,
+                    nullptr, /*targetVolume*/
+                    nullptr, /*optionalAndRelatedPackageFamilyNames*/
+                    nullptr /*relatedPackageUris*/);
+            }
+        }
+
+        IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> StartStagePackage(PackageManager& packageManager, const winrt::Windows::Foundation::Uri& uri, const Options& options)
+        {
+            if (!options.ExpectedDigests.empty())
+            {
+                // Must use API that supports digests
+                THROW_WIN32_IF(ERROR_NOT_SUPPORTED, !IsExpectedDigestsSupported());
+
+                StagePackageOptions stagePackageOptions;
+
+                for (const auto& digest : options.ExpectedDigests)
+                {
+                    stagePackageOptions.ExpectedDigests().Insert(Uri{ Utility::ConvertToUTF16(digest.first) }, digest.second);
+                }
+
+                return packageManager.StagePackageByUriAsync(uri, stagePackageOptions);
+            }
+            else
+            {
+                return packageManager.StagePackageAsync(
+                    uri,
+                    nullptr /*dependencyPackageUris*/);
+            }
+        }
+    }
+
+    std::ostream& operator<<(std::ostream& out, const Options& options)
+    {
+        out << " { SkipReputationCheck = " << options.SkipReputationCheck << ", ExpectedDigests = {";
+
+        for (const auto& digest : options.ExpectedDigests)
+        {
+            out << " { URI = " << digest.first << ", Digest = " << Utility::ConvertToUTF8(digest.second) << " } ";
+        }
+
+        out << "} }";
+
+        return out;
     }
 
     void AddPackage(
         const winrt::Windows::Foundation::Uri& uri,
-        winrt::Windows::Management::Deployment::DeploymentOptions options,
-        bool skipSmartScreen,
+        const Options& options,
         IProgressCallback& callback)
     {
         size_t id = GetDeploymentOperationId();
-        AICLI_LOG(Core, Info, << "Starting AddPackage operation #" << id << ": " << Utility::ConvertToUTF8(uri.AbsoluteUri().c_str()) << " SkipSmartScreen: " << skipSmartScreen);
+        AICLI_LOG(Core, Info, << "Starting AddPackage operation #" << id << ": " << Utility::ConvertToUTF8(uri.AbsoluteUri().c_str()) << " Options: " << options);
 
         PackageManager packageManager;
 
-        IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> deployOperation;
-
-        if (skipSmartScreen)
-        {
-            deployOperation = packageManager.AddPackageAsync(
-                uri,
-                nullptr, /*dependencyPackageUris*/
-                options,
-                nullptr, /*targetVolume*/
-                nullptr, /*optionalAndRelatedPackageFamilyNames*/
-                nullptr, /*optionalPackageUris*/
-                nullptr /*relatedPackageUris*/);
-        }
-        else
-        {
-            deployOperation = packageManager.RequestAddPackageAsync(
-                uri,
-                nullptr, /*dependencyPackageUris*/
-                options,
-                nullptr, /*targetVolume*/
-                nullptr, /*optionalAndRelatedPackageFamilyNames*/
-                nullptr /*relatedPackageUris*/);
-        }
+        IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> deployOperation = StartAddPackage(packageManager, uri, options);
 
         WaitForDeployment(deployOperation, id, callback);
     }
 
     bool AddPackageWithDeferredFallback(
         std::string_view uri,
-        bool skipSmartScreen,
+        const Options& options,
         IProgressCallback& callback)
     {
         PackageManager packageManager;
@@ -129,24 +188,24 @@ namespace AppInstaller::Deployment
 
         Uri uriObject(Utility::ConvertToUTF16(uri));
 
-        if (!skipSmartScreen)
+        if (ShouldUseReputationCheck(options))
         {
             // The only way to get SmartScreen is to use RequestAddPackageAsync, so we will have to start with that.
             size_t id = GetDeploymentOperationId();
             AICLI_LOG(Core, Info, << "Starting RequestAddPackageAsync operation #" << id << ": " << uri);
 
-            DeploymentOptions options = DeploymentOptions::None;
+            DeploymentOptions deploymentOptions = DeploymentOptions::None;
             // Optimization to keep files if the package is in use. Only available in a newer OS per:
             // https://docs.microsoft.com/en-us/uwp/api/Windows.Management.Deployment.DeploymentOptions
             if (Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version{ "10.0.18362.0" }))
             {
-                options = DeploymentOptions::RetainFilesOnFailure;
+                deploymentOptions = DeploymentOptions::RetainFilesOnFailure;
             }
 
             IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> deployOperation = packageManager.RequestAddPackageAsync(
                 uriObject,
                 nullptr, /*dependencyPackageUris*/
-                options,
+                deploymentOptions,
                 nullptr, /*targetVolume*/
                 nullptr, /*optionalAndRelatedPackageFamilyNames*/
                 nullptr /*relatedPackageUris*/);
@@ -167,9 +226,9 @@ namespace AppInstaller::Deployment
         progress.SetRange(0, 95);
         {
             size_t id = GetDeploymentOperationId();
-            AICLI_LOG(Core, Info, << "Starting StagePackageAsync operation #" << id << ": " << uri);
+            AICLI_LOG(Core, Info, << "Starting StagePackageAsync operation #" << id << ": " << uri << " Options: " << options);
 
-            IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> stageOperation = packageManager.StagePackageAsync(uriObject, nullptr);
+            IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> stageOperation = StartStagePackage(packageManager, uriObject, options);
             WaitForDeployment(stageOperation, id, progress);
         }
 
@@ -214,6 +273,7 @@ namespace AppInstaller::Deployment
 
     bool AddPackageMachineScope(
         std::string_view uri,
+        const Options& options,
         IProgressCallback& callback)
     {
         PackageManager packageManager;
@@ -240,9 +300,9 @@ namespace AppInstaller::Deployment
         progress.SetRange(0, 90);
         {
             size_t id = GetDeploymentOperationId();
-            AICLI_LOG(Core, Info, << "Starting StagePackageAsync operation #" << id << ": " << uri);
+            AICLI_LOG(Core, Info, << "Starting StagePackageAsync operation #" << id << ": " << uri << " Options: " << options);
 
-            IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> stageOperation = packageManager.StagePackageAsync(uriObject, nullptr);
+            IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> stageOperation = StartStagePackage(packageManager, uriObject, options);
             WaitForDeployment(stageOperation, id, progress);
         }
 

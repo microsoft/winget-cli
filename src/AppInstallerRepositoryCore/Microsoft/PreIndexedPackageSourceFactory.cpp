@@ -527,8 +527,7 @@ namespace AppInstaller::Repository::Microsoft
                 winrt::Windows::Foundation::Uri uri = winrt::Windows::Foundation::Uri(localFile.c_str());
                 Deployment::AddPackage(
                     uri,
-                    winrt::Windows::Management::Deployment::DeploymentOptions::None,
-                    WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::Trusted),
+                    Deployment::Options{ WI_IsFlagSet(details.TrustLevel, SourceTrustLevel::Trusted) },
                     progress);
 
                 if (download)
