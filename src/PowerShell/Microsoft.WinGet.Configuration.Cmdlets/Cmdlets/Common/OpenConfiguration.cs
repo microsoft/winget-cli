@@ -36,7 +36,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets.Common
         public string InstanceIdentifier { get; set; }
 
         /// <summary>
-        /// Gets or sets the configuration history item identifier.
+        /// Gets or sets a value indicating whether all configuration history items should be returned.
         /// </summary>
         [Parameter(
             Mandatory = true,
