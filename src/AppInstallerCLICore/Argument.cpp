@@ -419,7 +419,7 @@ namespace AppInstaller::CLI
         case Args::Type::IgnoreResumeLimit:
             return Argument{ type, Resource::String::IgnoreResumeLimitArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::Resume };
         case Args::Type::AllVersions:
-            return Argument{ type, Resource::String::UninstallAllVersionsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help, ExperimentalFeature::Feature::SideBySide };
+            return Argument{ type, Resource::String::UninstallAllVersionsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::TargetVersion:
             return Argument{ type, Resource::String::TargetVersionArgumentDescription, ArgumentType::Standard };
         case Args::Type::Proxy:

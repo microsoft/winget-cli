@@ -44,8 +44,6 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFResume>();
             case ExperimentalFeature::Feature::Configuration03:
                 return userSettings.Get<Setting::EFConfiguration03>();
-            case ExperimentalFeature::Feature::SideBySide:
-                return userSettings.Get<Setting::EFSideBySide>();
             case ExperimentalFeature::Feature::ConfigureSelfElevation:
                 return userSettings.Get<Setting::EFConfigureSelfElevation>();
             case ExperimentalFeature::Feature::StoreDownload:
@@ -87,8 +85,6 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Resume", "resume", "https://aka.ms/winget-settings", Feature::Resume };
         case Feature::Configuration03:
             return ExperimentalFeature{ "Configuration Schema 0.3", "configuration03", "https://aka.ms/winget-settings", Feature::Configuration03 };
-        case Feature::SideBySide:
-            return ExperimentalFeature{ "Side-by-side improvements", "sideBySide", "https://aka.ms/winget-settings", Feature::SideBySide };
         case Feature::ConfigureSelfElevation:
             return ExperimentalFeature{ "Configure Self Elevation", "configureSelfElevate", "https://aka.ms/winget-settings", Feature::ConfigureSelfElevation };
         case Feature::StoreDownload:

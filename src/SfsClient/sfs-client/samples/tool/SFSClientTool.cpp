@@ -30,7 +30,7 @@ void DisplayUsage()
         << "Options:" << std::endl
         << "  -h, --help\t\t\tDisplay this help message" << std::endl
         << "  -v, --version\t\t\tDisplay the library version" << std::endl
-        << "  --isApp\t\tIndicates the specific product is an App" << std::endl
+        << "  --isApp\t\t\tIndicates the specific product is an App" << std::endl
         << "  --instanceId <id>\t\tA custom SFS instance ID" << std::endl
         << "  --namespace <ns>\t\tA custom SFS namespace" << std::endl
         << "  --customUrl <url>\t\tA custom URL for the SFS service. Library must have been built with SFS_ENABLE_OVERRIDES"

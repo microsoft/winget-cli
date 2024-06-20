@@ -1,4 +1,4 @@
-﻿#
+#
 # Module manifest for module 'xE2ETestResource'
 #
 
@@ -22,6 +22,7 @@ DscResourcesToExport = @(
     'E2ETestResourceError'
     'E2ETestResourceTypes'
     'E2ETestResourceCrash'
+    'E2ETestResourcePID'
 )
 HelpInfoURI = 'https://www.contoso.com/help'
 

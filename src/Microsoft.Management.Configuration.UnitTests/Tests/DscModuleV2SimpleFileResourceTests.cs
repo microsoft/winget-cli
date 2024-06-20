@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="DscModuleV2SimpleFileResourceTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -21,6 +21,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Class that tests a little not that complex resource.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     public class DscModuleV2SimpleFileResourceTests
     {
         private readonly UnitTestFixture fixture;

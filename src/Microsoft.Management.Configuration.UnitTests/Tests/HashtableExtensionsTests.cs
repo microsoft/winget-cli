@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Windows.Foundation.Collections;
     using Xunit;
     using Xunit.Abstractions;
@@ -18,6 +19,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Hashtable extension tests.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     public class HashtableExtensionsTests
     {
         private readonly UnitTestFixture fixture;
@@ -67,7 +69,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var ht = new Hashtable()
             {
-                { "hashtableKey", new Hashtable()
+                {
+                    "hashtableKey", new Hashtable()
                     {
                         { "key1", "value1" },
                         { "key2", 2 },

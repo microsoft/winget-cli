@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationDetailsTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -14,6 +14,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.Unit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Windows.Security.Cryptography.Certificates;
     using Xunit;
     using Xunit.Abstractions;
@@ -22,6 +23,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Tests for ConfigurationUnitProcessorDetails and ConfigurationUnitSettingDetails.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     public class ConfigurationDetailsTests
     {
         private readonly UnitTestFixture fixture;

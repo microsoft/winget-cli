@@ -27,7 +27,7 @@ endif()
 # 1. MAJOR version when you make incompatible API changes
 # 2. MINOR version when you add functionality in a backward compatible manner
 # 3. PATCH version when you make backward compatible bug fixes
-set(SFS_LIBRARY_VERSION "0.1.0")
+set(SFS_LIBRARY_VERSION "1.0.0")
 
 project(
     sfsclient

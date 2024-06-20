@@ -526,6 +526,28 @@ TEST_CASE("SettingsDownloadDefaultDirectory", "[settings]")
     }
 }
 
+TEST_CASE("SettingsArchiveExtractionMethod", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Shell api")
+    {
+        std::string_view json = R"({ "installBehavior": { "archiveExtractionMethod": "shellApi" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::ArchiveExtractionMethod>() == AppInstaller::Archive::ExtractionMethod::ShellApi);
+    }
+    SECTION("Shell api")
+    {
+        std::string_view json = R"({ "installBehavior": { "archiveExtractionMethod": "tar" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::ArchiveExtractionMethod>() == AppInstaller::Archive::ExtractionMethod::Tar);
+    }
+}
+
 TEST_CASE("SettingsInstallScope", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();

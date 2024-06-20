@@ -25,6 +25,7 @@ namespace AppInstallerCLIE2ETests
         public const string LocalServerCertPathParameter = "LocalServerCertPath";
         public const string ExeInstallerPathParameter = "ExeTestInstallerPath";
         public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
+        public const string MsiInstallerV2PathParameter = "MsiTestInstallerV2Path";
         public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
         public const string PowerShellModulePathParameter = "PowerShellModulePath";
@@ -49,6 +50,7 @@ namespace AppInstallerCLIE2ETests
 
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";
+        public const string AICLIPackagePublisherHash = "8wekyb3d8bbwe";
         public const string AICLIAppId = "WinGetDev";
 
         public const string TestPackage = "TëstPackage.msix";
@@ -58,6 +60,7 @@ namespace AppInstallerCLIE2ETests
         public const string ZipInstaller = "AppInstallerTestZipInstaller";
         public const string ExeInstallerFileName = "AppInstallerTestExeInstaller.exe";
         public const string MsiInstallerFileName = "AppInstallerTestMsiInstaller.msi";
+        public const string MsiInstallerV2FileName = "AppInstallerTestMsiInstallerV2.msi";
         public const string MsixInstallerFileName = "AppInstallerTestMsixInstaller.msix";
         public const string ZipInstallerFileName = "AppInstallerTestZipInstaller.zip";
         public const string IndexPackage = "source.msix";
@@ -91,6 +94,7 @@ namespace AppInstallerCLIE2ETests
         public const string TestExeInstalledFileName = "TestExeInstalled.txt";
         public const string TestExeUninstallerFileName = "UninstallTestExe.bat";
         public const string TestExeUninstalledFileName = "TestExeUninstalled.txt";
+        public const string TestExeRepairCompletedFileName = "TestExeRepairCompleted.txt";
 
         // PowerShell Cmdlets
         public const string FindCmdlet = "Find-WinGetPackage";
@@ -118,6 +122,7 @@ namespace AppInstallerCLIE2ETests
         public const string PathSubKey_Machine = @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
 
         // User settings
+        public const string ArchiveExtractionMethod = "archiveExtractionMethod";
         public const string PortablePackageUserRoot = "portablePackageUserRoot";
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
         public const string InstallBehaviorScope = "scope";
@@ -262,6 +267,10 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_CLIENT_VERSION_MISMATCH = unchecked((int)0x8A15006F);
             public const int ERROR_INVALID_RESUME_STATE = unchecked((int)0x8A150070);
             public const int ERROR_CANNOT_OPEN_CHECKPOINT_INDEX = unchecked((int)0x8A150071);
+
+            public const int ERROR_NO_REPAIR_INFO_FOUND = unchecked((int)0x8A150079);
+            public const int ERROR_REPAIR_NOT_SUPPORTED = unchecked((int)0x8A15007C);
+            public const int ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED = unchecked((int)0x8A15007D);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

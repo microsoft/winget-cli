@@ -4,6 +4,7 @@
 #include "DownloadFlow.h"
 #include "MSStoreInstallerHandler.h"
 #include <winget/Filesystem.h>
+#include <AppInstallerDeployment.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerMsixInfo.h>
@@ -229,9 +230,11 @@ namespace AppInstaller::CLI::Workflow
                 // we can just verify signature hash without a full download and do a streaming install.
                 // Even if we have the signature hash, we still do a full download if InstallerDownloadOnly
                 // flag is set, or if we need to use a proxy (as deployment APIs won't use proxy for us).
+                // Finally, we require the digest API for streaming install as well.
                 if (installer.SignatureSha256.empty()
                     || installerDownloadOnly
-                    || Network().GetProxyUri())
+                    || Network().GetProxyUri()
+                    || !Deployment::IsExpectedDigestsSupported())
                 {
                     context << DownloadInstallerFile;
                 }
@@ -409,6 +412,7 @@ namespace AppInstaller::CLI::Workflow
             auto signatureHash = msixInfo.GetSignatureHash();
 
             context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
+            context.Add<Execution::Data::MsixDigests>({ std::make_pair(installer.Url, msixInfo.GetDigest()) });
         }
         catch (...)
         {

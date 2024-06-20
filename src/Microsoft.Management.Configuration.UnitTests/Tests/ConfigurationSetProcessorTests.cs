@@ -28,6 +28,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Unit tests for configuration processor tests.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     public class ConfigurationSetProcessorTests
     {
         private readonly UnitTestFixture fixture;

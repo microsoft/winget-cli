@@ -43,6 +43,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             this.ExeInstallerPath = this.InitializeFileParam(Constants.ExeInstallerPathParameter);
             this.MsiInstallerPath = this.InitializeFileParam(Constants.MsiInstallerPathParameter);
             this.MsixInstallerPath = this.InitializeFileParam(Constants.MsixInstallerPathParameter);
+            this.MsiInstallerV2Path = this.InitializeFileParam(Constants.MsiInstallerV2PathParameter);
 
             this.ForcedExperimentalFeatures = this.InitializeStringArrayParam(Constants.ForcedExperimentalFeaturesParameter);
         }
@@ -102,6 +103,11 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the msi installer path.
         /// </summary>
         public string MsiInstallerPath { get; }
+
+        /// <summary>
+        /// Gets the msi installer V2 path.
+        /// </summary>
+        public string MsiInstallerV2Path { get; }
 
         /// <summary>
         /// Gets the msix installer path.

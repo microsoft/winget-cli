@@ -1389,41 +1389,34 @@ namespace AppInstaller::CLI::Workflow
 
     void GetInstalledPackageVersion(Execution::Context& context)
     {
-        if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide))
+        std::shared_ptr<IPackage> installed = context.Get<Execution::Data::Package>()->GetInstalled();
+
+        if (installed)
         {
-            std::shared_ptr<IPackage> installed = context.Get<Execution::Data::Package>()->GetInstalled();
-
-            if (installed)
+            // TODO: This may need to be expanded dramatically to enable targeting across a variety of dimensions (architecture, etc.)
+            //       Alternatively, if we make it easier to see the fully unique package identifiers, we may avoid that need.
+            if (context.Args.Contains(Execution::Args::Type::TargetVersion))
             {
-                // TODO: This may need to be expanded dramatically to enable targeting across a variety of dimensions (architecture, etc.)
-                //       Alternatively, if we make it easier to see the fully unique package identifiers, we may avoid that need.
-                if (context.Args.Contains(Execution::Args::Type::TargetVersion))
-                {
-                    Repository::PackageVersionKey versionKey{ "", context.Args.GetArg(Execution::Args::Type::TargetVersion) , "" };
-                    std::shared_ptr<IPackageVersion> installedVersion = installed->GetVersion(versionKey);
+                Repository::PackageVersionKey versionKey{ "", context.Args.GetArg(Execution::Args::Type::TargetVersion) , "" };
+                std::shared_ptr<IPackageVersion> installedVersion = installed->GetVersion(versionKey);
 
-                    if (!installedVersion)
-                    {
-                        context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound(Utility::LocIndView{ versionKey.Version }) << std::endl;
-                        // This error maintains consistency with passing an available version to commands
-                        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
-                    }
-
-                    context.Add<Execution::Data::InstalledPackageVersion>(std::move(installedVersion));
-                }
-                else
+                if (!installedVersion)
                 {
-                    context.Add<Execution::Data::InstalledPackageVersion>(installed->GetLatestVersion());
+                    context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound(Utility::LocIndView{ versionKey.Version }) << std::endl;
+                    // This error maintains consistency with passing an available version to commands
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
                 }
+
+                context.Add<Execution::Data::InstalledPackageVersion>(std::move(installedVersion));
             }
             else
             {
-                context.Add<Execution::Data::InstalledPackageVersion>(nullptr);
+                context.Add<Execution::Data::InstalledPackageVersion>(installed->GetLatestVersion());
             }
         }
         else
         {
-            context.Add<Execution::Data::InstalledPackageVersion>(GetInstalledVersion(context.Get<Execution::Data::Package>()));
+            context.Add<Execution::Data::InstalledPackageVersion>(nullptr);
         }
     }
 

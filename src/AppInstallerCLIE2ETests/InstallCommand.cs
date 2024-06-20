@@ -553,6 +553,21 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test install zip exe by extracting with tar.
+        /// </summary>
+        [Test]
+        public void InstallZip_ExtractWithTar()
+        {
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.ArchiveExtractionMethod, "tar");
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithExe --silent -l {installDir}");
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.ArchiveExtractionMethod, string.Empty);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+        }
+
+        /// <summary>
         /// Test install an installed package and convert to upgrade.
         /// </summary>
         [Test]

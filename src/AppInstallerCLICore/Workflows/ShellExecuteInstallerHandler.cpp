@@ -538,4 +538,55 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::OperationReturnCode>(enableFeatureResult.value());
         }
     }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    std::optional<DWORD> s_ExtractArchiveWithTarResult_Override{};
+
+    void TestHook_SetExtractArchiveWithTarResult_Override(std::optional<DWORD>&& result)
+    {
+        s_ExtractArchiveWithTarResult_Override = std::move(result);
+    }
+#endif
+
+    void ShellExecuteExtractArchive::operator()(Execution::Context& context) const
+    {
+        auto tarExecPath = AppInstaller::Filesystem::GetExpandedPath("%windir%\\system32\\tar.exe");
+
+        std::string args = "-xf \"" + m_archivePath.u8string() + "\" -C \"" + m_destPath.u8string() + "\"";
+
+        std::optional<DWORD> extractArchiveResult;
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_ExtractArchiveWithTarResult_Override)
+        {
+            extractArchiveResult =  *s_ExtractArchiveWithTarResult_Override;
+        }
+        else
+#endif
+        {
+            extractArchiveResult = context.Reporter.ExecuteWithProgress(
+                std::bind(InvokeShellExecuteEx,
+                    tarExecPath,
+                    args,
+                    false,
+                    SW_HIDE,
+                    std::placeholders::_1));
+        }
+
+        if (!extractArchiveResult)
+        {
+            AICLI_TERMINATE_CONTEXT(E_ABORT);
+        }
+
+        if (extractArchiveResult.value() == ERROR_SUCCESS)
+        {
+            AICLI_LOG(CLI, Info, << "Successfully extracted archive");
+            context.Reporter.Info() << Resource::String::ExtractArchiveSucceeded << std::endl;
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "Failed to extract archive with exit code " << extractArchiveResult.value());
+            context.Reporter.Error() << Resource::String::ExtractArchiveFailed << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
+        }
+    }
 }

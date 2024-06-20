@@ -7,12 +7,24 @@
 
 namespace AppInstaller::Deployment
 {
+    // A set of optional values useful across many of the deployment functions.
+    struct Options
+    {
+        Options() = default;
+        explicit Options(bool skipReputationCheck) : SkipReputationCheck(skipReputationCheck) {}
+
+        // Avoid using APIs that make a reputation check.
+        bool SkipReputationCheck = false;
+
+        // The pairs of URI+Digest to enforce.
+        std::vector<std::pair<std::string, std::wstring>> ExpectedDigests;
+    };
+
     // Calls winrt::Windows::Management::Deployment::PackageManager::AddPackageAsync if skipSmartScreen is true,
     // Otherwise, calls winrt::Windows::Management::Deployment::PackageManager::RequestAddPackageAsync
     void AddPackage(
         const winrt::Windows::Foundation::Uri& uri,
-        winrt::Windows::Management::Deployment::DeploymentOptions options,
-        bool skipSmartScreen,
+        const Options& options,
         IProgressCallback& callback);
 
     // Calls winrt::Windows::Management::Deployment::PackageManager::AddPackageAsync if skipSmartScreen is true,
@@ -22,7 +34,7 @@ namespace AppInstaller::Deployment
     // Returns true if the registration was deferred; false if not.
     bool AddPackageWithDeferredFallback(
         std::string_view uri,
-        bool skipSmartScreen,
+        const Options& options,
         IProgressCallback& callback);
 
     // Calls winrt::Windows::Management::Deployment::PackageManager::RemovePackageAsync
@@ -36,6 +48,7 @@ namespace AppInstaller::Deployment
     //       winrt::Windows::Management::Deployment::PackageManager::RegisterPackageByFullNameAsync if not running as system
     bool AddPackageMachineScope(
         std::string_view uri,
+        const Options& options,
         IProgressCallback& callback);
 
     // Calls winrt::Windows::Management::Deployment::PackageManager::DeprovisionPackageForAllUsersAsync
@@ -52,4 +65,7 @@ namespace AppInstaller::Deployment
     void RegisterPackage(
         std::string_view packageFamilyName,
         IProgressCallback& callback);
+
+    // Determines if the ExpectedDigests property (and thus feture) is supported on the current version of Windows.
+    bool IsExpectedDigestsSupported();
 }

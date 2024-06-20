@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ExceptionExtensionsTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -9,6 +9,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.PowerShell.Commands;
     using Xunit;
     using Xunit.Abstractions;
@@ -17,6 +18,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Exception extension tests.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     public class ExceptionExtensionsTests
     {
         private readonly UnitTestFixture fixture;

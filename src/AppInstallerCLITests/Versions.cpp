@@ -43,6 +43,32 @@ TEST_CASE("VersionParsePlusDash", "[versions]")
     REQUIRE(parts[4].Other == "alpha");
 }
 
+TEST_CASE("VersionParseWithWhitespace", "[versions]")
+{
+    Version version("1. 2.3 . 4 ");
+    const auto& parts = version.GetParts();
+    REQUIRE(parts.size() == 4);
+    for (size_t i = 0; i < parts.size(); ++i)
+    {
+        INFO(i);
+        REQUIRE(parts[i].Integer == static_cast<uint64_t>(i + 1));
+        REQUIRE(parts[i].Other == "");
+    }
+}
+
+TEST_CASE("VersionParseWithPreamble", "[versions]")
+{
+    Version version("v1.2.3.4");
+    const auto& parts = version.GetParts();
+    REQUIRE(parts.size() == 4);
+    for (size_t i = 0; i < parts.size(); ++i)
+    {
+        INFO(i);
+        REQUIRE(parts[i].Integer == static_cast<uint64_t>(i + 1));
+        REQUIRE(parts[i].Other == "");
+    }
+}
+
 TEST_CASE("VersionParseCorner", "[versions]")
 {
     Version version1("");
@@ -70,6 +96,22 @@ TEST_CASE("VersionParseCorner", "[versions]")
     REQUIRE(parts.size() == 1);
     REQUIRE(parts[0].Integer == 0);
     REQUIRE(parts[0].Other == "version");
+
+    Version version6(". 1 ");
+    parts = version6.GetParts();
+    REQUIRE(parts.size() == 2);
+    REQUIRE(parts[0].Integer == 0);
+    REQUIRE(parts[0].Other == "");
+    REQUIRE(parts[1].Integer == 1);
+    REQUIRE(parts[1].Other == "");
+
+    Version version7("v1.2a");
+    parts = version7.GetParts();
+    REQUIRE(parts.size() == 2);
+    REQUIRE(parts[0].Integer == 1);
+    REQUIRE(parts[0].Other == "");
+    REQUIRE(parts[1].Integer == 2);
+    REQUIRE(parts[1].Other == "a");
 }
 
 void RequireLessThan(std::string_view a, std::string_view b)
@@ -113,6 +155,18 @@ TEST_CASE("VersionCompare", "[versions]")
     RequireLessThan("13.9.8", "14.1");
 
     RequireEqual("1.0", "1.0.0");
+
+    // Ensure whitespace doesn't affect equality
+    RequireEqual("1.0", "1.0 ");
+    RequireEqual("1.0", "1. 0");
+
+    // Ensure versions with preambles are sorted correctly
+    RequireEqual("1.0", "Version 1.0");
+    RequireEqual("foo1", "bar1");
+    RequireLessThan("v0.0.1", "0.0.2");
+    RequireLessThan("v0.0.1", "v0.0.2");
+    RequireLessThan("1.a2", "1.b1");
+    RequireLessThan("alpha", "beta");
 }
 
 TEST_CASE("VersionAndChannelSort", "[versions]")

@@ -189,6 +189,7 @@ namespace AppInstaller::CLI::Workflow
         void MsixInstall(Execution::Context& context)
         {
             std::string uri;
+            Deployment::Options deploymentOptions;
             if (context.Contains(Execution::Data::InstallerPath))
             {
                 uri = context.Get<Execution::Data::InstallerPath>().u8string();
@@ -196,7 +197,10 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 uri = context.Get<Execution::Data::Installer>()->Url;
+                deploymentOptions.ExpectedDigests = context.Get<Execution::Data::MsixDigests>();
             }
+
+            deploymentOptions.SkipReputationCheck = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted);
 
             bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
 
@@ -220,11 +224,11 @@ namespace AppInstaller::CLI::Workflow
                     {
                         if (isMachineScope)
                         {
-                            return Deployment::AddPackageMachineScope(uri, callback);
+                            return Deployment::AddPackageMachineScope(uri, deploymentOptions, callback);
                         }
                         else
                         {
-                            return Deployment::AddPackageWithDeferredFallback(uri, WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), callback);
+                            return Deployment::AddPackageWithDeferredFallback(uri, deploymentOptions, callback);
                         }
                     });
             }

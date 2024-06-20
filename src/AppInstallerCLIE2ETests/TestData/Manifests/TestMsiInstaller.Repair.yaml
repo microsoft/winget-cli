@@ -1,0 +1,14 @@
+# Uses the MSI installer;
+PackageIdentifier: AppInstallerTest.TestMsiRepair
+PackageVersion: 2.0.0.0
+PackageLocale: en-US
+PackageName: TestMsiInstallerV2
+Publisher: AppInstallerTest
+Installers:
+    - Architecture: x86
+      InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestMsiInstaller/AppInstallerTestMsiInstallerV2.msi
+      InstallerType: msi
+      InstallerSha256: <MSIHASHV2>
+      ProductCode: '{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}'
+ManifestType: singleton
+ManifestVersion: 1.7.0

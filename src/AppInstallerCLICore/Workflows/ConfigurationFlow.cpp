@@ -102,8 +102,7 @@ namespace AppInstaller::CLI::Workflow
             IConfigurationSetProcessorFactory factory;
 
             // Since downgrading is not currently supported, only use dynamic if not running as admin.
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ConfigureSelfElevation) &&
-                !Runtime::IsRunningAsAdmin())
+            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::ConfigureSelfElevation) && !Runtime::IsRunningAsAdmin())
             {
                 factory = ConfigurationRemoting::CreateDynamicRuntimeFactory();
                 // TODO: Implement SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties on dynamic factory

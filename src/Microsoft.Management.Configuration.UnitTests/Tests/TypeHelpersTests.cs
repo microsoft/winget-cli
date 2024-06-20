@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System.Collections.Generic;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Windows.Foundation.Collections;
     using Xunit;
     using Xunit.Abstractions;
@@ -18,7 +19,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// TypeHelpers tests.
     /// </summary>
     [Collection("UnitTestCollection")]
-
+    [InProc]
     public class TypeHelpersTests
     {
         private readonly UnitTestFixture fixture;

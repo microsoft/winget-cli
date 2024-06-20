@@ -15,6 +15,7 @@ namespace AppInstaller::Manifest
 
     using string_t = Utility::NormalizedString;
     using namespace std::string_view_literals;
+    using Utility::RawVersion;
 
     // The maximum supported major version known about by this code.
     constexpr uint64_t s_MaxSupportedMajorVersion = 1;
@@ -77,7 +78,7 @@ namespace AppInstaller::Manifest
         bool HasExtension(std::string_view extension) const;
 
     private:
-        std::vector<Version> m_extensions;
+        std::vector<RawVersion> m_extensions;
     };
 
     enum class InstallerTypeEnum

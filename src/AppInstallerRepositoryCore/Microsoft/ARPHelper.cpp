@@ -398,24 +398,13 @@ namespace AppInstaller::Repository::Microsoft
                 Manifest::Manifest manifest;
                 manifest.DefaultLocalization.Add<Manifest::Localization::Tags>({ "ARP" });
 
-                // Use the key name as the Id, as it is supposed to be unique.
-                // TODO: We probably want something better here, like constructing the value as
-                //       `Publisher.DisplayName`. We would need to ensure that there are no matches
-                //       against the rest of the data however (might happen if same package is
-                //       installed for multiple architectures/languages).
-                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SideBySide))
-                {
-                    char separator = '\\';
+                // Construct a unique name for this entry
+                const char separator = '\\';
 
-                    std::ostringstream stream;
-                    stream << "ARP" << separator << scope << separator << architecture << separator << productCode;
+                std::ostringstream stream;
+                stream << "ARP" << separator << scope << separator << architecture << separator << productCode;
 
-                    manifest.Id = stream.str();
-                }
-                else
-                {
-                    manifest.Id = productCode;
-                }
+                manifest.Id = stream.str();
 
                 manifest.Installers.emplace_back();
                 // TODO: This likely needs some cleanup applied, as it looks like INNO tends to append an "_is#"

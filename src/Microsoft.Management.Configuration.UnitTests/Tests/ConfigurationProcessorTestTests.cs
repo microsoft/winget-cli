@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationProcessorTestTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -19,6 +19,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Unit tests for running test on the processor.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     [OutOfProc]
     public class ConfigurationProcessorTestTests : ConfigurationProcessorTestBase
     {
