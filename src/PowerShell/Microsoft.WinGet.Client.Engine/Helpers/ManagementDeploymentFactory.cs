@@ -173,11 +173,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             object? instance = null;
 
-#if USE_PROD_CLSIDS
             if (Utilities.ExecutingAsAdministrator)
-#else
-            if (Utilities.ExecutingAsAdministrator || System.Environment.GetEnvironmentVariable("WINGET_USE_MANUAL_ACTIVATION") == "true")
-#endif
             {
                 int hr = WinRTHelpers.ManualActivation(type.GUID, iid, 0, out instance);
 
