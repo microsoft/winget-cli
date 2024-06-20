@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ManagementDeploymentFactory.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -173,13 +173,17 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             object? instance = null;
 
+#if USE_PROD_CLSIDS
             if (Utilities.ExecutingAsAdministrator)
+#else
+            if (Utilities.ExecutingAsAdministrator || System.Environment.GetEnvironmentVariable("WINGET_USE_MANUAL_ACTIVATION") == "true")
+#endif
             {
                 int hr = WinRTHelpers.ManualActivation(type.GUID, iid, 0, out instance);
 
                 if (hr < 0)
                 {
-                    if (hr == ErrorCode.FileNotFound)
+                    if (hr == ErrorCode.FileNotFound || hr == ErrorCode.PackageNotRegisteredForUser)
                     {
                         throw new WinGetIntegrityException(IntegrityCategory.AppInstallerNotInstalled);
                     }
