@@ -1004,9 +1004,11 @@ namespace AppInstallerCLIE2ETests.Helpers
                     return line.Substring(left, right - left);
                 }
             }
-        }
 
             return string.Empty;
+        }
+
+        /// <summary>
         /// Copy the installer file to the ARP InstallSource directory.
         /// </summary>
         /// <param name="installerFilePath">Test installer to be copied.</param>
