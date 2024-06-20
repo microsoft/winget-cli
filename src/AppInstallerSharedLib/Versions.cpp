@@ -8,6 +8,7 @@ namespace AppInstaller::Utility
 {
     using namespace std::string_view_literals;
 
+    static constexpr std::string_view s_Digit_Characters = "0123456789"sv;
     static constexpr std::string_view s_Version_Part_Latest = "Latest"sv;
     static constexpr std::string_view s_Version_Part_Unknown = "Unknown"sv;
 
@@ -16,6 +17,12 @@ namespace AppInstaller::Utility
 
     Version::Version(std::string&& version, std::string_view splitChars)
     {
+        Assign(std::move(version), splitChars);
+    }
+
+    RawVersion::RawVersion(std::string version, std::string_view splitChars)
+    {
+        m_trimPrefix = false;
         Assign(std::move(version), splitChars);
     }
 
@@ -54,6 +61,14 @@ namespace AppInstaller::Utility
         {
             m_approximateComparator = ApproximateComparator::GreaterThan;
             baseVersion = m_version.substr(s_Approximate_Greater_Than.length(), m_version.length() - s_Approximate_Greater_Than.length());
+        }
+
+        // If there is a digit before the split character, or no split characters exist, trim off all leading non-digit characters
+        size_t digitPos = baseVersion.find_first_of(s_Digit_Characters);
+        size_t splitPos = baseVersion.find_first_of(splitChars);
+        if (m_trimPrefix && digitPos != std::string::npos && (splitPos == std::string::npos || digitPos < splitPos))
+        {
+            baseVersion.erase(0, digitPos);
         }
 
         // Then parse the base version
