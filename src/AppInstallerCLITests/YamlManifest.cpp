@@ -1289,6 +1289,18 @@ TEST_CASE("WriteV1_7SingletonManifestAndVerifyContents", "[ManifestCreation]")
     VerifyV1ManifestContent(generatedMultiFileManifest, false, ManifestVer{ s_ManifestVersionV1_7 }, true);
 }
 
+TEST_CASE("WriteManifestWithMultipleLocale", "[ManifestCreation]")
+{
+    Manifest multiLocaleManifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-MultiLocale.yaml"));
+    TempDirectory exportedDirectory{ "exported" };
+    std::filesystem::path generatedManifestPath = exportedDirectory.GetPath() / "testManifestWithMultipleLocale.yaml";
+    YamlWriter::OutputYamlFile(multiLocaleManifest, multiLocaleManifest.Installers[0], generatedManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedManifestPath));
+    Manifest generatedManifest = YamlParser::CreateFromPath(generatedManifestPath);
+    REQUIRE(generatedManifest.Localizations.size() == 2);
+}
+
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)
 {
     YamlManifestInfo result;
