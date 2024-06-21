@@ -276,11 +276,6 @@
           "type": "boolean",
           "default": false
         },
-        "storeDownload": {
-          "description": "Enable support for downloading packages from the Microsoft Store",
-          "type": "boolean",
-          "default": false
-        },
         "configureExport": {
           "description": "Enable support for the configure export command",
           "type": "boolean",
