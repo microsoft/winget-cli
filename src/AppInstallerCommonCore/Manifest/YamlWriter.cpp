@@ -610,14 +610,14 @@ namespace AppInstaller::Manifest::YamlWriter
             {
                 out << YAML::Key << Localization;
                 out << YAML::BeginSeq;
-                out << YAML::BeginMap;
 
                 for (const auto& localization : localizations)
                 {
+                    out << YAML::BeginMap;
                     ProcessLocaleFields(out, localization);
+                    out << YAML::EndMap;
                 }
 
-                out << YAML::EndMap;
                 out << YAML::EndSeq;
             }
         }
