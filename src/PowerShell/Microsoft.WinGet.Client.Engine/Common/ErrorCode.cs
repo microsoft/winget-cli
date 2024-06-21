@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ErrorCode.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -25,5 +25,10 @@ namespace Microsoft.WinGet.Client.Engine.Common
         /// Error code for RPC_S_CALL_FAILED.
         /// </summary>
         public const int RpcCallFailed = unchecked((int)0x800706BE);
+
+        /// <summary>
+        /// Error code for ERROR_PACKAGE_NOT_REGISTERED_FOR_USER.
+        /// </summary>
+        public const int PackageNotRegisteredForUser = unchecked((int)0x80073D35);
     }
 }
