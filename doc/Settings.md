@@ -323,17 +323,6 @@ Currently, this means that properly attributed configuration units (and only tho
    },
 ```
 
-### storeDownload
-
-This feature enables packages to be downloaded from the Microsoft Store.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "storeDownload": true
-   },
-```
-
 ### configureExport
 
 This feature enables exporting a configuration file.

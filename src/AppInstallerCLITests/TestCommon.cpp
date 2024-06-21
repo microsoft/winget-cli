@@ -262,14 +262,13 @@ namespace TestCommon
         std::unique_ptr<TestUserSettings> result = std::make_unique<TestUserSettings>(keepFileSettings);
 
         // Due to the template usage, this needs to be updated for any features that want to use it.
-        switch (feature)
-        {
-        case Settings::ExperimentalFeature::Feature::StoreDownload:
-            result->Set<Settings::Setting::EFStoreDownload>(true);
-            break;
-        default:
-            THROW_HR(E_NOTIMPL);
-        }
+        // Currently no feature is used. Uncomment below when a feature needs to be used.
+        // switch (feature)
+        // {
+        // default:
+        //     THROW_HR(E_NOTIMPL);
+        // }
+        UNREFERENCED_PARAMETER(feature);
 
         return result;
     }
