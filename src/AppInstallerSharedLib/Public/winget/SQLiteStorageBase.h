@@ -9,6 +9,7 @@
 
 namespace AppInstaller::SQLite
 {
+    // Type that wraps the basic SQLite storage functionality; the connection and metadata like schema version.
     struct SQLiteStorageBase
     {
         // The disposition for opening the database.

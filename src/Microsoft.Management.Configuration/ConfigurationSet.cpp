@@ -5,6 +5,7 @@
 #include "ConfigurationSet.g.cpp"
 #include "ConfigurationSetParser.h"
 #include "ConfigurationSetSerializer.h"
+#include "Database/ConfigurationDatabase.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -13,11 +14,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         GUID instanceIdentifier;
         THROW_IF_FAILED(CoCreateGuid(&instanceIdentifier));
         m_instanceIdentifier = instanceIdentifier;
-        m_schemaVersion = ConfigurationSetParser::LatestVersion();
+        std::tie(m_schemaVersion, m_schemaUri) = ConfigurationSetParser::LatestVersion();
     }
 
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
-        m_instanceIdentifier(instanceIdentifier)
+        m_instanceIdentifier(instanceIdentifier), m_fromHistory(true)
     {
     }
 
@@ -33,7 +34,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     bool ConfigurationSet::IsFromHistory() const
     {
-        return false;
+        return m_fromHistory;
     }
 
     hstring ConfigurationSet::Name()
@@ -79,6 +80,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     clock::time_point ConfigurationSet::FirstApply()
     {
         return m_firstApply;
+    }
+
+    void ConfigurationSet::FirstApply(clock::time_point value)
+    {
+        m_firstApply = value;
     }
 
     clock::time_point ConfigurationSet::ApplyBegun()
@@ -139,7 +145,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSet::Remove()
     {
-        THROW_HR(E_NOTIMPL);
+        ConfigurationDatabase database;
+        database.EnsureOpened(false);
+        database.RemoveSetHistory(*get_strong());
     }
 
     Windows::Foundation::Collections::ValueSet ConfigurationSet::Metadata()

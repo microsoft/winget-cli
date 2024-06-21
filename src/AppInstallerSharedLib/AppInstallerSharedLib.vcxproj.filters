@@ -134,6 +134,12 @@
     <ClInclude Include="Public\winget\Filesystem.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\SQLiteDynamicStorage.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\ModuleCountBase.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -219,6 +225,9 @@
     </ClCompile>
     <ClCompile Include="Filesystem.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SQLiteDynamicStorage.cpp">
+      <Filter>SQLite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

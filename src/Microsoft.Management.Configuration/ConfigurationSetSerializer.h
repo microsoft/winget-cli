@@ -12,7 +12,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ConfigurationSetSerializer
     {
-        static std::unique_ptr<ConfigurationSetSerializer> CreateSerializer(hstring version);
+        static std::unique_ptr<ConfigurationSetSerializer> CreateSerializer(hstring version, bool forHistory = false);
 
         virtual ~ConfigurationSetSerializer() noexcept = default;
 
@@ -24,11 +24,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Serializes a configuration set to the original yaml string.
         virtual hstring Serialize(ConfigurationSet*) = 0;
 
+        // Serializes a value set only.
+        std::string SerializeValueSet(const Windows::Foundation::Collections::ValueSet& valueSet);
+
+        // Serializes a value set only.
+        std::string SerializeStringArray(const Windows::Foundation::Collections::IVector<hstring>& stringArray);
+
     protected:
         ConfigurationSetSerializer() = default;
 
         void WriteYamlConfigurationUnits(AppInstaller::YAML::Emitter& emitter, const std::vector<ConfigurationUnit>& units);
         void WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, std::initializer_list<ConfigurationField> exclusions = {});
+        void WriteYamlStringArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<hstring>& values);
         void WriteYamlValue(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value);
         void WriteYamlValueSetAsArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSetArray);
         winrt::hstring GetSchemaVersionComment(winrt::hstring version);

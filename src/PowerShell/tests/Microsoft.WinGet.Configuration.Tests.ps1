@@ -878,6 +878,56 @@ Describe 'Confirm-WinGetConfiguration' {
     }
 }
 
+Describe 'Configuration History' {
+
+    BeforeEach {
+        DeleteConfigTxtFiles
+    }
+
+    It 'History Lifecycle' {
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = Invoke-WinGetConfiguration -AcceptConfigurationAgreements -Set $set
+        $result | Should -Not -BeNullOrEmpty
+        $result.ResultCode | Should -Be 0
+        $result.UnitResults.Count | Should -Be 1
+        $result.UnitResults[0].State | Should -Be "Completed"
+        $result.UnitResults[0].ResultCode | Should -Be 0
+
+        $historySet = Get-WinGetConfiguration -InstanceIdentifier $set.InstanceIdentifier
+        $historySet | Should -Not -BeNullOrEmpty
+        $historySet.InstanceIdentifier | Should -Be $set.InstanceIdentifier
+
+        $allHistory = Get-WinGetConfiguration -All
+        $allHistory | Should -Not -BeNullOrEmpty
+
+        $historySet | Remove-WinGetConfigurationHistory
+
+        $historySetAfterRemove = Get-WinGetConfiguration -InstanceIdentifier $set.InstanceIdentifier
+        $historySetAfterRemove | Should -BeNullOrEmpty
+    }
+}
+
+Describe 'Configuration Serialization' {
+
+    It 'Basic Serialization' {
+        $testFile = GetConfigTestDataFile "Configure_TestRepo.yml"
+        $set = Get-WinGetConfiguration -File $testFile
+        $set | Should -Not -BeNullOrEmpty
+
+        $result = ConvertTo-WinGetConfigurationYaml -Set $set
+        $result | Should -Not -BeNullOrEmpty
+
+        $tempFile = New-TemporaryFile
+        Set-Content -Path $tempFile -Value $result
+
+        $roundTripSet = Get-WinGetConfiguration -File $tempFile.VersionInfo.FileName
+        $roundTripSet | Should -Not -BeNullOrEmpty
+    }
+}
+
 AfterAll {
     CleanupGroupPolicies
     CleanupGroupPolicyKeyIfExists

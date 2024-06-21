@@ -84,6 +84,20 @@ namespace AppInstaller::YAML::Wrapper
         {
             return ConvertYamlString(node->data.scalar.value, mark, node->data.scalar.length);
         }
+
+        yaml_scalar_style_t ConvertStyle(ScalarStyle style)
+        {
+            switch (style)
+            {
+            case ScalarStyle::Any: return yaml_scalar_style_t::YAML_ANY_SCALAR_STYLE;
+            case ScalarStyle::Plain: return yaml_scalar_style_t::YAML_PLAIN_SCALAR_STYLE;
+            case ScalarStyle::SingleQuoted: return yaml_scalar_style_t::YAML_SINGLE_QUOTED_SCALAR_STYLE;
+            case ScalarStyle::DoubleQuoted: return yaml_scalar_style_t::YAML_DOUBLE_QUOTED_SCALAR_STYLE;
+            case ScalarStyle::Literal: return yaml_scalar_style_t::YAML_LITERAL_SCALAR_STYLE;
+            case ScalarStyle::Folded: return yaml_scalar_style_t::YAML_FOLDED_SCALAR_STYLE;
+            default: THROW_HR(E_UNEXPECTED);
+            }
+        }
     }
 
     Document::Document(bool init) :
@@ -207,9 +221,9 @@ namespace AppInstaller::YAML::Wrapper
         return result;
     }
 
-    int Document::AddScalar(std::string_view value)
+    int Document::AddScalar(std::string_view value, ScalarStyle style)
     {
-        int result = yaml_document_add_scalar(&m_document, NULL, reinterpret_cast<const yaml_char_t*>(value.data()), static_cast<int>(value.size()), YAML_ANY_SCALAR_STYLE);
+        int result = yaml_document_add_scalar(&m_document, NULL, reinterpret_cast<const yaml_char_t*>(value.data()), static_cast<int>(value.size()), ConvertStyle(style));
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_YAML_DOC_BUILD_FAILED, result == 0);
         return result;
     }

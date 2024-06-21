@@ -21,7 +21,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ParseConfigurationUnitsFromField(properties, ConfigurationField::Parameters, ConfigurationUnitIntent::Inform, units);
         ParseConfigurationUnitsFromField(properties, ConfigurationField::Resources, ConfigurationUnitIntent::Apply, units);
 
-        m_configurationSet = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
+        m_configurationSet = make_self<implementation::ConfigurationSet>();
         m_configurationSet->Units(std::move(units));
         m_configurationSet->SchemaVersion(GetSchemaVersion());
     }
@@ -32,11 +32,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return s_schemaVersion;
     }
 
+    void ConfigurationSetParser_0_1::SetDocument(AppInstaller::YAML::Node&& document)
+    {
+        m_document = std::move(document);
+    }
+
     void ConfigurationSetParser_0_1::ParseConfigurationUnitsFromField(const Node& document, ConfigurationField field, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result)
     {
         ParseSequence(document, field, false, Node::Type::Mapping, [&](const Node& item)
             {
-                auto configurationUnit = make_self<wil::details::module_count_wrapper<ConfigurationUnit>>();
+                auto configurationUnit = make_self<ConfigurationUnit>();
                 ParseConfigurationUnit(configurationUnit.get(), item, intent);
                 result.emplace_back(*configurationUnit);
             });

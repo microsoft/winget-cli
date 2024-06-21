@@ -14,6 +14,11 @@ namespace AppInstaller::Filesystem
 {
     namespace anon
     {
+        constexpr std::string_view s_AppDataDir_Settings = "Settings"sv;
+        constexpr std::string_view s_AppDataDir_State = "State"sv;
+
+        constexpr std::string_view s_LocalAppDataEnvironmentVariable = "%LOCALAPPDATA%";
+
         // Contains the information about an ACE entry for a given principal.
         struct ACEDetails
         {
@@ -47,6 +52,29 @@ namespace AppInstaller::Filesystem
                     result |= GENERIC_EXECUTE;
                 }
             }
+
+            return result;
+        }
+
+        // Gets the path to the appdata root.
+        // *Only used by non packaged version!*
+        std::filesystem::path GetPathToAppDataRoot(bool anonymize)
+        {
+            std::filesystem::path result = anonymize ? s_LocalAppDataEnvironmentVariable : GetKnownFolderPath(FOLDERID_LocalAppData);
+            result /= "Microsoft/WinGet";
+
+            return result;
+        }
+
+        // Gets the path to the app data relative directory.
+        std::filesystem::path GetPathToAppDataDir(const std::filesystem::path& relative, bool anonymize)
+        {
+            THROW_HR_IF(E_INVALIDARG, !relative.has_relative_path());
+            THROW_HR_IF(E_INVALIDARG, relative.has_root_path());
+            THROW_HR_IF(E_INVALIDARG, !relative.has_filename());
+
+            std::filesystem::path result = GetPathToAppDataRoot(anonymize);
+            result /= relative;
 
             return result;
         }
@@ -420,5 +448,32 @@ namespace AppInstaller::Filesystem
         }
 
         return std::move(details.Path);
+    }
+
+    PathDetails GetPathDetailsFor(PathName path, bool forDisplay)
+    {
+        PathDetails result;
+        // We should not create directories by default when they are retrieved for display purposes.
+        result.Create = !forDisplay;
+
+        switch (path)
+        {
+        case PathName::UnpackagedLocalStateRoot:
+            result.Path = anon::GetPathToAppDataDir(anon::s_AppDataDir_State, forDisplay);
+            result.SetOwner(ACEPrincipal::CurrentUser);
+            result.ACL[ACEPrincipal::System] = ACEPermissions::All;
+            result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
+            break;
+        case PathName::UnpackagedSettingsRoot:
+            result.Path = anon::GetPathToAppDataDir(anon::s_AppDataDir_Settings, forDisplay);
+            result.SetOwner(ACEPrincipal::CurrentUser);
+            result.ACL[ACEPrincipal::System] = ACEPermissions::All;
+            result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+
+        return result;
     }
 }

@@ -83,6 +83,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileVersionUnknown);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationGettingDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationGettingResourceSettings);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationHistoryEmpty);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationHistoryItemArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationHistoryItemNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationHistoryRemoveArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInDesiredState);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInform);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInitializing);
@@ -144,6 +148,13 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportResource);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportUnitDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportUnitInstallDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListFirstApplied);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListIdentifier);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListName);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListOrigin);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListPath);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureTestCommandLongDescription);

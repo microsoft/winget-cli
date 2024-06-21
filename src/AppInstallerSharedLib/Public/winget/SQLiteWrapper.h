@@ -109,6 +109,14 @@ namespace AppInstaller::SQLite
             static blob_t GetColumn(sqlite3_stmt* stmt, int column);
         };
 
+        template <>
+        struct ParameterSpecificsImpl<GUID>
+        {
+            static std::string ToLog(const GUID& v);
+            static void Bind(sqlite3_stmt* stmt, int index, const GUID& v);
+            static GUID GetColumn(sqlite3_stmt* stmt, int column);
+        };
+
         template <typename E>
         struct ParameterSpecificsImpl<E, typename std::enable_if_t<std::is_enum_v<E>>>
         {
@@ -251,6 +259,11 @@ namespace AppInstaller::SQLite
         // Sets the busy timeout for the connection.
         void SetBusyTimeout(std::chrono::milliseconds timeout);
 
+        // Sets the journal mode.
+        // Returns true if successful, false if not.
+        // Must be performed outside of a transaction.
+        bool SetJournalMode(std::string_view mode);
+
         operator sqlite3* () const { return m_dbconn->Get(); }
 
     protected:
@@ -369,6 +382,8 @@ namespace AppInstaller::SQLite
     {
         // Creates a savepoint, beginning it.
         static Savepoint Create(Connection& connection, std::string name);
+
+        Savepoint();
 
         Savepoint(const Savepoint&) = delete;
         Savepoint& operator=(const Savepoint&) = delete;

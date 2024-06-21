@@ -20,7 +20,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         static constexpr std::string_view s_nullValue = "null";
     }
 
-    std::unique_ptr<ConfigurationSetSerializer> ConfigurationSetSerializer::CreateSerializer(hstring version)
+    // The `forHistory` parameter is temporary until the other serializers are implemented.
+    // It is only applicable as long as the serializers that are not implemented do not have differences in the value set or string array serialization.
+    std::unique_ptr<ConfigurationSetSerializer> ConfigurationSetSerializer::CreateSerializer(hstring version, bool forHistory)
     {
         // Create the parser based on the version selected
         AppInstaller::Utility::SemanticVersion schemaVersion(std::move(winrt::to_string(version)));
@@ -28,6 +30,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // TODO: Consider having the version/uri/type information all together in the future
         if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 1)
         {
+            // Remove this one the 0.1 serializer is implemented.
+            if (forHistory)
+            {
+                return std::make_unique<ConfigurationSetSerializer_0_2>();
+            }
+
             THROW_HR(E_NOTIMPL);
         }
         else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 2)
@@ -36,6 +44,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
         else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 3)
         {
+            // Remove this one the 0.3 serializer is implemented.
+            if (forHistory)
+            {
+                return std::make_unique<ConfigurationSetSerializer_0_2>();
+            }
+
             THROW_HR(E_NOTIMPL);
         }
         else
@@ -43,6 +57,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             AICLI_LOG(Config, Error, << "Unknown configuration version: " << schemaVersion.ToString());
             THROW_HR(E_UNEXPECTED);
         }
+    }
+
+    std::string ConfigurationSetSerializer::SerializeValueSet(const Windows::Foundation::Collections::ValueSet& valueSet)
+    {
+        Emitter emitter;
+        WriteYamlValueSet(emitter, valueSet);
+        return emitter.str();
+    }
+
+    std::string ConfigurationSetSerializer::SerializeStringArray(const Windows::Foundation::Collections::IVector<hstring>& stringArray)
+    {
+        Emitter emitter;
+        WriteYamlStringArray(emitter, stringArray);
+        return emitter.str();
     }
 
     void ConfigurationSetSerializer::WriteYamlValueSet(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::ValueSet& valueSet, std::initializer_list<ConfigurationField> exclusions)
@@ -71,6 +99,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         emitter << EndMap;
     }
 
+    void ConfigurationSetSerializer::WriteYamlStringArray(AppInstaller::YAML::Emitter& emitter, const Windows::Foundation::Collections::IVector<hstring>& values)
+    {
+        emitter << BeginSeq;
+
+        for (const auto& value : values)
+        {
+            emitter << AppInstaller::Utility::ConvertToUTF8(value);
+        }
+
+        emitter << EndSeq;
+    }
 
     void ConfigurationSetSerializer::WriteYamlValue(AppInstaller::YAML::Emitter& emitter, const winrt::Windows::Foundation::IInspectable& value)
     {
@@ -103,7 +142,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 }
                 else if (type == PropertyType::String)
                 {
-                    emitter << AppInstaller::Utility::ConvertToUTF8(property.GetString());
+                    emitter << ScalarStyle::DoubleQuoted << AppInstaller::Utility::ConvertToUTF8(property.GetString());
                 }
                 else if (type == PropertyType::Int64)
                 {
@@ -111,7 +150,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 }
                 else
                 {
-                    THROW_HR(E_NOTIMPL);;
+                    THROW_HR(E_NOTIMPL);
                 }
             }
         }

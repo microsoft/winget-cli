@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Public/winget/SQLiteWrapper.h"
 #include "Public/AppInstallerErrors.h"
+#include "Public/AppInstallerStrings.h"
 #include "ICU/SQLiteICU.h"
 
 #include <wil/result_macros.h>
@@ -149,6 +150,32 @@ namespace AppInstaller::SQLite
             }
         }
 
+        std::string ParameterSpecificsImpl<GUID>::ToLog(const GUID& v)
+        {
+            std::ostringstream strstr;
+            strstr << v;
+            return strstr.str();
+        }
+
+        void ParameterSpecificsImpl<GUID>::Bind(sqlite3_stmt* stmt, int index, const GUID& v)
+        {
+            static_assert(sizeof(v) == 16);
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_blob64(stmt, index, &v, sizeof(v), SQLITE_TRANSIENT), sqlite3_db_handle(stmt));
+        }
+
+        GUID ParameterSpecificsImpl<GUID>::GetColumn(sqlite3_stmt* stmt, int column)
+        {
+            GUID result{};
+
+            const void* blobPtr = sqlite3_column_blob(stmt, column);
+            if (blobPtr)
+            {
+                result = *reinterpret_cast<const GUID*>(blobPtr);
+            }
+
+            return result;
+        }
+
         void SharedConnection::Disable()
         {
             m_active = false;
@@ -210,6 +237,18 @@ namespace AppInstaller::SQLite
     void Connection::SetBusyTimeout(std::chrono::milliseconds timeout)
     {
         THROW_IF_SQLITE_FAILED(sqlite3_busy_timeout(m_dbconn->Get(), static_cast<int>(timeout.count())), m_dbconn->Get());
+    }
+
+    bool Connection::SetJournalMode(std::string_view mode)
+    {
+        using namespace AppInstaller::Utility;
+
+        std::ostringstream stream;
+        stream << "PRAGMA journal_mode=" << mode;
+
+        Statement setJournalMode = Statement::Create(*this, stream.str());
+        THROW_HR_IF(E_UNEXPECTED, !setJournalMode.Step());
+        return ToLower(setJournalMode.GetColumn<std::string>(0)) == ToLower(mode);
     }
 
     std::shared_ptr<details::SharedConnection> Connection::GetSharedConnection() const
@@ -334,6 +373,9 @@ namespace AppInstaller::SQLite
         sqlite3_reset(m_stmt.get());
         m_state = State::Prepared;
     }
+
+    Savepoint::Savepoint() : m_inProgress(false)
+    {}
 
     Savepoint::Savepoint(Connection& connection, std::string&& name) :
         m_name(std::move(name))

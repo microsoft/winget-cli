@@ -419,11 +419,13 @@
     <ClInclude Include="Public\winget\JsonUtil.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Public\winget\ManagedFile.h" />
+    <ClInclude Include="Public\winget\ModuleCountBase.h" />
     <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\Resources.h" />
     <ClInclude Include="Public\winget\Runtime.h" />
     <ClInclude Include="Public\winget\Security.h" />
     <ClInclude Include="Public\winget\SharedThreadGlobals.h" />
+    <ClInclude Include="Public\winget\SQLiteDynamicStorage.h" />
     <ClInclude Include="Public\winget\SQLiteMetadataTable.h" />
     <ClInclude Include="Public\winget\SQLiteStatementBuilder.h" />
     <ClInclude Include="Public\winget\SQLiteStorageBase.h" />
@@ -461,6 +463,7 @@
     <ClCompile Include="JsonSchemaValidation.cpp" />
     <ClCompile Include="JsonUtil.cpp" />
     <ClCompile Include="ManagedFile.cpp" />
+    <ClCompile Include="SQLiteDynamicStorage.cpp" />
     <ClCompile Include="SQLiteMetadataTable.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Resources.cpp" />

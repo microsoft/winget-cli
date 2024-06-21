@@ -22,8 +22,6 @@ namespace AppInstaller::Runtime
     {
         using namespace std::string_view_literals;
         constexpr std::string_view s_DefaultTempDirectory = "WinGet"sv;
-        constexpr std::string_view s_AppDataDir_Settings = "Settings"sv;
-        constexpr std::string_view s_AppDataDir_State = "State"sv;
         constexpr std::string_view s_SecureSettings_Base = "Microsoft\\WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
@@ -129,31 +127,6 @@ namespace AppInstaller::Runtime
                 THROW_HR_IF(E_UNEXPECTED, tempChars > ARRAYSIZE(tempPath));
                 return { std::wstring_view{ tempPath, static_cast<size_t>(tempChars) } };
             }
-        }
-
-        // Gets the path to the appdata root.
-        // *Only used by non packaged version!*
-        std::filesystem::path GetPathToAppDataRoot(bool forDisplay)
-        {
-            THROW_HR_IF(E_NOT_VALID_STATE, IsRunningInPackagedContext());
-
-            std::filesystem::path result = (forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>()) ? s_LocalAppDataEnvironmentVariable : GetKnownFolderPath(FOLDERID_LocalAppData);
-            result /= "Microsoft/WinGet";
-
-            return result;
-        }
-
-        // Gets the path to the app data relative directory.
-        std::filesystem::path GetPathToAppDataDir(const std::filesystem::path& relative, bool forDisplay)
-        {
-            THROW_HR_IF(E_INVALIDARG, !relative.has_relative_path());
-            THROW_HR_IF(E_INVALIDARG, relative.has_root_path());
-            THROW_HR_IF(E_INVALIDARG, !relative.has_filename());
-
-            std::filesystem::path result = GetPathToAppDataRoot(forDisplay);
-            result /= relative;
-
-            return result;
         }
 
         // Gets the current user's SID for use in paths.
@@ -375,6 +348,7 @@ namespace AppInstaller::Runtime
         PathDetails result;
         // We should not create directories by default when they are retrieved for display purposes.
         result.Create = !forDisplay;
+        bool anonymize = forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>();
 
         switch (path)
         {
@@ -393,19 +367,15 @@ namespace AppInstaller::Runtime
         }
         break;
         case PathName::LocalState:
-            result.Path = GetPathToAppDataDir(s_AppDataDir_State, forDisplay);
+            result = Filesystem::GetPathDetailsFor(Filesystem::PathName::UnpackagedLocalStateRoot, anonymize);
+            result.Create = !forDisplay;
             result.Path /= GetRuntimePathStateName();
-            result.SetOwner(ACEPrincipal::CurrentUser);
-            result.ACL[ACEPrincipal::System] = ACEPermissions::All;
-            result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             break;
         case PathName::StandardSettings:
         case PathName::UserFileSettings:
-            result.Path = GetPathToAppDataDir(s_AppDataDir_Settings, forDisplay);
+            result = Filesystem::GetPathDetailsFor(Filesystem::PathName::UnpackagedSettingsRoot, anonymize);
+            result.Create = !forDisplay;
             result.Path /= GetRuntimePathStateName();
-            result.SetOwner(ACEPrincipal::CurrentUser);
-            result.ACL[ACEPrincipal::System] = ACEPermissions::All;
-            result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             break;
         case PathName::SecureSettingsForRead:
         case PathName::SecureSettingsForWrite:

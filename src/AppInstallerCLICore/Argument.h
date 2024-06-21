@@ -71,6 +71,8 @@ namespace AppInstaller::CLI
         // E.g.: --dependency-source
         // E.g.: --accept-source-agreements
         ExtendedSource = 0x400,
+        // Arguments for selecting a configuration set (file or history).
+        ConfigurationSetChoice = 0x800,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ArgTypeCategory);
@@ -87,6 +89,7 @@ namespace AppInstaller::CLI
         StubType = 0x10,
         Proxy = 0x20,
         AllAndTargetVersion = 0x40,
+        ConfigurationSetChoice = 0x80,
 
         // This must always be at the end
         Max

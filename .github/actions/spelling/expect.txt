@@ -75,6 +75,7 @@ COINIT
 COMGLB
 commandline
 compressapi
+concurrencysal
 contactsupport
 contentfiles
 contoso

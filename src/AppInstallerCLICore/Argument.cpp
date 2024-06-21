@@ -200,7 +200,7 @@ namespace AppInstaller::CLI
 
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:
-            return { type, "file"_liv, 'f' };
+            return { type, "file"_liv, 'f', ArgTypeCategory::ConfigurationSetChoice, ArgTypeExclusiveSet::ConfigurationSetChoice };
         case Execution::Args::Type::ConfigurationAcceptWarning:
             return { type, "accept-configuration-agreements"_liv };
         case Execution::Args::Type::ConfigurationEnable:
@@ -215,6 +215,10 @@ namespace AppInstaller::CLI
             return { type, "module"_liv };
         case Execution::Args::Type::ConfigurationExportResource:
             return { type, "resource"_liv };
+        case Execution::Args::Type::ConfigurationHistoryItem:
+            return { type, "history"_liv, 'h', ArgTypeCategory::ConfigurationSetChoice, ArgTypeExclusiveSet::ConfigurationSetChoice };
+        case Execution::Args::Type::ConfigurationHistoryRemove:
+            return { type, "remove"_liv };
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:

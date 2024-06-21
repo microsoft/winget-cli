@@ -3007,4 +3007,42 @@ Please specify one of them using the --source option to proceed.</value>
     <value>&lt;this value has been truncated; inspect the file contents for the complete text&gt;</value>
     <comment>Keep some form of separator like the "&lt;&gt;" around the text so that it stands out from the preceding text.</comment>
   </data>
+  <data name="ConfigureListCommandLongDescription" xml:space="preserve">
+    <value>Shows the high level details for configurations that have been applied to the system. This data can then be used with `configure` commands to get more details.</value>
+    <comment>{Locked="`configure`"}</comment>
+  </data>
+  <data name="ConfigureListCommandShortDescription" xml:space="preserve">
+    <value>Shows configuration history</value>
+  </data>
+  <data name="ConfigurationHistoryEmpty" xml:space="preserve">
+    <value>There are no configurations in the history.</value>
+  </data>
+  <data name="ConfigurationHistoryItemArgumentDescription" xml:space="preserve">
+    <value>Select items from history</value>
+  </data>
+  <data name="ConfigurationHistoryItemNotFound" xml:space="preserve">
+    <value>No single configuration could be found that matched the provided data. Provide either the full name or part of the identifier that unambiguously matches the desired configuration.</value>
+  </data>
+  <data name="ConfigurationHistoryRemoveArgumentDescription" xml:space="preserve">
+    <value>Remove the item from history</value>
+  </data>
+  <data name="ConfigureListFirstApplied" xml:space="preserve">
+    <value>First Applied</value>
+    <comment>Column header for date values indicating when a configuration was first applied to the system.</comment>
+  </data>
+  <data name="ConfigureListIdentifier" xml:space="preserve">
+    <value>Identifier</value>
+  </data>
+  <data name="ConfigureListName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ConfigureListOrigin" xml:space="preserve">
+    <value>Origin</value>
+  </data>
+  <data name="ConfigureListPath" xml:space="preserve">
+    <value>Path</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
+    <value>The specified configuration could not be found.</value>
+  </data>
 </root>

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="OpenConfigurationParameters.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -31,14 +31,44 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// <param name="modulePath">The module path to use.</param>
         /// <param name="executionPolicy">Execution policy.</param>
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
+        /// <param name="fromHistory">If the configuration is from history; changes the meaning of `ConfigFile` to the instance identifier.</param>
         public OpenConfigurationParameters(
             PowerShellCmdlet pwshCmdlet,
             string file,
             string modulePath,
             ExecutionPolicy executionPolicy,
+            bool canUseTelemetry,
+            bool fromHistory = false)
+        {
+            if (!fromHistory)
+            {
+                this.ConfigFile = this.VerifyFile(file, pwshCmdlet);
+            }
+            else
+            {
+                this.ConfigFile = file;
+            }
+
+            this.InitializeModulePath(modulePath);
+            this.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
+            this.CanUseTelemetry = canUseTelemetry;
+            this.FromHistory = fromHistory;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OpenConfigurationParameters"/> class.
+        /// </summary>
+        /// <param name="pwshCmdlet">PowerShellCmdlet.</param>
+        /// <param name="modulePath">The module path to use.</param>
+        /// <param name="executionPolicy">Execution policy.</param>
+        /// <param name="canUseTelemetry">If telemetry can be used.</param>
+        public OpenConfigurationParameters(
+            PowerShellCmdlet pwshCmdlet,
+            string modulePath,
+            ExecutionPolicy executionPolicy,
             bool canUseTelemetry)
         {
-            this.ConfigFile = this.VerifyFile(file, pwshCmdlet);
+            this.ConfigFile = string.Empty;
             this.InitializeModulePath(modulePath);
             this.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
             this.CanUseTelemetry = canUseTelemetry;
@@ -68,6 +98,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// Gets a value indicating whether to use telemetry or not.
         /// </summary>
         public bool CanUseTelemetry { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the configuration is from history.
+        /// </summary>
+        public bool FromHistory { get; }
 
         private string VerifyFile(string filePath, PowerShellCmdlet pwshCmdlet)
         {

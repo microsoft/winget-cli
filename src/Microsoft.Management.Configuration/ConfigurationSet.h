@@ -3,13 +3,14 @@
 #pragma once
 #include "ConfigurationSet.g.h"
 #include <winget/ILifetimeWatcher.h>
+#include <winget/ModuleCountBase.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationSet : ConfigurationSetT<ConfigurationSet, winrt::cloaked<AppInstaller::WinRT::ILifetimeWatcher>>, AppInstaller::WinRT::LifetimeWatcherBase
+    struct ConfigurationSet : ConfigurationSetT<ConfigurationSet, winrt::cloaked<AppInstaller::WinRT::ILifetimeWatcher>>, AppInstaller::WinRT::LifetimeWatcherBase, AppInstaller::WinRT::ModuleCountBase
     {
         using WinRT_Self = ::winrt::Microsoft::Management::Configuration::ConfigurationSet;
         using ConfigurationUnit = ::winrt::Microsoft::Management::Configuration::ConfigurationUnit;
@@ -19,6 +20,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         ConfigurationSet(const guid& instanceIdentifier);
+        void FirstApply(clock::time_point value);
         void Units(std::vector<Configuration::ConfigurationUnit>&& units);
         void Parameters(std::vector<Configuration::ConfigurationParameter>&& value);
 
@@ -85,6 +87,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Collections::ValueSet m_variables;
         Windows::Foundation::Uri m_schemaUri = nullptr;
         std::string m_inputHash;
+        bool m_fromHistory = false;
 #endif
     };
 }

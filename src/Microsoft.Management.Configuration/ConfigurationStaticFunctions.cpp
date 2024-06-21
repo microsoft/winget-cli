@@ -14,12 +14,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     Configuration::ConfigurationUnit ConfigurationStaticFunctions::CreateConfigurationUnit()
     {
-        return *make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnit>>();
+        return *make_self<implementation::ConfigurationUnit>();
     }
 
     Configuration::ConfigurationSet ConfigurationStaticFunctions::CreateConfigurationSet()
     {
-        return *make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
+        return *make_self<implementation::ConfigurationSet>();
     }
 
     Windows::Foundation::IAsyncOperation<IConfigurationSetProcessorFactory> ConfigurationStaticFunctions::CreateConfigurationSetProcessorFactoryAsync(hstring const& handler)

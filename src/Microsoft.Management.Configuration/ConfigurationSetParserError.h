@@ -22,5 +22,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Parse() override {}
 
         hstring GetSchemaVersion() override { return {}; }
+
+    protected:
+        void SetDocument(AppInstaller::YAML::Node&&) override {}
     };
 }

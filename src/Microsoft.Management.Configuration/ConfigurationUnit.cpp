@@ -157,7 +157,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Configuration::ConfigurationUnit ConfigurationUnit::Copy()
     {
-        auto result = make_self<wil::details::module_count_wrapper<ConfigurationUnit>>();
+        auto result = make_self<ConfigurationUnit>();
 
         result->m_type = m_type;
         result->m_intent = m_intent;

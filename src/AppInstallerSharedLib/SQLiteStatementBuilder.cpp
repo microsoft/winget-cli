@@ -145,6 +145,8 @@ namespace AppInstaller::SQLite::Builder
             case Type::Integer:
                 out << "INTEGER";
                 break;
+            case Type::None:
+                break;
             default:
                 THROW_HR(E_UNEXPECTED);
             }

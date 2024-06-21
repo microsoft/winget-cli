@@ -59,6 +59,7 @@ class WinGetModule
 
     [void]PrepareScriptFiles()
     {
+        Write-Verbose "Copying files: $($this.ModuleRoot) -> $($this.Output)"
         xcopy $this.ModuleRoot $this.Output /d /s /f /y
     }
 
@@ -191,8 +192,8 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Client))
 {
     Write-Host "Setting up Microsoft.WinGet.Client"
     $module = [WinGetModule]::new("Microsoft.WinGet.Client", "$PSScriptRoot\..\Microsoft.WinGet.Client\ModuleFiles\", $moduleRootOutput)
-    $module.PrepareScriptFiles()
     $module.PrepareBinaryFiles($BuildRoot, $Configuration)
+    $module.PrepareScriptFiles()
     $additionalFiles = @(
         "Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.dll"
         "Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd"
@@ -216,8 +217,8 @@ if ($moduleToConfigure.HasFlag([ModuleType]::Configuration))
 {
     Write-Host "Setting up Microsoft.WinGet.Configuration"
     $module = [WinGetModule]::new("Microsoft.WinGet.Configuration", "$PSScriptRoot\..\Microsoft.WinGet.Configuration\ModuleFiles\", $moduleRootOutput)
-    $module.PrepareScriptFiles()
     $module.PrepareBinaryFiles($BuildRoot, $Configuration)
+    $module.PrepareScriptFiles()
     $additionalFiles = @(
         "Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll"
     )
