@@ -46,8 +46,6 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFConfiguration03>();
             case ExperimentalFeature::Feature::ConfigureSelfElevation:
                 return userSettings.Get<Setting::EFConfigureSelfElevation>();
-            case ExperimentalFeature::Feature::StoreDownload:
-                return userSettings.Get<Setting::EFStoreDownload>();
             case ExperimentalFeature::Feature::IndexV2:
                 return userSettings.Get<Setting::EFIndexV2>();
             case ExperimentalFeature::Feature::ConfigureExport:
@@ -87,8 +85,6 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Configuration Schema 0.3", "configuration03", "https://aka.ms/winget-settings", Feature::Configuration03 };
         case Feature::ConfigureSelfElevation:
             return ExperimentalFeature{ "Configure Self Elevation", "configureSelfElevate", "https://aka.ms/winget-settings", Feature::ConfigureSelfElevation };
-        case Feature::StoreDownload:
-            return ExperimentalFeature{ "Store Download", "storeDownload", "https://aka.ms/winget-settings", Feature::StoreDownload };
         case Feature::IndexV2:
             return ExperimentalFeature{ "Index V2", "indexV2", "https://aka.ms/winget-settings", Feature::IndexV2 };
         case Feature::ConfigureExport:

@@ -74,7 +74,6 @@ namespace AppInstaller::Settings
         EFResume,
         EFConfiguration03,
         EFConfigureSelfElevation,
-        EFStoreDownload,
         EFIndexV2,
         EFConfigureExport,
         // Telemetry
@@ -158,8 +157,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFResume, bool, bool, false, ".experimentalFeatures.resume"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfiguration03, bool, bool, false, ".experimentalFeatures.configuration03"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureSelfElevation, bool, bool, false, ".experimentalFeatures.configureSelfElevate"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFStoreDownload, bool, bool, false, ".experimentalFeatures.storeDownload"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFIndexV2, bool, bool, false, ".experimentalFeatures.indexV2"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFIndexV2, bool, bool, true, ".experimentalFeatures.indexV2"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfigureExport, bool, bool, false, ".experimentalFeatures.configureExport"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
