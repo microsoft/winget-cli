@@ -96,19 +96,32 @@
 
 如果禁用或未配置此设置，则用户将无法安装来自使用此协议的网站的包。</string>
       <string id="EnableWindowsPackageManagerCommandLineInterfaces">启用 Windows 程序包管理器命令行接口</string>
-      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">此策略确定用户是否可以通过命令行界面 (WinGet CLI 或 WinGet PowerShell) 使用 Windows 程序包管理器执行操作。
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">此策略确定用户是否可以通过命令行界面（WinGet CLI 或 WinGet PowerShell）使用 Windows 程序包管理器执行操作。
 
-        如果禁用此策略，用户将无法执行 Windows 程序包管理器 CLI 和 PowerShell cmdlet。
+       如果禁用此策略，用户将无法执行 Windows 程序包管理器 CLI 和 PowerShell cmdlet。
 
-        如果启用或未配置此策略，用户将能够执行 Windows 程序包管理器 CLI 命令和 PowerShell cmdlet。(未禁用提供的“启用应用安装程序”策略)。
+       如果启用或未配置此策略，用户将能够执行 Windows 程序包管理器 CLI 命令和 PowerShell cmdlet。（前提是 “启用应用安装程序” 策略未禁用）。
 
-        此策略不会替代“启用应用安装程序”策略。</string>
+       此策略不会替代 “启用应用安装程序” 策略。</string>
       <string id="EnableWindowsPackageManagerConfiguration">启用 Windows 程序包管理器配置</string>
       <string id="EnableWindowsPackageManagerConfigurationExplanation">此策略控制用户是否可以使用Windows 程序包管理器配置功能。
 
 如果启用或未配置此设置，则用户将能够使用Windows 程序包管理器配置功能。
 
 如果禁用此设置，则用户将无法使用Windows 程序包管理器配置功能。</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptions">启用Windows 程序包管理器代理命令行选项</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
+        此策略控制用户是否可以通过命令行配置代理的Windows 程序包管理器使用情况。
+
+如果启用此设置，则用户将能够通过命令行配置Windows 程序包管理器使用代理。
+
+如果禁用或未配置此设置，则用户将无法通过命令行配置Windows 程序包管理器使用代理。</string>
+      <string id="WindowsPackageManagerDefaultProxy">设置 Windows 程序包管理器默认代理</string>
+      <string id="WindowsPackageManagerDefaultProxyExplanation">此策略控制Windows 程序包管理器使用的默认代理。
+
+如果禁用或未配置此设置，则默认情况下不会使用任何代理。
+
+如果启用此设置，则默认情况下将使用指定的代理。</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -119,6 +132,11 @@
       </presentation>
       <presentation id="AllowedSources">
         <listBox refId="AllowedSources" required="false">允许的源: </listBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerDefaultProxy">
+        <textBox refId="WindowsPackageManagerDefaultProxy">
+          <label>默认代理</label>
+        </textBox>
       </presentation>
     </presentationTable>
   </resources>
