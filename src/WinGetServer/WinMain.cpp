@@ -104,7 +104,7 @@ extern "C" HRESULT CreateInstance(
 HRESULT InitializeComSecurity()
 {
     wil::unique_hlocal_security_descriptor securityDescriptor;
-    // Allow Everyone and AppContainer access. 3 is COM_RIGHTS_EXECUTE | COM_RIGHTS_EXECUTE_LOCAL
+    // Allow Self, System, Built-in Admin and App Container access. 3 is COM_RIGHTS_EXECUTE | COM_RIGHTS_EXECUTE_LOCAL
     std::string securityDescriptorString = "O:SYG:SYD:(A;;3;;;PS)(A;;3;;;SY)(A;;3;;;BA)(A;;3;;;AC)";
     RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
 
