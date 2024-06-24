@@ -61,7 +61,7 @@
         </uap5:Extension>
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:ExeServer Executable="WinGetServer\WindowsPackageManagerServer.exe" DisplayName="Windows Package Manager Server" LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;IU)(A;;11;;;SY)(A;;11;;;BA)(A;;11;;;AC)S:P(ML;;NX;;;S-1-16-4096)">
+            <com:ExeServer Executable="WinGetServer\WindowsPackageManagerServer.exe" DisplayName="Windows Package Manager Server" LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;IU)(A;;11;;;SY)(A;;11;;;BA)(A;;11;;;AC)S:P(ML;;NX;;;S-1-16-8192)">
               <com:Class Id ="74CB3139-B7C5-4B9E-9388-E6616DEA288C" DisplayName="PackageManager Server">
               </com:Class>
               <com:Class Id ="1BD8FF3A-EC50-4F69-AEEE-DF4C9D3BAA96" DisplayName="FindPackagesOptions Server">
