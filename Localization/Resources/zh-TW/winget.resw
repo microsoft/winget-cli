@@ -262,7 +262,7 @@
     <value>依識別碼篩選結果</value>
   </data>
   <data name="IgnoreWarningsArgumentDescription" xml:space="preserve">
-    <value>抑制警告輸出。</value>
+    <value>抑制警告輸出</value>
   </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
     <value>此應用程式已由其擁有者授權給您。</value>
@@ -1172,6 +1172,9 @@
   </data>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
     <value>發行日期:</value>
+  </data>
+  <data name="ShowLabelInstallerOfflineDistributionSupported" xml:space="preserve">
+    <value>支援離線散發:</value>
   </data>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
     <value>發行者 URL：</value>
@@ -2272,14 +2275,14 @@
   <data name="APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY" xml:space="preserve">
     <value>[群組原則] 封鎖作業</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR" xml:space="preserve">
-    <value>剩餘來源內部錯誤</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR" xml:space="preserve">
+    <value>Rest API 內部錯誤</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL" xml:space="preserve">
     <value>剩餘來源 URL 無效</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
-    <value>剩餘來源傳回不支援的 MIME 類型</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
+    <value>剩餘 API 傳回不支援的 MIME 類型</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION" xml:space="preserve">
     <value>休息來源合約版本無效</value>
@@ -2299,8 +2302,8 @@
   <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST" xml:space="preserve">
     <value>一或多個來源不支持搜尋要求</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND" xml:space="preserve">
-    <value>找不到剩餘來源端點。</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND" xml:space="preserve">
+    <value>找不到其餘的 API 端點。</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED" xml:space="preserve">
     <value>無法開啟來源。</value>
@@ -2813,5 +2816,233 @@
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>修復失敗，結束代碼為: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when an attempt to repair an application package fails. {0} is a placeholder replaced by an error code.</comment>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED" xml:space="preserve">
+    <value>已終止 SQLite 連線以避免損毀。</value>
+  </data>
+  <data name="UninstallAllVersionsArgumentDescription" xml:space="preserve">
+    <value>解除安裝所有版本</value>
+  </data>
+  <data name="TargetVersionArgumentDescription" xml:space="preserve">
+    <value>要執行的版本</value>
+  </data>
+  <data name="UninstallFailedDueToMultipleVersions" xml:space="preserve">
+    <value>已安裝此套件的多個版本。請精簡搜尋、傳遞 '--version' 自變數以選取，或傳遞 '--all-versions' 旗標以卸載所有專案。</value>
+    <comment>{Locked="--version,--all-versions"}</comment>
+  </data>
+  <data name="PolicyEnableProxyCommandLineOptions" xml:space="preserve">
+    <value>啟用Windows 封裝管理員 Proxy 命令行選項</value>
+    <comment>Describes a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
+  </data>
+  <data name="ProxyArgumentDescription" xml:space="preserve">
+    <value>設定要用於此執行的 Proxy</value>
+  </data>
+  <data name="NoProxyArgumentDescription" xml:space="preserve">
+    <value>停用此執行的 Proxy 使用</value>
+  </data>
+  <data name="ResetAdminSettingFailed" xml:space="preserve">
+    <value>無法重設 {0}。這個設定是由原則控制。如需詳細資訊，請連絡您的系統管理員。</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="ResetAdminSettingSucceeded" xml:space="preserve">
+    <value>重設系統管理員設定 '{0}'。</value>
+    <comment>{Locked="{0}"} Message displayed after the user resets an admin setting to its default value. Reset is used as verb in past tense. {0} is a placeholder replaced by the setting name.</comment>
+  </data>
+  <data name="SetAdminSettingFailed" xml:space="preserve">
+    <value>無法設定 {0}。這個設定是由原則控制。如需詳細資訊，請連絡您的系統管理員。</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="SetAdminSettingSucceeded" xml:space="preserve">
+    <value>將系統管理員設定 '{0}' 設為 '{1}'。</value>
+    <comment>{Locked="{0}"} Message displayed after the user sets the value of an admin setting. Set is used as a verb in past tense. {0} is a placeholder replaced by the setting name. {1} is a placeholder replaced </comment>
+  </data>
+  <data name="SettingNameArgumentDescription" xml:space="preserve">
+    <value>要修改之設定的名稱</value>
+  </data>
+  <data name="SettingValueArgumentDescription" xml:space="preserve">
+    <value>要為設定設定的值。</value>
+  </data>
+  <data name="SettingsResetCommandLongDescription" xml:space="preserve">
+    <value>將系統管理員設定重設為其預設值。</value>
+  </data>
+  <data name="SettingsResetCommandShortDescription" xml:space="preserve">
+    <value>將系統管理員設定重設為其預設值。</value>
+  </data>
+  <data name="SettingsSetCommandLongDescription" xml:space="preserve">
+    <value>設定系統管理設定的值。</value>
+  </data>
+  <data name="SettingsSetCommandShortDescription" xml:space="preserve">
+    <value>設定系統管理設定的值。</value>
+  </data>
+  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
+    <value>除非指定，否則將來源排除在探索之外</value>
+  </data>
+  <data name="SourceListExplicit" xml:space="preserve">
+    <value>偏激</value>
+  </data>
+  <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
+    <value>來源的信任層級 (無或信任)</value>
+  </data>
+  <data name="SourceListTrustLevel" xml:space="preserve">
+    <value>信任層級</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED" xml:space="preserve">
+    <value>無法取得 Microsoft Store 封裝類別目錄。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE" xml:space="preserve">
+    <value>在套件目錄 Microsoft Store 找不到適用的 Microsoft Store 封裝。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED" xml:space="preserve">
+    <value>無法取得 Microsoft Store 套件下載資訊。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
+    <value>找不到適用 Microsoft Store 套件下載資訊。</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
+    <value>無法擷取 Microsoft Store 套件授權。</value>
+  </data>
+  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
+    <value>找不到 Microsoft Store 封裝。</value>
+  </data>
+  <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
+    <value>已成功驗證 Microsoft Store 套件雜湊</value>
+  </data>
+  <data name="MSStoreDownloadPackageHashMismatch" xml:space="preserve">
+    <value>Microsoft Store 套件雜湊不符</value>
+  </data>
+  <data name="MSStoreDownloadPackageDownloaded" xml:space="preserve">
+    <value>已下載 Microsoft Store套件: {0}</value>
+    <comment>{Locked="{0}"} Full path of the downloaded package.</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadFailed" xml:space="preserve">
+    <value>Microsoft Store 套件下載失敗: {0}</value>
+    <comment>{Locked="{0}"} Package name.</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadSuccess" xml:space="preserve">
+    <value>Microsoft Store 套件下載完成</value>
+  </data>
+  <data name="MSStoreDownloadMainPackages" xml:space="preserve">
+    <value>正在從 Microsoft Store 下載主要套件...</value>
+  </data>
+  <data name="MSStoreDownloadDependencyPackages" xml:space="preserve">
+    <value>正在從 Microsoft Store 下載相依性套件...</value>
+  </data>
+  <data name="MSStoreDownloadGetDownloadInfo" xml:space="preserve">
+    <value>正在擷取 Microsoft Store 套件下載資訊</value>
+  </data>
+  <data name="MSStoreDownloadGetDownloadInfoFailed" xml:space="preserve">
+    <value>無法擷取 Microsoft Store 套件下載資訊</value>
+  </data>
+  <data name="MSStoreDownloadGetLicense" xml:space="preserve">
+    <value>正在擷取 Microsoft Store 套件授權</value>
+  </data>
+  <data name="MSStoreDownloadGetLicenseSuccess" xml:space="preserve">
+    <value>已儲存 Microsoft Store套件授權: {0}</value>
+    <comment>{Locked="{0}"} License file full path.</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseFailed" xml:space="preserve">
+    <value>無法擷取 Microsoft Store 套件授權</value>
+  </data>
+  <data name="MSStoreDownloadRenameNotSupported" xml:space="preserve">
+    <value>Microsoft Store 套件下載不支援 --rename 引數。Microsoft Store 封裝將使用 Microsoft Store 目錄提供的名稱。</value>
+    <comment>{Locked="--rename"}</comment>
+  </data>
+  <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
+    <value>Microsoft Store 套件下載需要 Microsoft Entra ID 驗證。必要時可能會顯示驗證提示。將與 Microsoft 服務共用已驗證的資訊，以進行存取授權。若要 Microsoft Store 套件授權，Microsoft Entra ID 帳戶必須具有 Microsoft Entra ID 租用戶的系統管理員存取權。</value>
+  </data>
+  <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
+    <value>略過擷取 Microsoft Store 套件離線授權</value>
+  </data>
+  <data name="PlatformArgumentDescription" xml:space="preserve">
+    <value>選取目標平台</value>
+  </data>
+  <data name="ConfigurationExportAddingToFile" xml:space="preserve">
+    <value>正在新增設定檔: {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportSuccessful" xml:space="preserve">
+    <value>已成功匯出</value>
+  </data>
+  <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
+    <value>正在取得組態設定...</value>
+  </data>
+  <data name="ConfigureExportArgumentError" xml:space="preserve">
+    <value>至少必須提供 --packageId 和/或 --module with --resource</value>
+    <comment>{Locked="--packageId,--module, --resource"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>將設定資源匯出至組態檔。搭配 --packageId 使用時，導出指定套件標識符的 WinGetPackage 資源。與 --module 和 --resource 搭配使用時，取得資源的設定，並將它匯出至組態檔。如果輸出組態檔已存在，會附加導出的設定資源。</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
+  <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
+    <value>將設定資源匯出至設定檔。</value>
+  </data>
+  <data name="ConfigureExportModule" xml:space="preserve">
+    <value>要匯出之資源的模組。</value>
+  </data>
+  <data name="ConfigureExportPackageId" xml:space="preserve">
+    <value>要匯出的套件識別碼。</value>
+  </data>
+  <data name="ConfigureExportResource" xml:space="preserve">
+    <value>要匯出的設定資源。</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
+    <value>設定單位無法取得其屬性。</value>
+  </data>
+  <data name="ConfigurationExportFailed" xml:space="preserve">
+    <value>無法匯出設定。</value>
+  </data>
+  <data name="ConfigureExportUnitDescription" xml:space="preserve">
+    <value>設定 {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigureExportUnitInstallDescription" xml:space="preserve">
+    <value>安裝 {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationWarningSetViewTruncated" xml:space="preserve">
+    <value>組態檔中存在的部分數據已針對此輸出截斷;檢查檔案內容以取得完整內容。</value>
+  </data>
+  <data name="ConfigurationWarningValueTruncated" xml:space="preserve">
+    <value>&lt;此值已被截斷; 檢查檔案內容以取得完整的文字&gt;</value>
+    <comment>Keep some form of separator like the "&lt;&gt;" around the text so that it stands out from the preceding text.</comment>
+  </data>
+  <data name="ConfigureListCommandLongDescription" xml:space="preserve">
+    <value>顯示已套用至系統之設定的高層級詳細數據。此數據可與 `configure` 命令搭配使用，以取得更多詳細數據。</value>
+    <comment>{Locked="`configure`"}</comment>
+  </data>
+  <data name="ConfigureListCommandShortDescription" xml:space="preserve">
+    <value>顯示設定歷程記錄</value>
+  </data>
+  <data name="ConfigurationHistoryEmpty" xml:space="preserve">
+    <value>歷程記錄中沒有設定。</value>
+  </data>
+  <data name="ConfigurationHistoryItemArgumentDescription" xml:space="preserve">
+    <value>從歷程記錄選取項目</value>
+  </data>
+  <data name="ConfigurationHistoryItemNotFound" xml:space="preserve">
+    <value>找不到符合所提供數據的單一設定。提供明確符合所需設定的完整名稱或標識碼的一部分。</value>
+  </data>
+  <data name="ConfigurationHistoryRemoveArgumentDescription" xml:space="preserve">
+    <value>從歷程記錄中移除項目</value>
+  </data>
+  <data name="ConfigureListFirstApplied" xml:space="preserve">
+    <value>首次套用</value>
+    <comment>Column header for date values indicating when a configuration was first applied to the system.</comment>
+  </data>
+  <data name="ConfigureListIdentifier" xml:space="preserve">
+    <value>識別碼</value>
+  </data>
+  <data name="ConfigureListName" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="ConfigureListOrigin" xml:space="preserve">
+    <value>來源</value>
+  </data>
+  <data name="ConfigureListPath" xml:space="preserve">
+    <value>路徑</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
+    <value>找不到指定的設定。</value>
   </data>
 </root>

@@ -96,19 +96,32 @@
 
 如果您停用或未設定這個設定，使用者將無法從使用此通訊協定的網站安裝套件。</string>
       <string id="EnableWindowsPackageManagerCommandLineInterfaces">啟用 Windows 封裝管理員命令列介面</string>
-      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">此原則決定使用者是否可以透過命令列介面 (WinGet CLI 或 WinGet PowerSh) 使用 Windows 封裝管理員執行動作。
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">此原則會判斷使用者是否可透過命令列介面 (WinGet CLI 或 WinGet PowerShell) 使用 Windows 封裝管理員執行動作。
 
-       如果您停用此原則，使用者將無法執行 Windows 封裝管理員 CLI 和 PowerShell Cmdlet。
+       如果停用此原則，使用者將無法執行 Windows 封裝管理員 CLI 和 PowerShell Cmdlet。
 
-        如果您啟用或未設定此原則，使用者將可以執行 Windows 封裝管理員 CLI 命令和 PowerShell Cmdlet。(提供的 [啟用應用程式安裝程式] 原則將不會停用)。
+       如果啟用或未設定此原則，使用者將可以執行 Windows 封裝管理員 CLI 命令和 PowerShell Cmdlet。(未停用提供的 [啟用應用程式安裝程式] 原則)。
 
-        此原則不會覆寫 [啟用應用程式安裝程式] 原則。</string>
+       此原則不會覆寫 [啟用應用程式安裝程式] 原則。</string>
       <string id="EnableWindowsPackageManagerConfiguration">啟用 Windows 封裝管理員設定</string>
       <string id="EnableWindowsPackageManagerConfigurationExplanation">此原則控制使用者是否可以使用Windows 封裝管理員設定功能。
 
 如果您啟用或未設定這個設定，使用者將可以使用Windows 封裝管理員設定功能。
 
 如果您停用這個設定，使用者將無法使用Windows 封裝管理員設定功能。</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptions">啟用Windows 封裝管理員 Proxy 命令行選項</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
+        此原則控制使用者是否可以透過命令行設定 proxy 的Windows 封裝管理員使用方式。
+
+如果您啟用這個設定，使用者將可以透過命令行設定Windows 封裝管理員使用 Proxy。
+
+如果您停用或未設定這個設定，用戶將無法透過命令行設定Windows 封裝管理員使用 Proxy。</string>
+      <string id="WindowsPackageManagerDefaultProxy">設定 Windows 封裝管理員預設 Proxy</string>
+      <string id="WindowsPackageManagerDefaultProxyExplanation">此原則控制Windows 封裝管理員使用的預設 Proxy。
+
+如果停用或未設定此設定，則預設不會使用任何 Proxy。
+
+如果您啟用這個設定，預設會使用指定的 Proxy。</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -119,6 +132,11 @@
       </presentation>
       <presentation id="AllowedSources">
         <listBox refId="AllowedSources" required="false">允許的來源： </listBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerDefaultProxy">
+        <textBox refId="WindowsPackageManagerDefaultProxy">
+          <label>預設 Proxy</label>
+        </textBox>
       </presentation>
     </presentationTable>
   </resources>
