@@ -91,7 +91,7 @@ createmanifestmetadata
 cswinrt
 ctc
 currentuser
-DACL
+dacl
 datetimeoffset
 debian
 dedupe
@@ -402,6 +402,7 @@ runspace
 runtimeclass
 ryfu
 rzkzqaqjwj
+sacl
 SARL
 SASURL
 schematab
