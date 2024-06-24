@@ -90,7 +90,7 @@ createmanifestmetadata
 cswinrt
 ctc
 currentuser
-DACL
+dacl
 datetimeoffset
 debian
 dedupe
@@ -319,6 +319,7 @@ notmatch
 NOTRACK
 NOUPDATE
 npmjs
+NRNWNX
 nsis
 nuffing
 objbase
@@ -401,6 +402,7 @@ runspace
 runtimeclass
 ryfu
 rzkzqaqjwj
+sacl
 SARL
 SASURL
 schematab

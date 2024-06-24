@@ -178,7 +178,7 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
     {
         // This must be called after IGlobalOptions (fast rundown setting cannot be changed after CoInitializeSecurity)
         // This must be called before WindowsPackageManagerServerInitialize (when setting the logs
-        // to Windows.Storage folders, automatic CoInitilizeSecurity is triggered)
+        // to Windows.Storage folders, automatic CoInitializeSecurity is triggered)
         RETURN_IF_FAILED(InitializeComSecurity());
     }
 
