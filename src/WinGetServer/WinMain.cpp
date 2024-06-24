@@ -36,10 +36,10 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
     // The goal of this security descriptor is to restrict RPC server access only to the user in admin mode. 
-    // (ML;;NRNWNX;;;HI) specifies a high mandatory integrity level (requires admin).
+    // (ML;;NW;;;HI) specifies a high mandatory integrity level (requires admin).
     // (A;;GA;;;UserSID) specifies access only for the user with the user SID (i.e. self).
     wil::unique_hlocal_security_descriptor securityDescriptor;
-    std::string securityDescriptorString = "S:(ML;;NRNWNX;;;HI)D:(A;;GA;;;" + userSID + ")";
+    std::string securityDescriptorString = "S:(ML;;NW;;;HI)D:(A;;GA;;;" + userSID + ")";
     RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
 
     status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN, RPC_C_LISTEN_MAX_CALLS_DEFAULT, 0, nullptr, securityDescriptor.get());
@@ -105,7 +105,7 @@ HRESULT InitializeComSecurity()
 {
     wil::unique_hlocal_security_descriptor securityDescriptor;
     // Allow Everyone and AppContainer access. 3 is COM_RIGHTS_EXECUTE | COM_RIGHTS_EXECUTE_LOCAL
-    std::string securityDescriptorString = "O:SYG:SYD:(A;;3;;;WD)(A;;3;;;AC)";
+    std::string securityDescriptorString = "O:SYG:SYD:(A;;3;;;PS)(A;;3;;;SY)(A;;3;;;BA)(A;;3;;;AC)";
     RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
 
     // Make absolute security descriptor as CoInitializeSecurity required
@@ -134,8 +134,8 @@ HRESULT InitializeComSecurity()
         -1, // Authentication services count. -1 is let com choose.
         nullptr, // Authentication services array
         nullptr, // Reserved
-        RPC_C_AUTHN_LEVEL_PKT_INTEGRITY, // Authentication level. Validate client and data integrity.
-        RPC_C_IMP_LEVEL_IMPERSONATE, // Impersonation level. Can impersonate client.
+        RPC_C_AUTHN_LEVEL_DEFAULT, // Authentication level.
+        RPC_C_IMP_LEVEL_IDENTIFY, // Impersonation level. Identify client.
         nullptr, // Authentication list
         EOAC_NONE, // Additional capabilities
         nullptr // Reserved
