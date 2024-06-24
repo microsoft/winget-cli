@@ -16,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 
 // Holds the wwinmain open until COM tells us there are no more server connections
 wil::unique_event _comServerExitEvent;
@@ -100,6 +101,49 @@ extern "C" HRESULT CreateInstance(
     return S_OK;
 }
 
+HRESULT InitializeComSecurity()
+{
+    wil::unique_hlocal_security_descriptor securityDescriptor;
+    // Allow Self, System, Built-in Admin and App Container access. 3 is COM_RIGHTS_EXECUTE | COM_RIGHTS_EXECUTE_LOCAL
+    std::string securityDescriptorString = "O:SYG:SYD:(A;;3;;;PS)(A;;3;;;SY)(A;;3;;;BA)(A;;3;;;AC)";
+    RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
+
+    // Make absolute security descriptor as CoInitializeSecurity required
+    SECURITY_DESCRIPTOR absoluteSecurityDescriptor;
+    DWORD securityDescriptorSize = sizeof(SECURITY_DESCRIPTOR);
+
+    DWORD daclSize = 0;
+    DWORD saclSize = 0;
+    DWORD ownerSize = 0;
+    DWORD groupSize = 0;
+
+    // Get required size
+    BOOL result = MakeAbsoluteSD(securityDescriptor.get(), &absoluteSecurityDescriptor, &securityDescriptorSize, nullptr, &daclSize, nullptr, &saclSize, nullptr, &ownerSize, nullptr, &groupSize);
+    RETURN_HR_IF_MSG(E_FAIL, result || GetLastError() != ERROR_INSUFFICIENT_BUFFER, "MakeAbsoluteSD failed to return buffer sizes");
+
+    std::vector<BYTE> dacl(daclSize);
+    std::vector<BYTE> sacl(saclSize);
+    std::vector<BYTE> owner(ownerSize);
+    std::vector<BYTE> group(groupSize);
+
+    RETURN_LAST_ERROR_IF(!MakeAbsoluteSD(securityDescriptor.get(), &absoluteSecurityDescriptor, &securityDescriptorSize, (PACL)dacl.data(), &daclSize, (PACL)sacl.data(), &saclSize, (PACL)owner.data(), &ownerSize, (PACL)group.data(), &groupSize));
+
+    // Initialize com security
+    RETURN_IF_FAILED(CoInitializeSecurity(
+        &absoluteSecurityDescriptor, // Security descriptor
+        -1, // Authentication services count. -1 is let com choose.
+        nullptr, // Authentication services array
+        nullptr, // Reserved
+        RPC_C_AUTHN_LEVEL_DEFAULT, // Authentication level.
+        RPC_C_IMP_LEVEL_IDENTIFY, // Impersonation level. Identify client.
+        nullptr, // Authentication list
+        EOAC_NONE, // Additional capabilities
+        nullptr // Reserved
+    ));
+
+    return S_OK;
+}
+
 int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, _In_ int)
 {
     wil::SetResultLoggingCallback(&WindowsPackageManagerServerWilResultLoggingCallback);
@@ -115,8 +159,6 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         RETURN_IF_FAILED(globalOptions->Set(COMGLB_EXCEPTION_HANDLING, COMGLB_EXCEPTION_DONOT_HANDLE_ANY));
     }
 
-    RETURN_IF_FAILED(WindowsPackageManagerServerInitialize());
-
     // Command line parsing
     int argc = 0;
     LPWSTR* argv = CommandLineToArgvW(cmdLine, &argc);
@@ -130,18 +172,29 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         manualActivation = true;
     }
 
+    // For packaged com activation, initialize com security.
+    // For manual activation, leave as default. We'll not register objects for manual activation.
+    if (!manualActivation)
+    {
+        // This must be called after IGlobalOptions (fast rundown setting cannot be changed after CoInitializeSecurity)
+        // This must be called before WindowsPackageManagerServerInitialize (when setting the logs
+        // to Windows.Storage folders, automatic CoInitializeSecurity is triggered)
+        RETURN_IF_FAILED(InitializeComSecurity());
+    }
+
+    RETURN_IF_FAILED(WindowsPackageManagerServerInitialize());
+
     _comServerExitEvent.create();
     RETURN_IF_FAILED(WindowsPackageManagerServerModuleCreate(&_releaseNotifier));
     try
     {
-        // Register all the CoCreatableClassWrlCreatorMapInclude classes
-        RETURN_IF_FAILED(WindowsPackageManagerServerModuleRegister());
-
         // Manual reset event to notify the client that the server is available.
         wil::unique_event manualResetEvent;
 
         if (manualActivation)
         {
+            // For manual activation, do not register com objects
+            // so that only RPC channel can be used.
             HANDLE hMutex = NULL;
             hMutex = CreateMutex(NULL, FALSE, TEXT("WinGetServerMutex"));
             RETURN_LAST_ERROR_IF_NULL(hMutex);
@@ -157,6 +210,11 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
             manualResetEvent = CreateOrOpenServerStartEvent();
             manualResetEvent.SetEvent();
         }
+        else
+        {
+            // Register all the CoCreatableClassWrlCreatorMapInclude classes
+            RETURN_IF_FAILED(WindowsPackageManagerServerModuleRegister());
+        }
 
         _comServerExitEvent.wait();
 
@@ -165,7 +223,10 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
             manualResetEvent.reset();
         }
 
-        RETURN_IF_FAILED(WindowsPackageManagerServerModuleUnregister());
+        if (!manualActivation)
+        {
+            RETURN_IF_FAILED(WindowsPackageManagerServerModuleUnregister());
+        }
     }
     CATCH_RETURN()
 
