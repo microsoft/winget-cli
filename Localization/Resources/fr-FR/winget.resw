@@ -262,7 +262,7 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
     <value>Filtrer les résultats par identifiant</value>
   </data>
   <data name="IgnoreWarningsArgumentDescription" xml:space="preserve">
-    <value>Supprime les sorties d’avertissement.</value>
+    <value>Supprime les sorties d'avertissement</value>
   </data>
   <data name="InstallationDisclaimer1" xml:space="preserve">
     <value>La licence d’utilisation de cette application vous est octroyée par son propriétaire.</value>
@@ -1172,6 +1172,9 @@ Acceptez-vous les conditions ?</value>
   </data>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
     <value>Date de version :</value>
+  </data>
+  <data name="ShowLabelInstallerOfflineDistributionSupported" xml:space="preserve">
+    <value>Distribution hors ligne prise en charge :</value>
   </data>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
     <value>ID de l’Editeur</value>
@@ -2272,14 +2275,14 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY" xml:space="preserve">
     <value>L’opération est bloquée par la stratégie de groupe</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR" xml:space="preserve">
-    <value>Erreur interne de la source rest</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR" xml:space="preserve">
+    <value>Erreur interne de l'API Rest</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL" xml:space="preserve">
     <value>URL de source rest non valide</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
-    <value>Type MIME (Multipurpose Internet Mail Extensions) non pris en charge retourné par la source rest</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
+    <value>Type MIME non supporté renvoyé par l'API restante</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION" xml:space="preserve">
     <value>Version de contrat source rest non valide</value>
@@ -2299,8 +2302,8 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST" xml:space="preserve">
     <value>La demande de recherche n’est pas prise en charge par une ou plusieurs sources</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND" xml:space="preserve">
-    <value>Le point de terminaison de la source rest est introuvable.</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND" xml:space="preserve">
+    <value>Le point de terminaison de l'API de repos est introuvable.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED" xml:space="preserve">
     <value>Échec de l’ouverture de la source.</value>
@@ -2813,5 +2816,233 @@ Spécifiez l’un d’entre eux à l’aide de l’option --source pour continue
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>Échec de la réparation avec le code de sortie : {0}</value>
     <comment>{Locked="{0}"} Error message displayed when an attempt to repair an application package fails. {0} is a placeholder replaced by an error code.</comment>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED" xml:space="preserve">
+    <value>La connexion SQLite a été interrompue pour éviter toute altération.</value>
+  </data>
+  <data name="UninstallAllVersionsArgumentDescription" xml:space="preserve">
+    <value>Désinstaller toutes les versions</value>
+  </data>
+  <data name="TargetVersionArgumentDescription" xml:space="preserve">
+    <value>La version à suivre</value>
+  </data>
+  <data name="UninstallFailedDueToMultipleVersions" xml:space="preserve">
+    <value>Plusieurs versions de ce paquet sont installées. Soit vous affinez la recherche, soit vous passez l'argument `--version` pour en sélectionner une, soit vous passez l'option `--all-versions` pour les désinstaller toutes.</value>
+    <comment>{Locked="--version,--all-versions"}</comment>
+  </data>
+  <data name="PolicyEnableProxyCommandLineOptions" xml:space="preserve">
+    <value>Activer les options de ligne de commande du gestionnaire de paquets Windows</value>
+    <comment>Describes a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
+  </data>
+  <data name="ProxyArgumentDescription" xml:space="preserve">
+    <value>Définir un proxy à utiliser pour cette exécution</value>
+  </data>
+  <data name="NoProxyArgumentDescription" xml:space="preserve">
+    <value>Désactiver l’utilisation du proxy pour cette exécution</value>
+  </data>
+  <data name="ResetAdminSettingFailed" xml:space="preserve">
+    <value>Impossible de réinitialiser {0}. Ce paramètre est contrôlé par la stratégie. Pour plus d’informations, contactez votre administrateur système.</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="ResetAdminSettingSucceeded" xml:space="preserve">
+    <value>Réinitialiser les paramètres administratifs '{0}'.</value>
+    <comment>{Locked="{0}"} Message displayed after the user resets an admin setting to its default value. Reset is used as verb in past tense. {0} is a placeholder replaced by the setting name.</comment>
+  </data>
+  <data name="SetAdminSettingFailed" xml:space="preserve">
+    <value>Impossible de définir {0}. Ce paramètre est contrôlé par la stratégie. Pour plus d’informations, contactez votre administrateur système.</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="SetAdminSettingSucceeded" xml:space="preserve">
+    <value>Régler le paramètre d'administration '{0}' sur '{1}'.</value>
+    <comment>{Locked="{0}"} Message displayed after the user sets the value of an admin setting. Set is used as a verb in past tense. {0} is a placeholder replaced by the setting name. {1} is a placeholder replaced </comment>
+  </data>
+  <data name="SettingNameArgumentDescription" xml:space="preserve">
+    <value>Nom du paramètre à modifier</value>
+  </data>
+  <data name="SettingValueArgumentDescription" xml:space="preserve">
+    <value>Valeur à définir pour le paramètre.</value>
+  </data>
+  <data name="SettingsResetCommandLongDescription" xml:space="preserve">
+    <value>Rétablit la valeur par défaut d’un paramètre d’administrateur.</value>
+  </data>
+  <data name="SettingsResetCommandShortDescription" xml:space="preserve">
+    <value>Rétablit la valeur par défaut d’un paramètre d’administrateur.</value>
+  </data>
+  <data name="SettingsSetCommandLongDescription" xml:space="preserve">
+    <value>Définit la valeur d'un paramètre administratif.</value>
+  </data>
+  <data name="SettingsSetCommandShortDescription" xml:space="preserve">
+    <value>Définit la valeur d'un paramètre administratif.</value>
+  </data>
+  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
+    <value>Exclut une source de la recherche, sauf indication contraire</value>
+  </data>
+  <data name="SourceListExplicit" xml:space="preserve">
+    <value>Contenu explicite</value>
+  </data>
+  <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
+    <value>Niveau de confiance de la source (aucun ou approuvé)</value>
+  </data>
+  <data name="SourceListTrustLevel" xml:space="preserve">
+    <value>Niveau de confiance</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED" xml:space="preserve">
+    <value>Échec de l'obtention du catalogue de paquets Microsoft Store.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE" xml:space="preserve">
+    <value>Aucun paquet Microsoft Store applicable n'a été trouvé dans le catalogue de paquets Microsoft Store.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED" xml:space="preserve">
+    <value>Échec de l'obtention des informations de téléchargement du paquet Microsoft Store.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
+    <value>Aucune information sur le téléchargement du paquet Microsoft Store n'a été trouvée.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
+    <value>Échec de la récupération de la licence du paquet Microsoft Store.</value>
+  </data>
+  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
+    <value>Le paquet Microsoft Store n'a pas pu être trouvé.</value>
+  </data>
+  <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
+    <value>Vérification réussie du hachage du paquet Microsoft Store</value>
+  </data>
+  <data name="MSStoreDownloadPackageHashMismatch" xml:space="preserve">
+    <value>Mauvaise correspondance du hachage du paquet Microsoft Store</value>
+  </data>
+  <data name="MSStoreDownloadPackageDownloaded" xml:space="preserve">
+    <value>Paquet Microsoft Store téléchargé : {0}</value>
+    <comment>{Locked="{0}"} Full path of the downloaded package.</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadFailed" xml:space="preserve">
+    <value>Le téléchargement du paquet Microsoft Store a échoué : {0}</value>
+    <comment>{Locked="{0}"} Package name.</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadSuccess" xml:space="preserve">
+    <value>Le téléchargement du paquet Microsoft Store est terminé</value>
+  </data>
+  <data name="MSStoreDownloadMainPackages" xml:space="preserve">
+    <value>Téléchargement des principaux paquets à partir du Microsoft Store...</value>
+  </data>
+  <data name="MSStoreDownloadDependencyPackages" xml:space="preserve">
+    <value>Téléchargement de paquets de dépendances à partir du Microsoft Store...</value>
+  </data>
+  <data name="MSStoreDownloadGetDownloadInfo" xml:space="preserve">
+    <value>Récupération des informations de téléchargement des paquets Microsoft Store</value>
+  </data>
+  <data name="MSStoreDownloadGetDownloadInfoFailed" xml:space="preserve">
+    <value>Échec de la récupération des informations de téléchargement du paquet Microsoft Store</value>
+  </data>
+  <data name="MSStoreDownloadGetLicense" xml:space="preserve">
+    <value>Récupération de la licence du paquet Microsoft Store</value>
+  </data>
+  <data name="MSStoreDownloadGetLicenseSuccess" xml:space="preserve">
+    <value>Licence du paquet Microsoft Store sauvegardée : {0}</value>
+    <comment>{Locked="{0}"} License file full path.</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseFailed" xml:space="preserve">
+    <value>Échec de la récupération de la licence du paquet Microsoft Store</value>
+  </data>
+  <data name="MSStoreDownloadRenameNotSupported" xml:space="preserve">
+    <value>Le téléchargement du paquet Microsoft Store ne prend pas en charge l'argument --rename. Le paquet Microsoft Store utilisera les noms fournis par le catalogue Microsoft Store.</value>
+    <comment>{Locked="--rename"}</comment>
+  </data>
+  <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
+    <value>Le téléchargement des paquets Microsoft Store nécessite l'authentification Microsoft Entra Id. Une demande d'authentification peut apparaître si nécessaire. Les informations authentifiées seront partagées avec les services Microsoft pour l'autorisation d'accès. Pour l'octroi de licences de paquets Microsoft Store, le compte Microsoft Entra Id doit disposer d'un accès administrateur au locataire Microsoft Entra Id.</value>
+  </data>
+  <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
+    <value>Ne pas récupérer la licence hors ligne du paquet Microsoft Store</value>
+  </data>
+  <data name="PlatformArgumentDescription" xml:space="preserve">
+    <value>Sélectionner la plate-forme cible</value>
+  </data>
+  <data name="ConfigurationExportAddingToFile" xml:space="preserve">
+    <value>Ajout d'un fichier de configuration : {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportSuccessful" xml:space="preserve">
+    <value>Exportation réussie</value>
+  </data>
+  <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
+    <value>Obtenir les paramètres de configuration...</value>
+  </data>
+  <data name="ConfigureExportArgumentError" xml:space="preserve">
+    <value>Au moins --packageId et/ou --module avec --resource doivent être fournis.</value>
+    <comment>{Locked="--packageId,--module, --resource"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>Exporte les ressources de configuration vers un fichier de configuration. Lorsqu’il est utilisé avec --packageId, exporte une ressource WinGetPackage de l’ID de package donné. Lorsqu’il est utilisé avec --module et --resource, obtient les paramètres de la ressource et l’exporte vers le fichier de configuration. Si le fichier de configuration de sortie existe déjà, ajoute les ressources de configuration exportées.</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
+  <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
+    <value>Exporte les ressources de configuration vers un fichier de configuration.</value>
+  </data>
+  <data name="ConfigureExportModule" xml:space="preserve">
+    <value>Le module de la ressource à exporter.</value>
+  </data>
+  <data name="ConfigureExportPackageId" xml:space="preserve">
+    <value>L'identifiant du paquet à exporter.</value>
+  </data>
+  <data name="ConfigureExportResource" xml:space="preserve">
+    <value>La ressource de configuration à exporter.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
+    <value>L'unité de configuration n'a pas réussi à obtenir ses propriétés.</value>
+  </data>
+  <data name="ConfigurationExportFailed" xml:space="preserve">
+    <value>Échec de l'exportation de la configuration.</value>
+  </data>
+  <data name="ConfigureExportUnitDescription" xml:space="preserve">
+    <value>Configuration de {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigureExportUnitInstallDescription" xml:space="preserve">
+    <value>Installer {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationWarningSetViewTruncated" xml:space="preserve">
+    <value>Certaines données présentes dans le fichier de configuration ont été tronquées pour cette sortie ; inspecter le contenu du fichier pour en obtenir le contenu complet.</value>
+  </data>
+  <data name="ConfigurationWarningValueTruncated" xml:space="preserve">
+    <value>&lt;cette valeur a été tronquée ; consultez le contenu du fichier pour obtenir le texte complet&gt;</value>
+    <comment>Keep some form of separator like the "&lt;&gt;" around the text so that it stands out from the preceding text.</comment>
+  </data>
+  <data name="ConfigureListCommandLongDescription" xml:space="preserve">
+    <value>Affiche les détails de niveau supérieur pour les configurations qui ont été appliquées au système. Ces données peuvent ensuite être utilisées avec des commandes `configure` pour obtenir plus de détails.</value>
+    <comment>{Locked="`configure`"}</comment>
+  </data>
+  <data name="ConfigureListCommandShortDescription" xml:space="preserve">
+    <value>Affiche l’historique de configuration</value>
+  </data>
+  <data name="ConfigurationHistoryEmpty" xml:space="preserve">
+    <value>On ne trouve aucune configuration dans l'historique.</value>
+  </data>
+  <data name="ConfigurationHistoryItemArgumentDescription" xml:space="preserve">
+    <value>Sélectionner des éléments de l’historique</value>
+  </data>
+  <data name="ConfigurationHistoryItemNotFound" xml:space="preserve">
+    <value>Aucune configuration unique correspondant aux données fournies n’a été trouvée. Fournissez le nom complet ou une partie de l’identificateur qui correspond sans ambiguïté à la configuration souhaitée.</value>
+  </data>
+  <data name="ConfigurationHistoryRemoveArgumentDescription" xml:space="preserve">
+    <value>Supprimer l’élément de l’historique</value>
+  </data>
+  <data name="ConfigureListFirstApplied" xml:space="preserve">
+    <value>Première application</value>
+    <comment>Column header for date values indicating when a configuration was first applied to the system.</comment>
+  </data>
+  <data name="ConfigureListIdentifier" xml:space="preserve">
+    <value>Identificateur</value>
+  </data>
+  <data name="ConfigureListName" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="ConfigureListOrigin" xml:space="preserve">
+    <value>Origine</value>
+  </data>
+  <data name="ConfigureListPath" xml:space="preserve">
+    <value>Chemin d'accès</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
+    <value>La configuration spécifiée est introuvable.</value>
   </data>
 </root>

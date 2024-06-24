@@ -100,15 +100,28 @@ Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, können Benutz
 
         Wenn Sie diese Richtlinie deaktivieren, können Benutzer die Windows-Paketverwaltungs-CLI und PowerShell-Cmdlets nicht ausführen.
 
-        Wenn Sie diese Richtlinie aktivieren oder nicht konfigurieren, können Benutzer die Windows Package Manager CLI-Befehle und PowerShell-Cmdlets ausführen. (Vorausgesetzt, die Richtlinie "App-Installationsprogramm aktivieren" ist nicht deaktiviert).
+        Wenn Sie diese Richtlinie aktivieren oder nicht konfigurieren, können Benutzer die CLI-Befehle des Windows-Paket-Managers und PowerShell-Cmdlets ausführen. (Vorausgesetzt, die Richtlinie „App Installer aktivieren“ ist nicht deaktiviert.)
 
-        Diese Richtlinie hat keinen Einfluss auf die Richtlinie "App-Installationsprogramm aktivieren".</string>
+        Diese Richtlinie setzt die Richtlinie „App-Installer aktivieren“ nicht außer Kraft.</string>
       <string id="EnableWindowsPackageManagerConfiguration">Aktivieren der Windows-Paket-Manager-Konfiguration</string>
       <string id="EnableWindowsPackageManagerConfigurationExplanation">Diese Richtlinie steuert, ob das Windows-Paket-Manager Konfigurationsfeature von Benutzern verwendet werden kann.
 
 Wenn Sie diese Einstellung aktivieren oder nicht konfigurieren, können Benutzer das Konfigurationsfeature Windows-Paket-Manager verwenden.
 
 Wenn Sie diese Einstellung deaktivieren, können Benutzer das Konfigurationsfeature Windows-Paket-Manager nicht verwenden.</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptions">Befehlszeilenoptionen für Windows-Paket-Manager Proxy aktivieren</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
+        Diese Richtlinie steuert, ob die Windows-Paket-Manager Verwendung des Proxys von Benutzern über die Befehlszeile konfiguriert werden kann.
+
+Wenn Sie diese Einstellung aktivieren, können Benutzer die Verwendung des Proxys durch die Windows-Paket-Manager über die Befehlszeile konfigurieren.
+
+Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, können Benutzer die Verwendung des Proxys durch die Windows-Paket-Manager über die Befehlszeile nicht konfigurieren.</string>
+      <string id="WindowsPackageManagerDefaultProxy">Standardproxy für den Windows-Paket-Manager festlegen</string>
+      <string id="WindowsPackageManagerDefaultProxyExplanation">Diese Richtlinie steuert den Standardproxy, der vom Windows-Paket-Manager verwendet wird.
+
+Wenn Sie diese Einstellung deaktivieren oder nicht konfigurieren, wird standardmäßig kein Proxy verwendet.
+
+Wenn Sie diese Einstellung aktivieren, wird der angegebene Proxy standardmäßig verwendet.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -119,6 +132,11 @@ Wenn Sie diese Einstellung deaktivieren, können Benutzer das Konfigurationsfeat
       </presentation>
       <presentation id="AllowedSources">
         <listBox refId="AllowedSources" required="false">Erlaubte Quellen: </listBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerDefaultProxy">
+        <textBox refId="WindowsPackageManagerDefaultProxy">
+          <label>Standardproxy</label>
+        </textBox>
       </presentation>
     </presentationTable>
   </resources>

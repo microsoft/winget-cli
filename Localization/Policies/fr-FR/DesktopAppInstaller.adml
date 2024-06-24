@@ -98,17 +98,30 @@ Si vous désactivez ou ne configurez pas ce paramètre, les utilisateurs ne peuv
       <string id="EnableWindowsPackageManagerCommandLineInterfaces">Activer les interfaces de ligne de commande Gestionnaire de package Windows</string>
       <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Cette stratégie détermine si un utilisateur peut effectuer une action à l’aide du Gestionnaire de package Windows via une interface de ligne de commande (WinGet CLI ou WinGet PowerShell).
 
-Si vous désactivez cette stratégie, les utilisateurs ne peuvent pas exécuter l’interface CLI Gestionnaire de package Windows et les applets de commande PowerShell.
+        Si vous désactivez cette stratégie, les utilisateurs ne pourront pas exécuter l’interface CLI Gestionnaire de package Windows et les cmdlets PowerShell.
 
-Si vous activez ou ne configurez pas cette stratégie, les utilisateurs peuvent exécuter les commandes Gestionnaire de package Windows CLI et PowerShell. (La stratégie « Activer Programme d'installation d'application » fournie n’est pas désactivée).
+        Si vous activez ou ne configurez pas cette stratégie, les utilisateurs peuvent exécuter les commandes Gestionnaire de package Windows CLI et les cmdlets PowerShell. (La stratégie « Activer Programme d'installation d'application » fournie n’est pas désactivée).
 
-Cette stratégie ne remplace pas la stratégie « Activer Programme d'installation d'application ».</string>
+        Cette stratégie ne remplace pas la stratégie « Activer Programme d'installation d'application ».</string>
       <string id="EnableWindowsPackageManagerConfiguration">Activer la configuration Gestionnaire de package Windows</string>
       <string id="EnableWindowsPackageManagerConfigurationExplanation">Cette stratégie contrôle si la fonctionnalité de configuration Gestionnaire de package Windows peut être utilisée par les utilisateurs.
 
 Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent utiliser la fonctionnalité de configuration Gestionnaire de package Windows.
 
 Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas utiliser la fonctionnalité de configuration Gestionnaire de package Windows.</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptions">Activer les options de ligne de commande du proxy Gestionnaire de package Windows</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
+        Cette stratégie contrôle si l’utilisation Gestionnaire de package Windows proxy peut être configurée par les utilisateurs via la ligne de commande.
+
+Si vous activez ce paramètre, les utilisateurs peuvent configurer l’utilisation du proxy par le Gestionnaire de package Windows via la ligne de commande.
+
+Si vous désactivez ou ne configurez pas ce paramètre, les utilisateurs ne peuvent pas configurer l’utilisation du proxy par le Gestionnaire de package Windows via la ligne de commande.</string>
+      <string id="WindowsPackageManagerDefaultProxy">Définir Gestionnaire de package Windows proxy par défaut</string>
+      <string id="WindowsPackageManagerDefaultProxyExplanation">Cette stratégie contrôle le proxy par défaut utilisé par le Gestionnaire de package Windows.
+
+Si vous désactivez ou ne configurez pas ce paramètre, aucun proxy n’est utilisé par défaut.
+
+Si vous activez ce paramètre, le proxy spécifié est utilisé par défaut.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -119,6 +132,11 @@ Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas utiliser la f
       </presentation>
       <presentation id="AllowedSources">
         <listBox refId="AllowedSources" required="false">Sources autorisées : </listBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerDefaultProxy">
+        <textBox refId="WindowsPackageManagerDefaultProxy">
+          <label>Proxy par défaut</label>
+        </textBox>
       </presentation>
     </presentationTable>
   </resources>
