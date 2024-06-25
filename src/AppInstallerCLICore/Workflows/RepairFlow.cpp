@@ -398,6 +398,7 @@ namespace AppInstaller::CLI::Workflow
             context <<
                 SetPackageFamilyNamesInContext;
         }
+        break;
         case InstallerTypeEnum::MSStore:
             break;
         case InstallerTypeEnum::Portable:
