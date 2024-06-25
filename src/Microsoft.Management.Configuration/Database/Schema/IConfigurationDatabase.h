@@ -8,6 +8,7 @@
 #include <winget/SQLiteDynamicStorage.h>
 #include <wil/cppwinrt_wrl.h>
 #include <memory>
+#include <tuple>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -23,7 +24,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         static AppInstaller::SQLite::Version GetLatestVersion();
 
         // Creates the version appropriate database object for the given storage.
-        static std::unique_ptr<IConfigurationDatabase> CreateFor(std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> storage);
+        static std::unique_ptr<IConfigurationDatabase> CreateFor(const std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage>& storage, bool allowMigration = false);
+
+        // Gets the schema version from the current interface.
+        virtual const AppInstaller::SQLite::Version& GetSchemaVersion() = 0;
 
         // Version 0.1
 
@@ -44,5 +48,24 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Gets the row id of the set with the given instance identifier, if present.
         virtual std::optional<AppInstaller::SQLite::rowid_t> GetSetRowId(const GUID& instanceIdentifier) = 0;
+
+        // Version 0.2
+
+        // Migrates from the current interface given.
+        // Returns true if supported; false if not.
+        // Throws on errors that occur during an attempted migration.
+        virtual bool MigrateFrom(IConfigurationDatabase* current) = 0;
+
+        // Adds a new queue item for the given configuration set and object name.
+        virtual void AddQueueItem(const GUID& instanceIdentifier, const std::string& objectName);
+
+        // Sets the queue item with the given object name as active.
+        virtual void SetActiveQueueItem(const std::string& objectName);
+
+        // Gets all queue items in queue order (item at index 0 is active/next).
+        virtual std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, bool>> GetQueueItems();
+
+        // Removes the queue item with the given object name.
+        virtual void RemoveQueueItem(const std::string& objectName);
     };
 }

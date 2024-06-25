@@ -4,6 +4,7 @@
 #include "ConfigurationSequencer.h"
 #include <AppInstallerStrings.h>
 
+using namespace std::chrono_literals;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -14,7 +15,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Best effort attempt to remove our queue row
         try
         {
-            m_database.RemoveQueueEntry(m_queueItemObjectName);
+            m_database.RemoveQueueItem(m_queueItemObjectName);
         }
         CATCH_LOG();
     }
@@ -28,7 +29,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_queueItemObjectName = AppInstaller::Utility::ConvertToUTF8(objectName);
         m_queueItemObject.create(wil::EventOptions::None, objectName.c_str());
 
-        m_database.AddQueueEntry(configurationSet, m_queueItemObjectName);
+        m_database.AddQueueItem(configurationSet, m_queueItemObjectName);
 
         // Create shared mutex
         constexpr PCWSTR applyMutexName = L"WinGetConfigQueueApplyMutex";
@@ -46,6 +47,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Probe for an empty queue
         DWORD status = 0;
         m_applyMutexScope = m_applyMutex.acquire(&status, 0);
+        THROW_LAST_ERROR_IF(status == WAIT_FAILED);
 
         if (status == WAIT_TIMEOUT)
         {
@@ -75,19 +77,81 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         waitHandles[1] = m_applyMutex.get();
 
         cancellation.Callback([&]() { cancellationEvent.SetEvent(); });
-        wil::scope_exit([&cancellation]() { cancellation.Callback([]() {}); });
+        auto clearCancelCallback = wil::scope_exit([&cancellation]() { cancellation.Callback([]() {}); });
 
         for (;;)
         {
             DWORD waitResult = WaitForMultipleObjects(ARRAYSIZE(waitHandles), waitHandles, FALSE, INFINITE);
             THROW_LAST_ERROR_IF(waitResult == WAIT_FAILED);
 
-            // TODO: HANDLE ALL THE OTHER RESULTS
+            if (waitResult == WAIT_OBJECT_0)
+            {
+                // Cancellation
+                break;
+            }
+            else if (waitResult == WAIT_OBJECT_0 + 1 || waitResult == WAIT_ABANDONED_0 + 1)
+            {
+                // We now hold the apply mutex
+                wil::mutex_release_scope_exit applyMutexScope{ m_applyMutex.get() };
+
+                size_t queuePosition = GetQueuePosition();
+                if (queuePosition == 0)
+                {
+                    m_database.SetActiveQueueItem(m_queueItemObjectName);
+                    break;
+                }
+                else
+                {
+                    std::this_thread::sleep_for(queuePosition * 100ms);
+                }
+            }
         }
     }
 
     bool ConfigurationSequencer::IsFrontOfQueue()
     {
+        if (GetQueuePosition() == 0)
+        {
+            return true;
+        }
+        else
+        {
+            m_applyMutexScope.reset();
+            return false;
+        }
+    }
 
+    size_t ConfigurationSequencer::GetQueuePosition()
+    {
+        auto queueItems = m_database.GetQueueItems();
+
+        // If we get no queue items at all, we assume that the database doesn't support queueing.
+        if (queueItems.empty())
+        {
+            return 0;
+        }
+
+        size_t result = 0;
+        bool found = false;
+
+        for (const auto& item : queueItems)
+        {
+            if (item.ObjectName == m_queueItemObjectName)
+            {
+                found = true;
+                break;
+            }
+
+            std::wstring objectName = AppInstaller::Utility::ConvertToUTF16(item.ObjectName);
+            QueueObjectType itemObject;
+            if (itemObject.try_open(objectName.c_str(), SYNCHRONIZE))
+            {
+                ++result;
+            }
+        }
+
+        THROW_HR_IF(E_NOT_SET, !found);
+
+        return result;
     }
 }

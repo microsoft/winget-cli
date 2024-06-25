@@ -37,9 +37,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // If not (returns false), it will release m_applyMutexScope.
         bool IsFrontOfQueue();
 
+        // Determines the effective queue position of this operation; removing queue entries that are not longer active.
+        // 0 is the front of the queue.
+        size_t GetQueuePosition();
+
+        using QueueObjectType = wil::unique_event;
+
         ConfigurationDatabase& m_database;
         std::string m_queueItemObjectName;
-        wil::unique_event m_queueItemObject;
+        QueueObjectType m_queueItemObject;
         wil::unique_mutex m_applyMutex;
         wil::mutex_release_scope_exit m_applyMutexScope;
     };

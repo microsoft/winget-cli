@@ -226,6 +226,8 @@
     <ClInclude Include="Database\Schema\0_1\Interface.h" />
     <ClInclude Include="Database\Schema\0_1\SetInfoTable.h" />
     <ClInclude Include="Database\Schema\0_1\UnitInfoTable.h" />
+    <ClInclude Include="Database\Schema\0_2\Interface.h" />
+    <ClInclude Include="Database\Schema\0_2\QueueTable.h" />
     <ClInclude Include="Database\Schema\IConfigurationDatabase.h" />
     <ClInclude Include="DefaultSetGroupProcessor.h" />
     <ClInclude Include="DiagnosticInformationInstance.h" />
@@ -274,6 +276,8 @@
     <ClCompile Include="Database\Schema\0_1\Interface_0_1.cpp" />
     <ClCompile Include="Database\Schema\0_1\SetInfoTable.cpp" />
     <ClCompile Include="Database\Schema\0_1\UnitInfoTable.cpp" />
+    <ClCompile Include="Database\Schema\0_2\Interface_0_2.cpp" />
+    <ClCompile Include="Database\Schema\0_2\QueueTable.cpp" />
     <ClCompile Include="Database\Schema\IConfigurationDatabase.cpp" />
     <ClCompile Include="DefaultSetGroupProcessor.cpp" />
     <ClCompile Include="DiagnosticInformationInstance.cpp" />

@@ -41,6 +41,27 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Removes the given set from the database history if it is present.
         void RemoveSetHistory(const Configuration::ConfigurationSet& configurationSet);
 
+        // Adds a new queue item for the given configuration set and object name.
+        void AddQueueItem(const Configuration::ConfigurationSet& configurationSet, const std::string& objectName);
+
+        // Sets the queue item with the given object name as active.
+        void SetActiveQueueItem(const std::string& objectName);
+
+        // Data about a queue item.
+        struct QueueItem
+        {
+            GUID SetInstanceIdentifier{};
+            std::string ObjectName;
+            std::chrono::system_clock::time_point QueuedAt;
+            bool Active = false;
+        };
+
+        // Gets all queue items in queue order (item at index 0 is active/next).
+        std::vector<QueueItem> GetQueueItems() const;
+
+        // Removes the queue item with the given object name.
+        void RemoveQueueItem(const std::string& objectName);
+
     private:
         std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> m_connection;
         mutable std::unique_ptr<IConfigurationDatabase> m_database;

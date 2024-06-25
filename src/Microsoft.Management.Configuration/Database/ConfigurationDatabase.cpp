@@ -66,7 +66,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             if (!m_database && std::filesystem::is_regular_file(databaseFile))
             {
                 m_connection = std::make_shared<SQLiteDynamicStorage>(databaseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
-                m_database = IConfigurationDatabase::CreateFor(m_connection);
+                m_database = IConfigurationDatabase::CreateFor(m_connection, true);
             }
         }
 #ifdef AICLI_DISABLE_TEST_HOOKS
@@ -162,6 +162,102 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             m_database->RemoveSet(setRowId.value());
             m_connection->SetLastWriteTime();
         }
+
+        transaction->Commit();
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        }
+        CATCH_LOG();
+#endif
+    }
+
+
+    void ConfigurationDatabase::AddQueueItem(const Configuration::ConfigurationSet& configurationSet, const std::string& objectName)
+    {
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        // While under development, treat errors escaping this function as a test hook.
+        try
+        {
+#endif
+        THROW_HR_IF_NULL(E_POINTER, configurationSet);
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
+
+        auto transaction = BeginTransaction("AddQueueItem");
+
+        m_database->AddQueueItem(configurationSet.InstanceIdentifier(), objectName);
+        m_connection->SetLastWriteTime();
+
+        transaction->Commit();
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        }
+        CATCH_LOG();
+#endif
+    }
+
+    void ConfigurationDatabase::SetActiveQueueItem(const std::string& objectName)
+    {
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        // While under development, treat errors escaping this function as a test hook.
+        try
+        {
+#endif
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
+
+        auto transaction = BeginTransaction("SetActiveQueueItem");
+
+        m_database->SetActiveQueueItem(objectName);
+        m_connection->SetLastWriteTime();
+
+        transaction->Commit();
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        }
+        CATCH_LOG();
+#endif
+    }
+
+    std::vector<ConfigurationDatabase::QueueItem> ConfigurationDatabase::GetQueueItems() const
+    {
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        // While under development, treat errors escaping this function as a test hook.
+        try
+        {
+#endif
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
+
+        auto transaction = BeginTransaction("GetQueueItems");
+
+        std::vector<ConfigurationDatabase::QueueItem> result;
+        auto queueItems = m_database->GetQueueItems();
+        result.reserve(queueItems.size());
+
+        for (const auto& item : queueItems)
+        {
+            QueueItem resultItem;
+            std::tie(resultItem.SetInstanceIdentifier, resultItem.ObjectName, resultItem.QueuedAt, resultItem.Active) = item;
+            result.emplace_back(std::move(resultItem));
+        }
+
+        return result;
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        }
+        CATCH_LOG();
+
+        return {};
+#endif
+    }
+
+    void ConfigurationDatabase::RemoveQueueItem(const std::string& objectName)
+    {
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        // While under development, treat errors escaping this function as a test hook.
+        try
+        {
+#endif
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
+
+        auto transaction = BeginTransaction("RemoveQueueItem");
+
+        m_database->RemoveQueueItem(objectName);
+        m_connection->SetLastWriteTime();
 
         transaction->Commit();
 #ifdef AICLI_DISABLE_TEST_HOOKS
