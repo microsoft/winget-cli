@@ -49,7 +49,6 @@ namespace AppInstaller::Archive
         return S_OK;
     }
 
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
     static bool* s_ScanArchiveResult_TestHook_Override = nullptr;
 

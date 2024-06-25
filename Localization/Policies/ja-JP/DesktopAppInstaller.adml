@@ -96,19 +96,32 @@
 
 この設定を無効にするか、未構成にした場合、ユーザーはこのプロトコルを使用する Web サイトからパッケージをインストールできなくなります。</string>
       <string id="EnableWindowsPackageManagerCommandLineInterfaces">Windows パッケージ マネージャーのコマンド ライン インターフェイスを有効にする</string>
-      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">このポリシーは、ユーザーがコマンド ライン インターフェイス (WinGet CLI または WinGet PowerShell) を通じて Windows パッケージ マネージャーを使用してアクションを実行できるかどうかを決定します。
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">このポリシーは、ユーザーがコマンド ライン インターフェイス (WinGet CLI または WinGet PowerShell) を使用してWindows パッケージ マネージャーを使用してアクションを実行できるかどうかを決定します。
 
-このポリシーを無効にすると、ユーザーは Windows パッケージ マネージャー CLI と PowerShell コマンドレットを実行できなくなります。
+       このポリシーを無効にすると、ユーザーは Windows パッケージ マネージャー CLI と PowerShell コマンドレットを実行できなくなります。
 
-このポリシーを有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージ マネージャー CLI コマンドと PowerShell コマンドレットを実行できます ([アプリ インストーラーを有効にする] ポリシーが無効になっている場合に限る)。
+       このポリシーを有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージ マネージャー CLI コマンドと PowerShell コマンドレットを実行できます。(ただし、"アプリ インストーラーを有効にする" ポリシーが無効になっていない場合に限ります)。
 
-このポリシーは、[アプリ インストーラーを有効にする] ポリシーをオーバーライドしません。</string>
+       このポリシーは、"アプリ インストーラーを有効にする" ポリシーをオーバーライドしません。</string>
       <string id="EnableWindowsPackageManagerConfiguration">Windows パッケージ マネージャーの構成を有効にする</string>
       <string id="EnableWindowsPackageManagerConfigurationExplanation">このポリシーでは、Windows パッケージ マネージャー構成機能をユーザーが使用できるかどうかを制御します。
 
 この設定を有効にした場合、または構成しなかった場合、ユーザーはWindows パッケージ マネージャー構成機能を使用できます。
 
 この設定を無効にすると、ユーザーはWindows パッケージ マネージャー構成機能を使用できなくなります。</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptions">Windows パッケージ マネージャー Proxy コマンド ライン オプションを有効にする</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
+        このポリシーでは、ユーザーがコマンド ラインでプロキシのWindows パッケージ マネージャーの使用を構成できるかどうかを制御します。
+
+この設定を有効にした場合、ユーザーはコマンド ラインを使用してWindows パッケージ マネージャーのプロキシの使用を構成できます。
+
+この設定を無効にした場合、または構成しなかった場合、ユーザーはコマンド ラインでWindows パッケージ マネージャーのプロキシの使用を構成できなくなります。</string>
+      <string id="WindowsPackageManagerDefaultProxy">Windows パッケージ マネージャーの既定のプロキシを設定する</string>
+      <string id="WindowsPackageManagerDefaultProxyExplanation">このポリシーは、Windows パッケージ マネージャーで使用される既定のプロキシを制御します。
+
+この設定を無効にした場合、または構成しなかった場合、既定ではプロキシは使用されません。
+
+この設定を有効にした場合、指定したプロキシが既定で使用されます。</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -119,6 +132,11 @@
       </presentation>
       <presentation id="AllowedSources">
         <listBox refId="AllowedSources" required="false">許可されたソース: </listBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerDefaultProxy">
+        <textBox refId="WindowsPackageManagerDefaultProxy">
+          <label>既定のプロキシ</label>
+        </textBox>
       </presentation>
     </presentationTable>
   </resources>

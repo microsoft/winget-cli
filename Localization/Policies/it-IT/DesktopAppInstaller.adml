@@ -96,19 +96,32 @@ Se si abilita questa impostazione, gli utenti potranno installare pacchetti da s
 
 Se si disabilita o non si configura questa impostazione, gli utenti non potranno installare pacchetti da siti Web che utilizzano questo protocollo.</string>
       <string id="EnableWindowsPackageManagerCommandLineInterfaces">Abilita Gestione interfacce della riga di comando dei pacchetti Windows</string>
-      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Questo criterio determina se un utente può eseguire un'azione usando la Gestione pacchetti Windows tramite un'interfaccia della riga di comando (interfaccia della riga di comando di WinGet o WinGet PowerShell).
+      <string id="EnableWindowsPackageManagerCommandLineInterfacesExplanation">Questo criterio determina se un utente può eseguire un'azione usando Gestione pacchetti Windows tramite un'interfaccia della riga di comando (interfaccia della riga di comando di WinGet o WinGet PowerShell).
 
-Se disabiliti questo criterio, gli utenti non potranno eseguire l'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell.
+        Se si disabilita questo criterio, gli utenti non saranno in grado di eseguire l'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell.
 
-Se abiliti o non configuri questo criterio, gli utenti potranno eseguire i comandi dell'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell. (Il criterio "Abilita Programma di installazione app" specificato non è disabilitato).
+        Se si abilita o non si configura questo criterio, gli utenti non saranno in grado di eseguire l'interfaccia della riga di comando Gestione pacchetti Windows e i cmdlet di PowerShell. (se il criterio "Abilita programma di installazione app" non è disabilitato).
 
-Questo criterio non esegue l'override del criterio "Abilita Programma di installazione app".</string>
+        Questo criterio non sostituisce il criterio "Abilita programma di installazione app".</string>
       <string id="EnableWindowsPackageManagerConfiguration">Abilita la configurazione di Gestione pacchetti</string>
       <string id="EnableWindowsPackageManagerConfigurationExplanation">Questo criterio controlla se la funzionalità di configurazione Gestione pacchetti Windows può essere usata dagli utenti.
 
 Se si abilita o non si configura questa impostazione, gli utenti potranno usare la funzionalità di configurazione Gestione pacchetti Windows.
 
 Se si disabilita questa impostazione, gli utenti non potranno usare la funzionalità di configurazione Gestione pacchetti Windows.</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptions">Abilita le opzioni della riga di comando del proxy Gestione pacchetti Windows</string>
+      <string id="EnableWindowsPackageManagerProxyCommandLineOptionsExplanation">
+        Questo criterio controlla se l'utilizzo Gestione pacchetti Windows del proxy può essere configurato dagli utenti tramite la riga di comando.
+
+Se si abilita questa impostazione, gli utenti potranno configurare l'uso del proxy da parte del Gestione pacchetti Windows tramite la riga di comando.
+
+Se si disabilita o non si configura questa impostazione, gli utenti non potranno configurare l'utilizzo del proxy da parte del Gestione pacchetti Windows tramite la riga di comando.</string>
+      <string id="WindowsPackageManagerDefaultProxy">Imposta proxy predefinito Gestione pacchetti Windows</string>
+      <string id="WindowsPackageManagerDefaultProxyExplanation">Questo criterio controlla il proxy predefinito utilizzato dal Gestione pacchetti Windows.
+
+Se si disabilita o non si configura questa impostazione, per impostazione predefinita non verrà utilizzato alcun proxy.
+
+Se si abilita questa impostazione, per impostazione predefinita verrà utilizzato il proxy specificato.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -119,6 +132,11 @@ Se si disabilita questa impostazione, gli utenti non potranno usare la funzional
       </presentation>
       <presentation id="AllowedSources">
         <listBox refId="AllowedSources" required="false">Origini consentite: </listBox>
+      </presentation>
+      <presentation id="WindowsPackageManagerDefaultProxy">
+        <textBox refId="WindowsPackageManagerDefaultProxy">
+          <label>Proxy predefinito</label>
+        </textBox>
       </presentation>
     </presentationTable>
   </resources>

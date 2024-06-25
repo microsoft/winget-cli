@@ -244,7 +244,6 @@ namespace AppInstaller::CLI::Workflow
                 if (installerDownloadOnly)
                 {
                     context <<
-                        EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::StoreDownload) <<
                         MSStoreDownload <<
                         ExportManifest;
                 }

@@ -22,7 +22,7 @@ utility::string_t TestDisplayCatalogResponse = _XPLATSTR(
         "DisplaySkuAvailabilities": [
           {
             "Sku": {
-              "SkuId": "0010",
+              "SkuId": "0015",
               "Properties": {
                 "Packages": [
                   {
@@ -242,8 +242,6 @@ std::vector<SFS::AppContent> GetSfsAppContentsOverrideFunction(std::string_view 
 
 TEST_CASE("MSStoreDownloadFlow_Success", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;
@@ -287,8 +285,6 @@ TEST_CASE("MSStoreDownloadFlow_Success", "[MSStoreDownloadFlow][workflow]")
 
 TEST_CASE("MSStoreDownloadFlow_Success_SkipDependencies", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;
@@ -328,8 +324,6 @@ TEST_CASE("MSStoreDownloadFlow_Success_SkipDependencies", "[MSStoreDownloadFlow]
 
 TEST_CASE("MSStoreDownloadFlow_Success_SkipLicense", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;
@@ -364,8 +358,6 @@ TEST_CASE("MSStoreDownloadFlow_Success_SkipLicense", "[MSStoreDownloadFlow][work
 
 TEST_CASE("MSStoreDownloadFlow_Success_SpecificLocale", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;
@@ -404,8 +396,6 @@ TEST_CASE("MSStoreDownloadFlow_Success_SpecificLocale", "[MSStoreDownloadFlow][w
 
 TEST_CASE("MSStoreDownloadFlow_Success_SpecificArchitecture", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;
@@ -445,8 +435,6 @@ TEST_CASE("MSStoreDownloadFlow_Success_SpecificArchitecture", "[MSStoreDownloadF
 
 TEST_CASE("MSStoreDownloadFlow_Success_SpecificPlatform", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;
@@ -486,8 +474,6 @@ TEST_CASE("MSStoreDownloadFlow_Success_SpecificPlatform", "[MSStoreDownloadFlow]
 
 TEST_CASE("MSStoreDownloadFlow_Fail_TargetSkuNotFound", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;
@@ -507,8 +493,6 @@ TEST_CASE("MSStoreDownloadFlow_Fail_TargetSkuNotFound", "[MSStoreDownloadFlow][w
 
 TEST_CASE("MSStoreDownloadFlow_Fail_LocaleNotApplicable", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;
@@ -528,8 +512,6 @@ TEST_CASE("MSStoreDownloadFlow_Fail_LocaleNotApplicable", "[MSStoreDownloadFlow]
 
 TEST_CASE("MSStoreDownloadFlow_Fail_ArchitectureNotApplicable", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;
@@ -550,8 +532,6 @@ TEST_CASE("MSStoreDownloadFlow_Fail_ArchitectureNotApplicable", "[MSStoreDownloa
 
 TEST_CASE("MSStoreDownloadFlow_Fail_PlatformNotApplicable", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;
@@ -572,8 +552,6 @@ TEST_CASE("MSStoreDownloadFlow_Fail_PlatformNotApplicable", "[MSStoreDownloadFlo
 
 TEST_CASE("MSStoreDownloadFlow_Fail_Licensing", "[MSStoreDownloadFlow][workflow]")
 {
-    auto enableFeature = TestUserSettings::EnableExperimentalFeature(AppInstaller::Settings::ExperimentalFeature::Feature::StoreDownload);
-
     TestCommon::TempDirectory tempDirectory("TestDownloadDirectory", false);
 
     std::ostringstream downloadOutput;

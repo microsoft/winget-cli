@@ -49,7 +49,7 @@ namespace AppInstaller::MSStore
     namespace DisplayCatalogDetails
     {
         // Default preferred sku to use
-        constexpr std::string_view TargetSkuIdValue = "0010"sv;
+        constexpr std::string_view TargetSkuIdValue = "0015"sv;
 
         // Json response fields
         constexpr std::string_view Product = "Product"sv;
@@ -67,9 +67,10 @@ namespace AppInstaller::MSStore
         constexpr std::string_view WuCategoryId = "WuCategoryId"sv;
 
         // Display catalog rest endpoint
-        constexpr std::string_view DisplayCatalogRestApi = R"(https://displaycatalog.mp.microsoft.com/v7.0/products/{0}?fieldsTemplate={1}&market={2}&languages={3})";
+        constexpr std::string_view DisplayCatalogRestApi = R"(https://displaycatalog.mp.microsoft.com/v7.0/products/{0}?fieldsTemplate={1}&market={2}&languages={3}&catalogIds={4})";
         constexpr std::string_view Details = "Details"sv;
         constexpr std::string_view Neutral = "Neutral"sv;
+        constexpr std::string_view TargetCatalogId = "4"sv;
 
         enum class DisplayCatalogPackageFormatEnum
         {
@@ -411,7 +412,7 @@ namespace AppInstaller::MSStore
             locales.emplace_back(Neutral);
 
             auto restEndpoint = AppInstaller::Utility::Format(std::string{ DisplayCatalogRestApi },
-                productId, Details, AppInstaller::Runtime::GetOSRegion(), Utility::Join(Utility::LocIndView(","), locales));
+                productId, Details, AppInstaller::Runtime::GetOSRegion(), Utility::Join(Utility::LocIndView(","), locales), TargetCatalogId);
 
             return JSON::GetUtilityString(restEndpoint);
         }
@@ -422,7 +423,7 @@ namespace AppInstaller::MSStore
         //     "DisplaySkuAvailabilities": [
         //       {
         //         "Sku": {
-        //           "SkuId": "0010",
+        //           "SkuId": "0015",
         //           ... Sku Contents ...
         //         }
         //       }
@@ -570,7 +571,7 @@ namespace AppInstaller::MSStore
             return displayCatalogPackages;
         }
 
-        DisplayCatalogPackage CallDisplayCatalogAndGetPreferredPackage(std::string_view productId, std::string_view locale, Utility::Architecture architecture)
+        DisplayCatalogPackage CallDisplayCatalogAndGetPreferredPackage(std::string_view productId, std::string_view locale, Utility::Architecture architecture, const Http::HttpClientHelper::HttpRequestHeaders& authHeaders)
         {
             AICLI_LOG(Core, Info, << "CallDisplayCatalogAndGetPreferredPackage with ProductId: " << productId << " Locale: " << locale << " Architecture: " << Utility::ToString(architecture));
 
@@ -585,7 +586,7 @@ namespace AppInstaller::MSStore
             }
 #endif
 
-            std::optional<web::json::value> displayCatalogResponseObject = httpClientHelper.HandleGet(displayCatalogApi);
+            std::optional<web::json::value> displayCatalogResponseObject = httpClientHelper.HandleGet(displayCatalogApi, {}, authHeaders);
 
             if (!displayCatalogResponseObject)
             {
@@ -1008,6 +1009,19 @@ namespace AppInstaller::MSStore
         m_productId(std::move(productId)), m_architecture(architecture), m_platform(platform), m_locale(std::move(locale))
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
+        if (!TestHooks::s_DisplayCatalog_HttpPipelineStage_Override)
+#endif
+        {
+            Authentication::MicrosoftEntraIdAuthenticationInfo displayCatalogMicrosoftEntraIdAuthInfo;
+            displayCatalogMicrosoftEntraIdAuthInfo.Resource = "https://bigcatalog.commerce.microsoft.com";
+            Authentication::AuthenticationInfo displayCatalogAuthInfo;
+            displayCatalogAuthInfo.Type = Authentication::AuthenticationType::MicrosoftEntraId;
+            displayCatalogAuthInfo.MicrosoftEntraIdInfo = std::move(displayCatalogMicrosoftEntraIdAuthInfo);
+
+            m_displayCatalogAuthenticator = std::make_unique<Authentication::Authenticator>(std::move(displayCatalogAuthInfo), authArgs);
+        }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
         if (!TestHooks::s_Licensing_HttpPipelineStage_Override)
 #endif
         {
@@ -1017,7 +1031,6 @@ namespace AppInstaller::MSStore
             licensingAuthInfo.Type = Authentication::AuthenticationType::MicrosoftEntraId;
             licensingAuthInfo.MicrosoftEntraIdInfo = std::move(licensingMicrosoftEntraIdAuthInfo);
 
-            // Not moving authArgs because we'll have auth for display catalog and sfs client in the near future.
             m_licensingAuthenticator = std::make_unique<Authentication::Authenticator>(std::move(licensingAuthInfo), authArgs);
         }
     }
@@ -1025,7 +1038,7 @@ namespace AppInstaller::MSStore
     MSStoreDownloadInfo MSStoreDownloadContext::GetDownloadInfo()
     {
 #ifndef WINGET_DISABLE_FOR_FUZZING
-        auto displayCatalogPackage = DisplayCatalogDetails::CallDisplayCatalogAndGetPreferredPackage(m_productId, m_locale, m_architecture);
+        auto displayCatalogPackage = DisplayCatalogDetails::CallDisplayCatalogAndGetPreferredPackage(m_productId, m_locale, m_architecture, GetAuthHeaders(m_displayCatalogAuthenticator));
         auto downloadInfo = SfsClientDetails::CallSfsClientAndGetMSStoreDownloadInfo(displayCatalogPackage.WuCategoryId, m_architecture, m_platform);
         downloadInfo.ContentId = displayCatalogPackage.ContentId;
         return downloadInfo;

@@ -41,6 +41,7 @@ bcp
 BEFACEF
 BFirst
 bght
+bigcatalog
 BITMAPINFOHEADER
 bitspace
 bkup
@@ -89,7 +90,7 @@ createmanifestmetadata
 cswinrt
 ctc
 currentuser
-DACL
+dacl
 datetimeoffset
 debian
 dedupe
@@ -400,6 +401,7 @@ runspace
 runtimeclass
 ryfu
 rzkzqaqjwj
+sacl
 SARL
 SASURL
 schematab
