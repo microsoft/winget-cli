@@ -129,6 +129,9 @@
     <ClCompile Include="Database\Schema\0_1\UnitInfoTable.cpp">
       <Filter>Database\Schema\0_1</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigurationSequencer.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -266,6 +269,9 @@
     </ClInclude>
     <ClInclude Include="Database\Schema\0_1\UnitInfoTable.h">
       <Filter>Database\Schema\0_1</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSequencer.h">
+      <Filter>Internals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

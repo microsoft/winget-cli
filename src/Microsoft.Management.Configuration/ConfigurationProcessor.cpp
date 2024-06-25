@@ -19,6 +19,7 @@
 #include "GetConfigurationUnitDetailsResult.h"
 #include "GetConfigurationSetDetailsResult.h"
 #include "DefaultSetGroupProcessor.h"
+#include "ConfigurationSequencer.h"
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
@@ -520,7 +521,23 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            // TODO: Send pending when blocked by another configuration run
+            if (!WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly))
+            {
+                ConfigurationSequencer sequencer{ m_database };
+                if (sequencer.Enqueue(configurationSet))
+                {
+                    try
+                    {
+                        progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::Pending));
+                    }
+                    CATCH_LOG();
+
+                    sequencer.Wait(progress);
+                }
+            }
+
+            progress.ThrowIfCancelled();
+
             try
             {
                 progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::InProgress));

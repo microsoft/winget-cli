@@ -207,6 +207,7 @@
     <ClInclude Include="ConfigurationConflictSetting.h" />
     <ClInclude Include="ConfigurationParameter.h" />
     <ClInclude Include="ConfigurationProcessor.h" />
+    <ClInclude Include="ConfigurationSequencer.h" />
     <ClInclude Include="ConfigurationSet.h" />
     <ClInclude Include="ConfigurationSetApplyProcessor.h" />
     <ClInclude Include="ConfigurationSetChangeData.h" />
@@ -255,6 +256,7 @@
     <ClCompile Include="ConfigurationConflictSetting.cpp" />
     <ClCompile Include="ConfigurationParameter.cpp" />
     <ClCompile Include="ConfigurationProcessor.cpp" />
+    <ClCompile Include="ConfigurationSequencer.cpp" />
     <ClCompile Include="ConfigurationSet.cpp" />
     <ClCompile Include="ConfigurationSetApplyProcessor.cpp" />
     <ClCompile Include="ConfigurationSetChangeData.cpp" />
