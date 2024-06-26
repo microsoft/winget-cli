@@ -64,6 +64,8 @@
  * Public API declarations.
  */
 
+int MAX_NESTING_LEVEL = 1000;
+
 YAML_DECLARE(int)
 yaml_parser_parse(yaml_parser_t *parser, yaml_event_t *event);
 
@@ -79,6 +81,10 @@ static int
 yaml_parser_set_parser_error_context(yaml_parser_t *parser,
         const char *context, yaml_mark_t context_mark,
         const char *problem, yaml_mark_t problem_mark);
+
+static int
+yaml_maximum_level_reached(yaml_parser_t *parser,
+        yaml_mark_t context_mark, yaml_mark_t problem_mark);
 
 /*
  * State functions.
@@ -162,6 +168,12 @@ static int
 yaml_parser_append_tag_directive(yaml_parser_t *parser,
         yaml_tag_directive_t value, int allow_duplicates, yaml_mark_t mark);
 
+YAML_DECLARE(void)
+yaml_set_max_nest_level(int max)
+{
+    MAX_NESTING_LEVEL = max;
+}
+
 /*
  * Get the next event.
  */
@@ -217,6 +229,14 @@ yaml_parser_set_parser_error_context(yaml_parser_t *parser,
     return 0;
 }
 
+static int
+yaml_maximum_level_reached(yaml_parser_t *parser,
+        yaml_mark_t context_mark, yaml_mark_t problem_mark)
+{
+    yaml_parser_set_parser_error_context(parser,
+            "while parsing", context_mark, "Maximum nesting level reached, set with yaml_set_max_nest_level())", problem_mark);
+    return 0;
+}
 
 /*
  * State dispatcher.
@@ -657,6 +677,10 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
                 return 1;
             }
             else if (token->type == YAML_FLOW_SEQUENCE_START_TOKEN) {
+                if (!STACK_LIMIT(parser, parser->indents, MAX_NESTING_LEVEL - parser->flow_level)) {
+                    yaml_maximum_level_reached(parser, start_mark, token->start_mark);
+                    goto error;
+                }
                 end_mark = token->end_mark;
                 parser->state = YAML_PARSE_FLOW_SEQUENCE_FIRST_ENTRY_STATE;
                 SEQUENCE_START_EVENT_INIT(*event, anchor, tag, implicit,
@@ -664,6 +688,10 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
                 return 1;
             }
             else if (token->type == YAML_FLOW_MAPPING_START_TOKEN) {
+                if (!STACK_LIMIT(parser, parser->indents, MAX_NESTING_LEVEL - parser->flow_level)) {
+                    yaml_maximum_level_reached(parser, start_mark, token->start_mark);
+                    goto error;
+                }
                 end_mark = token->end_mark;
                 parser->state = YAML_PARSE_FLOW_MAPPING_FIRST_KEY_STATE;
                 MAPPING_START_EVENT_INIT(*event, anchor, tag, implicit,
@@ -671,6 +699,10 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
                 return 1;
             }
             else if (block && token->type == YAML_BLOCK_SEQUENCE_START_TOKEN) {
+                if (!STACK_LIMIT(parser, parser->indents, MAX_NESTING_LEVEL - parser->flow_level)) {
+                    yaml_maximum_level_reached(parser, start_mark, token->start_mark);
+                    goto error;
+                }
                 end_mark = token->end_mark;
                 parser->state = YAML_PARSE_BLOCK_SEQUENCE_FIRST_ENTRY_STATE;
                 SEQUENCE_START_EVENT_INIT(*event, anchor, tag, implicit,
@@ -678,6 +710,10 @@ yaml_parser_parse_node(yaml_parser_t *parser, yaml_event_t *event,
                 return 1;
             }
             else if (block && token->type == YAML_BLOCK_MAPPING_START_TOKEN) {
+                if (!STACK_LIMIT(parser, parser->indents, MAX_NESTING_LEVEL - parser->flow_level)) {
+                    yaml_maximum_level_reached(parser, start_mark, token->start_mark);
+                    goto error;
+                }
                 end_mark = token->end_mark;
                 parser->state = YAML_PARSE_BLOCK_MAPPING_FIRST_KEY_STATE;
                 MAPPING_START_EVENT_INIT(*event, anchor, tag, implicit,
@@ -1021,6 +1057,11 @@ yaml_parser_parse_flow_sequence_entry_mapping_key(yaml_parser_t *parser,
                     YAML_PARSE_FLOW_SEQUENCE_ENTRY_MAPPING_VALUE_STATE))
             return 0;
         return yaml_parser_parse_node(parser, event, 0, 0);
+    }
+    else if (token->type == YAML_FLOW_SEQUENCE_END_TOKEN) {
+        yaml_mark_t mark = token->start_mark;
+        parser->state = YAML_PARSE_FLOW_SEQUENCE_ENTRY_MAPPING_VALUE_STATE;
+        return yaml_parser_process_empty_scalar(parser, event, mark);
     }
     else {
         yaml_mark_t mark = token->end_mark;
