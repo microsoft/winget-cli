@@ -1,6 +1,6 @@
 ## YamlCppLib
 
-Do not change code under the libyaml directory; it contains libyaml source code version [0.2.5](https://github.com/yaml/libyaml/releases/tag/0.2.5).  
+Do not change code under the libyaml directory; it contains libyaml source code version [840b65c](https://github.com/yaml/libyaml/commits/840b65c).
 It is created using git subtree command:
 
     git subtree add --prefix=src/YamlCppLib/libyaml https://github.com/yaml/libyaml.git release/0.2.5 --squash
