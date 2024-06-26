@@ -521,9 +521,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
+            ConfigurationSequencer sequencer{ m_database };
+
             if (!WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly))
             {
-                ConfigurationSequencer sequencer{ m_database };
                 if (sequencer.Enqueue(configurationSet))
                 {
                     try

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Interface.h"
 #include "QueueTable.h"
+#include <winget/SQLiteMetadataTable.h>
 
 using namespace AppInstaller::SQLite;
 using namespace AppInstaller::Utility;
@@ -29,7 +30,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         {
             if (V0_1::Interface::MigrateFrom(current))
             {
+                Savepoint savepoint = Savepoint::Create(*m_storage, "MigrateFrom0_1");
+
                 MigrateFrom0_1();
+                s_InterfaceVersion.SetSchemaVersion(*m_storage);
+
+                savepoint.Commit();
+
                 return true;
             }
         }
@@ -67,11 +74,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
     void Interface::MigrateFrom0_1()
     {
-        Savepoint savepoint = Savepoint::Create(*m_storage, "MigrateFrom0_1");
-
         QueueTable queueTable(*m_storage);
         queueTable.Create();
-
-        savepoint.Commit();
     }
 }

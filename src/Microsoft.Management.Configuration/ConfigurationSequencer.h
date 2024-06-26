@@ -32,11 +32,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Wait(AppInstaller::WinRT::AsyncCancellation& cancellation);
 
     private:
-        // Determines if this operation is at the front of the queue.
-        // Should only be called while holding m_applyMutex.
-        // If not (returns false), it will release m_applyMutexScope.
-        bool IsFrontOfQueue();
-
         // Determines the effective queue position of this operation; removing queue entries that are not longer active.
         // 0 is the front of the queue.
         size_t GetQueuePosition();

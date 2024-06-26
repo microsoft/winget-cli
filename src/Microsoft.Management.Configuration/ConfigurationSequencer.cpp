@@ -54,7 +54,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return true;
         }
 
-        return !IsFrontOfQueue();
+        if (GetQueuePosition() == 0)
+        {
+            m_database.SetActiveQueueItem(m_queueItemObjectName);
+            return false;
+        }
+        else
+        {
+            m_applyMutexScope.reset();
+            return true;
+        }
     }
 
     // The configuration queue consists of a table in the shared database and cooperative handling of said table.
@@ -97,27 +106,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 size_t queuePosition = GetQueuePosition();
                 if (queuePosition == 0)
                 {
+                    m_applyMutexScope = std::move(applyMutexScope);
                     m_database.SetActiveQueueItem(m_queueItemObjectName);
                     break;
                 }
                 else
                 {
+                    applyMutexScope.reset();
                     std::this_thread::sleep_for(queuePosition * 100ms);
                 }
             }
-        }
-    }
-
-    bool ConfigurationSequencer::IsFrontOfQueue()
-    {
-        if (GetQueuePosition() == 0)
-        {
-            return true;
-        }
-        else
-        {
-            m_applyMutexScope.reset();
-            return false;
         }
     }
 
