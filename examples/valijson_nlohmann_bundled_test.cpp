@@ -1,28 +1,10 @@
-/**
- * @file
- *
- * @brief Demonstrates validation against a schema loaded from a file.
- *
- */
+#include <nlohmann/json.hpp>
 
-#include <iostream>
-#include <stdexcept>
+#include "valijson_nlohmann_bundled.hpp"
 
-#include <valijson/adapters/rapidjson_adapter.hpp>
-#include <valijson/utils/rapidjson_utils.hpp>
-#include <valijson/schema.hpp>
-#include <valijson/schema_parser.hpp>
-#include <valijson/validation_results.hpp>
-#include <valijson/validator.hpp>
-
-using std::cerr;
-using std::endl;
-
-using valijson::Schema;
-using valijson::SchemaParser;
-using valijson::Validator;
-using valijson::ValidationResults;
-using valijson::adapters::RapidJsonAdapter;
+using namespace std;
+using namespace valijson;
+using namespace valijson::adapters;
 
 int main(int argc, char *argv[])
 {
@@ -32,14 +14,14 @@ int main(int argc, char *argv[])
     }
 
     // Load the document containing the schema
-    rapidjson::Document schemaDocument;
+    nlohmann::json schemaDocument;
     if (!valijson::utils::loadDocument(argv[1], schemaDocument)) {
         cerr << "Failed to load schema document." << endl;
         return 1;
     }
 
     // Load the document that is to be validated
-    rapidjson::Document targetDocument;
+    nlohmann::json targetDocument;
     if (!valijson::utils::loadDocument(argv[2], targetDocument)) {
         cerr << "Failed to load target document." << endl;
         return 1;
@@ -48,7 +30,7 @@ int main(int argc, char *argv[])
     // Parse the json schema into an internal schema format
     Schema schema;
     SchemaParser parser;
-    RapidJsonAdapter schemaDocumentAdapter(schemaDocument);
+    NlohmannJsonAdapter schemaDocumentAdapter(schemaDocument);
     try {
         parser.populateSchema(schemaDocumentAdapter, schema);
     } catch (std::exception &e) {
@@ -59,7 +41,7 @@ int main(int argc, char *argv[])
     // Perform validation
     Validator validator(Validator::kStrongTypes);
     ValidationResults results;
-    RapidJsonAdapter targetDocumentAdapter(targetDocument);
+    NlohmannJsonAdapter targetDocumentAdapter(targetDocument);
     if (!validator.validate(schema, targetDocumentAdapter, &results)) {
         std::cerr << "Validation failed." << endl;
         ValidationResults::Error error;
