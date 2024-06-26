@@ -23,6 +23,8 @@ MAKE_TARGETS := \
 	all \
 	all-am \
 	all-recursive \
+	docker-build \
+	docker-dist \
 	install \
 	test \
 	test-all \
