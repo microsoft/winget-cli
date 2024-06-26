@@ -15,7 +15,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/yaml/libyaml.git",
-          "commitHash": "2c891fc7a770e8ba2fec34fc6b545c672beb37e6"
+          "commitHash": "840b65c40675e2d06bf40405ad3f12dec7f35923"
         }
       }
     },
