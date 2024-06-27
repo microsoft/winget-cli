@@ -456,6 +456,149 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.Precondition);
         }
 
+        /// <summary>
+        /// Ensures that multiple apply operations are sequenced.
+        /// </summary>
+        [Fact]
+        public void ApplySet_Sequenced()
+        {
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            ConfigurationUnit configurationUnitApply = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Apply });
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnitApply };
+
+            ManualResetEvent startProcessing = new ManualResetEvent(true);
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            factory.CreateSetProcessorDelegate = (f, c) =>
+            {
+                WaitOn(startProcessing);
+                return f.DefaultCreateSetProcessor(c);
+            };
+
+            TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
+            TestConfigurationUnitProcessor unitProcessorApply = setProcessor.CreateTestProcessor(configurationUnitApply);
+            unitProcessorApply.TestSettingsDelegate = () => new TestSettingsResultInstance(configurationUnitApply) { TestResult = ConfigurationTestResult.Negative };
+
+            ManualResetEvent applyEventWaiting = new ManualResetEvent(false);
+            ManualResetEvent completeApplyEvent = new ManualResetEvent(false);
+            unitProcessorApply.ApplySettingsDelegate = () =>
+            {
+                applyEventWaiting.Set();
+                WaitOn(completeApplyEvent);
+                return new ApplySettingsResultInstance(configurationUnitApply);
+            };
+
+            ConfigurationSet configurationSetThatWaits = this.ConfigurationSet();
+            ConfigurationUnit configurationUnitThatWaits = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Apply });
+            configurationSetThatWaits.Units = new ConfigurationUnit[] { configurationUnitThatWaits };
+
+            TestConfigurationSetProcessor setThatWaitsProcessor = factory.CreateTestProcessor(configurationSetThatWaits);
+            TestConfigurationUnitProcessor unitThatWaitsProcessor = setProcessor.CreateTestProcessor(configurationUnitThatWaits);
+            unitThatWaitsProcessor.TestSettingsDelegate = () => new TestSettingsResultInstance(configurationUnitApply) { TestResult = ConfigurationTestResult.Negative };
+
+            ManualResetEvent waitingUnitApply = new ManualResetEvent(false);
+            unitThatWaitsProcessor.ApplySettingsDelegate = () =>
+            {
+                WaitOn(waitingUnitApply);
+                return new ApplySettingsResultInstance(configurationUnitThatWaits);
+            };
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            var applySetOperation = processor.ApplySetAsync(configurationSet, ApplyConfigurationSetFlags.None);
+            WaitOn(applyEventWaiting);
+
+            startProcessing.Reset();
+            var waitingSetOperation = processor.ApplySetAsync(configurationSetThatWaits, ApplyConfigurationSetFlags.None);
+            AutoResetEvent waitingProgress = new AutoResetEvent(false);
+            ConfigurationSetState progressState = ConfigurationSetState.Unknown;
+            waitingSetOperation.Progress += (result, changeData) =>
+            {
+                if (changeData.Change == ConfigurationSetChangeEventType.SetStateChanged)
+                {
+                    progressState = changeData.SetState;
+                    waitingProgress.Set();
+                }
+            };
+
+            startProcessing.Set();
+            WaitOn(waitingProgress);
+            Assert.Equal(ConfigurationSetState.Pending, progressState);
+
+            completeApplyEvent.Set();
+            WaitOn(waitingProgress);
+            Assert.Equal(ConfigurationSetState.InProgress, progressState);
+
+            waitingUnitApply.Set();
+            WaitOn(waitingProgress);
+            Assert.Equal(ConfigurationSetState.Completed, progressState);
+        }
+
+        /// <summary>
+        /// Ensures that multiple apply operations are sequenced.
+        /// </summary>
+        [Fact]
+        public void ApplySet_ConsistencyCheckNotSequenced()
+        {
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            ConfigurationUnit configurationUnitApply = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Apply });
+            configurationSet.Units = new ConfigurationUnit[] { configurationUnitApply };
+
+            ManualResetEvent startProcessing = new ManualResetEvent(true);
+            TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
+            factory.CreateSetProcessorDelegate = (f, c) =>
+            {
+                WaitOn(startProcessing);
+                return f.DefaultCreateSetProcessor(c);
+            };
+
+            TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
+            TestConfigurationUnitProcessor unitProcessorApply = setProcessor.CreateTestProcessor(configurationUnitApply);
+            unitProcessorApply.TestSettingsDelegate = () => new TestSettingsResultInstance(configurationUnitApply) { TestResult = ConfigurationTestResult.Negative };
+
+            ManualResetEvent applyEventWaiting = new ManualResetEvent(false);
+            ManualResetEvent completeApplyEvent = new ManualResetEvent(false);
+            unitProcessorApply.ApplySettingsDelegate = () =>
+            {
+                applyEventWaiting.Set();
+                WaitOn(completeApplyEvent);
+                return new ApplySettingsResultInstance(configurationUnitApply);
+            };
+
+            ConfigurationSet configurationSetThatWaits = this.ConfigurationSet();
+            ConfigurationUnit configurationUnitThatWaits = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Apply });
+            configurationSetThatWaits.Units = new ConfigurationUnit[] { configurationUnitThatWaits };
+
+            TestConfigurationSetProcessor setThatWaitsProcessor = factory.CreateTestProcessor(configurationSetThatWaits);
+            TestConfigurationUnitProcessor unitThatWaitsProcessor = setProcessor.CreateTestProcessor(configurationUnitThatWaits);
+            unitThatWaitsProcessor.TestSettingsDelegate = () => new TestSettingsResultInstance(configurationUnitApply) { TestResult = ConfigurationTestResult.Negative };
+
+            ManualResetEvent waitingUnitApply = new ManualResetEvent(false);
+            unitThatWaitsProcessor.ApplySettingsDelegate = () =>
+            {
+                WaitOn(waitingUnitApply);
+                return new ApplySettingsResultInstance(configurationUnitThatWaits);
+            };
+
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
+
+            var applySetOperation = processor.ApplySetAsync(configurationSet, ApplyConfigurationSetFlags.None);
+            WaitOn(applyEventWaiting);
+
+            startProcessing.Reset();
+            var waitingSetOperation = processor.ApplySetAsync(configurationSetThatWaits, ApplyConfigurationSetFlags.PerformConsistencyCheckOnly);
+            Assert.True(waitingSetOperation.AsTask().Wait(10000));
+
+            completeApplyEvent.Set();
+        }
+
+        private static void WaitOn(WaitHandle waitable)
+        {
+            if (!waitable.WaitOne(10000))
+            {
+                throw new TimeoutException();
+            }
+        }
+
         private struct ExpectedConfigurationChangeData
         {
             public ConfigurationSetChangeEventType Change;
