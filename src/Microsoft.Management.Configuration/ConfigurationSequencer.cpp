@@ -146,6 +146,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             {
                 ++result;
             }
+            else
+            {
+                // Best effort attempt to remove the dead queue row
+                try
+                {
+                    m_database.RemoveQueueItem(item.ObjectName);
+                }
+                CATCH_LOG();
+            }
         }
 
         THROW_HR_IF(E_NOT_SET, !found);

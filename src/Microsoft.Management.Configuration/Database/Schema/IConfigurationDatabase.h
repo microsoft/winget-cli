@@ -52,7 +52,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Version 0.2
 
         // Migrates from the current interface given.
-        // Returns true if supported; false if not.
+        // Returns true if supported (or is already same schema version); false if not.
         // Throws on errors that occur during an attempted migration.
         virtual bool MigrateFrom(IConfigurationDatabase* current) = 0;
 
