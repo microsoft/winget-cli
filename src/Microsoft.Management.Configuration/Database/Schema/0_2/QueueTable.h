@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "winrt/Microsoft.Management.Configuration.h"
-#include "Database/Schema/IConfigurationDatabase.h"
 #include <winget/SQLiteWrapper.h>
-#include <optional>
 #include <vector>
 #include <tuple>
 

@@ -534,7 +534,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// Ensures that multiple apply operations are sequenced.
+        /// Ensures that a consistency check apply is not blocked.
         /// </summary>
         [Fact]
         public void ApplySet_ConsistencyCheckNotSequenced()
