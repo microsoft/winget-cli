@@ -983,12 +983,19 @@ namespace AppInstaller::Repository
 
     PackageTrackingCatalog Source::GetTrackingCatalog() const
     {
-        if (!m_trackingCatalog)
+        // With C++20, consider removing the shared_ptr here and making the one inside PackageTrackingCatalog atomic.
+        std::shared_ptr<PackageTrackingCatalog> currentTrackingCatalog = std::atomic_load(&m_trackingCatalog);
+        if (!currentTrackingCatalog)
         {
-            m_trackingCatalog = PackageTrackingCatalog::CreateForSource(*this);
+            std::shared_ptr<PackageTrackingCatalog> newTrackingCatalog = std::make_shared<PackageTrackingCatalog>(PackageTrackingCatalog::CreateForSource(*this));
+
+            if (std::atomic_compare_exchange_strong(&m_trackingCatalog, &currentTrackingCatalog, newTrackingCatalog))
+            {
+                currentTrackingCatalog = newTrackingCatalog;
+            }
         }
 
-        return m_trackingCatalog;
+        return *currentTrackingCatalog;
     }
 
     std::vector<SourceDetails> Source::GetCurrentSources()
