@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <type_traits>
+
 namespace valijson {
 namespace constraints {
 
@@ -17,6 +20,28 @@ struct Constraint
 
     /// Typedef for custom free-like function
     typedef void (*CustomFree)(void *);
+
+    /// Deleter type to be used with std::unique_ptr / std::shared_ptr
+    /// @tparam  T  Const or non-const type (same as the one used in unique_ptr/shared_ptr)
+    template<typename T>
+    struct CustomDeleter
+    {
+        CustomDeleter(CustomFree freeFn)
+          : m_freeFn(freeFn) { }
+
+        void operator()(T *ptr) const
+        {
+            auto *nonconst = const_cast<typename std::remove_const<T>::type *>(ptr);
+            nonconst->~T();
+            m_freeFn(nonconst);
+        }
+
+    private:
+        CustomFree m_freeFn;
+    };
+
+    /// Exclusive-ownership pointer to automatically handle deallocation
+    typedef std::unique_ptr<const Constraint, CustomDeleter<const Constraint>> OwningPointer;
 
     /**
      * @brief  Virtual destructor.
@@ -42,7 +67,7 @@ struct Constraint
      *
      * @returns  an owning-pointer to the new constraint.
      */
-    virtual Constraint * clone(CustomAlloc, CustomFree) const = 0;
+    virtual OwningPointer clone(CustomAlloc, CustomFree) const = 0;
 
 };
 

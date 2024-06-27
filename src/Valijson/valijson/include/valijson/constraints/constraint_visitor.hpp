@@ -10,6 +10,7 @@ class ConstConstraint;
 class ContainsConstraint;
 class DependenciesConstraint;
 class EnumConstraint;
+class FormatConstraint;
 class LinearItemsConstraint;
 class MaxItemsConstraint;
 class MaximumConstraint;
@@ -46,6 +47,7 @@ protected:
     typedef constraints::ContainsConstraint ContainsConstraint;
     typedef constraints::DependenciesConstraint DependenciesConstraint;
     typedef constraints::EnumConstraint EnumConstraint;
+    typedef constraints::FormatConstraint FormatConstraint;
     typedef constraints::LinearItemsConstraint LinearItemsConstraint;
     typedef constraints::MaximumConstraint MaximumConstraint;
     typedef constraints::MaxItemsConstraint MaxItemsConstraint;
@@ -77,6 +79,7 @@ public:
     virtual bool visit(const ContainsConstraint &) = 0;
     virtual bool visit(const DependenciesConstraint &) = 0;
     virtual bool visit(const EnumConstraint &) = 0;
+    virtual bool visit(const FormatConstraint &) = 0;
     virtual bool visit(const LinearItemsConstraint &) = 0;
     virtual bool visit(const MaximumConstraint &) = 0;
     virtual bool visit(const MaxItemsConstraint &) = 0;

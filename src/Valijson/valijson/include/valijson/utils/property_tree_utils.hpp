@@ -24,7 +24,7 @@
 #include <valijson/utils/file_utils.hpp>
 #include <valijson/exceptions.hpp>
 
-#if !VALIJSON_USE_EXCEPTION
+#if !VALIJSON_USE_EXCEPTIONS
 
 namespace boost {
 

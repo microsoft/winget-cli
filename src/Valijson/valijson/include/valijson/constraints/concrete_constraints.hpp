@@ -20,9 +20,9 @@
 #include <string>
 #include <vector>
 
-#include <valijson/adapters/frozen_value.hpp>
 #include <valijson/constraints/basic_constraint.hpp>
 #include <valijson/internal/custom_allocator.hpp>
+#include <valijson/internal/frozen_value.hpp>
 #include <valijson/schema.hpp>
 #include <valijson/exceptions.hpp>
 
@@ -425,6 +425,33 @@ private:
     typedef std::vector<const EnumValue *, internal::CustomAllocator<const EnumValue *>> EnumValues;
 
     EnumValues m_enumValues;
+};
+
+/**
+ * @brief  Represent a 'format' constraint
+ *
+ * A format constraint restricts the content of string values, as defined by a set of commonly used formats.
+ *
+ * As this is an optional feature in JSON Schema, unrecognised formats will be treated as valid for any string value.
+ */
+class FormatConstraint: public BasicConstraint<FormatConstraint>
+{
+public:
+    FormatConstraint()
+        : m_format() { }
+
+    const std::string & getFormat() const
+    {
+        return m_format;
+    }
+
+    void setFormat(const std::string & format)
+    {
+        m_format = format;
+    }
+
+private:
+    std::string m_format;
 };
 
 /**
@@ -903,26 +930,20 @@ public:
         return visitor.visit(*static_cast<const PolyConstraint*>(this));
     }
 
-    Constraint * clone(CustomAlloc allocFn, CustomFree freeFn) const override
+    OwningPointer clone(CustomAlloc allocFn, CustomFree freeFn) const override
     {
-        void *ptr = allocFn(sizeOf());
+        // smart pointer to automatically free raw memory on exception
+        typedef std::unique_ptr<Constraint, CustomFree> RawOwningPointer;
+        auto ptr = RawOwningPointer(static_cast<Constraint*>(allocFn(sizeOf())), freeFn);
         if (!ptr) {
             throwRuntimeError("Failed to allocate memory for cloned constraint");
         }
 
-#if VALIJSON_USE_EXCEPTIONS
-        try {
-#endif
-            return cloneInto(ptr);
-#if VALIJSON_USE_EXCEPTIONS
-        } catch (...) {
-            freeFn(ptr);
-            throw;
-        }
-#else
-        // pretend to use freeFn to avoid warning in GCC 8.3
-        (void)freeFn;
-#endif
+        // constructor might throw but the memory will be taken care of anyways
+        (void)cloneInto(ptr.get());
+
+        // implicitly convert to smart pointer that will also destroy object instance
+        return ptr;
     }
 
     virtual bool validate(const adapters::Adapter &target,
