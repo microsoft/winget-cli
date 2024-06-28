@@ -8,6 +8,7 @@ admx
 AFAIK
 aicli
 AICLIC
+AKV
 allusers
 alreadyinstalled
 AMap
@@ -342,6 +343,7 @@ PCCERT
 PCs
 pcwsz
 PDWORD
+Peet
 peetdev
 PEGI
 PFM
