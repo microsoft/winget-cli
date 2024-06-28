@@ -343,6 +343,7 @@ namespace AppInstaller::SQLite::Builder
         // Specify the ordering to use.
         StatementBuilder& OrderBy(std::string_view column);
         StatementBuilder& OrderBy(const QualifiedColumn& column);
+        StatementBuilder& OrderBy(std::initializer_list<std::string_view> columns);
 
         // Specify the ordering behavior.
         StatementBuilder& Ascending();

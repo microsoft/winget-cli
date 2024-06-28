@@ -129,6 +129,15 @@
     <ClCompile Include="Database\Schema\0_1\UnitInfoTable.cpp">
       <Filter>Database\Schema\0_1</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigurationSequencer.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Database\Schema\0_2\Interface_0_2.cpp">
+      <Filter>Database\Schema\0_2</Filter>
+    </ClCompile>
+    <ClCompile Include="Database\Schema\0_2\QueueTable.cpp">
+      <Filter>Database\Schema\0_2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -267,6 +276,15 @@
     <ClInclude Include="Database\Schema\0_1\UnitInfoTable.h">
       <Filter>Database\Schema\0_1</Filter>
     </ClInclude>
+    <ClInclude Include="ConfigurationSequencer.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="Database\Schema\0_2\Interface.h">
+      <Filter>Database\Schema\0_2</Filter>
+    </ClInclude>
+    <ClInclude Include="Database\Schema\0_2\QueueTable.h">
+      <Filter>Database\Schema\0_2</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Microsoft.Management.Configuration.idl" />
@@ -300,6 +318,9 @@
     </Filter>
     <Filter Include="Database\Schema\0_1">
       <UniqueIdentifier>{efb71f71-31e4-42db-9105-f10c2e89e1d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Database\Schema\0_2">
+      <UniqueIdentifier>{f214d0f3-3e9c-469b-91ae-213315d39a69}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
