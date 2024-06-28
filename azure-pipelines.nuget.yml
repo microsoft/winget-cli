@@ -81,10 +81,15 @@ jobs:
           solution: "$(solution)"
           configuration: "$(buildConfiguration)"
 
-      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
+      - task: EsrpCodeSigning@5
         displayName: "ESRP CodeSigning - Package contents"
         inputs:
           ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
+          AppRegistrationClientId: '32216f16-efc9-4013-9fae-c6a2c54a3fc0'
+          AppRegistrationTenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47'
+          AuthAKVName: 'PeetDevOpsKeyVault'
+          AuthCertName: 'ESRPAuth'
+          AuthSignCertName: 'ESRPRequestSigning'
           FolderPath: src
           Pattern: |
             *\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
@@ -161,10 +166,15 @@ jobs:
           packDestination: '$(Build.ArtifactStagingDirectory)'
           basePath: $(Pipeline.Workspace)
 
-      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
+      - task: EsrpCodeSigning@5
         displayName: "ESRP CodeSigning - NuGet package"
         inputs:
           ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
+          AppRegistrationClientId: '32216f16-efc9-4013-9fae-c6a2c54a3fc0'
+          AppRegistrationTenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47'
+          AuthAKVName: 'PeetDevOpsKeyVault'
+          AuthCertName: 'ESRPAuth'
+          AuthSignCertName: 'ESRPRequestSigning'
           FolderPath: "$(Build.ArtifactStagingDirectory)"
           Pattern: "$(packageName).$(version).nupkg"
           signConfigType: inlineSignParams
