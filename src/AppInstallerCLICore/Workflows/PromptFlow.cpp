@@ -164,7 +164,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                EnsurePackageAgreementsAcceptance(context, /* showPrompt */ false);
+                EnsurePackageAgreementsAcceptance(context, /* showPrompt */ true);
             }
 
         private:
