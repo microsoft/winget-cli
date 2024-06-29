@@ -645,6 +645,12 @@ namespace AppInstaller::CLI::Workflow
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
+                // We have to assume an unknown installer locale will match our installed locale, or the entire catalog would stop working for upgrade.
+                if (installer.Locale.empty())
+                {
+                    return InapplicabilityFlags::None;
+                }
+
                 InapplicabilityFlags inapplicableFlag = m_isInstalledLocale ? InapplicabilityFlags::InstalledLocale : InapplicabilityFlags::Locale;
 
                 if (!m_requirement.empty())
@@ -665,9 +671,7 @@ namespace AppInstaller::CLI::Workflow
                     // For installed locale preference, check at least compatible match for preference
                     for (auto const& preferredLocale : m_preference)
                     {
-                        // We have to assume an unknown installer locale will match our installed locale, or the entire catalog would stop working for upgrade.
-                        if (installer.Locale.empty() ||
-                            Locale::GetDistanceOfLanguage(preferredLocale, installer.Locale) >= Locale::MinimumDistanceScoreAsCompatibleMatch)
+                        if (Locale::GetDistanceOfLanguage(preferredLocale, installer.Locale) >= Locale::MinimumDistanceScoreAsCompatibleMatch)
                         {
                             return InapplicabilityFlags::None;
                         }
