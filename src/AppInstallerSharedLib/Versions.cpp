@@ -366,8 +366,8 @@ namespace AppInstaller::Utility
         return m_channel < other.m_channel;
     }
 
-    VersionAndChannel::VersionAndChannel(Version&& version, Channel&& channel, UpdateType updateType) : 
-        m_version(std::move(version)), m_channel(std::move(channel)), m_updateType(updateType) {}
+    VersionAndChannel::VersionAndChannel(Version&& version, Channel&& channel) : 
+        m_version(std::move(version)), m_channel(std::move(channel)) {}
 
     std::string VersionAndChannel::ToString() const
     {
@@ -402,7 +402,7 @@ namespace AppInstaller::Utility
         return false;
     }
 
-    bool VersionAndChannel::IsUpdatedBy(const VersionAndChannel& other) const
+    bool VersionAndChannel::IsUpdatedBy(const VersionAndChannel& other, Utility::UpdateType updateType) const
     {
         // Channel crossing should not happen here.
         if (!Utility::ICUCaseInsensitiveEquals(m_channel.ToString(), other.m_channel.ToString()))
@@ -410,7 +410,7 @@ namespace AppInstaller::Utility
             return false;
         }
 
-        switch (other.m_updateType)
+        switch (updateType)
         {
         case UpdateType::Any:
             return m_version < other.m_version;
