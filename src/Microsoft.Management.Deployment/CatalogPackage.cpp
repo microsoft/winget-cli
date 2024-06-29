@@ -78,7 +78,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion =
                     evaluator.GetLatestAvailableVersionForPins(::AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(m_package));
                 if (latestVersion)
-                
+                {
                     m_updateAvailable = evaluator.IsUpdate(latestVersion, AppInstaller::Utility::UpdateType::Any);
 
                     // DefaultInstallVersion hasn't been created yet, create and populate it.

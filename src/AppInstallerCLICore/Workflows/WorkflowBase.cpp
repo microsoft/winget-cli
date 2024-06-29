@@ -829,10 +829,10 @@ namespace AppInstaller::CLI::Workflow
                 // If the user specified minor version only, set UpdateType to minor
                 context.Args.Contains(Execution::Args::Type::MinorVersionOnly) ? UpdateType::Minor :
                 // If the user specified patch version only, set UpdateType to patch
-                (context.Args.Contains(Execution::Args::Type::PatchVersionOnly) ? UpdateType::Patch :
+                context.Args.Contains(Execution::Args::Type::PatchVersionOnly) ? UpdateType::Patch :
                 // Otherwise, allow all update types
-                Utility::UpdateType::Any);
-            AICLI_LOG(CLI, Verbose, << "Update Type " << updateType);
+                Utility::UpdateType::Any;
+            AICLI_LOG(CLI, Verbose, << "Filtering updates to type " << updateType);
 
             for (const auto& installedVersionKey : installedPackage->GetVersionKeys())
             {

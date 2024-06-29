@@ -173,7 +173,7 @@ namespace AppInstaller::Pinning
         {
             Utility::VersionAndChannel availableVersionAndChannel{
                 Utility::Version{ availableVersion->GetProperty(PackageVersionProperty::Version) },
-                Utility::Channel{ availableVersion->GetProperty(PackageVersionProperty::Channel) },
+                Utility::Channel{ availableVersion->GetProperty(PackageVersionProperty::Channel) }
             };
 
             return m_installedVersion->IsUpdatedBy(availableVersionAndChannel, updateType);
