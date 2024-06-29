@@ -60,7 +60,7 @@ You can also [build the client yourself](#building-the-client). While the client
 
 ## Windows Package Manager Release Roadmap
 
-The plan for delivering the next Windows Package Manager releases is described and included in our [discussions](https://github.com/microsoft/winget-cli/discussions/2063), and will be updated as the project proceeds.
+The plan for delivering the next Windows Package Manager release is described and included in our [discussions](https://github.com/microsoft/winget-cli/discussions/2063), and will be updated as the project proceeds.
 
 ## Overview of the  Windows Package Manager
 
