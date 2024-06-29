@@ -54,7 +54,7 @@ namespace AppInstaller::CLI
 
         // Manifest selection behavior after an app is found
         case Execution::Args::Type::Version:
-            return { type, "version"_liv, 'v', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
+            return { type, "version"_liv, 'v', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery, ArgTypeExclusiveSet::VersionSelection};
         case Execution::Args::Type::Channel:
             return { type, "channel"_liv, 'c', ArgTypeCategory::PackageQuery };
 
@@ -171,6 +171,10 @@ namespace AppInstaller::CLI
             return { type, "include-pinned"_liv, "pinned"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::UninstallPrevious:
             return { type, "uninstall-previous"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
+        case Execution::Args::Type::MinorVersionOnly:
+            return { type, "minor-version-only"_liv, NoAlias, "minor-only"_liv, ArgTypeCategory::MultiplePackages, ArgTypeExclusiveSet::VersionSelection };
+        case Execution::Args::Type::PatchVersionOnly:
+            return { type, "patch-version-only"_liv, NoAlias, "patch-only"_liv, ArgTypeCategory::MultiplePackages, ArgTypeExclusiveSet::VersionSelection };
 
         // Show command
         case Execution::Args::Type::ListVersions:
@@ -402,6 +406,10 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::UninstallPrevious:
             return Argument{ type, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
+        case Args::Type::MinorVersionOnly:
+            return Argument{ type, Resource::String::MinorVersionOnlyArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
+        case Args::Type::PatchVersionOnly:
+            return Argument{ type, Resource::String::PatchVersionOnlyArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::Force:
             return Argument{ type, Resource::String::ForceArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::DownloadDirectory:

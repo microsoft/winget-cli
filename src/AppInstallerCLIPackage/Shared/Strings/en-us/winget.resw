@@ -373,6 +373,9 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Argument value required, but none found: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
+  <data name="MinorVersionOnlyArgumentDescription" xml:space="preserve">
+    <value>Upgrade only the packages which have not changed Major version according to semantic version parsing</value>
+  </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
     <value>Filter results by moniker</value>
   </data>
@@ -433,6 +436,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="Package" xml:space="preserve">
     <value>Package: {0}</value>
     <comment>{Locked="{0}"} Label displayed for a software package. {0} is a placeholder replaced by the software package name.</comment>
+  </data>
+  <data name="PatchVersionOnlyArgumentDescription" xml:space="preserve">
+    <value>Upgrade only the packages which have not changed Major or Minor version according to semantic version parsing</value>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Oops, we forgot to do this...</value>
