@@ -20,6 +20,7 @@ using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Pinning;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
+using namespace AppInstaller::Utility;
 using namespace winrt::Windows::Foundation;
 
 namespace AppInstaller::CLI::Workflow
@@ -824,6 +825,15 @@ namespace AppInstaller::CLI::Workflow
             // We only want to evaluate update availability for the latest version.
             bool isFirstInstalledVersion = true;
 
+            UpdateType updateType =
+                // If the user specified minor version only, set UpdateType to minor
+                context.Args.Contains(Execution::Args::Type::MinorVersionOnly) ? UpdateType::Minor :
+                // If the user specified patch version only, set UpdateType to patch
+                (context.Args.Contains(Execution::Args::Type::PatchVersionOnly) ? UpdateType::Patch :
+                // Otherwise, allow all update types
+                Utility::UpdateType::Any);
+            AICLI_LOG(CLI, Verbose, << "Update Type " << updateType);
+
             for (const auto& installedVersionKey : installedPackage->GetVersionKeys())
             {
                 bool isFirstInstalledVersionLocal = isFirstInstalledVersion;
@@ -835,7 +845,7 @@ namespace AppInstaller::CLI::Workflow
                 auto availableVersions = GetAvailableVersionsForInstalledVersion(match.Package, installedVersion);
 
                 auto latestVersion = evaluator.GetLatestAvailableVersionForPins(availableVersions);
-                bool updateAvailable = isFirstInstalledVersionLocal && evaluator.IsUpdate(latestVersion);
+                bool updateAvailable = isFirstInstalledVersionLocal && evaluator.IsUpdate(latestVersion, updateType);
                 bool updateIsPinned = false;
 
                 if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown() && updateAvailable)
@@ -849,7 +859,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     // Reuse the evaluator to check if there is an update outside of the pinning
                     auto unpinnedLatestVersion = availableVersions->GetLatestVersion();
-                    bool updateAvailableWithoutPins = evaluator.IsUpdate(unpinnedLatestVersion);
+                    bool updateAvailableWithoutPins = evaluator.IsUpdate(unpinnedLatestVersion, updateType);
 
                     if (updateAvailableWithoutPins)
                     {

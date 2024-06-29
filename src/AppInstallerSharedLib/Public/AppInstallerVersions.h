@@ -7,6 +7,16 @@
 
 namespace AppInstaller::Utility
 {
+    enum class UpdateType : uint32_t
+    {
+        // Ordered smallest to largest
+        Build = 0x1,
+        Patch = 0x2,
+        Minor = 0x4,
+        Major = 0x8,
+        Any = Major | Minor | Patch | Build,
+    };
+
     using namespace std::string_view_literals;
 
     // Creates a comparable version object from a string.
@@ -262,7 +272,9 @@ namespace AppInstaller::Utility
     struct VersionAndChannel
     {
         VersionAndChannel() = default;
-        VersionAndChannel(Version&& version, Channel&& channel);
+        VersionAndChannel(Version&& version, Channel&& channel) :
+            VersionAndChannel(std::move(version), std::move(channel), UpdateType::Any) {}
+        VersionAndChannel(Version&& version, Channel&& channel, Utility::UpdateType updateType);
 
         const Version& GetVersion() const { return m_version; }
         const Channel& GetChannel() const { return m_channel; }
@@ -277,6 +289,7 @@ namespace AppInstaller::Utility
     private:
         Version m_version;
         Channel m_channel;
+        UpdateType m_updateType = UpdateType::Any;
     };
 
     // Checks if there are overlaps within the list of version ranges

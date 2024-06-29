@@ -366,8 +366,8 @@ namespace AppInstaller::Utility
         return m_channel < other.m_channel;
     }
 
-    VersionAndChannel::VersionAndChannel(Version&& version, Channel&& channel) : 
-        m_version(std::move(version)), m_channel(std::move(channel)) {}
+    VersionAndChannel::VersionAndChannel(Version&& version, Channel&& channel, UpdateType updateType) : 
+        m_version(std::move(version)), m_channel(std::move(channel)), m_updateType(updateType) {}
 
     std::string VersionAndChannel::ToString() const
     {
@@ -410,7 +410,36 @@ namespace AppInstaller::Utility
             return false;
         }
 
-        return m_version < other.m_version;
+        switch (other.m_updateType)
+        {
+        case UpdateType::Any:
+            return m_version < other.m_version;
+            break;
+        case UpdateType::Major:
+            // An update is a major version update iff the major version has changed
+            return m_version.PartAt(0) < other.m_version.PartAt(0);
+            break;
+        case UpdateType::Minor:
+            // An update is a minor version update iff the major version has not changed but the minor version has
+            return m_version.PartAt(0) == other.m_version.PartAt(0) &&
+                m_version.PartAt(1) < other.m_version.PartAt(1);
+            break;
+        case UpdateType::Patch:
+            // An update is a patch version update iff the major and minor version have not changed but the patch version has
+            return m_version.PartAt(0) == other.m_version.PartAt(0) &&
+                m_version.PartAt(1) == other.m_version.PartAt(1) &&
+                m_version.PartAt(2) < other.m_version.PartAt(2);
+            break;
+        case UpdateType::Build:
+            // An update is a build version update iff the major, minor, and build version have not changed but the patch version has
+            return m_version.PartAt(0) == other.m_version.PartAt(0) &&
+                m_version.PartAt(1) == other.m_version.PartAt(1) &&
+                m_version.PartAt(2) == other.m_version.PartAt(2) &&
+                m_version.PartAt(3) < other.m_version.PartAt(3);
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
     }
 
     UInt64Version::UInt64Version(UINT64 version)

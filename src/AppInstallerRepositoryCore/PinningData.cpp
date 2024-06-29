@@ -167,13 +167,14 @@ namespace AppInstaller::Pinning
         return {};
     }
 
-    bool PinningData::PinStateEvaluator::IsUpdate(const std::shared_ptr<IPackageVersion>& availableVersion)
+    bool PinningData::PinStateEvaluator::IsUpdate(const std::shared_ptr<IPackageVersion>& availableVersion, Utility::UpdateType updateType)
     {
         if (m_installedVersion && availableVersion)
         {
             Utility::VersionAndChannel availableVersionAndChannel{
                 Utility::Version{ availableVersion->GetProperty(PackageVersionProperty::Version) },
-                Utility::Channel{ availableVersion->GetProperty(PackageVersionProperty::Channel) }
+                Utility::Channel{ availableVersion->GetProperty(PackageVersionProperty::Channel) },
+                updateType,
             };
 
             return m_installedVersion->IsUpdatedBy(availableVersionAndChannel);
