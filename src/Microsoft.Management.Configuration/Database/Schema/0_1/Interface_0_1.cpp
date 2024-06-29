@@ -10,9 +10,16 @@ using namespace AppInstaller::Utility;
 
 namespace winrt::Microsoft::Management::Configuration::implementation::Database::Schema::V0_1
 {
+    static constexpr AppInstaller::SQLite::Version s_InterfaceVersion{ 0, 1 };
+
     Interface::Interface(std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> storage) :
         m_storage(std::move(storage))
     {}
+
+    const AppInstaller::SQLite::Version& Interface::GetSchemaVersion()
+    {
+        return s_InterfaceVersion;
+    }
 
     void Interface::InitializeDatabase()
     {
@@ -70,5 +77,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
     {
         SetInfoTable setInfoTable(*m_storage);
         return setInfoTable.GetSetRowId(instanceIdentifier);
+    }
+
+    bool Interface::MigrateFrom(IConfigurationDatabase* current)
+    {
+        return current->GetSchemaVersion() == s_InterfaceVersion;
     }
 }

@@ -9,6 +9,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
     {
         Interface(std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> storage);
 
+        const AppInstaller::SQLite::Version& GetSchemaVersion() override;
+
         // Version 0.1
         void InitializeDatabase() override;
         void AddSet(const Configuration::ConfigurationSet& configurationSet) override;
@@ -17,7 +19,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         std::vector<ConfigurationSetPtr> GetSets() override;
         std::optional<AppInstaller::SQLite::rowid_t> GetSetRowId(const GUID& instanceIdentifier) override;
 
-    private:
+        // Version 0.2
+        bool MigrateFrom(IConfigurationDatabase* current) override;
+
+    protected:
         std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> m_storage;
     };
 }

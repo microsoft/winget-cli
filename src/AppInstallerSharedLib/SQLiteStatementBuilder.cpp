@@ -521,6 +521,12 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::OrderBy(std::initializer_list<std::string_view> columns)
+    {
+        OutputColumns(m_stream, " ORDER BY ", columns);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::Ascending()
     {
         m_stream << " ASC";

@@ -33,9 +33,7 @@ VALIJSON_NORETURN inline void throwLogicError(const std::string& msg) {
 #endif
 
 VALIJSON_NORETURN inline void throwNotSupported() {
-    throwRuntimeError("Not supported");                             \
+    throwRuntimeError("Not supported");
 }
 
 } // namespace valijson
-
-
