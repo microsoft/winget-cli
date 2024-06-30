@@ -102,6 +102,8 @@ namespace AppInstaller::CLI::Execution
             IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
             IncludePinned, // Used in Upgrade command to allow upgrades to pinned packages (only for pinning type of pins)
             UninstallPrevious, // Used in Upgrade command to override the default manifest behavior to UninstallPrevious
+            MinorVersionOnly, // Used in Upgrade command to only upgrade packages which have not changed major version. Requires >=2 versions parts
+            PatchVersionOnly, // Used in Upgrade command to only upgrade packages which have not changed major or minor version. Requires >=3 version parts
 
             // Show command
             ListVersions, // Used in Show command to list all available versions of an app

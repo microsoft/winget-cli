@@ -17,11 +17,6 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        bool IsUpdateVersionAvailable(const Utility::Version& installedVersion, const Utility::Version& updateVersion)
-        {
-            return installedVersion < updateVersion;
-        }
-
         void AddToPackageSubContextsIfNotPresent(std::vector<std::unique_ptr<Execution::Context>>& packageSubContexts, std::unique_ptr<Execution::Context> packageContext)
         {
             for (auto const& existing : packageSubContexts)
@@ -82,7 +77,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& key : versionKeys)
         {
             // Check Applicable Version
-            if (!isUpgrade || IsUpdateVersionAvailable(installedVersion, Utility::Version(key.Version)))
+            if (!isUpgrade || installedVersion.IsUpdatedBy(Utility::Version(key.Version), context.Get<Execution::Data::UpdateType>()))
             {
                 // The only way to enter this portion of the statement with isUpgrade is if the version is available
                 if (isUpgrade)
@@ -197,11 +192,29 @@ namespace AppInstaller::CLI::Workflow
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         Utility::Version updateVersion(context.Get<Execution::Data::Manifest>().Version);
 
-        if (!IsUpdateVersionAvailable(installedVersion, updateVersion))
+        if (!installedVersion.IsUpdatedBy(updateVersion, context.Get<Execution::Data::UpdateType>()))
         {
             context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
                 << Resource::String::UpdateNoPackagesFoundReason << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+        }
+    }
+
+    void SetUpdateType(Execution::Context& context)
+    {
+        // Set version filtering for listing and installing upgrades
+        // This is set as data in the context as listing and installing use different workflows
+        if (context.Args.Contains(Execution::Args::Type::MinorVersionOnly))
+        {
+            context.Add<Execution::Data::UpdateType>(Utility::UpdateType::Minor);
+        }
+        else if (context.Args.Contains(Execution::Args::Type::PatchVersionOnly))
+        {
+            context.Add<Execution::Data::UpdateType>(Utility::UpdateType::Patch);
+        }
+        else
+        {
+            context.Add<Execution::Data::UpdateType>(Utility::UpdateType::Any);
         }
     }
 
@@ -234,6 +247,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             updateContext <<
+                SetUpdateType <<
                 Workflow::GetInstalledPackageVersion <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 SelectLatestApplicableVersion(false);

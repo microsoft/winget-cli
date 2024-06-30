@@ -71,6 +71,8 @@ namespace AppInstaller::CLI
             Argument{ Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
             Argument{ Args::Type::IncludePinned, Resource::String::IncludePinnedArgumentDescription, ArgumentType::Flag},
+            Argument::ForType(Args::Type::MinorVersionOnly),
+            Argument::ForType(Args::Type::PatchVersionOnly),
             Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
         };
@@ -148,6 +150,7 @@ namespace AppInstaller::CLI
     void UpgradeCommand::ExecuteInternal(Execution::Context& context) const
     {
         context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+        context << SetUpdateType;
 
         // Only allow for source failures when doing a list of available upgrades.
         // We have to set it now to allow for source open failures to also just warn.

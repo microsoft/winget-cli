@@ -90,6 +90,7 @@ namespace AppInstaller::CLI
         Proxy = 0x20,
         AllAndTargetVersion = 0x40,
         ConfigurationSetChoice = 0x80,
+        VersionSelection = 0x100,
 
         // This must always be at the end
         Max

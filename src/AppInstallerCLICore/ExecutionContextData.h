@@ -66,6 +66,7 @@ namespace AppInstaller::CLI::Execution
         ModifyPath,
         RepairString,
         MsixDigests,
+        UpdateType,
         Max
     };
 
@@ -288,6 +289,12 @@ namespace AppInstaller::CLI::Execution
         {
             // The pair is { URL, Digest }
             using value_t = std::vector<std::pair<std::string, std::wstring>>;
+        };
+
+        template<>
+        struct DataMapping<Data::UpdateType>
+        {
+            using value_t = Utility::UpdateType;
         };
     }
 }

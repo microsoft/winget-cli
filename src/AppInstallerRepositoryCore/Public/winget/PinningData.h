@@ -83,7 +83,7 @@ namespace AppInstaller::Pinning
 
             // Determines if the given version is an update to the installed version that this object was created with.
             // This should be a version associated with the installed version for which this evaluator was created.
-            bool IsUpdate(const std::shared_ptr<AppInstaller::Repository::IPackageVersion>& availableVersion);
+            bool IsUpdate(const std::shared_ptr<AppInstaller::Repository::IPackageVersion>& availableVersion, Utility::UpdateType);
 
             // Determines the pin type to apply to the given version.
             PinType EvaluatePinType(const std::shared_ptr<AppInstaller::Repository::IPackageVersion>& packageVersion);

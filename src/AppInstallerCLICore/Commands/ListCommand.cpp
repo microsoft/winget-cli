@@ -31,6 +31,8 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::Upgrade, Resource::String::UpgradeArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::IncludeUnknown, Resource::String::IncludeUnknownInListArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::IncludePinned, Resource::String::IncludePinnedInListArgumentDescription, ArgumentType::Flag},
+            Argument::ForType(Execution::Args::Type::MinorVersionOnly),
+            Argument::ForType(Execution::Args::Type::PatchVersionOnly),
         };
     }
 
@@ -79,6 +81,8 @@ namespace AppInstaller::CLI
     {
         Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludeUnknown, Execution::Args::Type::Upgrade);
         Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::IncludePinned, Execution::Args::Type::Upgrade);
+        Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::MinorVersionOnly, Execution::Args::Type::Upgrade);
+        Argument::ValidateArgumentDependency(execArgs, Execution::Args::Type::PatchVersionOnly, Execution::Args::Type::Upgrade);
     }
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const
