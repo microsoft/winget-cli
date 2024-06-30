@@ -172,9 +172,9 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::UninstallPrevious:
             return { type, "uninstall-previous"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::MinorVersionOnly:
-            return { type, "minor-version-only"_liv, NoAlias, "minor"_liv, ArgTypeCategory::MultiplePackages, ArgTypeExclusiveSet::VersionSelection };
+            return { type, "minor-version-only"_liv, NoAlias, "minor"_liv, ArgTypeCategory::MultiplePackages | ArgTypeCategory::CopyFlagToSubContext, ArgTypeExclusiveSet::VersionSelection };
         case Execution::Args::Type::PatchVersionOnly:
-            return { type, "patch-version-only"_liv, NoAlias, "patch"_liv, ArgTypeCategory::MultiplePackages, ArgTypeExclusiveSet::VersionSelection };
+            return { type, "patch-version-only"_liv, NoAlias, "patch"_liv, ArgTypeCategory::MultiplePackages | ArgTypeCategory::CopyFlagToSubContext, ArgTypeExclusiveSet::VersionSelection };
 
         // Show command
         case Execution::Args::Type::ListVersions:

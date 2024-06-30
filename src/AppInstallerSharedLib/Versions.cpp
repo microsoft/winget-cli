@@ -247,6 +247,43 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    bool Version::IsUpdatedBy(const Version& other, UpdateType updateType) const
+    {
+        // Because UpdateType is not being treated as a flag currently, the switch statement avoids excess evaluation of conditionals
+        // When support is added to allow multiple selections for UpdateType, this will need to be updated to check if any type is applicable
+        switch (updateType)
+        {
+            case UpdateType::Any:
+                // If the update type doesn't matter, use basic version comparison
+                return *this < other;
+                break;
+            case UpdateType::Major:
+                // An update is a major version update iff the major version has changed
+                return this->PartAt(0) < other.PartAt(0);
+                break;
+            case UpdateType::Minor:
+                // An update is a minor version update iff the major version has not changed but the minor version has
+                return this->PartAt(0) == other.PartAt(0) &&
+                    this->PartAt(1) < other.PartAt(1);
+                break;
+            case UpdateType::Patch:
+                // An update is a patch version update iff the major and minor version have not changed but the patch version has
+                return this->PartAt(0) == other.PartAt(0) &&
+                    this->PartAt(1) == other.PartAt(1) &&
+                    this->PartAt(2) < other.PartAt(2);
+                break;
+            case UpdateType::Build:
+                // An update is a build version update iff the major, minor, and build version have not changed but the patch version has
+                return this->PartAt(0) == other.PartAt(0) &&
+                    this->PartAt(1) == other.PartAt(1) &&
+                    this->PartAt(2) == other.PartAt(2) &&
+                    this->PartAt(3) < other.PartAt(3);
+                break;
+            default:
+                THROW_HR(E_UNEXPECTED);
+        }
+    }
+
     const Version::Part& Version::PartAt(size_t index) const
     {
         static Part s_zero{};
@@ -410,36 +447,7 @@ namespace AppInstaller::Utility
             return false;
         }
 
-        switch (updateType)
-        {
-        case UpdateType::Any:
-            return m_version < other.m_version;
-            break;
-        case UpdateType::Major:
-            // An update is a major version update iff the major version has changed
-            return m_version.PartAt(0) < other.m_version.PartAt(0);
-            break;
-        case UpdateType::Minor:
-            // An update is a minor version update iff the major version has not changed but the minor version has
-            return m_version.PartAt(0) == other.m_version.PartAt(0) &&
-                m_version.PartAt(1) < other.m_version.PartAt(1);
-            break;
-        case UpdateType::Patch:
-            // An update is a patch version update iff the major and minor version have not changed but the patch version has
-            return m_version.PartAt(0) == other.m_version.PartAt(0) &&
-                m_version.PartAt(1) == other.m_version.PartAt(1) &&
-                m_version.PartAt(2) < other.m_version.PartAt(2);
-            break;
-        case UpdateType::Build:
-            // An update is a build version update iff the major, minor, and build version have not changed but the patch version has
-            return m_version.PartAt(0) == other.m_version.PartAt(0) &&
-                m_version.PartAt(1) == other.m_version.PartAt(1) &&
-                m_version.PartAt(2) == other.m_version.PartAt(2) &&
-                m_version.PartAt(3) < other.m_version.PartAt(3);
-            break;
-        default:
-            THROW_HR(E_UNEXPECTED);
-        }
+        return m_version.IsUpdatedBy(other.m_version, updateType);
     }
 
     UInt64Version::UInt64Version(UINT64 version)

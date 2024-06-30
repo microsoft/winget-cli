@@ -20,7 +20,6 @@ using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Pinning;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
-using namespace AppInstaller::Utility;
 using namespace winrt::Windows::Foundation;
 
 namespace AppInstaller::CLI::Workflow
@@ -825,14 +824,7 @@ namespace AppInstaller::CLI::Workflow
             // We only want to evaluate update availability for the latest version.
             bool isFirstInstalledVersion = true;
 
-            UpdateType updateType =
-                // If the user specified minor version only, set UpdateType to minor
-                context.Args.Contains(Execution::Args::Type::MinorVersionOnly) ? UpdateType::Minor :
-                // If the user specified patch version only, set UpdateType to patch
-                context.Args.Contains(Execution::Args::Type::PatchVersionOnly) ? UpdateType::Patch :
-                // Otherwise, allow all update types
-                Utility::UpdateType::Any;
-            AICLI_LOG(CLI, Verbose, << "Filtering updates to type " << updateType);
+            const auto& updateType = context.Get<Execution::Data::UpdateType>();
 
             for (const auto& installedVersionKey : installedPackage->GetVersionKeys())
             {

@@ -17,11 +17,6 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        bool IsUpdateVersionAvailable(const Utility::Version& installedVersion, const Utility::Version& updateVersion)
-        {
-            return installedVersion < updateVersion;
-        }
-
         void AddToPackageSubContextsIfNotPresent(std::vector<std::unique_ptr<Execution::Context>>& packageSubContexts, std::unique_ptr<Execution::Context> packageContext)
         {
             for (auto const& existing : packageSubContexts)
@@ -82,7 +77,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& key : versionKeys)
         {
             // Check Applicable Version
-            if (!isUpgrade || IsUpdateVersionAvailable(installedVersion, Utility::Version(key.Version)))
+            if (!isUpgrade || installedVersion.IsUpdatedBy(Utility::Version(key.Version), context.Get<Execution::Data::UpdateType>()))
             {
                 // The only way to enter this portion of the statement with isUpgrade is if the version is available
                 if (isUpgrade)
@@ -197,7 +192,7 @@ namespace AppInstaller::CLI::Workflow
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         Utility::Version updateVersion(context.Get<Execution::Data::Manifest>().Version);
 
-        if (!IsUpdateVersionAvailable(installedVersion, updateVersion))
+        if (!installedVersion.IsUpdatedBy(updateVersion, context.Get<Execution::Data::UpdateType>()))
         {
             context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
                 << Resource::String::UpdateNoPackagesFoundReason << std::endl;

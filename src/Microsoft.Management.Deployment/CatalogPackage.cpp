@@ -79,6 +79,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     evaluator.GetLatestAvailableVersionForPins(::AppInstaller::Repository::GetAvailableVersionsForInstalledVersion(m_package));
                 if (latestVersion)
                 {
+                    // Because this is the default install verion, all update types should be checked
                     m_updateAvailable = evaluator.IsUpdate(latestVersion, AppInstaller::Utility::UpdateType::Any);
 
                     // DefaultInstallVersion hasn't been created yet, create and populate it.

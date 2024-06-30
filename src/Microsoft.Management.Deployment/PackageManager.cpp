@@ -653,7 +653,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     THROW_HR(APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_UNKNOWN);
                 }
             }
-            else if (!installedVersion.IsUpdatedBy(upgradeVersion))
+            else if (!installedVersion.IsUpdatedBy(upgradeVersion, comContext->Get<Execution::Data::UpdateType>()))
             {
                 THROW_HR(APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER);
             }

@@ -10,6 +10,8 @@ namespace AppInstaller::Utility
     enum class UpdateType : uint32_t
     {
         // Ordered smallest to largest
+        // These are are not currently implemented as flags in the context; however, values have been assigned to make this easy in the future
+        // This would allow accommodation of a user setting to allow only specific update types with less refactoring
         Build = 0x1,
         Patch = 0x2,
         Minor = 0x4,
@@ -88,6 +90,10 @@ namespace AppInstaller::Utility
         // Does not indicate that Parts is empty; for instance when "0.0" is given,
         // this will be false while GetParts().empty() would be true.
         bool IsEmpty() const { return m_version.empty(); }
+
+        // A convenience function to make more semantic sense
+        // Returns whether or not the other version is newer
+        bool IsUpdatedBy(const Version& other, UpdateType type) const;
 
         // An individual version part in between split characters.
         struct Part
@@ -282,7 +288,7 @@ namespace AppInstaller::Utility
         bool operator<(const VersionAndChannel& other) const;
 
         // A convenience function to make more semantic sense at call sites over the somewhat awkward less than ordering.
-        bool IsUpdatedBy(const VersionAndChannel& other, Utility::UpdateType = Utility::UpdateType::Any) const;
+        bool IsUpdatedBy(const VersionAndChannel& other, Utility::UpdateType) const;
 
     private:
         Version m_version;
