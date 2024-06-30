@@ -27,6 +27,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureUpdateVersionApplicable(Execution::Context& context);
 
+    // Sets the UpdateType for version comparison
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void SetUpdateType(Execution::Context& context);
+
     // Update all packages from SearchResult to latest if applicable
     // Required Args: None
     // Inputs: SearchResult

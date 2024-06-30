@@ -150,6 +150,7 @@ namespace AppInstaller::CLI
     void UpgradeCommand::ExecuteInternal(Execution::Context& context) const
     {
         context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+        context << SetUpdateType;
 
         // Only allow for source failures when doing a list of available upgrades.
         // We have to set it now to allow for source open failures to also just warn.

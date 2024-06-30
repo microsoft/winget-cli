@@ -200,6 +200,24 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void SetUpdateType(Execution::Context& context)
+    {
+        // Set version filtering for listing and installing upgrades
+        // This is set as data in the context as listing and installing use different workflows
+        if (context.Args.Contains(Execution::Args::Type::MinorVersionOnly))
+        {
+            context.Add<Execution::Data::UpdateType>(Utility::UpdateType::Minor);
+        }
+        else if (context.Args.Contains(Execution::Args::Type::PatchVersionOnly))
+        {
+            context.Add<Execution::Data::UpdateType>(Utility::UpdateType::Patch);
+        }
+        else
+        {
+            context.Add<Execution::Data::UpdateType>(Utility::UpdateType::Any);
+        }
+    }
+
     void UpdateAllApplicable(Execution::Context& context)
     {
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
@@ -229,6 +247,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             updateContext <<
+                SetUpdateType <<
                 Workflow::GetInstalledPackageVersion <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 SelectLatestApplicableVersion(false);

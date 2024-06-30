@@ -323,10 +323,6 @@ namespace AppInstaller::CLI::Execution
             clone->EnableSignalTerminationHandler();
         }
         CopyArgsToSubContext(clone.get());
-
-        // Copy specific execution data to the subcontext
-        clone->Add<Data::UpdateType>(this->Get<Data::UpdateType>());
-
         return clone;
     }
 
@@ -392,21 +388,6 @@ namespace AppInstaller::CLI::Execution
         else
         {
             Reporter.SetStyle(User().Get<Setting::ProgressBarVisualStyle>());
-        }
-
-        // Set version filtering for listing and installing upgrades
-        // This is set as data in the context as listing and installing use different workflows
-        if (Args.Contains(Args::Type::MinorVersionOnly))
-        {
-            this->Add<Data::UpdateType>(Utility::UpdateType::Minor);
-        }
-        else if (Args.Contains(Args::Type::PatchVersionOnly))
-        {
-            this->Add<Data::UpdateType>(Utility::UpdateType::Patch);
-        }
-        else
-        {
-            this->Add<Data::UpdateType>(Utility::UpdateType::Any);
         }
     }
 
