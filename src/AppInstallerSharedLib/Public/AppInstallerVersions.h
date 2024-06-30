@@ -92,7 +92,7 @@ namespace AppInstaller::Utility
         bool IsEmpty() const { return m_version.empty(); }
 
         // A convenience function to make more semantic sense
-        // Returns whether or not the other version is newer
+        // Returns whether or not the other version is an applicable update given the type of update requested
         bool IsUpdatedBy(const Version& other, UpdateType type) const;
 
         // An individual version part in between split characters.

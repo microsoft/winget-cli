@@ -273,7 +273,7 @@ namespace AppInstaller::Utility
                     this->PartAt(2) < other.PartAt(2);
                 break;
             case UpdateType::Build:
-                // An update is a build version update iff the major, minor, and build version have not changed but the patch version has
+                // An update is a build version update iff the major, minor, and patch version have not changed but the build version has
                 return this->PartAt(0) == other.PartAt(0) &&
                     this->PartAt(1) == other.PartAt(1) &&
                     this->PartAt(2) == other.PartAt(2) &&
