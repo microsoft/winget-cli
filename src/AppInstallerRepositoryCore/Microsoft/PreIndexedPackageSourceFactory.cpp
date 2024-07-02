@@ -47,20 +47,12 @@ namespace AppInstaller::Repository::Microsoft
 
             std::vector<std::string> result;
 
-            if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::IndexV2))
-            {
-                result.emplace_back(GetPackageLocation(details.Arg, s_PreIndexedPackageSourceFactory_V2_PackageFileName));
-            }
-
+            result.emplace_back(GetPackageLocation(details.Arg, s_PreIndexedPackageSourceFactory_V2_PackageFileName));
             result.emplace_back(GetPackageLocation(details.Arg, s_PreIndexedPackageSourceFactory_PackageFileName));
 
             if (!details.AlternateArg.empty())
             {
-                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::IndexV2))
-                {
-                    result.emplace_back(GetPackageLocation(details.AlternateArg, s_PreIndexedPackageSourceFactory_V2_PackageFileName));
-                }
-
+                result.emplace_back(GetPackageLocation(details.AlternateArg, s_PreIndexedPackageSourceFactory_V2_PackageFileName));
                 result.emplace_back(GetPackageLocation(details.AlternateArg, s_PreIndexedPackageSourceFactory_PackageFileName));
             }
 

@@ -27,7 +27,6 @@ namespace AppInstaller::Settings
             Configuration03 = 0x4,
             ConfigureSelfElevation = 0x8,
             ConfigureExport = 0x10,
-            IndexV2 = 0x20,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command
