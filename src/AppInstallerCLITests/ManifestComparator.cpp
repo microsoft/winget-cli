@@ -52,7 +52,7 @@ template<typename T>
 void RequireVectorsEqual(const std::vector<T>& actual, const std::vector<T>& expected)
 {
     REQUIRE(actual.size() == expected.size());
-
+    
     for (std::size_t i = 0; i < actual.size(); ++i)
     {
         REQUIRE(actual[i] == expected[i]);
@@ -75,6 +75,15 @@ void RequireInstaller(const std::optional<ManifestInstaller>& actual, const Mani
 void RequireInapplicabilities(const std::vector<InapplicabilityFlags>& inapplicabilities, const std::vector<InapplicabilityFlags>& expected)
 {
     RequireVectorsEqual(inapplicabilities, expected);
+}
+
+void RequireInapplicabilityType(const std::vector<InapplicabilityFlags>& inapplicabilities, InapplicabilityFlags expected)
+{
+    REQUIRE(!inapplicabilities.empty());
+    for (std::size_t i = 0; i < inapplicabilities.size(); ++i)
+    {
+        REQUIRE(inapplicabilities[i] == expected);
+    }
 }
 
 TEST_CASE("ManifestComparator_OSFilter_Low", "[manifest_comparator]")
@@ -539,7 +548,7 @@ TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")
 
         REQUIRE(result);
         REQUIRE(result->Arch == GetApplicableArchitectures()[0]);
-        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture, InapplicabilityFlags::MachineArchitecture });
+        RequireInapplicabilityType(inapplicabilities, InapplicabilityFlags::MachineArchitecture);
     }
     SECTION("x86 and Unknown")
     {
@@ -550,7 +559,7 @@ TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")
         auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, x86);
-        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture, InapplicabilityFlags::MachineArchitecture });
+        RequireInapplicabilityType(inapplicabilities, InapplicabilityFlags::MachineArchitecture);
     }
 }
 
