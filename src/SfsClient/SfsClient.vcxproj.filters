@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{7825c1db-0159-4653-b26c-bc674bb9e29f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\sfsclient">
+      <UniqueIdentifier>{357ffe7c-3ce6-4b0d-9e93-bbda28fb9fc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{d7879d14-b049-4837-a336-895bd20ab5d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\details">
+      <UniqueIdentifier>{15462934-ddd8-46ad-a0fd-110df7fa2acb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\details\connection">
+      <UniqueIdentifier>{133cf863-8baa-4ce2-9050-40155b027f04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\details\connection\mock">
+      <UniqueIdentifier>{93204abc-3d4c-4cf0-9433-db8c4ad667b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\details\entity">
+      <UniqueIdentifier>{102d246a-6b50-4171-a909-cb68923ac321}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sfs-client\client\include\sfsclient\AppContent.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+    <ClInclude Include="sfs-client\client\include\sfsclient\AppFile.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+    <ClInclude Include="sfs-client\client\include\sfsclient\ApplicabilityDetails.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+    <ClInclude Include="sfs-client\client\include\sfsclient\ClientConfig.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+    <ClInclude Include="sfs-client\client\include\sfsclient\Content.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+    <ClInclude Include="sfs-client\client\include\sfsclient\ContentId.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+    <ClInclude Include="sfs-client\client\include\sfsclient\File.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+    <ClInclude Include="sfs-client\client\include\sfsclient\Logging.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+    <ClInclude Include="sfs-client\client\include\sfsclient\RequestParams.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+    <ClInclude Include="sfs-client\client\include\sfsclient\Result.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+    <ClInclude Include="sfs-client\client\include\sfsclient\SFSClient.h">
+      <Filter>include\sfsclient</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="sfs-client\client\src\AppContent.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\AppFile.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\ApplicabilityDetails.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\Content.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\ContentId.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\File.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\Logging.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\Result.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\SFSClient.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\ContentUtil.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\CorrelationVector.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\Env.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\ErrorHandling.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\OSInfo.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\ReportingHandler.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\SFSClientImpl.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\SFSException.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\SFSUrlBuilder.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\TestOverride.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\UrlBuilder.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\Util.cpp">
+      <Filter>src\details</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\connection\Connection.cpp">
+      <Filter>src\details\connection</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\connection\ConnectionConfig.cpp">
+      <Filter>src\details\connection</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\connection\ConnectionManager.cpp">
+      <Filter>src\details\connection</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\connection\CurlConnection.cpp">
+      <Filter>src\details\connection</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\connection\CurlConnectionManager.cpp">
+      <Filter>src\details\connection</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\connection\HttpHeader.cpp">
+      <Filter>src\details\connection</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\connection\mock\MockConnection.cpp">
+      <Filter>src\details\connection\mock</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\connection\mock\MockConnectionManager.cpp">
+      <Filter>src\details\connection\mock</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\entity\ContentType.cpp">
+      <Filter>src\details\entity</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\entity\FileEntity.cpp">
+      <Filter>src\details\entity</Filter>
+    </ClCompile>
+    <ClCompile Include="sfs-client\client\src\details\entity\VersionEntity.cpp">
+      <Filter>src\details\entity</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

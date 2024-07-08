@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="GetWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     /// Get-WinGetConfiguration.
     /// Opens a configuration set.
     /// </summary>
-    [Cmdlet(VerbsCommon.Get, "WinGetConfiguration")]
+    [Cmdlet(VerbsCommon.Get, "WinGetConfiguration", DefaultParameterSetName = Helpers.Constants.ParameterSet.OpenConfigurationSetFromFile)]
     public sealed class GetWinGetConfigurationCmdlet : OpenConfiguration
     {
         /// <summary>
@@ -23,11 +23,30 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         protected override void ProcessRecord()
         {
             var configCommand = new ConfigurationCommand(this);
-            configCommand.Get(
-                this.File,
-                this.ModulePath,
-                this.ExecutionPolicy,
-                this.CanUseTelemetry);
+
+            if (this.ParameterSetName == Helpers.Constants.ParameterSet.OpenConfigurationSetFromFile)
+            {
+                configCommand.Get(
+                    this.File,
+                    this.ModulePath,
+                    this.ExecutionPolicy,
+                    this.CanUseTelemetry);
+            }
+            else if (this.ParameterSetName == Helpers.Constants.ParameterSet.OpenConfigurationSetFromHistory)
+            {
+                configCommand.GetFromHistory(
+                    this.InstanceIdentifier,
+                    this.ModulePath,
+                    this.ExecutionPolicy,
+                    this.CanUseTelemetry);
+            }
+            else if (this.ParameterSetName == Helpers.Constants.ParameterSet.OpenAllConfigurationSetsFromHistory)
+            {
+                configCommand.GetAllFromHistory(
+                    this.ModulePath,
+                    this.ExecutionPolicy,
+                    this.CanUseTelemetry);
+            }
         }
     }
 }

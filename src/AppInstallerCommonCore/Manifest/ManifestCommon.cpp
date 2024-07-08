@@ -80,7 +80,7 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            for (const Version& ext : m_extensions)
+            for (const RawVersion& ext : m_extensions)
             {
                 if (ext.GetParts().empty() || ext.GetParts()[0].Integer != 0)
                 {
@@ -105,7 +105,7 @@ namespace AppInstaller::Manifest
 
     bool ManifestVer::HasExtension(std::string_view extension) const
     {
-        for (const Version& ext : m_extensions)
+        for (const RawVersion& ext : m_extensions)
         {
             const auto& parts = ext.GetParts();
             if (!parts.empty() && parts[0].Integer == 0 && parts[0].Other == extension)
@@ -222,20 +222,48 @@ namespace AppInstaller::Manifest
         return result;
     }
 
-    PlatformEnum ConvertToPlatformEnum(const std::string& in)
+    PlatformEnum ConvertToPlatformEnum(std::string_view in)
     {
-        PlatformEnum result = PlatformEnum::Unknown;
+        std::string inStrLower = Utility::ToLower(in);
 
-        if (Utility::CaseInsensitiveEquals(in, "windows.desktop"))
+        if (inStrLower == "windows.desktop")
         {
-            result = PlatformEnum::Desktop;
+            return PlatformEnum::Desktop;
         }
-        else if (Utility::CaseInsensitiveEquals(in, "windows.universal"))
+        else if (inStrLower == "windows.universal")
         {
-            result = PlatformEnum::Universal;
+            return PlatformEnum::Universal;
         }
 
-        return result;
+        return PlatformEnum::Unknown;
+    }
+
+    PlatformEnum ConvertToPlatformEnumForMSStoreDownload(std::string_view in)
+    {
+        std::string inStrLower = Utility::ToLower(in);
+
+        if (inStrLower == "windows.desktop")
+        {
+            return PlatformEnum::Desktop;
+        }
+        else if (inStrLower == "windows.universal")
+        {
+            return PlatformEnum::Universal;
+        }
+        else if (inStrLower == "windows.iot")
+        {
+            return PlatformEnum::IoT;
+        }
+        else if (inStrLower == "windows.team")
+        {
+            return PlatformEnum::Team;
+        }
+        else if (inStrLower == "windows.holographic")
+        {
+            return PlatformEnum::Holographic;
+        }
+
+        return PlatformEnum::Unknown;
     }
 
     ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in)
@@ -638,6 +666,12 @@ namespace AppInstaller::Manifest
             return "Windows.Desktop"sv;
         case PlatformEnum::Universal:
             return "Windows.Universal"sv;
+        case PlatformEnum::IoT:
+            return "Windows.IoT"sv;
+        case PlatformEnum::Holographic:
+            return "Windows.Holographic"sv;
+        case PlatformEnum::Team:
+            return "Windows.Team"sv;
         }
 
         return "Unknown"sv;

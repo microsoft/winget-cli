@@ -7,6 +7,7 @@
 #include <winget/Filesystem.h>
 
 using namespace AppInstaller;
+using namespace AppInstaller::Filesystem;
 using namespace AppInstaller::Runtime;
 using namespace TestCommon;
 
@@ -133,9 +134,9 @@ TEST_CASE("EnsureUserProfileNotPresentInDisplayPaths", "[runtime]")
     std::filesystem::path userProfilePath = Filesystem::GetKnownFolderPath(FOLDERID_Profile);
     std::string userProfileString = userProfilePath.u8string();
 
-    for (auto i = ToIntegral(ToEnum<PathName>(0)); i < ToIntegral(PathName::Max); ++i)
+    for (auto i = ToIntegral(ToEnum<Runtime::PathName>(0)); i < ToIntegral(Runtime::PathName::Max); ++i)
     {
-        std::filesystem::path displayPath = GetPathTo(ToEnum<PathName>(i), true);
+        std::filesystem::path displayPath = GetPathTo(ToEnum<Runtime::PathName>(i), true);
         std::string displayPathString = displayPath.u8string();
         INFO(i << " = " << displayPathString);
         REQUIRE(displayPathString.find(userProfileString) == std::string::npos);

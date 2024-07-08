@@ -141,6 +141,7 @@ INSTALLPATH
 INSTALLUILEVEL
 INVALIDARG
 INVALIDSID
+iot
 IPinning
 IPortable
 ISAPPROVEDFOROUTPUT
@@ -241,6 +242,7 @@ publiccontainer
 PUCHAR
 pwa
 QCol
+Qspectre
 rclsid
 REBOOTPROMPT
 Redistributable
@@ -254,6 +256,7 @@ resetpins
 resheader
 resmimetype
 RESOLVESOURCE
+RESTAPI
 RESTARTAPPS
 resw
 resx
@@ -348,6 +351,7 @@ und
 UNICODESTRING
 uninstalling
 Unmarshal
+unskipped
 untimes
 updatefile
 updatemanifest
@@ -362,6 +366,7 @@ userguide
 usersources
 utext
 valijson
+vcpkg
 vcvars
 vcxitems
 VERYSILENT
@@ -373,6 +378,7 @@ wcsicmp
 webpage
 WHOLECHAIN
 wil
+windbg
 wincrypt
 WINEVENT
 winget
@@ -394,6 +400,7 @@ wrl
 WTD
 wtypesbase
 Xamarin
+Xbox
 XElement
 Xlang
 XResource

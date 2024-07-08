@@ -69,6 +69,7 @@ namespace AppInstaller::CLI::Workflow
         bool IsFunction() const { return m_isFunc; }
         Func Function() const { return m_func; }
         bool ExecuteAlways() const { return m_executeAlways; }
+        void Log() const;
 
     private:
         bool m_isFunc = false;

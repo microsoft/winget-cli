@@ -62,7 +62,9 @@ if ($UseDev)
 }
 else
 {
-  Add-AppxPackage -Path $DesktopAppInstallerPath -DependencyPath $DesktopAppInstallerDependencyPath
+  Install-PackageProvider -Name NuGet -Force | Out-Null
+  Install-Module Microsoft.WinGet.Client -Force | Out-Null
+  Repair-WingetPackageManager -Latest
 }
 
 $originalARP = Get-ARPTable

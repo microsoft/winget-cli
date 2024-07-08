@@ -14,6 +14,28 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 {
     namespace anonymous
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        constexpr std::wstring_view EnableTestModeTestGuid = L"1e62d683-2999-44e7-81f7-6f8f35e8d731";
+        constexpr std::wstring_view ForceHighIntegrityLevelUnitsTestGuid = L"f698d20f-3584-4f28-bc75-28037e08e651";
+        constexpr std::wstring_view EnableRestrictedIntegrityLevelTestGuid = L"5cae3226-185f-4289-815c-3c089d238dc6";
+
+        // Checks the configuration set metadata for a specific test guid that controls the behavior flow.
+        bool GetConfigurationSetMetadataOverride(const ConfigurationSet& configurationSet, const std::wstring_view& testGuid)
+        {
+            auto metadataOverride = configurationSet.Metadata().TryLookup(testGuid);
+            if (metadataOverride)
+            {
+                auto metadataOverrideProperty = metadataOverride.try_as<IPropertyValue>();
+                if (metadataOverrideProperty && metadataOverrideProperty.Type() == PropertyType::Boolean)
+                {
+                    return metadataOverrideProperty.GetBoolean();
+                }
+            }
+
+            return false;
+        }
+#endif
+
         struct DynamicProcessorInfo
         {
             IConfigurationSetProcessorFactory Factory;
@@ -26,7 +48,16 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             DynamicSetProcessor(IConfigurationSetProcessorFactory defaultRemoteFactory, IConfigurationSetProcessor defaultRemoteSetProcessor, const ConfigurationSet& configurationSet) : m_configurationSet(configurationSet)
             {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                m_enableTestMode = GetConfigurationSetMetadataOverride(m_configurationSet, EnableTestModeTestGuid);
+                m_enableRestrictedIntegrityLevel = GetConfigurationSetMetadataOverride(m_configurationSet, EnableRestrictedIntegrityLevelTestGuid);
+                m_forceHighIntegrityLevelUnits = GetConfigurationSetMetadataOverride(m_configurationSet, ForceHighIntegrityLevelUnitsTestGuid);
+
+                m_currentIntegrityLevel = m_enableTestMode ? Security::IntegrityLevel::Medium : Security::GetEffectiveIntegrityLevel();
+#else
                 m_currentIntegrityLevel = Security::GetEffectiveIntegrityLevel();
+#endif
+
                 m_setProcessors.emplace(m_currentIntegrityLevel, DynamicProcessorInfo{ defaultRemoteFactory, defaultRemoteSetProcessor });
             }
 
@@ -56,7 +87,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                     });
 
                 // Create set and unit processor for current unit.
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                Security::IntegrityLevel requiredIntegrityLevel = m_forceHighIntegrityLevelUnits ? Security::IntegrityLevel::High : GetIntegrityLevelForUnit(unit);
+#else
                 Security::IntegrityLevel requiredIntegrityLevel = GetIntegrityLevelForUnit(unit);
+#endif
 
                 auto itr = m_setProcessors.find(requiredIntegrityLevel);
                 if (itr == m_setProcessors.end())
@@ -79,11 +114,20 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 }
                 else if (securityContextLower == L"restricted")
                 {
-                    // Not supporting elevated callers downgrading at the moment.
-                    THROW_WIN32(ERROR_NOT_SUPPORTED);
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                    if (m_enableRestrictedIntegrityLevel)
+                    {
+                        return Security::IntegrityLevel::Medium;
+                    }
+                    else
+#endif
+                    {
+                        // Not supporting elevated callers downgrading at the moment.
+                        THROW_WIN32(ERROR_NOT_SUPPORTED);
 
-                    // Technically this means the default level of the user token, so if UAC is disabled it would be the only integrity level (aka current).
-                    //return Security::IntegrityLevel::Medium;
+                        // Technically this means the default level of the user token, so if UAC is disabled it would be the only integrity level (aka current).
+                        // return Security::IntegrityLevel::Medium;
+                    }
                 }
                 else if (securityContextLower == L"current")
                 {
@@ -99,7 +143,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // Support for 0.2 schema via metadata value
                 // TODO: Support case insensitive lookup by iteration
                 auto unitMetadata = unit.Metadata();
-                auto securityContext = unitMetadata.TryLookup(L"SecurityContext");
+                auto securityContext = unitMetadata.TryLookup(L"securityContext");
                 if (securityContext)
                 {
                     auto securityContextProperty = securityContext.try_as<IPropertyValue>();
@@ -153,18 +197,16 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 highIntegritySet.Serialize(memoryStream);
 
                 Streams::DataReader reader(memoryStream.GetInputStreamAt(0));
-                reader.UnicodeEncoding(Streams::UnicodeEncoding::Utf8);
-                reader.LoadAsync((uint32_t)memoryStream.Size());
+                THROW_HR_IF(E_UNEXPECTED, memoryStream.Size() > std::numeric_limits<uint32_t>::max());
+                uint32_t streamSize = (uint32_t)memoryStream.Size();
+                std::vector<uint8_t> bytes;
+                bytes.resize(streamSize);
+                reader.LoadAsync(streamSize);
+                reader.ReadBytes(bytes);
+                reader.DetachStream();
+                memoryStream.Close();
 
-                winrt::hstring result;
-                uint32_t bytesToRead = reader.UnconsumedBufferLength();
-
-                if (bytesToRead > 0)
-                {
-                    result = reader.ReadString(bytesToRead);
-                }
-
-                return winrt::to_string(result);
+                return { bytes.begin(), bytes.end() };
             }
 
             ProcessorMap::iterator CreateSetProcessorForIntegrityLevel(Security::IntegrityLevel integrityLevel)
@@ -174,7 +216,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 // If we got here, the only option is that the current integrity level is not High.
                 if (integrityLevel == Security::IntegrityLevel::High)
                 {
-                    factory = CreateOutOfProcessFactory(true, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
+                    bool useRunAs = true;
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                    useRunAs = !m_enableTestMode;
+#endif
+
+                    factory = CreateOutOfProcessFactory(useRunAs, SerializeSetProperties(), SerializeHighIntegrityLevelSet());
                 }
                 else
                 {
@@ -188,6 +235,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             ProcessorMap m_setProcessors;
             ConfigurationSet m_configurationSet;
             std::once_flag m_createUnitSetProcessorsOnce;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            bool m_enableTestMode = false;
+            bool m_enableRestrictedIntegrityLevel = false;
+            bool m_forceHighIntegrityLevelUnits = false;
+#endif
         };
 
         // This is implemented completely in the packaged context for now, if we want to make it more configurable, we will probably want to move it to configuration and

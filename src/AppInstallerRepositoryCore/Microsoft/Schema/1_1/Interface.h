@@ -19,11 +19,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         void PrepareForPackaging(SQLite::Connection& connection) override;
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
         SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const override;
-        std::vector<std::string> GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const override;
+        std::vector<std::string> GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const override;
 
         // Version 1.1
         MetadataResult GetMetadataByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId) const override;
         void SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value) override;
+
+        // Version 1.7
+        void DropTables(SQLite::Connection& connection) override;
 
     protected:
         std::unique_ptr<V1_0::SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const override;

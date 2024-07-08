@@ -3,9 +3,7 @@
 #pragma once
 #include "ExecutionContext.h"
 
-
-// ShellExecuteInstallerHandler handles installers run through ShellExecute.
-// Exe, Wix, Nullsoft, Msi and Inno should be handled by this installer handler.
+// MSStoreInstallerHandler handles msstore installers.
 namespace AppInstaller::CLI::Workflow
 {
     // Deploys the Store app.
@@ -25,6 +23,12 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Installer
     // Outputs: None
     void MSStoreRepair(Execution::Context& context);
+
+    // Downloads the Store app installer.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void MSStoreDownload(Execution::Context& context);
 
     // Ensure the Store app is not blocked by policy.
     // Required Args: None

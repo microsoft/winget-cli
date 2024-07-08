@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="SetUpFixture.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -61,6 +61,7 @@ namespace AppInstallerCLIE2ETests
                 TestIndex.GenerateE2ESource();
             }
 
+            WinGetSettingsHelper.ForcedExperimentalFeatures = testParams.ForcedExperimentalFeatures;
             WinGetSettingsHelper.InitializeWingetSettings();
         }
 

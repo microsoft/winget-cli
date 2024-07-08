@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigureShowCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -6,8 +6,8 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using System.IO;
     using AppInstallerCLIE2ETests.Helpers;
-    using Microsoft.VisualBasic;
     using NUnit.Framework;
 
     /// <summary>
@@ -22,6 +22,7 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeTearDown()
         {
             WinGetSettingsHelper.ConfigureFeature("configuration03", false);
+            this.DeleteTxtFiles();
         }
 
         /// <summary>
@@ -119,6 +120,42 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("configure show", $"{Constants.TestSourceUrl}/TestData/Configuration/ShowDetails_TestRepo.yml --verbose");
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.TestRepoName));
+        }
+
+        /// <summary>
+        /// This test ensures that there is not significant overflow from large strings in the configuration file.
+        /// </summary>
+        [Test]
+        public void ShowTruncatedDetailsAndFileContent()
+        {
+            var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\LargeContentStrings.yml")} --verbose");
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains("<this value has been truncated; inspect the file contents for the complete text>"));
+            Assert.True(result.StdOut.Contains("Some of the data present in the configuration file was truncated for this output; inspect the file contents for the complete content."));
+            Assert.False(result.StdOut.Contains("Line5"));
+        }
+
+        /// <summary>
+        /// Runs a configuration, then shows it from history.
+        /// </summary>
+        [Test]
+        public void ShowFromHistory()
+        {
+            var result = TestCommon.RunAICLICommand("configure --accept-configuration-agreements --verbose", TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
+            Assert.AreEqual(0, result.ExitCode);
+
+            string guid = TestCommon.GetConfigurationInstanceIdentifierFor("Configure_TestRepo.yml");
+            result = TestCommon.RunAICLICommand("configure show", $"-h {guid}");
+            Assert.AreEqual(0, result.ExitCode);
+        }
+
+        private void DeleteTxtFiles()
+        {
+            // Delete all .txt files in the test directory; they are placed there by the tests
+            foreach (string file in Directory.GetFiles(TestCommon.GetTestDataFile("Configuration"), "*.txt"))
+            {
+                File.Delete(file);
+            }
         }
     }
 }

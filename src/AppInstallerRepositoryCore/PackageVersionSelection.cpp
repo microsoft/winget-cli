@@ -75,6 +75,29 @@ namespace AppInstaller::Repository
                 {
                     package = GetAvailablePackageFromSource(m_packages, versionKey.SourceId);
                 }
+                else if (m_packages.size() == 1)
+                {
+                    package = m_packages[0];
+                }
+                else if (versionKey.IsDefaultLatest())
+                {
+                    std::shared_ptr<IPackageVersion> result;
+                    Utility::Version resultVersion;
+
+                    for (const auto& p : m_packages)
+                    {
+                        std::shared_ptr<IPackageVersion> latest = p->GetLatestVersion();
+                        Utility::Version version { latest->GetProperty(PackageVersionProperty::Version) };
+
+                        if (!result || resultVersion < version)
+                        {
+                            result = std::move(latest);
+                            resultVersion = std::move(version);
+                        }
+                    }
+
+                    return result;
+                }
                 else
                 {
                     // Otherwise, find the first version that matches

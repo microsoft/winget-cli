@@ -50,7 +50,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
     {
         std::optional<web::json::value> result = SerializeSearchRequest(searchRequest);
 
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR, !result);
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR, !result);
 
         return result.value();
     }

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetSettingsHelper.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -17,6 +17,11 @@ namespace AppInstallerCLIE2ETests.Helpers
     internal static class WinGetSettingsHelper
     {
         /// <summary>
+        /// Gets or sets the experimental features that should be forcibly enabled.
+        /// </summary>
+        public static string[] ForcedExperimentalFeatures { get; set; }
+
+        /// <summary>
         /// Gets the user settings path by calling winget settings export.
         /// </summary>
         /// <returns>Expanded path for user settings.</returns>
@@ -33,19 +38,22 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// </summary>
         public static void InitializeWingetSettings()
         {
+            Hashtable experimentalFeatures = new Hashtable();
+
+            var forcedExperimentalFeatures = ForcedExperimentalFeatures;
+            if (forcedExperimentalFeatures != null)
+            {
+                foreach (var feature in forcedExperimentalFeatures)
+                {
+                    experimentalFeatures[feature] = true;
+                }
+            }
+
             var settingsJson = new Hashtable()
             {
                 {
                     "experimentalFeatures",
-                    new Hashtable()
-                    {
-                        { "experimentalArg", false },
-                        { "experimentalCmd", false },
-                        { "directMSI", false },
-                        { "windowsFeature", false },
-                        { "resume", false },
-                        { "reboot", false },
-                    }
+                    experimentalFeatures
                 },
                 {
                     "debugging",
@@ -67,25 +75,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             // when running in unpackaged context
             TestCommon.RunAICLICommand(string.Empty, "-v");
 
-            SetWingetSettings(settingsJson);
-        }
-
-        /// <summary>
-        /// Converts a hashtable to json and writes to the settings file.
-        /// </summary>
-        /// <param name="settingsJson">Settings to set.</param>
-        public static void SetWingetSettings(Hashtable settingsJson)
-        {
             SetWingetSettings(JsonConvert.SerializeObject(settingsJson, Formatting.Indented));
-        }
-
-        /// <summary>
-        /// Writes string to settings file.
-        /// </summary>
-        /// <param name="settings">Settings as string.</param>
-        public static void SetWingetSettings(string settings)
-        {
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settings);
         }
 
         /// <summary>
@@ -96,10 +86,8 @@ namespace AppInstallerCLIE2ETests.Helpers
         public static void ConfigureFeature(string featureName, bool status)
         {
             JObject settingsJson = GetJsonSettingsObject("experimentalFeatures");
-            var experimentalFeatures = settingsJson["experimentalFeatures"];
-            experimentalFeatures[featureName] = status;
-
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            ConfigureFeature(settingsJson, featureName, status);
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -113,7 +101,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var installBehavior = settingsJson["installBehavior"];
             installBehavior[settingName] = value;
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -134,7 +122,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var preferences = installBehavior["preferences"];
             preferences[settingName] = value;
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -155,7 +143,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var preferences = installBehavior["preferences"];
             preferences[settingName] = new JArray(value);
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -176,7 +164,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var requirements = installBehavior["requirements"];
             requirements[settingName] = value;
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -197,7 +185,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             var requirements = installBehavior["requirements"];
             requirements[settingName] = new JArray(value);
 
-            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
+            SetWingetSettings(settingsJson);
         }
 
         /// <summary>
@@ -206,12 +194,28 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <param name="status">Initialized feature value.</param>
         public static void InitializeAllFeatures(bool status)
         {
-            ConfigureFeature("experimentalArg", status);
-            ConfigureFeature("experimentalCmd", status);
-            ConfigureFeature("directMSI", status);
-            ConfigureFeature("windowsFeature", status);
-            ConfigureFeature("resume", status);
-            ConfigureFeature("reboot", status);
+            JObject settingsJson = GetJsonSettingsObject("experimentalFeatures");
+
+            ConfigureFeature(settingsJson, "experimentalArg", status);
+            ConfigureFeature(settingsJson, "experimentalCmd", status);
+            ConfigureFeature(settingsJson, "directMSI", status);
+            ConfigureFeature(settingsJson, "windowsFeature", status);
+            ConfigureFeature(settingsJson, "resume", status);
+            ConfigureFeature(settingsJson, "reboot", status);
+
+            SetWingetSettings(settingsJson);
+        }
+
+        /// <summary>
+        /// Configure experimental features.
+        /// </summary>
+        /// <param name="settingsJson">The settings JSON object to modify.</param>
+        /// <param name="featureName">Feature name.</param>
+        /// <param name="status">Status.</param>
+        private static void ConfigureFeature(JObject settingsJson, string featureName, bool status)
+        {
+            var experimentalFeatures = settingsJson["experimentalFeatures"];
+            experimentalFeatures[featureName] = status;
         }
 
         private static JObject GetJsonSettingsObject(string objectName)
@@ -224,6 +228,30 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             return settingsJson;
+        }
+
+        /// <summary>
+        /// Converts a JObject to a string and writes to the settings file.
+        /// </summary>
+        /// <param name="settingsJson">Settings to set.</param>
+        private static void SetWingetSettings(JObject settingsJson)
+        {
+            var forcedExperimentalFeatures = ForcedExperimentalFeatures;
+            foreach (var feature in forcedExperimentalFeatures)
+            {
+                ConfigureFeature(settingsJson, feature, true);
+            }
+
+            SetWingetSettings(settingsJson.ToString());
+        }
+
+        /// <summary>
+        /// Writes string to settings file.
+        /// </summary>
+        /// <param name="settings">Settings as string.</param>
+        private static void SetWingetSettings(string settings)
+        {
+            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settings);
         }
     }
 }

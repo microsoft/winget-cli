@@ -409,7 +409,9 @@
     <ClInclude Include="Public\Telemetry\WinEventLogLevels.h" />
     <ClInclude Include="Public\winget\AsyncTokens.h" />
     <ClInclude Include="Public\winget\Certificates.h" />
+    <ClInclude Include="Public\winget\Compression.h" />
     <ClInclude Include="Public\winget\ConfigurationSetProcessorHandlers.h" />
+    <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\GroupPolicy.h" />
     <ClInclude Include="Public\winget\IConfigurationStaticsInternals.h" />
     <ClInclude Include="Public\winget\ILifetimeWatcher.h" />
@@ -417,11 +419,13 @@
     <ClInclude Include="Public\winget\JsonUtil.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Public\winget\ManagedFile.h" />
+    <ClInclude Include="Public\winget\ModuleCountBase.h" />
     <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\Resources.h" />
     <ClInclude Include="Public\winget\Runtime.h" />
     <ClInclude Include="Public\winget\Security.h" />
     <ClInclude Include="Public\winget\SharedThreadGlobals.h" />
+    <ClInclude Include="Public\winget\SQLiteDynamicStorage.h" />
     <ClInclude Include="Public\winget\SQLiteMetadataTable.h" />
     <ClInclude Include="Public\winget\SQLiteStatementBuilder.h" />
     <ClInclude Include="Public\winget\SQLiteStorageBase.h" />
@@ -435,8 +439,10 @@
     <ClCompile Include="AppInstallerLogging.cpp" />
     <ClCompile Include="AppInstallerStrings.cpp" />
     <ClCompile Include="Certificates.cpp" />
+    <ClCompile Include="Compression.cpp" />
     <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Errors.cpp" />
+    <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -457,6 +463,7 @@
     <ClCompile Include="JsonSchemaValidation.cpp" />
     <ClCompile Include="JsonUtil.cpp" />
     <ClCompile Include="ManagedFile.cpp" />
+    <ClCompile Include="SQLiteDynamicStorage.cpp" />
     <ClCompile Include="SQLiteMetadataTable.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Resources.cpp" />

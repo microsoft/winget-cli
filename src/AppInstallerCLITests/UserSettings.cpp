@@ -328,14 +328,15 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
     constexpr static auto cero = 0min;
     constexpr static auto threehundred = 300min;
 
-    SECTION("Default value")
-    {
-        UserSettingsTest userSettingTest;
+    std::chrono::minutes defaultAutoUpdateTime{};
 
-        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
-        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    {
+        SetSetting(Stream::PrimaryUserSettings, "");
+        UserSettingsTest userSettingTest;
+        defaultAutoUpdateTime = userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>();
     }
-    SECTION("Valid value")
+
+    SECTION("Valid value 0")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 0 } })";
         SetSetting(Stream::PrimaryUserSettings, json);
@@ -344,7 +345,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
         REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cero);
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
-    SECTION("Valid value 0")
+    SECTION("Valid value 300")
     {
         std::string_view json = R"({ "source": { "autoUpdateIntervalInMinutes": 300 } })";
         SetSetting(Stream::PrimaryUserSettings, json);
@@ -359,7 +360,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == defaultAutoUpdateTime);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
     SECTION("Invalid type string")
@@ -368,7 +369,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == cinq);
+        REQUIRE(userSettingTest.Get<Setting::AutoUpdateTimeInMinutes>() == defaultAutoUpdateTime);
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
     }
     SECTION("Overridden by Group Policy")
@@ -522,6 +523,28 @@ TEST_CASE("SettingsDownloadDefaultDirectory", "[settings]")
 
         REQUIRE(userSettingTest.Get<Setting::DownloadDefaultDirectory>() == "C:/Foo/Bar");
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+}
+
+TEST_CASE("SettingsArchiveExtractionMethod", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Shell api")
+    {
+        std::string_view json = R"({ "installBehavior": { "archiveExtractionMethod": "shellApi" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::ArchiveExtractionMethod>() == AppInstaller::Archive::ExtractionMethod::ShellApi);
+    }
+    SECTION("Shell api")
+    {
+        std::string_view json = R"({ "installBehavior": { "archiveExtractionMethod": "tar" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::ArchiveExtractionMethod>() == AppInstaller::Archive::ExtractionMethod::Tar);
     }
 }
 

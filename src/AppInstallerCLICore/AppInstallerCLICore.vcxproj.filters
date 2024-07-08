@@ -251,6 +251,12 @@
     <ClInclude Include="ConfigurationWingetDscModuleUnitValidation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ConfigureExportCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureListCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -471,6 +477,12 @@
     </ClCompile>
     <ClCompile Include="ConfigurationDynamicRuntimeFactory.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigureExportCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureListCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

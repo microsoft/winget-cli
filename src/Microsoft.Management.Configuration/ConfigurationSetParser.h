@@ -6,8 +6,10 @@
 #include <ConfigurationSetUtilities.h>
 #include <winget/Yaml.h>
 #include <winrt/Windows.Storage.Streams.h>
+#include <functional>
 #include <memory>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
@@ -17,6 +19,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         // Create a parser from the given bytes (the encoding is detected).
         static std::unique_ptr<ConfigurationSetParser> Create(std::string_view input);
+
+        // Create a parser for the given schema version.
+        static std::unique_ptr<ConfigurationSetParser> CreateForSchemaVersion(std::string schemaVersion);
 
         // Determines if the given value is a recognized schema version.
         // This will only return true for a version that we fully recognize.
@@ -36,7 +41,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         static std::string GetSchemaVersionForUri(std::string_view value);
 
         // Gets the latest schema version.
-        static hstring LatestVersion();
+        static std::pair<hstring, Windows::Foundation::Uri> LatestVersion();
 
         virtual ~ConfigurationSetParser() noexcept = default;
 
@@ -51,7 +56,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Retrieves the schema version of the parser.
         virtual hstring GetSchemaVersion() = 0;
 
-        using ConfigurationSetPtr = decltype(make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>());
+        using ConfigurationSetPtr = winrt::com_ptr<implementation::ConfigurationSet>;
 
         // Retrieve the configuration set from the parser.
         ConfigurationSetPtr GetConfigurationSet() const { return m_configurationSet; }
@@ -71,8 +76,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // The column related to the result code.
         uint32_t Column() const { return m_column; }
 
+        // Parse a ValueSet from the given input.
+        Windows::Foundation::Collections::ValueSet ParseValueSet(std::string_view input);
+
+        // Parse a string array from the given input.
+        std::vector<hstring> ParseStringArray(std::string_view input);
+
     protected:
         ConfigurationSetParser() = default;
+
+        // Sets (or resets) the document to parse.
+        virtual void SetDocument(AppInstaller::YAML::Node&& document) = 0;
 
         // Set the error state
         void SetError(hresult result, std::string_view field = {}, std::string_view value = {}, uint32_t line = 0, uint32_t column = 0);
@@ -99,6 +113,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Parse the sequence named `field` from the given `node`.
         void ParseSequence(const AppInstaller::YAML::Node& node, ConfigurationField field, bool required, std::optional<AppInstaller::YAML::Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation);
+
+        // Parse the sequence from the given `node`.
+        void ParseSequence(const AppInstaller::YAML::Node& node, std::string_view nameForErrors, std::optional<AppInstaller::YAML::Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation);
 
         // Gets the string value in `field` from the given `node`, setting this value on `unit` using the `propertyFunction`.
         void GetStringValueForUnit(const AppInstaller::YAML::Node& node, ConfigurationField field, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value));

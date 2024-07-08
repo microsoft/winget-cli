@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationProcessorGetTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -6,7 +6,6 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
-    using System.Collections.Generic;
     using System.IO;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
@@ -18,6 +17,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Unit tests for getting details on processors.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     [OutOfProc]
     public class ConfigurationProcessorGetTests : ConfigurationProcessorTestBase
     {

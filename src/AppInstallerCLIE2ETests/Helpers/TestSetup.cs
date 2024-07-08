@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestSetup.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -43,6 +43,9 @@ namespace AppInstallerCLIE2ETests.Helpers
             this.ExeInstallerPath = this.InitializeFileParam(Constants.ExeInstallerPathParameter);
             this.MsiInstallerPath = this.InitializeFileParam(Constants.MsiInstallerPathParameter);
             this.MsixInstallerPath = this.InitializeFileParam(Constants.MsixInstallerPathParameter);
+            this.MsiInstallerV2Path = this.InitializeFileParam(Constants.MsiInstallerV2PathParameter);
+
+            this.ForcedExperimentalFeatures = this.InitializeStringArrayParam(Constants.ForcedExperimentalFeaturesParameter);
         }
 
         /// <summary>
@@ -102,6 +105,11 @@ namespace AppInstallerCLIE2ETests.Helpers
         public string MsiInstallerPath { get; }
 
         /// <summary>
+        /// Gets the msi installer V2 path.
+        /// </summary>
+        public string MsiInstallerV2Path { get; }
+
+        /// <summary>
         /// Gets the msix installer path.
         /// </summary>
         public string MsixInstallerPath { get; }
@@ -138,6 +146,11 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
+        /// Gets the experimental features that should be forcibly enabled.
+        /// </summary>
+        public string[] ForcedExperimentalFeatures { get; }
+
+        /// <summary>
         /// Gets a value indicating whether is the default parameters.
         /// </summary>
         public bool IsDefault { get; }
@@ -160,6 +173,16 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             return TestContext.Parameters.Get(paramName);
+        }
+
+        private string[] InitializeStringArrayParam(string paramName, string[] defaultValue = null)
+        {
+            if (this.IsDefault || !TestContext.Parameters.Exists(paramName))
+            {
+                return defaultValue;
+            }
+
+            return TestContext.Parameters.Get(paramName).Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         }
 
         private string InitializeFileParam(string paramName, string defaultValue = null)

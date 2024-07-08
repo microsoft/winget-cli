@@ -33,6 +33,13 @@ namespace AppInstaller::SQLite
             return MinorVersion >= other.MinorVersion;
         }
 
+        bool operator<(const Version& other) const
+        {
+            if (MajorVersion < other.MajorVersion) return true;
+            if (MajorVersion > other.MajorVersion) return false;
+            return MinorVersion < other.MinorVersion;
+        }
+
         // Gets a version that represents the latest schema known to the implementation.
         static Version Latest();
 
@@ -49,7 +56,7 @@ namespace AppInstaller::SQLite
         static Version GetSchemaVersion(Connection& connection);
 
         // Writes the current version to the given database.
-        void SetSchemaVersion(Connection& connection);
+        void SetSchemaVersion(Connection& connection) const;
     };
 
     // Output the version

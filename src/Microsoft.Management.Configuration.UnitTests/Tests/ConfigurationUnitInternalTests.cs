@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigurationUnitInternalTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -22,6 +22,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Tests ConfigurationUnitExtensionsTests.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     public class ConfigurationUnitInternalTests
     {
         private readonly UnitTestFixture fixture;

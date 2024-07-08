@@ -99,6 +99,16 @@ The 'skipDependencies' behavior affects whether dependencies are installed for a
     },
 ```
 
+### Archive Extraction Method
+The 'archiveExtractionMethod' behavior affects how installer archives are extracted. Currently there are two supported values: `Tar` or `ShellApi`.
+`Tar` indicates that the archive should be extracted using the tar executable ('tar.exe') while `shellApi` indicates using the Windows Shell API. Defaults to `shellApi` if value is not set or is invalid.
+
+```json
+    "installBehavior": {
+        "archiveExtractionMethod": "tar" | "shellApi"
+    },
+```
+
 ### Preferences and Requirements
 
 Some of the settings are duplicated under `preferences` and `requirements`. `preferences` affect how the various available options are sorted when choosing the one to act on.  For instance, the default scope of package installs is for the current user, but if that is not an option then a machine level installer will be chosen. `requirements` filter the options, potentially resulting in an empty list and a failure to install. In the previous example, a user scope requirement would result in no applicable installers and an error.
@@ -302,27 +312,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### proxy
-
-This feature enables the use of web proxies.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "proxy": true
-   },
-```
-### sideBySide
-
-This feature enables experimental improvements for supporting multiple instances of a package being installed on a system.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "sideBySide": true
-   },
-```
-
 ### configureSelfElevate
 
 This feature enables configure commands to request elevation as needed.
@@ -331,5 +320,16 @@ Currently, this means that properly attributed configuration units (and only tho
 ```json
    "experimentalFeatures": {
        "configureSelfElevate": true
+   },
+```
+
+### configureExport
+
+This feature enables exporting a configuration file.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "configureExport": true
    },
 ```

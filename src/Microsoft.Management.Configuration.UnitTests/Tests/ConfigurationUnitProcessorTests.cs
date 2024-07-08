@@ -16,6 +16,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Unit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.PowerShell.Commands;
     using Moq;
     using Windows.Foundation.Collections;
@@ -26,6 +27,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Configuration unit processor tests.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [InProc]
     public class ConfigurationUnitProcessorTests
     {
         private readonly UnitTestFixture fixture;

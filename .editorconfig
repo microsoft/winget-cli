@@ -18,5 +18,5 @@ indent_size = 2
 [*.md]
 indent_style = tab
 
-[{allow.txt,excludes.txt,patterns.txt}]
+[{allow.txt,excludes.txt,patterns.txt,expect.txt}]
 end_of_line = lf

@@ -62,6 +62,9 @@ namespace AppInstaller::Repository::Microsoft
 
         // Gets the latest version of the index schema (the actual numbers, not just the latest sentinel values).
         static SQLite::Version GetLatestVersion();
+
+        // Gets the context data for testing.
+        const Schema::SQLiteIndexContextData& GetContextData() const;
 #endif
 
         // Adds the manifest at the repository relative path to the index.
@@ -113,11 +116,11 @@ namespace AppInstaller::Repository::Microsoft
         // Performs a search based on the given criteria.
         SearchResult Search(const SearchRequest& request) const;
 
-        // Gets the string for the given property and manifest id, if present.
-        std::optional<std::string> GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const;
+        // Gets the string for the given property and primary id, if present.
+        std::optional<std::string> GetPropertyByPrimaryId(IdType primaryId, PackageVersionProperty property) const;
 
-        // Gets the string values for the given property and manifest id, if present.
-        std::vector<std::string> GetMultiPropertyByManifestId(IdType manifestId, PackageVersionMultiProperty property) const;
+        // Gets the string values for the given property and primary id, if present.
+        std::vector<std::string> GetMultiPropertyByPrimaryId(IdType primaryId, PackageVersionMultiProperty property) const;
 
         // Gets the manifest id for the given { id, version, channel }, if present.
         // If version is empty, gets the value for the 'latest' version.
@@ -143,6 +146,21 @@ namespace AppInstaller::Repository::Microsoft
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const;
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(AppInstaller::Manifest::string_t packageId) const;
 
+        // Migrates the index to the target version.
+        // Returns false to indicate that the requested migration is not supported.
+        bool MigrateTo(SQLite::Version version);
+
+        // The property values that can be set.
+        enum class Property
+        {
+            PackageUpdateTrackingBaseTime,
+            IntermediateFileOutputPath,
+        };
+
+        // Sets the given property.
+        // Some properties will persist into the database.
+        void SetProperty(Property property, const std::string& value);
+
     private:
         // Constructor used to create a new index.
         SQLiteIndex(const std::string& target, const SQLite::Version& version);
@@ -153,13 +171,14 @@ namespace AppInstaller::Repository::Microsoft
         // Constructor used to copy the given index.
         SQLiteIndex(const std::string& target, SQLiteIndex& source);
 
+        // Sets the database file path in the context data if appropriate.
+        void SetDatabaseFilePath(const std::string& target);
+
         // Internal functions to normalize on the relativePath being present.
         IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
         bool UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
 
-        // Creates the ISQLiteIndex interface object for this version.
-        static std::unique_ptr<Schema::ISQLiteIndex> CreateISQLiteIndex(const SQLite::Version& version);
-
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
+        Schema::SQLiteIndexContextData m_contextData;
     };
 }

@@ -15,6 +15,7 @@ namespace AppInstaller::Manifest
 
     using string_t = Utility::NormalizedString;
     using namespace std::string_view_literals;
+    using Utility::RawVersion;
 
     // The maximum supported major version known about by this code.
     constexpr uint64_t s_MaxSupportedMajorVersion = 1;
@@ -77,7 +78,7 @@ namespace AppInstaller::Manifest
         bool HasExtension(std::string_view extension) const;
 
     private:
-        std::vector<Version> m_extensions;
+        std::vector<RawVersion> m_extensions;
     };
 
     enum class InstallerTypeEnum
@@ -168,6 +169,9 @@ namespace AppInstaller::Manifest
         Unknown,
         Universal,
         Desktop,
+        IoT,
+        Team,
+        Holographic,
     };
 
     enum class ElevationRequirementEnum
@@ -363,7 +367,9 @@ namespace AppInstaller::Manifest
 
     InstallModeEnum ConvertToInstallModeEnum(const std::string& in);
 
-    PlatformEnum ConvertToPlatformEnum(const std::string& in);
+    PlatformEnum ConvertToPlatformEnum(std::string_view in);
+
+    PlatformEnum ConvertToPlatformEnumForMSStoreDownload(std::string_view in);
 
     ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in);
 

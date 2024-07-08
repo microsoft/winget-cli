@@ -25,10 +25,12 @@ namespace AppInstallerCLIE2ETests
         public const string LocalServerCertPathParameter = "LocalServerCertPath";
         public const string ExeInstallerPathParameter = "ExeTestInstallerPath";
         public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
+        public const string MsiInstallerV2PathParameter = "MsiTestInstallerV2Path";
         public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
         public const string PowerShellModulePathParameter = "PowerShellModulePath";
         public const string SkipTestSourceParameter = "SkipTestSource";
+        public const string ForcedExperimentalFeaturesParameter = "ForcedExperimentalFeatures";
 
         // Test Sources
         public const string DefaultWingetSourceName = @"winget";
@@ -48,6 +50,7 @@ namespace AppInstallerCLIE2ETests
 
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";
+        public const string AICLIPackagePublisherHash = "8wekyb3d8bbwe";
         public const string AICLIAppId = "WinGetDev";
 
         public const string TestPackage = "TëstPackage.msix";
@@ -57,6 +60,7 @@ namespace AppInstallerCLIE2ETests
         public const string ZipInstaller = "AppInstallerTestZipInstaller";
         public const string ExeInstallerFileName = "AppInstallerTestExeInstaller.exe";
         public const string MsiInstallerFileName = "AppInstallerTestMsiInstaller.msi";
+        public const string MsiInstallerV2FileName = "AppInstallerTestMsiInstallerV2.msi";
         public const string MsixInstallerFileName = "AppInstallerTestMsixInstaller.msix";
         public const string ZipInstallerFileName = "AppInstallerTestZipInstaller.zip";
         public const string IndexPackage = "source.msix";
@@ -90,6 +94,7 @@ namespace AppInstallerCLIE2ETests
         public const string TestExeInstalledFileName = "TestExeInstalled.txt";
         public const string TestExeUninstallerFileName = "UninstallTestExe.bat";
         public const string TestExeUninstalledFileName = "TestExeUninstalled.txt";
+        public const string TestExeRepairCompletedFileName = "TestExeRepairCompleted.txt";
 
         // PowerShell Cmdlets
         public const string FindCmdlet = "Find-WinGetPackage";
@@ -117,6 +122,7 @@ namespace AppInstallerCLIE2ETests
         public const string PathSubKey_Machine = @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
 
         // User settings
+        public const string ArchiveExtractionMethod = "archiveExtractionMethod";
         public const string PortablePackageUserRoot = "portablePackageUserRoot";
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
         public const string InstallBehaviorScope = "scope";
@@ -206,16 +212,16 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_UNSUPPORTED_RESTSOURCE = unchecked((int)0x8A150038);
             public const int ERROR_RESTSOURCE_INVALID_DATA = unchecked((int)0x8A150039);
             public const int ERROR_BLOCKED_BY_POLICY = unchecked((int)0x8A15003A);
-            public const int ERROR_RESTSOURCE_INTERNAL_ERROR = unchecked((int)0x8A15003B);
+            public const int ERROR_RESTAPI_INTERNAL_ERROR = unchecked((int)0x8A15003B);
             public const int ERROR_RESTSOURCE_INVALID_URL = unchecked((int)0x8A15003C);
-            public const int ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE = unchecked((int)0x8A15003D);
+            public const int ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE = unchecked((int)0x8A15003D);
             public const int ERROR_RESTSOURCE_INVALID_VERSION = unchecked((int)0x8A15003E);
             public const int ERROR_SOURCE_DATA_INTEGRITY_FAILURE = unchecked((int)0x8A15003F);
             public const int ERROR_STREAM_READ_FAILURE = unchecked((int)0x8A150040);
             public const int ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED = unchecked((int)0x8A150041);
             public const int ERROR_PROMPT_INPUT_ERROR = unchecked((int)0x8A150042);
             public const int ERROR_UNSUPPORTED_SOURCE_REQUEST = unchecked((int)0x8A150043);
-            public const int ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND = unchecked((int)0x8A150044);
+            public const int ERROR_RESTAPI_ENDPOINT_NOT_FOUND = unchecked((int)0x8A150044);
             public const int ERROR_SOURCE_OPEN_FAILED = unchecked((int)0x8A150045);
             public const int ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED = unchecked((int)0x8A150046);
             public const int ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH = unchecked((int)0x8A150047);
@@ -262,6 +268,10 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INVALID_RESUME_STATE = unchecked((int)0x8A150070);
             public const int ERROR_CANNOT_OPEN_CHECKPOINT_INDEX = unchecked((int)0x8A150071);
 
+            public const int ERROR_NO_REPAIR_INFO_FOUND = unchecked((int)0x8A150079);
+            public const int ERROR_REPAIR_NOT_SUPPORTED = unchecked((int)0x8A15007C);
+            public const int ERROR_ADMIN_CONTEXT_REPAIR_PROHIBITED = unchecked((int)0x8A15007D);
+
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);
             public const int ERROR_INSTALL_FILE_IN_USE = unchecked((int)0x8A150103);
@@ -307,6 +317,7 @@ namespace AppInstallerCLIE2ETests
             public const int CONFIG_ERROR_MISSING_FIELD = unchecked((int)0x8A15C00E);
             public const int CONFIG_ERROR_TEST_FAILED = unchecked((int)0x8A15C00F);
             public const int CONFIG_ERROR_TEST_NOT_RUN = unchecked((int)0x8A15C010);
+            public const int WINGET_CONFIG_ERROR_GET_FAILED = unchecked((int)0x8A15C011);
 
             public const int CONFIG_ERROR_UNIT_NOT_INSTALLED = unchecked((int)0x8A15C101);
             public const int CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY = unchecked((int)0x8A15C102);

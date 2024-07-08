@@ -254,6 +254,9 @@ namespace AppInstaller::Utility
     // Join a string vector using the provided separator.
     LocIndString Join(LocIndView separator, const std::vector<LocIndString>& vector);
 
+    // Join a string vector using the provided separator.
+    std::string Join(std::string_view separator, const std::vector<std::string>& vector);
+
     // Splits the string using the provided separator. Entries can also be trimmed.
     std::vector<std::string> Split(const std::string& input, char separator, bool trim = false);
 
@@ -278,4 +281,12 @@ namespace AppInstaller::Utility
 
     // Converts the input string to a DWORD value using std::stoul and returns a boolean value based on the resulting DWORD value.
     bool IsDwordFlagSet(const std::string& value);
+
+    // Finds the next control code index that would be replaced.
+    // Returns std::string::npos if not found.
+    size_t FindControlCodeToConvert(std::string_view input, size_t offset = 0);
+
+    // Converts most control codes in the input to their corresponding control picture in the output.
+    // Exempts tab, line feed, and carriage return from being replaced.
+    std::string ConvertControlCodesToPictures(std::string_view input);
 }

@@ -6,15 +6,6 @@
 #include "ArpVersionValidation.h"
 #include <winget/ManifestYamlParser.h>
 
-#include "Schema/1_0/Interface.h"
-#include "Schema/1_1/Interface.h"
-#include "Schema/1_2/Interface.h"
-#include "Schema/1_3/Interface.h"
-#include "Schema/1_4/Interface.h"
-#include "Schema/1_5/Interface.h"
-#include "Schema/1_6/Interface.h"
-#include "Schema/1_7/Interface.h"
-
 namespace AppInstaller::Repository::Microsoft
 {
     SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, SQLite::Version version, CreateOptions options)
@@ -46,37 +37,12 @@ namespace AppInstaller::Repository::Microsoft
         return { filePath, source };
     }
 
-    std::unique_ptr<Schema::ISQLiteIndex> SQLiteIndex::CreateISQLiteIndex(const SQLite::Version& version)
-    {
-        using namespace Schema;
-
-        if (version.MajorVersion == 1 ||
-            version.IsLatest())
-        {
-            constexpr std::array<std::unique_ptr<Schema::ISQLiteIndex>(*)(), 8> versionCreatorMap =
-            {
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_0::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_1::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_2::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_3::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_4::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_5::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_6::Interface>()); },
-                []() { return std::unique_ptr<Schema::ISQLiteIndex>(std::make_unique<V1_7::Interface>()); },
-            };
-
-            return versionCreatorMap[std::min(static_cast<size_t>(version.MinorVersion), versionCreatorMap.size() - 1)]();
-        }
-
-        // We do not have the capacity to operate on this schema version
-        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-    }
-
     SQLiteIndex::SQLiteIndex(const std::string& target, const SQLite::Version& version) : SQLiteStorageBase(target, version)
     {
         m_dbconn.EnableICU();
-        m_interface = CreateISQLiteIndex(version);
+        m_interface = Schema::CreateISQLiteIndex(version);
         m_version = m_interface->GetVersion();
+        SetDatabaseFilePath(target);
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
@@ -84,26 +50,41 @@ namespace AppInstaller::Repository::Microsoft
     {
         m_dbconn.EnableICU();
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
-        m_interface = CreateISQLiteIndex(m_version);
+        m_interface = Schema::CreateISQLiteIndex(m_version);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
+        SetDatabaseFilePath(target);
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteIndex& source) :
         SQLiteStorageBase(target, source)
     {
         m_dbconn.EnableICU();
-        m_interface = CreateISQLiteIndex(m_version);
+        m_interface = Schema::CreateISQLiteIndex(m_version);
+        SetDatabaseFilePath(target);
+    }
+
+    void SQLiteIndex::SetDatabaseFilePath(const std::string& target)
+    {
+        if (target != SQLITE_MEMORY_DB_CONNECTION_TARGET)
+        {
+            m_contextData.Add<Schema::Property::DatabaseFilePath>(Utility::ConvertToUTF16(target));
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void SQLiteIndex::ForceVersion(const SQLite::Version& version)
     {
-        m_interface = CreateISQLiteIndex(version);
+        m_interface = Schema::CreateISQLiteIndex(version);
     }
 
     SQLite::Version SQLiteIndex::GetLatestVersion()
     {
-        return CreateISQLiteIndex(SQLite::Version::Latest())->GetVersion();
+        return Schema::CreateISQLiteIndex(SQLite::Version::Latest())->GetVersion();
+    }
+
+    const Schema::SQLiteIndexContextData& SQLiteIndex::GetContextData() const
+    {
+        return m_contextData;
     }
 #endif
 
@@ -220,7 +201,7 @@ namespace AppInstaller::Repository::Microsoft
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Info, << "Preparing index for packaging");
 
-        m_interface->PrepareForPackaging(m_dbconn);
+        m_interface->PrepareForPackaging(Schema::SQLiteIndexContext{ m_dbconn, m_contextData });
     }
 
     bool SQLiteIndex::CheckConsistency(bool log) const
@@ -243,16 +224,16 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->Search(m_dbconn, request);
     }
 
-    std::optional<std::string> SQLiteIndex::GetPropertyByManifestId(IdType manifestId, PackageVersionProperty property) const
+    std::optional<std::string> SQLiteIndex::GetPropertyByPrimaryId(IdType primaryId, PackageVersionProperty property) const
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        return m_interface->GetPropertyByManifestId(m_dbconn, manifestId, property);
+        return m_interface->GetPropertyByPrimaryId(m_dbconn, primaryId, property);
     }
 
-    std::vector<std::string> SQLiteIndex::GetMultiPropertyByManifestId(IdType manifestId, PackageVersionMultiProperty property) const
+    std::vector<std::string> SQLiteIndex::GetMultiPropertyByPrimaryId(IdType primaryId, PackageVersionMultiProperty property) const
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        return m_interface->GetMultiPropertyByManifestId(m_dbconn, manifestId, property);
+        return m_interface->GetMultiPropertyByPrimaryId(m_dbconn, primaryId, property);
     }
 
     std::optional<SQLiteIndex::IdType> SQLiteIndex::GetManifestIdByKey(IdType id, std::string_view version, std::string_view channel) const
@@ -298,5 +279,48 @@ namespace AppInstaller::Repository::Microsoft
     std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> SQLiteIndex::GetDependentsById(AppInstaller::Manifest::string_t packageId) const
     {
         return m_interface->GetDependentsById(m_dbconn, packageId);
+    }
+
+    bool SQLiteIndex::MigrateTo(SQLite::Version version)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "sqliteindex_migrate_to");
+
+        AICLI_LOG(Repo, Info, << "Attempting to migrate index from [" << m_interface->GetVersion() << "] to [" << version << "]...");
+        std::unique_ptr<Schema::ISQLiteIndex> newInterface = Schema::CreateISQLiteIndex(version);
+
+        bool result = newInterface->MigrateFrom(m_dbconn, m_interface.get());
+
+        AICLI_LOG(Repo, Info, << "...migration was " << (result ? "" : "NOT ") << "successful");
+        if (result)
+        {
+            version.SetSchemaVersion(m_dbconn);
+            SetLastWriteTime();
+            savepoint.Commit();
+
+            m_version = version;
+            m_interface = std::move(newInterface);
+        }
+
+        return result;
+    }
+
+    void SQLiteIndex::SetProperty(Property property, const std::string& value)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+
+        switch (property)
+        {
+        case Property::PackageUpdateTrackingBaseTime:
+            m_interface->SetProperty(m_dbconn, Schema::Property::PackageUpdateTrackingBaseTime, value);
+            break;
+        case Property::IntermediateFileOutputPath:
+        {
+            std::filesystem::path pathValue{ Utility::ConvertToUTF16(value) };
+            THROW_HR_IF(E_INVALIDARG, pathValue.empty() || pathValue.is_relative());
+            m_contextData.Add<Schema::Property::IntermediateFileOutputPath>(std::move(pathValue));
+        }
+            break;
+        }
     }
 }

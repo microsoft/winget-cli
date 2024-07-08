@@ -9,6 +9,7 @@
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
     using namespace AppInstaller::YAML;
+    using namespace winrt::Windows::Foundation;
 
     hstring ConfigurationSetSerializer_0_2::Serialize(ConfigurationSet* configurationSet)
     {
@@ -50,6 +51,29 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         emitter << EndMap;
         emitter << EndMap;
 
-        return winrt::to_hstring(emitter.str());
+        return GetSchemaVersionComment(configurationSet->SchemaVersion()) + winrt::to_hstring(L"\n") + winrt::to_hstring(emitter.str());
+    }
+
+    winrt::hstring ConfigurationSetSerializer_0_2::GetResourceName(const ConfigurationUnit& unit)
+    {
+        const auto& metadata = unit.Metadata();
+        const auto moduleKey = GetConfigurationFieldNameHString(ConfigurationField::ModuleDirective);
+        if (metadata.HasKey(moduleKey))
+        {
+            auto object = metadata.Lookup(moduleKey);
+            auto property = object.try_as<IPropertyValue>();
+            if (property && property.Type() == PropertyType::String)
+            {
+                return property.GetString() + '/' + unit.Type();
+            }
+        }
+
+        return unit.Type();
+    }
+
+    void ConfigurationSetSerializer_0_2::WriteResourceDirectives(AppInstaller::YAML::Emitter& emitter, const ConfigurationUnit& unit)
+    {
+        emitter << Key << GetConfigurationFieldName(ConfigurationField::Directives);
+        WriteYamlValueSet(emitter, unit.Metadata(), { ConfigurationField::ModuleDirective });
     }
 }

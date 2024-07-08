@@ -8,7 +8,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Management.Configuration;
 using Microsoft.Management.Configuration.Processor;
-using Windows.Storage.Streams;
 using WinRT;
 
 namespace ConfigurationRemotingServer
@@ -118,14 +117,14 @@ namespace ConfigurationRemotingServer
 
                     // Parse limitation set.
                     byte[] limitationSetBytes = Encoding.UTF8.GetBytes(commandStr.Substring(secondSeparatorIndex + CommandLineSectionSeparator.Length));
-                    InMemoryRandomAccessStream limitationSetStream = new InMemoryRandomAccessStream();
-                    DataWriter streamWriter = new DataWriter(limitationSetStream);
-                    streamWriter.WriteBytes(limitationSetBytes);
-                    streamWriter.StoreAsync().GetAwaiter().GetResult();
-                    streamWriter.DetachStream();
-                    limitationSetStream.Seek(0);
+                    MemoryStream memoryStream = new MemoryStream();
+                    memoryStream.Write(limitationSetBytes);
+                    memoryStream.Flush();
+                    memoryStream.Seek(0, SeekOrigin.Begin);
                     ConfigurationProcessor processor = new ConfigurationProcessor(factory);
-                    var limitationSetResult = processor.OpenConfigurationSet(limitationSetStream);
+                    var limitationSetResult = processor.OpenConfigurationSet(memoryStream.AsInputStream());
+                    memoryStream.Close();
+
                     if (limitationSetResult.ResultCode != null)
                     {
                         throw limitationSetResult.ResultCode;

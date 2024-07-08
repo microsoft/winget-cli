@@ -1,6 +1,7 @@
 # See https://github.com/check-spelling/check-spelling/wiki/Configuration-Examples:-patterns
 
 WinGetDevCLI_8wekyb3d8bbwe
+8wekyb3d8bbwe
 _tisf_sqliteReturnValue
 microsoft\.com/[^])">]*
 S[Hh][Aa]256: [0-9A-Fa-f]{64}
@@ -16,8 +17,8 @@ data:[a-zA-Z=;,/0-9+-]+
 # sha-1
 \b[0-9a-f]{40}\b
 El proyecto .* diferentes
-# Package family names
-\b[-.A-Za-z0-9]+_[a-z0-9]{13}\b
+# Package family names and package full names
+\b[-_~.A-Za-z0-9]+_[a-z0-9]{13}\b
 # Locales for name normalization
 \b\p{Lu}{2,3}(?:-(?:CANS|CYRL|LATN|MONG))?-\p{Lu}{2}(?![A-Z])(?:-VALENCIA)?\b
 # Azure pipeline tasks

@@ -211,20 +211,27 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         // Create the parser based on the version selected
-        SemanticVersion schemaVersion(std::move(schemaVersionString));
+        auto result = CreateForSchemaVersion(std::move(schemaVersionString));
+        result->SetDocument(std::move(document));
+        return result;
+    }
+
+    std::unique_ptr<ConfigurationSetParser> ConfigurationSetParser::CreateForSchemaVersion(std::string input)
+    {
+        SemanticVersion schemaVersion(std::move(input));
 
         // TODO: Consider having the version/uri/type information all together in the future
         if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 1)
         {
-            return std::make_unique<ConfigurationSetParser_0_1>(std::move(document));
+            return std::make_unique<ConfigurationSetParser_0_1>();
         }
         else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 2)
         {
-            return std::make_unique<ConfigurationSetParser_0_2>(std::move(document));
+            return std::make_unique<ConfigurationSetParser_0_2>();
         }
         else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 3)
         {
-            return std::make_unique<ConfigurationSetParser_0_3>(std::move(document));
+            return std::make_unique<ConfigurationSetParser_0_3>();
         }
 
         AICLI_LOG(Config, Error, << "Unknown configuration version: " << schemaVersion.ToString());
@@ -306,9 +313,27 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return {};
     }
 
-    hstring ConfigurationSetParser::LatestVersion()
+    std::pair<hstring, Windows::Foundation::Uri> ConfigurationSetParser::LatestVersion()
     {
-        return hstring{ std::rbegin(SchemaVersionAndUriMap)->VersionWide };
+        auto latest = std::rbegin(SchemaVersionAndUriMap);
+        return { hstring{ latest->VersionWide }, Windows::Foundation::Uri{ latest->UriWide } };
+    }
+
+    Windows::Foundation::Collections::ValueSet ConfigurationSetParser::ParseValueSet(std::string_view input)
+    {
+        Windows::Foundation::Collections::ValueSet result;
+        FillValueSetFromMap(Load(input), result);
+        return result;
+    }
+
+    std::vector<hstring> ConfigurationSetParser::ParseStringArray(std::string_view input)
+    {
+        std::vector<hstring> result;
+        ParseSequence(Load(input), "string_array", Node::Type::Scalar, [&](const AppInstaller::YAML::Node& item)
+        {
+            result.emplace_back(item.as<std::wstring>());
+        });
+        return result;
     }
 
     void ConfigurationSetParser::SetError(hresult result, std::string_view field, std::string_view value, uint32_t line, uint32_t column)
@@ -405,11 +430,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return;
         }
 
+        ParseSequence(sequenceNode, GetConfigurationFieldName(field), elementType, operation);
+    }
+
+    void ConfigurationSetParser::ParseSequence(const AppInstaller::YAML::Node& node, std::string_view nameForErrors, std::optional<Node::Type> elementType, std::function<void(const AppInstaller::YAML::Node&)> operation)
+    {
         std::ostringstream strstr;
-        strstr << GetConfigurationFieldName(field);
+        strstr << nameForErrors;
         size_t index = 0;
 
-        for (const Node& item : sequenceNode.Sequence())
+        for (const Node& item : node.Sequence())
         {
             if (elementType && item.GetType() != elementType.value())
             {

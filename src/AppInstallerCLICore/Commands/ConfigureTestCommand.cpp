@@ -12,8 +12,9 @@ namespace AppInstaller::CLI
     std::vector<Argument> ConfigureTestCommand::GetArguments() const
     {
         return {
-            Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional },
             Argument{ Execution::Args::Type::ConfigurationModulePath, Resource::String::ConfigurationModulePath, ArgumentType::Positional },
+            Argument{ Execution::Args::Type::ConfigurationHistoryItem, Resource::String::ConfigurationHistoryItemArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
         };
     }
@@ -30,7 +31,6 @@ namespace AppInstaller::CLI
 
     Utility::LocIndView ConfigureTestCommand::HelpLink() const
     {
-        // TODO: Make this exist
         return "https://aka.ms/winget-command-configure#test"_liv;
     }
 
@@ -49,6 +49,14 @@ namespace AppInstaller::CLI
 
     void ConfigureTestCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        Configuration::ValidateCommonArguments(execArgs);
+        Configuration::ValidateCommonArguments(execArgs, true);
+    }
+
+    void ConfigureTestCommand::Complete(Execution::Context& context, Execution::Args::Type argType) const
+    {
+        if (argType == Execution::Args::Type::ConfigurationHistoryItem)
+        {
+            context << CompleteConfigurationHistoryItem;
+        }
     }
 }

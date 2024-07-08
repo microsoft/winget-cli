@@ -85,15 +85,26 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
         return result;
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
+    std::vector<std::string> Interface::GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const
     {
         switch (property)
         {
         case PackageVersionMultiProperty::UpgradeCode:
-            return UpgradeCodeTable::GetValuesByManifestId(connection, manifestId);
+            return UpgradeCodeTable::GetValuesByManifestId(connection, primaryId);
         default:
-            return V1_5::Interface::GetMultiPropertyByManifestId(connection, manifestId, property);
+            return V1_5::Interface::GetMultiPropertyByPrimaryId(connection, primaryId, property);
         }
+    }
+
+    void Interface::DropTables(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "drop_tables_v1_6");
+
+        V1_4::Interface::DropTables(connection);
+
+        UpgradeCodeTable::Drop(connection);
+
+        savepoint.Commit();
     }
 
     std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const

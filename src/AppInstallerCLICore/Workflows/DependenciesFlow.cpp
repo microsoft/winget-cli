@@ -337,7 +337,7 @@ namespace AppInstaller::CLI::Workflow
 
                 if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
                 {
-                    dependencyContext.Add<Execution::Data::DownloadDirectory>(context.Get<Execution::Data::DownloadDirectory>() / "Dependencies");
+                    dependencyContext.Add<Execution::Data::DownloadDirectory>(context.Get<Execution::Data::DownloadDirectory>() / L"Dependencies");
                 }
 
                 dependencyPackageContexts.emplace_back(std::move(dependencyContextPtr));

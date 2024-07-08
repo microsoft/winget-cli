@@ -1,4 +1,4 @@
-﻿# E2E module with resources.
+# E2E module with resources.
 
 enum Ensure
 {
@@ -286,5 +286,41 @@ class E2ETestResourceCrash
     [void] Set()
     {
         [System.Environment]::Exit(0)
+    }
+}
+
+# This resource writes the current PID to the provided file path. 
+[DscResource()]
+class E2ETestResourcePID
+{
+    [DscProperty(Key)]
+    [string] $key
+
+    [DscProperty(Mandatory)]
+    [string] $directoryPath
+
+    [E2ETestResourcePID] Get()
+    {
+        $result = @{
+            key = "E2ETestResourcePID"
+            directoryPath = $this.directoryPath
+        }
+
+        return $result
+    }
+
+    [bool] Test()
+    {
+        return $false
+    }
+
+    [void] Set()
+    {
+        if (Test-Path -Path $this.directoryPath)
+        {
+            $processId = [System.Diagnostics.Process]::GetCurrentProcess().Id
+            $filePath = Join-Path -Path $this.directoryPath -ChildPath "$processId.txt"
+            New-Item -Path $filePath -ItemType File -Force  
+        }
     }
 }

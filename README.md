@@ -6,11 +6,13 @@
 
 If you are new to the Windows Package Manager, you might want to [Explore the Windows Package Manager tool](https://docs.microsoft.com/learn/modules/explore-windows-package-manager-tool/?WT.mc_id=AZ-MVP-5004737). The client has access to packages from two default sources. The first is "msstore" the Microsoft Store (free Apps rated "e" for everyone). The second is "Winget" the [WinGet community repository](https://github.com/microsoft/winget-pkgs).
 
-> **Note**: Group policy may be configured and modify configured sources. Run `winget --info` to see any configured policies.
+> [!NOTE]
+> Group policy may be configured and modify configured sources. Run `winget --info` to see any configured policies.
 
 ## Installing The Client
 
-> **Note**: The client requires Windows 10 1809 (build 17763) or later at this time. Windows Server 2019 is not supported as the Microsoft Store is not available nor are updated dependencies. It may be possible to install on Windows Server 2022, this should be considered experimental (not supported), and requires dependencies to be manually installed as well.
+> [!NOTE]
+> The client requires Windows 10 1809 (build 17763) or later at this time. Windows Server 2019 is not supported as the Microsoft Store is not available nor are updated dependencies. It may be possible to install on Windows Server 2022, this should be considered experimental (not supported) and requires dependencies to be manually installed as well.
 
 ### Microsoft Store [Recommended]
 
@@ -23,7 +25,8 @@ There are two methods to get development releases:
 * Install a [Windows 10 or Windows 11 Insider](https://insider.windows.com/) build.
 * Join the Windows Package Manager Insider program by [signing up](http://aka.ms/winget-InsiderProgram).
 
-> **Note**: It may take a few days to get the updated App Installer after you receive e-mail confirmation from joining the Windows Package Manager Insider program. If you decide to install the latest release from GitHub, and you have successfully joined the insider program, you will receive updates when the next development release has been published in the Microsoft Store.
+> [!NOTE]
+> It may take a few days to get the updated App Installer after you receive e-mail confirmation from joining the Windows Package Manager Insider program. If you decide to install the latest release from GitHub, and you have successfully joined the insider program, you will receive updates when the next development release has been published in the Microsoft Store.
 
 Once you have received the updated App Installer from the Microsoft Store you should be able to execute `winget features` to see experimental features. Some users have reported [issues](https://github.com/microsoft/winget-cli/issues/210) with the client not being on their PATH.
 
@@ -31,7 +34,8 @@ Once you have received the updated App Installer from the Microsoft Store you sh
 
 The same Microsoft Store package will be made available via our [Releases](https://github.com/microsoft/winget-cli/releases). Note that installing this package will give you the WinGet client, but it will not enable automatic updates from the Microsoft Store if you have not joined the Windows Package Manager Insider program.
 
-> **Note**: You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
+> [!NOTE]
+> You may need to install the [VC++ v14 Desktop Framework Package](https://docs.microsoft.com/troubleshoot/cpp/c-runtime-packages-desktop-bridge#how-to-install-and-update-desktop-framework-packages).
 > This should only be necessary on older builds of Windows 10 and only if you get an error about missing framework packages.
 
 ### Troubleshooting
@@ -56,7 +60,7 @@ You can also [build the client yourself](#building-the-client). While the client
 
 ## Windows Package Manager Release Roadmap
 
-The plan for delivering the next Windows Package Manager releases is described and included in our [discussions](https://github.com/microsoft/winget-cli/discussions/2063), and will be updated as the project proceeds.
+The plan for delivering the next Windows Package Manager release is described and included in our [discussions](https://github.com/microsoft/winget-cli/discussions/2063), and will be updated as the project proceeds.
 
 ## Overview of the  Windows Package Manager
 
@@ -76,14 +80,15 @@ The client is built around the concept of sources; a set of packages effectively
 
 * The default "winget" source includes packages in the [Windows Package Manager Community Repository](https://github.com/microsoft/winget-pkgs).
 * The default "msstore" source includes packages in the Microsoft Store.
-* It is also possible to host your own private [REST based](https://github.com/microsoft/winget-cli-restsource) source.
+* It is also possible to host your own private [REST-based](https://github.com/microsoft/winget-cli-restsource) source.
 
 ## Building the client
 
 1. Clone the repository
 2. Configure your system, please use the [configuration file](.configurations/configuration.dsc.yaml). This can be applied by either:
    * [Dev Home](https://github.com/microsoft/devhome)'s machine configuration tool
-   * WinGet configuration. If you have the experimental feature enabled, run `winget configure .configurations/configuration.dsc.yaml` from the project root so relative paths resolve correctly
+   * WinGet configuration. Run `winget configure .configurations/configuration.dsc.yaml` from the project root so relative paths resolve correctly.
+3. Run `vcpkg integrate install` from the Developer Command Prompt for VS 2022. This is a one time setup step until the configuration file in step 2 is updated to work with vcpkg setup.
 
 ### Prerequisites
 
@@ -95,8 +100,10 @@ The client is built around the concept of sources; a set of packages effectively
   * .NET Desktop Development
   * Desktop Development with C++
   * Universal Windows Platform Development
+  * Check [.vsconfig file](.vsconfig) for full components list
 * [Windows SDK for Windows 11 (10.0.22000.194)](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive/)
-  > **Note**: You can also get it through `winget install Microsoft.WindowsSDK --version 10.0.22000.832` (use --force if you have a newer version installed) or via Visual Studio > Get Tools and Features > Individual Components > Windows 10 SDK (10.0.22000.0)
+> [!NOTE]
+> You can also get it through `winget install Microsoft.WindowsSDK --version 10.0.22000.832` (use --force if you have a newer version installed) or via Visual Studio > Get Tools and Features > Individual Components > Windows 10 SDK (10.0.22000.0)
 * The following extensions:
   * [Microsoft Visual Studio Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects)
 
@@ -106,7 +113,7 @@ Open `winget-cli\src\AppInstallerCLI.sln` in Visual Studio and build. We current
 
 ## Credit
 
-We would like to thank [Keivan Beigi (@kayone)](https://github.com/kayone) for his work on AppGet which helped us on the initial project direction for Windows Package Manager.
+We would like to thank [Keivan Beigi (@kayone)](https://github.com/kayone) for his work on AppGet which helped us with the initial project direction for Windows Package Manager.
 
 ## Contributing
 
@@ -128,11 +135,11 @@ The winget.exe client is instrumented to collect usage and diagnostic (error) da
 
 If you build the client yourself the instrumentation will not be enabled and no data will be sent to Microsoft.
 
-The winget.exe client respects machine-wide privacy settings and users can opt out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy). In addition, you may also explicitly block telemetry using [settings](https://docs.microsoft.com/windows/package-manager/winget/settings)
+The winget.exe client respects machine-wide privacy settings and users can opt-out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy). In addition, you may also explicitly block telemetry using [settings](https://docs.microsoft.com/windows/package-manager/winget/settings)
 
-In short to opt out, do one of the following:
+In short, to opt-out, do one of the following:
 
-**Windows 11**: Go to `Start`, then select `Settings` > `Privacy & security` > `Diagnostics & feedback` > `Diagnostic data` and unselect `Send optional diagnostic data`.
+**Windows 11**: Go to `Start`, then select `Settings` > `Privacy & Security` > `Diagnostics & feedback` > `Diagnostic data` and unselect `Send optional diagnostic data`.
 
 **Windows 10**: Go to `Start`, then select `Settings` > `Privacy` > `Diagnostics & feedback`, and select `Required diagnostic data`.
 

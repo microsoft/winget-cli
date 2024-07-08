@@ -119,10 +119,20 @@ namespace AppInstaller::Utility
 
         std::string m_version;
         std::vector<Part> m_parts;
+        bool m_trimPrefix = true;
         ApproximateComparator m_approximateComparator = ApproximateComparator::None;
 
       // Remove trailing empty parts (0 or empty)
         void Trim();
+    };
+
+    // Version that does not have leading non-digit characters trimmed
+    struct RawVersion : protected Version
+    {
+        RawVersion() { m_trimPrefix = false; }
+        RawVersion(std::string version, std::string_view splitChars = DefaultSplitChars);
+
+        using Version::GetParts;
     };
 
     // Four parts version number: 16-bits.16-bits.16-bits.16-bits

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ConfigureCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -63,7 +63,7 @@ namespace AppInstallerCLIE2ETests
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.txt");
             FileAssert.Exists(targetFilePath);
-            Assert.AreEqual("Contents!", System.IO.File.ReadAllText(targetFilePath));
+            Assert.AreEqual("Contents!", File.ReadAllText(targetFilePath));
 
             Assert.True(Directory.Exists(
                 Path.Combine(
@@ -122,7 +122,7 @@ namespace AppInstallerCLIE2ETests
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\IndependentResources_OneFailure.txt");
             FileAssert.Exists(targetFilePath);
-            Assert.AreEqual("Contents!", System.IO.File.ReadAllText(targetFilePath));
+            Assert.AreEqual("Contents!", File.ReadAllText(targetFilePath));
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace AppInstallerCLIE2ETests
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\ResourceCaseInsensitive.txt");
             FileAssert.Exists(targetFilePath);
-            Assert.AreEqual("Contents!", System.IO.File.ReadAllText(targetFilePath));
+            Assert.AreEqual("Contents!", File.ReadAllText(targetFilePath));
         }
 
         /// <summary>
@@ -180,6 +180,30 @@ namespace AppInstallerCLIE2ETests
 
             var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, args);
             Assert.AreEqual(0, result.ExitCode);
+        }
+
+        /// <summary>
+        /// Runs a configuration, then changes the state and runs it again from history.
+        /// </summary>
+        [Test]
+        public void ConfigureFromHistory()
+        {
+            var result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.yml"));
+            Assert.AreEqual(0, result.ExitCode);
+
+            // The configuration creates a file next to itself with the given contents
+            string targetFilePath = TestCommon.GetTestDataFile("Configuration\\Configure_TestRepo.txt");
+            FileAssert.Exists(targetFilePath);
+            Assert.AreEqual("Contents!", File.ReadAllText(targetFilePath));
+
+            File.WriteAllText(targetFilePath, "Changed contents!");
+
+            string guid = TestCommon.GetConfigurationInstanceIdentifierFor("Configure_TestRepo.yml");
+            result = TestCommon.RunAICLICommand(CommandAndAgreementsAndVerbose, $"-h {guid}");
+            Assert.AreEqual(0, result.ExitCode);
+
+            FileAssert.Exists(targetFilePath);
+            Assert.AreEqual("Contents!", File.ReadAllText(targetFilePath));
         }
 
         private void DeleteTxtFiles()

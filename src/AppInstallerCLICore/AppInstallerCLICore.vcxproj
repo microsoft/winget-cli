@@ -355,6 +355,7 @@
     <ClInclude Include="Commands\COMCommand.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
     <ClInclude Include="Commands\ConfigureCommand.h" />
+    <ClInclude Include="Commands\ConfigureListCommand.h" />
     <ClInclude Include="Commands\ConfigureShowCommand.h" />
     <ClInclude Include="Commands\ConfigureTestCommand.h" />
     <ClInclude Include="Commands\ConfigureValidateCommand.h" />
@@ -384,6 +385,7 @@
     <ClInclude Include="ConfigurationCommon.h" />
     <ClInclude Include="ConfigurationContext.h" />
     <ClInclude Include="ConfigurationWingetDscModuleUnitValidation.h" />
+    <ClInclude Include="ConfigureExportCommand.h" />
     <ClInclude Include="ContextOrchestrator.h" />
     <ClInclude Include="COMContext.h" />
     <ClInclude Include="Public\ConfigurationSetProcessorFactoryRemoting.h" />
@@ -431,6 +433,7 @@
     <ClCompile Include="CheckpointManager.cpp" />
     <ClCompile Include="Commands\COMCommand.cpp" />
     <ClCompile Include="Commands\ConfigureCommand.cpp" />
+    <ClCompile Include="Commands\ConfigureListCommand.cpp" />
     <ClCompile Include="Commands\ConfigureShowCommand.cpp" />
     <ClCompile Include="Commands\ConfigureTestCommand.cpp" />
     <ClCompile Include="Commands\ConfigureValidateCommand.cpp" />
@@ -446,6 +449,7 @@
     <ClCompile Include="ConfigurationDynamicRuntimeFactory.cpp" />
     <ClCompile Include="ConfigurationSetProcessorFactoryRemoting.cpp" />
     <ClCompile Include="ConfigurationWingetDscModuleUnitValidation.cpp" />
+    <ClCompile Include="ConfigureExportCommand.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
     <ClCompile Include="Workflows\ConfigurationFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />

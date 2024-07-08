@@ -16,7 +16,7 @@ namespace AppInstaller::SQLite
         return { static_cast<uint32_t>(major), static_cast<uint32_t>(minor) };
     }
 
-    void Version::SetSchemaVersion(Connection& connection)
+    void Version::SetSchemaVersion(Connection& connection) const
     {
         Savepoint savepoint = Savepoint::Create(connection, "version_setschemaversion");
 

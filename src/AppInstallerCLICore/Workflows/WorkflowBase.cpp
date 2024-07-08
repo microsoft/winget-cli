@@ -13,6 +13,8 @@
 #include <winget/Runtime.h>
 #include <winget/PackageVersionSelection.h>
 
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+
 using namespace std::string_literals;
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Pinning;
@@ -257,6 +259,19 @@ namespace AppInstaller::CLI::Workflow
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isFunc);
         m_func(context);
+    }
+
+    void WorkflowTask::Log() const
+    {
+        if (m_isFunc)
+        {
+            // Using `00000001`80000000` as base address default when loading dll into windbg as dump file.
+            AICLI_LOG(Workflow, Info, << "Running task: 0x" << m_func << " [ln 00000001`80000000+" << std::hex << (reinterpret_cast<char*>(m_func) - reinterpret_cast<char*>(&__ImageBase)) << "]");
+        }
+        else
+        {
+            AICLI_LOG(Workflow, Info, << "Running task: " << m_name);
+        }
     }
 
     Repository::PredefinedSource DetermineInstalledSource(const Execution::Context& context)
@@ -1157,6 +1172,12 @@ namespace AppInstaller::CLI::Workflow
 
     void VerifyFileOrUri::operator()(Execution::Context& context) const
     {
+        // Argument requirement is handled elsewhere.
+        if (!context.Args.Contains(m_arg))
+        {
+            return;
+        }
+
         auto path = context.Args.GetArg(m_arg);
 
         // try uri first
@@ -1370,35 +1391,32 @@ namespace AppInstaller::CLI::Workflow
     {
         std::shared_ptr<IPackage> installed = context.Get<Execution::Data::Package>()->GetInstalled();
 
-        if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::SideBySide))
+        if (installed)
         {
-            if (installed)
+            // TODO: This may need to be expanded dramatically to enable targeting across a variety of dimensions (architecture, etc.)
+            //       Alternatively, if we make it easier to see the fully unique package identifiers, we may avoid that need.
+            if (context.Args.Contains(Execution::Args::Type::TargetVersion))
             {
-                // TODO: This may need to be expanded dramatically to enable targeting across a variety of dimensions (architecture, etc.)
-                //       Alternatively, if we make it easier to see the fully unique package identifiers, we may avoid that need.
-                if (context.Args.Contains(Execution::Args::Type::TargetVersion))
-                {
-                    Repository::PackageVersionKey versionKey{ "", context.Args.GetArg(Execution::Args::Type::TargetVersion) , "" };
-                    std::shared_ptr<IPackageVersion> installedVersion = installed->GetVersion(versionKey);
+                Repository::PackageVersionKey versionKey{ "", context.Args.GetArg(Execution::Args::Type::TargetVersion) , "" };
+                std::shared_ptr<IPackageVersion> installedVersion = installed->GetVersion(versionKey);
 
-                    if (!installedVersion)
-                    {
-                        context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound(Utility::LocIndView{ versionKey.Version }) << std::endl;
-                        // This error maintains consistency with passing an available version to commands
-                        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
-                    }
-
-                    context.Add<Execution::Data::InstalledPackageVersion>(std::move(installedVersion));
-                }
-                else
+                if (!installedVersion)
                 {
-                    context.Add<Execution::Data::InstalledPackageVersion>(installed->GetLatestVersion());
+                    context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound(Utility::LocIndView{ versionKey.Version }) << std::endl;
+                    // This error maintains consistency with passing an available version to commands
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
                 }
+
+                context.Add<Execution::Data::InstalledPackageVersion>(std::move(installedVersion));
+            }
+            else
+            {
+                context.Add<Execution::Data::InstalledPackageVersion>(installed->GetLatestVersion());
             }
         }
         else
         {
-            context.Add<Execution::Data::InstalledPackageVersion>(GetInstalledVersion(context.Get<Execution::Data::Package>()));
+            context.Add<Execution::Data::InstalledPackageVersion>(nullptr);
         }
     }
 
@@ -1433,6 +1451,7 @@ AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::
         if (context.ShouldExecuteWorkflowTask(task))
 #endif
         {
+            task.Log();
             task(context);
         }
     }

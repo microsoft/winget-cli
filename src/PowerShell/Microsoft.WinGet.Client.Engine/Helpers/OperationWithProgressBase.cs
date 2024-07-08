@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="OperationWithProgressBase.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System;
+    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using Microsoft.WinGet.Common.Command;
     using Microsoft.WinGet.Resources;
@@ -19,6 +20,24 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     /// <typeparam name="TProgressData">Progress data.</typeparam>
     internal abstract class OperationWithProgressBase<TOperationResult, TProgressData>
     {
+        private static bool isProgressEnabled;
+
+        static OperationWithProgressBase()
+        {
+            // Progress on arm64 will produce an AV because there's an OS bug where marshaling structs over a certain size fail.
+            // Fix is in 10.0.26068.0, for build before that disable progress.
+            if (RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+            {
+                var minWindowsVersion = new Version(10, 0, 26068, 0);
+                var osVersion = Environment.OSVersion.Version;
+                isProgressEnabled = osVersion.CompareTo(minWindowsVersion) >= 0;
+            }
+            else
+            {
+                isProgressEnabled = true;
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OperationWithProgressBase{TOperationResult, TProgressData}"/> class.
         /// </summary>
@@ -64,7 +83,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public async Task<TOperationResult> ExecuteAsync(Func<IAsyncOperationWithProgress<TOperationResult, TProgressData>> func)
         {
             var operation = func();
-            operation.Progress = this.Progress;
+
+            if (isProgressEnabled)
+            {
+                operation.Progress = this.Progress;
+            }
 
             try
             {

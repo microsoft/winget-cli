@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="AppxModuleHelper.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -127,8 +127,15 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <summary>
         /// Calls Add-AppxPackage to register with AppInstaller's AppxManifest.xml.
         /// </summary>
-        public void RegisterAppInstaller()
+        /// <param name="releaseTag">Release tag of GitHub release.</param>
+        public void RegisterAppInstaller(string releaseTag)
         {
+            // Ensure that all dependencies are present when attempting to register.
+            // If dependencies are missing, a provisioned package can appear to only need registration,
+            // but will fail to register. `InstallDependenciesAsync` checks for the packages before
+            // acting, so it should be mostly a no-op if they are already available.
+            this.InstallDependenciesAsync(releaseTag).Wait();
+
             string? packageFullName = this.GetAppInstallerPropertyValue(PackageFullName);
 
             if (packageFullName == null)

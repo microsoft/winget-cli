@@ -1173,6 +1173,9 @@
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
     <value>릴리스 날짜:</value>
   </data>
+  <data name="ShowLabelInstallerOfflineDistributionSupported" xml:space="preserve">
+    <value>지원되는 오프라인 배포:</value>
+  </data>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
     <value>게시자 URL:</value>
   </data>
@@ -2272,14 +2275,14 @@
   <data name="APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY" xml:space="preserve">
     <value>작업이 그룹 정책 의해 차단되었습니다.</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR" xml:space="preserve">
-    <value>Rest 원본 내부 오류</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR" xml:space="preserve">
+    <value>Rest API 내부 오류</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL" xml:space="preserve">
     <value>잘못된 REST 원본 URL</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
-    <value>rest 원본에서 반환된 지원되지 않는 MIME 형식</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE" xml:space="preserve">
+    <value>REST API에서 반환된 지원되지 않는 MIME 형식</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION" xml:space="preserve">
     <value>잘못된 REST 원본 계약 버전</value>
@@ -2299,8 +2302,8 @@
   <data name="APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST" xml:space="preserve">
     <value>하나 이상의 원본에서 검색 요청을 지원하지 않습니다.</value>
   </data>
-  <data name="APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND" xml:space="preserve">
-    <value>나머지 원본 엔드포인트를 찾을 수 없습니다.</value>
+  <data name="APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND" xml:space="preserve">
+    <value>나머지 API 엔드포인트를 찾을 수 없습니다.</value>
   </data>
   <data name="APPINSTALLER_CLI_ERROR_SOURCE_OPEN_FAILED" xml:space="preserve">
     <value>원본을 열지 못했습니다.</value>
@@ -2813,5 +2816,233 @@
   <data name="RepairFailedWithCode" xml:space="preserve">
     <value>복구하지 못했습니다. 종료 코드: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when an attempt to repair an application package fails. {0} is a placeholder replaced by an error code.</comment>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED" xml:space="preserve">
+    <value>손상을 방지하기 위해 SQLite 연결을 종료했습니다.</value>
+  </data>
+  <data name="UninstallAllVersionsArgumentDescription" xml:space="preserve">
+    <value>모든 버전 제거</value>
+  </data>
+  <data name="TargetVersionArgumentDescription" xml:space="preserve">
+    <value>작업할 버전</value>
+  </data>
+  <data name="UninstallFailedDueToMultipleVersions" xml:space="preserve">
+    <value>이 패키지의 여러 버전이 설치되어 있습니다. 검색을 구체화하거나,'--version' 인수를 전달하여 하나를 선택하거나, '--all-versions' 플래그를 전달하여 모두 제거하세요.</value>
+    <comment>{Locked="--version,--all-versions"}</comment>
+  </data>
+  <data name="PolicyEnableProxyCommandLineOptions" xml:space="preserve">
+    <value>프록시 명령줄 옵션 Windows 패키지 관리자 사용</value>
+    <comment>Describes a Group Policy that can enable the use of the --proxy option to set a proxy</comment>
+  </data>
+  <data name="ProxyArgumentDescription" xml:space="preserve">
+    <value>이 실행에 사용할 프록시 설정</value>
+  </data>
+  <data name="NoProxyArgumentDescription" xml:space="preserve">
+    <value>이 실행에 프록시 사용 안 함</value>
+  </data>
+  <data name="ResetAdminSettingFailed" xml:space="preserve">
+    <value>{0} 다시 설정할 수 없습니다. 이 설정은 정책에 의해 제어됩니다. 자세한 내용은 시스템 관리자에게 문의하십시오.</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="ResetAdminSettingSucceeded" xml:space="preserve">
+    <value>관리자 설정 ‘{0}’을(를) 초기화합니다.</value>
+    <comment>{Locked="{0}"} Message displayed after the user resets an admin setting to its default value. Reset is used as verb in past tense. {0} is a placeholder replaced by the setting name.</comment>
+  </data>
+  <data name="SetAdminSettingFailed" xml:space="preserve">
+    <value>{0} 설정할 수 없습니다. 이 설정은 정책에 의해 제어됩니다. 자세한 내용은 시스템 관리자에게 문의하십시오.</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="SetAdminSettingSucceeded" xml:space="preserve">
+    <value>관리자 설정 '{0}'을(를) '{1}'(으)로 설정합니다.</value>
+    <comment>{Locked="{0}"} Message displayed after the user sets the value of an admin setting. Set is used as a verb in past tense. {0} is a placeholder replaced by the setting name. {1} is a placeholder replaced </comment>
+  </data>
+  <data name="SettingNameArgumentDescription" xml:space="preserve">
+    <value>수정할 설정의 이름</value>
+  </data>
+  <data name="SettingValueArgumentDescription" xml:space="preserve">
+    <value>설정에 대해 설정할 값입니다.</value>
+  </data>
+  <data name="SettingsResetCommandLongDescription" xml:space="preserve">
+    <value>관리자 설정을 기본값으로 다시 설정합니다.</value>
+  </data>
+  <data name="SettingsResetCommandShortDescription" xml:space="preserve">
+    <value>관리자 설정을 기본값으로 다시 설정합니다.</value>
+  </data>
+  <data name="SettingsSetCommandLongDescription" xml:space="preserve">
+    <value>관리자 설정의 값을 설정합니다.</value>
+  </data>
+  <data name="SettingsSetCommandShortDescription" xml:space="preserve">
+    <value>관리자 설정의 값을 설정합니다.</value>
+  </data>
+  <data name="SourceRequireExplicitArgumentDescription" xml:space="preserve">
+    <value>지정하지 않는 한 검색에서 원본 제외</value>
+  </data>
+  <data name="SourceListExplicit" xml:space="preserve">
+    <value>유해 콘텐츠</value>
+  </data>
+  <data name="SourceTrustLevelArgumentDescription" xml:space="preserve">
+    <value>원본의 신뢰 수준(없음 또는 신뢰할 수 없음)</value>
+  </data>
+  <data name="SourceListTrustLevel" xml:space="preserve">
+    <value>신뢰 수준</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED" xml:space="preserve">
+    <value>Microsoft Store 패키지 카탈로그를 가져오지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE" xml:space="preserve">
+    <value>Microsoft Store 패키지 카탈로그에서 적용 가능한 Microsoft Store 패키지를 찾을 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED" xml:space="preserve">
+    <value>Microsoft Store 패키지 다운로드 정보를 가져오지 못했습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE" xml:space="preserve">
+    <value>적용 가능한 Microsoft Store 패키지 다운로드 정보를 찾을 수 없습니다.</value>
+  </data>
+  <data name="APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED" xml:space="preserve">
+    <value>Microsoft Store 패키지 라이선스를 검색하지 못했습니다.</value>
+  </data>
+  <data name="MSStoreDownloadPackageNotFound" xml:space="preserve">
+    <value>Microsoft Store 패키지를 찾을 수 없습니다.</value>
+  </data>
+  <data name="MSStoreDownloadPackageHashVerified" xml:space="preserve">
+    <value>Microsoft Store 패키지 해시가 성공적으로 확인되었습니다.</value>
+  </data>
+  <data name="MSStoreDownloadPackageHashMismatch" xml:space="preserve">
+    <value>Microsoft Store 패키지 해시 불일치</value>
+  </data>
+  <data name="MSStoreDownloadPackageDownloaded" xml:space="preserve">
+    <value>Microsoft Store 패키지 다운로드됨: {0}</value>
+    <comment>{Locked="{0}"} Full path of the downloaded package.</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadFailed" xml:space="preserve">
+    <value>Microsoft Store 패키지 다운로드 실패: {0}</value>
+    <comment>{Locked="{0}"} Package name.</comment>
+  </data>
+  <data name="MSStoreDownloadPackageDownloadSuccess" xml:space="preserve">
+    <value>Microsoft Store 패키지 다운로드 완료</value>
+  </data>
+  <data name="MSStoreDownloadMainPackages" xml:space="preserve">
+    <value>Microsoft Store 기본 패키지를 다운로드하는 중...</value>
+  </data>
+  <data name="MSStoreDownloadDependencyPackages" xml:space="preserve">
+    <value>Microsoft Store에서 종속성 패키지를 다운로드하는 중...</value>
+  </data>
+  <data name="MSStoreDownloadGetDownloadInfo" xml:space="preserve">
+    <value>Microsoft Store 패키지 다운로드 정보 검색</value>
+  </data>
+  <data name="MSStoreDownloadGetDownloadInfoFailed" xml:space="preserve">
+    <value>Microsoft Store 패키지 다운로드 정보를 검색하지 못했습니다.</value>
+  </data>
+  <data name="MSStoreDownloadGetLicense" xml:space="preserve">
+    <value>Microsoft Store 패키지 라이선스 검색</value>
+  </data>
+  <data name="MSStoreDownloadGetLicenseSuccess" xml:space="preserve">
+    <value>Microsoft Store 패키지 라이선스 저장됨: {0}</value>
+    <comment>{Locked="{0}"} License file full path.</comment>
+  </data>
+  <data name="MSStoreDownloadGetLicenseFailed" xml:space="preserve">
+    <value>Microsoft Store 패키지 라이선스를 검색하지 못했습니다.</value>
+  </data>
+  <data name="MSStoreDownloadRenameNotSupported" xml:space="preserve">
+    <value>Microsoft Store 패키지 다운로드는 --rename 인수를 지원하지 않습니다. Microsoft Store 패키지는 Microsoft Store 카탈로그에서 제공하는 이름을 사용합니다.</value>
+    <comment>{Locked="--rename"}</comment>
+  </data>
+  <data name="MSStoreDownloadAuthenticationNotice" xml:space="preserve">
+    <value>Microsoft Store 패키지를 다운로드하려면 Microsoft Entra ID 인증이 필요합니다. 필요한 경우 인증 프롬프트가 표시될 수 있습니다. 인증된 정보는 액세스 권한 부여를 위해 Microsoft 서비스 공유됩니다. Microsoft Store 패키지 라이선스의 경우 Microsoft Entra ID 계정에 Microsoft Entra ID 테넌트에 대한 관리자 액세스 권한이 있어야 합니다.</value>
+  </data>
+  <data name="SkipMicrosoftStorePackageLicenseArgumentDescription" xml:space="preserve">
+    <value>Microsoft Store 패키지 오프라인 라이선스 검색 건너뛰기</value>
+  </data>
+  <data name="PlatformArgumentDescription" xml:space="preserve">
+    <value>대상 플랫폼 선택</value>
+  </data>
+  <data name="ConfigurationExportAddingToFile" xml:space="preserve">
+    <value>구성 파일 추가: {0}</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationExportSuccessful" xml:space="preserve">
+    <value>내보냈습니다.</value>
+  </data>
+  <data name="ConfigurationGettingResourceSettings" xml:space="preserve">
+    <value>구성 설정을 가져오는 중...</value>
+  </data>
+  <data name="ConfigureExportArgumentError" xml:space="preserve">
+    <value>최소한 --resource와 함께 --packageId 및/또는 --module을 제공해야 합니다.</value>
+    <comment>{Locked="--packageId,--module, --resource"}</comment>
+  </data>
+  <data name="ConfigureExportCommandLongDescription" xml:space="preserve">
+    <value>구성 리소스를 구성 파일로 내보냅니다. --packageId와 함께 사용하면 지정된 패키지 ID의 WinGetPackage 리소스를 내보냅니다. --module 및 --resource와 함께 사용하면 리소스의 설정을 가져오고 구성 파일로 내보냅니다. 출력 구성 파일이 이미 있으면 내보낸 구성 리소스를 추가합니다.</value>
+    <comment>{Locked="WinGetPackage,--packageId,--module, --resource"}</comment>
+  </data>
+  <data name="ConfigureExportCommandShortDescription" xml:space="preserve">
+    <value>구성 리소스를 구성 파일로 내보냅니다.</value>
+  </data>
+  <data name="ConfigureExportModule" xml:space="preserve">
+    <value>내보낼 리소스의 모듈입니다.</value>
+  </data>
+  <data name="ConfigureExportPackageId" xml:space="preserve">
+    <value>내보낼 패키지 식별자입니다.</value>
+  </data>
+  <data name="ConfigureExportResource" xml:space="preserve">
+    <value>내보낼 구성 리소스입니다.</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_GET_FAILED" xml:space="preserve">
+    <value>구성 단위가 해당 속성을 가져오지 못했습니다.</value>
+  </data>
+  <data name="ConfigurationExportFailed" xml:space="preserve">
+    <value>구성을 내보내지 못했습니다.</value>
+  </data>
+  <data name="ConfigureExportUnitDescription" xml:space="preserve">
+    <value>{0} 구성</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigureExportUnitInstallDescription" xml:space="preserve">
+    <value>{0} 설치</value>
+    <comment>{Locked="{0}"}</comment>
+  </data>
+  <data name="ConfigurationWarningSetViewTruncated" xml:space="preserve">
+    <value>구성 파일에 있는 일부 데이터가 이 출력에 대해 잘렸습니다. 파일 콘텐츠를 검사하여 전체 콘텐츠를 검사합니다.</value>
+  </data>
+  <data name="ConfigurationWarningValueTruncated" xml:space="preserve">
+    <value>&lt;이 값이 잘렸습니다. 전체 텍스트를 보려면 파일 내용을 검사합니다&gt;</value>
+    <comment>Keep some form of separator like the "&lt;&gt;" around the text so that it stands out from the preceding text.</comment>
+  </data>
+  <data name="ConfigureListCommandLongDescription" xml:space="preserve">
+    <value>시스템에 적용된 구성에 대한 높은 수준의 세부 정보를 표시합니다. 그런 다음 이 데이터를 `configure` 명령과 함께 사용하여 자세한 정보를 확인할 수 있습니다.</value>
+    <comment>{Locked="`configure`"}</comment>
+  </data>
+  <data name="ConfigureListCommandShortDescription" xml:space="preserve">
+    <value>구성 기록 표시</value>
+  </data>
+  <data name="ConfigurationHistoryEmpty" xml:space="preserve">
+    <value>기록에 구성이 없습니다.</value>
+  </data>
+  <data name="ConfigurationHistoryItemArgumentDescription" xml:space="preserve">
+    <value>기록에서 항목 선택</value>
+  </data>
+  <data name="ConfigurationHistoryItemNotFound" xml:space="preserve">
+    <value>제공된 데이터와 일치하는 단일 구성을 찾을 수 없습니다. 원하는 구성과 명확하게 일치하는 식별자의 전체 이름 또는 일부를 제공하십시오.</value>
+  </data>
+  <data name="ConfigurationHistoryRemoveArgumentDescription" xml:space="preserve">
+    <value>기록에서 항목 제거</value>
+  </data>
+  <data name="ConfigureListFirstApplied" xml:space="preserve">
+    <value>처음 적용됨</value>
+    <comment>Column header for date values indicating when a configuration was first applied to the system.</comment>
+  </data>
+  <data name="ConfigureListIdentifier" xml:space="preserve">
+    <value>식별자</value>
+  </data>
+  <data name="ConfigureListName" xml:space="preserve">
+    <value>이름</value>
+  </data>
+  <data name="ConfigureListOrigin" xml:space="preserve">
+    <value>원본</value>
+  </data>
+  <data name="ConfigureListPath" xml:space="preserve">
+    <value>경로</value>
+  </data>
+  <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
+    <value>지정한 구성을 찾을 수 없습니다.</value>
   </data>
 </root>

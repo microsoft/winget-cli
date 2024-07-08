@@ -28,6 +28,18 @@ BeforeAll {
 
         return Invoke-DscResource -Name $Name -ModuleName Microsoft.WinGet.DSC -Method $Method -Property $Property
     }
+
+    function AddTestSource {
+        try {
+            Get-WinGetSource -Name 'TestSource'
+        }
+        catch {
+            # TODO: Add-WinGetSource does not support setting trust level yet.
+            # Add-WinGetSource -Name 'TestSource' -Arg 'https://localhost:5001/TestKit/'
+            $sourceAddCommand = "wingetdev.exe source add TestSource https://localhost:5001/TestKit/ --trust-level trusted"
+            Invoke-Expression -Command $sourceAddCommand
+        }
+    }
 }
 
 Describe 'List available DSC resources'{
@@ -151,7 +163,10 @@ Describe 'WinGetSources' {
     }
 
     It 'Set WinGet source' {
-        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Ensure = 'Present'; Sources = @{ $testSourceName = $testSourceValue }}
+        # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Ensure = 'Present'; Sources = @{ $testSourceName = $testSourceValue }}
+        # TODO: Replace with DSC once '--trust-level' is supported
+        AddTestSource
+
         $result = InvokeWinGetDSC -Name WinGetSources -Method Get -Property @{ Sources = @{ $testSourceName = $testSourceValue }}
         $result.Sources.Keys  | Should -Contain $testSourceName
 
@@ -168,7 +183,10 @@ Describe 'WinGetPackage' {
         $testPackageVersion = '1.0.0.0'
 
         # Add test source.
-        InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Present'; Sources = @{ TestSource = @{ Arg = 'https://localhost:5001/TestKit/'; Type = 'Microsoft.PreIndexed.Package' }}}
+        # InvokeWinGetDSC -Name WinGetSources -Method Set -Property @{ Action = 'Partial'; Ensure = 'Present'; Sources = @{ TestSource = @{ Arg = 'https://localhost:5001/TestKit/'; Type = 'Microsoft.PreIndexed.Package' }}}
+
+        # TODO: Replace with DSC once '--trust-level' is supported.
+        AddTestSource
     }
 
     It 'Get WinGetPackage' {
@@ -202,7 +220,7 @@ Describe 'WinGetPackage' {
         $result.IsInstalled | Should -Be $true
         $result.IsUpdateAvailable | Should -Be $false
         $result.InstalledVersion | Should -Not -Be 1.0.0.0
-    }
+    } 
 
     It 'Uninstall WinGetPackage' {
         InvokeWinGetDSC -Name WinGetPackage -Method Set -Property @{ Id = $testPackageId; UseLatest = $true }

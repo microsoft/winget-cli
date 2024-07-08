@@ -1,12 +1,16 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
 
 #define NOMINMAX
 #include <Windows.h>
+#include <AclAPI.h>
 #include <appmodel.h>
 #include <icu.h>
 #include <sddl.h>
+#include <Shlobj.h>
+#include <compressapi.h>
+#include <concurrencysal.h>
 
 #define YAML_DECLARE_STATIC
 #include <yaml.h>
@@ -30,6 +34,7 @@
 #include <functional>
 #include <iomanip>
 #include <limits>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <optional>

@@ -16,7 +16,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetParser_0_3::Parse()
     {
-        auto result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
+        auto result = make_self<implementation::ConfigurationSet>();
 
         CHECK_ERROR(ParseValueSet(m_document, ConfigurationField::Metadata, false, result->Metadata()));
         CHECK_ERROR(ParseParameters(result));
@@ -34,6 +34,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         static hstring s_schemaVersion{ L"0.3" };
         return s_schemaVersion;
+    }
+
+    void ConfigurationSetParser_0_3::SetDocument(AppInstaller::YAML::Node&& document)
+    {
+        m_document = std::move(document);
     }
 
     void ConfigurationSetParser_0_3::ParseParameters(ConfigurationSetParser::ConfigurationSetPtr& set)
@@ -195,7 +200,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         ParseSequence(document, field, false, Node::Type::Mapping, [&](const Node& item)
             {
-                auto configurationUnit = make_self<wil::details::module_count_wrapper<ConfigurationUnit>>();
+                auto configurationUnit = make_self<ConfigurationUnit>();
                 ParseConfigurationUnit(configurationUnit.get(), item);
                 result.emplace_back(*configurationUnit);
             });

@@ -34,13 +34,13 @@ namespace AppInstaller::SQLite
 
     // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
     // should be consistent across systems.
-    std::chrono::system_clock::time_point SQLiteStorageBase::GetLastWriteTime()
+    std::chrono::system_clock::time_point SQLiteStorageBase::GetLastWriteTime() const
     {
         int64_t lastWriteTime = MetadataTable::GetNamedValue<int64_t>(m_dbconn, s_MetadataValueName_LastWriteTime);
         return Utility::ConvertUnixEpochToSystemClock(lastWriteTime);
     }
 
-    std::string SQLiteStorageBase::GetDatabaseIdentifier()
+    std::string SQLiteStorageBase::GetDatabaseIdentifier() const
     {
         return MetadataTable::TryGetNamedValue<std::string>(m_dbconn, s_MetadataValueName_DatabaseIdentifier).value_or(std::string{});
     }

@@ -84,6 +84,7 @@
 ^src/JsonCppLib/
 ^src/PowerShell/ExternalModules
 ^src/PureLib/
+^src/SfsClient/
 ^src/UndockedRegFreeWinRT/
 ^src/Valijson/
 ^src/Xlang/

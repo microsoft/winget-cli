@@ -1,12 +1,14 @@
 abcd
 ABORTIFHUNG
 accepteula
+ACCESSTOKEN
 adjacents
 adml
 admx
 AFAIK
 aicli
 AICLIC
+AKV
 allusers
 alreadyinstalled
 AMap
@@ -40,6 +42,7 @@ bcp
 BEFACEF
 BFirst
 bght
+bigcatalog
 BITMAPINFOHEADER
 bitspace
 bkup
@@ -72,6 +75,8 @@ CODEOWNERS
 COINIT
 COMGLB
 commandline
+compressapi
+concurrencysal
 contactsupport
 contentfiles
 contoso
@@ -87,7 +92,7 @@ createmanifestmetadata
 cswinrt
 ctc
 currentuser
-DACL
+dacl
 datetimeoffset
 debian
 dedupe
@@ -98,6 +103,7 @@ desktopappinstaller
 devhome
 dic
 diskfull
+displaycatalog
 DISMAPI
 dnld
 Dobbeleer
@@ -112,6 +118,7 @@ ECustom
 EFGH
 EFile
 efileresource
+EMalicious
 endregion
 ENDSESSION
 EPester
@@ -156,6 +163,7 @@ GRPICONDIR
 GRPICONDIRENTRY
 guiddef
 Hackathon
+hashtables
 helplib
 helplibrary
 hhx
@@ -212,6 +220,7 @@ JToken
 JValue
 Kaido
 KNOWNFOLDERID
+kool
 ktf
 ldcase
 learnxinyminutes
@@ -273,6 +282,8 @@ msftrubengu
 MSIHASH
 MSIXHASH
 msstore
+MSZIP
+mszyml
 Mta
 Mugiwara
 Multideclaration
@@ -290,6 +301,7 @@ netfx
 netlify
 NETSDK
 Newtonsoft
+nlohmann
 NNS
 NOAGGREGATION
 NOCLOSE
@@ -331,6 +343,7 @@ PCCERT
 PCs
 pcwsz
 PDWORD
+Peet
 peetdev
 PEGI
 PFM
@@ -354,6 +367,7 @@ PSHOST
 psobject
 ptstr
 publickey
+PVD
 pvk
 pvm
 pwabuilder
@@ -390,6 +404,7 @@ runspace
 runtimeclass
 ryfu
 rzkzqaqjwj
+sacl
 SARL
 SASURL
 schematab
@@ -403,6 +418,8 @@ servercertificate
 setmetadatabymanifestid
 SETTINGCHANGE
 SETTINGMAPPING
+sfs
+sfsclient
 SHCONTF
 SHGDN
 SHOWNORMAL
@@ -412,7 +429,7 @@ silentpreferred
 similarissues
 similaritytolerance
 Skipx
-Sku
+sku
 SMTO
 sortof
 SOURCESDIRECTORY
@@ -424,6 +441,7 @@ srs
 startswith
 STARTUPINFOW
 STDMETHODCALLTYPE
+storeapps
 storeorigin
 STRRET
 stylecop

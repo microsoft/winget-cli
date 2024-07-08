@@ -54,7 +54,7 @@ namespace AppInstaller::Repository::Microsoft
                 return std::nullopt;
             }
 
-            return cacheData.GetPropertyByManifestId(versionKey->ManifestId, PackageVersionProperty::Name);
+            return cacheData.GetPropertyByPrimaryId(versionKey->ManifestId, PackageVersionProperty::Name);
         }
 
         // Populates the index with the entries from MSIX.
@@ -104,14 +104,7 @@ namespace AppInstaller::Repository::Microsoft
                 Utility::NormalizedString fullName = Utility::ConvertToUTF8(packageId.FullName());
                 Utility::NormalizedString familyName = Utility::ConvertToUTF8(packageId.FamilyName());
 
-                if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SideBySide))
-                {
-                    manifest.Id = "MSIX\\" + fullName;
-                }
-                else
-                {
-                    manifest.Id = familyName;
-                }
+                manifest.Id = "MSIX\\" + fullName;
 
                 // Get version
                 std::ostringstream strstr;
@@ -166,34 +159,17 @@ namespace AppInstaller::Repository::Microsoft
 
                 manifest.Installers[0].PackageFamilyName = familyName;
 
-                try
+                // Use the full name as a unique key for the path
+                auto manifestId = index.AddManifest(manifest);
+
+                index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType,
+                    Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msix));
+
+                auto architecture = Utility::ConvertToArchitectureEnum(packageId.Architecture());
+                if (architecture)
                 {
-                    // Use the full name as a unique key for the path
-                    auto manifestId = index.AddManifest(manifest);
-
-                    index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledType,
-                        Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msix));
-
-                    auto architecture = Utility::ConvertToArchitectureEnum(packageId.Architecture());
-                    if (architecture)
-                    {
-                        index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture,
-                            ToString(architecture.value()));
-                    }
-                }
-                catch (const wil::ResultException& resultException)
-                {
-                    if (HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS) == resultException.GetErrorCode() && package.IsFramework())
-                    {
-                        // This should not be needed with the SxS changes
-                        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::SideBySide))
-                        {
-                            // There may be multiple packages with same package family name for framework packages.
-                            continue;
-                        }
-                    }
-
-                    throw;
+                    index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture,
+                        ToString(architecture.value()));
                 }
             }
         }

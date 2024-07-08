@@ -144,9 +144,6 @@
     <ClInclude Include="Public\winget\Debugging.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\Filesystem.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\PortableARPEntry.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -192,10 +189,19 @@
     <ClInclude Include="Public\winget\NetworkSettings.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\PackageVersionDataManifest.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
     <ClInclude Include="Public\winget\HttpClientHelper.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\Rest.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\MSStoreDownload.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\FileCache.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
@@ -302,9 +308,6 @@
     <ClCompile Include="Debugging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Filesystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PortableARPEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -350,10 +353,19 @@
     <ClCompile Include="NetworkSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PackageVersionDataManifest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="HttpClientHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Rest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MSStoreDownload.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -19,6 +19,7 @@
 #include "GetConfigurationUnitDetailsResult.h"
 #include "GetConfigurationSetDetailsResult.h"
 #include "DefaultSetGroupProcessor.h"
+#include "ConfigurationSequencer.h"
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
@@ -195,12 +196,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> ConfigurationProcessor::GetConfigurationHistory()
     {
-        THROW_HR(E_NOTIMPL);
+        return GetConfigurationHistoryImpl();
     }
 
     Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet>> ConfigurationProcessor::GetConfigurationHistoryAsync()
     {
-        co_return GetConfigurationHistory();
+        auto strong_this{ get_strong() };
+        co_await winrt::resume_background();
+        co_return GetConfigurationHistoryImpl({ co_await winrt::get_cancellation_token() });
     }
 
     Configuration::OpenConfigurationSetResult ConfigurationProcessor::OpenConfigurationSet(const Windows::Storage::Streams::IInputStream& stream)
@@ -232,8 +235,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             // This is done here to enable easy cancellation propagation to the stream reads.
             uint32_t bufferSize = 1 << 20;
             Windows::Storage::Streams::Buffer buffer(bufferSize);
-            Windows::Storage::Streams::InputStreamOptions readOptions = 
-                Windows::Storage::Streams::InputStreamOptions::Partial | Windows::Storage::Streams::InputStreamOptions::ReadAhead;
+
+            // Memory stream in mixed elevation does not support InputStreamOptions as flags.
+            Windows::Storage::Streams::InputStreamOptions readOptions = Windows::Storage::Streams::InputStreamOptions::Partial;
             std::string inputString;
 
             for (;;)
@@ -338,6 +342,23 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         co_await winrt::resume_background();
 
         co_return GetSetDetailsImpl(localSet, detailFlags, { co_await winrt::get_progress_token(), co_await winrt::get_cancellation_token()});
+    }
+
+    Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> ConfigurationProcessor::GetConfigurationHistoryImpl(AppInstaller::WinRT::AsyncCancellation cancellation)
+    {
+        auto threadGlobals = m_threadGlobals.SetForCurrentThread();
+
+        m_database.EnsureOpened(false);
+        cancellation.ThrowIfCancelled();
+
+        std::vector<ConfigurationSet> result;
+        for (const auto& set : m_database.GetSetHistory())
+        {
+            PropagateLifetimeWatcher(*set);
+            result.emplace_back(*set);
+        }
+
+        return multi_threaded_vector(std::move(result));
     }
 
     Configuration::GetConfigurationSetDetailsResult ConfigurationProcessor::GetSetDetailsImpl(
@@ -459,6 +480,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         else
         {
             groupProcessor = GetSetGroupProcessor(configurationSet);
+
+            // Write this set to the database history
+            // This is a somewhat arbitrary time to write it, but it should not be done if PerformConsistencyCheckOnly is passed, so this is convenient.
+            m_database.EnsureOpened();
+            progress.ThrowIfCancelled();
+            m_database.WriteSetHistory(configurationSet, WI_IsFlagSet(flags, ApplyConfigurationSetFlags::DoNotOverwriteMatchingOriginSet));
         }
 
         auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationSetResult>>();
@@ -494,7 +521,24 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            // TODO: Send pending when blocked by another configuration run
+            ConfigurationSequencer sequencer{ m_database };
+
+            if (!WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly))
+            {
+                if (sequencer.Enqueue(configurationSet))
+                {
+                    try
+                    {
+                        progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::Pending));
+                    }
+                    CATCH_LOG();
+
+                    sequencer.Wait(progress);
+                }
+            }
+
+            progress.ThrowIfCancelled();
+
             try
             {
                 progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::InProgress));
@@ -835,6 +879,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationProcessor::SetSupportsSchema03(bool value)
     {
         m_supportSchema03 = value;
+    }
+
+    void ConfigurationProcessor::RemoveHistory(const ConfigurationSet& configurationSet)
+    {
+        m_database.EnsureOpened(false);
+        m_database.RemoveSetHistory(configurationSet);
     }
 
     void ConfigurationProcessor::SendDiagnosticsImpl(const IDiagnosticInformation& information)

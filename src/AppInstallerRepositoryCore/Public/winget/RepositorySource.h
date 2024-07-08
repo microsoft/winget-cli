@@ -344,6 +344,6 @@ namespace AppInstaller::Repository
         bool m_isComposite = false;
         std::optional<TimeSpan> m_backgroundUpdateInterval;
         bool m_installedPackageInformationOnly = false;
-        mutable PackageTrackingCatalog m_trackingCatalog;
+        mutable std::shared_ptr<PackageTrackingCatalog> m_trackingCatalog;
     };
 }

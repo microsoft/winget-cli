@@ -45,6 +45,8 @@ namespace AppInstaller::YAML
                 return "Writer"sv;
             case Exception::Type::Emitter:
                 return "Emitter"sv;
+            case Exception::Type::Policy:
+                return "Policy"sv;
             }
 
             return "Unknown"sv;
@@ -407,6 +409,11 @@ namespace AppInstaller::YAML
 
     std::optional<int64_t> Node::try_as_dispatch(int64_t*) const
     {
+        if (m_scalar.empty())
+        {
+            return {};
+        }
+
         const char* begin = m_scalar.c_str();
         char* end = nullptr;
         errno = 0;
@@ -639,12 +646,12 @@ namespace AppInstaller::YAML
             break;
         case AppInstaller::YAML::Key:
             CheckInput(InputType::Key);
-            m_scalarInfo = InputType::Key;
+            m_scalarType = InputType::Key;
             SetAllowedInputs<InputType::Scalar>();
             break;
         case AppInstaller::YAML::Value:
             CheckInput(InputType::Value);
-            m_scalarInfo = InputType::Value;
+            m_scalarType = InputType::Value;
             SetAllowedInputs<InputType::Scalar, InputType::BeginMap, InputType::BeginSeq>();
             break;
         default:
@@ -658,25 +665,26 @@ namespace AppInstaller::YAML
     {
         CheckInput(InputType::Scalar);
 
-        int id = m_document->AddScalar(value);
+        int id = m_document->AddScalar(value, m_scalarStyle.value_or(ScalarStyle::Any));
+        m_scalarStyle = std::nullopt;
 
-        if (!m_scalarInfo)
+        if (!m_scalarType)
         {
             // Part of a sequence
             AppendNode(id);
             // No change to allowed inputs
         }
-        else if (m_scalarInfo.value() == InputType::Key)
+        else if (m_scalarType.value() == InputType::Key)
         {
             m_keyId = id;
-            m_scalarInfo = std::nullopt;
+            m_scalarType = std::nullopt;
             SetAllowedInputs<InputType::Value, InputType::BeginMap, InputType::BeginSeq>();
         }
-        else if (m_scalarInfo.value() == InputType::Value)
+        else if (m_scalarType.value() == InputType::Value)
         {
             // Mapping pair complete
             AppendNode(id);
-            m_scalarInfo = std::nullopt;
+            m_scalarType = std::nullopt;
             SetAllowedInputsForContainer();
         }
         else
@@ -704,6 +712,14 @@ namespace AppInstaller::YAML
     Emitter& Emitter::operator<<(bool value)
     {
         return operator<<(value ? "true"sv : "false"sv);
+    }
+
+    Emitter& Emitter::operator<<(ScalarStyle style)
+    {
+        m_scalarStyle = style;
+        // Because without this you get a C26815...
+        (void)0;
+        return *this;
     }
 
     std::string Emitter::str()

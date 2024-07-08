@@ -54,7 +54,7 @@ namespace AppInstaller::CLI
 
     namespace Configuration
     {
-        void ValidateCommonArguments(Execution::Args& execArgs)
+        void ValidateCommonArguments(Execution::Args& execArgs, bool requireConfigurationSetChoice)
         {
             auto modulePath = GetModulePathInfo(execArgs);
 
@@ -70,6 +70,12 @@ namespace AppInstaller::CLI
                 {
                     throw CommandException(Resource::String::ConfigurationModulePathArgError);
                 }
+            }
+
+            if (requireConfigurationSetChoice &&
+                !WI_IsFlagSet(Argument::GetCategoriesPresent(execArgs), ArgTypeCategory::ConfigurationSetChoice))
+            {
+                throw CommandException(Resource::String::RequiredArgError("file"_liv));
             }
         }
 

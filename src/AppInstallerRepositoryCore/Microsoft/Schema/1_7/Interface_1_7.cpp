@@ -48,7 +48,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_7
         return { 1, 7 };
     }
 
-    std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
+    std::vector<std::string> Interface::GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const
     {
         if (property == PackageVersionMultiProperty::PackageFamilyName ||
             property == PackageVersionMultiProperty::Name ||
@@ -57,15 +57,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_7
         {
             if (ShouldFoldPropertyLookup(connection))
             {
-                std::optional<SQLite::rowid_t> maximumManifestId = V1_0::OneToManyTableGetMapDataFoldingManifestTargetId(connection, manifestId);
+                std::optional<SQLite::rowid_t> maximumManifestId = V1_0::OneToManyTableGetMapDataFoldingManifestTargetId(connection, primaryId);
                 if (maximumManifestId)
                 {
-                    manifestId = maximumManifestId.value();
+                    primaryId = maximumManifestId.value();
                 }
             }
         }
 
-        return V1_6::Interface::GetMultiPropertyByManifestId(connection, manifestId, property);
+        return V1_6::Interface::GetMultiPropertyByPrimaryId(connection, primaryId, property);
     }
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)

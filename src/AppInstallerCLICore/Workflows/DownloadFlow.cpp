@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DownloadFlow.h"
+#include "MSStoreInstallerHandler.h"
 #include <winget/Filesystem.h>
+#include <AppInstallerDeployment.h>
 #include <AppInstallerDownloader.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerMsixInfo.h>
@@ -145,6 +147,16 @@ namespace AppInstaller::CLI::Workflow
             try
             {
                 std::filesystem::remove(path);
+
+                // It is assumed that the parent of the installer path will always be a directory
+                // If it isn't, then something went severely wrong. However, we will check that
+                // it is a directory here just to be safe. If it is an empty directory, remove it.
+
+                if (std::filesystem::is_directory(path.parent_path()) &&
+                    std::filesystem::is_empty(path.parent_path()))
+                {
+                    std::filesystem::remove(path.parent_path());
+                }
             }
             catch (const std::exception& e)
             {
@@ -218,9 +230,11 @@ namespace AppInstaller::CLI::Workflow
                 // we can just verify signature hash without a full download and do a streaming install.
                 // Even if we have the signature hash, we still do a full download if InstallerDownloadOnly
                 // flag is set, or if we need to use a proxy (as deployment APIs won't use proxy for us).
+                // Finally, we require the digest API for streaming install as well.
                 if (installer.SignatureSha256.empty()
                     || installerDownloadOnly
-                    || Network().GetProxyUri())
+                    || Network().GetProxyUri()
+                    || !Deployment::IsExpectedDigestsSupported())
                 {
                     context << DownloadInstallerFile;
                 }
@@ -232,13 +246,12 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::MSStore:
                 if (installerDownloadOnly)
                 {
-                    THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+                    context <<
+                        MSStoreDownload <<
+                        ExportManifest;
                 }
-                else
-                {
-                    // Nothing to do here
-                    return;
-                }
+
+                return;
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
@@ -398,6 +411,7 @@ namespace AppInstaller::CLI::Workflow
             auto signatureHash = msixInfo.GetSignatureHash();
 
             context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
+            context.Add<Execution::Data::MsixDigests>({ std::make_pair(installer.Url, msixInfo.GetDigest()) });
         }
         catch (...)
         {
@@ -603,7 +617,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (context.Args.Contains(Execution::Args::Type::DownloadDirectory))
         {
-            context.Add<Execution::Data::DownloadDirectory>(std::filesystem::path{ context.Args.GetArg(Execution::Args::Type::DownloadDirectory) });
+            context.Add<Execution::Data::DownloadDirectory>(std::filesystem::path{ Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::DownloadDirectory)) });
         }
         else
         {
@@ -615,8 +629,12 @@ namespace AppInstaller::CLI::Workflow
             }
 
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            std::string packageDownloadFolderName = manifest.Id + '_' + manifest.Version;
-            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / packageDownloadFolderName);
+            std::string packageDownloadFolderName = manifest.Id;
+            if (!Utility::Version{ manifest.Version }.IsUnknown())
+            {
+                packageDownloadFolderName += '_' + manifest.Version;
+            }
+            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / Utility::ConvertToUTF16(packageDownloadFolderName));
         }
     }
 

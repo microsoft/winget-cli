@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerVersions.h>
 #include <winget/LocIndependent.h>
+#include <winget/Filesystem.h>
 #include <winget/Runtime.h>
 
 #include <filesystem>
@@ -57,56 +58,15 @@ namespace AppInstaller::Runtime
         Max
     };
 
-    // The principal that an ACE applies to.
-    enum class ACEPrincipal : uint32_t
-    {
-        CurrentUser,
-        Admins,
-        System,
-    };
-
-    // The permissions granted to a specific ACE.
-    enum class ACEPermissions : uint32_t
-    {
-        // This is not "Deny All", but rather, "Not mentioned"
-        None = 0x0,
-        Read = 0x1,
-        Write = 0x2,
-        Execute = 0x4,
-        ReadWrite = Read | Write,
-        ReadExecute = Read | Execute,
-        ReadWriteExecute = Read | Write | Execute,
-        // All means that full control will be granted
-        All = 0xFFFFFFFF
-    };
-
-    DEFINE_ENUM_FLAG_OPERATORS(ACEPermissions);
-
-    // Information about a path that we use and how to set it up.
-    struct PathDetails
-    {
-        std::filesystem::path Path;
-        // Default to creating the directory with inherited ownership and permissions
-        bool Create = true;
-        std::optional<ACEPrincipal> Owner;
-        std::map<ACEPrincipal, ACEPermissions> ACL;
-
-        // Shorthand for setting Owner and giving them ACEPermissions::All
-        void SetOwner(ACEPrincipal owner);
-
-        // Determines if the ACL should be applied.
-        bool ShouldApplyACL() const;
-
-        // Applies the ACL unconditionally.
-        void ApplyACL() const;
-    };
-
     // Gets the PathDetails used for the given path.
     // This is exposed primarily to allow for testing, GetPathTo should be preferred.
-    PathDetails GetPathDetailsFor(PathName path, bool forDisplay = false);
+    Filesystem::PathDetails GetPathDetailsFor(PathName path, bool forDisplay = false);
 
     // Gets the path to the requested location.
-    std::filesystem::path GetPathTo(PathName path, bool forDisplay = false);
+    inline std::filesystem::path GetPathTo(PathName path, bool forDisplay = false)
+    {
+        return Filesystem::GetPathTo(path, forDisplay);
+    }
 
     // Gets a new temp file path.
     std::filesystem::path GetNewTempFilePath();

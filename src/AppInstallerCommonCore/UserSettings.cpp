@@ -261,9 +261,8 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EFResume)
         WINGET_VALIDATE_PASS_THROUGH(EFConfiguration03)
-        WINGET_VALIDATE_PASS_THROUGH(EFSideBySide)
-        WINGET_VALIDATE_PASS_THROUGH(EFProxy)
         WINGET_VALIDATE_PASS_THROUGH(EFConfigureSelfElevation)
+        WINGET_VALIDATE_PASS_THROUGH(EFConfigureExport)
         WINGET_VALIDATE_PASS_THROUGH(AnonymizePathForDisplay)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
@@ -286,6 +285,23 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(PortablePackageMachineRoot)
         {
             return ValidatePathValue(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(ArchiveExtractionMethod)
+        {
+            static constexpr std::string_view s_archiveExtractionMethod_shellApi = "shellApi";
+            static constexpr std::string_view s_archiveExtractionMethod_tar = "tar";
+
+            if (Utility::CaseInsensitiveEquals(value, s_archiveExtractionMethod_tar))
+            {
+                return Archive::ExtractionMethod::Tar;
+            }
+            else if (Utility::CaseInsensitiveEquals(value, s_archiveExtractionMethod_shellApi))
+            {
+                return Archive::ExtractionMethod::ShellApi;
+            }
+
+            return {};
         }
 
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)

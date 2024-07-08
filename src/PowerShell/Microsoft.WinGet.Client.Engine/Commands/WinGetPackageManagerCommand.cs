@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="WinGetPackageManagerCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -138,7 +138,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                             this.RepairEnvPath();
                             break;
                         case IntegrityCategory.AppInstallerNotRegistered:
-                            this.Register();
+                            this.Register(expectedVersion);
                             break;
                         case IntegrityCategory.AppInstallerNotInstalled:
                         case IntegrityCategory.AppInstallerNotSupported:
@@ -197,10 +197,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             await appxModule.InstallFromGitHubReleaseAsync(toInstallVersion, allUsers, false, force);
         }
 
-        private void Register()
+        private void Register(string toRegisterVersion)
         {
             var appxModule = new AppxModuleHelper(this);
-            appxModule.RegisterAppInstaller();
+            appxModule.RegisterAppInstaller(toRegisterVersion);
         }
 
         private void RepairEnvPath()

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ManagementDeploymentFactory.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -179,7 +179,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                 if (hr < 0)
                 {
-                    if (hr == ErrorCode.FileNotFound)
+                    if (hr == ErrorCode.FileNotFound || hr == ErrorCode.PackageNotRegisteredForUser)
                     {
                         throw new WinGetIntegrityException(IntegrityCategory.AppInstallerNotInstalled);
                     }

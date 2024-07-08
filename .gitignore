@@ -191,6 +191,9 @@ PublishScripts/
 *.nuget.props
 *.nuget.targets
 
+# Vcpkg install directory
+**/vcpkg_installed/*
+
 # Microsoft Azure Build Output
 csx/
 *.build.csdef
@@ -342,3 +345,6 @@ src/PowerShell/Microsoft.WinGet.Client/Crescendo/*.psm1
 
 # Dev PowerShell module path
 src/PowerShell/scripts/Module
+
+# Interop nuget
+src/WinGetUtilInterop/scripts/Nuget*

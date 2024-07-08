@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="HostedEnvironment.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -352,6 +352,8 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             // Maybe is already there.
             if (!this.ValidateModule(moduleSpecification))
             {
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Installing module: {moduleSpecification.Name} ...");
+
                 // Ok, we have to get it.
                 if (this.location == PowerShellConfigurationProcessorLocation.Custom)
                 {
@@ -360,14 +362,18 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                         throw new ArgumentNullException(nameof(this.customLocation));
                     }
 
+                    this.OnDiagnostics(DiagnosticLevel.Verbose, $"... calling save module ...");
                     this.SaveModule(moduleSpecification, this.customLocation);
                 }
                 else
                 {
+                    this.OnDiagnostics(DiagnosticLevel.Verbose, $"... calling install module ...");
                     using PowerShell pwsh = PowerShell.Create(this.Runspace);
                     this.powerShellGet.InstallModule(pwsh, moduleSpecification, this.location == PowerShellConfigurationProcessorLocation.AllUsers);
                     this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
                 }
+
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $" ... module installed.");
             }
         }
 
@@ -508,19 +514,25 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
 
         private bool ValidateModule(ModuleSpecification moduleSpecification)
         {
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Validating module: {moduleSpecification.Name} ...");
+
             var loadedModule = this.GetImportedModule(moduleSpecification);
             if (loadedModule is not null)
             {
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $" ... module is already imported.");
                 return true;
             }
 
             var availableModule = this.GetAvailableModule(moduleSpecification);
             if (availableModule is not null)
             {
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $" ... module is available, importing ...");
                 this.ImportModule(moduleSpecification);
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $" ... module imported.");
                 return true;
             }
 
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $" ... module not found.");
             return false;
         }
 

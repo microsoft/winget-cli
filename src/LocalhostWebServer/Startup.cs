@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace LocalhostWebServer
@@ -59,6 +59,7 @@ namespace LocalhostWebServer
             provider.Mappings[".msi"] = "application/msi";
             provider.Mappings[".appx"] = "application/vns.ms-appx";
             provider.Mappings[".appxbundle"] = "application/vns.ms-appx";
+            provider.Mappings[".mszyml"] = "application/x-ms-zip-yaml";
 
 
             //Enable static file serving
