@@ -12,7 +12,7 @@
 
   <PropertyGroup>
     <!-- Disable warning for CS1591 because auto generated Microsoft.Management.Deployment -->
-    <!-- For our code, we still have stylecops acting on it. -->
+    <!-- For our code, we still have style cops acting on it. -->
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
