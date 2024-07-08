@@ -2,8 +2,8 @@ Function Add-WinGetSource
 {
     <#
         .SYNOPSIS
-        Adds a source to the Windows Package Manager.
-
+        Adds a source to the Windows Package Manager. 
+        
         .DESCRIPTION
         By running this cmdlet with the will add a new source to the Windows Package Manager.
 
@@ -25,7 +25,7 @@ Function Add-WinGetSource
 
         .PARAMETER VerboseLog
         Used to provide verbose logging for the Windows Package Manager.
-
+        
         .EXAMPLE
         Add-WinGetSource -Name "custom" -Argument "https://contoso.com/" -Type "Microsoft.Rest"
 
@@ -47,18 +47,17 @@ Function Add-WinGetSource
     BEGIN
     {
         if ($AcceptSourceAgreement) {$acceptOption = '--accept-source-agreements'}
-        [string] $WinGetArgs  = "Source Add --Name {0} --Arg {1} --Type {2} {3}" -f $Name, $Argument, $Type, $acceptOption
+        [string] $WinGetArgs  = "Source Add --Name {0} --Arg {1} --Type {2} {3}" -f $Name, $Argument, $Type, $acceptOption 
     }
     PROCESS
     {
-       Start-Process  -FilePath "winget.exe" -ArgumentList $WinGetArgs -Wait
+       Start-Process  -FilePath "winget.exe" -ArgumentList $WinGetArgs -Wait       
     }
     END
     {
-        #Don't do this unless you are in a class
+        #Don't do this unless you are in a class 
         #return
     }
 }
 
 Export-ModuleMember -Function Add-WinGetSource
-
