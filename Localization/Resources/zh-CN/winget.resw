@@ -126,11 +126,11 @@
     <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined flag alias argument that was not found. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AvailableArguments" xml:space="preserve">
-    <value>以下参数可用：</value>
+    <value>以下参数可用:</value>
     <comment>Message displayed to inform the user about the available command line arguments.</comment>
   </data>
   <data name="AvailableCommandAliases" xml:space="preserve">
-    <value>以下命令别名可用：</value>
+    <value>以下命令别名可用:</value>
     <comment>Message displayed to inform the user about the available command line alias arguments.</comment>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
@@ -142,11 +142,11 @@
     <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
-    <value>下列选项可用：</value>
+    <value>下列选项可用:</value>
     <comment>Message displayed to inform the user about the available options.</comment>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
-    <value>以下子命令可用：</value>
+    <value>以下子命令可用:</value>
     <comment>Message displayed to inform the user about the available nested commands that run in context of the selected command.</comment>
   </data>
   <data name="AvailableUpgrades" xml:space="preserve">
@@ -202,7 +202,7 @@
     <comment>{Locked="{0}"} Error message displayed when the user provides an extra positional argument when none was expected. {0} is a placeholder replaced by the user's extra argument input.</comment>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>此功能是一项正在进行的工作，将来可能会发生显著更改或完全删除。若要启用它，请编辑设置 ('winget settings')以包括实验性功能： '{0}'</value>
+    <value>此功能是一项正在进行的工作，将来可能会发生显著更改或完全删除。若要启用它，请编辑设置 ('winget settings')以包括实验性功能: '{0}'</value>
     <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
@@ -482,7 +482,7 @@
     <value>版本</value>
   </data>
   <data name="SettingLoadFailure" xml:space="preserve">
-    <value>发现以下故障以验证设置：</value>
+    <value>发现以下故障以验证设置:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
     <value>在默认 json 文本编辑器中打开设置。如果未配置任何编辑器，请在记事本中打开设置。有关可用设置，请参阅 https://aka.ms/winget-settings。此命令还可用于通过提供 --enable 或 --disable 参数来设置管理员设置</value>
@@ -631,7 +631,7 @@
     <value>强制重置源</value>
   </data>
   <data name="SourceResetListAndOverridePreamble" xml:space="preserve">
-    <value>如果指定了--force 选项，则将重置以下源：</value>
+    <value>如果指定了--force 选项，则将重置以下源:</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="SourceResetOne" xml:space="preserve">
@@ -681,7 +681,7 @@
     <comment>{Locked="{0}"} Error message displayed when the user provides more than one execution behavior argument when installing an application package. {0} is a placeholder replaced by the user specified execution behaviors (e.g. 'silent|interactive').</comment>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
-    <value>执行此命令时发生意外错误：</value>
+    <value>执行此命令时发生意外错误:</value>
   </data>
   <data name="UninstallPreviousArgumentDescription" xml:space="preserve">
     <value>升级期间卸载以前版本的程序包</value>
@@ -783,7 +783,7 @@
     <value>防病毒产品报告安装程序受感染</value>
   </data>
   <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
-    <value>尝试更新源失败： {0}</value>
+    <value>尝试更新源失败: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when an attempt to update the repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
@@ -836,7 +836,7 @@
     <value>无法安装一个或多个导入的程序包</value>
   </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
-    <value>未安装导入所需的源： {0}</value>
+    <value>未安装导入所需的源: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="InstalledPackageNotAvailable" xml:space="preserve">
@@ -878,11 +878,11 @@
     <comment>{Locked="user","machine"} This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
-    <value>为 '{0}' 参数提供的值无效;有效值为： {1}</value>
+    <value>为 '{0}' 参数提供的值无效;有效值为: {1}</value>
     <comment>{Locked="{0}","{1}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
-    <value>组策略禁用此操作： {0}</value>
+    <value>组策略禁用此操作: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user performs a command operation that is disabled by a group policy. {0} is a placeholder replaced by a group policy description.</comment>
   </data>
   <data name="PolicyAdditionalSources" xml:space="preserve">
@@ -983,11 +983,11 @@
     <value>外部</value>
   </data>
   <data name="ImportCommandReportDependencies" xml:space="preserve">
-    <value>在此导入中找到的包具有以下依赖项：</value>
+    <value>在此导入中找到的包具有以下依赖项:</value>
     <comment>Import command sentence showed before reporting dependencies</comment>
   </data>
   <data name="PackageRequiresDependencies" xml:space="preserve">
-    <value>此包需要以下依赖项：</value>
+    <value>此包需要以下依赖项:</value>
     <comment>Message shown before reporting dependencies</comment>
   </data>
   <data name="DependenciesFlowInstall" xml:space="preserve">
@@ -1021,7 +1021,7 @@
     <comment>Dependency graph has loop</comment>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
-    <value>找不到适用于清单的安装程序： {0} 版本 {1}</value>
+    <value>找不到适用于清单的安装程序: {0} 版本 {1}</value>
     <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
@@ -1035,11 +1035,11 @@
     <value>程序包</value>
   </data>
   <data name="UninstallCommandReportDependencies" xml:space="preserve">
-    <value>此包具有可能不再需要的依赖项：</value>
+    <value>此包具有可能不再需要的依赖项:</value>
     <comment>Uninstall command sentence showed before reporting dependencies</comment>
   </data>
   <data name="ValidateCommandReportDependencies" xml:space="preserve">
-    <value>清单具有以下未验证的依赖项;确保它们有效：</value>
+    <value>清单具有以下未验证的依赖项;确保它们有效:</value>
     <comment>Validate command sentence showed before reporting dependencies</comment>
   </data>
   <data name="WindowsFeaturesDependencies" xml:space="preserve">
@@ -1059,7 +1059,7 @@
     <value>接受包的所有许可协议</value>
   </data>
   <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
-    <value>导出的包需要安装许可协议： {0}</value>
+    <value>导出的包需要安装许可协议: {0}</value>
     <comment>{Locked="{0}"} Warning message displayed when an exported application package requires license agreement to install. {0} is a placeholder replaced by the package name.</comment>
   </data>
   <data name="PackageAgreementsPrompt" xml:space="preserve">
@@ -1070,7 +1070,7 @@
     <value>未同意包协议。操作已取消。</value>
   </data>
   <data name="ShowLabelAgreements" xml:space="preserve">
-    <value>协议：</value>
+    <value>协议:</value>
   </data>
   <data name="ShowLabelAuthor" xml:space="preserve">
     <value>作者:</value>
@@ -1079,22 +1079,22 @@
     <value>描述:</value>
   </data>
   <data name="ShowLabelInstaller" xml:space="preserve">
-    <value>安装：</value>
+    <value>安装:</value>
   </data>
   <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>安装程序区域设置：</value>
+    <value>安装程序区域设置:</value>
   </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
-    <value>应用商店产品 ID：</value>
+    <value>应用商店产品 ID:</value>
   </data>
   <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>安装程序 SHA256：</value>
+    <value>安装程序 SHA256:</value>
   </data>
   <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>安装程序类型：</value>
+    <value>安装程序类型:</value>
   </data>
   <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>安装程序 URL：</value>
+    <value>安装程序 URL:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>许可证:</value>
@@ -1103,7 +1103,7 @@
     <value>许可证 URL:</value>
   </data>
   <data name="ShowLabelMoniker" xml:space="preserve">
-    <value>绰号：</value>
+    <value>绰号:</value>
   </data>
   <data name="ShowLabelPackageUrl" xml:space="preserve">
     <value>主页:</value>
@@ -1112,7 +1112,7 @@
     <value>发布者:</value>
   </data>
   <data name="ShowLabelTags" xml:space="preserve">
-    <value>标记：</value>
+    <value>标记:</value>
   </data>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>版本:</value>
@@ -1180,7 +1180,7 @@
     <value>发布服务器 URL:</value>
   </data>
   <data name="ShowLabelPurchaseUrl" xml:space="preserve">
-    <value>购买 URL：</value>
+    <value>购买 URL:</value>
   </data>
   <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
     <value>发布服务器支持 URL:</value>
@@ -1201,7 +1201,7 @@
     <value>发行说明 URL:</value>
   </data>
   <data name="SearchFailureWarning" xml:space="preserve">
-    <value>搜索源时失败;结果将不包括在内： {0}</value>
+    <value>搜索源时失败;结果将不包括在内: {0}</value>
     <comment>{Locked="{0}"} Warning message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SearchFailureError" xml:space="preserve">
@@ -1405,7 +1405,7 @@
     <value>未提供包选择参数；有关查找包的详细信息，请参阅帮助。</value>
   </data>
   <data name="PortableAliasAdded" xml:space="preserve">
-    <value>添加了命令行别名：</value>
+    <value>添加了命令行别名:</value>
   </data>
   <data name="PortableLinksMachine" xml:space="preserve">
     <value>可移植链接目录(计算机)</value>
@@ -1454,7 +1454,7 @@
     <comment>{Locked="{0}"} Label displayed for installation notes. {0} is a placeholder replaced by installation notes.</comment>
   </data>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>安装说明：</value>
+    <value>安装说明:</value>
   </data>
   <data name="UnsupportedArgument" xml:space="preserve">
     <value>此程序包不支持提供的参数</value>
@@ -1463,7 +1463,7 @@
     <value>未能提取存档内容</value>
   </data>
   <data name="NestedInstallerNotFound" xml:space="preserve">
-    <value>嵌套安装程序文件不存在。确保嵌套安装程序的指定相对路径匹配： {0}</value>
+    <value>嵌套安装程序文件不存在。确保嵌套安装程序的指定相对路径匹配: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when nested installer file does not exist. {0} is a placeholder replaced by the nested installer file path.</comment>
   </data>
   <data name="InvalidPathToNestedInstaller" xml:space="preserve">
@@ -1482,7 +1482,7 @@
     <value>仅列出具有可用升级的包</value>
   </data>
   <data name="UpgradeAvailableForPinned" xml:space="preserve">
-    <value>以下程序包有可用的升级，但需要显式目标才能进行升级：</value>
+    <value>以下程序包有可用的升级，但需要显式目标才能进行升级:</value>
     <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
   </data>
   <data name="Downloading" xml:space="preserve">
@@ -1499,13 +1499,13 @@
     <value>此程序包需要安装位置</value>
   </data>
   <data name="InstallersAbortTerminal" xml:space="preserve">
-    <value>已知以下安装程序重启终端或 shell：</value>
+    <value>已知以下安装程序重启终端或 shell:</value>
   </data>
   <data name="InstallersRequireInstallLocation" xml:space="preserve">
-    <value>以下安装程序需要安装位置：</value>
+    <value>以下安装程序需要安装位置:</value>
   </data>
   <data name="PromptForInstallRoot" xml:space="preserve">
-    <value>指定安装根目录：</value>
+    <value>指定安装根目录:</value>
   </data>
   <data name="PromptToProceed" xml:space="preserve">
     <value>是否继续?</value>
@@ -1639,7 +1639,7 @@
     <value>正在重置所有当前包钉。</value>
   </data>
   <data name="PinResetUseForceArg" xml:space="preserve">
-    <value>使用--force参数重置所有固定。将删除以下 PIN：</value>
+    <value>使用--force参数重置所有固定。将删除以下 PIN:</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="PinType" xml:space="preserve">
@@ -1777,7 +1777,7 @@
     <comment>Indicates that this item is used to check/assert the state rather than write to it</comment>
   </data>
   <data name="ConfigurationDependencies" xml:space="preserve">
-    <value>依赖项：{0}</value>
+    <value>依赖项:{0}</value>
     <comment>{Locked="{0}"} Label displaying a list of dependencies. {0} is replaced with a space separated list of identifiers referencing other items.</comment>
   </data>
   <data name="ConfigurationFailedToApply" xml:space="preserve">
@@ -1795,15 +1795,15 @@
     <comment>Used to indicate that the item is present on the device.</comment>
   </data>
   <data name="ConfigurationModuleNameOnly" xml:space="preserve">
-    <value>模块：{0}</value>
+    <value>模块:{0}</value>
     <comment>{Locked="{0}"} Label displaying a module name. {0} is replaced with the name of the module from the user input file.</comment>
   </data>
   <data name="ConfigurationModuleWithDetails" xml:space="preserve">
-    <value>模块：{0} 由 {1} [{2}]</value>
+    <value>模块:{0} 由 {1} [{2}]</value>
     <comment>{Locked="{0}","{1}","{2}"} Label displaying module information. {0} is replaced by the module name. {1} is replaced by the module author. {2} is replaced by a string indicating the source of the module.</comment>
   </data>
   <data name="ConfigurationSettings" xml:space="preserve">
-    <value>设置：</value>
+    <value>设置:</value>
     <comment>Label for the values that are used as inputs for this item when applying state</comment>
   </data>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
@@ -1877,11 +1877,11 @@
     <value>系统未处于配置声明的所需状态。</value>
   </data>
   <data name="ConfigurationUnitFailed" xml:space="preserve">
-    <value>由于未知原因，此配置单元失败： {0}</value>
+    <value>由于未知原因，此配置单元失败: {0}</value>
     <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="ConfigurationUnitFailedConfigSet" xml:space="preserve">
-    <value>配置单元因配置而失败： {0}</value>
+    <value>配置单元因配置而失败: {0}</value>
     <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="ConfigurationUnitFailedDuringGet" xml:space="preserve">
@@ -1894,19 +1894,19 @@
     <value>尝试测试当前系统状态时配置单元失败。</value>
   </data>
   <data name="ConfigurationUnitFailedInternal" xml:space="preserve">
-    <value>由于内部错误，配置单元失败： {0}</value>
+    <value>由于内部错误，配置单元失败: {0}</value>
     <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="ConfigurationUnitFailedPrecondition" xml:space="preserve">
-    <value>配置单元失败，因为前提条件无效： {0}</value>
+    <value>配置单元失败，因为前提条件无效: {0}</value>
     <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="ConfigurationUnitFailedSystemState" xml:space="preserve">
-    <value>配置单元因系统状态而失败： {0}</value>
+    <value>配置单元因系统状态而失败: {0}</value>
     <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="ConfigurationUnitFailedUnitProcessing" xml:space="preserve">
-    <value>尝试运行配置单元时失败： {0}</value>
+    <value>尝试运行配置单元时失败: {0}</value>
     <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="ConfigurationUnitHasDuplicateIdentifier" xml:space="preserve">
@@ -1945,7 +1945,7 @@
     <value>配置单元在执行过程中返回了意外结果。</value>
   </data>
   <data name="ConfigurationUnitSkipped" xml:space="preserve">
-    <value>由于未知原因，未运行此配置单元： {0}</value>
+    <value>由于未知原因，未运行此配置单元: {0}</value>
     <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
   </data>
   <data name="ConfigurationFieldInvalidValue" xml:space="preserve">
@@ -2648,7 +2648,7 @@
     <value>要恢复的已保存状态的唯一标识符</value>
   </data>
   <data name="ClientVersionMismatchError" xml:space="preserve">
-    <value>不支持从其他客户端版本恢复状态： {0}</value>
+    <value>不支持从其他客户端版本恢复状态: {0}</value>
     <comment>{Locked= "{0}"} Message displayed to inform the user that the client version of the resume state does not match the current client version. {0} is a placeholder for the client version that created the resume state.</comment>
   </data>
   <data name="ResumeIdNotFoundError" xml:space="preserve">
@@ -2690,11 +2690,11 @@
     <comment>{Locked="{0}"} {0} is a placeholder replaced by the input winget configure resource unit type.</comment>
   </data>
   <data name="WinGetResourceUnitMissingRequiredArg" xml:space="preserve">
-    <value>{0} 配置单元缺少必需的参数： {1}</value>
+    <value>{0} 配置单元缺少必需的参数: {1}</value>
     <comment>{Locked="{0},{1}"} {0} is a placeholder for the input winget configure resource unit type. {1} is placeholder for the missing arg.</comment>
   </data>
   <data name="WinGetResourceUnitMissingRecommendedArg" xml:space="preserve">
-    <value>{0} 配置单元缺少建议的参数： {1}</value>
+    <value>{0} 配置单元缺少建议的参数: {1}</value>
     <comment>{Locked="{0},{1}"} {0} is a placeholder for the input winget configure resource unit type. {1} is placeholder for the missing arg.</comment>
   </data>
   <data name="WinGetResourceUnitKnownSourceConfliction" xml:space="preserve">
@@ -2702,39 +2702,39 @@
     <comment>{Locked="WinGetSource,{0}"} {0} is a placeholder for the input winget source in the configuration unit settings.</comment>
   </data>
   <data name="WinGetResourceUnitThirdPartySourceAssertion" xml:space="preserve">
-    <value>第三方源上的 WinGetSource 配置单元声明： {0}</value>
+    <value>第三方源上的 WinGetSource 配置单元声明: {0}</value>
     <comment>{Locked="WinGetSource,{0}"} {0} is a placeholder for the input winget source in the configuration unit settings.</comment>
   </data>
   <data name="WinGetResourceUnitBothPackageVersionAndUseLatest" xml:space="preserve">
-    <value>WinGetPackage 声明 UseLatest 和 Version。包 ID： {0}</value>
+    <value>WinGetPackage 声明 UseLatest 和 Version。包 ID: {0}</value>
     <comment>{Locked="WinGetPackage,UseLatest,Version,{0}"}</comment>
   </data>
   <data name="WinGetResourceUnitThirdPartySourceAssertionForPackage" xml:space="preserve">
-    <value>WinGetPackage 配置单元声明来自第三方源的包。包 ID： {0};源： {1}</value>
+    <value>WinGetPackage 配置单元声明来自第三方源的包。包 ID: {0};源: {1}</value>
     <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
   </data>
   <data name="WinGetResourceUnitDependencySourceNotConfigured" xml:space="preserve">
-    <value>WinGetPackage 配置单元包依赖于以前未配置的第三方源。包 ID： {0};源： {1}</value>
+    <value>WinGetPackage 配置单元包依赖于以前未配置的第三方源。包 ID: {0};源: {1}</value>
     <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
   </data>
   <data name="WinGetResourceUnitDependencySourceNotDeclaredAsDependency" xml:space="preserve">
-    <value>WinGetPackage 配置单元包依赖于第三方源。建议在 uni dependsOn 节中声明依赖项。包 ID： {0};源： {1}</value>
+    <value>WinGetPackage 配置单元包依赖于第三方源。建议在 uni dependsOn 节中声明依赖项。包 ID: {0};源: {1}</value>
     <comment>{Locked="WinGetPackage,dependsOn,{0},{1}"}</comment>
   </data>
   <data name="WinGetResourceUnitFailedToValidatePackageSourceOpenFailed" xml:space="preserve">
-    <value>无法验证 WinGetPackage 配置单元包。源打开失败。包 ID： {0};源： {1}</value>
+    <value>无法验证 WinGetPackage 配置单元包。源打开失败。包 ID: {0};源: {1}</value>
     <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
   </data>
   <data name="WinGetResourceUnitFailedToValidatePackageNotFound" xml:space="preserve">
-    <value>无法验证 WinGetPackage 配置单元包。找不到包。包 ID： {0}</value>
+    <value>无法验证 WinGetPackage 配置单元包。找不到包。包 ID: {0}</value>
     <comment>{Locked="WinGetPackage,{0}"}</comment>
   </data>
   <data name="WinGetResourceUnitFailedToValidatePackageMultipleFound" xml:space="preserve">
-    <value>无法验证 WinGetPackage 配置单元包。找到多个包。包 ID： {0}</value>
+    <value>无法验证 WinGetPackage 配置单元包。找到多个包。包 ID: {0}</value>
     <comment>{Locked="WinGetPackage,{0}"}</comment>
   </data>
   <data name="WinGetResourceUnitFailedToValidatePackageVersionNotFound" xml:space="preserve">
-    <value>无法验证 WinGetPackage 配置单元包。找不到包版本。包 ID： {0};版本 {1}</value>
+    <value>无法验证 WinGetPackage 配置单元包。找不到包版本。包 ID: {0};版本 {1}</value>
     <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
   </data>
   <data name="WinGetResourceUnitPackageVersionSpecifiedWithOnlyOnePackageVersion" xml:space="preserve">
@@ -2742,7 +2742,7 @@
     <comment>{Locked="WinGetPackage,{0},{1}"}</comment>
   </data>
   <data name="WinGetResourceUnitFailedToValidatePackage" xml:space="preserve">
-    <value>无法验证 WinGetPackage 配置单元包。包 ID： {0}</value>
+    <value>无法验证 WinGetPackage 配置单元包。包 ID: {0}</value>
     <comment>{Locked="WinGetPackage,{0}"}</comment>
   </data>
   <data name="AuthenticationModeArgumentDescription" xml:space="preserve">
