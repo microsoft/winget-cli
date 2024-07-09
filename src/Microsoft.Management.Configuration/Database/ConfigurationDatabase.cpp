@@ -38,7 +38,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
 #endif
-        if (!m_database)
+        if (!std::atomic_load(&m_database))
         {
             std::filesystem::path databaseDirectory = AppInstaller::Filesystem::GetPathTo(PathName::LocalState) / s_Database_DirectoryName;
             std::filesystem::path databaseFile = databaseDirectory / s_Database_FileName;
@@ -57,16 +57,27 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
                     std::filesystem::create_directories(databaseDirectory);
 
-                    m_connection = std::make_shared<SQLiteDynamicStorage>(databaseFile, IConfigurationDatabase::GetLatestVersion());
-                    m_database = IConfigurationDatabase::CreateFor(m_connection);
-                    m_database->InitializeDatabase();
+                    auto connection = std::make_shared<SQLiteDynamicStorage>(databaseFile, IConfigurationDatabase::GetLatestVersion());
+                    auto database = std::shared_ptr{ IConfigurationDatabase::CreateFor(connection) };
+                    database->InitializeDatabase();
+
+                    std::atomic_store(&m_connection, connection);
+                    std::atomic_store(&m_database, database);
                 }
             }
 
-            if (!m_database && std::filesystem::is_regular_file(databaseFile))
+            if (!std::atomic_load(&m_connection))
             {
-                m_connection = std::make_shared<SQLiteDynamicStorage>(databaseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
-                m_database = IConfigurationDatabase::CreateFor(m_connection, true);
+                std::shared_ptr<SQLiteDynamicStorage> empty;
+                auto connection = std::make_shared<SQLiteDynamicStorage>(databaseFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
+                std::atomic_compare_exchange_strong(&m_connection, &empty, connection);
+            }
+
+            if (!std::atomic_load(&m_database))
+            {
+                std::shared_ptr<IConfigurationDatabase> empty;
+                auto database = std::shared_ptr{ IConfigurationDatabase::CreateFor(std::atomic_load(&m_connection), true) };
+                std::atomic_compare_exchange_strong(&m_database, &empty, database);
             }
         }
 #ifdef AICLI_DISABLE_TEST_HOOKS
@@ -82,13 +93,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
 #endif
-        if (!m_database)
+        auto database = std::atomic_load(&m_database);
+
+        if (!database)
         {
             return {};
         }
 
-        auto transaction = BeginTransaction("GetSetHistory");
-        return m_database->GetSets();
+        auto transaction = BeginTransaction("GetSetHistory", database);
+        return database->GetSets();
 #ifdef AICLI_DISABLE_TEST_HOOKS
         }
         CATCH_LOG();
@@ -104,12 +117,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
 #endif
+        auto database = std::atomic_load(&m_database);
+
         THROW_HR_IF_NULL(E_POINTER, configurationSet);
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("WriteSetHistory");
+        auto transaction = BeginTransaction("WriteSetHistory", database);
 
-        std::optional<rowid_t> setRowId = m_database->GetSetRowId(configurationSet.InstanceIdentifier());
+        std::optional<rowid_t> setRowId = database->GetSetRowId(configurationSet.InstanceIdentifier());
 
         if (!setRowId && !preferNewHistory)
         {
@@ -118,14 +133,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (setRowId)
         {
-            m_database->UpdateSet(setRowId.value(), configurationSet);
+            database->UpdateSet(setRowId.value(), configurationSet);
         }
         else
         {
-            m_database->AddSet(configurationSet);
+            database->AddSet(configurationSet);
         }
 
-        m_connection->SetLastWriteTime();
+        std::atomic_load(&m_connection)->SetLastWriteTime();
 
         transaction->Commit();
 #ifdef AICLI_DISABLE_TEST_HOOKS
@@ -141,16 +156,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
 #endif
+        auto database = std::atomic_load(&m_database);
+
         THROW_HR_IF_NULL(E_POINTER, configurationSet);
 
-        if (!m_database)
+        if (!database)
         {
             return;
         }
 
-        auto transaction = BeginTransaction("RemoveSetHistory");
+        auto transaction = BeginTransaction("RemoveSetHistory", database);
 
-        std::optional<rowid_t> setRowId = m_database->GetSetRowId(configurationSet.InstanceIdentifier());
+        std::optional<rowid_t> setRowId = database->GetSetRowId(configurationSet.InstanceIdentifier());
 
         if (!setRowId)
         {
@@ -159,8 +176,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (setRowId)
         {
-            m_database->RemoveSet(setRowId.value());
-            m_connection->SetLastWriteTime();
+            database->RemoveSet(setRowId.value());
+            std::atomic_load(&m_connection)->SetLastWriteTime();
         }
 
         transaction->Commit();
@@ -178,13 +195,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
 #endif
+        auto database = std::atomic_load(&m_database);
+
         THROW_HR_IF_NULL(E_POINTER, configurationSet);
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("AddQueueItem");
+        auto transaction = BeginTransaction("AddQueueItem", database);
 
-        m_database->AddQueueItem(configurationSet.InstanceIdentifier(), objectName);
-        m_connection->SetLastWriteTime();
+        database->AddQueueItem(configurationSet.InstanceIdentifier(), objectName);
+        std::atomic_load(&m_connection)->SetLastWriteTime();
 
         transaction->Commit();
 #ifdef AICLI_DISABLE_TEST_HOOKS
@@ -200,12 +219,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
 #endif
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
+        auto database = std::atomic_load(&m_database);
 
-        auto transaction = BeginTransaction("SetActiveQueueItem");
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        m_database->SetActiveQueueItem(objectName);
-        m_connection->SetLastWriteTime();
+        auto transaction = BeginTransaction("SetActiveQueueItem", database);
+
+        database->SetActiveQueueItem(objectName);
+        std::atomic_load(&m_connection)->SetLastWriteTime();
 
         transaction->Commit();
 #ifdef AICLI_DISABLE_TEST_HOOKS
@@ -221,12 +242,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
 #endif
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
+        auto database = std::atomic_load(&m_database);
 
-        auto transaction = BeginTransaction("GetQueueItems");
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
+
+        auto transaction = BeginTransaction("GetQueueItems", database);
 
         std::vector<ConfigurationDatabase::QueueItem> result;
-        auto queueItems = m_database->GetQueueItems();
+        auto queueItems = database->GetQueueItems();
         result.reserve(queueItems.size());
 
         for (const auto& item : queueItems)
@@ -252,12 +275,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
 #endif
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_database);
+        auto database = std::atomic_load(&m_database);
 
-        auto transaction = BeginTransaction("RemoveQueueItem");
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        m_database->RemoveQueueItem(objectName);
-        m_connection->SetLastWriteTime();
+        auto transaction = BeginTransaction("RemoveQueueItem", database);
+
+        database->RemoveQueueItem(objectName);
+        std::atomic_load(&m_connection)->SetLastWriteTime();
 
         transaction->Commit();
 #ifdef AICLI_DISABLE_TEST_HOOKS
@@ -266,20 +291,25 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #endif
     }
 
-    ConfigurationDatabase::TransactionLock ConfigurationDatabase::BeginTransaction(std::string_view name) const
+    ConfigurationDatabase::TransactionLock ConfigurationDatabase::BeginTransaction(std::string_view name, std::shared_ptr<IConfigurationDatabase>& database) const
     {
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, m_connection);
+        auto connection = std::atomic_load(&m_connection);
+        THROW_HR_IF_NULL(E_NOT_VALID_STATE, connection);
 
-        TransactionLock result = m_connection->TryBeginTransaction(name);
+        TransactionLock result = connection->TryBeginTransaction(name);
 
         while (!result)
         {
             {
-                auto connectionLock = m_connection->LockConnection();
-                m_database = IConfigurationDatabase::CreateFor(m_connection);
+                auto connectionLock = connection->LockConnection();
+                auto newDatabase = std::shared_ptr{ IConfigurationDatabase::CreateFor(connection) };
+                if (std::atomic_compare_exchange_strong(&m_database, &database, newDatabase))
+                {
+                    database = newDatabase;
+                }
             }
 
-            result = m_connection->TryBeginTransaction(name);
+            result = connection->TryBeginTransaction(name);
         }
 
         return result;
