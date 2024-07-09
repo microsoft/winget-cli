@@ -186,12 +186,28 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     event_token ConfigurationProcessor::ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>& handler)
     {
+        if (!m_configurationChange)
+        {
+            auto status = ConfigurationStatus::Instance();
+            std::atomic_store(&m_changeRegistration, status->RegisterForChange(*this));
+        }
+
         return m_configurationChange.add(handler);
     }
 
     void ConfigurationProcessor::ConfigurationChange(const event_token& token) noexcept
     {
         m_configurationChange.remove(token);
+
+        if (!m_configurationChange)
+        {
+            std::atomic_store(&m_changeRegistration, {});
+        }
+    }
+
+    void ConfigurationProcessor::ConfigurationChange(ConfigurationSet& set, ConfigurationChangeData& data)
+    {
+        m_configurationChange(set, data);
     }
 
     Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> ConfigurationProcessor::GetConfigurationHistory()
@@ -879,12 +895,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationProcessor::SetSupportsSchema03(bool value)
     {
         m_supportSchema03 = value;
-    }
-
-    void ConfigurationProcessor::RemoveHistory(const ConfigurationSet& configurationSet)
-    {
-        m_database.EnsureOpened(false);
-        m_database.RemoveSetHistory(configurationSet);
     }
 
     void ConfigurationProcessor::SendDiagnosticsImpl(const IDiagnosticInformation& information)

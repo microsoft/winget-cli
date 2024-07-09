@@ -175,7 +175,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             configurationSet->Name(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(2)) });
             configurationSet->Origin(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(3)) });
             configurationSet->Path(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(4)) });
-            configurationSet->FirstApply(clock::from_sys(ConvertUnixEpochToSystemClock(getAllSets.GetColumn<int64_t>(5))));
 
             std::string schemaVersion = getAllSets.GetColumn<std::string>(6);
             configurationSet->SchemaVersion(hstring{ ConvertToUTF16(schemaVersion) });

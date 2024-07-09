@@ -220,6 +220,7 @@
     <ClInclude Include="ConfigurationSetSerializer_0_2.h" />
     <ClInclude Include="ConfigurationSetUtilities.h" />
     <ClInclude Include="ConfigurationStaticFunctions.h" />
+    <ClInclude Include="ConfigurationStatus.h" />
     <ClInclude Include="ConfigurationUnit.h" />
     <ClInclude Include="ConfigurationUnitResultInformation.h" />
     <ClInclude Include="Database\ConfigurationDatabase.h" />
@@ -270,6 +271,7 @@
     <ClCompile Include="ConfigurationSetSerializer_0_2.cpp" />
     <ClCompile Include="ConfigurationSetUtilities.cpp" />
     <ClCompile Include="ConfigurationStaticFunctions.cpp" />
+    <ClCompile Include="ConfigurationStatus.cpp" />
     <ClCompile Include="ConfigurationUnit.cpp" />
     <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
     <ClCompile Include="Database\ConfigurationDatabase.cpp" />

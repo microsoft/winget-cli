@@ -138,6 +138,9 @@
     <ClCompile Include="Database\Schema\0_2\QueueTable.cpp">
       <Filter>Database\Schema\0_2</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigurationStatus.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -284,6 +287,9 @@
     </ClInclude>
     <ClInclude Include="Database\Schema\0_2\QueueTable.h">
       <Filter>Database\Schema\0_2</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationStatus.h">
+      <Filter>Internals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,7 @@
 #include "ConfigurationUnit.h"
 #include "ConfigurationUnit.g.cpp"
 #include "ConfigurationSetParser.h"
+#include "ConfigurationStatus.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -137,12 +138,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     ConfigurationUnitState ConfigurationUnit::State()
     {
-        return ConfigurationUnitState::Unknown;
+        auto status = ConfigurationStatus::Instance();
+        return status->GetUnitState(m_instanceIdentifier);
     }
 
     IConfigurationUnitResultInformation ConfigurationUnit::ResultInformation()
     {
-        return nullptr;
+        auto status = ConfigurationStatus::Instance();
+        return status->GetUnitResultInformation(m_instanceIdentifier);
     }
 
     bool ConfigurationUnit::IsActive()

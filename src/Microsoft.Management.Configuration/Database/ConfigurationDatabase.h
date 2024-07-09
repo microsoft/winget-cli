@@ -1,15 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ConfigurationSet.h"
 #include <winget/SQLiteWrapper.h>
 #include <winget/SQLiteDynamicStorage.h>
+#include <winrt/Microsoft.Management.Configuration.h>
 #include <memory>
 #include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    // Forward declaration of internal interface.
+    // Forward declarations
+    struct ConfigurationSet;
     struct IConfigurationDatabase;
 
     // Allows access to the configuration database.

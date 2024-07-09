@@ -6,6 +6,7 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include "ConfigThreadGlobals.h"
+#include "ConfigurationStatus.h"
 #include "Database/ConfigurationDatabase.h"
 #include <winget/AsyncTokens.h>
 #include <winget/ILifetimeWatcher.h>
@@ -98,8 +99,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Temporary entry point to enable experimental schema support.
         void SetSupportsSchema03(bool value);
 
-        // Removes the history for the given set.
-        void RemoveHistory(const ConfigurationSet& configurationSet);
+        // Indicate a configuration change occurred.
+        void ConfigurationChange(ConfigurationSet& set, ConfigurationChangeData& data);
 
     private:
         Windows::Foundation::Collections::IVector<ConfigurationSet> GetConfigurationHistoryImpl(AppInstaller::WinRT::AsyncCancellation cancellation = {});
@@ -139,6 +140,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         bool m_isHandlingDiagnostics = false;
         // Temporary value to enable experimental schema support.
         bool m_supportSchema03 = true;
+        std::shared_ptr<ConfigurationStatus::ChangeRegistration> m_changeRegistration;
 #endif
     };
 }
