@@ -95,7 +95,7 @@ The client is built around the concept of sources; a set of packages effectively
 * Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
 * [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/)
-  * Or use Winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
+  * Or use WinGet to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
 * The following workloads:
   * .NET Desktop Development
   * Desktop Development with C++
