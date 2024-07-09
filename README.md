@@ -46,9 +46,9 @@ Please read our [troubleshooting guide](/doc/troubleshooting/README.md).
 
 Installer behavior can be different depending on whether you are running **Winget** with administrator privileges.
 
-* When running **winget** without administrator privileges, some applications may [require elevation](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works) to install. When the installer runs, Windows will prompt you to [elevate](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience). If you choose not to elevate, the application will fail to install.
+* When running **WinGet** without administrator privileges, some applications may [require elevation](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works) to install. When the installer runs, Windows will prompt you to [elevate](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience). If you choose not to elevate, the application will fail to install.
 
-* When running **Winget** in an Administrator Command Prompt, you will not see [elevation prompts](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience) if the application requires it. Always use caution when running your command prompt as an administrator, and only install applications you trust.
+* When running **WinGet** in an Administrator Command Prompt, you will not see [elevation prompts](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience) if the application requires it. Always use caution when running your command prompt as an administrator, and only install applications you trust.
 
 ### Build your own
 
@@ -88,7 +88,7 @@ The client is built around the concept of sources; a set of packages effectively
 2. Configure your system, please use the [configuration file](.configurations/configuration.dsc.yaml). This can be applied by either:
    * [Dev Home](https://github.com/microsoft/devhome)'s machine configuration tool
    * WinGet configuration. Run `winget configure .configurations/configuration.dsc.yaml` from the project root so relative paths resolve correctly.
-3. Run `vcpkg integrate install` from the Developer Command Prompt for VS 2022. This is a one time setup step until the configuration file in step 2 is updated to work with vcpkg setup.
+3. Run `vcpkg integrate install` from the Developer Command Prompt for VS 2022. This is a one-time setup step until the configuration file in step 2 is updated to work with vcpkg setup.
 
 ### Prerequisites
 
