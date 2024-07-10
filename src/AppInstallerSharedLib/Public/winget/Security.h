@@ -27,6 +27,12 @@ namespace AppInstaller::Security
     // and is at least equal integrity level (higher will also be allowed).
     bool IsCOMCallerSameUserAndIntegrityLevel();
 
+    // Determines if the current COM caller is at least the minimum integrity level provided.
+    bool IsCOMCallerIntegrityLevelAtLeast(IntegrityLevel minimumLevel);
+
+    // Determines if the current integrity level is at least the minimum integrity level provided.
+    bool IsCurrentIntegrityLevelAtLeast(IntegrityLevel minimumLevel);
+
     // Gets the string representation of the given SID.
     std::string ToString(PSID sid);
 }

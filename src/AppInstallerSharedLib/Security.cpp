@@ -112,6 +112,25 @@ namespace AppInstaller::Security
         return true;
     }
 
+    bool IsCOMCallerIntegrityLevelAtLeast(IntegrityLevel minimumLevel)
+    {
+        auto impersonation = ImpersonateCOMorRPCCaller::BeginImpersonation();
+        return IsCurrentIntegrityLevelAtLeast(minimumLevel);
+    }
+
+    bool IsCurrentIntegrityLevelAtLeast(IntegrityLevel minimumLevel)
+    {
+        IntegrityLevel callingIntegrityLevel = GetEffectiveIntegrityLevel();
+
+        if (ToIntegral(callingIntegrityLevel) < ToIntegral(minimumLevel))
+        {
+            AICLI_LOG(Core, Crit, << "Attempt to access by a lower integrity process than required: " << callingIntegrityLevel << " < " << minimumLevel);
+            return false;
+        }
+
+        return true;
+    }
+
     std::string ToString(PSID sid)
     {
         wil::unique_hlocal_ansistring result;
