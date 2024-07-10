@@ -2,50 +2,57 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigurationStatus.h"
+#include "ConfigurationChangeData.h"
 #include "ConfigurationProcessor.h"
 #include "ConfigurationSet.h"
+#include "ConfigurationSetChangeData.h"
+#include "ConfigurationUnitResultInformation.h"
+#include <AppInstallerStrings.h>
+#include <AppInstallerLanguageUtilities.h>
 
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
     namespace details
     {
-#define WINGET_CHANGE_SYNC_EVENT_NAME_1 L"WinGetChangeSyncEvent1"
-#define WINGET_CHANGE_SYNC_EVENT_NAME_2 L"WinGetChangeSyncEvent2"
-
-        struct ChangeSynchronizationBase
-        {
-            ChangeSynchronizationBase()
-            {
-                m_events[0].create(wil::EventOptions::ManualReset, WINGET_CHANGE_SYNC_EVENT_NAME_1);
-                m_events[1].create(wil::EventOptions::ManualReset, WINGET_CHANGE_SYNC_EVENT_NAME_2);
-            }
-
-            wil::unique_event& CurrentEvent()
-            {
-                return m_events[m_currentEvent];
-            }
-
-            wil::unique_event& NextEvent()
-            {
-                m_currentEvent = (m_currentEvent + 1) % m_events.size();
-                return CurrentEvent();
-            }
-
-        private:
-            size_t m_currentEvent = 0;
-            std::array<wil::unique_event, 2> m_events;
-        };
-
         // Implements the consuming side of the status signaling.
-        struct ChangeListener : protected ChangeSynchronizationBase
+        struct ChangeListener
         {
-            ChangeListener(ConfigurationStatus& status, int64_t changeIdentifier) : m_status(status), m_changeIdentifier(changeIdentifier)
+            struct SetStatusItem
             {
+                ConfigurationDatabase::StatusItem Status;
+                Configuration::ConfigurationSet Set;
+            };
+
+            ChangeListener(ConfigurationStatus& status, int64_t changeIdentifier) : m_status(status)
+            {
+                ConfigurationDatabase::StatusBaseline baseline = m_status.Database().GetStatusBaseline();
+                m_changeIdentifier = baseline.ChangeIdentifier;
+
+                for (const auto& item : baseline.SetStatus)
+                {
+                    m_lastSetStatus.emplace(item.SetInstanceIdentifier, SetStatusItem{ item });
+                }
+
+                std::wstring objectName = L"WinGetConfigListener_" + AppInstaller::Utility::CreateNewGuidNameWString();
+                m_listenerEventName = AppInstaller::Utility::ConvertToUTF8(objectName);
+                m_listenerEvent.create(wil::EventOptions::None, objectName.c_str());
+
+                m_status.Database().AddListener(m_listenerEventName);
+
                 m_threadPoolWait.reset(CreateThreadpoolWait(StaticWaitCallback, this, nullptr));
                 THROW_LAST_ERROR_IF(!m_threadPoolWait);
 
-                SetThreadpoolWait(m_threadPoolWait.get(), CurrentEvent().get(), NULL);
+                SetThreadpoolWait(m_threadPoolWait.get(), m_listenerEvent.get(), NULL);
+            }
+
+            ~ChangeListener()
+            {
+                try
+                {
+                    m_status.Database().RemoveListener(m_listenerEventName);
+                }
+                CATCH_LOG();
             }
 
         private:
@@ -54,56 +61,91 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 reinterpret_cast<ChangeListener*>(context)->WaitCallback();
             }
 
-            void WaitCallback()
+            void WaitCallback() try
             {
-                SetThreadpoolWait(m_threadPoolWait.get(), NextEvent().get(), NULL);
+                std::vector<ConfigurationDatabase::StatusItem> changes = m_status.Database().GetStatusSince(m_changeIdentifier);
 
-                if (ShouldBecomeUpdateThread())
+                // Convert status items to relevant change information
+                for (const auto& change : changes)
                 {
-                    do
+                    if (change.UnitInstanceIdentifier)
                     {
+                        if (m_status.HasSetChangeRegistration(change.SetInstanceIdentifier))
+                        {
+                            // A unit status change
+                            ConfigurationUnitState state = AppInstaller::ToEnum<ConfigurationUnitState>(change.State);
 
-                    } while (ShouldContinueUpdateThread());
+                            auto resultInformation = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+                            resultInformation->ResultCode(change.ResultCode);
+                            resultInformation->Description(hstring{ AppInstaller::Utility::ConvertToUTF16(change.ResultDescription) });
+                            resultInformation->Details(hstring{ AppInstaller::Utility::ConvertToUTF16(change.ResultDetails) });
+                            resultInformation->ResultSource(change.ResultSource);
+
+                            auto changeData = make_self<implementation::ConfigurationSetChangeData>();
+                            changeData->Initialize(state, *resultInformation, nullptr);
+
+                            m_status.SetChangeDetected(change.SetInstanceIdentifier, changeData, change.UnitInstanceIdentifier);
+                        }
+                    }
+                    else
+                    {
+                        // A set status change
+                        ConfigurationSetState state = AppInstaller::ToEnum<ConfigurationSetState>(change.State);
+                        ConfigurationChangeEventType changeType = ConfigurationChangeEventType::Unknown;
+
+                        SetStatusItem* setStatusItem = nullptr;
+                        auto itr = m_lastSetStatus.find(change.SetInstanceIdentifier);
+                        if (itr != m_lastSetStatus.end())
+                        {
+                            setStatusItem = &itr->second;
+                        }
+
+                        if (!setStatusItem)
+                        {
+                            changeType = ConfigurationChangeEventType::SetAdded;
+
+                            std::tie(itr, std::ignore) = m_lastSetStatus.emplace(change.SetInstanceIdentifier, SetStatusItem{ change });
+                            setStatusItem = &itr->second;
+                        }
+                        else
+                        {
+                            changeType = (change.InQueue ? ConfigurationChangeEventType::SetStateChanged : ConfigurationChangeEventType::SetRemoved);
+                        }
+
+                        if (m_status.HasChangeRegistrations())
+                        {
+                            if (!setStatusItem->Set)
+                            {
+                                setStatusItem->Set = m_status.Database().GetSet(change.SetInstanceIdentifier);
+                            }
+
+                            auto changeData = make_self<wil::details::module_count_wrapper<implementation::ConfigurationChangeData>>();
+                            changeData->Initialize(changeType, change.SetInstanceIdentifier, state);
+
+                            m_status.ChangeDetected(setStatusItem->Set, *changeData);
+                        }
+
+                        auto setChangeData = make_self<implementation::ConfigurationSetChangeData>();
+                        setChangeData->Initialize(state);
+
+                        m_status.SetChangeDetected(change.SetInstanceIdentifier, setChangeData, std::nullopt);
+                    }
+
+                    m_changeIdentifier = change.ChangeIdentifier;
                 }
-            }
 
-            bool ShouldBecomeUpdateThread()
-            {
-                size_t state =  m_workState.load();
-                while (state < 2)
-                {
-                    size_t newState = state + 1;
-                    m_workState.compare_exchange_strong(state, newState);
-                }
-
-                return state == 0;
+                SetThreadpoolWait(m_threadPoolWait.get(), m_listenerEvent.get(), NULL);
             }
-
-            bool ShouldContinueUpdateThread()
-            {
-                return m_workState.fetch_sub(1) != 1;
-            }
+            CATCH_LOG_MSG("ChangeListener::WaitCallback exception");
 
             ConfigurationStatus& m_status;
             int64_t m_changeIdentifier;
+            std::map<winrt::guid, SetStatusItem> m_lastSetStatus;
+            wil::unique_event m_listenerEvent;
+            std::string m_listenerEventName;
+
+            // Keep last to destroy first
             wil::unique_threadpool_wait m_threadPoolWait;
-            std::atomic_size_t m_workState;
-        };
-
-        // Implements the producing side of the status signaling
-        struct ChangeSignaler : protected ChangeSynchronizationBase
-        {
-            ChangeSignaler() = default;
-
-            void PrepareForChange()
-            {
-                CurrentEvent().ResetEvent();
-            }
-
-            void SignalChange()
-            {
-                NextEvent().SetEvent();
-            }
         };
     }
 
@@ -166,15 +208,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_database.GetUnitResultInformation(instanceIdentifier);
     }
 
-    ConfigurationStatus::SetChangeRegistration::SetChangeRegistration(const winrt::guid& instanceIdentifier) :
-        m_status(Instance()), m_instanceIdentifier(instanceIdentifier) {}
+    ConfigurationStatus::SetChangeRegistration::SetChangeRegistration(const winrt::guid& instanceIdentifier, ConfigurationSet* configurationSet) :
+        m_status(Instance()), m_instanceIdentifier(instanceIdentifier), m_configurationSet(configurationSet) {}
 
     ConfigurationStatus::SetChangeRegistration::~SetChangeRegistration()
     {
-        m_status->RemoveSetChangeRegistration(m_instanceIdentifier);
+        m_status->RemoveSetChangeRegistration(m_instanceIdentifier, m_configurationSet);
     }
 
-    std::shared_ptr<ConfigurationStatus::SetChangeRegistration> ConfigurationStatus::RegisterForSetChange(const ConfigurationSet& set)
+    std::shared_ptr<ConfigurationStatus::SetChangeRegistration> ConfigurationStatus::RegisterForSetChange(ConfigurationSet& set)
     {
         m_database.EnsureOpened();
 
@@ -189,11 +231,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return std::make_shared<SetChangeRegistration>(instanceIdentifier);
     }
 
-    void ConfigurationStatus::RemoveSetChangeRegistration(const winrt::guid& instanceIdentifier) noexcept
+    void ConfigurationStatus::RemoveSetChangeRegistration(const winrt::guid& instanceIdentifier, ConfigurationSet* configurationSet) noexcept
     {
         std::lock_guard<std::mutex> lock{ m_changeRegistrationsMutex };
 
-        m_setChangeRegistrations.erase(instanceIdentifier);
+        auto [begin, end] = m_setChangeRegistrations.equal_range(instanceIdentifier);
+
+        for (; begin != end; ++begin)
+        {
+            if (begin->second == configurationSet)
+            {
+                m_setChangeRegistrations.erase(begin);
+                break;
+            }
+        }
+
         DisableChangeListeningIfNeeded();
     }
 
@@ -205,7 +257,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_status->RemoveChangeRegistration(m_instanceIdentifier);
     }
 
-    std::shared_ptr<ConfigurationStatus::ChangeRegistration> ConfigurationStatus::RegisterForChange(const ConfigurationProcessor& processor)
+    std::shared_ptr<ConfigurationStatus::ChangeRegistration> ConfigurationStatus::RegisterForChange(ConfigurationProcessor& processor)
     {
         m_database.EnsureOpened();
 
@@ -240,7 +292,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         if (!m_changeListener)
         {
-            m_changeListener = std::make_unique<details::ChangeListener>(*this, m_database.GetLatestChangeIdentifier());
+            m_changeListener = std::make_unique<details::ChangeListener>(*this);
         }
     }
 
@@ -252,25 +304,50 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    int64_t ConfigurationStatus::ChangeDetected(int64_t previousChangeIdentifier)
+    ConfigurationDatabase& ConfigurationStatus::Database()
     {
-
+        return m_database;
     }
 
-    std::shared_ptr<details::ChangeSignaler> ConfigurationStatus::GetChangeSignaler()
+    bool ConfigurationStatus::HasChangeRegistrations()
     {
-        std::shared_ptr<details::ChangeSignaler> result = std::atomic_load(&m_changeSignaler);
-        if (!result)
-        {
-            result = std::make_shared<details::ChangeSignaler>();
-            std::shared_ptr<details::ChangeSignaler> empty;
+        std::lock_guard<std::mutex> lock{ m_changeRegistrationsMutex };
+        return !m_changeRegistrations.empty();
+    }
 
-            if (!std::atomic_compare_exchange_strong(&m_changeSignaler, &empty, result))
+    void ConfigurationStatus::SetChangeDetected(const winrt::guid& setInstanceIdentifier, com_ptr<ConfigurationSetChangeData>& data, const std::optional<GUID>& unitInstanceIdentifier)
+    {
+        std::vector<ConfigurationSet*> setChangeRegistrations;
+
+        {
+            std::lock_guard<std::mutex> lock{ m_changeRegistrationsMutex };
+
+            auto [begin, end] = m_setChangeRegistrations.equal_range(setInstanceIdentifier);
+
+            for (; begin != end; ++begin)
             {
-                result = empty;
+                setChangeRegistrations.emplace_back(begin->second);
             }
         }
 
-        return result;
+        for (ConfigurationSet* set : setChangeRegistrations)
+        {
+            set->ConfigurationSetChange(data, unitInstanceIdentifier);
+        }
+    }
+
+    void ConfigurationStatus::ChangeDetected(Configuration::ConfigurationSet& set, Configuration::ConfigurationChangeData data)
+    {
+        std::vector<std::pair<winrt::guid, ConfigurationProcessor*>> changeRegistrations;
+
+        {
+            std::lock_guard<std::mutex> lock{ m_changeRegistrationsMutex };
+            changeRegistrations = m_changeRegistrations;
+        }
+
+        for (const auto& registration : changeRegistrations)
+        {
+            registration.second->ConfigurationChange(set, data);
+        }
     }
 }

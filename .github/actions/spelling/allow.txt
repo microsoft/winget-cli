@@ -330,7 +330,7 @@ Testrun
 testsettingname
 TEXTFORMAT
 TEXTINCLUDE
-Threadpool
+threadpool
 tpl
 TRACELOGGING
 triaged

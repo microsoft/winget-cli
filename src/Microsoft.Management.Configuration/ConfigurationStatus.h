@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <vector>
 
 
@@ -14,11 +15,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // Forward declarations
     struct ConfigurationProcessor;
     struct ConfigurationSet;
+    struct ConfigurationSetChangeData;
 
     namespace details
     {
         struct ChangeListener;
-        struct ChangeSignaler;
     }
 
     // Provides access to overall configuration status information.
@@ -48,7 +49,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Keeps data for a set change listener.
         struct SetChangeRegistration
         {
-            SetChangeRegistration(const winrt::guid& instanceIdentifier);
+            SetChangeRegistration(const winrt::guid& instanceIdentifier, ConfigurationSet* configurationSet);
 
             SetChangeRegistration(const SetChangeRegistration&) = delete;
             SetChangeRegistration& operator=(const SetChangeRegistration&) = delete;
@@ -61,10 +62,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         private:
             std::shared_ptr<ConfigurationStatus> m_status;
             winrt::guid m_instanceIdentifier;
+            ConfigurationSet* m_configurationSet;
         };
 
-        std::shared_ptr<SetChangeRegistration> RegisterForSetChange(const ConfigurationSet& set);
-        void RemoveSetChangeRegistration(const winrt::guid& instanceIdentifier) noexcept;
+        std::shared_ptr<SetChangeRegistration> RegisterForSetChange(ConfigurationSet& set);
+        void RemoveSetChangeRegistration(const winrt::guid& instanceIdentifier, ConfigurationSet* configurationSet) noexcept;
 
         // Keeps data for a change listener.
         struct ChangeRegistration
@@ -84,7 +86,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             winrt::guid m_instanceIdentifier;
         };
 
-        std::shared_ptr<ChangeRegistration> RegisterForChange(const ConfigurationProcessor& processor);
+        std::shared_ptr<ChangeRegistration> RegisterForChange(ConfigurationProcessor& processor);
         void RemoveChangeRegistration(const winrt::guid& instanceIdentifier) noexcept;
 
     private:
@@ -93,19 +95,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void EnableChangeListeningIfNeeded();
         void DisableChangeListeningIfNeeded();
 
-        // Indicate that a change occurred, receiving the previous change identifier value.
-        // Returns the latest change identifier.
-        int64_t ChangeDetected(int64_t previousChangeIdentifier);
+        ConfigurationDatabase& Database();
 
-        std::shared_ptr<details::ChangeSignaler> GetChangeSignaler();
+        bool HasChangeRegistrations();
+
+        void SetChangeDetected(const winrt::guid& setInstanceIdentifier, com_ptr<ConfigurationSetChangeData>& data, const std::optional<GUID>& unitInstanceIdentifier);
+        void ChangeDetected(Configuration::ConfigurationSet& set, Configuration::ConfigurationChangeData data);
 
         ConfigurationDatabase m_database;
 
         std::mutex m_changeRegistrationsMutex;
-        std::map<winrt::guid, ConfigurationSet*> m_setChangeRegistrations;
+        std::multimap<winrt::guid, ConfigurationSet*> m_setChangeRegistrations;
         std::vector<std::pair<winrt::guid, ConfigurationProcessor*>> m_changeRegistrations;
-        std::unique_ptr<details::ChangeListener> m_changeListener;
 
-        std::shared_ptr<details::ChangeSignaler> m_changeSignaler;
+        // Keep this last to ensure it is destroyed first
+        std::unique_ptr<details::ChangeListener> m_changeListener;
     };
 }

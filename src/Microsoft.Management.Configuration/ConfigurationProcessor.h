@@ -51,7 +51,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         bool GenerateTelemetryEvents();
         void GenerateTelemetryEvents(bool value);
 
-        event_token ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>& handler);
+        event_token ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, Configuration::ConfigurationChangeData>& handler);
         void ConfigurationChange(const event_token& token) noexcept;
 
         Windows::Foundation::Collections::IVector<ConfigurationSet> GetConfigurationHistory();
@@ -100,7 +100,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void SetSupportsSchema03(bool value);
 
         // Indicate a configuration change occurred.
-        void ConfigurationChange(ConfigurationSet& set, ConfigurationChangeData& data);
+        void ConfigurationChange(ConfigurationSet& set, Configuration::ConfigurationChangeData& data) const;
 
     private:
         Windows::Foundation::Collections::IVector<ConfigurationSet> GetConfigurationHistoryImpl(AppInstaller::WinRT::AsyncCancellation cancellation = {});
@@ -131,7 +131,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         IConfigurationSetProcessorFactory m_factory = nullptr;
         event<Windows::Foundation::EventHandler<IDiagnosticInformation>> m_diagnostics;
-        event<Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>> m_configurationChange;
+        event<Windows::Foundation::TypedEventHandler<ConfigurationSet, Configuration::ConfigurationChangeData>> m_configurationChange;
         ConfigThreadGlobals m_threadGlobals;
         IConfigurationSetProcessorFactory::Diagnostics_revoker m_factoryDiagnosticsEventRevoker;
         DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;

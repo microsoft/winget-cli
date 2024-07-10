@@ -5,6 +5,7 @@
 #include <winget/SQLiteDynamicStorage.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
@@ -62,6 +63,26 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Removes the queue item with the given object name.
         void RemoveQueueItem(const std::string& objectName);
+
+        // A status line item.
+        struct StatusItem
+        {
+            int64_t ChangeIdentifier;
+            GUID SetInstanceIdentifier;
+            bool InQueue;
+            std::optional<GUID> UnitInstanceIdentifier;
+            int32_t State;
+            HRESULT ResultCode;
+            std::string ResultDescription;
+            std::string ResultDetails;
+            ConfigurationUnitResultSource ResultSource;
+        };
+
+        struct StatusBaseline
+        {
+            int64_t ChangeIdentifier;
+            std::vector<StatusItem> SetStatus;
+        };
 
     private:
         std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> m_connection;

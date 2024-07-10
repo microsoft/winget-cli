@@ -114,12 +114,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_schemaVersion = value;
     }
 
-    void ConfigurationSet::ConfigurationSetChange(ConfigurationSetChangeData& data)
+    void ConfigurationSet::ConfigurationSetChange(com_ptr<ConfigurationSetChangeData>& data, const std::optional<guid>& unitInstanceIdentifier) try
     {
-        m_configurationSetChange(*get_strong(), data);
-    }
+        if (unitInstanceIdentifier)
+        {
+            Windows::Foundation::Collections::IVector<ConfigurationUnit> comUnits = m_units;
 
-    event_token ConfigurationSet::ConfigurationSetChange(const Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>& handler)
+            std::vector<ConfigurationUnit> units{ comUnits.Size() };
+            units.resize(comUnits.GetMany(0, units));
+
+            for (const ConfigurationUnit& unit : units)
+            {
+                if (unit.InstanceIdentifier() == unitInstanceIdentifier.value())
+                {
+                    data->Unit(unit);
+                    break;
+                }
+            }
+        }
+
+        m_configurationSetChange(*get_strong(), *data);
+    }
+    CATCH_LOG();
+
+    event_token ConfigurationSet::ConfigurationSetChange(const Windows::Foundation::TypedEventHandler<WinRT_Self, Configuration::ConfigurationSetChangeData>& handler)
     {
         if (!m_configurationSetChange)
         {

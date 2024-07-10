@@ -184,7 +184,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::ignore = m_threadGlobals.GetTelemetryLogger().EnableRuntime(value);
     }
 
-    event_token ConfigurationProcessor::ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>& handler)
+    event_token ConfigurationProcessor::ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, Configuration::ConfigurationChangeData>& handler)
     {
         if (!m_configurationChange)
         {
@@ -205,10 +205,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationProcessor::ConfigurationChange(ConfigurationSet& set, ConfigurationChangeData& data)
+    void ConfigurationProcessor::ConfigurationChange(ConfigurationSet& set, Configuration::ConfigurationChangeData& data) try
     {
         m_configurationChange(set, data);
     }
+    CATCH_LOG();
 
     Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> ConfigurationProcessor::GetConfigurationHistory()
     {
@@ -571,7 +572,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     }
 
                     // Create progress object
-                    auto applyResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSetChangeData>>();
+                    auto applyResult = make_self<implementation::ConfigurationSetChangeData>();
                     applyResult->Initialize(unitResult);
                     progress.Progress(*applyResult);
                 });

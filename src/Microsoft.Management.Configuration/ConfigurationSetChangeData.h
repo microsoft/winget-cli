@@ -3,10 +3,11 @@
 #pragma once
 #include "ConfigurationSetChangeData.g.h"
 #include "ConfigurationUnitResultInformation.h"
+#include <winget/ModuleCountBase.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationSetChangeData : ConfigurationSetChangeDataT<ConfigurationSetChangeData>
+    struct ConfigurationSetChangeData : ConfigurationSetChangeDataT<ConfigurationSetChangeData>, AppInstaller::WinRT::ModuleCountBase
     {
         using ConfigurationUnit = Configuration::ConfigurationUnit;
 
@@ -19,6 +20,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Initialize(ConfigurationSetState state);
         void Initialize(ConfigurationUnitState state, IConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit);
         void Initialize(const IApplyGroupMemberSettingsResult& unitResult);
+
+        void Unit(const ConfigurationUnit& unit);
 #endif
 
         ConfigurationSetChangeEventType Change();
