@@ -110,6 +110,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #endif
     }
 
+    ConfigurationDatabase::ConfigurationSetPtr ConfigurationDatabase::GetSet(const GUID& instanceIdentifier) const
+    {
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        // While under development, treat errors escaping this function as a test hook.
+        try
+        {
+#endif
+        auto database = std::atomic_load(&m_database);
+
+        if (!database)
+        {
+            return {};
+        }
+
+        auto transaction = BeginTransaction("GetSet", database);
+        return database->GetSet(instanceIdentifier);
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        }
+        CATCH_LOG();
+
+        return {};
+#endif
+    }
+
     void ConfigurationDatabase::WriteSetHistory(const Configuration::ConfigurationSet& configurationSet, bool preferNewHistory)
     {
 #ifdef AICLI_DISABLE_TEST_HOOKS

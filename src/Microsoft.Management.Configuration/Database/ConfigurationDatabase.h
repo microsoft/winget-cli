@@ -37,6 +37,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Gets all of the configuration sets from the database.
         std::vector<ConfigurationSetPtr> GetSetHistory() const;
 
+        // Gets the set with the given identifier.
+        ConfigurationSetPtr GetSet(const GUID& instanceIdentifier) const;
+
         // Writes the given set to the database history, attempting to merge with a matching set if one exists unless preferNewHistory is true.
         void WriteSetHistory(const Configuration::ConfigurationSet& configurationSet, bool preferNewHistory);
 
@@ -55,6 +58,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             GUID SetInstanceIdentifier{};
             std::string ObjectName;
             std::chrono::system_clock::time_point QueuedAt;
+            DWORD ProcessId;
             bool Active = false;
         };
 
@@ -68,6 +72,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         struct StatusItem
         {
             int64_t ChangeIdentifier;
+            int64_t ChangeTime;
             GUID SetInstanceIdentifier;
             bool InQueue;
             std::optional<GUID> UnitInstanceIdentifier;
@@ -78,11 +83,52 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             ConfigurationUnitResultSource ResultSource;
         };
 
+        // Gets all changed status items after the given change identifier.
+        std::vector<StatusItem> GetStatusSince(int64_t changeIdentifier) const;
+
+        // The status baseline data.
         struct StatusBaseline
         {
             int64_t ChangeIdentifier;
             std::vector<StatusItem> SetStatus;
         };
+
+        // Gets the current status baseline.
+        StatusBaseline GetStatusBaseline() const;
+
+        // Data about a status change listener.
+        struct StatusChangeListener
+        {
+            std::string ObjectName;
+            std::chrono::system_clock::time_point Started;
+            DWORD ProcessId;
+        };
+
+        // Adds a listener to the database.
+        void AddListener(const std::string& objectName);
+
+        // Removes a listener from the database.
+        void RemoveListener(const std::string& objectName);
+
+        // Gets all listeners in the database.
+        std::vector<StatusChangeListener> GetChangeListeners() const;
+
+        // Updates the set state in the database.
+        void UpdateSetState(const guid& setInstanceIdentifier, ConfigurationSetState state);
+
+        // Updates the set "in queue" state in the database.
+        void UpdateSetInQueue(const guid& setInstanceIdentifier, bool inQueue);
+
+        // Updates the unit state in the database.
+        void UpdateUnitState(const guid& setInstanceIdentifier, const com_ptr<implementation::ConfigurationSetChangeData>& changeData);
+
+        // Read various status values.
+        ConfigurationSetState GetSetState(const guid& instanceIdentifier);
+        clock::time_point GetSetFirstApply(const guid& instanceIdentifier);
+        clock::time_point GetSetApplyBegun(const guid& instanceIdentifier);
+        clock::time_point GetSetApplyEnded(const guid& instanceIdentifier);
+        ConfigurationUnitState GetUnitState(const guid& instanceIdentifier);
+        IConfigurationUnitResultInformation GetUnitResultInformation(const guid& instanceIdentifier);
 
     private:
         std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> m_connection;

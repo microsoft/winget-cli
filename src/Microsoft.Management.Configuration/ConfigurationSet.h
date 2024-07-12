@@ -87,7 +87,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Collections::ValueSet m_variables;
         Windows::Foundation::Uri m_schemaUri = nullptr;
         std::string m_inputHash;
-        bool m_inHistory = false;
         std::shared_ptr<ConfigurationStatus::SetChangeRegistration> m_setChangeRegistration;
 #endif
     };

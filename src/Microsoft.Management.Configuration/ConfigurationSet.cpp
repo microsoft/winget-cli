@@ -18,7 +18,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
-        m_instanceIdentifier(instanceIdentifier), m_inHistory(true)
+        m_instanceIdentifier(instanceIdentifier)
     {
     }
 

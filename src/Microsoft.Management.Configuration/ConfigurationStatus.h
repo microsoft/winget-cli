@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Database/ConfigurationDatabase.h"
+#include "ConfigurationSetChangeData.h"
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <map>
 #include <memory>
@@ -39,17 +40,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         static std::shared_ptr<ConfigurationStatus> Instance();
 
         // Get various set state information
-        ConfigurationSetState GetSetState(const winrt::guid& instanceIdentifier);
-        clock::time_point GetSetFirstApply(const winrt::guid& instanceIdentifier);
-        clock::time_point GetSetApplyBegun(const winrt::guid& instanceIdentifier);
-        clock::time_point GetSetApplyEnded(const winrt::guid& instanceIdentifier);
-        ConfigurationUnitState GetUnitState(const winrt::guid& instanceIdentifier);
-        IConfigurationUnitResultInformation GetUnitResultInformation(const winrt::guid& instanceIdentifier);
+        ConfigurationSetState GetSetState(const guid& instanceIdentifier);
+        clock::time_point GetSetFirstApply(const guid& instanceIdentifier);
+        clock::time_point GetSetApplyBegun(const guid& instanceIdentifier);
+        clock::time_point GetSetApplyEnded(const guid& instanceIdentifier);
+        ConfigurationUnitState GetUnitState(const guid& instanceIdentifier);
+        IConfigurationUnitResultInformation GetUnitResultInformation(const guid& instanceIdentifier);
+
+        // Record state changes
+        void UpdateSetState(const guid& setInstanceIdentifier, ConfigurationSetState state);
+        void UpdateSetState(const guid& setInstanceIdentifier, bool inQueue);
+        void UpdateUnitState(const guid& setInstanceIdentifier, const com_ptr<implementation::ConfigurationSetChangeData>& changeData);
 
         // Keeps data for a set change listener.
         struct SetChangeRegistration
         {
-            SetChangeRegistration(const winrt::guid& instanceIdentifier, ConfigurationSet* configurationSet);
+            SetChangeRegistration(const guid& instanceIdentifier, ConfigurationSet* configurationSet);
 
             SetChangeRegistration(const SetChangeRegistration&) = delete;
             SetChangeRegistration& operator=(const SetChangeRegistration&) = delete;
@@ -61,17 +67,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         private:
             std::shared_ptr<ConfigurationStatus> m_status;
-            winrt::guid m_instanceIdentifier;
+            guid m_instanceIdentifier;
             ConfigurationSet* m_configurationSet;
         };
 
         std::shared_ptr<SetChangeRegistration> RegisterForSetChange(ConfigurationSet& set);
-        void RemoveSetChangeRegistration(const winrt::guid& instanceIdentifier, ConfigurationSet* configurationSet) noexcept;
+        void RemoveSetChangeRegistration(const guid& instanceIdentifier, ConfigurationSet* configurationSet) noexcept;
 
         // Keeps data for a change listener.
         struct ChangeRegistration
         {
-            ChangeRegistration(const winrt::guid& instanceIdentifier);
+            ChangeRegistration(const guid& instanceIdentifier);
 
             ChangeRegistration(const ChangeRegistration&) = delete;
             ChangeRegistration& operator=(const ChangeRegistration&) = delete;
@@ -83,11 +89,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         private:
             std::shared_ptr<ConfigurationStatus> m_status;
-            winrt::guid m_instanceIdentifier;
+            guid m_instanceIdentifier;
         };
 
         std::shared_ptr<ChangeRegistration> RegisterForChange(ConfigurationProcessor& processor);
-        void RemoveChangeRegistration(const winrt::guid& instanceIdentifier) noexcept;
+        void RemoveChangeRegistration(const guid& instanceIdentifier) noexcept;
 
     private:
         ConfigurationStatus();
@@ -95,18 +101,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void EnableChangeListeningIfNeeded();
         void DisableChangeListeningIfNeeded();
 
+        void SignalChangeListeners();
+
         ConfigurationDatabase& Database();
 
+        bool HasSetChangeRegistration(const guid& setInstanceIdentifier);
         bool HasChangeRegistrations();
 
-        void SetChangeDetected(const winrt::guid& setInstanceIdentifier, com_ptr<ConfigurationSetChangeData>& data, const std::optional<GUID>& unitInstanceIdentifier);
+        void SetChangeDetected(const guid& setInstanceIdentifier, com_ptr<ConfigurationSetChangeData>& data, const std::optional<GUID>& unitInstanceIdentifier);
         void ChangeDetected(Configuration::ConfigurationSet& set, Configuration::ConfigurationChangeData data);
 
         ConfigurationDatabase m_database;
 
         std::mutex m_changeRegistrationsMutex;
-        std::multimap<winrt::guid, ConfigurationSet*> m_setChangeRegistrations;
-        std::vector<std::pair<winrt::guid, ConfigurationProcessor*>> m_changeRegistrations;
+        std::multimap<guid, ConfigurationSet*> m_setChangeRegistrations;
+        std::vector<std::pair<guid, ConfigurationProcessor*>> m_changeRegistrations;
 
         // Keep this last to ensure it is destroyed first
         std::unique_ptr<details::ChangeListener> m_changeListener;

@@ -39,6 +39,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using QueueObjectType = wil::unique_event;
 
         ConfigurationDatabase& m_database;
+        guid m_setInstanceIdentifier;
         std::string m_queueItemObjectName;
         QueueObjectType m_queueItemObject;
         wil::unique_mutex m_applyMutex;

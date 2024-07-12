@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigurationSequencer.h"
+#include "ConfigurationStatus.h"
 #include <AppInstallerStrings.h>
 
 using namespace std::chrono_literals;
@@ -16,6 +17,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
             m_database.RemoveQueueItem(m_queueItemObjectName);
+
+            auto status = ConfigurationStatus::Instance();
+            status->UpdateSetState(m_setInstanceIdentifier, false);
         }
         CATCH_LOG();
     }
@@ -24,12 +28,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // It then performs the equivalent of `Wait` with a timeout of 0.
     bool ConfigurationSequencer::Enqueue(const Configuration::ConfigurationSet& configurationSet)
     {
+        m_setInstanceIdentifier = configurationSet.InstanceIdentifier();
+
         // Create an arbitrarily named object
         std::wstring objectName = L"WinGetConfigQueue_" + AppInstaller::Utility::CreateNewGuidNameWString();
         m_queueItemObjectName = AppInstaller::Utility::ConvertToUTF8(objectName);
         m_queueItemObject.create(wil::EventOptions::None, objectName.c_str());
 
         m_database.AddQueueItem(configurationSet, m_queueItemObjectName);
+
+        auto statusInstance = ConfigurationStatus::Instance();
+        statusInstance->UpdateSetState(m_setInstanceIdentifier, true);
 
         // Create shared mutex
         constexpr PCWSTR applyMutexName = L"WinGetConfigQueueApplyMutex";

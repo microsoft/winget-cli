@@ -5,7 +5,6 @@
 #include "ConfigurationChangeData.h"
 #include "ConfigurationProcessor.h"
 #include "ConfigurationSet.h"
-#include "ConfigurationSetChangeData.h"
 #include "ConfigurationUnitResultInformation.h"
 #include <AppInstallerStrings.h>
 #include <AppInstallerLanguageUtilities.h>
@@ -116,7 +115,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                         {
                             if (!setStatusItem->Set)
                             {
-                                setStatusItem->Set = m_status.Database().GetSet(change.SetInstanceIdentifier);
+                                setStatusItem->Set = *m_status.Database().GetSet(change.SetInstanceIdentifier);
                             }
 
                             auto changeData = make_self<wil::details::module_count_wrapper<implementation::ConfigurationChangeData>>();
@@ -206,6 +205,27 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         m_database.EnsureOpened(false);
         return m_database.GetUnitResultInformation(instanceIdentifier);
+    }
+
+    void ConfigurationStatus::UpdateSetState(const guid& setInstanceIdentifier, ConfigurationSetState state)
+    {
+        m_database.EnsureOpened();
+        m_database.UpdateSetState(setInstanceIdentifier, state);
+        SignalChangeListeners();
+    }
+
+    void ConfigurationStatus::UpdateSetState(const guid& setInstanceIdentifier, bool inQueue)
+    {
+        m_database.EnsureOpened();
+        m_database.UpdateSetInQueue(setInstanceIdentifier, inQueue);
+        SignalChangeListeners();
+    }
+
+    void ConfigurationStatus::UpdateUnitState(const guid& setInstanceIdentifier, const com_ptr<implementation::ConfigurationSetChangeData>& changeData)
+    {
+        m_database.EnsureOpened();
+        m_database.UpdateUnitState(setInstanceIdentifier, changeData);
+        SignalChangeListeners();
     }
 
     ConfigurationStatus::SetChangeRegistration::SetChangeRegistration(const winrt::guid& instanceIdentifier, ConfigurationSet* configurationSet) :
@@ -304,9 +324,35 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
+    void ConfigurationStatus::SignalChangeListeners()
+    {
+        std::vector<ConfigurationDatabase::StatusChangeListener> changeListeners = m_database.GetChangeListeners();
+
+        for (const auto& listener : changeListeners)
+        {
+            std::wstring objectName = AppInstaller::Utility::ConvertToUTF16(listener.ObjectName);
+            wil::unique_event listenerEvent;
+            if (listenerEvent.try_open(objectName.c_str(), EVENT_MODIFY_STATE))
+            {
+                listenerEvent.SetEvent();
+            }
+            else
+            {
+                m_database.RemoveListener(listener.ObjectName);
+            }
+        }
+    }
+
     ConfigurationDatabase& ConfigurationStatus::Database()
     {
         return m_database;
+    }
+
+    bool ConfigurationStatus::HasSetChangeRegistration(const guid& setInstanceIdentifier)
+    {
+        std::lock_guard<std::mutex> lock{ m_changeRegistrationsMutex };
+        auto [begin, end] = m_setChangeRegistrations.equal_range(setInstanceIdentifier);
+        return begin != end;
     }
 
     bool ConfigurationStatus::HasChangeRegistrations()
