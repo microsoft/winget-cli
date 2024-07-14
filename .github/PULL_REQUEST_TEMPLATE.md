@@ -2,5 +2,4 @@
 
 - [ ] I have signed the [Contributor License Agreement](https://cla.opensource.microsoft.com/microsoft/winget-pkgs).
 - [ ] This pull request is related to an issue.
-
 -----
