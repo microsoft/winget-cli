@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "ConfigurationSetChangeData.h"
 #include <winget/SQLiteWrapper.h>
 #include <winget/SQLiteDynamicStorage.h>
 #include <winrt/Microsoft.Management.Configuration.h>
@@ -58,7 +59,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             GUID SetInstanceIdentifier{};
             std::string ObjectName;
             std::chrono::system_clock::time_point QueuedAt;
-            DWORD ProcessId;
+            DWORD ProcessId{};
             bool Active = false;
         };
 
@@ -72,7 +73,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         struct StatusItem
         {
             int64_t ChangeIdentifier;
-            int64_t ChangeTime;
+            std::chrono::system_clock::time_point ChangeTime;
             GUID SetInstanceIdentifier;
             bool InQueue;
             std::optional<GUID> UnitInstanceIdentifier;
@@ -89,7 +90,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // The status baseline data.
         struct StatusBaseline
         {
-            int64_t ChangeIdentifier;
+            int64_t ChangeIdentifier = 0;
             std::vector<StatusItem> SetStatus;
         };
 
@@ -101,7 +102,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             std::string ObjectName;
             std::chrono::system_clock::time_point Started;
-            DWORD ProcessId;
+            DWORD ProcessId{};
         };
 
         // Adds a listener to the database.
@@ -124,9 +125,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Read various status values.
         ConfigurationSetState GetSetState(const guid& instanceIdentifier);
-        clock::time_point GetSetFirstApply(const guid& instanceIdentifier);
-        clock::time_point GetSetApplyBegun(const guid& instanceIdentifier);
-        clock::time_point GetSetApplyEnded(const guid& instanceIdentifier);
+        std::chrono::system_clock::time_point GetSetFirstApply(const guid& instanceIdentifier);
+        std::chrono::system_clock::time_point GetSetApplyBegun(const guid& instanceIdentifier);
+        std::chrono::system_clock::time_point GetSetApplyEnded(const guid& instanceIdentifier);
         ConfigurationUnitState GetUnitState(const guid& instanceIdentifier);
         IConfigurationUnitResultInformation GetUnitResultInformation(const guid& instanceIdentifier);
 

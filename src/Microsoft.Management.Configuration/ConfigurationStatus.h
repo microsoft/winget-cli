@@ -26,7 +26,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // Provides access to overall configuration status information.
     struct ConfigurationStatus
     {
+    private:
+        struct private_construction {};
+
+    public:
         friend details::ChangeListener;
+
+        ConfigurationStatus(private_construction);
 
         ConfigurationStatus(const ConfigurationStatus&) = delete;
         ConfigurationStatus& operator=(const ConfigurationStatus&) = delete;
@@ -96,8 +102,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void RemoveChangeRegistration(const guid& instanceIdentifier) noexcept;
 
     private:
-        ConfigurationStatus();
-
         void EnableChangeListeningIfNeeded();
         void DisableChangeListeningIfNeeded();
 

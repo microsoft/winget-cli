@@ -60,10 +60,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         queueTable.SetActiveQueueItem(objectName);
     }
 
-    std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, bool>> Interface::GetQueueItems()
+    std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, DWORD, bool>> Interface::GetQueueItems()
     {
         QueueTable queueTable(*m_storage);
-        return queueTable.GetQueueItems();
+        return queueTable.GetQueueItemsWithoutProcess();
     }
 
     void Interface::RemoveQueueItem(const std::string& objectName)

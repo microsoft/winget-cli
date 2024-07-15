@@ -66,12 +66,77 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
     }
 
-    std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, bool>> IConfigurationDatabase::GetQueueItems()
+    std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, DWORD, bool>> IConfigurationDatabase::GetQueueItems()
     {
         return {};
     }
 
     void IConfigurationDatabase::RemoveQueueItem(const std::string&)
     {
+    }
+
+    std::vector<IConfigurationDatabase::StatusItemTuple> IConfigurationDatabase::GetStatusSince(int64_t)
+    {
+        return {};
+    }
+
+    std::tuple<int64_t, std::vector<IConfigurationDatabase::StatusItemTuple>> IConfigurationDatabase::GetStatusBaseline()
+    {
+        return { 0, {} };
+    }
+
+    void IConfigurationDatabase::AddListener(const std::string&)
+    {
+    }
+
+    void IConfigurationDatabase::RemoveListener(const std::string&)
+    {
+    }
+
+    std::vector<std::tuple<std::string, std::chrono::system_clock::time_point, DWORD>> IConfigurationDatabase::GetChangeListeners()
+    {
+        return {};
+    }
+
+    void IConfigurationDatabase::UpdateSetState(const guid&, ConfigurationSetState)
+    {
+    }
+
+    void IConfigurationDatabase::UpdateSetInQueue(const guid&, bool)
+    {
+    }
+
+    void IConfigurationDatabase::UpdateUnitState(const guid&, const ConfigurationSetChangeDataPtr&)
+    {
+    }
+
+    ConfigurationSetState IConfigurationDatabase::GetSetState(const guid&)
+    {
+        return ConfigurationSetState::Unknown;
+    }
+
+    std::chrono::system_clock::time_point IConfigurationDatabase::GetSetFirstApply(const guid&)
+    {
+        return {};
+    }
+
+    std::chrono::system_clock::time_point IConfigurationDatabase::GetSetApplyBegun(const guid&)
+    {
+        return {};
+    }
+
+    std::chrono::system_clock::time_point IConfigurationDatabase::GetSetApplyEnded(const guid&)
+    {
+        return {};
+    }
+
+    ConfigurationUnitState IConfigurationDatabase::GetUnitState(const guid&)
+    {
+        return ConfigurationUnitState::Unknown;
+    }
+
+    std::tuple<HRESULT, std::string, std::string, ConfigurationUnitResultSource> IConfigurationDatabase::GetUnitResultInformation(const guid&)
+    {
+        return { S_FALSE, {}, {}, ConfigurationUnitResultSource::None };
     }
 }

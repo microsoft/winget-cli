@@ -23,7 +23,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 Configuration::ConfigurationSet Set;
             };
 
-            ChangeListener(ConfigurationStatus& status, int64_t changeIdentifier) : m_status(status)
+            ChangeListener(ConfigurationStatus& status) : m_status(status)
             {
                 ConfigurationDatabase::StatusBaseline baseline = m_status.Database().GetStatusBaseline();
                 m_changeIdentifier = baseline.ChangeIdentifier;
@@ -148,7 +148,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         };
     }
 
-    ConfigurationStatus::ConfigurationStatus() = default;
+    ConfigurationStatus::ConfigurationStatus(private_construction) {}
 
     ConfigurationStatus::~ConfigurationStatus() = default;
 
@@ -159,7 +159,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::shared_ptr<ConfigurationStatus> result = std::atomic_load(&s_instance);
         if (!result)
         {
-            result = std::make_shared<ConfigurationStatus>();
+            result = std::make_shared<ConfigurationStatus>(private_construction{});
             std::shared_ptr<ConfigurationStatus> empty;
 
             if (!std::atomic_compare_exchange_strong(&s_instance, &empty, result))
@@ -180,19 +180,19 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     clock::time_point ConfigurationStatus::GetSetFirstApply(const winrt::guid& instanceIdentifier)
     {
         m_database.EnsureOpened(false);
-        return m_database.GetSetFirstApply(instanceIdentifier);
+        return clock::from_sys(m_database.GetSetFirstApply(instanceIdentifier));
     }
 
     clock::time_point ConfigurationStatus::GetSetApplyBegun(const winrt::guid& instanceIdentifier)
     {
         m_database.EnsureOpened(false);
-        return m_database.GetSetApplyBegun(instanceIdentifier);
+        return clock::from_sys(m_database.GetSetApplyBegun(instanceIdentifier));
     }
 
     clock::time_point ConfigurationStatus::GetSetApplyEnded(const winrt::guid& instanceIdentifier)
     {
         m_database.EnsureOpened(false);
-        return m_database.GetSetApplyEnded(instanceIdentifier);
+        return clock::from_sys(m_database.GetSetApplyEnded(instanceIdentifier));
     }
 
     ConfigurationUnitState ConfigurationStatus::GetUnitState(const winrt::guid& instanceIdentifier)
@@ -248,7 +248,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             EnableChangeListeningIfNeeded();
         }
 
-        return std::make_shared<SetChangeRegistration>(instanceIdentifier);
+        return std::make_shared<SetChangeRegistration>(instanceIdentifier, &set);
     }
 
     void ConfigurationStatus::RemoveSetChangeRegistration(const winrt::guid& instanceIdentifier, ConfigurationSet* configurationSet) noexcept

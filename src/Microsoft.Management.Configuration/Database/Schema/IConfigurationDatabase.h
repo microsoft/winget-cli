@@ -4,6 +4,7 @@
 #include "winrt/Microsoft.Management.Configuration.h"
 #include "ConfigurationSet.h"
 #include "ConfigurationUnit.h"
+#include "ConfigurationSetChangeData.h"
 #include <winget/SQLiteVersion.h>
 #include <winget/SQLiteDynamicStorage.h>
 #include <wil/cppwinrt_wrl.h>
@@ -17,6 +18,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         using ConfigurationSetPtr = winrt::com_ptr<implementation::ConfigurationSet>;
         using ConfigurationUnitPtr = winrt::com_ptr<implementation::ConfigurationUnit>;
+        using ConfigurationSetChangeDataPtr = winrt::com_ptr<implementation::ConfigurationSetChangeData>;
 
         virtual ~IConfigurationDatabase() = default;
 
@@ -63,9 +65,69 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         virtual void SetActiveQueueItem(const std::string& objectName);
 
         // Gets all queue items in queue order (item at index 0 is active/next).
-        virtual std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, bool>> GetQueueItems();
+        virtual std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, DWORD, bool>> GetQueueItems();
 
         // Removes the queue item with the given object name.
         virtual void RemoveQueueItem(const std::string& objectName);
+
+        // Version 0.3
+
+        // Gets a set from the database.
+        virtual ConfigurationSetPtr GetSet(const GUID& instanceIdentifier) = 0;
+
+        // The tuple returned for status items.
+        using StatusItemTuple = std::tuple<
+            int64_t,
+            std::chrono::system_clock::time_point,
+            GUID,
+            bool,
+            std::optional<GUID>,
+            int32_t,
+            HRESULT,
+            std::string,
+            std::string,
+            ConfigurationUnitResultSource>;
+
+        // Gets all status items that have changed since the given change identifier, in order of changes (last item is the new latest change to pass next).
+        virtual std::vector<StatusItemTuple> GetStatusSince(int64_t changeIdentifier);
+
+        // Gets the latest change identifier and the set status items.
+        virtual std::tuple<int64_t, std::vector<StatusItemTuple>> GetStatusBaseline();
+
+        // Adds a new listener to the database.
+        virtual void AddListener(const std::string& objectName);
+
+        // Removes a listener from the database.
+        virtual void RemoveListener(const std::string& objectName);
+
+        // Gets all of the change listeners in the database.
+        virtual std::vector<std::tuple<std::string, std::chrono::system_clock::time_point, DWORD>> GetChangeListeners();
+
+        // Updates a set's state.
+        virtual void UpdateSetState(const guid& setInstanceIdentifier, ConfigurationSetState state);
+
+        // Updates whether a set is in the queue or not.
+        virtual void UpdateSetInQueue(const guid& setInstanceIdentifier, bool inQueue);
+
+        // Updates a unit's state.
+        virtual void UpdateUnitState(const guid& setInstanceIdentifier, const ConfigurationSetChangeDataPtr& changeData);
+
+        // Gets a set's state.
+        virtual ConfigurationSetState GetSetState(const guid& instanceIdentifier);
+
+        // Gets a set's first apply time.
+        virtual std::chrono::system_clock::time_point GetSetFirstApply(const guid& instanceIdentifier);
+
+        // Gets a set's latest apply begin time.
+        virtual std::chrono::system_clock::time_point GetSetApplyBegun(const guid& instanceIdentifier);
+
+        // Gets a set's latest apply end time.
+        virtual std::chrono::system_clock::time_point GetSetApplyEnded(const guid& instanceIdentifier);
+
+        // Gets a unit's state.
+        virtual ConfigurationUnitState GetUnitState(const guid& instanceIdentifier);
+
+        // Gets a unit's latest result information.
+        virtual std::tuple<HRESULT, std::string, std::string, ConfigurationUnitResultSource> GetUnitResultInformation(const guid& instanceIdentifier);
     };
 }

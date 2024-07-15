@@ -20,7 +20,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         ConfigurationChangeEventType m_change{};
-        guid m_instanceIdentifier;
+        guid m_instanceIdentifier{};
         ConfigurationSetState m_state{};
 #endif
     };

@@ -28,6 +28,48 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         constexpr std::string_view s_SetInfoTable_Column_Metadata = "metadata"sv;
         constexpr std::string_view s_SetInfoTable_Column_Parameters = "parameters"sv;
         constexpr std::string_view s_SetInfoTable_Column_Variables = "variables"sv;
+
+        void BuildBaseSetSelectStatement(StatementBuilder& builder)
+        {
+            builder.Select({
+                RowIDName,                                  // 0
+                s_SetInfoTable_Column_InstanceIdentifier,   // 1
+                s_SetInfoTable_Column_Name,                 // 2
+                s_SetInfoTable_Column_Origin,               // 3
+                s_SetInfoTable_Column_Path,                 // 4
+                s_SetInfoTable_Column_FirstApply,           // 5
+                s_SetInfoTable_Column_SchemaVersion,        // 6
+                s_SetInfoTable_Column_Metadata,             // 7
+                s_SetInfoTable_Column_Parameters,           // 8
+                s_SetInfoTable_Column_Variables,            // 9
+            }).From(s_SetInfoTable_Table);
+        }
+
+        IConfigurationDatabase::ConfigurationSetPtr GetSetFromStatement(Statement& statement, UnitInfoTable& unitInfoTable)
+        {
+            auto configurationSet = make_self<implementation::ConfigurationSet>(statement.GetColumn<GUID>(1));
+
+            configurationSet->Name(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(2)) });
+            configurationSet->Origin(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(3)) });
+            configurationSet->Path(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(4)) });
+
+            std::string schemaVersion = statement.GetColumn<std::string>(6);
+            configurationSet->SchemaVersion(hstring{ ConvertToUTF16(schemaVersion) });
+
+            auto parser = ConfigurationSetParser::CreateForSchemaVersion(schemaVersion);
+            configurationSet->Metadata(parser->ParseValueSet(statement.GetColumn<std::string>(7)));
+            THROW_HR_IF(E_NOTIMPL, !statement.GetColumn<std::string>(8).empty());
+            configurationSet->Variables(parser->ParseValueSet(statement.GetColumn<std::string>(9)));
+
+            std::vector<Configuration::ConfigurationUnit> winrtUnits;
+            for (const auto& unit : unitInfoTable.GetAllUnitsForSet(statement.GetColumn<rowid_t>(0), schemaVersion))
+            {
+                winrtUnits.emplace_back(*unit);
+            }
+            configurationSet->Units(std::move(winrtUnits));
+
+            return configurationSet;
+        }
     }
 
     SetInfoTable::SetInfoTable(Connection& connection) : m_connection(connection) {}
@@ -151,18 +193,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         std::vector<IConfigurationDatabase::ConfigurationSetPtr> result;
 
         StatementBuilder builder;
-        builder.Select({
-            RowIDName,                                  // 0
-            s_SetInfoTable_Column_InstanceIdentifier,   // 1
-            s_SetInfoTable_Column_Name,                 // 2
-            s_SetInfoTable_Column_Origin,               // 3
-            s_SetInfoTable_Column_Path,                 // 4
-            s_SetInfoTable_Column_FirstApply,           // 5
-            s_SetInfoTable_Column_SchemaVersion,        // 6
-            s_SetInfoTable_Column_Metadata,             // 7
-            s_SetInfoTable_Column_Parameters,           // 8
-            s_SetInfoTable_Column_Variables,            // 9
-        }).From(s_SetInfoTable_Table);
+        BuildBaseSetSelectStatement(builder);
 
         Statement getAllSets = builder.Prepare(m_connection);
 
@@ -170,28 +201,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
         while (getAllSets.Step())
         {
-            auto configurationSet = make_self<implementation::ConfigurationSet>(getAllSets.GetColumn<GUID>(1));
-
-            configurationSet->Name(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(2)) });
-            configurationSet->Origin(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(3)) });
-            configurationSet->Path(hstring{ ConvertToUTF16(getAllSets.GetColumn<std::string>(4)) });
-
-            std::string schemaVersion = getAllSets.GetColumn<std::string>(6);
-            configurationSet->SchemaVersion(hstring{ ConvertToUTF16(schemaVersion) });
-
-            auto parser = ConfigurationSetParser::CreateForSchemaVersion(schemaVersion);
-            configurationSet->Metadata(parser->ParseValueSet(getAllSets.GetColumn<std::string>(7)));
-            THROW_HR_IF(E_NOTIMPL, !getAllSets.GetColumn<std::string>(8).empty());
-            configurationSet->Variables(parser->ParseValueSet(getAllSets.GetColumn<std::string>(9)));
-
-            std::vector<Configuration::ConfigurationUnit> winrtUnits;
-            for (const auto& unit : unitInfoTable.GetAllUnitsForSet(getAllSets.GetColumn<rowid_t>(0), schemaVersion))
-            {
-                winrtUnits.emplace_back(*unit);
-            }
-            configurationSet->Units(std::move(winrtUnits));
-
-            result.emplace_back(std::move(configurationSet));
+            result.emplace_back(GetSetFromStatement(getAllSets, unitInfoTable));
         }
 
         return result;
@@ -210,5 +220,24 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         }
 
         return std::nullopt;
+    }
+
+    IConfigurationDatabase::ConfigurationSetPtr SetInfoTable::GetSet(const GUID& instanceIdentifier)
+    {
+        IConfigurationDatabase::ConfigurationSetPtr result;
+
+        StatementBuilder builder;
+        BuildBaseSetSelectStatement(builder);
+        builder.Where(s_SetInfoTable_Column_InstanceIdentifier).Equals(instanceIdentifier);
+
+        Statement getSet = builder.Prepare(m_connection);
+
+        if (getSet.Step())
+        {
+            UnitInfoTable unitInfoTable(m_connection);
+            result = GetSetFromStatement(getSet, unitInfoTable);
+        }
+
+        return result;
     }
 }

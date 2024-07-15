@@ -22,6 +22,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         // Version 0.2
         bool MigrateFrom(IConfigurationDatabase* current) override;
 
+        // Version 0.3
+        ConfigurationSetPtr GetSet(const GUID& instanceIdentifier) override;
+
     protected:
         std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> m_storage;
     };

@@ -32,6 +32,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         // Gets the row id of the set with the given instance identifier.
         std::optional<AppInstaller::SQLite::rowid_t> GetSetRowId(const GUID& instanceIdentifier);
 
+        // Gets the set with the given instance identifier.
+        IConfigurationDatabase::ConfigurationSetPtr GetSet(const GUID& instanceIdentifier);
+
     private:
         AppInstaller::SQLite::Connection& m_connection;
     };
