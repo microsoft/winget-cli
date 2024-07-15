@@ -2,8 +2,11 @@ trigger: none
 
 parameters:
 - name: version
-  displayName: Version to stamp on binaries and nuget package. Should be in form of "major.minor", for example "1.0"
+  displayName: Version to stamp on binaries and Nuget package. It should be in the form of "major.minor", for example, "1.0"
   type: string
+
+pool:
+  vmImage: "windows-latest"
 
 variables:
   solution: "src/AppInstallerCLI.sln"
