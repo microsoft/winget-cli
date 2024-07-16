@@ -17,7 +17,7 @@ body:
   - type: textarea
     attributes:
       label: Brief description of your issue
-      Placeholder: Could you describe your issue here?
+      placeholder: Could you describe your issue here?
     validations:
       required: true
   - type: textarea
