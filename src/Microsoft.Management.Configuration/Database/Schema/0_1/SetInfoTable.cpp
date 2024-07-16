@@ -250,4 +250,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
         return result;
     }
+
+    std::chrono::system_clock::time_point SetInfoTable::GetSetFirstApply(const GUID& instanceIdentifier)
+    {
+        StatementBuilder builder;
+        builder.Select(s_SetInfoTable_Column_FirstApply).From(s_SetInfoTable_Table).Where(s_SetInfoTable_Column_InstanceIdentifier).Equals(instanceIdentifier);
+
+        Statement statement = builder.Prepare(m_connection);
+
+        return (statement.Step() ? ConvertUnixEpochToSystemClock(statement.GetColumn<int64_t>(0)) : std::chrono::system_clock::time_point{});
+    }
 }

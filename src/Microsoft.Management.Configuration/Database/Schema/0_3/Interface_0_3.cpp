@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Interface.h"
+#include "Database/Schema/0_1/SetInfoTable.h"
 #include "Database/Schema/0_2/QueueTable.h"
 #include "StatusItemTable.h"
 #include "ChangeListenerTable.h"
@@ -145,8 +146,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
     std::chrono::system_clock::time_point Interface::GetSetFirstApply(const guid& instanceIdentifier)
     {
-        StatusItemTable statusItemTable(*m_storage);
-        return statusItemTable.GetSetFirstApply(instanceIdentifier);
+        V0_1::SetInfoTable setInfoTable(*m_storage);
+        return setInfoTable.GetSetFirstApply(instanceIdentifier);
     }
 
     std::chrono::system_clock::time_point Interface::GetSetApplyBegun(const guid& instanceIdentifier)

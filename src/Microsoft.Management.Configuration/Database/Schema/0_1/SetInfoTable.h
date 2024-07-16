@@ -38,6 +38,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         // Gets the set with the given instance identifier.
         IConfigurationDatabase::ConfigurationSetPtr GetSet(const GUID& instanceIdentifier);
 
+        // Gets a set's first apply time.
+        std::chrono::system_clock::time_point GetSetFirstApply(const GUID& instanceIdentifier);
+
     private:
         AppInstaller::SQLite::Connection& m_connection;
     };

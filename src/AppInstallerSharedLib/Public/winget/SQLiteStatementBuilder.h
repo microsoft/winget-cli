@@ -286,6 +286,7 @@ namespace AppInstaller::SQLite::Builder
         StatementBuilder& Equals(details::unbound_t, std::optional<size_t> index = {});
         StatementBuilder& Equals(std::nullptr_t);
         StatementBuilder& Equals();
+        StatementBuilder& Equals(const QualifiedColumn& column);
 
         template <typename ValueType>
         StatementBuilder& IsGreaterThan(const ValueType& value)
@@ -305,8 +306,6 @@ namespace AppInstaller::SQLite::Builder
 
         StatementBuilder& LikeWithEscape(std::string_view value);
         StatementBuilder& Like(details::unbound_t);
-
-        StatementBuilder& LiteralColumn(std::string_view value);
 
         StatementBuilder& Escape(std::string_view escapeChar);
 

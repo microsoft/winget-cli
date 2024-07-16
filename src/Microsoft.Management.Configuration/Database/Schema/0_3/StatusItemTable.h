@@ -36,14 +36,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         // Gets a set's state.
         ConfigurationSetState GetSetState(const guid& instanceIdentifier);
 
-        // Gets a set's first apply time.
-        std::chrono::system_clock::time_point GetSetFirstApply(const guid& instanceIdentifier);
-
         // Gets a set's latest apply begin time.
-        std::chrono::system_clock::time_point GetSetApplyBegun(const guid& instanceIdentifier);
+        std::chrono::system_clock::time_point GetSetApplyBegun(const GUID& instanceIdentifier);
 
         // Gets a set's latest apply end time.
-        std::chrono::system_clock::time_point GetSetApplyEnded(const guid& instanceIdentifier);
+        std::chrono::system_clock::time_point GetSetApplyEnded(const GUID& instanceIdentifier);
 
         // Gets a unit's state.
         ConfigurationUnitState GetUnitState(const guid& instanceIdentifier);
