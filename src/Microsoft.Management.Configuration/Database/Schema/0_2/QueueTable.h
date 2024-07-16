@@ -18,7 +18,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         void AddProcessColumn();
 
         // Adds a new queue item for the given configuration set and object name.
-        void AddQueueItem(const GUID& instanceIdentifier, const std::string& objectName);
+        void AddQueueItemWithoutProcess(const GUID& instanceIdentifier, const std::string& objectName);
+
+        // Adds a new queue item for the given configuration set and object name.
+        void AddQueueItemWithProcess(const GUID& instanceIdentifier, const std::string& objectName);
 
         // Sets the queue item with the given object name as active.
         void SetActiveQueueItem(const std::string& objectName);

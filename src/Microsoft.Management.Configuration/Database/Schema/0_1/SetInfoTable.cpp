@@ -74,6 +74,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
     SetInfoTable::SetInfoTable(Connection& connection) : m_connection(connection) {}
 
+    std::string_view SetInfoTable::TableName()
+    {
+        return s_SetInfoTable_Table;
+    }
+
+    std::string_view SetInfoTable::InstanceIdentifierColumn()
+    {
+        return s_SetInfoTable_Column_InstanceIdentifier;
+    }
+
     void SetInfoTable::Create()
     {
         Savepoint savepoint = Savepoint::Create(m_connection, "SetInfoTable_Create_0_1");

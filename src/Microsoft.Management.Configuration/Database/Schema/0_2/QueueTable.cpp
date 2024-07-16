@@ -47,14 +47,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         Savepoint savepoint = Savepoint::Create(m_connection, "QueueTable_AddProcessColumn_0_3");
 
         StatementBuilder builder;
-        builder.AlterTable(s_QueueTable_Table).Add(s_QueueTable_Column_Process, Type::Int64);
+        builder.AlterTable(s_QueueTable_Table).Add(s_QueueTable_Column_Process, Type::Int64).NotNull().Default(0);
 
         builder.Execute(m_connection);
 
         savepoint.Commit();
     }
 
-    void QueueTable::AddQueueItem(const GUID& instanceIdentifier, const std::string& objectName)
+    void QueueTable::AddQueueItemWithoutProcess(const GUID& instanceIdentifier, const std::string& objectName)
     {
         StatementBuilder builder;
         builder.InsertInto(s_QueueTable_Table).Columns({
@@ -68,6 +68,26 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             GetCurrentUnixEpoch(),
             false
         );
+
+        builder.Execute(m_connection);
+    }
+
+    void QueueTable::AddQueueItemWithProcess(const GUID& instanceIdentifier, const std::string& objectName)
+    {
+        StatementBuilder builder;
+        builder.InsertInto(s_QueueTable_Table).Columns({
+            s_QueueTable_Column_SetInstanceIdentifier,
+            s_QueueTable_Column_ObjectName,
+            s_QueueTable_Column_QueuedAt,
+            s_QueueTable_Column_Active,
+            s_QueueTable_Column_Process
+            }).Values(
+                instanceIdentifier,
+                objectName,
+                GetCurrentUnixEpoch(),
+                false,
+                static_cast<int64_t>(GetCurrentProcessId())
+            );
 
         builder.Execute(m_connection);
     }

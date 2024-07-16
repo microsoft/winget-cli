@@ -5,6 +5,7 @@
 
 #include "Database/Schema/0_1/Interface.h"
 #include "Database/Schema/0_2/Interface.h"
+#include "Database/Schema/0_3/Interface.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -16,10 +17,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             if (version.MajorVersion == 0)
             {
-                constexpr std::array<std::unique_ptr<IConfigurationDatabase>(*)(const StorageT& s), 2> versionCreatorMap =
+                constexpr std::array<std::unique_ptr<IConfigurationDatabase>(*)(const StorageT& s), 3> versionCreatorMap =
                 {
                     [](const StorageT& s) { return std::unique_ptr<IConfigurationDatabase>(std::make_unique<Database::Schema::V0_1::Interface>(s)); },
                     [](const StorageT& s) { return std::unique_ptr<IConfigurationDatabase>(std::make_unique<Database::Schema::V0_2::Interface>(s)); },
+                    [](const StorageT& s) { return std::unique_ptr<IConfigurationDatabase>(std::make_unique<Database::Schema::V0_3::Interface>(s)); },
                 };
 
                 size_t minorVersion = static_cast<size_t>(version.MinorVersion);
@@ -36,7 +38,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     AppInstaller::SQLite::Version IConfigurationDatabase::GetLatestVersion()
     {
-        return { 0, 2 };
+        return { 0, 3 };
     }
 
     std::unique_ptr<IConfigurationDatabase> IConfigurationDatabase::CreateFor(const std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage>& storage, bool allowMigration)
@@ -135,8 +137,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return ConfigurationUnitState::Unknown;
     }
 
-    std::tuple<HRESULT, std::string, std::string, ConfigurationUnitResultSource> IConfigurationDatabase::GetUnitResultInformation(const guid&)
+    std::optional<std::tuple<HRESULT, std::string, std::string, ConfigurationUnitResultSource>> IConfigurationDatabase::GetUnitResultInformation(const guid&)
     {
-        return { S_FALSE, {}, {}, ConfigurationUnitResultSource::None };
+        return std::nullopt;
     }
 }

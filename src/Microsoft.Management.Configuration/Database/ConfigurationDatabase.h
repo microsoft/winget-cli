@@ -78,7 +78,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             bool InQueue;
             std::optional<GUID> UnitInstanceIdentifier;
             int32_t State;
-            HRESULT ResultCode;
+            std::optional<HRESULT> ResultCode;
             std::string ResultDescription;
             std::string ResultDetails;
             ConfigurationUnitResultSource ResultSource;

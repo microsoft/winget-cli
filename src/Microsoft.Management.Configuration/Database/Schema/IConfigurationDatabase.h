@@ -83,7 +83,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             bool,
             std::optional<GUID>,
             int32_t,
-            HRESULT,
+            std::optional<HRESULT>,
             std::string,
             std::string,
             ConfigurationUnitResultSource>;
@@ -128,6 +128,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         virtual ConfigurationUnitState GetUnitState(const guid& instanceIdentifier);
 
         // Gets a unit's latest result information.
-        virtual std::tuple<HRESULT, std::string, std::string, ConfigurationUnitResultSource> GetUnitResultInformation(const guid& instanceIdentifier);
+        virtual std::optional<std::tuple<HRESULT, std::string, std::string, ConfigurationUnitResultSource>> GetUnitResultInformation(const guid& instanceIdentifier);
     };
 }

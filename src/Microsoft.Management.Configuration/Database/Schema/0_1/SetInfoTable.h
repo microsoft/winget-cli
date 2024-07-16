@@ -13,6 +13,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
     {
         SetInfoTable(AppInstaller::SQLite::Connection& connection);
 
+        static std::string_view TableName();
+        static std::string_view InstanceIdentifierColumn();
+
         // Creates the set info table.
         void Create();
 

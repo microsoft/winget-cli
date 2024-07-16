@@ -288,6 +288,20 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Max(std::string_view column)
+    {
+        OutputColumns(m_stream, "MAX(", column);
+        m_stream << ")";
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::Max(const QualifiedColumn& column)
+    {
+        OutputColumns(m_stream, "MAX(", column);
+        m_stream << ")";
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::From()
     {
         m_stream << " FROM ";
@@ -676,6 +690,15 @@ namespace AppInstaller::SQLite::Builder
     {
         m_stream << ')';
         m_needsComma = false;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::NotNull(bool isTrue)
+    {
+        if (isTrue)
+        {
+            m_stream << " NOT NULL";
+        }
         return *this;
     }
 

@@ -680,11 +680,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             auto transaction = BeginTransaction("GetUnitResultInformation", database);
             auto resultInformation = database->GetUnitResultInformation(instanceIdentifier);
 
-            // CppWinRT does not support S_FALSE, so we will use it as a sentinel value to indicate that there is no value available.
-            if (std::get<0>(resultInformation) != S_FALSE)
+            if (resultInformation)
             {
                 result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
-                result->Initialize(std::get<0>(resultInformation), ConvertToUTF16(std::get<1>(resultInformation)), ConvertToUTF16(std::get<2>(resultInformation)), std::get<3>(resultInformation));
+                result->Initialize(
+                    std::get<0>(resultInformation.value()),
+                    ConvertToUTF16(std::get<1>(resultInformation.value())),
+                    ConvertToUTF16(std::get<2>(resultInformation.value())),
+                    std::get<3>(resultInformation.value()));
             }
         }
 

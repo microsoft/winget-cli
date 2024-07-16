@@ -74,11 +74,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                             // A unit status change
                             ConfigurationUnitState state = AppInstaller::ToEnum<ConfigurationUnitState>(change.State);
 
-                            auto resultInformation = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
-                            resultInformation->ResultCode(change.ResultCode);
-                            resultInformation->Description(hstring{ AppInstaller::Utility::ConvertToUTF16(change.ResultDescription) });
-                            resultInformation->Details(hstring{ AppInstaller::Utility::ConvertToUTF16(change.ResultDetails) });
-                            resultInformation->ResultSource(change.ResultSource);
+                            decltype(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>()) resultInformation;
+
+                            if (change.ResultCode)
+                            {
+                                resultInformation = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+                                resultInformation->ResultCode(change.ResultCode.value());
+                                resultInformation->Description(hstring{ AppInstaller::Utility::ConvertToUTF16(change.ResultDescription) });
+                                resultInformation->Details(hstring{ AppInstaller::Utility::ConvertToUTF16(change.ResultDetails) });
+                                resultInformation->ResultSource(change.ResultSource);
+                            }
 
                             auto changeData = make_self<implementation::ConfigurationSetChangeData>();
                             changeData->Initialize(state, *resultInformation, nullptr);
