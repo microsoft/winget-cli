@@ -4,12 +4,12 @@ body:
   - type: markdown
     attributes:
       value: |
-        > This bug tracker is monitored by the Windows Package Manager development team and other technical folks.
+        > The Windows Package Manager development team and other technical folks monitor this bug tracker.
         >
         > **Important: When reporting BSODs or security issues, DO NOT attach memory dumps, logs, or traces to GitHub issues**.
         > Instead, send dumps/traces to secure@microsoft.com, referencing this GitHub issue.
         >
-        > If this is an application crash, please also provide a Feedback Hub submission link if at all possible so we can find your diagnostic data on the backend.
+        > If this is an application crash, please provide a Feedback Hub submission link if possible so we can find your diagnostic data on the backend.
         > You can open the Feedback Hub directly to the pre-populated form at https://aka.ms/winget-feedback
         > Alternatively, use the category "Apps > Windows Package Manager" and choose "Share My Feedback" after submission to get the link.
         >
@@ -17,13 +17,13 @@ body:
   - type: textarea
     attributes:
       label: Brief description of your issue
-      placeholder: Briefly describe your issue here.
+      Placeholder: Could you describe your issue here?
     validations:
       required: true
   - type: textarea
     attributes:
       label: Steps to reproduce
-      placeholder: A description of how to trigger this bug
+      placeholder: A description of how to trigger this bug.
     validations:
       required: true
   - type: textarea
