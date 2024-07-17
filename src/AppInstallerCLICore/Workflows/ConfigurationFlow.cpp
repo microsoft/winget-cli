@@ -2058,7 +2058,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 UnitSiblings unitChildren;
                 unitChildren.Depth = currentSiblings.Depth + 1;
-                auto units = set.Units();
+                auto units = currentUnit.Units();
                 unitChildren.Siblings.resize(units.Size());
                 units.GetMany(0, unitChildren.Siblings);
                 stack.emplace_back(std::move(unitChildren));

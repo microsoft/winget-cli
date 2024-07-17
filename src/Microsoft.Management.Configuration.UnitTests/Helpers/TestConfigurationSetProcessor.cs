@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="TestConfigurationSetProcessor.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -42,6 +42,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             new Dictionary<ConfigurationUnit, Exception>();
 
         /// <summary>
+        /// Gets or sets a value indicating whether the default unit processors for groups will enable group processing.
+        /// </summary>
+        internal bool EnableDefaultGroupProcessorCreation { get; set; } = false;
+
+        /// <summary>
         /// Gets the ConfigurationSet that this processor targets.
         /// </summary>
         protected ConfigurationSet? Set { get; private set; }
@@ -60,7 +65,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 
             if (!this.Processors.ContainsKey(unit))
             {
-                this.Processors.Add(unit, new TestConfigurationUnitProcessor(unit));
+                if (this.EnableDefaultGroupProcessorCreation && unit.IsGroup)
+                {
+                    this.Processors.Add(unit, new TestConfigurationUnitGroupProcessor(unit));
+                }
+                else
+                {
+                    this.Processors.Add(unit, new TestConfigurationUnitProcessor(unit));
+                }
             }
 
             return this.Processors[unit];

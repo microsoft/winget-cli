@@ -237,9 +237,12 @@ namespace AppInstallerCLIE2ETests.Helpers
         private static void SetWingetSettings(JObject settingsJson)
         {
             var forcedExperimentalFeatures = ForcedExperimentalFeatures;
-            foreach (var feature in forcedExperimentalFeatures)
+            if (forcedExperimentalFeatures != null)
             {
-                ConfigureFeature(settingsJson, feature, true);
+                foreach (var feature in forcedExperimentalFeatures)
+                {
+                    ConfigureFeature(settingsJson, feature, true);
+                }
             }
 
             SetWingetSettings(settingsJson.ToString());
