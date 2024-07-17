@@ -1,0 +1,188 @@
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+
+<!-- Common properties used by most of the projects.
+     This ensures we target the same versions and have the right security settings everywhere.
+     Some properties may need to be overridden in specific projects.
+
+     BinSkim requires us to use SpectreMitigation, SDLCheck, CETCompat, ControlFlowGuard. -->
+<Project>
+  <PropertyGroup>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'cpprestsdk' ">true</IsExternalProject>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'Detours' ">true</IsExternalProject>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'JsonCppLib' ">true</IsExternalProject>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'PureLib' ">true</IsExternalProject>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'UndockedRegFreeWinRT' ">true</IsExternalProject>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'YamlCppLib' ">true</IsExternalProject>
+  </PropertyGroup>
+
+  <Choose>
+    <!-- Don't report warnings from external projects, but do include the configurations required by BinSkim -->
+    <When Condition=" '$(IsExternalProject)' == 'true'">
+      <PropertyGroup>
+        <RunCodeAnalysis>false</RunCodeAnalysis>
+      </PropertyGroup>
+      <ItemDefinitionGroup>
+        <ClCompile>
+          <PreprocessorDefinitions>_CRT_NONSTDC_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <WarningLevel>TurnOffAllWarnings</WarningLevel>
+          <TreatWarningAsError>false</TreatWarningAsError>
+        </ClCompile>
+      </ItemDefinitionGroup>
+      <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Release' ">
+        <SpectreMitigation>Spectre</SpectreMitigation>
+      </PropertyGroup>
+      <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Release' ">
+        <ClCompile>
+          <SDLCheck>true</SDLCheck>
+          <ControlFlowGuard>Guard</ControlFlowGuard>
+        </ClCompile>
+        <Link>
+          <CETCompat>true</CETCompat>
+        </Link>
+      </ItemDefinitionGroup>
+    </When>
+
+    <!-- Most of the properties here are for C++, so we exclude other project types. -->
+    <When Condition=" '$(MSBuildProjectExtension)' == '.wapproj' "/>
+
+    <When Condition=" '$(MSBuildProjectExtension)' == '.csproj' ">
+      <PropertyGroup>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      </PropertyGroup>
+    </When>
+
+    <Otherwise>
+      <PropertyGroup Label="Globals">
+        <CppWinRTOptimized>true</CppWinRTOptimized>
+        <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
+        <MinimalCoreWin>true</MinimalCoreWin>
+        <Keyword>Win32Proj</Keyword>
+        <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+        <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
+        <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
+        <WindowsSDKDesktopARM64Support>true</WindowsSDKDesktopARM64Support>
+        <!-- We need the SolutionDir for the OutDir to be set correctly.
+             It is not defined for cases when we don't use the .sln but specific projects, like some nuget restore. -->
+        <SolutionDir Condition=" '$(SolutionDir)' == '' ">$(MSBuildThisFileDirectory)</SolutionDir>
+      </PropertyGroup>
+
+      <PropertyGroup Label="Configuration">
+        <ConfigurationType>StaticLibrary</ConfigurationType>
+        <PlatformToolset>v140</PlatformToolset>
+        <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
+        <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+        <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+        <CharacterSet>Unicode</CharacterSet>
+      </PropertyGroup>
+      <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'ReleaseStatic' ">
+        <UseDebugLibraries>false</UseDebugLibraries>
+        <WholeProgramOptimization>true</WholeProgramOptimization>
+        <LinkIncremental>false</LinkIncremental>
+        <RunCodeAnalysis>false</RunCodeAnalysis>
+      </PropertyGroup>
+      <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Debug' ">
+        <UseDebugLibraries>true</UseDebugLibraries>
+        <LinkIncremental>true</LinkIncremental>
+        <RunCodeAnalysis>true</RunCodeAnalysis>
+        <CodeAnalysisRuleSet>$(SolutionDir)CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+      </PropertyGroup>
+      <PropertyGroup  Label="Configuration" Condition=" '$(Configuration)' == 'Fuzzing' ">
+        <UseDebugLibraries>false</UseDebugLibraries>
+        <WholeProgramOptimization>false</WholeProgramOptimization>
+        <LinkIncremental>false</LinkIncremental>
+        <!-- Enable address sanitizer -->
+        <EnableASAN>true</EnableASAN>
+      </PropertyGroup>
+
+      <PropertyGroup Condition=" '$(Platform)' == 'Win32' ">
+        <OutDir>$(SolutionDir)x86\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+      </PropertyGroup>
+      <PropertyGroup Condition=" '$(Platform)' != 'Win32' ">
+        <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+      </PropertyGroup>
+
+      <!-- Security settings required by BinSkim -->
+      <PropertyGroup>
+        <SpectreMitigation>Spectre</SpectreMitigation>
+      </PropertyGroup>
+      <ItemDefinitionGroup>
+        <ClCompile>
+          <SDLCheck>true</SDLCheck>
+          <ControlFlowGuard Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'ReleaseStatic' ">Guard</ControlFlowGuard>
+        </ClCompile>
+        <Link>
+          <CETCompat>true</CETCompat>
+        </Link>
+      </ItemDefinitionGroup>
+
+      <ItemDefinitionGroup>
+        <ClCompile>
+          <LanguageStandard>stdcpp17</LanguageStandard>
+          <!-- /bigobj increases the number of sections that an object file can contain. -->
+          <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
+          <!-- Use precompiled header if the project has one -->
+          <PrecompiledHeader Condition="Exists('pch.h')">Use</PrecompiledHeader>
+          <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+          <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
+          <!-- Be strict about compilation warnings -->
+          <WarningLevel>Level4</WarningLevel>
+          <TreatWarningAsError>true</TreatWarningAsError>
+          <!-- Disables non-standard conforming code -->
+          <ConformanceMode>true</ConformanceMode>
+          <!-- Macros used in pipelines to control build behavior -->
+          <PreprocessorDefinitions Condition=" '$(WingetDisableTestHooks)' == 'true' ">AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <PreprocessorDefinitions Condition=" '$(WingetDisableExperimentalFeatures)' == 'true' ">WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <PreprocessorDefinitions Condition=" '$(WingetEnableReleaseBuild)' == 'true' ">WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <PreprocessorDefinitions Condition=" '$(UseProdCLSIDs)' == 'true' ">USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <PreprocessorDefinitions Condition=" '$(UseProdWingetServer)' == 'true' ">USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ClCompile>
+        <Link>
+          <SubSystem>Console</SubSystem>
+          <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+        </Link>
+      </ItemDefinitionGroup>
+      <ItemDefinitionGroup Condition=" '$(Platform)' == 'Win32' ">
+        <ClCompile>
+          <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ClCompile>
+      </ItemDefinitionGroup>
+      <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'ReleaseStatic' ">
+        <ClCompile>
+          <Optimization>MaxSpeed</Optimization>
+          <FunctionLevelLinking>true</FunctionLevelLinking>
+          <IntrinsicFunctions>true</IntrinsicFunctions>
+          <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <RuntimeLibrary Condition=" '$(Configuration)' == 'ReleaseStatic' ">MultiThreaded</RuntimeLibrary>
+        </ClCompile>
+        <Link>
+          <EnableCOMDATFolding>true</EnableCOMDATFolding>
+          <OptimizeReferences>true</OptimizeReferences>
+          <AdditionalOptions>/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
+        </Link>
+      </ItemDefinitionGroup>
+      <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ClCompile>
+          <Optimization>Disabled</Optimization>
+          <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <!-- Enable Native Code Analysis. This requires more space than is available on release build machines, so we only use it for debug. -->
+          <EnablePREfast>true</EnablePREfast>
+        </ClCompile>
+      </ItemDefinitionGroup>
+      <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Fuzzing' ">
+        <ClCompile>
+          <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+          <AdditionalOptions>%(AdditionalOptions) /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div</AdditionalOptions>
+        </ClCompile>
+      </ItemDefinitionGroup>
+    </Otherwise>
+  </Choose>
+
+  <!-- When building in Azure Pipelines, delete all intermediate files since the disk space is limited.
+       In particular, the pch.pch files take up GBs in total.
+       We don't do this locally to avoid full re-builds each time. -->
+  <Target Name="DeleteIntermediateFiles" AfterTargets="PostBuildEvent" Condition=" '$(Agent_BuildDirectoryBogus)' != '' ">
+    <RemoveDir Directories="$(IntDir)" />
+  </Target>
+</Project>

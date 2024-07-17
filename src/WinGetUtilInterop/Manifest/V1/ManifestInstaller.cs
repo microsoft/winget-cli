@@ -1,11 +1,12 @@
-﻿// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
 // <copyright file="ManifestInstaller.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+//     Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
-// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.Models.V1
 {
+    using System;
     using System.Collections.Generic;
     using YamlDotNet.Serialization;
 
@@ -199,11 +200,6 @@ namespace Microsoft.WinGetUtil.Models.V1
         public bool DownloadCommandProhibited { get; set; }
 
         /// <summary>
-        /// Gets or sets the repair behavior.
-        /// </summary>
-        public string RepairBehavior { get; set; }
-
-        /// <summary>
         /// Returns a List of strings containing the URIs contained within this installer.
         /// </summary>
         /// <returns>List of strings.</returns>
@@ -260,9 +256,11 @@ namespace Microsoft.WinGetUtil.Models.V1
                    (this.InstallerLocale == other.InstallerLocale) &&
                    (this.Scope == other.Scope) &&
                    (this.InstallerType == other.InstallerType) &&
-                   (this.Switches == other.Switches) &&
-                   (this.NestedInstallerType == other.NestedInstallerType) &&
-                   (this.NestedInstallerFiles == other.NestedInstallerFiles);
+                   (this.Switches == other.Switches) && 
+                   (this.InstallationMetadata == other.InstallationMetadata) &&
+                   (this.NestedInstallerType == other.NestedInstallerType) && 
+                   (this.NestedInstallerFiles == other.NestedInstallerFiles) &&
+                   (this.DisplayInstallWarnings == other.DisplayInstallWarnings);
     }
 
         /// <summary>
@@ -278,9 +276,7 @@ namespace Microsoft.WinGetUtil.Models.V1
                     this.InstallerLocale,
                     this.Scope,
                     this.InstallerType,
-                    this.Switches,
-                    this.NestedInstallerType,
-                    this.NestedInstallerFiles).GetHashCode();
+                    this.Switches).GetHashCode();
         }
     }
 }

@@ -1031,6 +1031,45 @@
   <data name="DependenciesManagementExitMessage" xml:space="preserve">
     <value>パッケージ依存関係の処理中にエラーが発生しました。終了しています...</value>
   </data>
+  <data name="DependenciesFlowInstall" xml:space="preserve">
+    <value>依存関係をインストールしています</value>
+  </data>
+  <data name="DependenciesFlowSourceNotFound" xml:space="preserve">
+    <value>依存ソースが見つかりません</value>
+  </data>
+  <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
+    <value>パッケージ検索で複数の結果を生成します。</value>
+    <comment>When node package id search yield too many matches</comment>
+  </data>
+  <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
+    <value>パッケージの最新バージョンが見つかりませんでした</value>
+    <comment>When no suitable version found for the specific package.</comment>
+  </data>
+  <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
+    <value>インストーラーが見つかりませんでした</value>
+  </data>
+  <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
+    <value>最小限必要なバージョンがパッケージに使用できません</value>
+  </data>
+  <data name="DependenciesFlowNoMatches" xml:space="preserve">
+    <value>一致する項目はありません</value>
+    <comment>When package search yields no matches</comment>
+  </data>
+  <data name="DependenciesFlowContainsLoop" xml:space="preserve">
+    <value>ループを含む</value>
+    <comment>Dependency graph has loop</comment>
+  </data>
+  <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
+    <value>マニフェストに適したインストーラーが見つかりませんでした</value>
+    <comment>Attempt to get preferred installer for manifest failed.</comment>
+  </data>
+  <data name="DependenciesManagementError" xml:space="preserve">
+    <value>パッケージ依存関係の処理中にエラーが発生しました。インストールを続行しますか?</value>
+    <comment>Prompt message shown when dependencies processing yields errors.</comment>
+  </data>
+  <data name="DependenciesManagementExitMessage" xml:space="preserve">
+    <value>パッケージ依存関係の処理中にエラーが発生しました。終了しています...</value>
+  </data>
   <data name="PackageDependencies" xml:space="preserve">
     <value>パッケージ</value>
   </data>
@@ -3044,5 +3083,32 @@
   </data>
   <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
     <value>指定された構成が見つかりませんでした。</value>
+  </data>
+  <data name="FeaturesMessageDisabledByBuild" xml:space="preserve">
+    <value>これは、Windows パッケージ マネージャーの安定版リリースです。実験的な機能を試したい場合は、プレリリース ビルドをインストールしてください。手順は、GitHub (https://github.com/microsoft/winget-cli) で入手できます。</value>
+    <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
+  </data>
+  <data name="WindowsPackageManager" xml:space="preserve">
+    <value>Windows パッケージ マネージャー</value>
+    <comment>The product name.</comment>
+  </data>
+  <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
+    <value>インポート ファイルのパッケージ バージョンを無視する</value>
+  </data>
+  <data name="CountOutOfBoundsError" xml:space="preserve">
+    <value>要求された結果の数は 1 から 1000 の間である必要があります。</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
+    <value>新しいバージョンが見つかりましたが、インストールテクノロジが現在インストールされているバージョンと異なります。パッケージをアンインストールして、新しいバージョンをインストールしてください。</value>
+  </data>
+  <data name="UpgradeDifferentInstallTechnology" xml:space="preserve">
+    <value>指定された新しいバージョンのインストール テクノロジが、現在インストールされているバージョンと異なります。パッケージをアンインストールして、新しいバージョンをインストールしてください。</value>
+  </data>
+  <data name="WindowsPackageManagerPreview" xml:space="preserve">
+    <value>Windows パッケージ マネージャー (プレビュー)</value>
+    <comment>The product name plus an indicator that this is a pre-release version.</comment>
+  </data>
+  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
+    <value>アーキテクチャを選択してインストール</value>
   </data>
 </root>

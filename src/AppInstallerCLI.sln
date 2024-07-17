@@ -101,6 +101,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1A5D7A7D-5CB2-47D5-B40D-4E61CAEDC798}"
 	ProjectSection(SolutionItems) = preProject
 		CodeAnalysis.ruleset = CodeAnalysis.ruleset
+		Directory.Build.props = Directory.Build.props
 		nuget.config = nuget.config
 		stylecop.json = stylecop.json
 		vcpkg.json = vcpkg.json

@@ -6,9 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using System;
     using System.IO;
-    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>
@@ -16,6 +14,15 @@ namespace AppInstallerCLIE2ETests
     /// </summary>
     public class InstallCommand : BaseCommand
     {
+        /// <summary>
+        /// One time setup.
+        /// </summary>
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            WinGetSettingsHelper.ConfigureFeature("windowsFeature", true);
+        }
+
         /// <summary>
         /// Set up.
         /// </summary>
@@ -553,21 +560,6 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Test install zip exe by extracting with tar.
-        /// </summary>
-        [Test]
-        public void InstallZip_ExtractWithTar()
-        {
-            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.ArchiveExtractionMethod, "tar");
-            var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithExe --silent -l {installDir}");
-            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.ArchiveExtractionMethod, string.Empty);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
-        }
-
-        /// <summary>
         /// Test install an installed package and convert to upgrade.
         /// </summary>
         [Test]
@@ -639,9 +631,8 @@ namespace AppInstallerCLIE2ETests
         {
             var testDir = TestCommon.GetRandomTestDir();
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature -l {testDir}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_DEPENDENCIES, installResult.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_MISSING_DEPENDENCY, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("The feature [invalidFeature] was not found."));
-            Assert.True(installResult.StdOut.Contains("Failed to enable Windows Feature dependencies. To proceed with installation, use '--force'."));
         }
 
         /// <summary>
@@ -653,84 +644,8 @@ namespace AppInstallerCLIE2ETests
             var testDir = TestCommon.GetRandomTestDir();
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --silent --force -l {testDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Failed to enable Windows Feature dependencies; proceeding due to --force"));
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
-        }
-
-        /// <summary>
-        /// Test install a package with a package dependency that requires the PATH environment variable to be refreshed between dependency installs.
-        /// </summary>
-        [Test]
-        public void InstallWithPackageDependency_RefreshPathVariable()
-        {
-            var testDir = TestCommon.GetRandomTestDir();
-            string installDir = TestCommon.GetPortablePackagesDirectory();
-            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.PackageDependencyRequiresPathRefresh -l {testDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Successfully installed"));
-
-            // Portable package is used as a dependency. Ensure that it is installed and cleaned up successfully.
-            string portablePackageId, commandAlias, fileName, packageDirName, productCode;
-            portablePackageId = "AppInstallerTest.TestPortableExeWithCommand";
-            packageDirName = productCode = portablePackageId + "_" + Constants.TestSourceIdentifier;
-            fileName = "AppInstallerTestExeInstaller.exe";
-            commandAlias = "testCommand.exe";
-
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
-        }
-
-        /// <summary>
-        /// Test install a package using a specific installer type.
-        /// </summary>
-        [Test]
-        public void InstallWithInstallerTypeArgument()
-        {
-            var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir} --installer-type exe");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
-        }
-
-        /// <summary>
-        /// Test install package with installer type preference settings.
-        /// </summary>
-        [Test]
-        public void InstallWithInstallerTypePreference()
-        {
-            string[] installerTypePreference = { "nullsoft" };
-            WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallerTypes, installerTypePreference);
-
-            string installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir}");
-
-            // Reset installer type preferences.
-            WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallerTypes, Array.Empty<string>());
-
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir), "/S");
-        }
-
-        /// <summary>
-        /// Test install package with installer type requirement settings.
-        /// </summary>
-        [Test]
-        public void InstallWithInstallerTypeRequirement()
-        {
-            string[] installerTypeRequirement = { "inno" };
-            WinGetSettingsHelper.ConfigureInstallBehaviorRequirements(Constants.InstallerTypes, installerTypeRequirement);
-
-            string installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMultipleInstallers --silent -l {installDir}");
-
-            // Reset installer type requirements.
-            WinGetSettingsHelper.ConfigureInstallBehaviorRequirements(Constants.InstallerTypes, Array.Empty<string>());
-
-            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
-            Assert.True(result.StdOut.Contains("No applicable installer found; see logs for more details."));
         }
 
         /// <summary>
@@ -759,7 +674,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
             // Add the MSIX to simulate an installer doing it
-            TestCommon.InstallMsix(TestIndex.MsixInstaller);
+            TestCommon.InstallMsix(TestCommon.MsixInstallerPath);
 
             // Install our exe that "installs" the MSIX
             result = TestCommon.RunAICLICommand("install", $"{targetPackageIdentifier} --force");

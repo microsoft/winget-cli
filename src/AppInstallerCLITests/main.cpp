@@ -1,11 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 #define CATCH_CONFIG_RUNNER
-#include <catch.hpp>
-#include <winrt/Windows.Foundation.h>
-#include <iostream>
-#include <string>
-#include <vector>
+#include "pch.h"
 
 #include <AppInstallerLogging.h>
 #include <AppInstallerFileLogger.h>
@@ -21,7 +18,7 @@ using namespace std::string_literals;
 using namespace AppInstaller;
 
 
-// Logs the AppInstaller log target to break up individual tests
+// Logs the the AppInstaller log target to break up individual tests
 struct LoggingBreakListener : public Catch::TestEventListenerBase
 {
     using TestEventListenerBase::TestEventListenerBase;
@@ -135,7 +132,7 @@ int main(int argc, char** argv)
 
     // Enable logging, to force log string building to run.
     // Disable SQL by default, as it generates 10s of MBs of log file and
-    // increases the full test run time by 60% or more.
+    // increases the the full test run time by 60% or more.
     // By not creating a log target, it will all be thrown away.
     Logging::Log().EnableChannel(Logging::Channel::All);
     if (!keepSQLLogging)

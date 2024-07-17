@@ -19,7 +19,10 @@ pool:
 variables:
   solution: 'src\AppInstallerCLI.sln'
   appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
-  EnableDetectorVcpkg: true
+  # Enable CodeQL/Semmle static analysis for default branch
+  Codeql.Enabled: true
+  # TODO: Remove. Only for testing, we should use standard cadence of 72h
+  CodeQL.Cadence: 0
 
 # Do not set the build version for a PR build.
 
@@ -90,13 +93,6 @@ jobs:
       command: 'restore'
       projects: '**/*.csproj'
 
-  - task: CmdLine@2
-    displayName: Enable Vcpkg Install
-    inputs:
-      script: |
-        $(VCPKG_INSTALLATION_ROOT)\vcpkg.exe integrate install
-      workingDirectory: '$(VCPKG_INSTALLATION_ROOT)'
-
   - task: PowerShell@2
     displayName: Update Binary Version
     condition: not(eq(variables['Build.Reason'], 'PullRequest'))
@@ -164,7 +160,7 @@ jobs:
       script: |
         $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
       workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
-    condition: succeededOrFailed()
+    continueOnError: true
 
   - task: PowerShell@2
     displayName: Create Package Layout
@@ -172,7 +168,7 @@ jobs:
       filePath: 'src\AppInstallerCLIPackage\Execute-AppxRecipe.ps1'
       arguments: '-AppxRecipePath AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(packageLayoutDir) -Force -Verbose'
       workingDirectory: 'src'
-    condition: succeededOrFailed()
+    continueOnError: true
 
   - task: PowerShell@2
     displayName: Run Unit Tests Packaged
@@ -180,7 +176,7 @@ jobs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
       arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
       workingDirectory: 'src'
-    condition: succeededOrFailed()
+    continueOnError: true
 
   - task: PublishTestResults@2
     displayName: Publish Unit Test Results
@@ -188,7 +184,6 @@ jobs:
       testResultsFormat: 'JUnit'
       testResultsFiles: '$(artifactsDir)\TEST-*.xml'
       failTaskOnFailedTests: true
-    condition: succeededOrFailed()
 
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
@@ -200,7 +195,6 @@ jobs:
                          /p:AppxBundle=Never
                          /p:UapAppxPackageBuildMode=SideLoadOnly
                          /p:AppxPackageSigningEnabled=false'
-    condition: succeededOrFailed()
 
   - task: PowerShell@2
     displayName: 'Set program files directory'
@@ -212,7 +206,6 @@ jobs:
         } else {
           Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles}"
         }
-    condition: succeededOrFailed()
 
   # Resolves resource strings utilized by InProc E2E tests.
   - task: CopyFiles@2
@@ -221,7 +214,6 @@ jobs:
       SourceFolder: '$(buildOutDir)\AppInstallerCLI'
       TargetFolder:  '$(platformProgramFiles)\dotnet'
       Contents: resources.pri
-    condition: succeededOrFailed()
 
   # Winmd accessed by test runner process (dotnet.exe)
   - task: CopyFiles@2
@@ -230,7 +222,6 @@ jobs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
       TargetFolder: '$(platformProgramFiles)\dotnet'
       Contents: Microsoft.Management.Deployment.winmd
-    condition: succeededOrFailed()
 
   - template: templates/e2e-setup.yml
     parameters:
@@ -330,7 +321,7 @@ jobs:
       configuration: '$(BuildConfiguration)'
       diagnosticsEnabled: true
     condition: succeededOrFailed()
-
+  
   - task: VSTest@2
     displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (InProc)'
     inputs:
@@ -338,12 +329,11 @@ jobs:
       testSelector: 'testAssemblies'
       testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
       searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
-      testFiltercriteria: 'Category=InProc'
-      codeCoverageEnabled: false
+      codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
       diagnosticsEnabled: true
-    condition: succeededOrFailed()
+    condition: and(succeededOrFailed(), eq(variables.buildPlatform, 'x86'))
 
   - task: PowerShell@2
     displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
@@ -392,7 +382,6 @@ jobs:
           UndockedRegFreeWinRT\winrtact.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net6.0-windows10.0.22000.0\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
-    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy native binaries for Microsoft.WinGet.Client'
@@ -405,7 +394,6 @@ jobs:
           UndockedRegFreeWinRT\winrtact.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client\net48\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
-    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy native binaries for Microsoft.WinGet.Configuration'
@@ -415,17 +403,15 @@ jobs:
           Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
-    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy managed binaries for Microsoft.WinGet.Configuration in arch specific'
     inputs:
       SourceFolder: $(buildOutDirAnyCpu)
       Contents: |
-          Microsoft.Management.Configuration.Projection\net6.0-windows10.0.22000.0\Microsoft.Management.Configuration.Projection.dll
+          Microsoft.Management.Configuration.Projection\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Projection.dll
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
-    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy PowerShell AnyCPU Module Files'
@@ -462,7 +448,7 @@ jobs:
       alertWarningLevel: 'High'
 
   # Run BimSkim for all the binaries
-  - task: BinSkim@4
+  - task: BinSkim@3
     displayName: 'Run BinSkim '
     inputs:
       arguments: 'analyze
@@ -480,7 +466,7 @@ jobs:
         "$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration*.dll"
         --config default --recurse'
 
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@3
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
 
 - job: 'BuildPowerShellModule'
@@ -491,7 +477,7 @@ jobs:
   steps:
   - task: DownloadPipelineArtifact@2
     displayName: 'Download Build Artifacts'
-
+  
   - task: CopyFiles@2
     displayName: 'Copy x64 PowerShell Binaries to Output'
     inputs:
@@ -529,7 +515,7 @@ jobs:
   - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
     displayName: Run PowerShell 7 Tests
-
+  
   - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
     displayName: Run Windows PowerShell Tests
@@ -605,4 +591,6 @@ jobs:
       onefuzzOSes: 'Windows'
     env:
       onefuzzDropDirectory: '$(buildOutDir)\WinGetYamlFuzzing'
-      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      onefuzzDropPAT: $(onefuzzDropPAT)
+      onefuzzFilingBugPAT: $(onefuzzBugFilingPAT)
+      onefuzzCodeCoveragePAT: $(onefuzzCodeCoveragePAT)
