@@ -22,8 +22,6 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.Management.Deployment.h>
-#include <winrt/Windows.Web.Http.h>
-#include <wrl/client.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6553 6387 6388 28193 28196 )

@@ -24,6 +24,7 @@
       </PropertyGroup>
       <ItemDefinitionGroup>
         <ClCompile>
+          <PreprocessorDefinitions>_CRT_NONSTDC_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <WarningLevel>TurnOffAllWarnings</WarningLevel>
           <TreatWarningAsError>false</TreatWarningAsError>
         </ClCompile>
@@ -177,4 +178,11 @@
       </ItemDefinitionGroup>
     </Otherwise>
   </Choose>
+
+  <!-- When building in Azure Pipelines, delete all intermediate files since the disk space is limited.
+       In particular, the pch.pch files take up GBs in total.
+       We don't do this locally to avoid full re-builds each time. -->
+  <Target Name="DeleteIntermediateFiles" AfterTargets="PostBuildEvent" Condition=" '$(Agent_BuildDirectoryBogus)' != '' ">
+    <RemoveDir Directories="$(IntDir)" />
+  </Target>
 </Project>
