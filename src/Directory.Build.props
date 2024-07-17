@@ -176,7 +176,6 @@
           <AdditionalOptions>%(AdditionalOptions) /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div</AdditionalOptions>
         </ClCompile>
       </ItemDefinitionGroup>
-
     </Otherwise>
   </Choose>
 
@@ -186,5 +185,4 @@
   <Target Name="DeleteIntermediateFiles" AfterTargets="PostBuildEvent" Condition=" '$(Agent_BuildDirectoryBogus)' != '' ">
     <RemoveDir Directories="$(IntDir)" />
   </Target>
-
 </Project>

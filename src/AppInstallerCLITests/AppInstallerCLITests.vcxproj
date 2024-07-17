@@ -475,6 +475,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-PackageFamilyNameOnExe-Ver1_2.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-MultipleArpVersionDeclared.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

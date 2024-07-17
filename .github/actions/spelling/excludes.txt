@@ -18,6 +18,10 @@ ignore$
 \.msix$
 \.msixbundle$
 \.png$
+\.props$
+\.psd$
+\.pyc$
+\.s$
 \.sln$
 \.vcxitems$
 \.vcxproj$

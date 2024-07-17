@@ -1,3 +1,4 @@
+1ESPT
 abcd
 accepteula
 acl
@@ -37,8 +38,7 @@ AType
 AUrl
 Aysnc
 azurewebsites
-badbit
-Baz
+Azure-Pipelines-1ESPT-ExDShared
 bcp
 BEFACEF
 BEFACEFE
@@ -75,6 +75,8 @@ chcp
 ci
 cinq
 CLIE
+CLOSEAPP
+cloudai
 cloudapp
 cls
 clsctx
@@ -124,6 +126,7 @@ ESRB
 etest
 execustom
 EXEHASH
+ExDShared
 experimentalfeatures
 fcb
 FECAFEB
@@ -149,7 +152,7 @@ fundraiser
 fuzzer
 fzanollo
 gcpi
-GES
+gdnsuppress
 GESMBH
 GHS
 gitlab
