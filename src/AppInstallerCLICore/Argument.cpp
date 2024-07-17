@@ -219,6 +219,8 @@ namespace AppInstaller::CLI
             return { type, "history"_liv, 'h', ArgTypeCategory::ConfigurationSetChoice, ArgTypeExclusiveSet::ConfigurationSetChoice };
         case Execution::Args::Type::ConfigurationHistoryRemove:
             return { type, "remove"_liv };
+        case Execution::Args::Type::ConfigurationStatusWatch:
+            return { type, "live"_liv };
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:

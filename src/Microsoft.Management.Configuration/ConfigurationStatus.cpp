@@ -20,7 +20,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             struct SetStatusItem
             {
                 ConfigurationDatabase::StatusItem Status;
-                Configuration::ConfigurationSet Set;
+                com_ptr<implementation::ConfigurationSet> Set;
             };
 
             ChangeListener(ConfigurationStatus& status) : m_status(status)
@@ -120,13 +120,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                         {
                             if (!setStatusItem->Set)
                             {
-                                setStatusItem->Set = *m_status.Database().GetSet(change.SetInstanceIdentifier);
+                                setStatusItem->Set = m_status.Database().GetSet(change.SetInstanceIdentifier);
                             }
 
                             auto changeData = make_self<wil::details::module_count_wrapper<implementation::ConfigurationChangeData>>();
                             changeData->Initialize(changeType, change.SetInstanceIdentifier, state);
 
-                            m_status.ChangeDetected(setStatusItem->Set, *changeData);
+                            m_status.ChangeDetected(*setStatusItem->Set, *changeData);
                         }
 
                         auto setChangeData = make_self<implementation::ConfigurationSetChangeData>();
@@ -190,14 +190,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     clock::time_point ConfigurationStatus::GetSetApplyBegun(const winrt::guid& instanceIdentifier)
     {
+        using system_clock = std::chrono::system_clock;
+
         m_database.EnsureOpened(false);
-        return clock::from_sys(m_database.GetSetApplyBegun(instanceIdentifier));
+        system_clock::time_point result = m_database.GetSetApplyBegun(instanceIdentifier);
+        return (result == system_clock::time_point{} ? clock::time_point{} : clock::from_sys(result));
     }
 
     clock::time_point ConfigurationStatus::GetSetApplyEnded(const winrt::guid& instanceIdentifier)
     {
+        using system_clock = std::chrono::system_clock;
+
         m_database.EnsureOpened(false);
-        return clock::from_sys(m_database.GetSetApplyEnded(instanceIdentifier));
+        system_clock::time_point result = m_database.GetSetApplyEnded(instanceIdentifier);
+        return (result == system_clock::time_point{} ? clock::time_point{} : clock::from_sys(result));
     }
 
     ConfigurationUnitState ConfigurationStatus::GetUnitState(const winrt::guid& instanceIdentifier)
@@ -387,7 +393,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationStatus::ChangeDetected(Configuration::ConfigurationSet& set, Configuration::ConfigurationChangeData data)
+    void ConfigurationStatus::ChangeDetected(const Configuration::ConfigurationSet& set, const Configuration::ConfigurationChangeData& data)
     {
         std::vector<std::pair<winrt::guid, ConfigurationProcessor*>> changeRegistrations;
 

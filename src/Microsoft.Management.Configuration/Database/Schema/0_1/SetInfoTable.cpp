@@ -37,11 +37,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
                 s_SetInfoTable_Column_Name,                 // 2
                 s_SetInfoTable_Column_Origin,               // 3
                 s_SetInfoTable_Column_Path,                 // 4
-                s_SetInfoTable_Column_FirstApply,           // 5
-                s_SetInfoTable_Column_SchemaVersion,        // 6
-                s_SetInfoTable_Column_Metadata,             // 7
-                s_SetInfoTable_Column_Parameters,           // 8
-                s_SetInfoTable_Column_Variables,            // 9
+                s_SetInfoTable_Column_SchemaVersion,        // 5
+                s_SetInfoTable_Column_Metadata,             // 6
+                s_SetInfoTable_Column_Parameters,           // 7
+                s_SetInfoTable_Column_Variables,            // 8
             }).From(s_SetInfoTable_Table);
         }
 
@@ -53,13 +52,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             configurationSet->Origin(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(3)) });
             configurationSet->Path(hstring{ ConvertToUTF16(statement.GetColumn<std::string>(4)) });
 
-            std::string schemaVersion = statement.GetColumn<std::string>(6);
+            std::string schemaVersion = statement.GetColumn<std::string>(5);
             configurationSet->SchemaVersion(hstring{ ConvertToUTF16(schemaVersion) });
 
             auto parser = ConfigurationSetParser::CreateForSchemaVersion(schemaVersion);
-            configurationSet->Metadata(parser->ParseValueSet(statement.GetColumn<std::string>(7)));
-            THROW_HR_IF(E_NOTIMPL, !statement.GetColumn<std::string>(8).empty());
-            configurationSet->Variables(parser->ParseValueSet(statement.GetColumn<std::string>(9)));
+            configurationSet->Metadata(parser->ParseValueSet(statement.GetColumn<std::string>(6)));
+            THROW_HR_IF(E_NOTIMPL, !statement.GetColumn<std::string>(7).empty());
+            configurationSet->Variables(parser->ParseValueSet(statement.GetColumn<std::string>(8)));
 
             std::vector<Configuration::ConfigurationUnit> winrtUnits;
             for (const auto& unit : unitInfoTable.GetAllUnitsForSet(statement.GetColumn<rowid_t>(0), schemaVersion))

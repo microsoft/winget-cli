@@ -113,7 +113,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         bool HasChangeRegistrations();
 
         void SetChangeDetected(const guid& setInstanceIdentifier, com_ptr<ConfigurationSetChangeData>& data, const std::optional<GUID>& unitInstanceIdentifier);
-        void ChangeDetected(Configuration::ConfigurationSet& set, Configuration::ConfigurationChangeData data);
+        void ChangeDetected(const Configuration::ConfigurationSet& set, const Configuration::ConfigurationChangeData& data);
 
         ConfigurationDatabase m_database;
 

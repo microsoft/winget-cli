@@ -15,6 +15,7 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::ConfigurationHistoryItem, Resource::String::ConfigurationHistoryItemArgumentDescription, ArgumentType::Standard },
             Argument{ Execution::Args::Type::OutputFile, Resource::String::OutputFileArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::ConfigurationHistoryRemove, Resource::String::ConfigurationHistoryRemoveArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::ConfigurationStatusWatch, Resource::String::ConfigurationStatusWatchArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden },
         };
     }
 
@@ -57,6 +58,10 @@ namespace AppInstaller::CLI
             {
                 context << ShowSingleConfigurationSetHistory;
             }
+        }
+        else if (context.Args.Contains(Execution::Args::Type::ConfigurationStatusWatch))
+        {
+            context << MonitorConfigurationStatus;
         }
         else
         {

@@ -206,7 +206,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationProcessor::ConfigurationChange(Configuration::ConfigurationSet& set, Configuration::ConfigurationChangeData& data) try
+    void ConfigurationProcessor::ConfigurationChange(const Configuration::ConfigurationSet& set, const Configuration::ConfigurationChangeData& data) try
     {
         m_configurationChange(set, data);
     }

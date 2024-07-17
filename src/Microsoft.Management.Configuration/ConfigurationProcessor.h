@@ -99,7 +99,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void SetSupportsSchema03(bool value);
 
         // Indicate a configuration change occurred.
-        void ConfigurationChange(Configuration::ConfigurationSet& set, Configuration::ConfigurationChangeData& data);
+        void ConfigurationChange(const Configuration::ConfigurationSet& set, const Configuration::ConfigurationChangeData& data);
 
     private:
         Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> GetConfigurationHistoryImpl(AppInstaller::WinRT::AsyncCancellation cancellation = {});

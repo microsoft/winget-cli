@@ -313,7 +313,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
             resultSource = resultInformation.ResultSource();
         }
 
-        UpdateStatus(m_connection, setInstanceIdentifier, std::nullopt, std::nullopt, changeData->Unit().InstanceIdentifier(), resultCode, resultDescription, resultDetails, resultSource);
+        UpdateStatus(m_connection, setInstanceIdentifier, AppInstaller::ToIntegral(changeData->UnitState()), std::nullopt, changeData->Unit().InstanceIdentifier(), resultCode, resultDescription, resultDetails, resultSource);
     }
 
     ConfigurationSetState StatusItemTable::GetSetState(const guid& instanceIdentifier)

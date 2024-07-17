@@ -1227,6 +1227,76 @@ namespace AppInstaller::CLI::Workflow
 
             return Utility::CaseInsensitiveStartsWith(identifierView, foldedInput);
         }
+
+        Resource::LocString ToLocString(ConfigurationSetState state)
+        {
+            switch (state)
+            {
+            case ConfigurationSetState::Pending:
+                return Resource::String::ConfigurationSetStatePending;
+            case ConfigurationSetState::InProgress:
+                return Resource::String::ConfigurationSetStateInProgress;
+            case ConfigurationSetState::Completed:
+                return Resource::String::ConfigurationSetStateCompleted;
+            case ConfigurationSetState::Unknown:
+            default:
+                return Resource::String::ConfigurationSetStateUnknown;
+            }
+        }
+
+        Resource::LocString ToLocString(ConfigurationUnitState state)
+        {
+            switch (state)
+            {
+            case ConfigurationUnitState::Pending:
+                return Resource::String::ConfigurationUnitStatePending;
+            case ConfigurationUnitState::InProgress:
+                return Resource::String::ConfigurationUnitStateInProgress;
+            case ConfigurationUnitState::Completed:
+                return Resource::String::ConfigurationUnitStateCompleted;
+            case ConfigurationUnitState::Skipped:
+                return Resource::String::ConfigurationUnitStateSkipped;
+            case ConfigurationUnitState::Unknown:
+            default:
+                return Resource::String::ConfigurationUnitStateUnknown;
+            }
+        }
+
+        std::string_view ToString(ConfigurationChangeEventType type)
+        {
+            switch (type)
+            {
+            case ConfigurationChangeEventType::SetAdded:
+                return "SetAdded";
+            case ConfigurationChangeEventType::SetStateChanged:
+                return "SetStateChanged";
+            case ConfigurationChangeEventType::SetRemoved:
+                return "SetRemoved";
+            case ConfigurationChangeEventType::Unknown:
+            default:
+                return "Unknown";
+            }
+        }
+
+        std::string_view ToString(ConfigurationUnitResultSource source)
+        {
+            switch (source)
+            {
+            case ConfigurationUnitResultSource::Internal:
+                return "Internal";
+            case ConfigurationUnitResultSource::ConfigurationSet:
+                return "ConfigurationSet";
+            case ConfigurationUnitResultSource::UnitProcessing:
+                return "UnitProcessing";
+            case ConfigurationUnitResultSource::SystemState:
+                return "SystemState";
+            case ConfigurationUnitResultSource::Precondition:
+                return "Precondition";
+            case ConfigurationUnitResultSource::None:
+            default:
+                return "None";
+            }
+        }
     }
 
     void CreateConfigurationProcessor(Context& context)
@@ -1823,20 +1893,17 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            TableOutput<4> historyTable{ context.Reporter, { Resource::String::ConfigureListIdentifier, Resource::String::ConfigureListName, Resource::String::ConfigureListFirstApplied, Resource::String::ConfigureListOrigin } };
+            TableOutput<4> historyTable{ context.Reporter, { Resource::String::ConfigureListIdentifier, Resource::String::ConfigureListName, Resource::String::ConfigureListState, Resource::String::ConfigureListOrigin } };
 
             for (const auto& set : history)
             {
-                std::ostringstream stream;
-                Utility::OutputTimePoint(stream, winrt::clock::to_sys(set.FirstApply()));
-
                 winrt::hstring origin = set.Path();
                 if (origin.empty())
                 {
                     origin = set.Origin();
                 }
 
-                historyTable.OutputLine({ Utility::ConvertGuidToString(set.InstanceIdentifier()), Utility::ConvertToUTF8(set.Name()), std::move(stream).str(), Utility::ConvertToUTF8(origin)});
+                historyTable.OutputLine({ Utility::ConvertGuidToString(set.InstanceIdentifier()), Utility::ConvertToUTF8(set.Name()), anon::ToLocString(set.State()), Utility::ConvertToUTF8(origin)});
             }
 
             historyTable.Complete();
@@ -1897,18 +1964,108 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& set = context.Get<Data::ConfigurationContext>().Set();
 
-        std::ostringstream stream;
-        Utility::OutputTimePoint(stream, winrt::clock::to_sys(set.FirstApply()));
-
         Execution::TableOutput<2> table(context.Reporter, { Resource::String::SourceListField, Resource::String::SourceListValue });
 
         table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListIdentifier }, Utility::ConvertGuidToString(set.InstanceIdentifier()) });
         table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListName }, Utility::ConvertToUTF8(set.Name()) });
-        table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListFirstApplied }, std::move(stream).str() });
         table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListOrigin }, Utility::ConvertToUTF8(set.Origin()) });
         table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListPath }, Utility::ConvertToUTF8(set.Path()) });
+        table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListState }, anon::ToLocString(set.State()) });
+        table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListFirstApplied }, Utility::TimePointToString(winrt::clock::to_sys(set.FirstApply())) });
+
+        auto applyBegun = set.ApplyBegun();
+        if (applyBegun != winrt::clock::time_point{})
+        {
+            table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListApplyBegun }, Utility::TimePointToString(winrt::clock::to_sys(applyBegun)) });
+        }
+
+        auto applyEnded = set.ApplyEnded();
+        if (applyEnded != winrt::clock::time_point{})
+        {
+            table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListApplyEnded }, Utility::TimePointToString(winrt::clock::to_sys(applyEnded)) });
+        }
 
         table.Complete();
+
+        context.Reporter.Info() << std::endl;
+
+        Execution::TableOutput<4> unitTable(context.Reporter, { Resource::String::ConfigureListUnit, Resource::String::ConfigureListState, Resource::String::ConfigureListResult, Resource::String::ConfigureListResultDescription });
+
+        struct UnitSiblings
+        {
+            size_t Depth = 0;
+            size_t Current = 0;
+            std::vector<ConfigurationUnit> Siblings;
+        };
+
+        std::vector<UnitSiblings> stack;
+
+        {
+            UnitSiblings initial;
+            auto units = set.Units();
+            initial.Siblings.resize(units.Size());
+            units.GetMany(0, initial.Siblings);
+            stack.emplace_back(std::move(initial));
+        }
+
+        while (!stack.empty())
+        {
+            UnitSiblings& currentSiblings = stack.back();
+
+            if (currentSiblings.Current >= currentSiblings.Siblings.size())
+            {
+                stack.pop_back();
+                continue;
+            }
+
+            ConfigurationUnit& currentUnit = currentSiblings.Siblings[currentSiblings.Current++];
+
+            std::ostringstream unitStream;
+
+            if (currentSiblings.Depth)
+            {
+                unitStream << '|' << std::string((currentSiblings.Depth * 2) - 1, '-');
+            }
+
+            unitStream << Utility::ConvertToUTF8(currentUnit.Type());
+
+            auto identifier = currentUnit.Identifier();
+            if (!identifier.empty())
+            {
+                unitStream << " [" << Utility::ConvertControlCodesToPictures(Utility::ConvertToUTF8(identifier)) << ']';
+            }
+
+            auto resultInformation = currentUnit.ResultInformation();
+            std::ostringstream resultStream;
+            std::string resultDetails;
+
+            if (resultInformation)
+            {
+                resultStream << "0x" << Logging::SetHRFormat << resultInformation.ResultCode();
+
+                auto description = resultInformation.Description();
+                if (description.empty())
+                {
+                    description = resultInformation.Details();
+                }
+
+                resultDetails = Utility::ConvertControlCodesToPictures(Utility::ConvertToUTF8(description));
+            }
+
+            unitTable.OutputLine({ std::move(unitStream).str(), anon::ToLocString(currentUnit.State()), std::move(resultStream).str(), std::move(resultDetails) });
+
+            if (currentUnit.IsGroup())
+            {
+                UnitSiblings unitChildren;
+                unitChildren.Depth = currentSiblings.Depth + 1;
+                auto units = set.Units();
+                unitChildren.Siblings.resize(units.Size());
+                units.GetMany(0, unitChildren.Siblings);
+                stack.emplace_back(std::move(unitChildren));
+            }
+        }
+
+        unitTable.Complete();
     }
 
     void CompleteConfigurationHistoryItem(Execution::Context& context)
@@ -1932,6 +2089,71 @@ namespace AppInstaller::CLI::Workflow
             if (word.empty() || Utility::CaseInsensitiveStartsWith(name, word))
             {
                 stream << '"' << name << '"' << std::endl;
+            }
+        }
+    }
+
+    void MonitorConfigurationStatus(Execution::Context& context)
+    {
+        auto& configurationContext = context.Get<Data::ConfigurationContext>();
+
+        std::mutex activeSetMutex;
+        ConfigurationSet activeSet{ nullptr };
+        decltype(activeSet.ConfigurationSetChange(winrt::auto_revoke, nullptr)) activeSetRevoker;
+
+        auto setChangeHandler = [&](const ConfigurationSet& set, const ConfigurationSetChangeData& changeData)
+            {
+                if (changeData.Change() == ConfigurationSetChangeEventType::SetStateChanged)
+                {
+                    context.Reporter.Info() << "(SetStateChanged) " << set.InstanceIdentifier() << " :: " << anon::ToLocString(changeData.SetState()) << std::endl;
+                }
+                else if (changeData.Change() == ConfigurationSetChangeEventType::UnitStateChanged)
+                {
+                    context.Reporter.Info() << "(UnitStateChanged) " << changeData.Unit().InstanceIdentifier() << " :: " << anon::ToLocString(changeData.UnitState()) << std::endl;
+
+                    auto resultInformation = changeData.ResultInformation();
+                    if (resultInformation)
+                    {
+                        context.Reporter.Info() << "    [" << anon::ToString(resultInformation.ResultSource()) << "] :: 0x" << Logging::SetHRFormat << resultInformation.ResultCode() << std::endl;
+                    }
+                }
+            };
+
+        auto setActiveSet = [&](const ConfigurationSet& set, bool force)
+            {
+                std::lock_guard<std::mutex> lock{ activeSetMutex };
+
+                if (force || !activeSet)
+                {
+                    activeSet = set;
+                    activeSetRevoker = activeSet.ConfigurationSetChange(winrt::auto_revoke, setChangeHandler);
+                }
+            };
+
+        auto processorRevoker = configurationContext.Processor().ConfigurationChange(winrt::auto_revoke, [&](const ConfigurationSet& set, const ConfigurationChangeData& changeData)
+            {
+                context.Reporter.Info() << '[' << anon::ToString(changeData.Change()) << "] " << changeData.InstanceIdentifier() << " :: " << anon::ToLocString(changeData.State()) << std::endl;
+
+                if (changeData.Change() == ConfigurationChangeEventType::SetStateChanged && changeData.State() == ConfigurationSetState::InProgress)
+                {
+                    setActiveSet(set, true);
+                }
+            });
+
+        for (ConfigurationSet& historySet : configurationContext.History())
+        {
+            if (historySet.State() == ConfigurationSetState::InProgress)
+            {
+                setActiveSet(historySet, false);
+            }
+        }
+
+        for (;;)
+        {
+            std::this_thread::sleep_for(250ms);
+            if (context.IsTerminated())
+            {
+                return;
             }
         }
     }

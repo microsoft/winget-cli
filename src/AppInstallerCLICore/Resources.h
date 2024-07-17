@@ -99,7 +99,12 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNoTestRun);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotInDesiredState);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationReadingConfigFile);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSetStateCompleted);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSetStateInProgress);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSetStatePending);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSetStateUnknown);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSettings);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationStatusWatchArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSuccessfullyApplied);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnexpectedTestResult);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitAssertHadNegativeResult);
@@ -131,6 +136,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitReturnedInvalidResult);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitSettingConfigRoot);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitSkipped);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitStateCompleted);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitStateInProgress);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitStatePending);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitStateSkipped);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitStateUnknown);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationValidationFoundNoIssues);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWaitingOnAnother);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarning);
@@ -148,6 +158,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportResource);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportUnitDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureExportUnitInstallDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListApplyBegun);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListApplyEnded);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListFirstApplied);
@@ -155,6 +167,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListName);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListOrigin);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListPath);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListResult);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListResultDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListState);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureListUnit);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureTestCommandLongDescription);

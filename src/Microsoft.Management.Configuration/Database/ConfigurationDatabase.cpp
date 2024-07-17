@@ -691,7 +691,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
         }
 
-        return *result;
+        IConfigurationUnitResultInformation actualResult;
+        if (result)
+        {
+            actualResult = *result;
+        }
+
+        return actualResult;
 #ifdef AICLI_DISABLE_TEST_HOOKS
         }
         CATCH_LOG();
