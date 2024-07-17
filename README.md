@@ -46,9 +46,9 @@ Please read our [troubleshooting guide](/doc/troubleshooting/README.md).
 
 Installer behavior can be different depending on whether you are running **winget** with administrator privileges.
 
-* When running **winget** without administrator privileges, some applications may [require elevation](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works) to install. When the installer runs, Windows will prompt you to [elevate](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience). If you choose not to elevate, the application will fail to install.
+* When running **WinGet** without administrator privileges, some applications may [require elevation](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works) to install. When the installer runs, Windows will prompt you to [elevate](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience). If you choose not to elevate, the application will fail to install.
 
-* When running **winget** in an Administrator Command Prompt, you will not see [elevation prompts](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience) if the application requires it. Always use caution when running your command prompt as an administrator, and only install applications you trust.
+* When running **WinGet** in an Administrator Command Prompt, you will not see [elevation prompts](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience) if the application requires it. Always use caution when running your command prompt as an administrator, and only install applications you trust.
 
 ### Build your own
 
@@ -88,14 +88,14 @@ The client is built around the concept of sources; a set of packages effectively
 2. Configure your system, please use the [configuration file](.configurations/configuration.dsc.yaml). This can be applied by either:
    * [Dev Home](https://github.com/microsoft/devhome)'s machine configuration tool
    * WinGet configuration. Run `winget configure .configurations/configuration.dsc.yaml` from the project root so relative paths resolve correctly.
-3. Run `vcpkg integrate install` from the Developer Command Prompt for VS 2022. This is a one time setup step until the configuration file in step 2 is updated to work with vcpkg setup.
+3. Run `vcpkg integrate install` from the Developer Command Prompt for VS 2022. This is a one-time setup step until the configuration file in step 2 is updated to work with vcpkg setup.
 
 ### Prerequisites
 
 * Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
 * [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/)
-  * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
+  * Or use WinGet to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
 * The following workloads:
   * .NET Desktop Development
   * Desktop Development with C++
@@ -118,8 +118,7 @@ We would like to thank [Keivan Beigi (@kayone)](https://github.com/kayone) for h
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com. More
+Contributor License Agreement (CLA) declaring that you have the right to, and do, actually grant us the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com. More
 information is available in our [CONTRIBUTING.md](/CONTRIBUTING.md) file.
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
