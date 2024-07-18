@@ -46,12 +46,6 @@
     <Filter Include="Source Files\Repository">
       <UniqueIdentifier>{13d4d227-0f04-4e57-a663-c3c535438ab3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TestData\Shadow">
-      <UniqueIdentifier>{6f8102b7-ea5f-4379-bb59-067ced63d970}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TestData\Shadow\V1_5">
-      <UniqueIdentifier>{6bd68492-3f96-4023-af35-63249cd18158}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -146,9 +140,6 @@
     <ClCompile Include="ManifestComparator.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
-    <ClCompile Include="MSStoreDownloadFlow.cpp">
-      <Filter>Source Files\CLI</Filter>
-    </ClCompile>
     <ClCompile Include="MsiExecArguments.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
@@ -182,10 +173,10 @@
     <ClCompile Include="Registry.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="Rest.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
     <ClCompile Include="RestClient.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="RestHelper.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
     <ClCompile Include="RestInterface_1_0.cpp">
@@ -339,24 +330,6 @@
       <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="ArpHelper.cpp">
-      <Filter>Source Files\Repository</Filter>
-    </ClCompile>
-    <ClCompile Include="AppShutdown.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="RestInterface_1_7.cpp">
-      <Filter>Source Files\Repository</Filter>
-    </ClCompile>
-    <ClCompile Include="PackageVersionDataManifest.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Yaml.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="FileCache.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="SQLiteDynamicStorage.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
   </ItemGroup>
@@ -624,9 +597,6 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\DownloadFlowTest_DownloadCommandProhibited.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\DownloadFlowTest_MSStore.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">
@@ -963,36 +933,6 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\notepad.ico">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-DefaultLocale.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale2.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow2.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Installer.yaml">
-      <Filter>TestData\Shadow\V1_5</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Node-Merge.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Node-Merge2.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Node-Mapping.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ContainsEscapeControlCode.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>

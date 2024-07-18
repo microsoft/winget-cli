@@ -1,15 +1,17 @@
-﻿// -----------------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
 // <copyright file="Manifest.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+//     Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
-// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.Models.V1
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
-    using Microsoft.WinGetUtil.Common;
+    using System.Linq;
     using YamlDotNet.Serialization;
+    using YamlDotNet.Serialization.NamingConventions;
 
     /// <summary>
     /// Class that defines the structure of the manifest. Uses YamlDotNet
@@ -135,7 +137,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets the release notes in default locale.
         /// </summary>
         public string ReleaseNotes { get; set; }
-
+        
         /// <summary>
         /// Gets or sets the manifest documentation.
         /// </summary>
@@ -336,11 +338,6 @@ namespace Microsoft.WinGetUtil.Models.V1
         public bool DownloadCommandProhibited { get; set; }
 
         /// <summary>
-        /// Gets or sets the default repair behavior.
-        /// </summary>
-        public string RepairBehavior { get; set; }
-
-        /// <summary>
         /// Deserialize a stream reader into a Manifest object.
         /// </summary>
         /// <param name="filePath">file path.</param>
@@ -374,7 +371,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         public static Manifest CreateManifestFromStreamReader(StreamReader streamReader)
         {
             streamReader.BaseStream.Seek(0, SeekOrigin.Begin);
-            var deserializer = Helpers.CreateDeserializer();
+            var deserializer = CreateDeserializer();
             return deserializer.Deserialize<Manifest>(streamReader);
         }
 
@@ -385,7 +382,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// <returns>Manifest object populated and validated.</returns>
         public static Manifest CreateManifestFromString(string value)
         {
-            var deserializer = Helpers.CreateDeserializer();
+            var deserializer = CreateDeserializer();
             return deserializer.Deserialize<Manifest>(value);
         }
 
@@ -455,28 +452,6 @@ namespace Microsoft.WinGetUtil.Models.V1
                 }
             }
 
-            if (this.Documentations != null)
-            {
-                foreach (var docs in this.Documentations)
-                {
-                    if (!string.IsNullOrEmpty(docs.DocumentUrl))
-                    {
-                        uris.Add(docs.DocumentUrl);
-                    }
-                }
-            }
-
-            if (this.Icons != null)
-            {
-                foreach (var icon in this.Icons)
-                {
-                    if (!string.IsNullOrEmpty(icon.IconUrl))
-                    {
-                        uris.Add(icon.IconUrl);
-                    }
-                }
-            }
-
             return uris;
         }
 
@@ -508,7 +483,23 @@ namespace Microsoft.WinGetUtil.Models.V1
             // Equality of Manifest consist on only these properties.
             return (this.Id == other.Id) &&
                    (this.Version == other.Version) &&
+                   (this.InstallerLocale == other.InstallerLocale) &&
+                   (this.Scope == other.Scope) &&
+                   (this.InstallerType == other.InstallerType) &&
+                   (this.Switches == other.Switches) &&
                    this.CompareInstallers(other.Installers);
+        }
+
+        /// <summary>
+        /// Helper to deserialize the manifest.
+        /// </summary>
+        /// <returns>IDeserializer object.</returns>
+        private static IDeserializer CreateDeserializer()
+        {
+            var deserializer = new DeserializerBuilder().
+                WithNamingConvention(PascalCaseNamingConvention.Instance).
+                IgnoreUnmatchedProperties();
+            return deserializer.Build();
         }
 
         private bool CompareInstallers(List<ManifestInstaller> installers)

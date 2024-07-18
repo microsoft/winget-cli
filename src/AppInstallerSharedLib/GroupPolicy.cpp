@@ -23,7 +23,8 @@ namespace AppInstaller::Settings
             return (s_override ? *s_override : s_groupPolicy);
         }
 
-        std::optional<Registry::Value> GetRegistryValueObject(const Registry::Key& key, const std::string_view valueName)
+        template<Registry::Value::Type T>
+        std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetRegistryValue(const Registry::Key& key, const std::string_view valueName)
         {
             if (!key)
             {
@@ -31,13 +32,14 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
-            return key[valueName];
-        }
+            auto regValue = key[valueName];
+            if (!regValue.has_value())
+            {
+                // Value does not exist
+                return std::nullopt;
+            }
 
-        template<Registry::Value::Type T>
-        std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetRegistryValueData(const Registry::Value& regValue, const std::string_view valueName)
-        {
-            auto value = regValue.TryGetValue<T>();
+            auto value = regValue->TryGetValue<T>();
             if (!value.has_value())
             {
                 AICLI_LOG(Core, Warning, << "Value for policy '" << valueName << "' does not have expected type");
@@ -47,22 +49,9 @@ namespace AppInstaller::Settings
             return std::move(value.value());
         }
 
-        template<Registry::Value::Type T>
-        std::optional<decltype(std::declval<Registry::Value>().GetValue<T>())> GetRegistryValueData(const Registry::Key& key, const std::string_view valueName)
-        {
-            auto regValue = GetRegistryValueObject(key, valueName);
-            if (!regValue.has_value())
-            {
-                // Value does not exist; there's nothing to return
-                return std::nullopt;
-            }
-
-            return GetRegistryValueData<T>(regValue.value(), valueName);
-        }
-
         std::optional<bool> RegistryValueIsTrue(const Registry::Key& key, std::string_view valueName)
         {
-            auto intValue = GetRegistryValueData<Registry::Value::Type::DWord>(key, valueName);
+            auto intValue = GetRegistryValue<Registry::Value::Type::DWord>(key, valueName);
             if (!intValue.has_value())
             {
                 return std::nullopt;
@@ -133,26 +122,17 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
-            typename Mapping::value_t items;
+            std::vector<Mapping::item_t> items;
             for (const auto& value : listKey->Values())
             {
-                std::optional<Registry::Value> potentialValue = value.Value();
-
-                if (potentialValue)
+                auto item = Mapping::ReadAndValidateItem(value);
+                if (item.has_value())
                 {
-                    auto item = Mapping::ReadAndValidateItem(potentialValue.value());
-                    if (item.has_value())
-                    {
-                        items.emplace_back(std::move(item.value()));
-                    }
-                    else
-                    {
-                        AICLI_LOG(Core, Warning, << "Failed to read Group Policy list value. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
-                    }
+                    items.emplace_back(std::move(item.value()));
                 }
                 else
                 {
-                    AICLI_LOG(Core, Verbose, << "Group Policy list value not found. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
+                    AICLI_LOG(Core, Warning, << "Failed to read Group Policy list value. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
                 }
             }
 
@@ -195,45 +175,14 @@ namespace AppInstaller::Settings
                 }
             };
 
-            // All required fields should be read here.
             bool allRead = readSourceAttribute("Name", &SourceFromPolicy::Name)
                 && readSourceAttribute("Arg", &SourceFromPolicy::Arg)
                 && readSourceAttribute("Type", &SourceFromPolicy::Type)
                 && readSourceAttribute("Data", &SourceFromPolicy::Data)
                 && readSourceAttribute("Identifier", &SourceFromPolicy::Identifier);
-
             if (!allRead)
             {
                 return std::nullopt;
-            }
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-            // Enable certificate pinning configuration through GP sources for testing
-            const std::string pinningConfigurationName = "CertificatePinning";
-            if (sourceJson.isMember(pinningConfigurationName))
-            {
-                source.PinningConfiguration = Certificates::PinningConfiguration(source.Name);
-                if (!source.PinningConfiguration.LoadFrom(sourceJson[pinningConfigurationName]))
-                {
-                    return std::nullopt;
-                }
-            }
-#endif
-            // TrustLevel and Explicit are optional policy fields with default values.
-            const std::string trustLevelName = "TrustLevel";
-            if (sourceJson.isMember(trustLevelName) && sourceJson[trustLevelName].isArray())
-            {
-                const Json::Value in = sourceJson[trustLevelName];
-                std::vector<std::string> result;
-                result.reserve(in.size());
-                std::transform(in.begin(), in.end(), std::back_inserter(result), [](const auto& e) { return e.asString(); });
-                source.TrustLevel = result;
-            }
-
-            const std::string explicitName = "Explicit";
-            if (sourceJson.isMember(explicitName) && sourceJson[explicitName].isBool())
-            {
-                source.Explicit = sourceJson[explicitName].asBool();
             }
 
             return source;
@@ -242,13 +191,6 @@ namespace AppInstaller::Settings
 
     namespace details
     {
-#define POLICY_MAPPING_DEFAULT_READ(_policy_) \
-        std::optional<typename ValuePolicyMapping<_policy_>::value_t> ValuePolicyMapping<_policy_>::ReadAndValidate(const Registry::Key& policiesKey) \
-        { \
-            using Mapping = ValuePolicyMapping<_policy_>; \
-            return GetRegistryValueData<Mapping::ValueType>(policiesKey, Mapping::ValueName); \
-        }
-
 #define POLICY_MAPPING_DEFAULT_LIST_READ(_policy_) \
         std::optional<typename ValuePolicyMapping<_policy_>::value_t> ValuePolicyMapping<_policy_>::ReadAndValidate(const Registry::Key& policiesKey) \
         { \
@@ -257,7 +199,6 @@ namespace AppInstaller::Settings
 
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AdditionalSources);
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AllowedSources);
-        POLICY_MAPPING_DEFAULT_READ(ValuePolicy::DefaultProxy);
 
         std::nullopt_t ValuePolicyMapping<ValuePolicy::None>::ReadAndValidate(const Registry::Key&)
         {
@@ -266,21 +207,8 @@ namespace AppInstaller::Settings
 
         std::optional<uint32_t> ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>::ReadAndValidate(const Registry::Key& policiesKey)
         {
-            // This policy used to have another name in the registry.
-            // Try to read first with the current name, and if it's not present
-            // check if the old name is present.
             using Mapping = ValuePolicyMapping<ValuePolicy::SourceAutoUpdateIntervalInMinutes>;
-
-            auto regValueWithCurrentName = GetRegistryValueObject(policiesKey, Mapping::ValueName);
-            if (regValueWithCurrentName.has_value())
-            {
-                // We use the current name even if it doesn't have valid data.
-                return GetRegistryValueData<Mapping::ValueType>(regValueWithCurrentName.value(), Mapping::ValueName);
-            }
-            else
-            {
-                return GetRegistryValueData<Mapping::ValueType>(policiesKey, "SourceAutoUpdateIntervalInMinutes"sv);
-            }
+            return GetRegistryValue<Mapping::ValueType>(policiesKey, Mapping::ValueName);
         }
 
         std::optional<SourceFromPolicy> ValuePolicyMapping<ValuePolicy::AdditionalSources>::ReadAndValidateItem(const Registry::Value& item)
@@ -300,16 +228,14 @@ namespace AppInstaller::Settings
         {
         case TogglePolicy::Policy::WinGet:
             return TogglePolicy(policy, "EnableAppInstaller"sv, String::PolicyEnableWinGet);
-        case TogglePolicy::Policy::Settings:
-            return TogglePolicy(policy, "EnableSettings"sv, String::PolicyEnableWingetSettings);
+        case TogglePolicy::Policy::Settings: return
+            TogglePolicy(policy, "EnableSettings"sv, String::PolicyEnableWingetSettings);
         case TogglePolicy::Policy::ExperimentalFeatures:
             return TogglePolicy(policy, "EnableExperimentalFeatures"sv, String::PolicyEnableExperimentalFeatures);
         case TogglePolicy::Policy::LocalManifestFiles:
             return TogglePolicy(policy, "EnableLocalManifestFiles"sv, String::PolicyEnableLocalManifests);
         case TogglePolicy::Policy::HashOverride:
             return TogglePolicy(policy, "EnableHashOverride"sv, String::PolicyEnableHashOverride);
-        case TogglePolicy::Policy::LocalArchiveMalwareScanOverride:
-            return TogglePolicy(policy, "EnableLocalArchiveMalwareScanOverride"sv, String::PolicyEnableLocalArchiveMalwareScanOverride);
         case TogglePolicy::Policy::DefaultSource:
             return TogglePolicy(policy, "EnableDefaultSource"sv, String::PolicyEnableDefaultSource);
         case TogglePolicy::Policy::MSStoreSource:
@@ -318,14 +244,6 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableAdditionalSources"sv, String::PolicyAdditionalSources);
         case TogglePolicy::Policy::AllowedSources:
             return TogglePolicy(policy, "EnableAllowedSources"sv, String::PolicyAllowedSources);
-        case TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore:
-            return TogglePolicy(policy, "EnableBypassCertificatePinningForMicrosoftStore"sv, String::PolicyEnableBypassCertificatePinningForMicrosoftStore);
-        case TogglePolicy::Policy::WinGetCommandLineInterfaces:
-            return TogglePolicy(policy, "EnableWindowsPackageManagerCommandLineInterfaces"sv, String::PolicyEnableWindowsPackageManagerCommandLineInterfaces);
-        case TogglePolicy::Policy::Configuration:
-            return TogglePolicy(policy, "EnableWindowsPackageManagerConfiguration"sv, String::PolicyEnableWinGetConfiguration);
-        case TogglePolicy::Policy::ProxyCommandLineOptions:
-            return TogglePolicy(policy, "EnableWindowsPackageManagerProxyCommandLineOptions"sv, String::PolicyEnableProxyCommandLineOptions);
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -354,14 +272,6 @@ namespace AppInstaller::Settings
         json["Arg"] = Arg;
         json["Data"] = Data;
         json["Identifier"] = Identifier;
-        json["Explicit"] = Explicit;
-
-        // Trust level is represented as an array of trust level strings since there can be multiple flags set.
-        int trustLevelLength = static_cast<int>(TrustLevel.size());
-        for (int i = 0; i < trustLevelLength; ++i)
-        {
-            json["TrustLevel"][i] = TrustLevel[i];
-        }
 
         Json::StreamWriterBuilder writerBuilder;
         writerBuilder.settings_["indentation"] = "";

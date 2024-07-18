@@ -283,7 +283,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             using QCol = SQLite::Builder::QualifiedColumn;
 
-            // Build a select statement to find manifest rows containing references to 1:1 tables with nonexistent rowids
+            // Build a select statement to find manifest rows containing references to 1:1 tables with non-existent rowids
             // Such as:
             // Select manifest.rowid, manifest.id, ids.id from manifest left outer join ids on manifest.id = ids.rowid where ids.id is NULL
             SQLite::Builder::StatementBuilder builder;
