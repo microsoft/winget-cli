@@ -55,7 +55,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
 
         private:
-            static void StaticWaitCallback(PTP_CALLBACK_INSTANCE, void* context, TP_WAIT*, TP_WAIT_RESULT)
+            static void NTAPI StaticWaitCallback(PTP_CALLBACK_INSTANCE, void* context, TP_WAIT*, TP_WAIT_RESULT)
             {
                 reinterpret_cast<ChangeListener*>(context)->WaitCallback();
             }
