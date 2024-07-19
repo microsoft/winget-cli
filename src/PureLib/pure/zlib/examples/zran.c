@@ -1,114 +1,102 @@
-/* zran.c -- example of zlib/gzip stream indexing and random access
- * Copyright (C) 2005, 2012, 2018 Mark Adler
+/* zran.c -- example of deflate stream indexing and random access
+ * Copyright (C) 2005, 2012, 2018, 2023 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
- * Version 1.2  14 Oct 2018  Mark Adler */
+ * Version 1.4  13 Apr 2023  Mark Adler */
 
 /* Version History:
  1.0  29 May 2005  First version
  1.1  29 Sep 2012  Fix memory reallocation error
  1.2  14 Oct 2018  Handle gzip streams with multiple members
                    Add a header file to facilitate usage in applications
+ 1.3  18 Feb 2023  Permit raw deflate streams as well as zlib and gzip
+                   Permit crossing gzip member boundaries when extracting
+                   Support a size_t size when extracting (was an int)
+                   Do a binary search over the index for an access point
+                   Expose the access point type to enable save and load
+ 1.4  13 Apr 2023  Add a NOPRIME define to not use inflatePrime()
  */
 
-/* Illustrate the use of Z_BLOCK, inflatePrime(), and inflateSetDictionary()
-   for random access of a compressed file.  A file containing a zlib or gzip
-   stream is provided on the command line.  The compressed stream is decoded in
-   its entirety, and an index built with access points about every SPAN bytes
-   in the uncompressed output.  The compressed file is left open, and can then
-   be read randomly, having to decompress on the average SPAN/2 uncompressed
-   bytes before getting to the desired block of data.
-
-   An access point can be created at the start of any deflate block, by saving
-   the starting file offset and bit of that block, and the 32K bytes of
-   uncompressed data that precede that block.  Also the uncompressed offset of
-   that block is saved to provide a reference for locating a desired starting
-   point in the uncompressed stream.  deflate_index_build() works by
-   decompressing the input zlib or gzip stream a block at a time, and at the
-   end of each block deciding if enough uncompressed data has gone by to
-   justify the creation of a new access point.  If so, that point is saved in a
-   data structure that grows as needed to accommodate the points.
-
-   To use the index, an offset in the uncompressed data is provided, for which
-   the latest access point at or preceding that offset is located in the index.
-   The input file is positioned to the specified location in the index, and if
-   necessary the first few bits of the compressed data is read from the file.
-   inflate is initialized with those bits and the 32K of uncompressed data, and
-   the decompression then proceeds until the desired offset in the file is
-   reached.  Then the decompression continues to read the desired uncompressed
-   data from the file.
-
-   Another approach would be to generate the index on demand.  In that case,
-   requests for random access reads from the compressed data would try to use
-   the index, but if a read far enough past the end of the index is required,
-   then further index entries would be generated and added.
-
-   There is some fair bit of overhead to starting inflation for the random
-   access, mainly copying the 32K byte dictionary.  So if small pieces of the
-   file are being accessed, it would make sense to implement a cache to hold
-   some lookahead and avoid many calls to deflate_index_extract() for small
-   lengths.
-
-   Another way to build an index would be to use inflateCopy().  That would
-   not be constrained to have access points at block boundaries, but requires
-   more memory per access point, and also cannot be saved to file due to the
-   use of pointers in the state.  The approach here allows for storage of the
-   index in a file.
- */
+// Illustrate the use of Z_BLOCK, inflatePrime(), and inflateSetDictionary()
+// for random access of a compressed file. A file containing a raw deflate
+// stream is provided on the command line. The compressed stream is decoded in
+// its entirety, and an index built with access points about every SPAN bytes
+// in the uncompressed output. The compressed file is left open, and can then
+// be read randomly, having to decompress on the average SPAN/2 uncompressed
+// bytes before getting to the desired block of data.
+//
+// An access point can be created at the start of any deflate block, by saving
+// the starting file offset and bit of that block, and the 32K bytes of
+// uncompressed data that precede that block. Also the uncompressed offset of
+// that block is saved to provide a reference for locating a desired starting
+// point in the uncompressed stream. deflate_index_build() decompresses the
+// input raw deflate stream a block at a time, and at the end of each block
+// decides if enough uncompressed data has gone by to justify the creation of a
+// new access point. If so, that point is saved in a data structure that grows
+// as needed to accommodate the points.
+//
+// To use the index, an offset in the uncompressed data is provided, for which
+// the latest access point at or preceding that offset is located in the index.
+// The input file is positioned to the specified location in the index, and if
+// necessary the first few bits of the compressed data is read from the file.
+// inflate is initialized with those bits and the 32K of uncompressed data, and
+// decompression then proceeds until the desired offset in the file is reached.
+// Then decompression continues to read the requested uncompressed data from
+// the file.
+//
+// There is some fair bit of overhead to starting inflation for the random
+// access, mainly copying the 32K byte dictionary. If small pieces of the file
+// are being accessed, it would make sense to implement a cache to hold some
+// lookahead to avoid many calls to deflate_index_extract() for small lengths.
+//
+// Another way to build an index would be to use inflateCopy(). That would not
+// be constrained to have access points at block boundaries, but would require
+// more memory per access point, and could not be saved to a file due to the
+// use of pointers in the state. The approach here allows for storage of the
+// index in a file.
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "zlib.h"
 #include "zran.h"
 
-#define WINSIZE 32768U      /* sliding window size */
-#define CHUNK 16384         /* file input buffer size */
+#define WINSIZE 32768U      // sliding window size
+#define CHUNK 16384         // file input buffer size
 
-/* Access point entry. */
-struct point {
-    off_t out;          /* corresponding offset in uncompressed data */
-    off_t in;           /* offset in input file of first full byte */
-    int bits;           /* number of bits (1-7) from byte at in-1, or 0 */
-    unsigned char window[WINSIZE];  /* preceding 32K of uncompressed data */
-};
-
-/* See comments in zran.h. */
-void deflate_index_free(struct deflate_index *index)
-{
+// See comments in zran.h.
+void deflate_index_free(struct deflate_index *index) {
     if (index != NULL) {
         free(index->list);
         free(index);
     }
 }
 
-/* Add an entry to the access point list. If out of memory, deallocate the
-   existing list and return NULL. index->gzip is the allocated size of the
-   index in point entries, until it is time for deflate_index_build() to
-   return, at which point gzip is set to indicate a gzip file or not.
- */
-static struct deflate_index *addpoint(struct deflate_index *index, int bits,
-                                      off_t in, off_t out, unsigned left,
-                                      unsigned char *window)
-{
-    struct point *next;
-
-    /* if list is empty, create it (start with eight points) */
+// Add an access point to the list. If out of memory, deallocate the existing
+// list and return NULL. index->mode is temporarily the allocated number of
+// access points, until it is time for deflate_index_build() to return. Then
+// index->mode is set to the mode of inflation.
+static struct deflate_index *add_point(struct deflate_index *index, int bits,
+                                       off_t in, off_t out, unsigned left,
+                                       unsigned char *window) {
     if (index == NULL) {
+        // The list is empty. Create it, starting with eight access points.
         index = malloc(sizeof(struct deflate_index));
-        if (index == NULL) return NULL;
-        index->list = malloc(sizeof(struct point) << 3);
+        if (index == NULL)
+            return NULL;
+        index->have = 0;
+        index->mode = 8;
+        index->list = malloc(sizeof(point_t) * index->mode);
         if (index->list == NULL) {
             free(index);
             return NULL;
         }
-        index->gzip = 8;
-        index->have = 0;
     }
 
-    /* if list is full, make it bigger */
-    else if (index->have == index->gzip) {
-        index->gzip <<= 1;
-        next = realloc(index->list, sizeof(struct point) * index->gzip);
+    else if (index->have == index->mode) {
+        // The list is full. Make it bigger.
+        index->mode <<= 1;
+        point_t *next = realloc(index->list, sizeof(point_t) * index->mode);
         if (next == NULL) {
             deflate_index_free(index);
             return NULL;
@@ -116,318 +104,379 @@ static struct deflate_index *addpoint(struct deflate_index *index, int bits,
         index->list = next;
     }
 
-    /* fill in entry and increment how many we have */
-    next = (struct point *)(index->list) + index->have;
-    next->bits = bits;
-    next->in = in;
+    // Fill in the access point and increment how many we have.
+    point_t *next = (point_t *)(index->list) + index->have++;
+    if (index->have < 0) {
+        // Overflowed the int!
+        deflate_index_free(index);
+        return NULL;
+    }
     next->out = out;
+    next->in = in;
+    next->bits = bits;
     if (left)
         memcpy(next->window, window + WINSIZE - left, left);
     if (left < WINSIZE)
         memcpy(next->window + left, window, WINSIZE - left);
-    index->have++;
 
-    /* return list, possibly reallocated */
+    // Return the index, which may have been newly allocated or destroyed.
     return index;
 }
 
-/* See comments in zran.h. */
-int deflate_index_build(FILE *in, off_t span, struct deflate_index **built)
-{
-    int ret;
-    int gzip = 0;               /* true if reading a gzip file */
-    off_t totin, totout;        /* our own total counters to avoid 4GB limit */
-    off_t last;                 /* totout value of last access point */
-    struct deflate_index *index;    /* access points being generated */
-    z_stream strm;
-    unsigned char input[CHUNK];
-    unsigned char window[WINSIZE];
+// Decompression modes. These are the inflateInit2() windowBits parameter.
+#define RAW -15
+#define ZLIB 15
+#define GZIP 31
 
-    /* initialize inflate */
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-    strm.avail_in = 0;
-    strm.next_in = Z_NULL;
-    ret = inflateInit2(&strm, 47);      /* automatic zlib or gzip decoding */
-    if (ret != Z_OK)
-        return ret;
+// See comments in zran.h.
+int deflate_index_build(FILE *in, off_t span, struct deflate_index **built) {
+    // Set up inflation state.
+    z_stream strm = {0};        // inflate engine (gets fired up later)
+    unsigned char buf[CHUNK];   // input buffer
+    unsigned char win[WINSIZE] = {0};   // output sliding window
+    off_t totin = 0;            // total bytes read from input
+    off_t totout = 0;           // total bytes uncompressed
+    int mode = 0;               // mode: RAW, ZLIB, or GZIP (0 => not set yet)
 
-    /* inflate the input, maintain a sliding window, and build an index -- this
-       also validates the integrity of the compressed data using the check
-       information in the gzip or zlib stream */
-    totin = totout = last = 0;
-    index = NULL;               /* will be allocated by first addpoint() */
-    strm.avail_out = 0;
+    // Decompress from in, generating access points along the way.
+    int ret;                    // the return value from zlib, or Z_ERRNO
+    off_t last;                 // last access point uncompressed offset
+    struct deflate_index *index = NULL;     // list of access points
     do {
-        /* get some compressed data from input file */
-        strm.avail_in = fread(input, 1, CHUNK, in);
-        if (ferror(in)) {
-            ret = Z_ERRNO;
-            goto deflate_index_build_error;
-        }
+        // Assure available input, at least until reaching EOF.
         if (strm.avail_in == 0) {
-            ret = Z_DATA_ERROR;
-            goto deflate_index_build_error;
-        }
-        strm.next_in = input;
-
-        /* check for a gzip stream */
-        if (totin == 0 && strm.avail_in >= 3 &&
-            input[0] == 31 && input[1] == 139 && input[2] == 8)
-            gzip = 1;
-
-        /* process all of that, or until end of stream */
-        do {
-            /* reset sliding window if necessary */
-            if (strm.avail_out == 0) {
-                strm.avail_out = WINSIZE;
-                strm.next_out = window;
-            }
-
-            /* inflate until out of input, output, or at end of block --
-               update the total input and output counters */
+            strm.avail_in = fread(buf, 1, sizeof(buf), in);
             totin += strm.avail_in;
-            totout += strm.avail_out;
-            ret = inflate(&strm, Z_BLOCK);      /* return at end of block */
-            totin -= strm.avail_in;
-            totout -= strm.avail_out;
-            if (ret == Z_NEED_DICT)
-                ret = Z_DATA_ERROR;
-            if (ret == Z_MEM_ERROR || ret == Z_DATA_ERROR)
-                goto deflate_index_build_error;
-            if (ret == Z_STREAM_END) {
-                if (gzip &&
-                    (strm.avail_in || ungetc(getc(in), in) != EOF)) {
-                    ret = inflateReset(&strm);
-                    if (ret != Z_OK)
-                        goto deflate_index_build_error;
-                    continue;
-                }
+            strm.next_in = buf;
+            if (strm.avail_in < sizeof(buf) && ferror(in)) {
+                ret = Z_ERRNO;
                 break;
             }
 
-            /* if at end of block, consider adding an index entry (note that if
-               data_type indicates an end-of-block, then all of the
-               uncompressed data from that block has been delivered, and none
-               of the compressed data after that block has been consumed,
-               except for up to seven bits) -- the totout == 0 provides an
-               entry point after the zlib or gzip header, and assures that the
-               index always has at least one access point; we avoid creating an
-               access point after the last block by checking bit 6 of data_type
-             */
-            if ((strm.data_type & 128) && !(strm.data_type & 64) &&
-                (totout == 0 || totout - last > span)) {
-                index = addpoint(index, strm.data_type & 7, totin,
-                                 totout, strm.avail_out, window);
-                if (index == NULL) {
-                    ret = Z_MEM_ERROR;
-                    goto deflate_index_build_error;
-                }
-                last = totout;
+            if (mode == 0) {
+                // At the start of the input -- determine the type. Assume raw
+                // if it is neither zlib nor gzip. This could in theory result
+                // in a false positive for zlib, but in practice the fill bits
+                // after a stored block are always zeros, so a raw stream won't
+                // start with an 8 in the low nybble.
+                mode = strm.avail_in == 0 ? RAW :       // empty -- will fail
+                       (strm.next_in[0] & 0xf) == 8 ? ZLIB :
+                       strm.next_in[0] == 0x1f ? GZIP :
+                       /* else */ RAW;
+                ret = inflateInit2(&strm, mode);
+                if (ret != Z_OK)
+                    break;
             }
-        } while (strm.avail_in != 0);
-    } while (ret != Z_STREAM_END);
+        }
 
-    /* clean up and return index (release unused entries in list) */
-    (void)inflateEnd(&strm);
-    index->list = realloc(index->list, sizeof(struct point) * index->have);
-    index->gzip = gzip;
+        // Assure available output. This rotates the output through, for use as
+        // a sliding window on the uncompressed data.
+        if (strm.avail_out == 0) {
+            strm.avail_out = sizeof(win);
+            strm.next_out = win;
+        }
+
+        if (mode == RAW && index == NULL)
+            // We skip the inflate() call at the start of raw deflate data in
+            // order generate an access point there. Set data_type to imitate
+            // the end of a header.
+            strm.data_type = 0x80;
+        else {
+            // Inflate and update the number of uncompressed bytes.
+            unsigned before = strm.avail_out;
+            ret = inflate(&strm, Z_BLOCK);
+            totout += before - strm.avail_out;
+        }
+
+        if ((strm.data_type & 0xc0) == 0x80 &&
+            (index == NULL || totout - last >= span)) {
+            // We are at the end of a header or a non-last deflate block, so we
+            // can add an access point here. Furthermore, we are either at the
+            // very start for the first access point, or there has been span or
+            // more uncompressed bytes since the last access point, so we want
+            // to add an access point here.
+            index = add_point(index, strm.data_type & 7, totin - strm.avail_in,
+                              totout, strm.avail_out, win);
+            if (index == NULL) {
+                ret = Z_MEM_ERROR;
+                break;
+            }
+            last = totout;
+        }
+
+        if (ret == Z_STREAM_END && mode == GZIP &&
+            (strm.avail_in || ungetc(getc(in), in) != EOF))
+            // There is more input after the end of a gzip member. Reset the
+            // inflate state to read another gzip member. On success, this will
+            // set ret to Z_OK to continue decompressing.
+            ret = inflateReset2(&strm, GZIP);
+
+        // Keep going until Z_STREAM_END or error. If the compressed data ends
+        // prematurely without a file read error, Z_BUF_ERROR is returned.
+    } while (ret == Z_OK);
+    inflateEnd(&strm);
+
+    if (ret != Z_STREAM_END) {
+        // An error was encountered. Discard the index and return a negative
+        // error code.
+        deflate_index_free(index);
+        return ret == Z_NEED_DICT ? Z_DATA_ERROR : ret;
+    }
+
+    // Shrink the index to only the occupied access points and return it.
+    index->mode = mode;
     index->length = totout;
+    point_t *list = realloc(index->list, sizeof(point_t) * index->have);
+    if (list == NULL) {
+        // Seems like a realloc() to make something smaller should always work,
+        // but just in case.
+        deflate_index_free(index);
+        return Z_MEM_ERROR;
+    }
+    index->list = list;
     *built = index;
     return index->have;
-
-    /* return error */
-  deflate_index_build_error:
-    (void)inflateEnd(&strm);
-    deflate_index_free(index);
-    return ret;
 }
 
-/* See comments in zran.h. */
-int deflate_index_extract(FILE *in, struct deflate_index *index, off_t offset,
-                          unsigned char *buf, int len)
-{
-    int ret, skip;
-    z_stream strm;
-    struct point *here;
-    unsigned char input[CHUNK];
-    unsigned char discard[WINSIZE];
+#ifdef NOPRIME
+// Support zlib versions before 1.2.3 (July 2005), or incomplete zlib clones
+// that do not have inflatePrime().
 
-    /* proceed only if something reasonable to do */
-    if (len < 0)
+#  define INFLATEPRIME inflatePreface
+
+// Append the low bits bits of value to in[] at bit position *have, updating
+// *have. value must be zero above its low bits bits. bits must be positive.
+// This assumes that any bits above the *have bits in the last byte are zeros.
+// That assumption is preserved on return, as any bits above *have + bits in
+// the last byte written will be set to zeros.
+static inline void append_bits(unsigned value, int bits,
+                               unsigned char *in, int *have) {
+    in += *have >> 3;           // where the first bits from value will go
+    int k = *have & 7;          // the number of bits already there
+    *have += bits;
+    if (k)
+        *in |= value << k;      // write value above the low k bits
+    else
+        *in = value;
+    k = 8 - k;                  // the number of bits just appended
+    while (bits > k) {
+        value >>= k;            // drop the bits appended
+        bits -= k;
+        k = 8;                  // now at a byte boundary
+        *++in = value;
+    }
+}
+
+// Insert enough bits in the form of empty deflate blocks in front of the
+// low bits bits of value, in order to bring the sequence to a byte boundary.
+// Then feed that to inflate(). This does what inflatePrime() does, except that
+// a negative value of bits is not supported. bits must be in 0..16. If the
+// arguments are invalid, Z_STREAM_ERROR is returned. Otherwise the return
+// value from inflate() is returned.
+static int inflatePreface(z_stream *strm, int bits, int value) {
+    // Check input.
+    if (strm == Z_NULL || bits < 0 || bits > 16)
+        return Z_STREAM_ERROR;
+    if (bits == 0)
+        return Z_OK;
+    value &= (2 << (bits - 1)) - 1;
+
+    // An empty dynamic block with an odd number of bits (95). The high bit of
+    // the last byte is unused.
+    static const unsigned char dyn[] = {
+        4, 0xe0, 0x81, 8, 0, 0, 0, 0, 0x20, 0xa8, 0xab, 0x1f
+    };
+    const int dynlen = 95;          // number of bits in the block
+
+    // Build an input buffer for inflate that is a multiple of eight bits in
+    // length, and that ends with the low bits bits of value.
+    unsigned char in[(dynlen + 3 * 10 + 16 + 7) / 8];
+    int have = 0;
+    if (bits & 1) {
+        // Insert an empty dynamic block to get to an odd number of bits, so
+        // when bits bits from value are appended, we are at an even number of
+        // bits.
+        memcpy(in, dyn, sizeof(dyn));
+        have = dynlen;
+    }
+    while ((have + bits) & 7)
+        // Insert empty fixed blocks until appending bits bits would put us on
+        // a byte boundary. This will insert at most three fixed blocks.
+        append_bits(2, 10, in, &have);
+
+    // Append the bits bits from value, which takes us to a byte boundary.
+    append_bits(value, bits, in, &have);
+
+    // Deliver the input to inflate(). There is no output space provided, but
+    // inflate() can't get stuck waiting on output not ingesting all of the
+    // provided input. The reason is that there will be at most 16 bits of
+    // input from value after the empty deflate blocks (which themselves
+    // generate no output). At least ten bits are needed to generate the first
+    // output byte from a fixed block. The last two bytes of the buffer have to
+    // be ingested in order to get ten bits, which is the most that value can
+    // occupy.
+    strm->avail_in = have >> 3;
+    strm->next_in = in;
+    strm->avail_out = 0;
+    strm->next_out = in;                // not used, but can't be NULL
+    return inflate(strm, Z_NO_FLUSH);
+}
+
+#else
+#  define INFLATEPRIME inflatePrime
+#endif
+
+// See comments in zran.h.
+ptrdiff_t deflate_index_extract(FILE *in, struct deflate_index *index,
+                                off_t offset, unsigned char *buf, size_t len) {
+    // Do a quick sanity check on the index.
+    if (index == NULL || index->have < 1 || index->list[0].out != 0)
+        return Z_STREAM_ERROR;
+
+    // If nothing to extract, return zero bytes extracted.
+    if (len == 0 || offset < 0 || offset >= index->length)
         return 0;
 
-    /* find where in stream to start */
-    here = index->list;
-    ret = index->have;
-    while (--ret && here[1].out <= offset)
-        here++;
+    // Find the access point closest to but not after offset.
+    int lo = -1, hi = index->have;
+    point_t *point = index->list;
+    while (hi - lo > 1) {
+        int mid = (lo + hi) >> 1;
+        if (offset < point[mid].out)
+            hi = mid;
+        else
+            lo = mid;
+    }
+    point += lo;
 
-    /* initialize file and inflate state to start there */
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    strm.opaque = Z_NULL;
-    strm.avail_in = 0;
-    strm.next_in = Z_NULL;
-    ret = inflateInit2(&strm, -15);         /* raw inflate */
+    // Initialize the input file and prime the inflate engine to start there.
+    int ret = fseeko(in, point->in - (point->bits ? 1 : 0), SEEK_SET);
+    if (ret == -1)
+        return Z_ERRNO;
+    int ch = 0;
+    if (point->bits && (ch = getc(in)) == EOF)
+        return ferror(in) ? Z_ERRNO : Z_BUF_ERROR;
+    z_stream strm = {0};
+    ret = inflateInit2(&strm, RAW);
     if (ret != Z_OK)
         return ret;
-    ret = fseeko(in, here->in - (here->bits ? 1 : 0), SEEK_SET);
-    if (ret == -1)
-        goto deflate_index_extract_ret;
-    if (here->bits) {
-        ret = getc(in);
-        if (ret == -1) {
-            ret = ferror(in) ? Z_ERRNO : Z_DATA_ERROR;
-            goto deflate_index_extract_ret;
-        }
-        (void)inflatePrime(&strm, here->bits, ret >> (8 - here->bits));
-    }
-    (void)inflateSetDictionary(&strm, here->window, WINSIZE);
+    if (point->bits)
+        INFLATEPRIME(&strm, point->bits, ch >> (8 - point->bits));
+    inflateSetDictionary(&strm, point->window, WINSIZE);
 
-    /* skip uncompressed bytes until offset reached, then satisfy request */
-    offset -= here->out;
-    strm.avail_in = 0;
-    skip = 1;                               /* while skipping to offset */
+    // Skip uncompressed bytes until offset reached, then satisfy request.
+    unsigned char input[CHUNK];
+    unsigned char discard[WINSIZE];
+    offset -= point->out;       // number of bytes to skip to get to offset
+    size_t left = len;          // number of bytes left to read after offset
     do {
-        /* define where to put uncompressed data, and how much */
-        if (offset > WINSIZE) {             /* skip WINSIZE bytes */
-            strm.avail_out = WINSIZE;
+        if (offset) {
+            // Discard up to offset uncompressed bytes.
+            strm.avail_out = offset < WINSIZE ? (unsigned)offset : WINSIZE;
             strm.next_out = discard;
-            offset -= WINSIZE;
         }
-        else if (offset > 0) {              /* last skip */
-            strm.avail_out = (unsigned)offset;
-            strm.next_out = discard;
-            offset = 0;
-        }
-        else if (skip) {                    /* at offset now */
-            strm.avail_out = len;
-            strm.next_out = buf;
-            skip = 0;                       /* only do this once */
+        else {
+            // Uncompress up to left bytes into buf.
+            strm.avail_out = left < UINT_MAX ? (unsigned)left : UINT_MAX;
+            strm.next_out = buf + len - left;
         }
 
-        /* uncompress until avail_out filled, or end of stream */
-        do {
-            if (strm.avail_in == 0) {
-                strm.avail_in = fread(input, 1, CHUNK, in);
-                if (ferror(in)) {
-                    ret = Z_ERRNO;
-                    goto deflate_index_extract_ret;
-                }
-                if (strm.avail_in == 0) {
-                    ret = Z_DATA_ERROR;
-                    goto deflate_index_extract_ret;
-                }
-                strm.next_in = input;
+        // Uncompress, setting got to the number of bytes uncompressed.
+        if (strm.avail_in == 0) {
+            // Assure available input.
+            strm.avail_in = fread(input, 1, CHUNK, in);
+            if (strm.avail_in < CHUNK && ferror(in)) {
+                ret = Z_ERRNO;
+                break;
             }
-            ret = inflate(&strm, Z_NO_FLUSH);       /* normal inflate */
-            if (ret == Z_NEED_DICT)
-                ret = Z_DATA_ERROR;
-            if (ret == Z_MEM_ERROR || ret == Z_DATA_ERROR)
-                goto deflate_index_extract_ret;
-            if (ret == Z_STREAM_END) {
-                /* the raw deflate stream has ended */
-                if (index->gzip == 0)
-                    /* this is a zlib stream that has ended -- done */
-                    break;
+            strm.next_in = input;
+        }
+        unsigned got = strm.avail_out;
+        ret = inflate(&strm, Z_NO_FLUSH);
+        got -= strm.avail_out;
 
-                /* near the end of a gzip member, which might be followed by
-                   another gzip member -- skip the gzip trailer and see if
-                   there is more input after it */
-                if (strm.avail_in < 8) {
-                    fseeko(in, 8 - strm.avail_in, SEEK_CUR);
-                    strm.avail_in = 0;
-                }
-                else {
-                    strm.avail_in -= 8;
-                    strm.next_in += 8;
-                }
-                if (strm.avail_in == 0 && ungetc(getc(in), in) == EOF)
-                    /* the input ended after the gzip trailer -- done */
-                    break;
+        // Update the appropriate count.
+        if (offset)
+            offset -= got;
+        else
+            left -= got;
 
-                /* there is more input, so another gzip member should follow --
-                   validate and skip the gzip header */
-                ret = inflateReset2(&strm, 31);
-                if (ret != Z_OK)
-                    goto deflate_index_extract_ret;
+        // If we're at the end of a gzip member and there's more to read,
+        // continue to the next gzip member.
+        if (ret == Z_STREAM_END && index->mode == GZIP) {
+            // Discard the gzip trailer.
+            unsigned drop = 8;              // length of gzip trailer
+            if (strm.avail_in >= drop) {
+                strm.avail_in -= drop;
+                strm.next_in += drop;
+            }
+            else {
+                // Read and discard the remainder of the gzip trailer.
+                drop -= strm.avail_in;
+                strm.avail_in = 0;
+                do {
+                    if (getc(in) == EOF)
+                        // The input does not have a complete trailer.
+                        return ferror(in) ? Z_ERRNO : Z_BUF_ERROR;
+                } while (--drop);
+            }
+
+            if (strm.avail_in || ungetc(getc(in), in) != EOF) {
+                // There's more after the gzip trailer. Use inflate to skip the
+                // gzip header and resume the raw inflate there.
+                inflateReset2(&strm, GZIP);
                 do {
                     if (strm.avail_in == 0) {
                         strm.avail_in = fread(input, 1, CHUNK, in);
-                        if (ferror(in)) {
+                        if (strm.avail_in < CHUNK && ferror(in)) {
                             ret = Z_ERRNO;
-                            goto deflate_index_extract_ret;
-                        }
-                        if (strm.avail_in == 0) {
-                            ret = Z_DATA_ERROR;
-                            goto deflate_index_extract_ret;
+                            break;
                         }
                         strm.next_in = input;
                     }
-                    ret = inflate(&strm, Z_BLOCK);
-                    if (ret == Z_MEM_ERROR || ret == Z_DATA_ERROR)
-                        goto deflate_index_extract_ret;
-                } while ((strm.data_type & 128) == 0);
-
-                /* set up to continue decompression of the raw deflate stream
-                   that follows the gzip header */
-                ret = inflateReset2(&strm, -15);
+                    strm.avail_out = WINSIZE;
+                    strm.next_out = discard;
+                    ret = inflate(&strm, Z_BLOCK);  // stop at end of header
+                } while (ret == Z_OK && (strm.data_type & 0x80) == 0);
                 if (ret != Z_OK)
-                    goto deflate_index_extract_ret;
+                    break;
+                inflateReset2(&strm, RAW);
             }
+        }
 
-            /* continue to process the available input before reading more */
-        } while (strm.avail_out != 0);
+        // Continue until we have the requested data, the deflate data has
+        // ended, or an error is encountered.
+    } while (ret == Z_OK && left);
+    inflateEnd(&strm);
 
-        if (ret == Z_STREAM_END)
-            /* reached the end of the compressed data -- return the data that
-               was available, possibly less than requested */
-            break;
-
-        /* do until offset reached and requested data read */
-    } while (skip);
-
-    /* compute the number of uncompressed bytes read after the offset */
-    ret = skip ? 0 : len - strm.avail_out;
-
-    /* clean up and return the bytes read, or the negative error */
-  deflate_index_extract_ret:
-    (void)inflateEnd(&strm);
-    return ret;
+    // Return the number of uncompressed bytes read into buf, or the error.
+    return ret == Z_OK || ret == Z_STREAM_END ? len - left : ret;
 }
 
 #ifdef TEST
 
-#define SPAN 1048576L       /* desired distance between access points */
-#define LEN 16384           /* number of bytes to extract */
+#define SPAN 1048576L       // desired distance between access points
+#define LEN 16384           // number of bytes to extract
 
-/* Demonstrate the use of deflate_index_build() and deflate_index_extract() by
-   processing the file provided on the command line, and extracting LEN bytes
-   from 2/3rds of the way through the uncompressed output, writing that to
-   stdout. An offset can be provided as the second argument, in which case the
-   data is extracted from there instead. */
-int main(int argc, char **argv)
-{
-    int len;
-    off_t offset = -1;
-    FILE *in;
-    struct deflate_index *index = NULL;
-    unsigned char buf[LEN];
-
-    /* open input file */
+// Demonstrate the use of deflate_index_build() and deflate_index_extract() by
+// processing the file provided on the command line, and extracting LEN bytes
+// from 2/3rds of the way through the uncompressed output, writing that to
+// stdout. An offset can be provided as the second argument, in which case the
+// data is extracted from there instead.
+int main(int argc, char **argv) {
+    // Open the input file.
     if (argc < 2 || argc > 3) {
-        fprintf(stderr, "usage: zran file.gz [offset]\n");
+        fprintf(stderr, "usage: zran file.raw [offset]\n");
         return 1;
     }
-    in = fopen(argv[1], "rb");
+    FILE *in = fopen(argv[1], "rb");
     if (in == NULL) {
         fprintf(stderr, "zran: could not open %s for reading\n", argv[1]);
         return 1;
     }
 
-    /* get optional offset */
+    // Get optional offset.
+    off_t offset = -1;
     if (argc == 3) {
         char *end;
         offset = strtoll(argv[2], &end, 10);
@@ -437,13 +486,17 @@ int main(int argc, char **argv)
         }
     }
 
-    /* build index */
-    len = deflate_index_build(in, SPAN, &index);
+    // Build index.
+    struct deflate_index *index = NULL;
+    int len = deflate_index_build(in, SPAN, &index);
     if (len < 0) {
         fclose(in);
         switch (len) {
         case Z_MEM_ERROR:
             fprintf(stderr, "zran: out of memory\n");
+            break;
+        case Z_BUF_ERROR:
+            fprintf(stderr, "zran: %s ended prematurely\n", argv[1]);
             break;
         case Z_DATA_ERROR:
             fprintf(stderr, "zran: compressed data error in %s\n", argv[1]);
@@ -458,19 +511,20 @@ int main(int argc, char **argv)
     }
     fprintf(stderr, "zran: built index with %d access points\n", len);
 
-    /* use index by reading some bytes from an arbitrary offset */
+    // Use index by reading some bytes from an arbitrary offset.
+    unsigned char buf[LEN];
     if (offset == -1)
-        offset = (index->length << 1) / 3;
-    len = deflate_index_extract(in, index, offset, buf, LEN);
-    if (len < 0)
+        offset = ((index->length + 1) << 1) / 3;
+    ptrdiff_t got = deflate_index_extract(in, index, offset, buf, LEN);
+    if (got < 0)
         fprintf(stderr, "zran: extraction failed: %s error\n",
-                len == Z_MEM_ERROR ? "out of memory" : "input corrupted");
+                got == Z_MEM_ERROR ? "out of memory" : "input corrupted");
     else {
-        fwrite(buf, 1, len, stdout);
-        fprintf(stderr, "zran: extracted %d bytes at %llu\n", len, offset);
+        fwrite(buf, 1, got, stdout);
+        fprintf(stderr, "zran: extracted %ld bytes at %lld\n", got, offset);
     }
 
-    /* clean up and exit */
+    // Clean up and exit.
     deflate_index_free(index);
     fclose(in);
     return 0;

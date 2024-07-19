@@ -54,7 +54,7 @@ jobs:
 
           - name: macOS GCC
             os: macos-latest
-            compiler: gcc-9
+            compiler: gcc-11
 
     steps:
     - name: Checkout repository
