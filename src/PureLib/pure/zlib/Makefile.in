@@ -1,5 +1,5 @@
 # Makefile for zlib
-# Copyright (C) 1995-2017 Jean-loup Gailly, Mark Adler
+# Copyright (C) 1995-2024 Jean-loup Gailly, Mark Adler
 # For conditions of distribution and use, see copyright notice in zlib.h
 
 # To compile and test, type:
@@ -22,13 +22,13 @@ CFLAGS=-O
 
 SFLAGS=-O
 LDFLAGS=
-TEST_LDFLAGS=$(LDFLAGS) -L. libz.a
+TEST_LIBS=-L. libz.a
 LDSHARED=$(CC)
 CPP=$(CC) -E
 
 STATICLIB=libz.a
 SHAREDLIB=libz.so
-SHAREDLIBV=libz.so.1.2.13
+SHAREDLIBV=libz.so.1.3.1
 SHAREDLIBM=libz.so.1
 LIBS=$(STATICLIB) $(SHAREDLIBV)
 
@@ -282,10 +282,10 @@ placebo $(SHAREDLIBV): $(PIC_OBJS) libz.a
 	-@rmdir objs
 
 example$(EXE): example.o $(STATICLIB)
-	$(CC) $(CFLAGS) -o $@ example.o $(TEST_LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ example.o $(TEST_LIBS)
 
 minigzip$(EXE): minigzip.o $(STATICLIB)
-	$(CC) $(CFLAGS) -o $@ minigzip.o $(TEST_LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ minigzip.o $(TEST_LIBS)
 
 examplesh$(EXE): example.o $(SHAREDLIBV)
 	$(CC) $(CFLAGS) -o $@ example.o $(LDFLAGS) -L. $(SHAREDLIBV)
@@ -294,10 +294,10 @@ minigzipsh$(EXE): minigzip.o $(SHAREDLIBV)
 	$(CC) $(CFLAGS) -o $@ minigzip.o $(LDFLAGS) -L. $(SHAREDLIBV)
 
 example64$(EXE): example64.o $(STATICLIB)
-	$(CC) $(CFLAGS) -o $@ example64.o $(TEST_LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ example64.o $(TEST_LIBS)
 
 minigzip64$(EXE): minigzip64.o $(STATICLIB)
-	$(CC) $(CFLAGS) -o $@ minigzip64.o $(TEST_LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ minigzip64.o $(TEST_LIBS)
 
 install-libs: $(LIBS)
 	-@if [ ! -d $(DESTDIR)$(exec_prefix)  ]; then mkdir -p $(DESTDIR)$(exec_prefix); fi
@@ -359,8 +359,14 @@ zconf.h.cmakein: $(SRCDIR)zconf.h.in
 zconf: $(SRCDIR)zconf.h.in
 	cp -p $(SRCDIR)zconf.h.in zconf.h
 
+minizip-test: static
+	cd contrib/minizip && { CC="$(CC)" CFLAGS="$(CFLAGS)" $(MAKE) test ; cd ../.. ; }
+
+minizip-clean:
+	cd contrib/minizip && { $(MAKE) clean ; cd ../.. ; }
+
 mostlyclean: clean
-clean:
+clean: minizip-clean
 	rm -f *.o *.lo *~ \
 	   example$(EXE) minigzip$(EXE) examplesh$(EXE) minigzipsh$(EXE) \
 	   example64$(EXE) minigzip64$(EXE) \

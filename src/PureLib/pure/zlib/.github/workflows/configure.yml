@@ -85,7 +85,7 @@ jobs:
 
           - name: macOS GCC
             os: macos-latest
-            compiler: gcc-9
+            compiler: gcc-11
             configure-args: --warn
 
           - name: macOS Clang

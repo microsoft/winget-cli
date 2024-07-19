@@ -1,7 +1,7 @@
 LIBRARY
 ; zlib data compression and ZIP file I/O library
 
-VERSION		1.2
+VERSION		1.3.1
 
 EXPORTS
         adler32                                  @1

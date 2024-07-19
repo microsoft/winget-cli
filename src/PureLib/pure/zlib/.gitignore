@@ -16,7 +16,7 @@
 /example
 /example64
 /examplesh
-/libz.so*
+**/libz.so*
 /minigzip
 /minigzip64
 /minigzipsh
@@ -24,3 +24,13 @@
 /configure.log
 
 .DS_Store
+.vs
+*.user
+*.nupkg
+contrib/vstudio/vc143/x86
+contrib/vstudio/vc143/x64
+contrib/vstudio/vc143/arm
+contrib/vstudio/vc143/arm64
+contrib/nuget/bin
+contrib/nuget/obj
+*.included
