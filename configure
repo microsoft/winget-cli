@@ -25,7 +25,7 @@ if test $SRCDIR = "."; then
     ZINCOUT="-I."
     SRCDIR=""
 else
-    ZINC='-include zconf.h'
+    ZINC='-I. -include zconf.h'
     ZINCOUT='-I. -I$(SRCDIR)'
     SRCDIR="$SRCDIR/"
 fi
@@ -44,9 +44,8 @@ STATICLIB=libz.a
 
 # extract zlib version numbers from zlib.h
 VER=`sed -n -e '/VERSION "/s/.*"\(.*\)".*/\1/p' < ${SRCDIR}zlib.h`
-VER3=`sed -n -e '/VERSION "/s/.*"\([0-9]*\\.[0-9]*\\.[0-9]*\).*/\1/p' < ${SRCDIR}zlib.h`
-VER2=`sed -n -e '/VERSION "/s/.*"\([0-9]*\\.[0-9]*\)\\..*/\1/p' < ${SRCDIR}zlib.h`
-VER1=`sed -n -e '/VERSION "/s/.*"\([0-9]*\)\\..*/\1/p' < ${SRCDIR}zlib.h`
+VER3=`echo ${VER}|sed -n -e 's/\([0-9]\{1,\}\(\\.[0-9]\{1,\}\)\{1,2\}\).*/\1/p'`
+VER1=`echo ${VER}|sed -n -e 's/\([0-9]\{1,\}\)\\..*/\1/p'`
 
 # establish commands for library building
 if "${CROSS_PREFIX}ar" --version >/dev/null 2>/dev/null || test $? -lt 126; then
@@ -90,7 +89,8 @@ build64=0
 gcc=0
 warn=0
 debug=0
-sanitize=0
+address=0
+memory=0
 old_cc="$CC"
 old_cflags="$CFLAGS"
 OBJC='$(OBJZ) $(OBJG)'
@@ -102,7 +102,7 @@ leave()
   if test "$*" != "0"; then
     echo "** $0 aborting." | tee -a configure.log
   fi
-  rm -f $test.[co] $test $test$shared_ext $test.gcno ./--version
+  rm -rf $test.[co] $test $test$shared_ext $test.gcno $test.dSYM ./--version
   echo -------------------- >> configure.log
   echo >> configure.log
   echo >> configure.log
@@ -141,7 +141,9 @@ case "$1" in
     -c* | --const) zconst=1; shift ;;
     -w* | --warn) warn=1; shift ;;
     -d* | --debug) debug=1; shift ;;
-    --sanitize) sanitize=1; shift ;;
+    --sanitize) address=1; shift ;;
+    --address) address=1; shift ;;
+    --memory) memory=1; shift ;;
     *)
       echo "unknown option: $1" | tee -a configure.log
       echo "$0 --help for help" | tee -a configure.log
@@ -211,8 +213,11 @@ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
       CFLAGS="${CFLAGS} -Wall -Wextra"
     fi
   fi
-  if test $sanitize -eq 1; then
-    CFLAGS="${CFLAGS} -g -fsanitize=address"
+  if test $address -eq 1; then
+    CFLAGS="${CFLAGS} -g -fsanitize=address -fno-omit-frame-pointer"
+  fi
+  if test $memory -eq 1; then
+    CFLAGS="${CFLAGS} -g -fsanitize=memory -fno-omit-frame-pointer"
   fi
   if test $debug -eq 1; then
     CFLAGS="${CFLAGS} -DZLIB_DEBUG"
@@ -260,7 +265,9 @@ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
         SHAREDLIBV=libz.$VER$shared_ext
         SHAREDLIBM=libz.$VER1$shared_ext
         LDSHARED=${LDSHARED-"$cc -dynamiclib -install_name $libdir/$SHAREDLIBM -compatibility_version $VER1 -current_version $VER3"}
-        if libtool -V 2>&1 | grep Apple > /dev/null; then
+        if "${CROSS_PREFIX}libtool" -V 2>&1 | grep Apple > /dev/null; then
+            AR="${CROSS_PREFIX}libtool"
+        elif libtool -V 2>&1 | grep Apple > /dev/null; then
             AR="libtool"
         else
             AR="/usr/bin/libtool"
@@ -435,7 +442,7 @@ EOF
 if test $shared -eq 1; then
   echo Checking for shared library support... | tee -a configure.log
   # we must test in two steps (cc then ld), required at least on SunOS 4.x
-  if try $CC -w -c $SFLAGS $test.c &&
+  if try $CC -c $SFLAGS $test.c &&
      try $LDSHARED $SFLAGS -o $test$shared_ext $test.o; then
     echo Building shared library $SHAREDLIBV with $CC. | tee -a configure.log
   elif test -z "$old_cc" -a -z "$old_cflags"; then
@@ -860,7 +867,7 @@ echo prefix = $prefix >> configure.log
 echo sharedlibdir = $sharedlibdir >> configure.log
 echo uname = $uname >> configure.log
 
-# udpate Makefile with the configure results
+# update Makefile with the configure results
 sed < ${SRCDIR}Makefile.in "
 /^CC *=/s#=.*#=$CC#
 /^CFLAGS *=/s#=.*#=$CFLAGS#
