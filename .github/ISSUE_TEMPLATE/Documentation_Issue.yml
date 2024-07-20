@@ -5,6 +5,6 @@ body:
   - type: textarea
     attributes:
       label: Brief description of your issue
-      placeholder: Briefly describe which document needs to be corrected and why.
+      placeholder: Could you describe which document needs to be corrected and why?
     validations:
       required: true
