@@ -5,7 +5,6 @@
 #include <winget/Manifest.h>
 #include <winget/Resources.h>
 
-#include <wil/result.h>
 #include <functional>
 
 namespace YAML { class Node; }

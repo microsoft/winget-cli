@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include <AppInstallerLanguageUtilities.h>
-#include <wil/result_macros.h>
 
 #include <string_view>
 #include <vector>

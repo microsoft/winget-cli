@@ -6,8 +6,6 @@
 #include "ExecutionArgs.h"
 #include "ExecutionContextData.h"
 #include "CompletionData.h"
-#include "CheckpointManager.h"
-#include <winget/Checkpoint.h>
 
 #include <string_view>
 
@@ -41,14 +39,6 @@
 // Also returns the specified value from the current function.
 #define AICLI_TERMINATE_CONTEXT_RETURN(_hr_,_ret_) AICLI_TERMINATE_CONTEXT_ARGS(context,_hr_,_ret_)
 
-// Returns if the context is terminated.
-#define AICLI_RETURN_IF_TERMINATED(_context_) if ((_context_).IsTerminated()) { return; }
-
-namespace AppInstaller::CLI
-{
-    struct Command;
-}
-
 namespace AppInstaller::CLI::Workflow
 {
     struct WorkflowTask;
@@ -64,41 +54,24 @@ namespace AppInstaller::CLI::Execution
         InstallerExecutionUseUpdate = 0x1,
         InstallerHashMatched = 0x2,
         InstallerTrusted = 0x4,
+        AgreementsAcceptedByCaller = 0x8,
         // Allows a failure in a single source to generate a warning rather than an error.
         // TODO: Remove when the source interface is refactored.
-        TreatSourceFailuresAsWarning = 0x8,
-        ShowSearchResultsOnPartialFailure = 0x10,
-        DisableInteractivity = 0x40,
-        BypassIsStoreClientBlockedPolicyCheck = 0x80,
-        InstallerDownloadOnly = 0x100,
-        Resume = 0x200,
-        RebootRequired = 0x400,
-        RegisterResume = 0x800,
-        InstallerExecutionUseRepair = 0x1000,
+        TreatSourceFailuresAsWarning = 0x10,
+        ShowSearchResultsOnPartialFailure = 0x20,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    HWND GetWindowHandle();
-
-    bool WaitForAppShutdownEvent();
-#endif
-
-    // Callback to log data actions.
-    void ContextEnumBasedVariantMapActionCallback(const void* map, Data data, EnumBasedVariantMapAction action);
-
     // The context within which all commands execute.
     // Contains input/output via Execution::Reporter and
     // arguments via Execution::Args.
-    struct Context : EnumBasedVariantMap<Data, details::DataMapping, ContextEnumBasedVariantMapActionCallback>
+    struct Context : EnumBasedVariantMap<Data, details::DataMapping>
     {
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
-        // Constructor for creating a sub-context.
-        Context(Execution::Reporter& reporter, ThreadLocalStorage::WingetThreadGlobals& threadGlobals) :
-            Reporter(reporter, Execution::Reporter::clone_t{}),
-            m_threadGlobals(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{}) {}
+        // Clone the reporter for this constructor.
+        Context(Execution::Reporter& reporter) : Reporter(reporter, Execution::Reporter::clone_t{}) {}
 
         virtual ~Context();
 
@@ -108,23 +81,17 @@ namespace AppInstaller::CLI::Execution
         // The arguments given to execute with.
         Args Args;
 
-        // Creates a empty context, inheriting 
-        Context CreateEmptyContext();
+        // Creates a copy of this context as it was at construction.
+        virtual std::unique_ptr<Context> Clone();
 
-        // Creates a child of this context.
-        virtual std::unique_ptr<Context> CreateSubContext();
-
-        // Enables reception of CTRL signals and window messages.
-        void EnableSignalTerminationHandler(bool enabled = true);
+        // Enables reception of CTRL signals.
+        void EnableCtrlHandler(bool enabled = true);
 
         // Applies changes based on the parsed args.
         void UpdateForArgs();
 
         // Returns a value indicating whether the context is terminated.
         bool IsTerminated() const { return m_isTerminated; }
-
-        // Resets the context to a nonterminated state. 
-        void ResetTermination() { m_terminationHR = S_OK; m_isTerminated = false; }
 
         // Gets the HRESULT reason for the termination.
         HRESULT GetTerminationHR() const { return m_terminationHR; }
@@ -136,9 +103,9 @@ namespace AppInstaller::CLI::Execution
         void SetTerminationHR(HRESULT hr);
 
         // Cancel the context; this terminates it as well as informing any in progress task to stop cooperatively.
-        // Multiple attempts with CancelReason::CancelSignal may cause the process to simply exit.
+        // Multiple attempts with exitIfStuck == true may cause the process to simply exit.
         // The bypassUser indicates whether the user should be asked for cancellation (does not currently have any effect).
-        void Cancel(CancelReason reason, bool bypassUser = false);
+        void Cancel(bool exitIfStuck = false, bool bypassUser = false);
 
         // Gets context flags
         ContextFlag GetFlags() const
@@ -158,54 +125,29 @@ namespace AppInstaller::CLI::Execution
             WI_ClearAllFlags(m_flags, flags);
         }
 
-        virtual void SetExecutionStage(Workflow::ExecutionStage stage);
+        virtual void SetExecutionStage(Workflow::ExecutionStage stage, bool);
 
-        // Get Globals for Current Context
-        AppInstaller::ThreadLocalStorage::WingetThreadGlobals& GetThreadGlobals();
-
-        std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
-
-        // Gets the executing command
-        AppInstaller::CLI::Command* GetExecutingCommand() { return m_executingCommand; }
-
-        // Sets the executing command
-        void SetExecutingCommand(AppInstaller::CLI::Command* command) { m_executingCommand = command; }
+        // Get Globals for Current Thread
+        AppInstaller::ThreadLocalStorage::ThreadGlobals& GetThreadGlobals();
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
 
-        // Returns the resume id.
-        std::string GetResumeId();
-
-        // Called by the resume command. Loads the checkpoint manager with the resume id and returns the automatic checkpoint.
-        std::optional<AppInstaller::Checkpoints::Checkpoint<AppInstaller::Checkpoints::AutomaticCheckpointData>> LoadCheckpoint(const std::string& resumeId);
-
-        // Returns data checkpoints in the order of latest checkpoint to earliest.
-        std::vector<AppInstaller::Checkpoints::Checkpoint<Execution::Data>> GetCheckpoints();
-
-        // Creates a checkpoint for the provided context data.
-        void Checkpoint(std::string_view checkpointName, std::vector<Execution::Data> contextData);
-
     protected:
-        // Copies the args that are also needed in a sub-context. E.g., silent
-        void CopyArgsToSubContext(Context* subContext);
-
         // Neither virtual functions nor member fields can be inside AICLI_DISABLE_TEST_HOOKS
         // or we could have ODR violations that lead to nasty bugs. So we will simply never
         // use this if AICLI_DISABLE_TEST_HOOKS is defined.
         std::function<bool(const Workflow::WorkflowTask&)> m_shouldExecuteWorkflowTask;
 
     private:
-        DestructionToken m_disableSignalTerminationHandlerOnExit = false;
+        DestructionToken m_disableCtrlHandlerOnExit = false;
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;
         size_t m_CtrlSignalCount = 0;
         ContextFlag m_flags = ContextFlag::None;
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
-        AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
-        AppInstaller::CLI::Command* m_executingCommand = nullptr;
-        std::unique_ptr<AppInstaller::Checkpoints::CheckpointManager> m_checkpointManager;
+        AppInstaller::ThreadLocalStorage::ThreadGlobals m_threadGlobals;
     };
 }

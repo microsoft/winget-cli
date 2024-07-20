@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+
+#pragma warning( push )
+#pragma warning ( disable : 26439 26495 )
 #include <cpprest/http_client.h>
+#pragma warning( pop )
 
 class TestRestRequestHandler : public web::http::http_pipeline_stage
 {

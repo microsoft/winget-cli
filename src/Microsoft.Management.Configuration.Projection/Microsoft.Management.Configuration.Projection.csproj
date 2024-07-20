@@ -21,6 +21,14 @@
     <!-- Workaround for MSB3271 error on processor architecture mismatch -->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Remove=".editorconfig" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EditorConfigFiles Include=".editorconfig" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />

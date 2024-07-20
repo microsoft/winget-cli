@@ -76,12 +76,37 @@ namespace AppInstaller::CLI::Workflow
 
         HRESULT DownloadMSStorePackageFile(const MSStore::MSStoreDownloadFile& downloadFile, const std::filesystem::path& downloadDirectory, Execution::Context& context)
         {
+<<<<<<< HEAD
             try
             {
                 // Create a sub context to execute the package download
                 auto subContextPtr = context.CreateSubContext();
                 Execution::Context& subContext = *subContextPtr;
                 auto previousThreadGlobals = subContext.SetForCurrentThread();
+=======
+            AppInstallManager installManager;
+
+            // Verifying/Acquiring product ownership
+            context.Reporter.Info() << Resource::String::MSStoreInstallTryGetEntitlement << std::endl;
+
+            GetEntitlementResult result{ nullptr };
+
+            if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+            {
+                AICLI_LOG(CLI, Info, << "Get device entitlement.");
+                result = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "Get user entitlement.");
+                result = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                if (result.Status() == GetEntitlementStatus::NoStoreAccount)
+                {
+                    AICLI_LOG(CLI, Info, << "Get device entitlement.");
+                    result = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                }
+            }
+>>>>>>> 034c143c (Block msix provisioning api calls where known OS bugs exist (#2855))
 
                 // Populate Installer and temp download path for sub context
                 Manifest::ManifestInstaller installer;
@@ -157,7 +182,36 @@ namespace AppInstaller::CLI::Workflow
                 hr = installOperation.StartAndWaitForOperation(progress);
             });
 
+<<<<<<< HEAD
         if (SUCCEEDED(hr))
+=======
+        if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+        {
+            // TODO: There was a bug in InstallService where admin user is incorrectly identified as not admin,
+            // causing false access denied on many OS versions.
+            // Remove this check when the OS bug is fixed and back ported.
+            if (!Runtime::IsRunningAsSystem())
+            {
+                context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
+                context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
+                AICLI_LOG(CLI, Error, << "Device wide install for msstore type is not supported under admin context.");
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
+            }
+
+            installOptions.InstallForAllUsers(true);
+        }
+
+        IVectorView<AppInstallItem> installItems = installManager.StartProductInstallAsync(
+            productId,              // ProductId
+            winrt::hstring(),       // FlightId
+            L"WinGetCli",           // ClientId
+            winrt::hstring(),
+            installOptions).get();
+
+        HRESULT errorCode = WaitForMSStoreOperation(context, installItems);
+
+        if (SUCCEEDED(errorCode))
+>>>>>>> 034c143c (Block msix provisioning api calls where known OS bugs exist (#2855))
         {
             context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
         }
