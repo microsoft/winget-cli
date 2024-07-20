@@ -5,11 +5,8 @@
 #include <AppInstallerArchitecture.h>
 #include <winget/Registry.h>
 #include <winget/ManifestInstaller.h>
-#include <wil/registry.h>
-#include <wil/resource.h>
 
 #include <string>
-#include <vector>
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -55,12 +52,6 @@ namespace AppInstaller::Repository::Microsoft
         const std::wstring SystemComponent{ L"SystemComponent" };
         // REG_SZ
         const std::wstring DisplayIcon{ L"DisplayIcon" };
-        // REG_DWORD
-        const std::wstring NoModify{ L"NoModify" };
-        // REG_DWORD
-        const std::wstring NoRepair{ L"NoRepair" };
-        // REG_SZ
-        const std::wstring ModifyPath{ L"ModifyPath" };
 
         // Gets the registry key associated with the given scope and architecture on this platform.
         // May return an empty key if there is no valid location (bad combination or not found).
@@ -94,8 +85,5 @@ namespace AppInstaller::Repository::Microsoft
         // This entry point is primarily to allow unit tests to operate of arbitrary keys;
         // product code should use PopulateIndexFromARP.
         void PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture, const std::map<std::string, std::string>& upgradeCodes = {}) const;
-
-        // Creates registry watchers for the given scope
-        std::vector<wil::unique_registry_watcher> CreateRegistryWatchers(Manifest::ScopeEnum scope, std::function<void(Manifest::ScopeEnum, Utility::Architecture, wil::RegistryChangeKind)> callback);
     };
 }
