@@ -1,15 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
 #include <wincrypt.h>
 
-#pragma warning( push )
-#pragma warning ( disable : 6553 )
-#include <wil/resource.h>
-#pragma warning( pop )
-
 #include <json/json-forwards.h>
+#include <wil/resource.h>
 
 #include <functional>
 #include <vector>

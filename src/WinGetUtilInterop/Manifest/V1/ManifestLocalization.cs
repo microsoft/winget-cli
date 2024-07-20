@@ -74,7 +74,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string CopyrightUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets the the package short description.
+        /// Gets or sets the package short description.
         /// </summary>
         public string ShortDescription { get; set; }
 

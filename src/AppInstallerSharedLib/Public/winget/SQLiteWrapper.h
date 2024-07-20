@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <wil/result_macros.h>
+#include <wil/resource.h>
 #include <winsqlite/winsqlite3.h>
 
 #include <AppInstallerLogging.h>
