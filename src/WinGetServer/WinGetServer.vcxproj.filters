@@ -40,6 +40,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="PropertySheet.props" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

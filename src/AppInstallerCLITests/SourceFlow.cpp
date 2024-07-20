@@ -59,7 +59,8 @@ TEST_CASE("SourceAddFlow_Agreement", "[SourceAddFlow][workflow]")
     REQUIRE(sourceAddOutput.str().find("https://test") != std::string::npos);
     REQUIRE(sourceAddOutput.str().find(Resource::LocString(Resource::String::SourceAgreementsMarketMessage).get()) != std::string::npos);
 
-    REQUIRE_SUCCEEDED(context);
+    // Verify Installer is called.
+    REQUIRE(context.GetTerminationHR() == S_OK);
 }
 
 TEST_CASE("SourceAddFlow_Agreement_Prompt_Yes", "[SourceAddFlow][workflow]")
@@ -84,7 +85,8 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_Yes", "[SourceAddFlow][workflow]")
     REQUIRE(sourceAddOutput.str().find("https://test") != std::string::npos);
     REQUIRE(sourceAddOutput.str().find(Resource::LocString(Resource::String::SourceAgreementsMarketMessage).get()) != std::string::npos);
 
-    REQUIRE_SUCCEEDED(context);
+    // Verify Installer is called.
+    REQUIRE(context.GetTerminationHR() == S_OK);
 }
 
 TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
@@ -109,7 +111,8 @@ TEST_CASE("SourceAddFlow_Agreement_Prompt_No", "[SourceAddFlow][workflow]")
     REQUIRE(sourceAddOutput.str().find("https://test") != std::string::npos);
     REQUIRE(sourceAddOutput.str().find(Resource::LocString(Resource::String::SourceAgreementsMarketMessage).get()) != std::string::npos);
 
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
+    // Verify Installer is called.
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
 }
 
 TEST_CASE("OpenSource_WithCustomHeader", "[OpenSource][CustomHeader]")

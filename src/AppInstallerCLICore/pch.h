@@ -43,12 +43,11 @@
 #include <winrt/Windows.Security.Cryptography.Certificates.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6285 6340 6388 6553 )
+#pragma warning ( disable : 6001 6285 6340 6388 )
 #include <wil/result.h>
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
 #include <wil/com.h>
-#include <wil/resource.h>
 #pragma warning( pop )
 
 #include <wrl/client.h>

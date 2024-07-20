@@ -187,6 +187,12 @@
           "minLength": 1,
           "maxLength": 2048,
           "description": "Custom switches will be passed directly to the installer by winget"
+        },
+        "Repair" : {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "The 'Repair' value must be passed to the installer, ModifyPath ARP command, or uninstaller ARP command when the user opts for a repair."
         }
       }
     },
@@ -581,6 +587,15 @@
       "type": [ "boolean", "null" ],
       "description": "Indicates whether the installer is prohibited from being downloaded for offline installation."
     },
+    "RepairBehavior": { 
+      "type": [ "string", "null" ],
+      "enum": [
+        "modify",
+        "uninstaller",
+        "installer"
+      ],
+      "description": "The repair method"
+    },
     "Installer": {
       "type": "object",
       "properties": {
@@ -698,6 +713,9 @@
         },
         "DownloadCommandProhibited": {
           "$ref": "#/definitions/DownloadCommandProhibited"
+        },
+        "RepairBehavior": {
+          "$ref": "#/definitions/RepairBehavior"
         }
       },
       "required": [
@@ -813,6 +831,9 @@
     },
     "DownloadCommandProhibited": {
       "$ref": "#/definitions/DownloadCommandProhibited"
+    },
+    "RepairBehavior": {
+      "$ref": "#/definitions/RepairBehavior"
     },
     "Installers": {
       "type": "array",

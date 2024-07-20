@@ -161,7 +161,7 @@ TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
-    REQUIRE_SUCCEEDED(context);
+    REQUIRE(context.GetTerminationHR() == S_OK);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());
     REQUIRE(installResultFile.is_open());
@@ -186,7 +186,7 @@ TEST_CASE("InstallFlow_InstallationNotes", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify installation notes are displayed
-    REQUIRE_SUCCEEDED(context);
+    REQUIRE(context.GetTerminationHR() == S_OK);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find("testInstallationNotes") != std::string::npos);
 }
@@ -209,7 +209,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_Warn", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify unsupported arguments warn message is shown
-    REQUIRE_SUCCEEDED(context);
+    REQUIRE(context.GetTerminationHR() == S_OK);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("-o,--log") != std::string::npos);
@@ -232,7 +232,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_Error", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify unsupported arguments error message is shown 
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("-l,--location") != std::string::npos);
@@ -254,7 +254,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_NotProvided")
     INFO(installOutput.str());
 
     // Verify unsupported arguments error message is not shown when not provided
-    REQUIRE_SUCCEEDED(context);
+    REQUIRE(context.GetTerminationHR() == S_OK);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) == std::string::npos);
     REQUIRE(installOutput.str().find("-o,--log") == std::string::npos);
@@ -389,7 +389,7 @@ TEST_CASE("InstallFlow_Zip_UnsupportedNestedInstaller", "[InstallFlow][workflow]
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE_TERMINATED_WITH(context, HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+    REQUIRE_TERMINATED_WITH(context, ERROR_NOT_SUPPORTED);
 
     // Verify Installer was not called
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
@@ -450,7 +450,7 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingDisabled", "[InstallF
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::IgnoreLocalArchiveMalwareScan);
 
-    DisableAdminSetting(AppInstaller::Settings::AdminSetting::LocalArchiveMalwareScanOverride);
+    DisableAdminSetting(AppInstaller::Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride);
 
     TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(false);
 
@@ -478,7 +478,7 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingEnabled", "[InstallFl
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::IgnoreLocalArchiveMalwareScan);
 
-    EnableAdminSetting(AppInstaller::Settings::AdminSetting::LocalArchiveMalwareScanOverride);
+    EnableAdminSetting(AppInstaller::Settings::BoolAdminSetting::LocalArchiveMalwareScanOverride);
 
     TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(false);
 
@@ -507,6 +507,59 @@ TEST_CASE("ExtractInstallerFromArchive_InvalidZip", "[InstallFlow][workflow]")
     auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
     context.Add<Data::Manifest>(manifest);
     context.Add<Data::Installer>(manifest.Installers.at(0));
+
+    // Provide an invalid zip file which should be handled appropriately.
+    context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    context << ExtractFilesFromArchive;
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ExtractArchiveFailed).get()) != std::string::npos);
+}
+
+TEST_CASE("ExtractInstallerFromArchiveWithTar", "[InstallFlow][workflow]")
+{
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::ArchiveExtractionMethod>(AppInstaller::Archive::ExtractionMethod::Tar);
+
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+
+    OverrideForShellExecute(context);
+    OverrideForVerifyAndSetNestedInstaller(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+
+    TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(true);
+    TestHook::SetExtractArchiveWithTarResult_Override setExtractArchiveWithTarResultOverride(ERROR_SUCCESS);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ExtractArchiveSucceeded).get()) != std::string::npos);
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
+TEST_CASE("ExtractInstallerFromArchiveWithTar_InvalidZip", "[InstallFlow][workflow]")
+{
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::ArchiveExtractionMethod>(AppInstaller::Archive::ExtractionMethod::Tar);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
+    context.Add<Data::Manifest>(manifest);
+    context.Add<Data::Installer>(manifest.Installers.at(0));
+
     // Provide an invalid zip file which should be handled appropriately.
     context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
     context << ExtractFilesFromArchive;
@@ -644,17 +697,21 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     OverridePortableInstaller(installContext);
     TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(false);
     const auto& targetDirectory = tempDirectory.GetPath();
+    const auto& portableTargetPath = targetDirectory / "AppInstallerTestExeInstaller.exe";
     installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
     installContext.Args.AddArg(Execution::Args::Type::InstallLocation, targetDirectory.u8string());
     installContext.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
 
     InstallCommand install({});
     install.Execute(installContext);
-    INFO(installOutput.str());
 
-    const auto& portableTargetPath = targetDirectory / "AppInstallerTestExeInstaller.exe";
-    REQUIRE(std::filesystem::exists(portableTargetPath));
-    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
+    {
+        INFO(installOutput.str());
+
+        // Use CHECK to allow the uninstall to still occur
+        CHECK(std::filesystem::exists(portableTargetPath));
+        CHECK(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
+    }
 
     // Perform uninstall
     std::ostringstream uninstallOutput;
@@ -716,131 +773,166 @@ TEST_CASE("PortableInstallFlow_MachineScope", "[InstallFlow][workflow]")
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
 {
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-    Manifest manifest;
-    std::vector<std::string> expectedArgs;
-    std::vector<std::string> forbiddenArgs;
-    std::optional<std::string> exactArgs;
-
-    SECTION("MSI | No CLI args | No manifest switches")
     {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Default Msi type with no args passed in, no switches specified in manifest
-        manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
-        expectedArgs.emplace_back("/passive");
-        expectedArgs.emplace_back(FileLogger::DefaultPrefix());
-        expectedArgs.emplace_back(manifest.Id);
-        expectedArgs.emplace_back(manifest.Version);
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find("/passive") != std::string::npos);
+        REQUIRE(installerArgs.find(FileLogger::DefaultPrefix()) != std::string::npos);
+        REQUIRE(installerArgs.find(manifest.Id) != std::string::npos);
+        REQUIRE(installerArgs.find(manifest.Version) != std::string::npos);
     }
-    SECTION("MSI | With CLI args | No manifest switches")
+
     {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Msi type with /silent and /log and /custom and /installlocation, no switches specified in manifest
-        manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_NoSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
-        expectedArgs.emplace_back("/quiet");
-        expectedArgs.emplace_back("/log \"MyLog.log\"");
-        expectedArgs.emplace_back("TARGETDIR=\"MyDir\"");
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find("/quiet") != std::string::npos);
+        REQUIRE(installerArgs.find("/log \"MyLog.log\"") != std::string::npos);
+        REQUIRE(installerArgs.find("TARGETDIR=\"MyDir\"") != std::string::npos);
     }
-    SECTION("MSI | With CLI args | With manifest switches")
+
     {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Msi type with /silent and /log and /custom and /installlocation, switches specified in manifest
-        manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_WithSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Msi_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
-        expectedArgs.emplace_back("/mysilent"); // Use declaration in manifest
-        expectedArgs.emplace_back("/mylog=\"MyLog.log\""); // Use declaration in manifest
-        expectedArgs.emplace_back("/mycustom"); // Use declaration in manifest
-        expectedArgs.emplace_back("/myinstalldir=\"MyDir\""); // Use declaration in manifest
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find("/mysilent") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/mylog=\"MyLog.log\"") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/mycustom") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/myinstalldir=\"MyDir\"") != std::string::npos); // Use declaration in manifest
     }
-    SECTION("Inno | No CLI args | No manifest switches")
+
     {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Default Inno type with no args passed in, no switches specified in manifest
-        manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
         context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
-        expectedArgs.emplace_back("/SILENT");
-        expectedArgs.emplace_back(FileLogger::DefaultPrefix());
-        expectedArgs.emplace_back(manifest.Id);
-        expectedArgs.emplace_back(manifest.Version);
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find("/SILENT") != std::string::npos);
+        REQUIRE(installerArgs.find(FileLogger::DefaultPrefix()) != std::string::npos);
+        REQUIRE(installerArgs.find(manifest.Id) != std::string::npos);
+        REQUIRE(installerArgs.find(manifest.Version) != std::string::npos);
     }
-    SECTION("Inno | With CLI args | No manifest switches")
+
     {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Inno type with /silent and /log and /custom and /installlocation, no switches specified in manifest
-        manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
-        expectedArgs.emplace_back("/VERYSILENT");
-        expectedArgs.emplace_back("/LOG=\"MyLog.log\"");
-        expectedArgs.emplace_back("/DIR=\"MyDir\"");
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find("/VERYSILENT") != std::string::npos);
+        REQUIRE(installerArgs.find("/LOG=\"MyLog.log\"") != std::string::npos);
+        REQUIRE(installerArgs.find("/DIR=\"MyDir\"") != std::string::npos);
     }
-    SECTION("Inno | With CLI args | With manifest switches")
+
     {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Inno type with /silent and /log and /custom and /installlocation, switches specified in manifest
-        manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
-        expectedArgs.emplace_back("/mysilent"); // Use declaration in manifest
-        expectedArgs.emplace_back("/mylog=\"MyLog.log\""); // Use declaration in manifest
-        expectedArgs.emplace_back("/mycustom"); // Use declaration in manifest
-        expectedArgs.emplace_back("/myinstalldir=\"MyDir\""); // Use declaration in manifest
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find("/mysilent") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/mylog=\"MyLog.log\"") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/mycustom") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/myinstalldir=\"MyDir\"") != std::string::npos); // Use declaration in manifest
     }
-    SECTION("Inno | With CLI args | With manifest switches | With --custom arg")
+
     {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Inno type with /silent and /log and /custom and /installlocation, switches specified in manifest and --custom argument used in cli
-        manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
         context.Args.AddArg(Execution::Args::Type::CustomSwitches, "/MyAppendedSwitch"sv);
-        expectedArgs.emplace_back("/mysilent"); // Use declaration in manifest
-        expectedArgs.emplace_back("/mylog=\"MyLog.log\""); // Use declaration in manifest
-        expectedArgs.emplace_back("/mycustom"); // Use declaration in manifest
-        expectedArgs.emplace_back("/myinstalldir=\"MyDir\""); // Use declaration in manifest
-        expectedArgs.emplace_back("/MyAppendedSwitch"); // Use declaration from argument
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find("/mysilent") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/mylog=\"MyLog.log\"") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/mycustom") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/myinstalldir=\"MyDir\"") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/MyAppendedSwitch") != std::string::npos); // Use declaration from argument
     }
-    SECTION("Inno | With CLI args | With manifest switches | With whitespace --custom arg")
+
     {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Inno type with /silent and /log and /custom and /installlocation, switches specified in manifest and whitespace-only --custom argument used in cli
-        manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::CustomSwitches, "\t"sv);
-        expectedArgs.emplace_back("/mysilent"); // Use declaration in manifest
-        forbiddenArgs.emplace_back("\t"); // Whitespace only Custom switches should not be appended
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find("/mysilent") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("\t") == std::string::npos); // Whitespace only Custom switches should not be appended
     }
-    SECTION("Inno | With CLI args | With manifest switches | With --override arg")
+
     {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Override switch specified. The whole arg passed to installer is overridden.
-        manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
         context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
         context.Args.AddArg(Execution::Args::Type::Override, "/OverrideEverything"sv);
-        exactArgs = "/OverrideEverything"; // Use value specified in override switch
-    }
-
-    context.Add<Data::Manifest>(manifest);
-    context.Add<Data::Installer>(manifest.Installers.at(0));
-    context << GetInstallerArgs;
-    std::string installerArgs = context.Get<Data::InstallerArgs>();
-    for (const auto& expectedArg : expectedArgs)
-    {
-        REQUIRE(installerArgs.find(expectedArg) != std::string::npos);
-    }
-
-    for (const auto& forbiddenArg : forbiddenArgs)
-    {
-        REQUIRE(installerArgs.find(forbiddenArg) == std::string::npos);
-    }
-
-    if (exactArgs)
-    {
-        REQUIRE(installerArgs == *exactArgs);
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs == "/OverrideEverything"); // Use value specified in override switch
     }
 }
 
@@ -1168,4 +1260,51 @@ TEST_CASE("InstallFlow_InstallAcquiresLock", "[InstallFlow][workflow]")
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/custom") != std::string::npos);
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_InstallWithReboot", "[InstallFlow][workflow][reboot]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ExpectedReturnCodes.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::AllowReboot);
+
+    context.Override({ ShellExecuteInstallImpl, [&](TestContext& context)
+    {
+        // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL (should be treated as an installer error)
+        context.Add<Data::OperationReturnCode>(10);
+    } });
+
+    SECTION("Reboot success")
+    {
+        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(true);
+
+        InstallCommand install({});
+        install.Execute(context);
+        INFO(installOutput.str());
+
+        REQUIRE(context.IsTerminated());
+        REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
+    }
+    SECTION("Reboot failed")
+    {
+        TestHook::SetInitiateRebootResult_Override initiateRebootResultOverride(false);
+
+        InstallCommand install({});
+        install.Execute(context);
+        INFO(installOutput.str());
+
+        REQUIRE(context.IsTerminated());
+        REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InitiatingReboot).get()) != std::string::npos);
+        REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToInitiateReboot).get()) != std::string::npos);
+    }
 }

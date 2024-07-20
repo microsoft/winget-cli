@@ -3,6 +3,7 @@
 #pragma once
 #include <winget/Settings.h>
 #include <winget/UserSettings.h>
+#include <wil/resource.h>
 #include <string>
 
 namespace TestCommon
