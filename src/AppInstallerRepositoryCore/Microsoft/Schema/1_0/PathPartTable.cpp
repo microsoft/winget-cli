@@ -376,7 +376,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
     {
         using QCol = SQLite::Builder::QualifiedColumn;
 
-        // Build a select statement to find pathpart rows containing references to parents with nonexistent rowids
+        // Build a select statement to find pathpart rows containing references to parents with non-existent rowids
         // Such as:
         // Select l.rowid, l.parent from pathparts as l left outer join pathparts as r on l.parent = r.rowid where l.parent is not null and r.pathpart is null
         constexpr std::string_view s_left = "left"sv;

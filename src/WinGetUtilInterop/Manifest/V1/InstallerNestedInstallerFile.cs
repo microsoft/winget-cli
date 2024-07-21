@@ -1,14 +1,9 @@
-﻿// -----------------------------------------------------------------------------
-// <copyright file="InstallerNestedInstallerFile.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
-// </copyright>
-// -----------------------------------------------------------------------------
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Microsoft.WinGetUtil.Models.V1
 {
-    /// <summary>
-    /// Installer nested installer file.
-    /// </summary>
     public class InstallerNestedInstallerFile
     {
         /// <summary>
@@ -17,7 +12,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string RelativeFilePath { get; set; }
 
         /// <summary>
-        /// Gets or sets portable command alias.
+        /// Gets or set portable command alias.
         /// </summary>
         public string PortableCommandAlias { get; set; }
     }

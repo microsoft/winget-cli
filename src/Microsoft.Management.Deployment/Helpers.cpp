@@ -1,8 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+
+#pragma warning ( push )
+// 6001 - use of uninitialized memory in wil/result.h
+// 6388 - *data might not be '0' in wil/result.h
+// 6553 - annotation to value type
+#pragma warning ( disable : 6001 6388 6553 )
 #include <wil/resource.h>
 #include <wil/win32_helpers.h>
+#pragma warning ( pop )
+
 #include <winrt/Windows.Security.Authorization.AppCapabilityAccess.h>
 #include <appmodel.h>
 #include <Helpers.h>

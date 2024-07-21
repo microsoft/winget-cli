@@ -333,7 +333,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             bool result = true;
 
             {
-                // Build a select statement to find map rows containing references to manifests with nonexistent rowids
+                // Build a select statement to find map rows containing references to manifests with non-existent rowids
                 // Such as:
                 // Select map.rowid, map.manifest from tags_map as map left outer join manifest on map.manifest = manifest.rowid where manifest.id is null
 
@@ -366,7 +366,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
 
             {
-                // Build a select statement to find map rows containing references to 1:1 tables with nonexistent rowids
+                // Build a select statement to find map rows containing references to 1:1 tables with non-existent rowids
                 // Such as:
                 // Select map.rowid, map.tag from tags_map as map left outer join tags on map.tag = tags.rowid where tags.tag is null
                 SQLite::Builder::StatementBuilder builder;

@@ -8,8 +8,6 @@
 #include <AppInstallerProgress.h>
 #include <winget/LocIndependent.h>
 
-#include <wil/resource.h>
-
 #include <atomic>
 #include <iomanip>
 #include <istream>

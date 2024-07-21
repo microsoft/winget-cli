@@ -1,32 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props')" />
+  <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210505.3\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210505.3\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
-    <CppWinRTOptimized>true</CppWinRTOptimized>
-    <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
     <CppWinRTGenerateWindowsMetadata>true</CppWinRTGenerateWindowsMetadata>
-    <MinimalCoreWin>true</MinimalCoreWin>
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{89b1aab4-2bbc-4b65-9ed7-a01d5cf88230}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
     <RootNamespace>AppInstallerCLITests</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <ProjectName>AppInstallerCLITests</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|ARM64">
-      <Configuration>Debug</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|ARM64">
-      <Configuration>Release</Configuration>
-      <Platform>ARM64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
@@ -43,24 +29,8 @@
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\catch2\catch2.vcxitems" Label="Shared" />
     <Import Project="..\ManifestSchema\ManifestSchema.vcxitems" Label="Shared" />
@@ -70,183 +40,20 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets">
-    <Import Project="PropertySheet.props" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg">
-    <VcpkgEnableManifest>true</VcpkgEnableManifest>
-    <VcpkgApplocalDeps>false</VcpkgApplocalDeps>
-    <VcpkgInstalledDir>$(ProjectDir)..\vcpkg_installed</VcpkgInstalledDir>
-    <VcpkgUseStatic>
-    </VcpkgUseStatic>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <VcpkgTriplet>arm</VcpkgTriplet>
-    <VcpkgConfiguration>Debug</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <VcpkgTriplet>arm64</VcpkgTriplet>
-    <VcpkgConfiguration>Debug</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <VcpkgTriplet>x86</VcpkgTriplet>
-    <VcpkgConfiguration>Debug</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <VcpkgTriplet>x64</VcpkgTriplet>
-    <VcpkgConfiguration>Debug</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <VcpkgTriplet>arm-release</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <VcpkgTriplet>arm64-release</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <VcpkgTriplet>x86-release</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
-  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <VcpkgTriplet>x64-release</VcpkgTriplet>
-    <VcpkgConfiguration>Release</VcpkgConfiguration>
-  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <WarningLevel>Level4</WarningLevel>
-      <AdditionalOptions>%(AdditionalOptions) /permissive- /bigobj /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</AdditionalOptions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
-    <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\SfsClient\sfs-client\client\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\SfsClient\sfs-client\client\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatWarningAsError>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</TreatWarningAsError>
-      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</RuntimeTypeInfo>
-      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</RuntimeTypeInfo>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
-      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\SfsClient\sfs-client\client\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
-      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</RuntimeTypeInfo>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <Manifest>
-      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
-    </Manifest>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
-    <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\SfsClient\sfs-client\client\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\SfsClient\sfs-client\client\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;$(ProjectDir)..\SfsClient\sfs-client\client\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningAsError>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatWarningAsError>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</TreatWarningAsError>
-      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</RuntimeTypeInfo>
-      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</RuntimeTypeInfo>
-      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</RuntimeTypeInfo>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
-    </Link>
-    <Manifest>
-      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
-      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
-    </Manifest>
-    <Manifest>
-      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
-    </Manifest>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
+      <Command>copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -262,32 +69,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
-    <ClCompile Include="AppShutdown.cpp" />
     <ClCompile Include="Archive.cpp" />
     <ClCompile Include="Argument.cpp" />
     <ClCompile Include="ARPChanges.cpp" />
-    <ClCompile Include="ArpHelper.cpp" />
     <ClCompile Include="Certificates.cpp" />
-    <ClCompile Include="CheckpointDatabase.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="Completion.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
     <ClCompile Include="Correlation.cpp" />
     <ClCompile Include="CustomHeader.cpp" />
-    <ClCompile Include="DateTime.cpp" />
     <ClCompile Include="Dependencies.cpp" />
     <ClCompile Include="Downloader.cpp" />
-    <ClCompile Include="DownloadFlow.cpp" />
-    <ClCompile Include="Errors.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
     <ClCompile Include="ExportFlow.cpp" />
-    <ClCompile Include="FileCache.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FolderFileWatcher.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="HashCommand.cpp" />
     <ClCompile Include="HttpClientHelper.cpp" />
-    <ClCompile Include="IconExtraction.cpp" />
     <ClCompile Include="ImportFlow.cpp" />
     <ClCompile Include="InstallDependenciesFlow.cpp" />
     <ClCompile Include="InstallerMetadataCollectionContext.cpp" />
@@ -297,13 +96,10 @@
     <ClCompile Include="MsiExecArguments.cpp" />
     <ClCompile Include="MsixInfo.cpp" />
     <ClCompile Include="MsixManifest.cpp" />
-    <ClCompile Include="MSStoreDownloadFlow.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
-    <ClCompile Include="PackageVersionDataManifest.cpp" />
-    <ClCompile Include="PathVariable.cpp" />
     <ClCompile Include="PinFlow.cpp" />
     <ClCompile Include="PinningIndex.cpp" />
     <ClCompile Include="PortableInstaller.cpp" />
@@ -314,20 +110,15 @@
     <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Resources.cpp" />
-    <ClCompile Include="Rest.cpp" />
     <ClCompile Include="RestClient.cpp" />
+    <ClCompile Include="RestHelper.cpp" />
     <ClCompile Include="RestInterface_1_0.cpp" />
     <ClCompile Include="RestInterface_1_1.cpp" />
     <ClCompile Include="RestInterface_1_4.cpp" />
-    <ClCompile Include="RestInterface_1_5.cpp" />
-    <ClCompile Include="RestInterface_1_6.cpp" />
-    <ClCompile Include="RestInterface_1_7.cpp" />
-    <ClCompile Include="ResumeFlow.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="SearchRequestSerializer.cpp" />
     <ClCompile Include="ShowFlow.cpp" />
     <ClCompile Include="SourceFlow.cpp" />
-    <ClCompile Include="SQLiteDynamicStorage.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
     <ClCompile Include="Strings.cpp" />
     <ClCompile Include="TestConfiguration.cpp" />
@@ -345,9 +136,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -360,17 +149,10 @@
     <ClCompile Include="TestCommon.cpp" />
     <ClCompile Include="WorkflowCommon.cpp" />
     <ClCompile Include="WorkflowGroupPolicy.cpp" />
-    <ClCompile Include="Yaml.cpp" />
     <ClCompile Include="YamlManifest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\Manifest-Good.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\DownloadFlowTest_DownloadCommandProhibited.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\DownloadFlowTest_MSStore.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_EncodedUrl.yaml">
@@ -473,7 +255,6 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <None Include="packages.config" />
-    <None Include="PropertySheet.props" />
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -694,6 +475,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-PackageFamilyNameOnExe-Ver1_2.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-MultipleArpVersionDeclared.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -760,9 +544,6 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_ExeDependencies.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\UpdateFlowTest_ExpectedReturnCodes.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Msix.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -797,15 +578,6 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_4-Singleton.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ManifestV1_5-Singleton.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ManifestV1_6-Singleton.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ManifestV1_7-Singleton.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
@@ -856,42 +628,6 @@
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Version.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_5\ManifestV1_5-MultiFile-DefaultLocale.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_5\ManifestV1_5-MultiFile-Installer.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_5\ManifestV1_5-MultiFile-Locale.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_5\ManifestV1_5-MultiFile-Version.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-DefaultLocale.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Installer.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Locale.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Version.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-DefaultLocale.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Installer.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Locale.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_7\ManifestV1_7-MultiFile-Version.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -925,9 +661,6 @@
     <CopyFileToFolders Include="TestData\Installer-Good.msixbundle">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Installer-Good-WithStub.msixbundle">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Signed-Good.msix">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -943,9 +676,6 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-MsixBundleInstaller.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-MsixBundleInstaller-WithStub.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentMsixBundleInstallerFields.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -959,42 +689,6 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Node-Types.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\notepad.exe">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\notepad.ico">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-DefaultLocale.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Locale2.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Shadow2.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Shadow\V1_5\ManifestV1_5-Shadow-Installer.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Node-Merge.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Node-Merge2.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Node-Mapping.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ContainsEscapeControlCode.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>
@@ -1017,9 +711,6 @@
     <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
       <Project>{ca460806-5e41-4e97-9a3d-1d74b433b663}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\SfsClient\SfsClient.vcxproj">
-      <Project>{1b9077b3-8923-4ecd-8fc9-b3190fcbe4d4}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
       <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>
     </ProjectReference>
@@ -1029,15 +720,15 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
-    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
+    <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210505.3\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210505.3\build\native\Microsoft.Windows.CppWinRT.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.231028.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
-    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
-    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.230706.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.ImplementationLibrary.1.0.210204.1\build\native\Microsoft.Windows.ImplementationLibrary.targets'))" />
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210505.3\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210505.3\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210505.3\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210505.3\build\native\Microsoft.Windows.CppWinRT.targets'))" />
   </Target>
 </Project>

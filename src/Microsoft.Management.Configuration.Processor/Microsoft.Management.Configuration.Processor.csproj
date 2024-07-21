@@ -20,14 +20,6 @@
     <CsWinRTEnableLogging>true</CsWinRTEnableLogging>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-
   <PropertyGroup>
     <CsWinRTComponent>true</CsWinRTComponent>
     <CsWinRTWindowsMetadata>10.0.22000.0</CsWinRTWindowsMetadata>

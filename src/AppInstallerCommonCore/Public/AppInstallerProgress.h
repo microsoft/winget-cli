@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+
+#pragma warning( push )
+#pragma warning ( disable : 6553 )
 #include <wil/resource.h>
+#pragma warning( pop )
+
 #include <atomic>
 #include <functional>
 #include <string_view>

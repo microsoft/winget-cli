@@ -426,8 +426,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Set.
         /// </summary>
-        /// <param name="value">Setting value.</param>
-        /// <param name="rebootRequired">Expected reboot required.</param>
         [Fact]
         public void InvokeSetResource_Test()
         {

@@ -127,7 +127,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 AICLI_LOG(CLI, Error, << "Nested installer type not supported: " << installer.NestedInstallerType);
                 context.Reporter.Error() << Resource::String::NestedInstallerNotSupported << std::endl;
-                AICLI_TERMINATE_CONTEXT(ERROR_NOT_SUPPORTED);
+                AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
             }
 
             auto const& nestedInstallerFiles = installer.NestedInstallerFiles;
