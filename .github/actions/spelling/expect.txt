@@ -485,6 +485,7 @@ nput
 nsis
 nstall
 nstaller
+NTAPI
 nteractive
 nterface
 nuffing
@@ -699,6 +700,7 @@ testexampleinstaller
 testnames
 TESTPORTABLEFILE
 thiscouldbeapc
+threadpool
 threehundred
 Thunstrom
 timespan
