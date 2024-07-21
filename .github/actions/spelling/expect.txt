@@ -281,6 +281,7 @@ NOTRACK
 NOUPDATE
 npmjs
 nsis
+NTAPI
 nuffing
 objbase
 objidl
@@ -403,6 +404,7 @@ Templating
 temppath
 testexampleinstaller
 thiscouldbeapc
+threadpool
 threehundred
 timezone
 Tlg
