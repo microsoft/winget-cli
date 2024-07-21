@@ -3045,4 +3045,62 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="WINGET_CONFIG_ERROR_HISTORY_ITEM_NOT_FOUND" xml:space="preserve">
     <value>The specified configuration could not be found.</value>
   </data>
+  <data name="ConfigurationSetStateCompleted" xml:space="preserve">
+    <value>Completed</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateInProgress" xml:space="preserve">
+    <value>In progress</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStatePending" xml:space="preserve">
+    <value>Pending</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationSetStateUnknown" xml:space="preserve">
+    <value>Unknown</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationStatusWatchArgumentDescription" xml:space="preserve">
+    <value>Monitor configuration status.</value>
+  </data>
+  <data name="ConfigurationUnitStateCompleted" xml:space="preserve">
+    <value>Completed</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateInProgress" xml:space="preserve">
+    <value>In progress</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStatePending" xml:space="preserve">
+    <value>Pending</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateSkipped" xml:space="preserve">
+    <value>Skipped</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigurationUnitStateUnknown" xml:space="preserve">
+    <value>Unknown</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListApplyBegun" xml:space="preserve">
+    <value>Apply Begun</value>
+  </data>
+  <data name="ConfigureListApplyEnded" xml:space="preserve">
+    <value>Apply Ended</value>
+  </data>
+  <data name="ConfigureListResult" xml:space="preserve">
+    <value>Result</value>
+  </data>
+  <data name="ConfigureListResultDescription" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="ConfigureListState" xml:space="preserve">
+    <value>State</value>
+    <comment>The state of processing an item.</comment>
+  </data>
+  <data name="ConfigureListUnit" xml:space="preserve">
+    <value>Unit</value>
+  </data>
 </root>

@@ -37,6 +37,13 @@ namespace AppInstaller::Utility
         }
     }
 
+    std::string TimePointToString(const std::chrono::system_clock::time_point& time, bool useRFC3339)
+    {
+        std::ostringstream stream;
+        OutputTimePoint(stream, time, useRFC3339);
+        return std::move(stream).str();
+    }
+
     std::string GetCurrentTimeForFilename()
     {
         std::stringstream stream;

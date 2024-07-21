@@ -12,6 +12,9 @@ namespace AppInstaller::Utility
     // Time is also assumed to be after the epoch.
     void OutputTimePoint(std::ostream& stream, const std::chrono::system_clock::time_point& time, bool useRFC3339 = false);
 
+    // Converts the time point to a string using OutputTimePoint.
+    std::string TimePointToString(const std::chrono::system_clock::time_point& time, bool useRFC3339 = false);
+
     // Gets the current time as a string. Can be used as a file name.
     std::string GetCurrentTimeForFilename();
 

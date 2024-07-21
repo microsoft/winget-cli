@@ -1,3 +1,4 @@
+# Because it doesn't handle argument -Words well
 # See https://github.com/check-spelling/check-spelling/wiki/Configuration-Examples:-excludes
 (?:^|/)(?i)COPYRIGHT
 (?:^|/)(?i)LICEN[CS]E
@@ -67,6 +68,8 @@
 \.zip$
 ^\.github/actions/spelling/
 ^\.github/workflows/spelling\d*\.yml$
+^\Qsrc/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstallerV2.msi\E$
+^\Qsrc/AppInstallerCLIE2ETests/TestData/Configuration/Empty.yml\E$
 ^\Qsrc/PureLib/pure/AUTHORS\E$
 ^cgmanifest\.json$
 ^Localization/
@@ -87,6 +90,5 @@
 ^src/Valijson/
 ^src/Xlang/
 ^src/YamlCppLib/
-# Because it doesn't handle argument -Words well
 ^tools/CorrelationTestbed/.*\.ps1$
 ignore$

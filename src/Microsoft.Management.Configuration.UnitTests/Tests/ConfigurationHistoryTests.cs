@@ -301,6 +301,9 @@ properties:
             ConfigurationSet configurationSet = configurationSetResult.Set;
             Assert.NotNull(configurationSet);
 
+            TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
+            setProcessor.EnableDefaultGroupProcessorCreation = true;
+
             configurationSet.Name = "Test Name";
             configurationSet.Origin = "Test Origin";
             configurationSet.Path = "Test Path";
@@ -334,6 +337,7 @@ properties:
             }
 
             this.AssertSetsEqual(configurationSet, historySet);
+            this.AssertResultsEqual(result, historySet);
             return historySet;
         }
 
@@ -343,12 +347,26 @@ properties:
             Assert.Equal(expectedSet.Name, actualSet.Name);
             Assert.Equal(expectedSet.Origin, actualSet.Origin);
             Assert.Equal(expectedSet.Path, actualSet.Path);
-            Assert.NotEqual(DateTimeOffset.UnixEpoch, actualSet.FirstApply);
+
+            Assert.Equal(ConfigurationSetState.Completed, actualSet.State);
+
+            this.AssertTimeNotZero(actualSet.FirstApply);
+            this.AssertTimeNotZero(actualSet.ApplyBegun);
+            this.AssertTimeNotZero(actualSet.ApplyEnded);
+            Assert.True(actualSet.FirstApply <= actualSet.ApplyBegun);
+            Assert.True(actualSet.ApplyBegun <= actualSet.ApplyEnded);
+
             Assert.Equal(expectedSet.SchemaVersion, actualSet.SchemaVersion);
             Assert.Equal(expectedSet.SchemaUri, actualSet.SchemaUri);
             Assert.True(expectedSet.Metadata.ContentEquals(actualSet.Metadata));
 
             this.AssertUnitsListEqual(expectedSet.Units, actualSet.Units);
+        }
+
+        private void AssertTimeNotZero(DateTimeOffset actualTime)
+        {
+            Assert.NotEqual(DateTimeOffset.UnixEpoch, actualTime);
+            Assert.NotEqual(DateTimeOffset.MinValue, actualTime);
         }
 
         private void AssertUnitsListEqual(IList<ConfigurationUnit> expectedUnits, IList<ConfigurationUnit> actualUnits)
@@ -385,6 +403,65 @@ properties:
             if (expectedUnit.IsGroup)
             {
                 this.AssertUnitsListEqual(expectedUnit.Units, actualUnit.Units);
+            }
+        }
+
+        private void AssertResultsEqual(ApplyConfigurationSetResult expected, ConfigurationSet actualSet)
+        {
+            List<ConfigurationUnit> actualUnitList = new List<ConfigurationUnit>();
+
+            foreach (ConfigurationUnit unit in actualSet.Units)
+            {
+                this.AccumulateUnits(actualUnitList, unit);
+            }
+
+            foreach (ApplyConfigurationUnitResult expectedUnitResult in expected.UnitResults)
+            {
+                ConfigurationUnit? actualUnit = null;
+                foreach (ConfigurationUnit historyUnit in actualUnitList)
+                {
+                    if (historyUnit.InstanceIdentifier == expectedUnitResult.Unit.InstanceIdentifier)
+                    {
+                        actualUnit = historyUnit;
+                    }
+                }
+
+                this.AssertUnitResultsEqual(expectedUnitResult, actualUnit);
+            }
+        }
+
+        private void AccumulateUnits(List<ConfigurationUnit> unitList, ConfigurationUnit unit)
+        {
+            unitList.Add(unit);
+            if (unit.IsGroup)
+            {
+                foreach (ConfigurationUnit child in unit.Units)
+                {
+                    this.AccumulateUnits(unitList, child);
+                }
+            }
+        }
+
+        private void AssertUnitResultsEqual(ApplyConfigurationUnitResult expectedResult, ConfigurationUnit? actualUnit)
+        {
+            Assert.NotNull(actualUnit);
+            Assert.Equal(expectedResult.State, actualUnit.State);
+
+            var expectedResultInformation = expectedResult.ResultInformation;
+            if (expectedResultInformation != null)
+            {
+                var actualResultInformation = actualUnit.ResultInformation;
+                Assert.NotNull(actualResultInformation);
+
+                Assert.Equal(expectedResultInformation.ResultCode == null, actualResultInformation.ResultCode == null);
+                if (expectedResultInformation.ResultCode != null)
+                {
+                    Assert.Equal(expectedResultInformation.ResultCode.HResult, actualResultInformation.ResultCode!.HResult);
+                }
+
+                Assert.Equal(expectedResultInformation.Description, actualResultInformation.Description);
+                Assert.Equal(expectedResultInformation.Details, actualResultInformation.Details);
+                Assert.Equal(expectedResultInformation.ResultSource, actualResultInformation.ResultSource);
             }
         }
     }

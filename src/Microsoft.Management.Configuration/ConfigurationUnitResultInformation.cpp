@@ -58,6 +58,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_resultSource = resultSource;
     }
 
+    void ConfigurationUnitResultInformation::Initialize(hresult resultCode, std::wstring_view description, std::wstring_view details, ConfigurationUnitResultSource resultSource)
+    {
+        m_resultCode = resultCode;
+        m_description = description;
+        m_details = details;
+        m_resultSource = resultSource;
+    }
+
     hresult ConfigurationUnitResultInformation::ResultCode() const
     {
         return m_resultCode;

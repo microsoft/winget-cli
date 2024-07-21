@@ -20,7 +20,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
     void Interface::InitializeDatabase()
     {
         V0_1::Interface::InitializeDatabase();
+
+        Savepoint savepoint = Savepoint::Create(*m_storage, "InitializeDatabase_0_2");
         MigrateFrom0_1();
+        savepoint.Commit();
     }
 
     bool Interface::MigrateFrom(IConfigurationDatabase* current)
@@ -51,7 +54,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
     void Interface::AddQueueItem(const GUID& instanceIdentifier, const std::string& objectName)
     {
         QueueTable queueTable(*m_storage);
-        queueTable.AddQueueItem(instanceIdentifier, objectName);
+        queueTable.AddQueueItemWithoutProcess(instanceIdentifier, objectName);
     }
 
     void Interface::SetActiveQueueItem(const std::string& objectName)
@@ -60,10 +63,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         queueTable.SetActiveQueueItem(objectName);
     }
 
-    std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, bool>> Interface::GetQueueItems()
+    std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, DWORD, bool>> Interface::GetQueueItems()
     {
         QueueTable queueTable(*m_storage);
-        return queueTable.GetQueueItems();
+        return queueTable.GetQueueItemsWithoutProcess();
     }
 
     void Interface::RemoveQueueItem(const std::string& objectName)
