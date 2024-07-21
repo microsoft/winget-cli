@@ -20,6 +20,7 @@
 #include "GetConfigurationSetDetailsResult.h"
 #include "DefaultSetGroupProcessor.h"
 #include "ConfigurationSequencer.h"
+#include "ConfigurationStatus.h"
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
@@ -184,15 +185,32 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::ignore = m_threadGlobals.GetTelemetryLogger().EnableRuntime(value);
     }
 
-    event_token ConfigurationProcessor::ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>& handler)
+    event_token ConfigurationProcessor::ConfigurationChange(const Windows::Foundation::TypedEventHandler<Configuration::ConfigurationSet, Configuration::ConfigurationChangeData>& handler)
     {
+        if (!m_configurationChange)
+        {
+            auto status = ConfigurationStatus::Instance();
+            std::atomic_store(&m_changeRegistration, status->RegisterForChange(*this));
+        }
+
         return m_configurationChange.add(handler);
     }
 
     void ConfigurationProcessor::ConfigurationChange(const event_token& token) noexcept
     {
         m_configurationChange.remove(token);
+
+        if (!m_configurationChange)
+        {
+            std::atomic_store(&m_changeRegistration, {});
+        }
     }
+
+    void ConfigurationProcessor::ConfigurationChange(const Configuration::ConfigurationSet& set, const Configuration::ConfigurationChangeData& data) try
+    {
+        m_configurationChange(set, data);
+    }
+    CATCH_LOG();
 
     Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> ConfigurationProcessor::GetConfigurationHistory()
     {
@@ -311,7 +329,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     Windows::Foundation::Collections::IVector<ConfigurationConflict> ConfigurationProcessor::CheckForConflicts(
-        const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
+        const Windows::Foundation::Collections::IVectorView<Configuration::ConfigurationSet>& configurationSets,
         bool includeConfigurationHistory)
     {
         UNREFERENCED_PARAMETER(configurationSets);
@@ -320,24 +338,26 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVector<ConfigurationConflict>> ConfigurationProcessor::CheckForConflictsAsync(
-        const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
+        const Windows::Foundation::Collections::IVectorView<Configuration::ConfigurationSet>& configurationSets,
         bool includeConfigurationHistory)
     {
         co_return CheckForConflicts(configurationSets, includeConfigurationHistory);
     }
 
-    Configuration::GetConfigurationSetDetailsResult ConfigurationProcessor::GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailFlags detailFlags)
+    Configuration::GetConfigurationSetDetailsResult ConfigurationProcessor::GetSetDetails(const Configuration::ConfigurationSet& configurationSet, ConfigurationUnitDetailFlags detailFlags)
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
         return GetSetDetailsImpl(configurationSet, detailFlags);
     }
 
-    Windows::Foundation::IAsyncOperationWithProgress<Configuration::GetConfigurationSetDetailsResult, Configuration::GetConfigurationUnitDetailsResult> ConfigurationProcessor::GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailFlags detailFlags)
+    Windows::Foundation::IAsyncOperationWithProgress<Configuration::GetConfigurationSetDetailsResult, Configuration::GetConfigurationUnitDetailsResult> ConfigurationProcessor::GetSetDetailsAsync(
+        const Configuration::ConfigurationSet& configurationSet,
+        ConfigurationUnitDetailFlags detailFlags)
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
         auto strong_this{ get_strong() };
-        ConfigurationSet localSet = configurationSet;
+        Configuration::ConfigurationSet localSet = configurationSet;
 
         co_await winrt::resume_background();
 
@@ -351,7 +371,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_database.EnsureOpened(false);
         cancellation.ThrowIfCancelled();
 
-        std::vector<ConfigurationSet> result;
+        std::vector<Configuration::ConfigurationSet> result;
         for (const auto& set : m_database.GetSetHistory())
         {
             PropagateLifetimeWatcher(*set);
@@ -362,7 +382,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     Configuration::GetConfigurationSetDetailsResult ConfigurationProcessor::GetSetDetailsImpl(
-        const ConfigurationSet& configurationSet,
+        const Configuration::ConfigurationSet& configurationSet,
         ConfigurationUnitDetailFlags detailFlags,
         AppInstaller::WinRT::AsyncProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> progress)
     {
@@ -443,18 +463,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *unitResult;
     }
 
-    Configuration::ApplyConfigurationSetResult ConfigurationProcessor::ApplySet(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags)
+    Configuration::ApplyConfigurationSetResult ConfigurationProcessor::ApplySet(const Configuration::ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags)
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
         return ApplySetImpl(configurationSet, flags);
     }
 
-    Windows::Foundation::IAsyncOperationWithProgress<Configuration::ApplyConfigurationSetResult, Configuration::ConfigurationSetChangeData> ConfigurationProcessor::ApplySetAsync(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags)
+    Windows::Foundation::IAsyncOperationWithProgress<Configuration::ApplyConfigurationSetResult, Configuration::ConfigurationSetChangeData> ConfigurationProcessor::ApplySetAsync(
+        const Configuration::ConfigurationSet& configurationSet,
+        ApplyConfigurationSetFlags flags)
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
         auto strong_this{ get_strong() };
-        ConfigurationSet localSet = configurationSet;
+        Configuration::ConfigurationSet localSet = configurationSet;
 
         co_await winrt::resume_background();
 
@@ -462,13 +484,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     Configuration::ApplyConfigurationSetResult ConfigurationProcessor::ApplySetImpl(
-        const ConfigurationSet& configurationSet,
+        const Configuration::ConfigurationSet& configurationSet,
         ApplyConfigurationSetFlags flags,
         AppInstaller::WinRT::AsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> progress)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
         IConfigurationGroupProcessor groupProcessor;
+        bool recordHistoryAndStatus = false;
 
         if (WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly))
         {
@@ -483,6 +506,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             // Write this set to the database history
             // This is a somewhat arbitrary time to write it, but it should not be done if PerformConsistencyCheckOnly is passed, so this is convenient.
+            recordHistoryAndStatus = true;
             m_database.EnsureOpened();
             progress.ThrowIfCancelled();
             m_database.WriteSetHistory(configurationSet, WI_IsFlagSet(flags, ApplyConfigurationSetFlags::DoNotOverwriteMatchingOriginSet));
@@ -522,28 +546,34 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         try
         {
             ConfigurationSequencer sequencer{ m_database };
+            auto status = ConfigurationStatus::Instance();
+            guid setInstanceIdentifier = configurationSet.InstanceIdentifier();
+            auto updateState = [&](ConfigurationSetState state)
+                {
+                    try
+                    {
+                        progress.Progress(implementation::ConfigurationSetChangeData::Create(state));
+                    }
+                    CATCH_LOG();
+
+                    if (recordHistoryAndStatus)
+                    {
+                        status->UpdateSetState(setInstanceIdentifier, state);
+                    }
+                };
 
             if (!WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly))
             {
                 if (sequencer.Enqueue(configurationSet))
                 {
-                    try
-                    {
-                        progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::Pending));
-                    }
-                    CATCH_LOG();
-
+                    updateState(ConfigurationSetState::Pending);
                     sequencer.Wait(progress);
                 }
             }
 
             progress.ThrowIfCancelled();
 
-            try
-            {
-                progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::InProgress));
-            }
-            CATCH_LOG();
+            updateState(ConfigurationSetState::InProgress);
 
             // Forward unit result progress to caller
             auto applyOperation = groupProcessor.ApplyGroupSettingsAsync([&](const auto&, const IApplyGroupMemberSettingsResult& unitResult)
@@ -555,9 +585,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     }
 
                     // Create progress object
-                    auto applyResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSetChangeData>>();
+                    auto applyResult = make_self<implementation::ConfigurationSetChangeData>();
                     applyResult->Initialize(unitResult);
                     progress.Progress(*applyResult);
+
+                    if (recordHistoryAndStatus)
+                    {
+                        status->UpdateUnitState(setInstanceIdentifier, applyResult);
+                    }
                 });
 
             // Cancel the inner operation if we are cancelled
@@ -590,11 +625,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     itr->second->ResultInformation());
             }
 
-            try
-            {
-                progress.Progress(implementation::ConfigurationSetChangeData::Create(ConfigurationSetState::Completed));
-            }
-            CATCH_LOG();
+            updateState(ConfigurationSetState::Completed);
 
             m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(configurationSet), *result);
             return *result;
@@ -609,18 +640,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSet(const ConfigurationSet& configurationSet)
+    Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSet(const Configuration::ConfigurationSet& configurationSet)
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
         return TestSetImpl(configurationSet);
     }
 
-    Windows::Foundation::IAsyncOperationWithProgress<Configuration::TestConfigurationSetResult, Configuration::TestConfigurationUnitResult> ConfigurationProcessor::TestSetAsync(const ConfigurationSet& configurationSet)
+    Windows::Foundation::IAsyncOperationWithProgress<Configuration::TestConfigurationSetResult, Configuration::TestConfigurationUnitResult> ConfigurationProcessor::TestSetAsync(const Configuration::ConfigurationSet& configurationSet)
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
         auto strong_this{ get_strong() };
-        ConfigurationSet localSet = configurationSet;
+        Configuration::ConfigurationSet localSet = configurationSet;
 
         co_await winrt::resume_background();
 
@@ -628,7 +659,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSetImpl(
-        const ConfigurationSet& configurationSet,
+        const Configuration::ConfigurationSet& configurationSet,
         AppInstaller::WinRT::AsyncProgress<TestConfigurationSetResult, TestConfigurationUnitResult> progress)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
@@ -817,7 +848,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *result;
     }
 
-    IConfigurationGroupProcessor ConfigurationProcessor::GetSetGroupProcessor(const ConfigurationSet& configurationSet)
+    IConfigurationGroupProcessor ConfigurationProcessor::GetSetGroupProcessor(const Configuration::ConfigurationSet& configurationSet)
     {
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(configurationSet);
 
@@ -879,12 +910,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationProcessor::SetSupportsSchema03(bool value)
     {
         m_supportSchema03 = value;
-    }
-
-    void ConfigurationProcessor::RemoveHistory(const ConfigurationSet& configurationSet)
-    {
-        m_database.EnsureOpened(false);
-        m_database.RemoveSetHistory(configurationSet);
     }
 
     void ConfigurationProcessor::SendDiagnosticsImpl(const IDiagnosticInformation& information)

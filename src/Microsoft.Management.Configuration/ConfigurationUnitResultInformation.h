@@ -14,6 +14,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Initialize(hresult resultCode, std::wstring_view description);
         void Initialize(hresult resultCode, hstring description);
         void Initialize(hresult resultCode, ConfigurationUnitResultSource resultSource);
+        void Initialize(hresult resultCode, std::wstring_view description, std::wstring_view details, ConfigurationUnitResultSource resultSource);
 #endif
 
         hresult ResultCode() const;
