@@ -101,12 +101,12 @@ clhs
 CLIE
 CLOSEAPP
 cloudai
-cloudai
 cloudapp
 clsctx
 clsid
 cobertura
 CODEOWNERS
+Codeql
 COINIT
 Colortool
 combaseapi
@@ -171,8 +171,6 @@ dnld
 Dobbeleer
 DONOT
 dsc
-DShared
-DShared
 Dukhovni
 DUMMYVARIABLE
 DUMMYVARIABLESHOULDNOTEXIST
@@ -211,8 +209,6 @@ esac
 Esco
 eset
 esource
-ESPT
-ESPT
 ESRB
 ests
 etest
@@ -247,7 +243,6 @@ fundraiser
 fuzzer
 fzanollo
 gcpi
-gdnsuppress
 gdnsuppress
 Geert
 GESMBH
@@ -625,8 +620,6 @@ saghul
 Salz
 SARL
 SASURL
-sbom
-sbom
 schematab
 Schember
 Scm
@@ -635,6 +628,7 @@ sddl
 SECUREFILEPATH
 secureobject
 securestring
+Semmle
 seof
 servercert
 servercertificate
