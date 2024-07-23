@@ -107,6 +107,7 @@ clsid
 cobertura
 CODEOWNERS
 Codeql
+Codeql
 COINIT
 Colortool
 combaseapi
@@ -628,6 +629,7 @@ sddl
 SECUREFILEPATH
 secureobject
 securestring
+Semmle
 Semmle
 seof
 servercert
