@@ -5,6 +5,7 @@
 
 #include <exception>
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -30,6 +31,7 @@ void DisplayUsage()
         << "Options:" << std::endl
         << "  -h, --help\t\t\tDisplay this help message" << std::endl
         << "  -v, --version\t\t\tDisplay the library version" << std::endl
+        << "  -o, --outputFile <path>\t\tWhen specified, the JSON output is saved to this file" << std::endl
         << "  --isApp\t\t\tIndicates the specific product is an App" << std::endl
         << "  --instanceId <id>\t\tA custom SFS instance ID" << std::endl
         << "  --namespace <ns>\t\tA custom SFS namespace" << std::endl
@@ -87,6 +89,12 @@ struct Settings
     std::string instanceId;
     std::string nameSpace;
     std::string customUrl;
+    std::string outputFile;
+
+    bool ShouldOutputToFile() const
+    {
+        return !outputFile.empty();
+    }
 };
 
 void ParseArguments(const std::vector<std::string_view>& args, Settings& settings)
@@ -125,6 +133,11 @@ void ParseArguments(const std::vector<std::string_view>& args, Settings& setting
         else if (matchArg(args[i], "-v", "--version"))
         {
             settings.displayVersion = true;
+        }
+        else if (matchArg(args[i], "-o", "--outputFile"))
+        {
+            validateArg(i, "outputFile", settings.outputFile);
+            settings.outputFile = args[++i];
         }
         else if (matchLongArg(args[i], "--isApp"))
         {
@@ -197,16 +210,8 @@ constexpr std::string_view ToString(Architecture type)
     return "";
 }
 
-void DisplayResults(const std::vector<Content>& contents)
+json ContentsToJson(const std::vector<Content>& contents)
 {
-    if (contents.empty())
-    {
-        PrintError("No results found");
-        return;
-    }
-
-    PrintLog("Content found:");
-
     json out = json::array();
     for (const auto& content : contents)
     {
@@ -233,7 +238,7 @@ void DisplayResults(const std::vector<Content>& contents)
         out.push_back(j);
     }
 
-    PrintLog(out.dump(2 /*indent*/));
+    return out;
 }
 
 json AppFileToJson(const AppFile& file)
@@ -265,16 +270,8 @@ json AppFileToJson(const AppFile& file)
     return fileJson;
 }
 
-void DisplayResults(const std::vector<AppContent>& contents)
+json AppContentsToJson(const std::vector<AppContent>& contents)
 {
-    if (contents.empty())
-    {
-        std::cout << "No results found." << std::endl;
-        return;
-    }
-
-    PrintLog("Content found:");
-
     json out = json::array();
     for (const auto& content : contents)
     {
@@ -309,7 +306,50 @@ void DisplayResults(const std::vector<AppContent>& contents)
         out.push_back(j);
     }
 
-    PrintLog(out.dump(2 /*indent*/));
+    return out;
+}
+
+void DisplayResults(const json& results)
+{
+    if (results.empty())
+    {
+        return;
+    }
+
+    PrintLog("Content found:");
+    PrintLog(results.dump(2 /*indent*/));
+}
+
+Result JSONToFile(const json& results, const std::string& filename)
+{
+    if (results.empty())
+    {
+        return Result::Unexpected;
+    }
+
+    const std::filesystem::path filepath = std::filesystem::absolute(filename);
+    try
+    {
+        std::filesystem::create_directories(filepath.parent_path());
+    }
+    catch (const std::exception& e)
+    {
+        PrintError("Failed to create parent directories for filepath: " + filepath.string() + ". Error: " + e.what());
+        return Result::Unexpected;
+    }
+
+    std::ofstream file(filepath, std::ios::out | std::ios::trunc);
+    if (!file.is_open())
+    {
+        PrintError("Failed to open file for writing: " + filename);
+        return Result::Unexpected;
+    }
+
+    file << results.dump(2 /*indent*/);
+
+    PrintLog("Content found. Saved to file " + filepath.string());
+
+    return Result::Success;
 }
 
 void LogResult(const SFS::Result& result)
@@ -348,7 +388,8 @@ std::string TimestampToString(std::chrono::time_point<std::chrono::system_clock>
 void LoggingCallback(const SFS::LogData& logData)
 {
     std::cout << c_darkGreyStart << "Log: " << TimestampToString(logData.time) << " [" << ToString(logData.severity)
-              << "]" << " " << std::filesystem::path(logData.file).filename().string() << ":" << logData.line << " "
+              << "]"
+              << " " << std::filesystem::path(logData.file).filename().string() << ":" << logData.line << " "
               << logData.message << c_colorEnd << std::endl;
 }
 
@@ -365,11 +406,12 @@ bool SetEnv(const std::string& varName, const std::string& value)
 #endif
 }
 
-Result GetLatestDownloadInfo(const SFSClient& sfsClient, const Settings& settings)
+Result GetLatestDownloadInfo(const SFSClient& sfsClient, const Settings& settings, json& out)
 {
     PrintLog("Getting latest download info for product: " + settings.product);
     RequestParams params;
     params.productRequests = {{settings.product, {}}};
+
     if (settings.isApp)
     {
         std::vector<AppContent> appContents;
@@ -381,14 +423,12 @@ Result GetLatestDownloadInfo(const SFSClient& sfsClient, const Settings& setting
             return result.GetCode();
         }
 
-        // Display results
-        DisplayResults(appContents);
+        out = AppContentsToJson(appContents);
     }
     else
     {
         std::vector<Content> contents;
         auto result = sfsClient.GetLatestDownloadInfo(params, contents);
-
         if (!result)
         {
             PrintError("Failed to get latest download info.");
@@ -396,8 +436,33 @@ Result GetLatestDownloadInfo(const SFSClient& sfsClient, const Settings& setting
             return result.GetCode();
         }
 
-        // Display results
+        out = ContentsToJson(contents);
+    }
+
+    if (out.empty())
+    {
+        PrintError("No results found.");
+        return Result::Unexpected;
+    }
+
+    return Result::Success;
+}
+
+Result HandleJSONContents(const Settings& settings, const json& contents)
+{
+    if (settings.ShouldOutputToFile())
+    {
+        auto result = JSONToFile(contents, settings.outputFile);
+        if (!result)
+        {
+            PrintError("Failed to save to file.");
+            return result.GetCode();
+        }
+    }
+    else
+    {
         DisplayResults(contents);
+        return Result::Success;
     }
 
     return Result::Success;
@@ -464,7 +529,15 @@ int main(int argc, char* argv[])
     }
 
     // Perform operations using SFSClient
-    result = GetLatestDownloadInfo(*sfsClient, settings);
+    json contents;
+    result = GetLatestDownloadInfo(*sfsClient, settings, contents);
+    if (!result)
+    {
+        LogResult(result);
+        return result.GetCode();
+    }
+
+    result = HandleJSONContents(settings, contents);
     if (!result)
     {
         LogResult(result);

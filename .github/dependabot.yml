@@ -17,3 +17,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # Ignore patch updates for all pip dependencies
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
