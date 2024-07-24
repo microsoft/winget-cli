@@ -43,7 +43,7 @@ std::string TimestampToString(std::chrono::time_point<std::chrono::system_clock>
 void SFS::test::LogCallbackToTest(const SFS::LogData& logData)
 {
     std::lock_guard guard(s_logMutex);
-    UNSCOPED_INFO("Log: " << TimestampToString(logData.time) << " [" << ToString(logData.severity) << "]" << " "
-                          << std::filesystem::path(logData.file).filename().string() << ":" << logData.line << " "
-                          << logData.message);
+    UNSCOPED_INFO("Log: " << TimestampToString(logData.time) << " [" << ToString(logData.severity) << "]"
+                          << " " << std::filesystem::path(logData.file).filename().string() << ":" << logData.line
+                          << " " << logData.message);
 }
