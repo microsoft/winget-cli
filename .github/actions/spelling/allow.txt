@@ -194,6 +194,7 @@ norestart
 normalizednameandpublisher
 normalizedpackagenameandpublisher
 notcontains
+NTAPI
 NTSTATUS
 nullsoft
 nunit

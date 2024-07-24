@@ -127,7 +127,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return {};
         }
 
-        auto transaction = BeginTransaction("GetSetHistory", database);
+        auto transaction = BeginTransaction("GetSetHistory", false, database);
         return database->GetSets();
 #ifdef AICLI_DISABLE_TEST_HOOKS
         }
@@ -151,7 +151,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return {};
         }
 
-        auto transaction = BeginTransaction("GetSet", database);
+        auto transaction = BeginTransaction("GetSet", false, database);
         return database->GetSet(instanceIdentifier);
 #ifdef AICLI_DISABLE_TEST_HOOKS
         }
@@ -173,7 +173,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         THROW_HR_IF_NULL(E_POINTER, configurationSet);
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("WriteSetHistory", database);
+        auto transaction = BeginTransaction("WriteSetHistory", true, database);
 
         std::optional<rowid_t> setRowId = database->GetSetRowId(configurationSet.InstanceIdentifier());
 
@@ -216,7 +216,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return;
         }
 
-        auto transaction = BeginTransaction("RemoveSetHistory", database);
+        auto transaction = BeginTransaction("RemoveSetHistory", true, database);
 
         std::optional<rowid_t> setRowId = database->GetSetRowId(configurationSet.InstanceIdentifier());
 
@@ -251,7 +251,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         THROW_HR_IF_NULL(E_POINTER, configurationSet);
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("AddQueueItem", database);
+        auto transaction = BeginTransaction("AddQueueItem", true, database);
 
         database->AddQueueItem(configurationSet.InstanceIdentifier(), objectName);
         std::atomic_load(&m_connection)->SetLastWriteTime();
@@ -274,7 +274,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("SetActiveQueueItem", database);
+        auto transaction = BeginTransaction("SetActiveQueueItem", true, database);
 
         database->SetActiveQueueItem(objectName);
         std::atomic_load(&m_connection)->SetLastWriteTime();
@@ -297,7 +297,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("GetQueueItems", database);
+        auto transaction = BeginTransaction("GetQueueItems", false, database);
 
         std::vector<ConfigurationDatabase::QueueItem> result;
         auto queueItems = database->GetQueueItems();
@@ -330,7 +330,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("RemoveQueueItem", database);
+        auto transaction = BeginTransaction("RemoveQueueItem", true, database);
 
         database->RemoveQueueItem(objectName);
         std::atomic_load(&m_connection)->SetLastWriteTime();
@@ -354,7 +354,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (database)
         {
-            auto transaction = BeginTransaction("GetStatusSince", database);
+            auto transaction = BeginTransaction("GetStatusSince", false, database);
             result = ConvertStatusItems(database->GetStatusSince(changeIdentifier));
         }
 
@@ -379,7 +379,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (database)
         {
-            auto transaction = BeginTransaction("GetStatusBaseline", database);
+            auto transaction = BeginTransaction("GetStatusBaseline", false, database);
             auto [changeIdentifier, setStatus] = database->GetStatusBaseline();
             result.ChangeIdentifier = changeIdentifier;
             result.SetStatus = ConvertStatusItems(setStatus);
@@ -405,7 +405,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("AddListener", database);
+        auto transaction = BeginTransaction("AddListener", true, database);
 
         database->AddListener(objectName);
         std::atomic_load(&m_connection)->SetLastWriteTime();
@@ -428,7 +428,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("RemoveListener", database);
+        auto transaction = BeginTransaction("RemoveListener", true, database);
 
         database->RemoveListener(objectName);
         std::atomic_load(&m_connection)->SetLastWriteTime();
@@ -452,7 +452,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (database)
         {
-            auto transaction = BeginTransaction("GetChangeListeners", database);
+            auto transaction = BeginTransaction("GetChangeListeners", false, database);
 
             for (const auto& item : database->GetChangeListeners())
             {
@@ -482,7 +482,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("UpdateSetState", database);
+        auto transaction = BeginTransaction("UpdateSetState", true, database);
 
         database->UpdateSetState(setInstanceIdentifier, state);
         std::atomic_load(&m_connection)->SetLastWriteTime();
@@ -505,7 +505,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("UpdateSetInQueue", database);
+        auto transaction = BeginTransaction("UpdateSetInQueue", true, database);
 
         database->UpdateSetInQueue(setInstanceIdentifier, inQueue);
         std::atomic_load(&m_connection)->SetLastWriteTime();
@@ -528,7 +528,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("UpdateUnitState", database);
+        auto transaction = BeginTransaction("UpdateUnitState", true, database);
 
         database->UpdateUnitState(setInstanceIdentifier, changeData);
         std::atomic_load(&m_connection)->SetLastWriteTime();
@@ -552,7 +552,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (database)
         {
-            auto transaction = BeginTransaction("GetSetState", database);
+            auto transaction = BeginTransaction("GetSetState", false, database);
             result = database->GetSetState(instanceIdentifier);
         }
 
@@ -577,7 +577,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (database)
         {
-            auto transaction = BeginTransaction("GetSetFirstApply", database);
+            auto transaction = BeginTransaction("GetSetFirstApply", false, database);
             result = database->GetSetFirstApply(instanceIdentifier);
         }
 
@@ -602,7 +602,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (database)
         {
-            auto transaction = BeginTransaction("GetSetApplyBegun", database);
+            auto transaction = BeginTransaction("GetSetApplyBegun", false, database);
             result = database->GetSetApplyBegun(instanceIdentifier);
         }
 
@@ -627,7 +627,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (database)
         {
-            auto transaction = BeginTransaction("GetSetApplyEnded", database);
+            auto transaction = BeginTransaction("GetSetApplyEnded", false, database);
             result = database->GetSetApplyEnded(instanceIdentifier);
         }
 
@@ -652,7 +652,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (database)
         {
-            auto transaction = BeginTransaction("GetUnitState", database);
+            auto transaction = BeginTransaction("GetUnitState", false, database);
             result = database->GetUnitState(instanceIdentifier);
         }
 
@@ -677,7 +677,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (database)
         {
-            auto transaction = BeginTransaction("GetUnitResultInformation", database);
+            auto transaction = BeginTransaction("GetUnitResultInformation", false, database);
             auto resultInformation = database->GetUnitResultInformation(instanceIdentifier);
 
             if (resultInformation)
@@ -706,12 +706,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #endif
     }
 
-    ConfigurationDatabase::TransactionLock ConfigurationDatabase::BeginTransaction(std::string_view name, std::shared_ptr<IConfigurationDatabase>& database) const
+    ConfigurationDatabase::TransactionLock ConfigurationDatabase::BeginTransaction(std::string_view name, bool forWrite, std::shared_ptr<IConfigurationDatabase>& database) const
     {
         auto connection = std::atomic_load(&m_connection);
         THROW_HR_IF_NULL(E_NOT_VALID_STATE, connection);
 
-        TransactionLock result = connection->TryBeginTransaction(name);
+        TransactionLock result = connection->TryBeginTransaction(name, forWrite);
 
         while (!result)
         {
@@ -724,7 +724,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 }
             }
 
-            result = connection->TryBeginTransaction(name);
+            result = connection->TryBeginTransaction(name, forWrite);
         }
 
         return result;

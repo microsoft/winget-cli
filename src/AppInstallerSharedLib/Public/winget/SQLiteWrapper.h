@@ -377,6 +377,39 @@ namespace AppInstaller::SQLite
         State m_state = State::Prepared;
     };
 
+    // A SQLite transaction.
+    // Use as the beginning of a transaction stack, specifically when the transaction will write
+    // and the database is in WAL mode.
+    struct Transaction
+    {
+        // Creates a transaction, beginning it.
+        static Transaction Create(Connection& connection, std::string name, bool immediateWrite);
+
+        Transaction();
+
+        Transaction(const Transaction&) = delete;
+        Transaction& operator=(const Transaction&) = delete;
+
+        Transaction(Transaction&&) = default;
+        Transaction& operator=(Transaction&&) = default;
+
+        ~Transaction();
+
+        // Rolls back the Transaction.
+        void Rollback(bool throwOnError = true);
+
+        // Commits the Transaction.
+        void Commit();
+
+    private:
+        Transaction(Connection& connection, std::string&& name, bool immediateWrite);
+
+        std::string m_name;
+        DestructionToken m_inProgress = true;
+        Statement m_rollback;
+        Statement m_commit;
+    };
+
     // A SQLite savepoint.
     struct Savepoint
     {

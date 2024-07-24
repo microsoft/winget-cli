@@ -135,9 +135,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage> m_connection;
         mutable std::shared_ptr<IConfigurationDatabase> m_database;
 
-        using TransactionLock = decltype(m_connection->TryBeginTransaction({}));
+        using TransactionLock = decltype(m_connection->TryBeginTransaction({}, true));
 
         // Begins a transaction, which may require upgrading to a newer schema version.
-        TransactionLock BeginTransaction(std::string_view name, std::shared_ptr<IConfigurationDatabase>& database) const;
+        TransactionLock BeginTransaction(std::string_view name, bool forWrite, std::shared_ptr<IConfigurationDatabase>& database) const;
     };
 }

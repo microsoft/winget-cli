@@ -374,6 +374,67 @@ namespace AppInstaller::SQLite
         m_state = State::Prepared;
     }
 
+    Transaction::Transaction() : m_inProgress(false)
+    {}
+
+    Transaction::Transaction(Connection& connection, std::string&& name, bool immediateWrite) :
+        m_name(std::move(name))
+    {
+        using namespace std::string_literals;
+
+        Statement begin = Statement::Create(connection, "BEGIN "s + (immediateWrite ? "IMMEDIATE" : "DEFERRED"));
+        m_rollback = Statement::Create(connection, "ROLLBACK");
+        m_commit = Statement::Create(connection, "COMMIT");
+
+        AICLI_LOG(SQL, Verbose, << "Begin transaction: " << m_name);
+        begin.Step();
+    }
+
+    Transaction Transaction::Create(Connection& connection, std::string name, bool immediateWrite)
+    {
+        return { connection, std::move(name), immediateWrite };
+    }
+
+    Transaction::~Transaction()
+    {
+        // Prevent a termination by not throwing on errors here
+        Rollback(false);
+    }
+
+    void Transaction::Rollback(bool throwOnError)
+    {
+        if (m_inProgress)
+        {
+            // Only try rollback once
+            m_inProgress = false;
+
+            try
+            {
+                AICLI_LOG(SQL, Verbose, << "Roll back transaction: " << m_name);
+                m_rollback.Step(true);
+            }
+            catch (...)
+            {
+                if (throwOnError)
+                {
+                    throw;
+                }
+
+                LOG_CAUGHT_EXCEPTION();
+            }
+        }
+    }
+
+    void Transaction::Commit()
+    {
+        if (m_inProgress)
+        {
+            AICLI_LOG(SQL, Verbose, << "Commit transaction: " << m_name);
+            m_commit.Step();
+            m_inProgress = false;
+        }
+    }
+
     Savepoint::Savepoint() : m_inProgress(false)
     {}
 
