@@ -25,7 +25,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             // You will also need to copy over Microsoft.Management.Configuration.winmd as it is needed by COM.
             //
             // You can use the script to do this:
-            //  <GITROOT>\src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1 -BuildOutputPath <GITROOT>\src\x64\Debug
+            //  <git root>\src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1 -BuildOutputPath <git root>\src\x64\Debug
             //
             // It can be easier to run the tests on the command line because any changes needing a recompile will overwrite the DLL update above.
             // The test runner is located somewhere like this:
