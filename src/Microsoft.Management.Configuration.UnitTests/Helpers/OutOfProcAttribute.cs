@@ -23,6 +23,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         {
             // To run the tests OOP, you need to replace Microsoft.Management.Configuration.dll with Microsoft.Management.Configuration.OutOfProc.dll (renamed to remove the OutOfProc).
             // You will also need to copy over Microsoft.Management.Configuration.winmd as it is needed by COM.
+            //
+            // You can use the script to do this:
+            //  <GITROOT>\src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1 -BuildOutputPath <GITROOT>\src\x64\Debug
+            //
             // It can be easier to run the tests on the command line because any changes needing a recompile will overwrite the DLL update above.
             // The test runner is located somewhere like this:
             //  C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\TestPlatform

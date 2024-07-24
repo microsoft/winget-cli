@@ -21,7 +21,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Unit tests for configuration history.
     /// </summary>
     [Collection("UnitTestCollection")]
-    [OutOfProc]
+    [InProc]
     public class ConfigurationHistoryTests : ConfigurationProcessorTestBase
     {
         /// <summary>
@@ -38,6 +38,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// Checks that the history matches the applied set.
         /// </summary>
         [Fact]
+        [OutOfProc]
         public void ApplySet_HistoryMatches_0_1()
         {
             this.RunApplyHistoryMatchTest(
@@ -79,6 +80,7 @@ properties:
         /// Checks that the history matches the applied set.
         /// </summary>
         [Fact]
+        [OutOfProc]
         public void ApplySet_HistoryMatches_0_2()
         {
             this.RunApplyHistoryMatchTest(
@@ -168,13 +170,14 @@ resources:
             i: '7'
             j: 8
             q: 42
-", new string[] { "AssertIdentifier2" });
+");
         }
 
         /// <summary>
         /// Applies a set, reads the history, changes the read set and reapplies it.
         /// </summary>
         [Fact]
+        [OutOfProc]
         public void ApplySet_ChangeHistory()
         {
             string disabledIdentifier = "AssertIdentifier2";
@@ -241,6 +244,7 @@ properties:
         /// Applies a set, reads the history and removes it.
         /// </summary>
         [Fact]
+        [OutOfProc]
         public void ApplySet_RemoveHistory()
         {
             ConfigurationSet returnedSet = this.RunApplyHistoryMatchTest(
