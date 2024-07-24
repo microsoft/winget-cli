@@ -1,9 +1,9 @@
 ## SfsClient
 
-Do not change code under the sfs-client directory; it contains sfs-client source code from commit [ff315ec](https://github.com/microsoft/sfs-client/commits/ff315ec).  
+Do not change code under the sfs-client directory; it contains sfs-client source code from commit [6ab78af](https://github.com/microsoft/sfs-client/commits/6ab78af).  
 It is created using git subtree command:
 ```
-    git subtree add --prefix=src/SfsClient/sfs-client https://github.com/microsoft/sfs-client.git cf18b357f43aa9bbaba7d8b3b3774b39140aa00f --squash
+    git subtree add --prefix=src/SfsClient/sfs-client https://github.com/microsoft/sfs-client.git 6ab78af61bc859461ea8298786d87f24b49e3ec2 --squash
 ```
 
 ### Update

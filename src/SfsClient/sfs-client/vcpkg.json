@@ -44,7 +44,7 @@
     },
     {
       "name": "curl",
-      "version": "8.4.0"
+      "version": "8.8.0"
     },
     {
       "name": "nlohmann-json",

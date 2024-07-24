@@ -45,15 +45,15 @@ class CurlConnectionTimeout : public CurlConnection
 
     std::string Get(const std::string& url) override
     {
-        // Timeout within 100ms
-        curl_easy_setopt(m_handle, CURLOPT_TIMEOUT_MS, 100L);
+        // Timeout within 1ms
+        curl_easy_setopt(m_handle, CURLOPT_TIMEOUT_MS, 1L);
         return CurlConnection::Get(url);
     }
 
     std::string Post(const std::string& url, const std::string& data) override
     {
-        // Timeout within 100ms
-        curl_easy_setopt(m_handle, CURLOPT_TIMEOUT_MS, 100L);
+        // Timeout within 1ms
+        curl_easy_setopt(m_handle, CURLOPT_TIMEOUT_MS, 1L);
         return CurlConnection::Post(url, data);
     }
 };
@@ -316,11 +316,11 @@ TEST("Testing a response over the limit fails the operation")
     json body = {{{"TargetingAttributes", {}}, {"Product", largeProductName}}};
     REQUIRE_NOTHROW(connection->Post(url, body.dump()));
 
-    // Over limit fails
+    // Going over the limit fails with a message like "client returned ERROR on write of 16384 bytes"
     body[0]["Product"] = overLimitProductName;
-    REQUIRE_THROWS_CODE_MSG(connection->Post(url, body.dump()),
-                            ConnectionUnexpectedError,
-                            "Failure writing output to destination");
+    REQUIRE_THROWS_CODE_MSG_MATCHES(connection->Post(url, body.dump()),
+                                    ConnectionUnexpectedError,
+                                    Catch::Matchers::ContainsSubstring("client returned ERROR on write of"));
 }
 
 TEST("Testing MS-CV is sent to server")
