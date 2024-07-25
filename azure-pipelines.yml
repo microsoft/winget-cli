@@ -43,7 +43,7 @@ jobs:
 - job: 'Build'
   timeoutInMinutes: 120
   dependsOn: 'GetReleaseTag'
-  condition: succeededOrFailed()
+  condition: always()
 
   strategy:
     matrix:
