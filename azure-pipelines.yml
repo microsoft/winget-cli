@@ -43,7 +43,7 @@ jobs:
 - job: 'Build'
   timeoutInMinutes: 120
   dependsOn: 'GetReleaseTag'
-  condition: always()
+  condition: succeededOrFailed()
 
   strategy:
     matrix:
@@ -314,6 +314,7 @@ jobs:
 - job: 'Test'
   timeoutInMinutes: 120
   dependsOn: 'Build'
+  condition: succeeded('Build')
 
   strategy:
     matrix:
@@ -545,6 +546,7 @@ jobs:
 - job: 'BuildPowerShellModule'
   timeoutInMinutes: 120
   dependsOn: 'Build'
+  condition: succeeded('Build')
 
   steps:
   - task: DownloadPipelineArtifact@2
