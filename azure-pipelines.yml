@@ -150,7 +150,6 @@ jobs:
     inputs:
       Contents: |
           $(buildOutDir)\WindowsPackageManager\WindowsPackageManager.pdb
-          $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.pdb
           $(buildOutDir)\WinGetUtil\WinGetUtil.dll
           $(buildOutDir)\WinGetUtil\WinGetUtil.pdb
       TargetFolder: '$(artifactsDir)'
@@ -217,15 +216,19 @@ jobs:
       flattenFolders: true
 
   - task: CopyFiles@2
+    displayName: 'Copy PowerShell AnyCPU Module Files'
+    inputs:
+      SourceFolder: '$(buildOutDirAnyCpu)\PowerShell'
+      TargetFolder: '$(artifactsDir)\PowerShell'
+
+  - task: CopyFiles@2
     displayName: 'Copy binaries'
     inputs:
-      SourceFolder: '$(buildOutDirAnyCpu)'
+      SourceFolder: '$(buildOutDir)'
       TargetFolder: '$(artifactsDir)'
       Contents: |
-        PowerShell\**
         AppInstallerCLIE2ETests\**
         AppInstallerCLITests\**
-        LocalhostWebServer\**
         Microsoft.Management.Configuration\**
         Microsoft.Management.Configuration.UnitTests\**
         Microsoft.Management.Configuration.OutOfProc\**
@@ -244,6 +247,40 @@ jobs:
       Contents: |
           $(buildOutDir)\WinGetUtil\WinGetUtil.dll
       TargetFolder: '$(artifactsDir)\WinGetUtilInterop.UnitTests\'
+      flattenFolders: true
+
+  - task: CopyFiles@2
+    displayName: 'Copy LocalhostWebServer to E2ETests'
+    inputs:
+      SourceFolder: '$(buildOutDir)\LocalhostWebServer'
+      TargetFolder: '$(artifactsDir)\E2ETests'
+
+    # Invoke E2E setup to generate the TestLocalIndex; could optimize out some of its steps if needed
+  - template: templates/e2e-setup.yml
+    parameters:
+      sourceDir: $(Build.SourcesDirectory)
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
+
+  - task: CopyFiles@2
+    displayName: 'Copy TestData'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestData'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Package Dependencies'
+    inputs:
+      SourceFolder: '$(buildOutDir)\AppxPackages\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\'
+      TargetFolder: '$(artifactsDir)\E2ETests\DevPackageDependencies'
+
+  - task: CopyFiles@2
+    displayName: 'Copy test scripts to artifacts'
+    inputs:
+      Contents: |
+          $(Build.SourcesDirectory)\src\PowerShell\scripts\Execute-WinGetTests.ps1
+          $(Build.SourcesDirectory)\src\PowerShell\tests\**
+          $(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1
+      TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
       flattenFolders: true
 
   - task: PublishPipelineArtifact@1
@@ -303,7 +340,7 @@ jobs:
 
   variables:
     buildOutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)
-    artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
+    artifactsDir: $(Build.ArtifactStagingDirectory)
     packageLayoutDir: $(Pipeline.Workspace)\Build.$(artifactIdentifier)\DevPackage
 
   steps:
@@ -318,7 +355,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        Get-ChildItem $(buildOutDir)\AppxPackages\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform) -Filter *.appx | %{ Add-AppxPackage $_.FullName }
+        Get-ChildItem $(buildOutDir)\E2ETests\DevPackageDependencies -Filter *.appx | %{ Add-AppxPackage $_.FullName }
 
   - task: VisualStudioTestPlatformInstaller@1
     displayName: Prepare VSTest for E2E Tests
@@ -388,7 +425,7 @@ jobs:
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -412,46 +449,7 @@ jobs:
     displayName: 'Copy E2E Tests Package Log to artifacts folder'
     inputs:
       SourceFolder: '$(temp)\E2ETestLogs'
-      TargetFolder: '$(artifactsDir)\E2ETests\PackagedLog'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy E2E Test Source'
-    inputs:
-      SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
-      TargetFolder: '$(artifactsDir)\E2ETests\TestLocalIndex'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy TestData'
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
-      TargetFolder: '$(artifactsDir)\E2ETests\TestData'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy LocalhostWebServer'
-    inputs:
-      SourceFolder: '$(buildOutDir)\LocalhostWebServer'
-      TargetFolder: '$(artifactsDir)\E2ETests\LocalhostWebServer'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy Dev Package Dependencies'
-    inputs:
-      SourceFolder: '$(buildOutDir)\AppxPackages\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\'
-      TargetFolder: '$(artifactsDir)\E2ETests\DevPackageDependencies'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy test scripts to artifacts'
-    inputs:
-      Contents: |
-          $(Build.SourcesDirectory)\src\PowerShell\scripts\Execute-WinGetTests.ps1
-          $(Build.SourcesDirectory)\src\PowerShell\tests\**
-          $(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1
-      TargetFolder: '$(artifactsDir)\E2ETests\Scripts'
-      flattenFolders: true
+      TargetFolder: '$(artifactsDir)\PackagedLog'
     condition: succeededOrFailed()
 
   - task: VSTest@2
