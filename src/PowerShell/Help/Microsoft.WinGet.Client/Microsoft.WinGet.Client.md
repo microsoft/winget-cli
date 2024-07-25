@@ -1,21 +1,21 @@
 ﻿---
 Module Name: Microsoft.WinGet.Client
 Module Guid: e11157e2-cd24-4250-83b8-c6654ea4926a
-Download Help Link: {{ Update Download Link }}
-Help Version: {{ Please enter version of help manually (X.X.X.X) format }}
+Download Help Link: 
+Help Version: 1.8.0
 Locale: en-US
 ---
 
 # Microsoft.WinGet.Client Module
 ## Description
-{{ Fill in the Description }}
+Microsoft WinGet Client Module for Windows Package Manager
 
 ## Microsoft.WinGet.Client Cmdlets
 ### [Add-WinGetSource](Add-WinGetSource.md)
 Add a new WinGet source.
 
 ### [Assert-WinGetPackageManager](Assert-WinGetPackageManager.md)
-{{ Fill in the Description }}
+Verifies WinGet is installed properly.
 
 ### [Disable-WinGetSetting](Disable-WinGetSetting.md)
 {{ Fill in the Description }}
