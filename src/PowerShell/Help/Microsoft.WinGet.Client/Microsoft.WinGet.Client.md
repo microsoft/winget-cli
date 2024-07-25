@@ -12,7 +12,7 @@ Locale: en-US
 
 ## Microsoft.WinGet.Client Cmdlets
 ### [Add-WinGetSource](Add-WinGetSource.md)
-{{ Fill in the Description }}
+Add a new WinGet source.
 
 ### [Assert-WinGetPackageManager](Assert-WinGetPackageManager.md)
 {{ Fill in the Description }}
