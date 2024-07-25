@@ -294,6 +294,7 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
+mysource
 nameof
 Nami
 nativehandle
@@ -362,7 +363,7 @@ powershellgallery
 powertoys
 processthreads
 productcode
-progra
+proga
 PRODUCTICON
 proxystub
 pscustomobject
