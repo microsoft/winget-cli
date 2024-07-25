@@ -24,10 +24,10 @@ Add a new WinGet source.
 
 ### Example 1
 
-> **This example is illustrative and will not succeed because WinGet will not add a source that does not properly 
-respond to the WinGet REST API**
-
 This example adds a new REST based source to WinGet named "mysource" with the root URL https://contoso.com/.
+
+This example is illustrative and will not succeed because WinGet will not add a source that does not properly 
+respond to the WinGet REST API.
 
 ```powershell
 PS C:\> Add-WinGetSource -Name mysource -Argument https://contoso.com/ -Type Microsoft.Rest
