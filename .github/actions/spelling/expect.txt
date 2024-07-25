@@ -7,6 +7,7 @@ adml
 admx
 AFAIK
 aicli
+arning
 AICLIC
 AKV
 allusers
@@ -112,6 +113,7 @@ dsc
 DUPLICATEALIAS
 dustojnikhummer
 dvinns
+ebug
 ecfr
 ecfrbrowse
 ECustom
@@ -330,6 +332,7 @@ omus
 onefuzz
 ools
 oop
+ownload
 OPTOUT
 OVERLAPPEDWINDOW
 packageinuse
@@ -359,6 +362,7 @@ powershellgallery
 powertoys
 processthreads
 productcode
+progra
 PRODUCTICON
 proxystub
 pscustomobject
