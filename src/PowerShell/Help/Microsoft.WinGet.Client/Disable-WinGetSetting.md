@@ -19,7 +19,7 @@ Disable-WinGetSetting [-Name] <String> [-ProgressAction <ActionPreference>] [<Co
 ## DESCRIPTION
 Disables an administrative setting. Requires administrator access.
 
-Administrator Settings                    Defualt State
+Administrator Settings                    Default State
 
 LocalManifestFiles                        Disabled
 BypassCertificatePinningForMicrosoftStore Disabled
