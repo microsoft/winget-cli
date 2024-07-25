@@ -32,7 +32,6 @@ ashpatil
 Ashwini
 ASwitch
 ASYNCRTIMP
-ata
 Atest
 ATL
 AUrl
@@ -45,7 +44,6 @@ BFirst
 bght
 bigcatalog
 BITMAPINFOHEADER
-bitspace
 bkup
 blargle
 blockedbypolicy
@@ -123,8 +121,6 @@ efileresource
 EMalicious
 endregion
 ENDSESSION
-EPester
-epth
 EQU
 ERRORONEXIT
 ESource
@@ -177,7 +173,6 @@ hmodule
 Hostx
 hre
 hresults
-hrow
 hwnd
 IARP
 IAttachment
@@ -205,7 +200,6 @@ isable
 IServer
 ishelp
 ISQ
-issuetitle
 ISVs
 itr
 IWin
@@ -258,7 +252,6 @@ Luffytaro
 maclachlan
 malware
 mapdatafolding
-mapview
 Maxed
 maxvalue
 maybenull
@@ -286,7 +279,6 @@ MSIXHASH
 msstore
 MSZIP
 mszyml
-Mta
 Mugiwara
 Multideclaration
 mycustom
@@ -332,7 +324,6 @@ ofile
 omus
 onefuzz
 ools
-oop
 ownload
 OPTOUT
 OVERLAPPEDWINDOW
@@ -350,7 +341,6 @@ PDWORD
 Peet
 peetdev
 PEGI
-PFM
 pfxpath
 Pherson
 pidl
@@ -408,7 +398,6 @@ roy
 runspace
 runtimeclass
 ryfu
-rzkzqaqjwj
 sacl
 SARL
 SASURL
@@ -423,7 +412,6 @@ servercertificate
 setmetadatabymanifestid
 SETTINGCHANGE
 SETTINGMAPPING
-sfs
 sfsclient
 SHCONTF
 SHGDN
@@ -444,7 +432,6 @@ SPAPI
 Srinivasan
 srs
 startswith
-STARTUPINFOW
 STDMETHODCALLTYPE
 storeapps
 storeorigin
@@ -464,7 +451,6 @@ tcs
 TEMPDIRECTORY
 Templating
 temppath
-testdata
 testexampleinstaller
 thiscouldbeapc
 threehundred
@@ -509,7 +495,6 @@ VALUENAMECASE
 vclib
 VERSI
 VERSIE
-visualstudiocode
 vns
 vsconfig
 vstest
