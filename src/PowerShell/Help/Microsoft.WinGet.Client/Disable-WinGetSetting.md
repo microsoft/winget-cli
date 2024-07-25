@@ -19,14 +19,16 @@ Disable-WinGetSetting [-Name] <String> [-ProgressAction <ActionPreference>] [<Co
 ## DESCRIPTION
 Disables an administrative setting. Requires administrator access.
 
-Administrator Settings                    Default State
+Administrator Settings default to "Disabled" and may be controlled by Group Policy Objects.
 
-LocalManifestFiles                        Disabled
-BypassCertificatePinningForMicrosoftStore Disabled
-InstallerHashOverride                     Disabled
-LocalArchiveMalwareScanOverride           Disabled
-ProxyCommandLineOptions                   Disabled
-DefaultProxy                              Disabled
+Administrator Settings:
+
+* LocalManifestFiles
+* BypassCertificatePinningForMicrosoftStore
+* InstallerHashOverride
+* LocalArchiveMalwareScanOverride
+* ProxyCommandLineOptions
+* DefaultProxy
 
 ## EXAMPLES
 
