@@ -339,6 +339,7 @@ jobs:
     displayName: 'Download Build Artifacts'
     inputs:
       artifact: 'Build.$(artifactIdentifier)'
+      path: '$(buildOutDir)'
 
   - task: PowerShell@2
     displayName: Install Tests Dependencies
@@ -578,7 +579,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        Get-ChildItem E2ETests\DevPackageDependencies -Filter *.appx | %{ Add-AppxPackage $_.FullName }
+        Get-ChildItem AppxPackages\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\x64 -Filter *.appx | %{ Add-AppxPackage $_.FullName }
       workingDirectory: $(Pipeline.Workspace)\Build.x64release\
 
   - template: templates/e2e-setup.yml
