@@ -8,7 +8,7 @@ Locale: en-US
 
 # Microsoft.WinGet.Client Module
 ## Description
-Microsoft WinGet Client Module for Windows Package Manager
+Microsoft WinGet Client Module for the Windows Package Manager
 
 ## Microsoft.WinGet.Client Cmdlets
 ### [Add-WinGetSource](Add-WinGetSource.md)
@@ -18,7 +18,7 @@ Add a new WinGet source.
 Verifies WinGet is installed properly.
 
 ### [Disable-WinGetSetting](Disable-WinGetSetting.md)
-{{ Fill in the Description }}
+Disables an administrative setting.
 
 ### [Enable-WinGetSetting](Enable-WinGetSetting.md)
 {{ Fill in the Description }}
