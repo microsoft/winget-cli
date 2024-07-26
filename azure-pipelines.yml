@@ -253,7 +253,7 @@ jobs:
     displayName: 'Copy LocalhostWebServer to E2ETests'
     inputs:
       SourceFolder: '$(buildOutDir)\LocalhostWebServer'
-      TargetFolder: '$(artifactsDir)\E2ETests'
+      TargetFolder: '$(artifactsDir)\E2ETests\LocalhostWebServer'
 
     # Invoke E2E setup to generate the TestLocalIndex; could optimize out some of its steps if needed
   - template: templates/e2e-setup.yml
