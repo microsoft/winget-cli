@@ -42,7 +42,7 @@ List configured WinGet sources.
 Get user settings for WinGet.
 
 ### [Get-WinGetVersion](Get-WinGetVersion.md)
-{{ Fill in the Description }}
+Get the installed version of WinGet.
 
 ### [Install-WinGetPackage](Install-WinGetPackage.md)
 {{ Fill in the Description }}
