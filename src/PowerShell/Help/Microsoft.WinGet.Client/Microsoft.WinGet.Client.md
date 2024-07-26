@@ -21,10 +21,10 @@ Verifies WinGet is installed properly.
 Disables an administrative setting.
 
 ### [Enable-WinGetSetting](Enable-WinGetSetting.md)
-{{ Fill in the Description }}
+Enables an administrative setting.
 
 ### [Export-WinGetPackage](Export-WinGetPackage.md)
-{{ Fill in the Description }}
+Downloads a package.
 
 ### [Find-WinGetPackage](Find-WinGetPackage.md)
 {{ Fill in the Description }}
