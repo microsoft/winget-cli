@@ -27,7 +27,7 @@ Enables an administrative setting.
 Downloads a package.
 
 ### [Find-WinGetPackage](Find-WinGetPackage.md)
-{{ Fill in the Description }}
+Searches configured sources for packages.
 
 ### [Get-WinGetPackage](Get-WinGetPackage.md)
 {{ Fill in the Description }}
