@@ -36,7 +36,7 @@ List installed packages.
 Get WinGet settings.
 
 ### [Get-WinGetSource](Get-WinGetSource.md)
-{{ Fill in the Description }}
+List configured WinGet sources.
 
 ### [Get-WinGetUserSettings](Get-WinGetUserSettings.md)
 {{ Fill in the Description }}
