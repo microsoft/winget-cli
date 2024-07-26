@@ -1964,6 +1964,18 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& set = context.Get<Data::ConfigurationContext>().Set();
 
+        // Output a table with name/value pairs for some of the set's properties. Example:
+        // 
+        // Field         Value
+        // ----------------------------------------------------
+        // Identifier    {7D5CF50E-F3C6-4333-BFE6-5A806F9EBA4E}
+        // Name          Test Name
+        // Origin        Test Origin
+        // Path          Test Path
+        // State         Completed
+        // First Applied 2024-07-16 21:15:13.000
+        // Apply Begun   2024-07-16 21:15:13.000
+        // Apply Ended   2024-07-16 21:15:13.000
         Execution::TableOutput<2> table(context.Reporter, { Resource::String::SourceListField, Resource::String::SourceListValue });
 
         table.OutputLine({ Resource::LocString{ Resource::String::ConfigureListIdentifier }, Utility::ConvertGuidToString(set.InstanceIdentifier()) });
@@ -1989,6 +2001,15 @@ namespace AppInstaller::CLI::Workflow
 
         context.Reporter.Info() << std::endl;
 
+        // Output a table with unit state information. Groups are represented by indentation beneath their parent unit. Example:
+        //
+        // Unit                        State     Result     Details
+        // ------------------------------------------------------------
+        // Module/Resource [Name]      Completed 0x00000000
+        // Module2/Resource [Group]    Completed 0x00000000
+        // |-Module3/Resource [Child1] Completed 0x00000000
+        // |---Module4/Resource2       Completed 0x80004005 I failed :(
+        // |-Module3/Resource [Child2] Completed 0x00000000
         Execution::TableOutput<4> unitTable(context.Reporter, { Resource::String::ConfigureListUnit, Resource::String::ConfigureListState, Resource::String::ConfigureListResult, Resource::String::ConfigureListResultDescription });
 
         struct UnitSiblings
@@ -2008,6 +2029,9 @@ namespace AppInstaller::CLI::Workflow
             stack.emplace_back(std::move(initial));
         }
 
+        // Each item on the stack is a list of sibling units.
+        // Each iteration, we process the Current sibling from the group on top of the stack.
+        // If it is a group, we add its children as a new stack item to be processed next.
         while (!stack.empty())
         {
             UnitSiblings& currentSiblings = stack.back();

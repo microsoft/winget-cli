@@ -113,597 +113,335 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #endif
     }
 
-    std::vector<ConfigurationDatabase::ConfigurationSetPtr> ConfigurationDatabase::GetSetHistory() const
+    template <typename OperationT>
+    auto ConfigurationDatabase::ExecuteReadOperation(std::string_view operationName, OperationT&& operation, bool requireDatabase) const
+    {
+        using ResultT = decltype(operation(std::declval<std::shared_ptr<IConfigurationDatabase>&>()));
+        ResultT result{};
+
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        // While under development, treat errors escaping this function as a test hook.
+        try
+        {
+#endif
+            auto database = std::atomic_load(&m_database);
+
+            if (database)
+            {
+                auto transaction = BeginTransaction(operationName, false, database);
+                result = operation(database);
+            }
+            else if (requireDatabase)
+            {
+                THROW_HR(E_NOT_VALID_STATE);
+            }
+#ifdef AICLI_DISABLE_TEST_HOOKS
+        }
+        CATCH_LOG();
+#endif
+
+        return result;
+    }
+
+    template <typename OperationT>
+    void ConfigurationDatabase::ExecuteWriteOperation(std::string_view operationName, OperationT&& operation, bool silentlyIgnoreNoDatabase)
     {
 #ifdef AICLI_DISABLE_TEST_HOOKS
         // While under development, treat errors escaping this function as a test hook.
         try
         {
 #endif
-        auto database = std::atomic_load(&m_database);
+            auto database = std::atomic_load(&m_database);
 
-        if (!database)
-        {
-            return {};
-        }
+            if (!database)
+            {
+                THROW_HR_IF(E_NOT_VALID_STATE, !silentlyIgnoreNoDatabase);
+                return;
+            }
 
-        auto transaction = BeginTransaction("GetSetHistory", false, database);
-        return database->GetSets();
+            auto transaction = BeginTransaction(operationName, true, database);
+            operation(database);
+            std::atomic_load(&m_connection)->SetLastWriteTime();
+            transaction->Commit();
 #ifdef AICLI_DISABLE_TEST_HOOKS
         }
         CATCH_LOG();
-
-        return {};
 #endif
+    }
+
+    std::vector<ConfigurationDatabase::ConfigurationSetPtr> ConfigurationDatabase::GetSetHistory() const
+    {
+        return ExecuteReadOperation("GetSetHistory",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                return database->GetSets();
+            });
     }
 
     ConfigurationDatabase::ConfigurationSetPtr ConfigurationDatabase::GetSet(const GUID& instanceIdentifier) const
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
-        if (!database)
-        {
-            return {};
-        }
-
-        auto transaction = BeginTransaction("GetSet", false, database);
-        return database->GetSet(instanceIdentifier);
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-
-        return {};
-#endif
+        return ExecuteReadOperation("GetSet",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                return database->GetSet(instanceIdentifier);
+            });
     }
 
     void ConfigurationDatabase::WriteSetHistory(const Configuration::ConfigurationSet& configurationSet, bool preferNewHistory)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
         THROW_HR_IF_NULL(E_POINTER, configurationSet);
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("WriteSetHistory", true, database);
+        ExecuteWriteOperation("WriteSetHistory",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                std::optional<rowid_t> setRowId = database->GetSetRowId(configurationSet.InstanceIdentifier());
 
-        std::optional<rowid_t> setRowId = database->GetSetRowId(configurationSet.InstanceIdentifier());
+                if (!setRowId && !preferNewHistory)
+                {
+                    // TODO: Use conflict detection code to check for a matching set
+                }
 
-        if (!setRowId && !preferNewHistory)
-        {
-            // TODO: Use conflict detection code to check for a matching set
-        }
-
-        if (setRowId)
-        {
-            database->UpdateSet(setRowId.value(), configurationSet);
-        }
-        else
-        {
-            database->AddSet(configurationSet);
-        }
-
-        std::atomic_load(&m_connection)->SetLastWriteTime();
-
-        transaction->Commit();
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-#endif
+                if (setRowId)
+                {
+                    database->UpdateSet(setRowId.value(), configurationSet);
+                }
+                else
+                {
+                    database->AddSet(configurationSet);
+                }
+            });
     }
 
     void ConfigurationDatabase::RemoveSetHistory(const Configuration::ConfigurationSet& configurationSet)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
         THROW_HR_IF_NULL(E_POINTER, configurationSet);
 
-        if (!database)
-        {
-            return;
-        }
+        ExecuteWriteOperation("RemoveSetHistory",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                std::optional<rowid_t> setRowId = database->GetSetRowId(configurationSet.InstanceIdentifier());
 
-        auto transaction = BeginTransaction("RemoveSetHistory", true, database);
+                if (!setRowId)
+                {
+                    // TODO: Use conflict detection code to check for a matching set
+                }
 
-        std::optional<rowid_t> setRowId = database->GetSetRowId(configurationSet.InstanceIdentifier());
-
-        if (!setRowId)
-        {
-            // TODO: Use conflict detection code to check for a matching set
-        }
-
-        if (setRowId)
-        {
-            database->RemoveSet(setRowId.value());
-            std::atomic_load(&m_connection)->SetLastWriteTime();
-        }
-
-        transaction->Commit();
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-#endif
+                if (setRowId)
+                {
+                    database->RemoveSet(setRowId.value());
+                    std::atomic_load(&m_connection)->SetLastWriteTime();
+                }
+            }, true);
     }
 
 
     void ConfigurationDatabase::AddQueueItem(const Configuration::ConfigurationSet& configurationSet, const std::string& objectName)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
         THROW_HR_IF_NULL(E_POINTER, configurationSet);
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
 
-        auto transaction = BeginTransaction("AddQueueItem", true, database);
-
-        database->AddQueueItem(configurationSet.InstanceIdentifier(), objectName);
-        std::atomic_load(&m_connection)->SetLastWriteTime();
-
-        transaction->Commit();
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-#endif
+        ExecuteWriteOperation("AddQueueItem",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                database->AddQueueItem(configurationSet.InstanceIdentifier(), objectName);
+            });
     }
 
     void ConfigurationDatabase::SetActiveQueueItem(const std::string& objectName)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
-
-        auto transaction = BeginTransaction("SetActiveQueueItem", true, database);
-
-        database->SetActiveQueueItem(objectName);
-        std::atomic_load(&m_connection)->SetLastWriteTime();
-
-        transaction->Commit();
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-#endif
+        ExecuteWriteOperation("SetActiveQueueItem",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                database->SetActiveQueueItem(objectName);
+            });
     }
 
     std::vector<ConfigurationDatabase::QueueItem> ConfigurationDatabase::GetQueueItems() const
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
+        return ExecuteReadOperation("GetQueueItems",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                std::vector<QueueItem> result;
+                auto queueItems = database->GetQueueItems();
+                result.reserve(queueItems.size());
 
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
+                for (const auto& item : queueItems)
+                {
+                    QueueItem resultItem;
+                    std::tie(resultItem.SetInstanceIdentifier, resultItem.ObjectName, resultItem.QueuedAt, resultItem.ProcessId, resultItem.Active) = item;
+                    result.emplace_back(std::move(resultItem));
+                }
 
-        auto transaction = BeginTransaction("GetQueueItems", false, database);
-
-        std::vector<ConfigurationDatabase::QueueItem> result;
-        auto queueItems = database->GetQueueItems();
-        result.reserve(queueItems.size());
-
-        for (const auto& item : queueItems)
-        {
-            QueueItem resultItem;
-            std::tie(resultItem.SetInstanceIdentifier, resultItem.ObjectName, resultItem.QueuedAt, resultItem.ProcessId, resultItem.Active) = item;
-            result.emplace_back(std::move(resultItem));
-        }
-
-        return result;
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-
-        return {};
-#endif
+                return result;
+            }, true);
     }
 
     void ConfigurationDatabase::RemoveQueueItem(const std::string& objectName)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
-
-        auto transaction = BeginTransaction("RemoveQueueItem", true, database);
-
-        database->RemoveQueueItem(objectName);
-        std::atomic_load(&m_connection)->SetLastWriteTime();
-
-        transaction->Commit();
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-#endif
+        ExecuteWriteOperation("RemoveQueueItem",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                database->RemoveQueueItem(objectName);
+            });
     }
 
     std::vector<ConfigurationDatabase::StatusItem> ConfigurationDatabase::GetStatusSince(int64_t changeIdentifier) const
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-        std::vector<StatusItem> result;
-
-        if (database)
-        {
-            auto transaction = BeginTransaction("GetStatusSince", false, database);
-            result = ConvertStatusItems(database->GetStatusSince(changeIdentifier));
-        }
-
-        return result;
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-
-        return {};
-#endif
+        return ExecuteReadOperation("GetStatusSince",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                return ConvertStatusItems(database->GetStatusSince(changeIdentifier));
+            });
     }
 
     ConfigurationDatabase::StatusBaseline ConfigurationDatabase::GetStatusBaseline() const
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-        StatusBaseline result{};
+        return ExecuteReadOperation("GetStatusBaseline",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                auto [changeIdentifier, setStatus] = database->GetStatusBaseline();
 
-        if (database)
-        {
-            auto transaction = BeginTransaction("GetStatusBaseline", false, database);
-            auto [changeIdentifier, setStatus] = database->GetStatusBaseline();
-            result.ChangeIdentifier = changeIdentifier;
-            result.SetStatus = ConvertStatusItems(setStatus);
-        }
-
-        return result;
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-
-        return {};
-#endif
+                StatusBaseline result{};
+                result.ChangeIdentifier = changeIdentifier;
+                result.SetStatus = ConvertStatusItems(setStatus);
+                return result;
+            });
     }
 
     void ConfigurationDatabase::AddListener(const std::string& objectName)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
-
-        auto transaction = BeginTransaction("AddListener", true, database);
-
-        database->AddListener(objectName);
-        std::atomic_load(&m_connection)->SetLastWriteTime();
-
-        transaction->Commit();
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-#endif
+        ExecuteWriteOperation("AddListener",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                database->AddListener(objectName);
+            });
     }
 
     void ConfigurationDatabase::RemoveListener(const std::string& objectName)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
-
-        auto transaction = BeginTransaction("RemoveListener", true, database);
-
-        database->RemoveListener(objectName);
-        std::atomic_load(&m_connection)->SetLastWriteTime();
-
-        transaction->Commit();
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-#endif
+        ExecuteWriteOperation("RemoveListener",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                database->RemoveListener(objectName);
+            });
     }
 
     std::vector<ConfigurationDatabase::StatusChangeListener> ConfigurationDatabase::GetChangeListeners() const
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-        std::vector<StatusChangeListener> result;
-
-        if (database)
-        {
-            auto transaction = BeginTransaction("GetChangeListeners", false, database);
-
-            for (const auto& item : database->GetChangeListeners())
+        return ExecuteReadOperation("GetChangeListeners",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
             {
-                StatusChangeListener listener{};
-                std::tie(listener.ObjectName, listener.Started, listener.ProcessId) = item;
-                result.emplace_back(std::move(listener));
-            }
-        }
+                std::vector<StatusChangeListener> result;
 
-        return result;
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
+                for (const auto& item : database->GetChangeListeners())
+                {
+                    StatusChangeListener listener{};
+                    std::tie(listener.ObjectName, listener.Started, listener.ProcessId) = item;
+                    result.emplace_back(std::move(listener));
+                }
 
-        return {};
-#endif
+                return result;
+            });
     }
 
     void ConfigurationDatabase::UpdateSetState(const guid& setInstanceIdentifier, ConfigurationSetState state)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
-
-        auto transaction = BeginTransaction("UpdateSetState", true, database);
-
-        database->UpdateSetState(setInstanceIdentifier, state);
-        std::atomic_load(&m_connection)->SetLastWriteTime();
-
-        transaction->Commit();
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-#endif
+        ExecuteWriteOperation("UpdateSetState",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                database->UpdateSetState(setInstanceIdentifier, state);
+            });
     }
 
     void ConfigurationDatabase::UpdateSetInQueue(const guid& setInstanceIdentifier, bool inQueue)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
-
-        auto transaction = BeginTransaction("UpdateSetInQueue", true, database);
-
-        database->UpdateSetInQueue(setInstanceIdentifier, inQueue);
-        std::atomic_load(&m_connection)->SetLastWriteTime();
-
-        transaction->Commit();
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-#endif
+        ExecuteWriteOperation("UpdateSetInQueue",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                database->UpdateSetInQueue(setInstanceIdentifier, inQueue);
+            });
     }
 
     void ConfigurationDatabase::UpdateUnitState(const guid& setInstanceIdentifier, const com_ptr<implementation::ConfigurationSetChangeData>& changeData)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-
-        THROW_HR_IF_NULL(E_NOT_VALID_STATE, database);
-
-        auto transaction = BeginTransaction("UpdateUnitState", true, database);
-
-        database->UpdateUnitState(setInstanceIdentifier, changeData);
-        std::atomic_load(&m_connection)->SetLastWriteTime();
-
-        transaction->Commit();
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-#endif
+        ExecuteWriteOperation("UpdateUnitState",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                database->UpdateUnitState(setInstanceIdentifier, changeData);
+            });
     }
 
     ConfigurationSetState ConfigurationDatabase::GetSetState(const guid& instanceIdentifier)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-        ConfigurationSetState result = ConfigurationSetState::Unknown;
-
-        if (database)
-        {
-            auto transaction = BeginTransaction("GetSetState", false, database);
-            result = database->GetSetState(instanceIdentifier);
-        }
-
-        return result;
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-
-        return {};
-#endif
+        return ExecuteReadOperation("GetSetState",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                return database->GetSetState(instanceIdentifier);
+            });
     }
 
     std::chrono::system_clock::time_point ConfigurationDatabase::GetSetFirstApply(const guid& instanceIdentifier)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-        std::chrono::system_clock::time_point result{};
-
-        if (database)
-        {
-            auto transaction = BeginTransaction("GetSetFirstApply", false, database);
-            result = database->GetSetFirstApply(instanceIdentifier);
-        }
-
-        return result;
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-
-        return {};
-#endif
+        return ExecuteReadOperation("GetSetFirstApply",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                return database->GetSetFirstApply(instanceIdentifier);
+            });
     }
 
     std::chrono::system_clock::time_point ConfigurationDatabase::GetSetApplyBegun(const guid& instanceIdentifier)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-        std::chrono::system_clock::time_point result{};
-
-        if (database)
-        {
-            auto transaction = BeginTransaction("GetSetApplyBegun", false, database);
-            result = database->GetSetApplyBegun(instanceIdentifier);
-        }
-
-        return result;
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-
-        return {};
-#endif
+        return ExecuteReadOperation("GetSetApplyBegun",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                return database->GetSetApplyBegun(instanceIdentifier);
+            });
     }
 
     std::chrono::system_clock::time_point ConfigurationDatabase::GetSetApplyEnded(const guid& instanceIdentifier)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-        std::chrono::system_clock::time_point result{};
-
-        if (database)
-        {
-            auto transaction = BeginTransaction("GetSetApplyEnded", false, database);
-            result = database->GetSetApplyEnded(instanceIdentifier);
-        }
-
-        return result;
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-
-        return {};
-#endif
+        return ExecuteReadOperation("GetSetApplyEnded",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                return database->GetSetApplyEnded(instanceIdentifier);
+            });
     }
 
     ConfigurationUnitState ConfigurationDatabase::GetUnitState(const guid& instanceIdentifier)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-        ConfigurationUnitState result = ConfigurationUnitState::Unknown;
-
-        if (database)
-        {
-            auto transaction = BeginTransaction("GetUnitState", false, database);
-            result = database->GetUnitState(instanceIdentifier);
-        }
-
-        return result;
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
-
-        return {};
-#endif
+        return ExecuteReadOperation("GetUnitState",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
+            {
+                return database->GetUnitState(instanceIdentifier);
+            });
     }
 
     IConfigurationUnitResultInformation ConfigurationDatabase::GetUnitResultInformation(const guid& instanceIdentifier)
     {
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        // While under development, treat errors escaping this function as a test hook.
-        try
-        {
-#endif
-        auto database = std::atomic_load(&m_database);
-        decltype(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>()) result;
-
-        if (database)
-        {
-            auto transaction = BeginTransaction("GetUnitResultInformation", false, database);
-            auto resultInformation = database->GetUnitResultInformation(instanceIdentifier);
-
-            if (resultInformation)
+        return ExecuteReadOperation("GetUnitResultInformation",
+            [&](std::shared_ptr<IConfigurationDatabase>& database)
             {
-                result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
-                result->Initialize(
-                    std::get<0>(resultInformation.value()),
-                    ConvertToUTF16(std::get<1>(resultInformation.value())),
-                    ConvertToUTF16(std::get<2>(resultInformation.value())),
-                    std::get<3>(resultInformation.value()));
-            }
-        }
+                com_ptr<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>> result;
 
-        IConfigurationUnitResultInformation actualResult;
-        if (result)
-        {
-            actualResult = *result;
-        }
+                auto resultInformation = database->GetUnitResultInformation(instanceIdentifier);
 
-        return actualResult;
-#ifdef AICLI_DISABLE_TEST_HOOKS
-        }
-        CATCH_LOG();
+                if (resultInformation)
+                {
+                    result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+                    result->Initialize(
+                        std::get<0>(resultInformation.value()),
+                        ConvertToUTF16(std::get<1>(resultInformation.value())),
+                        ConvertToUTF16(std::get<2>(resultInformation.value())),
+                        std::get<3>(resultInformation.value()));
+                }
 
-        return {};
-#endif
+                IConfigurationUnitResultInformation actualResult;
+                if (result)
+                {
+                    actualResult = *result;
+                }
+
+                return actualResult;
+            });
     }
 
     ConfigurationDatabase::TransactionLock ConfigurationDatabase::BeginTransaction(std::string_view name, bool forWrite, std::shared_ptr<IConfigurationDatabase>& database) const

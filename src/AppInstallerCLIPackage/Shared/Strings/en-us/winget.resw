@@ -3063,6 +3063,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigurationStatusWatchArgumentDescription" xml:space="preserve">
     <value>Monitor configuration status.</value>
+    <comment>As in "to monitor the status of a configuration being applied".</comment>
   </data>
   <data name="ConfigurationUnitStateCompleted" xml:space="preserve">
     <value>Completed</value>
@@ -3085,10 +3086,12 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>The state of processing an item.</comment>
   </data>
   <data name="ConfigureListApplyBegun" xml:space="preserve">
-    <value>Apply Begun</value>
+    <value>Apply Started</value>
+    <comment>When the configuration application started.</comment>
   </data>
   <data name="ConfigureListApplyEnded" xml:space="preserve">
     <value>Apply Ended</value>
+    <comment>When the configuration application ended.</comment>
   </data>
   <data name="ConfigureListResult" xml:space="preserve">
     <value>Result</value>

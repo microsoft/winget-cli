@@ -139,5 +139,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Begins a transaction, which may require upgrading to a newer schema version.
         TransactionLock BeginTransaction(std::string_view name, bool forWrite, std::shared_ptr<IConfigurationDatabase>& database) const;
+
+        // Performs the boilerplate setup for a read, then executes the given operation.
+        template <typename OperationT>
+        auto ExecuteReadOperation(std::string_view operationName, OperationT&& operation, bool requireDatabase = false) const;
+
+        // Performs the boilerplate setup for a write, then executes the given operation.
+        template <typename OperationT>
+        void ExecuteWriteOperation(std::string_view operationName, OperationT&& operation, bool silentlyIgnoreNoDatabase = false);
     };
 }

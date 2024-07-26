@@ -288,20 +288,6 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
-    StatementBuilder& StatementBuilder::Max(std::string_view column)
-    {
-        OutputColumns(m_stream, "MAX(", column);
-        m_stream << ")";
-        return *this;
-    }
-
-    StatementBuilder& StatementBuilder::Max(const QualifiedColumn& column)
-    {
-        OutputColumns(m_stream, "MAX(", column);
-        m_stream << ")";
-        return *this;
-    }
-
     StatementBuilder& StatementBuilder::From()
     {
         m_stream << " FROM ";

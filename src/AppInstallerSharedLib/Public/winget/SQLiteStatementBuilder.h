@@ -242,10 +242,6 @@ namespace AppInstaller::SQLite::Builder
         StatementBuilder& Select(std::initializer_list<QualifiedColumn> columns);
         StatementBuilder& Select(details::rowcount_t);
 
-        // The maximum value aggregate function.
-        StatementBuilder& Max(std::string_view column);
-        StatementBuilder& Max(const QualifiedColumn& column);
-
         // Indicate the table that the statement will be operating on.
         // The initializer_list form enables the table name to be constructed from multiple parts.
         StatementBuilder& From();

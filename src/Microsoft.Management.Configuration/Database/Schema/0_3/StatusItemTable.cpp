@@ -68,7 +68,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         int64_t GetLatestChangeIdentifier(Connection& connection)
         {
             StatementBuilder getLatestChangeBuilder;
-            getLatestChangeBuilder.Select().Max(s_StatusItemTable_Column_ChangeIdentifier).From(s_StatusItemTable_Table);
+            getLatestChangeBuilder.Select().Column(Aggregate::Max, s_StatusItemTable_Column_ChangeIdentifier).From(s_StatusItemTable_Table);
 
             Statement getLatestChange = getLatestChangeBuilder.Prepare(connection);
 
