@@ -45,7 +45,7 @@ Get user settings for WinGet.
 Get the installed version of WinGet.
 
 ### [Install-WinGetPackage](Install-WinGetPackage.md)
-{{ Fill in the Description }}
+Install a WinGet Package.
 
 ### [Remove-WinGetSource](Remove-WinGetSource.md)
 {{ Fill in the Description }}
