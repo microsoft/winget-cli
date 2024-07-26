@@ -33,7 +33,7 @@ Searches configured sources for packages.
 List installed packages.
 
 ### [Get-WinGetSettings](Get-WinGetSettings.md)
-{{ Fill in the Description }}
+Get WinGet settings.
 
 ### [Get-WinGetSource](Get-WinGetSource.md)
 {{ Fill in the Description }}
