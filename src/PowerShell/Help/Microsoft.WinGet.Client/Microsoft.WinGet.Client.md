@@ -30,7 +30,7 @@ Downloads a package.
 Searches configured sources for packages.
 
 ### [Get-WinGetPackage](Get-WinGetPackage.md)
-{{ Fill in the Description }}
+List installed packages.
 
 ### [Get-WinGetSettings](Get-WinGetSettings.md)
 {{ Fill in the Description }}
