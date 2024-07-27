@@ -71,6 +71,9 @@ This includes, but is not limited to -
 - `--cmd` or `--command` - Filter results by command
 - `-s` or `--source` - Find the package using the specified source
 - `-e` or `--exact` - Find the package using exact match
+- `--skip` - To skip the current package disambiguation and move to next (incase of multiple packages)
+- `--quit` - To exit the disambiguation process
+- `--help` or `?` - To show help for all the flags for disambiguation 
 
 ### Number of results
 
@@ -161,6 +164,74 @@ Please enter a row number, package name, ID, or query to refine search...
 No package found matching input criteria
 ```
 
+### For multiple packages
+
+If the user tries to install multiple packages then run disabiguation for each separately and ask them to select for 
+
+```pwsh
+> winget install Example AnotherExample
+Multiple packages found for 'Example'.
+ Number Name      Id                Source
+-------------------------------------------
+   1    ExampleA  Example.Example1 msstore
+   2    ExampleA  Example.Example2 winget
+   ...
+   27   Example27 Example.Example27 msstore
+
+Please enter a row number, package name, ID, or query to refine search...
+> _
+```
+
+Once user disambiguates or skips the first package then they can move to next but not install it till all the packages are disambiguated.
+
+```pwsh
+Please enter a row number, package name, ID, or query to refine search...
+> --skip
+Skipping disambiguation for 'Example' - No package will be installed.
+
+Multiple packages found for 'AnotherExample'.
+ Number Name      Id                Source
+-------------------------------------------
+   1    ExampleA  AnotherExample.Example1 msstore
+   2    ExampleA  AnotherExample.Example2 winget
+   ...
+   5    Example5  AnotherExample.Example5 msstore
+...
+```
+
+```pwsh
+Please enter a row number, package name, ID, or query to refine search...
+> 2
+Selected ExampleA [Example.Example2] Version 1.0.0
+
+Multiple packages found for 'AnotherExample'.
+ Number Name      Id                Source
+-------------------------------------------
+   1    ExampleA  AnotherExample.Example1 msstore
+   2    ExampleA  AnotherExample.Example2 winget
+   ...
+   5    Example5  AnotherExample.Example5 msstore
+
+Please enter a row number, package name, ID, or query to refine search...
+> _
+```
+
+After all the of the packages are disambiguated we can start installation.
+
+```pwsh
+...
+Please enter a row number, package name, ID, or query to refine search...
+> 4
+
+Selected Example4 [AnotherExample.Example4] Version 1.0.0
+
+Installing following packages -
+1. ExampleA [Example.Example2] Version 1.0.0
+2. Example4 [AnotherExample.Example4] Version 1.0.0
+
+...
+```
+
 ## Capabilities
 
 ### Telemetry
@@ -197,22 +268,6 @@ This won't work in MinTTY. It's a [known issue](https://github.com/git-for-windo
 
 ## Future considerations
 * Keyboard interactivity using <kbd>↑</kbd>, <kbd>↓</kbd>, and <kbd>Ener</kbd>
-
-* Currently, Winget does not support installing multiple packages in a single command.
-
-   For Example -
-
-   ```pswh
-   winget install Powershell Git
-   ```
-
-   The above command will not install anything.
-
-   If this is ever supported, potential considerations include having _multiple_, _range_ and _not_ selectors.
-
-   - multiple selector (1 3): A **space** separated number should install packages of that number.
-   - range selector (1-3): A **hyphen** separated number should install all the packages including the start and end numbers.
-   - not selector (^2): A number with a **carat** symbol should install all packages except the number marked with a carat symbol.
 * Protection against mistyping the numeric identifier
 
 ## Resources
