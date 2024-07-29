@@ -13,6 +13,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
     {
         SetInfoTable(AppInstaller::SQLite::Connection& connection);
 
+        static std::string_view TableName();
+        static std::string_view InstanceIdentifierColumn();
+
         // Creates the set info table.
         void Create();
 
@@ -31,6 +34,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
 
         // Gets the row id of the set with the given instance identifier.
         std::optional<AppInstaller::SQLite::rowid_t> GetSetRowId(const GUID& instanceIdentifier);
+
+        // Gets the set with the given instance identifier.
+        IConfigurationDatabase::ConfigurationSetPtr GetSet(const GUID& instanceIdentifier);
+
+        // Gets a set's first apply time.
+        std::chrono::system_clock::time_point GetSetFirstApply(const GUID& instanceIdentifier);
 
     private:
         AppInstaller::SQLite::Connection& m_connection;

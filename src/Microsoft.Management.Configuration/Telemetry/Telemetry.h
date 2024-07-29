@@ -86,7 +86,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void LogConfigProcessingSummary(
             const guid& setIdentifier,
             std::string_view inputHash,
-            bool fromHistory,
             ConfigurationUnitIntent runIntent,
             hresult result,
             ConfigurationUnitResultSource failurePoint,

@@ -150,4 +150,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void CompleteConfigurationHistoryItem(Execution::Context& context);
+
+    // Monitors configuration status.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void MonitorConfigurationStatus(Execution::Context& context);
 }

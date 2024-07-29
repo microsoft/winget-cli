@@ -358,6 +358,12 @@ namespace AppInstaller::SQLite::Builder
         return *this;
     }
 
+    StatementBuilder& StatementBuilder::Equals(const QualifiedColumn& column)
+    {
+        OutputColumns(m_stream, " = ", column);
+        return *this;
+    }
+
     StatementBuilder& StatementBuilder::IsGreaterThan(details::unbound_t, std::optional<size_t> index)
     {
         AppendOpAndBinder(Op::GreaterThan, index);
@@ -379,17 +385,6 @@ namespace AppInstaller::SQLite::Builder
     StatementBuilder& StatementBuilder::Like(details::unbound_t)
     {
         AppendOpAndBinder(Op::Like);
-        return *this;
-    }
-
-    StatementBuilder& StatementBuilder::LiteralColumn(std::string_view value)
-    {
-        if (m_needsComma)
-        {
-            m_stream << ", ";
-        }
-        AddBindFunctor(AppendOpAndBinder(Op::Literal), value);
-        m_needsComma = true;
         return *this;
     }
 
@@ -676,6 +671,15 @@ namespace AppInstaller::SQLite::Builder
     {
         m_stream << ')';
         m_needsComma = false;
+        return *this;
+    }
+
+    StatementBuilder& StatementBuilder::NotNull(bool isTrue)
+    {
+        if (isTrue)
+        {
+            m_stream << " NOT NULL";
+        }
         return *this;
     }
 

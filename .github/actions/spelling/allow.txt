@@ -194,6 +194,7 @@ norestart
 normalizednameandpublisher
 normalizedpackagenameandpublisher
 notcontains
+NTAPI
 NTSTATUS
 nullsoft
 nunit
@@ -330,7 +331,7 @@ Testrun
 testsettingname
 TEXTFORMAT
 TEXTINCLUDE
-Threadpool
+threadpool
 tpl
 TRACELOGGING
 triaged

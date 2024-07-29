@@ -5,6 +5,7 @@
 
 #include "Database/Schema/0_1/Interface.h"
 #include "Database/Schema/0_2/Interface.h"
+#include "Database/Schema/0_3/Interface.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -16,10 +17,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             if (version.MajorVersion == 0)
             {
-                constexpr std::array<std::unique_ptr<IConfigurationDatabase>(*)(const StorageT& s), 2> versionCreatorMap =
+                constexpr std::array<std::unique_ptr<IConfigurationDatabase>(*)(const StorageT& s), 3> versionCreatorMap =
                 {
                     [](const StorageT& s) { return std::unique_ptr<IConfigurationDatabase>(std::make_unique<Database::Schema::V0_1::Interface>(s)); },
                     [](const StorageT& s) { return std::unique_ptr<IConfigurationDatabase>(std::make_unique<Database::Schema::V0_2::Interface>(s)); },
+                    [](const StorageT& s) { return std::unique_ptr<IConfigurationDatabase>(std::make_unique<Database::Schema::V0_3::Interface>(s)); },
                 };
 
                 size_t minorVersion = static_cast<size_t>(version.MinorVersion);
@@ -36,7 +38,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     AppInstaller::SQLite::Version IConfigurationDatabase::GetLatestVersion()
     {
-        return { 0, 2 };
+        return { 0, 3 };
     }
 
     std::unique_ptr<IConfigurationDatabase> IConfigurationDatabase::CreateFor(const std::shared_ptr<AppInstaller::SQLite::SQLiteDynamicStorage>& storage, bool allowMigration)
@@ -66,12 +68,77 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
     }
 
-    std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, bool>> IConfigurationDatabase::GetQueueItems()
+    std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, DWORD, bool>> IConfigurationDatabase::GetQueueItems()
     {
         return {};
     }
 
     void IConfigurationDatabase::RemoveQueueItem(const std::string&)
     {
+    }
+
+    std::vector<IConfigurationDatabase::StatusItemTuple> IConfigurationDatabase::GetStatusSince(int64_t)
+    {
+        return {};
+    }
+
+    std::tuple<int64_t, std::vector<IConfigurationDatabase::StatusItemTuple>> IConfigurationDatabase::GetStatusBaseline()
+    {
+        return { 0, {} };
+    }
+
+    void IConfigurationDatabase::AddListener(const std::string&)
+    {
+    }
+
+    void IConfigurationDatabase::RemoveListener(const std::string&)
+    {
+    }
+
+    std::vector<std::tuple<std::string, std::chrono::system_clock::time_point, DWORD>> IConfigurationDatabase::GetChangeListeners()
+    {
+        return {};
+    }
+
+    void IConfigurationDatabase::UpdateSetState(const guid&, ConfigurationSetState)
+    {
+    }
+
+    void IConfigurationDatabase::UpdateSetInQueue(const guid&, bool)
+    {
+    }
+
+    void IConfigurationDatabase::UpdateUnitState(const guid&, const ConfigurationSetChangeDataPtr&)
+    {
+    }
+
+    ConfigurationSetState IConfigurationDatabase::GetSetState(const guid&)
+    {
+        return ConfigurationSetState::Unknown;
+    }
+
+    std::chrono::system_clock::time_point IConfigurationDatabase::GetSetFirstApply(const guid&)
+    {
+        return {};
+    }
+
+    std::chrono::system_clock::time_point IConfigurationDatabase::GetSetApplyBegun(const guid&)
+    {
+        return {};
+    }
+
+    std::chrono::system_clock::time_point IConfigurationDatabase::GetSetApplyEnded(const guid&)
+    {
+        return {};
+    }
+
+    ConfigurationUnitState IConfigurationDatabase::GetUnitState(const guid&)
+    {
+        return ConfigurationUnitState::Unknown;
+    }
+
+    std::optional<std::tuple<HRESULT, std::string, std::string, ConfigurationUnitResultSource>> IConfigurationDatabase::GetUnitResultInformation(const guid&)
+    {
+        return std::nullopt;
     }
 }

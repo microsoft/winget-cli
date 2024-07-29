@@ -278,7 +278,7 @@ namespace Microsoft.Management.Configuration
 
         // The state of the configuration set for this event (the ConfigurationSet can be used to get the current state, which may be different).
         ConfigurationSetState SetState{ get; };
-            
+
         // The state of the configuration unit for this event (the ConfigurationUnit can be used to get the current state, which may be different).
         ConfigurationUnitState UnitState{ get; };
 
@@ -368,7 +368,7 @@ namespace Microsoft.Management.Configuration
         String SchemaVersion;
 
         // Only changes for this set are sent to this event.
-        // This includes things like: start/stop of the entire set for application or test, start/stop of a unit for application or test.
+        // This includes things like: start/stop of the entire set for application, start/stop of a unit for application.
         event Windows.Foundation.TypedEventHandler<ConfigurationSet, ConfigurationSetChangeData> ConfigurationSetChange;
 
         // Writes the configuration set to the given stream.
@@ -858,7 +858,7 @@ namespace Microsoft.Management.Configuration
         Boolean GenerateTelemetryEvents;
 
         // Only top level configuration changes are sent to this event.
-        // This includes things like: creation of a new set for intent to run, start/stop of a set for application or test, deletion of a not started set.
+        // This includes things like: creation of a new set for intent to run, start/stop of a set for application, deletion of a not started set.
         event Windows.Foundation.TypedEventHandler<ConfigurationSet, ConfigurationChangeData> ConfigurationChange;
 
         // Gets the configuration sets that have already been applied or with the intent to be applied (this may include in progress sets or those that are waiting on others).

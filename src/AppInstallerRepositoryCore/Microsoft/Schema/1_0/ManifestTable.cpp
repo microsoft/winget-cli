@@ -213,7 +213,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
             else
             {
-                builder.LiteralColumn("");
+                builder.Value(std::string_view{});
             }
 
             builder.As(valueAlias).From(s_ManifestTable_Table_Name);
