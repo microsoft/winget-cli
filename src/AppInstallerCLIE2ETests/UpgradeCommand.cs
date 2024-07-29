@@ -187,5 +187,18 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result2.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User);
         }
+
+        /// <summary>
+        /// Test upgrade when a new dependency is added that is not installed.
+        /// </summary>
+        [Test]
+        public void UpgradeAddsDependency()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestUpgradeAddsDependency -v 1.0");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+
+            result = TestCommon.RunAICLICommand("upgrade", $"AppInstallerTest.TestUpgradeAddsDependency");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+        }
     }
 }
