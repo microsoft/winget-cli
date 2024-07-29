@@ -270,7 +270,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Dev Package Dependencies'
     inputs:
-      SourceFolder: '$(buildOutDir)\AppxPackages\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\'
+      SourceFolder: '$(appxPackageDir)\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\'
       TargetFolder: '$(artifactsDir)\E2ETests\DevPackageDependencies'
 
   - task: CopyFiles@2
