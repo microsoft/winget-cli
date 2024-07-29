@@ -66,5 +66,5 @@ Repairs the WinGet client.
 {{ Fill in the Description }}
 
 ### [Update-WinGetPackage](Update-WinGetPackage.md)
-{{ Fill in the Description }}
+Update a WinGet package.
 
