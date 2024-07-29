@@ -8,7 +8,7 @@ schema: 2.0.0
 # Add-WinGetSource
 
 ## SYNOPSIS
-Add a new source
+Add a new source.
 
 ## SYNTAX
 
@@ -113,3 +113,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
+
+[Remove-WinGetSource](Remove-WinGetSource.md)
+
+[Reset-WinGetSource](Reset-WinGetSource.md)

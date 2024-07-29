@@ -48,7 +48,7 @@ Get the installed version of WinGet.
 Install a WinGet Package.
 
 ### [Remove-WinGetSource](Remove-WinGetSource.md)
-{{ Fill in the Description }}
+Remove a configured source.
 
 ### [Repair-WinGetPackageManager](Repair-WinGetPackageManager.md)
 {{ Fill in the Description }}
