@@ -1,7 +1,6 @@
 PackageIdentifier: AppInstallerTest.TestUpgradeAddsDependency
 PackageVersion: 1.0
 PackageName: TestUpgradeAddsDependency
-PackageLocale: en-US
 Publisher: Microsoft
 License: Test
 ShortDescription: E2E test for adding a new package dependency during an upgrade.
