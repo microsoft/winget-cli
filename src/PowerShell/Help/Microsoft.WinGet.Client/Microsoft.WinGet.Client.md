@@ -63,7 +63,7 @@ Repairs the WinGet client.
 {{ Fill in the Description }}
 
 ### [Uninstall-WinGetPackage](Uninstall-WinGetPackage.md)
-{{ Fill in the Description }}
+Uninstall a WinGet Package.
 
 ### [Update-WinGetPackage](Update-WinGetPackage.md)
 Update a WinGet package.
