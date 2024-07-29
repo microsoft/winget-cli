@@ -51,7 +51,7 @@ Install a WinGet Package.
 Remove a configured source.
 
 ### [Repair-WinGetPackageManager](Repair-WinGetPackageManager.md)
-{{ Fill in the Description }}
+Repairs the WinGet client.
 
 ### [Reset-WinGetSource](Reset-WinGetSource.md)
 {{ Fill in the Description }}

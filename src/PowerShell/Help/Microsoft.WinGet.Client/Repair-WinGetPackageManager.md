@@ -8,7 +8,7 @@ schema: 2.0.0
 # Repair-WinGetPackageManager
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+Repairs the WinGet client.
 
 ## SYNTAX
 
@@ -25,16 +25,23 @@ Repair-WinGetPackageManager [-AllUsers] [-Force] [-Latest] [-IncludePreRelease]
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+Repairs the WinGet client by installing the latest stable version of the client. #TODO
 
 ## EXAMPLES
 
-### Example 1
+### Example 1: Repair the WinGet client.
 ```powershell
-PS C:\> {{ Add example code here }}
+PS C:\> Repair-WinGetPackageManager
 ```
 
-{{ Add example description here }}
+Ensures the current installed version of WinGet is functional.
+
+### Example 2: Force install the latest version.
+```powershell
+PS C:\> Repair-WinGetPackageManager -Latest -Force
+```
+
+Install the latest version of WinGet and ensure it functions.
 
 ## PARAMETERS
 
