@@ -350,7 +350,7 @@ struct Main
         std::ofstream stream{ metadataInputPath };
 
         stream << "{" << std::endl;
-        stream << JSONPair{ "supportedMetadataVersion", "1.1"};
+        stream << JSONPair{ "supportedMetadataVersion", "1.2"};
         // TODO: Could theoretically produce this if we could enumerate the data via COM
         // stream << JSONPair{ "currentMetadata", "" };
         stream << JSONPair{ "submissionData", nullptr, false } << "\n{\n";
