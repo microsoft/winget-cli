@@ -31,10 +31,10 @@ Tests if the provided input matches the current WinGet settings configuration. T
 
 ### Example 2: Test only progress bar setting.
 ```powershell 
-PS C:\> Test-WinGetUserSettings -UserSettings @{ visual= @{ progressBar="rainbow"} } -Merge
+PS C:\> Test-WinGetUserSettings -UserSettings @{ visual= @{ progressBar="rainbow"} } -IgnoreNotSet
 ```
 
-Tests if the progress bar theme is set to rainbow. Including the -Merge argument does not include other WinGet settings in the comparison.
+Tests if the progress bar theme is set to rainbow. Including the -IgnoreNotSet argument does not include other WinGet settings in the comparison.
 
 ## PARAMETERS
 
