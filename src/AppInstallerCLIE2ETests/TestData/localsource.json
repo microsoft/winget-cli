@@ -1,6 +1,6 @@
 {
   "AppxManifest": "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/Package/AppxManifest.xml",
-  "WorkingDirectory": "%BUILDOUTDIR%/E2ETests/TestLocalIndex",
+  "WorkingDirectory": "%AGENT_TEMPDIRECTORY%/TestLocalIndex",
   "LocalManifests": [
     "%BUILD_SOURCESDIRECTORY%/src/AppInstallerCLIE2ETests/TestData/Manifests"
   ],

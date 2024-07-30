@@ -40,7 +40,10 @@ param(
     [string]$SourceCert,
 
     [Parameter()]
-    [string]$TestDataPath
+    [string]$TestDataPath,
+
+    [Parameter()]
+    [switch]$ExitBeforeRun
 )
 
 if (-not [System.String]::IsNullOrEmpty($sourceCert))
@@ -51,6 +54,11 @@ if (-not [System.String]::IsNullOrEmpty($sourceCert))
 
 Push-Location $BuildRoot
 
-Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson TestDataPath=$TestDataPath"
+$Local:process = Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson TestDataPath=$TestDataPath TestDataPath=$TestDataPath ExitBeforeRun=$ExitBeforeRun"
+
+if ($ExitBeforeRun)
+{
+    Wait-Process -InputObject $Local:process
+}
 
 Pop-Location
