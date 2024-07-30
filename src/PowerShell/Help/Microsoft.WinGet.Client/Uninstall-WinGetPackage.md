@@ -65,7 +65,7 @@ This sample uninstalls the Microsoft.PowerShell package version 7.4.4.0. No spec
 ## PARAMETERS
 
 ### -Force
-Force the uninstall even when other checks WinGet would perform would prevent this action.
+Force the uninstall to run.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -80,7 +80,7 @@ Accept wildcard characters: False
 ```
 
 ### -Id
-Specifies the package identifier.
+Specify package identifier
 
 ```yaml
 Type: System.String
@@ -95,7 +95,9 @@ Accept wildcard characters: False
 ```
 
 ### -Log
-Specify the location for the installer log to be written.
+Specify log location for uninstall.
+
+> **Note: Not all uninstallers support this option.**
 
 ```yaml
 Type: System.String
@@ -110,7 +112,7 @@ Accept wildcard characters: False
 ```
 
 ### -MatchOption
-Specify the match type.
+Specify the match type to use.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageFieldMatchOption
@@ -128,6 +130,8 @@ Accept wildcard characters: False
 ### -Mode
 Specify the installer output mode. Options are "Default", "Silent", and "Interactive".
 
+> **Note: Not all uninstallers support all modes.**
+
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageUninstallMode
 Parameter Sets: (All)
@@ -142,7 +146,7 @@ Accept wildcard characters: False
 ```
 
 ### -Moniker
-Specify the package moniker
+Specify the moniker.
 
 ```yaml
 Type: System.String
@@ -157,7 +161,7 @@ Accept wildcard characters: False
 ```
 
 ### -Name
-Specify the package name.
+Specify the name.
 
 ```yaml
 Type: System.String
@@ -234,7 +238,7 @@ Accept wildcard characters: False
 ```
 
 ### -Version
-Specify package version.
+Specify the version.
 
 ```yaml
 Type: System.String
@@ -304,8 +308,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[Find-WinGetPackage](Find-WinGetPackage.md)
-
-[Update-WinGetPackage](Update-WinGetPackage.md)
-
-[Install-WinGetPackage](Install-WinGetPackage.md)
+[Get-WinGetPackage](Get-WinGetPackage.md)

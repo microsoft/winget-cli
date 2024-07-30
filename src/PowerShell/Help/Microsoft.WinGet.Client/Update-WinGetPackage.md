@@ -8,7 +8,7 @@ schema: 2.0.0
 # Update-WinGetPackage
 
 ## SYNOPSIS
-Update a WinGet Package.
+Update a WinGet package.
 
 ## SYNTAX
 
@@ -69,7 +69,7 @@ This sample updates the Microsoft.PowerShell package to version 7.4.4.0. No spec
 ## PARAMETERS
 
 ### -AllowHashMismatch
-Allow the install to continue even if the SHA256 has does not match.
+Update the package even if the installer download SHA256 doesn't match the manifest.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -84,7 +84,7 @@ Accept wildcard characters: False
 ```
 
 ### -Architecture
-Specify the hardware architecture for the installer.
+Specify the installer architecture.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSProcessorArchitecture
@@ -100,7 +100,7 @@ Accept wildcard characters: False
 ```
 
 ### -Custom
-Arguments to be passed to the installer in addition to those in the manifest.
+Add additional arguments to the installer command.
 
 ```yaml
 Type: System.String
@@ -115,7 +115,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-Force the installer to run even when other checks WinGet would perform would prevent this action.
+Force the update to run the installer.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -130,7 +130,7 @@ Accept wildcard characters: False
 ```
 
 ### -Header
-Custom value to be passed via HTTP header to WinGet REST sources.
+Specify a custom value in the HTTP header to the REST source.
 
 ```yaml
 Type: System.String
@@ -145,7 +145,7 @@ Accept wildcard characters: False
 ```
 
 ### -Id
-Specifies the package identifier.
+Specify the package identifier.
 
 ```yaml
 Type: System.String
@@ -160,7 +160,7 @@ Accept wildcard characters: False
 ```
 
 ### -IncludeUnknown
-Upgrade packages even if their current version cannot be determined.
+Attempt to upgrade the package when the installed version is not specified in the registry.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -175,7 +175,7 @@ Accept wildcard characters: False
 ```
 
 ### -InstallerType
-Specifies the installer type.
+Specify the installer type to use.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageInstallerType
@@ -191,7 +191,7 @@ Accept wildcard characters: False
 ```
 
 ### -Locale
-Specifies the installer locale.
+Specify the installer locale.
 
 ```yaml
 Type: System.String
@@ -206,7 +206,9 @@ Accept wildcard characters: False
 ```
 
 ### -Location
-Specify the install location. This requires support in the installer.
+Specify the location to install the package.
+
+> **Note: Not all installers support this property.**
 
 ```yaml
 Type: System.String
@@ -221,7 +223,9 @@ Accept wildcard characters: False
 ```
 
 ### -Log
-Specify the location for the installer log to be written.
+Specify the location for the installer log.
+
+> **Note: Not all installers support this property.**
 
 ```yaml
 Type: System.String
@@ -236,7 +240,7 @@ Accept wildcard characters: False
 ```
 
 ### -MatchOption
-Specify the match type.
+Specify the match type to use.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageFieldMatchOption
@@ -268,7 +272,7 @@ Accept wildcard characters: False
 ```
 
 ### -Moniker
-Specify the package moniker.
+Specify the moniker.
 
 ```yaml
 Type: System.String
@@ -283,7 +287,7 @@ Accept wildcard characters: False
 ```
 
 ### -Name
-Specify the package name.
+Specify the name.
 
 ```yaml
 Type: System.String
@@ -298,7 +302,7 @@ Accept wildcard characters: False
 ```
 
 ### -Override
-Specify arguments to pass to the installer. This will override arguments in the manifest.
+Override the switches to pass to the installer.
 
 ```yaml
 Type: System.String
@@ -330,7 +334,7 @@ Accept wildcard characters: False
 ```
 
 ### -PSCatalogPackage
-WinGet package object.
+WinGet package object
 
 ```yaml
 Type: Microsoft.WinGet.Client.Engine.PSObjects.PSCatalogPackage
@@ -481,11 +485,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
- 
-[Find-WinGetPackage](Find-WinGetPackage.md)
 
-[Update-WinGetPackage](Update-WinGetPackage.md)
-
-[Install-WinGetPackage](Install-WinGetPackage.md)
+[Get-WinGetPackage](Get-WinGetPackage.md)
 
 [Uninstall-WinGetPackage](Uninstall-WinGetPackage.md)
