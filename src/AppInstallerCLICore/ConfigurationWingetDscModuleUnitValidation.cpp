@@ -68,7 +68,7 @@ namespace AppInstaller::CLI::Configuration
 
         std::vector<WinGetSource> ParseWinGetSourcesFromSettings(const ValueSet& settings)
         {
-            // Iterate through the value set as Powershell variables are case insensitive.
+            // Iterate through the value set as Powershell variables are case-insensitive.
             std::vector<WinGetSource> result;
             for (auto const& settingsPair : settings)
             {
@@ -172,7 +172,7 @@ namespace AppInstaller::CLI::Configuration
 
         WinGetPackage ParseWinGetPackageFromSettings(const ValueSet& settings)
         {
-            // Iterate through the value set as Powershell variables are case insensitive.
+            // Iterate through the value set as Powershell variables are case-insensitive.
             WinGetPackage result;
             for (auto const& settingsPair : settings)
             {
