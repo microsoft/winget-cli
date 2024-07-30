@@ -145,7 +145,7 @@ Accept wildcard characters: False
 ```
 
 ### -Id
-Specifies the package identifier
+Specifies the package identifier.
 
 ```yaml
 Type: System.String
@@ -160,7 +160,7 @@ Accept wildcard characters: False
 ```
 
 ### -InstallerType
-Specifies the installer type
+Specifies the installer type.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageInstallerType
@@ -176,7 +176,7 @@ Accept wildcard characters: False
 ```
 
 ### -Locale
-Specifies the installer locale
+Specifies the installer locale.
 
 ```yaml
 Type: System.String
@@ -253,7 +253,7 @@ Accept wildcard characters: False
 ```
 
 ### -Moniker
-Specify the package moniker
+Specify the package moniker.
 
 ```yaml
 Type: System.String
@@ -268,7 +268,7 @@ Accept wildcard characters: False
 ```
 
 ### -Name
-Specify the package name
+Specify the package name.
 
 ```yaml
 Type: System.String
@@ -316,7 +316,7 @@ Accept wildcard characters: False
 ```
 
 ### -PSCatalogPackage
-WinGet package object
+WinGet package object.
 
 ```yaml
 Type: Microsoft.WinGet.Client.Engine.PSObjects.PSCatalogPackage
@@ -471,3 +471,5 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 [Find-WinGetPackage](Find-WinGetPackage.md)
 
 [Update-WinGetPackage](Update-WinGetPackage.md)
+
+[Uninstall-WinGetPackage](Uninstall-WinGetPackage.md)

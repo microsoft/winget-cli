@@ -8,7 +8,7 @@ schema: 2.0.0
 # Update-WinGetPackage
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+Update a WinGet Package.
 
 ## SYNTAX
 
@@ -32,21 +32,44 @@ Update-WinGetPackage [-IncludeUnknown] [-Mode <PSPackageInstallMode>] [-Override
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+Updates the selected package found by searching the installed packages list.
 
 ## EXAMPLES
 
-### Example 1
+### Example 1: Update a package using a query
 ```powershell
-PS C:\> {{ Add example code here }}
+PS C:\> Update-WinGetPackage Microsoft.PowerShell
 ```
 
-{{ Add example description here }}
+This sample updates the Microsoft.PowerShell package. No specific property to identify the query string "Microsoft.PowerShell" as a package identifier. This is a convenient short form not requiring the user to pass "-Id".
+
+### Example 2: Update a package by Id
+```powershell
+PS C:\> Update-WinGetPackage -Id Microsoft.PowerShell
+```
+
+This sample updates the Microsoft.PowerShell package by the specifying the package identifier. 
+
+> **If more than one source is configured with the same package identifier, the user must disambiguate**
+
+### Example 3: Update a package by Name
+```powershell
+PS C:\> Update-WinGetPackage -Name "PowerToys (Preview)"
+```
+
+This sample updates the PowerToys package by the specifying the package name. 
+
+### Example 4: Update to a specific version of a package
+```powershell
+PS C:\> Update-WinGetPackage Microsoft.PowerShell -Version 7.4.4.0
+```
+
+This sample updates the Microsoft.PowerShell package to version 7.4.4.0. No specific property to identify the query string "Microsoft.PowerShell" as a package identifier.
 
 ## PARAMETERS
 
 ### -AllowHashMismatch
-{{ Fill AllowHashMismatch Description }}
+Allow the install to continue even if the SHA256 has does not match.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -61,7 +84,7 @@ Accept wildcard characters: False
 ```
 
 ### -Architecture
-{{ Fill Architecture Description }}
+Specify the hardware architecture for the installer.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSProcessorArchitecture
@@ -77,7 +100,7 @@ Accept wildcard characters: False
 ```
 
 ### -Custom
-{{ Fill Custom Description }}
+Arguments to be passed to the installer in addition to those in the manifest.
 
 ```yaml
 Type: System.String
@@ -92,7 +115,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-{{ Fill Force Description }}
+Force the installer to run even when other checks WinGet would perform would prevent this action.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -107,7 +130,7 @@ Accept wildcard characters: False
 ```
 
 ### -Header
-{{ Fill Header Description }}
+Custom value to be passed via HTTP header to WinGet REST sources.
 
 ```yaml
 Type: System.String
@@ -122,7 +145,7 @@ Accept wildcard characters: False
 ```
 
 ### -Id
-{{ Fill Id Description }}
+Specifies the package identifier.
 
 ```yaml
 Type: System.String
@@ -137,7 +160,7 @@ Accept wildcard characters: False
 ```
 
 ### -IncludeUnknown
-{{ Fill IncludeUnknown Description }}
+Upgrade packages even if their current version cannot be determined.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -152,7 +175,7 @@ Accept wildcard characters: False
 ```
 
 ### -InstallerType
-{{ Fill InstallerType Description }}
+Specifies the installer type.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageInstallerType
@@ -168,7 +191,7 @@ Accept wildcard characters: False
 ```
 
 ### -Locale
-{{ Fill Locale Description }}
+Specifies the installer locale.
 
 ```yaml
 Type: System.String
@@ -183,7 +206,7 @@ Accept wildcard characters: False
 ```
 
 ### -Location
-{{ Fill Location Description }}
+Specify the install location. This requires support in the installer.
 
 ```yaml
 Type: System.String
@@ -198,7 +221,7 @@ Accept wildcard characters: False
 ```
 
 ### -Log
-{{ Fill Log Description }}
+Specify the location for the installer log to be written.
 
 ```yaml
 Type: System.String
@@ -213,7 +236,7 @@ Accept wildcard characters: False
 ```
 
 ### -MatchOption
-{{ Fill MatchOption Description }}
+Specify the match type.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageFieldMatchOption
@@ -229,7 +252,7 @@ Accept wildcard characters: False
 ```
 
 ### -Mode
-{{ Fill Mode Description }}
+Specify the installer output mode. Options are "Default", "Silent", and "Interactive".
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageInstallMode
@@ -245,7 +268,7 @@ Accept wildcard characters: False
 ```
 
 ### -Moniker
-{{ Fill Moniker Description }}
+Specify the package moniker.
 
 ```yaml
 Type: System.String
@@ -260,7 +283,7 @@ Accept wildcard characters: False
 ```
 
 ### -Name
-{{ Fill Name Description }}
+Specify the package name.
 
 ```yaml
 Type: System.String
@@ -275,7 +298,7 @@ Accept wildcard characters: False
 ```
 
 ### -Override
-{{ Fill Override Description }}
+Specify arguments to pass to the installer. This will override arguments in the manifest.
 
 ```yaml
 Type: System.String
@@ -290,7 +313,9 @@ Accept wildcard characters: False
 ```
 
 ### -ProgressAction
-{{ Fill ProgressAction Description }}
+Determines how PowerShell responds to progress updates generated by a script, cmdlet, or provider, such as the progress bars generated by the Write-Progress cmdlet.
+
+This parameter was added in PowerShell 7.4.
 
 ```yaml
 Type: System.Management.Automation.ActionPreference
@@ -305,7 +330,7 @@ Accept wildcard characters: False
 ```
 
 ### -PSCatalogPackage
-{{ Fill PSCatalogPackage Description }}
+WinGet package object.
 
 ```yaml
 Type: Microsoft.WinGet.Client.Engine.PSObjects.PSCatalogPackage
@@ -320,7 +345,7 @@ Accept wildcard characters: False
 ```
 
 ### -Query
-{{ Fill Query Description }}
+Search string. Wildcards are not supported.
 
 ```yaml
 Type: System.String[]
@@ -335,7 +360,7 @@ Accept wildcard characters: False
 ```
 
 ### -Scope
-{{ Fill Scope Description }}
+Specify installer scope. Valid values are "Any", "User", "System", "UserOrUnknown", "SystemOrUnknown".
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageInstallScope
@@ -351,7 +376,7 @@ Accept wildcard characters: False
 ```
 
 ### -SkipDependencies
-{{ Fill SkipDependencies Description }}
+Skip dependency installation.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -366,7 +391,7 @@ Accept wildcard characters: False
 ```
 
 ### -Source
-{{ Fill Source Description }}
+Specify configured WinGet source.
 
 ```yaml
 Type: System.String
@@ -381,7 +406,7 @@ Accept wildcard characters: False
 ```
 
 ### -Version
-{{ Fill Version Description }}
+Specify package version.
 
 ```yaml
 Type: System.String
@@ -456,3 +481,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
+ 
+[Find-WinGetPackage](Find-WinGetPackage.md)
+
+[Update-WinGetPackage](Update-WinGetPackage.md)
+
+[Install-WinGetPackage](Install-WinGetPackage.md)
+
+[Uninstall-WinGetPackage](Uninstall-WinGetPackage.md)

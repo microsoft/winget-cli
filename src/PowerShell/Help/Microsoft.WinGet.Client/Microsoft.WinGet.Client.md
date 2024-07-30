@@ -54,17 +54,16 @@ Remove a configured source.
 Repairs the WinGet client.
 
 ### [Reset-WinGetSource](Reset-WinGetSource.md)
-{{ Fill in the Description }}
+Reset default WinGet sources.
 
 ### [Set-WinGetUserSettings](Set-WinGetUserSettings.md)
-{{ Fill in the Description }}
+Set WinGet settings.
 
 ### [Test-WinGetUserSettings](Test-WinGetUserSettings.md)
-{{ Fill in the Description }}
+Test the WinGet settings.
 
 ### [Uninstall-WinGetPackage](Uninstall-WinGetPackage.md)
-{{ Fill in the Description }}
+Uninstall a WinGet Package.
 
 ### [Update-WinGetPackage](Update-WinGetPackage.md)
-{{ Fill in the Description }}
-
+Update a WinGet Package.

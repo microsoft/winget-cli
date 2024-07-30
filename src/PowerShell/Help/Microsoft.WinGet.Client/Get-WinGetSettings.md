@@ -17,7 +17,7 @@ Get-WinGetSettings [-AsPlainText] [-ProgressAction <ActionPreference>] [<CommonP
 ```
 
 ## DESCRIPTION
-Get WinGet settings. This includes the user settings file, administrator settings, and the settings schema.
+Get WinGet settings. This includes the user settings file, administrator settings, and the settings schema. For more information about WinGet settings, visit https://aka.ms/winget-settings.
 
 ## EXAMPLES
 
