@@ -309,3 +309,5 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## RELATED LINKS
 
 [Get-WinGetPackage](Get-WinGetPackage.md)
+
+[Install-WinGetPackage](Install-WinGetPackage.md)
