@@ -44,7 +44,7 @@ Please read our [troubleshooting guide](/doc/troubleshooting/README.md).
 
 ## Administrator Considerations
 
-Installer behavior can be different depending on whether you are running **winget** with administrator privileges.
+Installer behavior can be different depending on whether you are running **Winget** with administrator privileges.
 
 * When running **WinGet** without administrator privileges, some applications may [require elevation](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works) to install. When the installer runs, Windows will prompt you to [elevate](https://docs.microsoft.com/windows/security/identity-protection/user-account-control/how-user-account-control-works#the-uac-user-experience). If you choose not to elevate, the application will fail to install.
 
@@ -72,7 +72,7 @@ The **Windows Package Manager** is a tool designed to help you quickly and easil
 
 ### Client Repository
 
-This winget-cli repository includes the source code designed to build the client.  You are encouraged to participate in the development of this client. We have plenty of backlog features in our [Issues](https://github.com/microsoft/winget-cli/issues?q=is%3Aopen+is%3Aissue+milestone%3ABacklog-Client). You can upvote the ones you want, add more, or even [get started on one.](https://github.com/orgs/microsoft/projects/137)
+This Winget-CLI repository includes the source code designed to build the client.  You are encouraged to participate in the development of this client. We have plenty of backlog features in our [Issues](https://github.com/microsoft/winget-cli/issues?q=is%3Aopen+is%3Aissue+milestone%3ABacklog-Client). You can upvote the ones you want, add more, or even [get started on one.](https://github.com/orgs/microsoft/projects/137)
 
 ### Sources
 
@@ -135,9 +135,9 @@ The winget.exe client is instrumented to collect usage and diagnostic (error) da
 
 If you build the client yourself the instrumentation will not be enabled and no data will be sent to Microsoft.
 
-The winget.exe client respects machine-wide privacy settings and users can opt-out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy). In addition, you may also explicitly block telemetry using [settings](https://docs.microsoft.com/windows/package-manager/winget/settings)
+The winget.exe client respects machine-wide privacy settings and users can opt out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy). In addition, you may also explicitly block telemetry using [settings](https://docs.microsoft.com/windows/package-manager/winget/settings)
 
-In short, to opt-out, do one of the following:
+In short, to opt out, do one of the following:
 
 **Windows 11**: Go to `Start`, then select `Settings` > `Privacy & Security` > `Diagnostics & feedback` > `Diagnostic data` and unselect `Send optional diagnostic data`.
 
