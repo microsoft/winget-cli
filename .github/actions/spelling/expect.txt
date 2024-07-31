@@ -69,7 +69,6 @@ CLIE
 CLOSEAPP
 cloudapp
 clsctx
-clsid
 cobertura
 CODEOWNERS
 COINIT
@@ -119,7 +118,6 @@ EFGH
 EFile
 efileresource
 EMalicious
-endregion
 ENDSESSION
 EPester
 epth
@@ -127,7 +125,6 @@ EQU
 ERRORONEXIT
 ESource
 ESRB
-ests
 etest
 etl
 execustom
@@ -227,7 +224,6 @@ learnxinyminutes
 libfuzzer
 libsolv
 libyaml
-Linq
 liv
 liwpx
 localizationpriority
@@ -292,12 +288,10 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
-nameof
 Nami
 nativehandle
 NBLGGH
 NESTEDINSTALLER
-netfx
 netlify
 NETSDK
 Newtonsoft
@@ -317,7 +311,6 @@ NOSEARCH
 NOSEPARATOR
 notalostreference
 NOTAPROPERTY
-notmatch
 NOTRACK
 NOUPDATE
 npmjs
@@ -328,7 +321,6 @@ objidl
 ofile
 omus
 onefuzz
-ools
 oop
 OPTOUT
 OVERLAPPEDWINDOW
@@ -336,7 +328,6 @@ packageinuse
 packageinusebyapplication
 PACL
 PARAMETERMAP
-paramref
 pathparts
 Patil
 PCCERT
@@ -398,7 +389,6 @@ roblox
 ronomon
 rosoft
 Roronoa
-rowids
 roy
 runspace
 runtimeclass
@@ -457,7 +447,6 @@ taskhostw
 TCpp
 tcs
 TEMPDIRECTORY
-Templating
 temppath
 testdata
 testexampleinstaller
@@ -474,7 +463,6 @@ TReturn
 trimstart
 TState
 TStatus
-typeparam
 UCase
 ucasemap
 UChars
@@ -486,7 +474,6 @@ uninstallation
 uninstaller
 uninstallprevious
 uninstalls
-Unk
 unknwn
 Unknwnbase
 UNMARSHALING
@@ -511,7 +498,6 @@ vstest
 wcex
 webpages
 Webserver
-websites
 WERSJA
 wesome
 wfsopen
