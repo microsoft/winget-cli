@@ -18,7 +18,7 @@ namespace AppInstaller::ThreadLocalStorage
         virtual void* GetTelemetryObject() = 0;
 
         // Set Globals for Current Thread
-        // Return RAII object with it's ownership to set the AppInstaller ThreadLocalStorage back to previous state
+        // Return RAII object with its ownership to set the AppInstaller ThreadLocalStorage back to previous state
         virtual std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
 
         // Return Globals for Current Thread

@@ -729,3 +729,128 @@ TEST_CASE("SQLBuilder_InsertValueBinding", "[sqlbuilder]")
         REQUIRE(!select.Step());
     }
 }
+
+TEST_CASE("SQLiteWrapperTransactionRollback", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    Transaction transaction = Transaction::Create(connection, "test_transaction", false);
+
+    InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+
+    transaction.Rollback();
+
+    Statement select = Statement::Create(connection, s_selectFromSimpleTestTableSQL);
+    REQUIRE(!select.Step());
+    REQUIRE(select.GetState() == Statement::State::Completed);
+}
+
+TEST_CASE("SQLiteWrapperTransactionRollbackOnDestruct", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    {
+        Transaction transaction = Transaction::Create(connection, "test_transaction", false);
+
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+    }
+
+    Statement select = Statement::Create(connection, s_selectFromSimpleTestTableSQL);
+    REQUIRE(!select.Step());
+    REQUIRE(select.GetState() == Statement::State::Completed);
+}
+
+TEST_CASE("SQLiteWrapperTransactionCommit", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    {
+        Transaction transaction = Transaction::Create(connection, "test_transaction", false);
+
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+
+        transaction.Commit();
+    }
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+}
+
+TEST_CASE("SQLiteWrapperTransactionImmediate", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    {
+        Transaction transaction = Transaction::Create(connection, "test_transaction", true);
+
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+
+        transaction.Commit();
+    }
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+}
+
+TEST_CASE("SQLiteWrapperTransactionWriteConflict", "[sqlitewrapper]")
+{
+    TestCommon::TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::Create);
+    connection.SetJournalMode("WAL");
+
+    int firstVal = 1;
+    std::string secondVal = "test";
+
+    CreateSimpleTestTable(connection);
+
+    Connection connection2 = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+    std::chrono::milliseconds busyWait = 250ms;
+    connection2.SetBusyTimeout(busyWait);
+
+    {
+        Transaction transaction = Transaction::Create(connection, "test_transaction", true);
+        InsertIntoSimpleTestTable(connection, firstVal, secondVal);
+
+        // Start second transaction
+        std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+        std::chrono::system_clock::time_point end = start;
+        try
+        {
+            Transaction transaction2 = Transaction::Create(connection2, "test_transaction2", true);
+        }
+        catch (...)
+        {
+            end = std::chrono::system_clock::now();
+        }
+
+        std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+        REQUIRE(duration >= busyWait);
+
+        transaction.Commit();
+
+        Transaction transaction2 = Transaction::Create(connection2, "test_transaction2", true);
+        InsertIntoSimpleTestTable(connection2, firstVal, secondVal);
+    }
+
+    SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
+}

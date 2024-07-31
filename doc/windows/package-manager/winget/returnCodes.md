@@ -140,8 +140,8 @@ ms.localizationpriority: medium
 | 0x8A15007E | -1978335106 | APPINSTALLER_CLI_ERROR_SQLITE_CONNECTION_TERMINATED | The SQLite connection was terminated to prevent corruption. |
 | 0x8A15007F | -1978335105 | APPINSTALLER_CLI_ERROR_DISPLAYCATALOG_API_FAILED | Failed to get Microsoft Store package catalog. |
 | 0x8A150080 | -1978335104 | APPINSTALLER_CLI_ERROR_NO_APPLICABLE_DISPLAYCATALOG_PACKAGE | No applicable Microsoft Store package found from Microsoft Store package catalog. |
-| 0x8A150081 | -1978335103 | APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED | Failed to get Microsoft Store package download infomation. |
-| 0x8A150082 | -1978335102 | APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE | No applicable Microsoft Store package download infomation found. |
+| 0x8A150081 | -1978335103 | APPINSTALLER_CLI_ERROR_SFSCLIENT_API_FAILED | Failed to get Microsoft Store package download information. |
+| 0x8A150082 | -1978335102 | APPINSTALLER_CLI_ERROR_NO_APPLICABLE_SFSCLIENT_PACKAGE | No applicable Microsoft Store package download information found. |
 | 0x8A150083 | -1978335101 | APPINSTALLER_CLI_ERROR_LICENSING_API_FAILED | Failed to retrieve Microsoft Store package license. |
 
 ## Install errors.

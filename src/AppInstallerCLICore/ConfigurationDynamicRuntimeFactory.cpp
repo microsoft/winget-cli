@@ -141,7 +141,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             Security::IntegrityLevel GetIntegrityLevelForUnit(const ConfigurationUnit& unit)
             {
                 // Support for 0.2 schema via metadata value
-                // TODO: Support case insensitive lookup by iteration
+                // TODO: Support case-insensitive lookup by iteration
                 auto unitMetadata = unit.Metadata();
                 auto securityContext = unitMetadata.TryLookup(L"securityContext");
                 if (securityContext)

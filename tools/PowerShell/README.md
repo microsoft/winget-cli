@@ -163,7 +163,7 @@ This is not an exhaustive list, but is here as guide for work that needs to be p
 * Header is only valid in the context of a single source parameter. We may want to validate in the cmdlet
 * Validation needs to be built
 * The Modules should be moved to a new GitHub repository patterned after [Crescendo](https://www.powershellgallery.com/packages/PSPackageProject/0.1.18)
-* Ultimately, the child modules will be moved to their respective GitHub repositories and the parent will stay in it's own repository.
+* Ultimately, the child modules will be moved to their respective GitHub repositories and the parent will stay in its own repository.
 * Validation should be implemented
 * A CI Pipeline should be built to sign and publish the modules to the PowerShell gallery
 * Packaging with [PSPackageProject](https://www.powershellgallery.com/packages/PSPackageProject/0.1.18)

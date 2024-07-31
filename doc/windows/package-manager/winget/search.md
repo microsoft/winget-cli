@@ -56,7 +56,7 @@ Search strings can be filtered with the following options.
 | **--verbose, --verbose-logs** | Enables verbose logging for winget. |
 | **--disable-interactivity** | Disable interactive prompts. |
 
-The string will be treated as a substring. The search by default is also case insensitive. For example, `winget search micro` could return the following:
+The string will be treated as a substring. The search by default is also case-insensitive. For example, `winget search micro` could return the following:
 
 * Microsoft
 * Microscope

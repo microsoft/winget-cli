@@ -3747,7 +3747,7 @@ TEST_CASE("SQLiteIndex_V2_0_UsageFlow_Complex", "[sqliteindex][V2_0]")
 
     PrepareAndCheckIntermediates(baseFile, preparedFile, { { manifest1, manifest3 } });
 
-    // Open existing file to add a new verion of existing package and update an existing version
+    // Open existing file to add a new version of existing package and update an existing version
     manifest2.Manifest.StreamSha256 = SHA256::ComputeHash(manifest2.Manifest.Id);
 
     ManifestAndPath manifest4;
@@ -3821,7 +3821,7 @@ TEST_CASE("SQLiteIndex_V2_0_UsageFlow_ComplexMigration", "[sqliteindex][V2_0]")
 
     MigratePrepareAndCheckIntermediates(baseFile, preparedFile, { {  manifest2 }, { manifest1, manifest3 } });
 
-    // Open existing file to add a new verion of existing package and update an existing version
+    // Open existing file to add a new version of existing package and update an existing version
     manifest2.Manifest.StreamSha256 = SHA256::ComputeHash(manifest2.Manifest.Id);
 
     ManifestAndPath manifest4;

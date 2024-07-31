@@ -20,7 +20,7 @@ TEST_CASE("SQLiteDynamicStorage_UpgradeDetection", "[sqlite_dynamic]")
     SQLiteDynamicStorage storage{ tempFile.GetPath(), Version{ 1, 0 } };
 
     {
-        auto transactionLock = storage.TryBeginTransaction("test");
+        auto transactionLock = storage.TryBeginTransaction("test", false);
         REQUIRE(transactionLock);
     }
 
@@ -33,11 +33,11 @@ TEST_CASE("SQLiteDynamicStorage_UpgradeDetection", "[sqlite_dynamic]")
 
     REQUIRE(storage.GetVersion() == Version{ 1, 0 });
 
-    auto transactionLock = storage.TryBeginTransaction("test");
+    auto transactionLock = storage.TryBeginTransaction("test", false);
     REQUIRE(!transactionLock);
 
     REQUIRE(storage.GetVersion() == Version{ 2, 0 });
 
-    transactionLock = storage.TryBeginTransaction("test");
+    transactionLock = storage.TryBeginTransaction("test", false);
     REQUIRE(transactionLock);
 }

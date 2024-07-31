@@ -19,7 +19,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
         bool MigrateFrom(IConfigurationDatabase* current) override;
         void AddQueueItem(const GUID& instanceIdentifier, const std::string& objectName) override;
         void SetActiveQueueItem(const std::string& objectName) override;
-        std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, bool>> GetQueueItems() override;
+        std::vector<std::tuple<GUID, std::string, std::chrono::system_clock::time_point, DWORD, bool>> GetQueueItems() override;
         void RemoveQueueItem(const std::string& objectName) override;
 
     private:
