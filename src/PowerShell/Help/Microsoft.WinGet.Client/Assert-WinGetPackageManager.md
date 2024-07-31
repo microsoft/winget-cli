@@ -51,7 +51,7 @@ If the latest version of WinGet correlated with the Microsoft.WinGet.Client modu
 PS C:\> Assert-WinGetPackageManager -IncludePreRelease
 ```
 
-If the a preview version of WinGet correlated with the Microsoft.WinGet.Client module is installed correctly this will return without error.
+If a preview version of WinGet correlated with the Microsoft.WinGet.Client module is installed correctly this will return without error.
 
 ### Example 4: Check if specific version is installed
 
