@@ -154,9 +154,9 @@ Function Invoke-WinGetCommand
         }
 
         ## Gets the indexing of each title
-        $rgex = $IndexTitles -join "|"
+        $regex = $IndexTitles -join "|"
         for ($Offset=0; $Offset -lt $WinGetSourceListRaw.Length; $Offset++) {
-            if($WinGetSourceListRaw[$Offset].Split(" ")[0].Trim() -match $rgex) {
+            if($WinGetSourceListRaw[$Offset].Split(" ")[0].Trim() -match $regex) {
                 $Found = $true
                 break
             }

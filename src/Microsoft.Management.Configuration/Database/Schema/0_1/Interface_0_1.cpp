@@ -83,4 +83,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation::Database:
     {
         return current->GetSchemaVersion() == s_InterfaceVersion;
     }
+
+    Interface::ConfigurationSetPtr Interface::GetSet(const GUID& instanceIdentifier)
+    {
+        SetInfoTable setInfoTable(*m_storage);
+        return setInfoTable.GetSet(instanceIdentifier);
+    }
 }

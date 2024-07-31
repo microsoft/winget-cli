@@ -34,7 +34,7 @@ namespace AppInstaller::SQLite
             TransactionLock(std::mutex& mutex);
 
             _Acquires_lock_(mutex)
-            TransactionLock(std::mutex& mutex, Connection& connection, std::string_view name);
+            TransactionLock(std::mutex& mutex, Connection& connection, std::string_view name, bool immediateWrite);
 
             // Abandons the transaction and any changes; releases the connection lock.
             void Rollback(bool throwOnError = true);
@@ -44,12 +44,12 @@ namespace AppInstaller::SQLite
 
         private:
             std::lock_guard<std::mutex> m_lock;
-            Savepoint m_transaction;
+            Transaction m_transaction;
         };
 
         // Acquires the connection lock and begins a transaction on the database.
         // If the returned result is empty, the schema version has changed and the caller must handle this.
-        std::unique_ptr<TransactionLock> TryBeginTransaction(std::string_view name);
+        std::unique_ptr<TransactionLock> TryBeginTransaction(std::string_view name, bool immediateWrite);
 
         // Locks the connection for use during the schema upgrade.
         std::unique_ptr<TransactionLock> LockConnection();

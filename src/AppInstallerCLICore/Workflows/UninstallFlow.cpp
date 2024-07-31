@@ -206,6 +206,13 @@ namespace AppInstaller::CLI::Workflow
     void GetUninstallInfo(Execution::Context& context)
     {
         auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+
+        if (!installedPackageVersion)
+        {
+            AICLI_LOG(CLI, Verbose, << "No installed package version; cannot get uninstall information.");
+            return;
+        }
+
         const std::string installedTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
         switch (ConvertToInstallerTypeEnum(installedTypeString))
         {
@@ -290,7 +297,15 @@ namespace AppInstaller::CLI::Workflow
 
     void ExecuteUninstaller(Execution::Context& context)
     {
-        const std::string installedTypeString = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
+        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+
+        if (!installedPackageVersion)
+        {
+            AICLI_LOG(CLI, Verbose, << "No installed package version; cannot uninstall.");
+            return;
+        }
+
+        const std::string installedTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
         InstallerTypeEnum installerType = ConvertToInstallerTypeEnum(installedTypeString);
 
         Synchronization::CrossProcessInstallLock lock;

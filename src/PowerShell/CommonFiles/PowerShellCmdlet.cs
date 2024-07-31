@@ -97,11 +97,14 @@ namespace Microsoft.WinGet.Common.Command
                 this.Write(StreamType.Verbose, "Already running on MTA");
                 try
                 {
-                    return func();
+                    Task result = func();
+                    result.ContinueWith((task) => this.Complete(), TaskContinuationOptions.ExecuteSynchronously);
+                    return result;
                 }
-                finally
+                catch
                 {
                     this.Complete();
+                    throw;
                 }
             }
 
@@ -150,11 +153,14 @@ namespace Microsoft.WinGet.Common.Command
                 this.Write(StreamType.Verbose, "Already running on MTA");
                 try
                 {
-                    return func();
+                    Task<TResult> result = func();
+                    result.ContinueWith((task) => this.Complete(), TaskContinuationOptions.ExecuteSynchronously);
+                    return result;
                 }
-                finally
+                catch
                 {
                     this.Complete();
+                    throw;
                 }
             }
 

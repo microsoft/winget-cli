@@ -81,7 +81,7 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> GetShadowLocalizationFieldProcessInfo();
 
         // This method takes YAML root node and list of manifest field info.
-        // Yaml lib does not support case insensitive search and it allows duplicate keys. If duplicate keys exist,
+        // Yaml lib does not support case-insensitive search and it allows duplicate keys. If duplicate keys exist,
         // the value is undefined. So in this method, we will iterate through the node map and process each individual
         // pair ourselves. This also helps with generating aggregated error rather than throwing on first failure.
         std::vector<ValidationError> ValidateAndProcessFields(

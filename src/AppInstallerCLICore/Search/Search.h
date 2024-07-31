@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <winrt/base.h>
 
-// TODO: This code is expected to eventually be placed into it's own DLL to support the CLI
+// TODO: This code is expected to eventually be placed into its own DLL to support the CLI
 //       and OOP COM server for use by OS integration points.
 //       For now we will just maintain the ABI with helper C++ wrappers for client use.
 

@@ -93,7 +93,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
             WinGetSettingsHelper.ConfigureFeature("configuration03", true);
 
-            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo_0_3.yml"));
+            var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo_0_3.yml")} --verbose");
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.TestRepoName));
         }

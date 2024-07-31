@@ -110,7 +110,7 @@ TEST_CASE("ManifestComparator_OSFilter_High", "[manifest_comparator]")
     REQUIRE(inapplicabilities.size() == 0);
 }
 
-TEST_CASE("ManifestComparator_InstalledScopeFilter_Uknown", "[manifest_comparator]")
+TEST_CASE("ManifestComparator_InstalledScopeFilter_Unknown", "[manifest_comparator]")
 {
     Manifest manifest;
     ManifestInstaller unknown = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::Unknown);
@@ -343,7 +343,7 @@ TEST_CASE("ManifestComparator_ScopeCompare", "[manifest_comparator]")
     }
 }
 
-TEST_CASE("ManifestComparator_LocaleComparator_Installed_WithUknown", "[manifest_comparator]")
+TEST_CASE("ManifestComparator_LocaleComparator_Installed_WithUnknown", "[manifest_comparator]")
 {
     Manifest manifest;
     ManifestInstaller unknown = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "");
