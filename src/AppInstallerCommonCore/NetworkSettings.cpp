@@ -29,9 +29,13 @@ namespace AppInstaller::Settings
         // We only use WinINet if specified by settings, or if we want to use proxy (as DO does not support that)
         InstallerDownloader setting = User().Get<Setting::NetworkDownloader>();
 
-        if (setting != InstallerDownloader::WinInet && m_proxyUri)
+        if (setting == InstallerDownloader::WinInet || m_proxyUri)
         {
-            AICLI_LOG(Core, Info, << "Forcing use of wininet for download as DO does not support proxy");
+            if (setting != InstallerDownloader::WinInet)
+            {
+                AICLI_LOG(Core, Info, << "Forcing use of wininet for download as DO does not support proxy");
+            }
+
             return InstallerDownloader::WinInet;
         }
         else // Default or DO
