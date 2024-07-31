@@ -18,7 +18,7 @@ Param(
   [String] $RegFileDirectory,
   [Parameter(HelpMessage = "Indicates that the metadata collection process should be run.")]
   [Switch] $MetadataCollection,
-  [Parameter(HelpMessage = "The path to WinGetUtil.dll; only the release build works.")]
+  [Parameter(HelpMessage = "The path to WinGetUtil.dll.")]
   [String] $WingetUtilPath,
   [Parameter(HelpMessage = "Wait for user input before tearing down each sandbox.")]
   [Switch] $Wait

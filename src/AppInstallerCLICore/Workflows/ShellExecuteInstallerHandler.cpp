@@ -115,7 +115,7 @@ namespace AppInstaller::CLI::Workflow
                 installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Log);
             }
 
-            // Construct repair arg. Custom switches and othe args are not applicable for repair scenario so we can return here.
+            // Construct repair arg. Custom switches and other args are not applicable for repair scenario so we can return here.
             if (isRepair)
             {
                 if (installerSwitches.find(InstallerSwitchType::Repair) != installerSwitches.end())

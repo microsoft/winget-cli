@@ -786,7 +786,7 @@ namespace AppInstaller::MSStore
         {
             using PlatformAndArchitectureKey = std::pair<std::string, Utility::Architecture>;
 
-            // Since the server may return multiple versions of the same package, we'll use ths map to record the one with latest version
+            // Since the server may return multiple versions of the same package, we'll use this map to record the one with latest version
             // for each Platform|Architecture pair.
             std::map<PlatformAndArchitectureKey, MSStoreDownloadFile> downloadFilesMap;
 

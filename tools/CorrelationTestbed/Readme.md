@@ -19,6 +19,8 @@ Test-CorrelationInSandbox.ps1
 [-DevPackagePath <string>] :: Path to the local dev *Release* winget build; defaults to the normal location
 [-ResultsPath <string>] :: Path to output the results to; defaults to a temp directory
 [-RegFileDirectory <string>] :: Path to a directory containing .reg files to insert before the test, creating noise for correlation
+[-MetadataCollection] :: Switch to enable collection of metadata
+[-WingetUtilPath <string>] :: Path to the WinGetUtil.dll to use; defaults to Debug build location
 ```
 
 Once testing is done, `Process-CorrelationResults.ps1` will take all of the results JSON files and put them into `results.csv` in the directory.  If any tests failed to run, they will be in `failed.csv`.  There are correlation columns in the CSV that can be averaged in Excel to get the correlation percentage.

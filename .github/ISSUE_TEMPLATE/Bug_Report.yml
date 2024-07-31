@@ -10,7 +10,7 @@ body:
         > Instead, send dumps/traces to secure@microsoft.com, referencing this GitHub issue.
         >
         > If this is an application crash, please also provide a Feedback Hub submission link if at all possible so we can find your diagnostic data on the backend.
-        > You can open the Feedback Hub directly to the pre-populated form at https://aka.ms/winget-feedback
+        > You can open the Feedback Hub directly to the prepopulated form at https://aka.ms/winget-feedback
         > Alternatively, use the category "Apps > Windows Package Manager" and choose "Share My Feedback" after submission to get the link.
         >
         > Please use this form and describe your issue, concisely but precisely, with as much detail as possible.
