@@ -8,7 +8,7 @@ schema: 2.0.0
 # Get-WinGetPackage
 
 ## SYNOPSIS
-List installed packages.
+Lists installed packages.
 
 ## SYNTAX
 
@@ -31,7 +31,7 @@ Lists installed packages.
 Get-WinGetPackage
 ```
 
-Displays installed packages.
+Lists installed packages.
 
 ## PARAMETERS
 

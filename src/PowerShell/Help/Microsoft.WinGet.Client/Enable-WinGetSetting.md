@@ -37,7 +37,7 @@ Administrator Settings:
 PS C:\> Enable-WinGetSetting -Name LocalManifestFiles
 ```
 
-Enable the use of local manifest files.
+Enables the use of local manifest files.
 
 ## PARAMETERS
 

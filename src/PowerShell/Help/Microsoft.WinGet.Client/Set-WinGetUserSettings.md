@@ -8,7 +8,7 @@ schema: 2.0.0
 # Set-WinGetUserSettings
 
 ## SYNOPSIS
-Set WinGet settings.
+Sets WinGet settings.
 
 ## SYNTAX
 
@@ -17,7 +17,7 @@ Set-WinGetUserSettings -UserSettings <Hashtable> [-Merge] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Set the behavior of various WinGet settings. For more information about WinGet settings, visit https://aka.ms/winget-settings.
+Sets the behavior of various WinGet settings. For more information about WinGet settings, visit https://aka.ms/winget-settings.
 
 ## EXAMPLES
 

@@ -12,7 +12,7 @@ Microsoft WinGet Client Module for the Windows Package Manager
 
 ## Microsoft.WinGet.Client Cmdlets
 ### [Add-WinGetSource](Add-WinGetSource.md)
-Add a new WinGet source.
+Adds a new WinGet source.
 
 ### [Assert-WinGetPackageManager](Assert-WinGetPackageManager.md)
 Verifies WinGet is installed properly.
@@ -30,40 +30,40 @@ Downloads a package.
 Searches configured sources for packages.
 
 ### [Get-WinGetPackage](Get-WinGetPackage.md)
-List installed packages.
+Gets installed packages.
 
 ### [Get-WinGetSettings](Get-WinGetSettings.md)
-Get WinGet settings.
+Gets WinGet settings.
 
 ### [Get-WinGetSource](Get-WinGetSource.md)
-List configured WinGet sources.
+Gets configured WinGet sources.
 
 ### [Get-WinGetUserSettings](Get-WinGetUserSettings.md)
-Get user settings for WinGet.
+Gets user settings for WinGet.
 
 ### [Get-WinGetVersion](Get-WinGetVersion.md)
-Get the installed version of WinGet.
+Gets the installed version of WinGet.
 
 ### [Install-WinGetPackage](Install-WinGetPackage.md)
 Install a WinGet Package.
 
 ### [Remove-WinGetSource](Remove-WinGetSource.md)
-Remove a configured source.
+Removes a configured source.
 
 ### [Repair-WinGetPackageManager](Repair-WinGetPackageManager.md)
 Repairs the WinGet client.
 
 ### [Reset-WinGetSource](Reset-WinGetSource.md)
-Reset default WinGet sources.
+Resets default WinGet sources.
 
 ### [Set-WinGetUserSettings](Set-WinGetUserSettings.md)
-Set WinGet settings.
+Sets WinGet settings.
 
 ### [Test-WinGetUserSettings](Test-WinGetUserSettings.md)
-Test the WinGet settings.
+Tests WinGet settings.
 
 ### [Uninstall-WinGetPackage](Uninstall-WinGetPackage.md)
-Uninstall a WinGet Package.
+Uninstalls a WinGet Package.
 
 ### [Update-WinGetPackage](Update-WinGetPackage.md)
-Update a WinGet Package.
+Updates a WinGet Package.

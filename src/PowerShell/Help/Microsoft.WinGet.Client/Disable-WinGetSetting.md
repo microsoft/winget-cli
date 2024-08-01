@@ -38,7 +38,7 @@ Administrator Settings:
 PS C:\> Disable-WinGetSetting -Name LocalManifestFiles
 ```
 
-Disable the use of local manifest files.
+Disables the use of local manifest files.
 
 ## PARAMETERS
 

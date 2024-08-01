@@ -8,7 +8,7 @@ schema: 2.0.0
 # Install-WinGetPackage
 
 ## SYNOPSIS
-Install a WinGet Package.
+Installs a WinGet Package.
 
 ## SYNTAX
 
@@ -32,7 +32,7 @@ Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Cust
 ```
 
 ## DESCRIPTION
-Install a WinGet package from a configured source.
+Installs a WinGet package from a configured source.
 
 ## EXAMPLES
 

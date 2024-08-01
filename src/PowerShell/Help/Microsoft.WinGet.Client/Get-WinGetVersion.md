@@ -8,7 +8,7 @@ schema: 2.0.0
 # Get-WinGetVersion
 
 ## SYNOPSIS
-Get the installed version of WinGet.
+Gets the installed version of WinGet.
 
 ## SYNTAX
 
@@ -26,7 +26,7 @@ Get the installed version of WinGet.
 PS C:\> Get-WinGetVersion
 ```
 
-Get the installed version of WinGet.
+Gets the installed version of WinGet.
 
 ## PARAMETERS
 

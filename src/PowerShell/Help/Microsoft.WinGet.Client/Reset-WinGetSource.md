@@ -8,7 +8,7 @@ schema: 2.0.0
 # Reset-WinGetSource
 
 ## SYNOPSIS
-Reset default WinGet sources.
+Resets default WinGet sources.
 
 ## SYNTAX
 

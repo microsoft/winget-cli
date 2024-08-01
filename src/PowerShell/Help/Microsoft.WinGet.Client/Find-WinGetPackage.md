@@ -29,7 +29,7 @@ Searches configured sources for packages.
 PS C:\> Find-WinGetPackage PowerShell
 ```
 
-Search for PowerShell. The default behavior spans all configured sources and performs a case-insensitive substring match across package identifier, package name, package moniker, and package tags.
+Searches for PowerShell. The default behavior spans all configured sources and performs a case-insensitive substring match across package identifier, package name, package moniker, and package tags.
 
 ### Example 2: Search for Microsoft.PowerShell by id
 

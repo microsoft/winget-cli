@@ -8,7 +8,7 @@ schema: 2.0.0
 # Remove-WinGetSource
 
 ## SYNOPSIS
-Remove a configured source.
+Removes a configured source.
 
 ## SYNTAX
 
@@ -17,7 +17,7 @@ Remove-WinGetSource -Name <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Remove a configured source.
+Removes a configured source.
 
 ## EXAMPLES
 

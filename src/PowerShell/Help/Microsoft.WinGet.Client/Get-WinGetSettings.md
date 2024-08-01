@@ -8,7 +8,7 @@ schema: 2.0.0
 # Get-WinGetSettings
 
 ## SYNOPSIS
-Get WinGet settings.
+Gets WinGet settings.
 
 ## SYNTAX
 

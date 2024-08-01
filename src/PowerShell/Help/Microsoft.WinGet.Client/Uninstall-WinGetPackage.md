@@ -8,7 +8,7 @@ schema: 2.0.0
 # Uninstall-WinGetPackage
 
 ## SYNOPSIS
-Uninstall a WinGet Package.
+Uninstalls a WinGet Package.
 
 ## SYNTAX
 

@@ -8,7 +8,7 @@ schema: 2.0.0
 # Get-WinGetUserSettings
 
 ## SYNOPSIS
-Get user settings for WinGet.
+Gets user settings for WinGet.
 
 ## SYNTAX
 
@@ -26,7 +26,7 @@ Get user settings for WinGet.
 PS C:\> Get-WinGetUserSettings
 ```
 
-Get the user settings from the user's settings.json file.
+Gets the user settings from the user's settings.json file.
 
 ## PARAMETERS
 

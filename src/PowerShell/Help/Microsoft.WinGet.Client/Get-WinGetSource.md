@@ -8,7 +8,7 @@ schema: 2.0.0
 # Get-WinGetSource
 
 ## SYNOPSIS
-List configured WinGet sources.
+Lists configured WinGet sources.
 
 ## SYNTAX
 

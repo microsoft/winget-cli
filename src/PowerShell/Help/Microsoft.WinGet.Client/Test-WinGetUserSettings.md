@@ -8,7 +8,7 @@ schema: 2.0.0
 # Test-WinGetUserSettings
 
 ## SYNOPSIS
-Test the WinGet settings.
+Tests WinGet settings.
 
 ## SYNTAX
 
