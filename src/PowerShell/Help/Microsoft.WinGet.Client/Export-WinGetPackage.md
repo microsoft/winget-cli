@@ -267,7 +267,7 @@ Accept wildcard characters: False
 
 ### -SkipDependencies
 
-Specifes the WinGet package dependencies should not be downloaded.
+Specifies the WinGet package dependencies should not be downloaded.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
