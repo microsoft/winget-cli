@@ -13,19 +13,25 @@ Verifies WinGet is installed properly.
 ## SYNTAX
 
 ### IntegrityVersionSet (Default)
+
 ```
 Assert-WinGetPackageManager [-Version <String>] [<CommonParameters>]
 ```
 
 ### IntegrityLatestSet
+
 ```
 Assert-WinGetPackageManager [-Latest] [-IncludePreRelease] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Verifies WinGet is installed properly.
 
->**This does not ensure the latest version of WinGet is installed. This just verifies the current installed version correlated with the Microsoft.WinGet.Client module is functional.**
+> [!NOTE]
+> Information the user should notice even if skimming>**This does not ensure the latest version of
+> WinGet is installed. This just verifies the current installed version correlated with the
+> Microsoft.WinGet.Client module is functional.**
 
 ## EXAMPLES
 
@@ -64,6 +70,7 @@ If the specified version of WinGet correlated with the Microsoft.WinGet.Client m
 ## PARAMETERS
 
 ### -IncludePreRelease
+
 Includes preview versions of WinGet
 
 ```yaml
@@ -79,6 +86,7 @@ Accept wildcard characters: False
 ```
 
 ### -Latest
+
 Verifies the latest version of WinGet correlated with the Microsoft.WinGet.Client module is installed
 
 ```yaml
@@ -94,6 +102,7 @@ Accept wildcard characters: False
 ```
 
 ### -Version
+
 Verifies a specific version of WinGet is installed.
 
 ```yaml
@@ -109,6 +118,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -120,6 +130,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### System.Object
+
 ## NOTES
 
 ## RELATED LINKS
