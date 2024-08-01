@@ -8,7 +8,7 @@ schema: 2.0.0
 # Add-WinGetSource
 
 ## SYNOPSIS
-Add a new source.
+Adds a new source.
 
 ## SYNTAX
 
@@ -17,7 +17,7 @@ Add-WinGetSource -Name <String> -Argument <String> [-Type <String>] [<CommonPara
 ```
 
 ## DESCRIPTION
-Add a new WinGet source.
+Adds a new source. A source provides the data for you to discover and install packages. Only add a new source if you trust it as a secure location.
 
 ## EXAMPLES
 
