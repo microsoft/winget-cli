@@ -45,6 +45,7 @@ ASYNCRTIMP
 Atest
 ATL
 AType
+atx
 AUrl
 auxdata
 azcopy
@@ -61,6 +62,7 @@ bitmask
 bkup
 blargle
 blockedbypolicy
+blockquote
 blogs
 bluetooth
 Bomgar
@@ -91,6 +93,7 @@ CMSG
 cobertura
 CODEOWNERS
 codepage
+codesnippet
 COINIT
 COMGLB
 commandline
@@ -130,6 +133,7 @@ diskfull
 displaycatalog
 DMC
 dnld
+docsmd
 Dobbeleer
 DONOT
 dsc
@@ -248,6 +252,7 @@ jsoncpp
 JToken
 JValue
 Kaido
+kbd
 KNOWNFOLDERID
 kool
 ktf
@@ -290,6 +295,7 @@ maclachlan
 MAJORVERSION
 malware
 mapdatafolding
+markdownlint
 Maxed
 MAXLENGTH
 maxvalue
@@ -472,12 +478,14 @@ schematab
 Scm
 sddl
 SECUREFILEPATH
+securelinks
 secureobject
 securestring
 seof
 servercert
 servercertificate
 setmetadatabymanifestid
+settext
 SETTINGCHANGE
 SETTINGMAPPING
 sfs
