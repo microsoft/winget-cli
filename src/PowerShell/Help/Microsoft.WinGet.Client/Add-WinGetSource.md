@@ -17,27 +17,26 @@ Add-WinGetSource -Name <String> -Argument <String> [-Type <String>] [<CommonPara
 ```
 
 ## DESCRIPTION
-Adds a new source. A source provides the data for you to discover and install packages. Only add a new source if you trust it as a secure location.
+
+Adds a new source. A source provides the data for you to discover and install packages. Only add a
+new source if you trust it as a secure location.
 
 ## EXAMPLES
 
 ### Example 1: Add new REST source named mysource
 
 ```powershell
-PS C:\> Add-WinGetSource -Name mysource -Argument https://contoso.com/ -Type Microsoft.Rest
+Add-WinGetSource -Name mysource -Argument https://contoso.com/ -Type Microsoft.Rest
 ```
 
-This example adds a new REST based source to WinGet named "mysource" with the root URL https://contoso.com/.
-
-> **This example is illustrative and will not succeed because WinGet will not add a source that does not properly respond to the WinGet REST API**
+This example adds a new REST source to WinGet named `mysource` with the root URL
+`https://contoso.com/`. The source must respond with the WinGet REST source API.
 
 ## PARAMETERS
 
 ### -Argument
 
-The URL or UNC of the source.
-
-> **Before a source can be added, WinGet will verify the URL or UNC is reachable and provides the proper response.**
+The URL or UNC of WinGet source. The source must respond with the WinGet REST source API.
 
 ```yaml
 Type: System.String
@@ -52,7 +51,8 @@ Accept wildcard characters: False
 ```
 
 ### -Name
-The name to identify the source by.
+
+The name used to identify the WinGet source.
 
 ```yaml
 Type: System.String
@@ -67,7 +67,9 @@ Accept wildcard characters: False
 ```
 
 ### -Type
-Type of the source. Most sources will be "Microsoft.Rest". The WinGet community repository is "Microsoft.PreIndexed.Package".
+
+The type of the WinGet source. Most sources will be `Microsoft.Rest`. The WinGet community
+repository is `Microsoft.PreIndexed.Package`.
 
 ```yaml
 Type: System.String
@@ -82,7 +84,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -91,6 +97,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### System.Object
+
 ## NOTES
 
 ## RELATED LINKS

@@ -13,6 +13,7 @@ Uninstalls a WinGet Package.
 ## SYNTAX
 
 ### FoundSet (Default)
+
 ```
 Uninstall-WinGetPackage [-Mode <PSPackageUninstallMode>] [-Force] [-Log <String>] [-Version <String>]
  [-Id <String>] [-Name <String>] [-Moniker <String>] [-Source <String>] [[-Query] <String[]>]
@@ -20,6 +21,7 @@ Uninstall-WinGetPackage [-Mode <PSPackageUninstallMode>] [-Force] [-Log <String>
 ```
 
 ### GivenSet
+
 ```
 Uninstall-WinGetPackage [-Mode <PSPackageUninstallMode>] [-Force] [-Log <String>]
  [[-PSCatalogPackage] <PSCatalogPackage>] [-Version <String>] [-WhatIf]
@@ -27,11 +29,13 @@ Uninstall-WinGetPackage [-Mode <PSPackageUninstallMode>] [-Force] [-Log <String>
 ```
 
 ## DESCRIPTION
+
 Uninstalls the selected package found by searching the installed packages list.
 
 ## EXAMPLES
 
 ### Example 1: Uninstall a package using a query
+
 ```powershell
 PS C:\> Uninstall-WinGetPackage Microsoft.PowerShell
 ```
@@ -39,6 +43,7 @@ PS C:\> Uninstall-WinGetPackage Microsoft.PowerShell
 This sample uninstalls the Microsoft.PowerShell package. No specific property to identify the query string "Microsoft.PowerShell" as a package identifier. This is a convenient short form not requiring the user to pass "-Id".
 
 ### Example 2: Uninstall a package by Id
+
 ```powershell
 PS C:\> Uninstall-WinGetPackage -Id Microsoft.PowerShell
 ```
@@ -48,6 +53,7 @@ This sample uninstalls the Microsoft.PowerShell package by the specifying the pa
 > **If more than one source is configured with the same package identifier, the user must disambiguate**
 
 ### Example 3: Uninstall a package by Name
+
 ```powershell
 PS C:\> Uninstall-WinGetPackage -Name "PowerToys (Preview)"
 ```
@@ -55,6 +61,7 @@ PS C:\> Uninstall-WinGetPackage -Name "PowerToys (Preview)"
 This sample uninstalls the PowerToys package by the specifying the package name.
 
 ### Example 4: Uninstall a specific version of a package
+
 ```powershell
 PS C:\> Uninstall-WinGetPackage Microsoft.PowerShell -Version 7.4.4.0
 ```
@@ -64,6 +71,7 @@ This sample uninstalls the Microsoft.PowerShell package version 7.4.4.0. No spec
 ## PARAMETERS
 
 ### -Force
+
 Force the uninstall to run.
 
 ```yaml
@@ -79,6 +87,7 @@ Accept wildcard characters: False
 ```
 
 ### -Id
+
 Specify package identifier
 
 ```yaml
@@ -94,6 +103,7 @@ Accept wildcard characters: False
 ```
 
 ### -Log
+
 Specify log location for uninstall.
 
 > **Note: Not all uninstallers support this option.**
@@ -111,6 +121,7 @@ Accept wildcard characters: False
 ```
 
 ### -MatchOption
+
 Specify the match type to use.
 
 ```yaml
@@ -127,6 +138,7 @@ Accept wildcard characters: False
 ```
 
 ### -Mode
+
 Specify the installer output mode. Options are "Default", "Silent", and "Interactive".
 
 > **Note: Not all uninstallers support all modes.**
@@ -145,6 +157,7 @@ Accept wildcard characters: False
 ```
 
 ### -Moniker
+
 Specify the moniker.
 
 ```yaml
@@ -160,7 +173,9 @@ Accept wildcard characters: False
 ```
 
 ### -Name
-Specify the name.
+
+Specify the WinGet package name. This should be the full package name. The name should be in
+quotation marks if there is a space in the name.
 
 ```yaml
 Type: System.String
@@ -175,6 +190,7 @@ Accept wildcard characters: False
 ```
 
 ### -PSCatalogPackage
+
 WinGet package object.
 
 ```yaml
@@ -190,6 +206,7 @@ Accept wildcard characters: False
 ```
 
 ### -Query
+
 Search string. Wildcards are not supported.
 
 ```yaml
@@ -205,6 +222,7 @@ Accept wildcard characters: False
 ```
 
 ### -Source
+
 Specify configured WinGet source.
 
 ```yaml
@@ -220,6 +238,7 @@ Accept wildcard characters: False
 ```
 
 ### -Version
+
 Specify the version.
 
 ```yaml
@@ -235,6 +254,7 @@ Accept wildcard characters: False
 ```
 
 ### -Confirm
+
 Prompts you for confirmation before running the cmdlet.
 
 ```yaml
@@ -250,6 +270,7 @@ Accept wildcard characters: False
 ```
 
 ### -WhatIf
+
 Shows what would happen if the cmdlet runs.
 The cmdlet is not run.
 
@@ -266,6 +287,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
+
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
