@@ -1,6 +1,7 @@
 ﻿---
 external help file: Microsoft.WinGet.Client.Cmdlets.dll-Help.xml
 Module Name: Microsoft.WinGet.Client
+ms.date: 08/01/2024
 online version:
 schema: 2.0.0
 ---
@@ -32,7 +33,7 @@ version. This cmdlet also checks to make sure that the client is in a working st
 
 ## EXAMPLES
 
-### Example 1: Repair the WinGet client.
+### Example 1: Repair the WinGet client
 
 ```powershell
 Repair-WinGetPackageManager
@@ -40,7 +41,7 @@ Repair-WinGetPackageManager
 
 Ensures the current installed version of WinGet is functional.
 
-### Example 2: Force install the latest version.
+### Example 2: Force install the latest version
 
 ```powershell
 Repair-WinGetPackageManager -Latest -Force

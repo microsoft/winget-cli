@@ -1,6 +1,7 @@
 ﻿---
 external help file: Microsoft.WinGet.Client.Cmdlets.dll-Help.xml
 Module Name: Microsoft.WinGet.Client
+ms.date: 08/01/2024
 online version:
 schema: 2.0.0
 ---

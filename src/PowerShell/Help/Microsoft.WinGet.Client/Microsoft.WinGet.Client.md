@@ -1,5 +1,6 @@
 ﻿---
 Module Name: Microsoft.WinGet.Client
+ms.date: 08/01/2024
 Module Guid: e11157e2-cd24-4250-83b8-c6654ea4926a
 Download Help Link: 
 Help Version: 1.8.0

@@ -1,6 +1,7 @@
 ﻿---
 external help file: Microsoft.WinGet.Client.Cmdlets.dll-Help.xml
 Module Name: Microsoft.WinGet.Client
+ms.date: 08/01/2024
 online version:
 schema: 2.0.0
 ---
@@ -18,11 +19,12 @@ Set-WinGetUserSettings -UserSettings <Hashtable> [-Merge] [<CommonParameters>]
 
 ## DESCRIPTION
 
-Sets the behavior of various WinGet settings. For more information about WinGet settings, visit https://aka.ms/winget-settings.
+Sets the behavior of various WinGet settings. For more information about WinGet settings, see
+[WinGet CLI Settings](https://aka.ms/winget-settings).
 
 ## EXAMPLES
 
-### Example 1: Set progress bar theme.
+### Example 1: Set progress bar theme
 
 ```powershell
 Set-WinGetUserSettings -UserSettings @{ visual= @{ progressBar="rainbow"} }
@@ -30,7 +32,7 @@ Set-WinGetUserSettings -UserSettings @{ visual= @{ progressBar="rainbow"} }
 
 Sets the theme of the progress bar to rainbow.
 
-### Example 2: Merge install behavior settings.
+### Example 2: Merge install behavior settings
 
 ```powershell
 Set-WinGetUserSettings -UserSettings @{ installBehavior= @{ preferences= @{ scope = "user"}} } -Merge
