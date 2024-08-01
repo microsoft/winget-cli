@@ -5,6 +5,7 @@ Module Guid: e11157e2-cd24-4250-83b8-c6654ea4926a
 Download Help Link: 
 Help Version: 1.8.0
 Locale: en-US
+title: Microsoft.WinGet.Client Module
 ---
 
 # Microsoft.WinGet.Client Module

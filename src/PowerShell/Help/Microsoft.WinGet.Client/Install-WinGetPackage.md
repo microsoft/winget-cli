@@ -4,6 +4,7 @@ Module Name: Microsoft.WinGet.Client
 ms.date: 08/01/2024
 online version:
 schema: 2.0.0
+title: Install-WinGetPackage
 ---
 
 # Install-WinGetPackage
