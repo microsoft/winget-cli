@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace LocalhostWebServer
@@ -35,6 +35,7 @@ namespace LocalhostWebServer
             Startup.OutCertFile = config.GetValue<string>("OutCertFile");
             Startup.LocalSourceJson = config.GetValue<string>("LocalSourceJson");
             Startup.TestDataPath = config.GetValue<string>("TestDataPath");
+            Startup.ExitBeforeRun = config.GetValue<bool>("ExitBeforeRun");
 
             if (string.IsNullOrEmpty(Startup.StaticFileRoot) || 
                 string.IsNullOrEmpty(Startup.CertPath))
@@ -125,6 +126,11 @@ namespace LocalhostWebServer
                 Directory.CreateDirectory(testDataDirectory);
 
                 CopyDirectoryRecursive(Startup.TestDataPath, testDataDirectory);
+            }
+
+            if (Startup.ExitBeforeRun)
+            {
+                return;
             }
 
             CreateHostBuilder(args).Build().Run();
