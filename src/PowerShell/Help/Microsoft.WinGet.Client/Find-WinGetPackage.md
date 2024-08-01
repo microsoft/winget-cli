@@ -19,6 +19,7 @@ Find-WinGetPackage [-Tag <String>] [-Command <String>] [-Count <UInt32>] [-Id <S
 ```
 
 ## DESCRIPTION
+
 Searches configured sources for packages.
 
 ## EXAMPLES
@@ -26,31 +27,36 @@ Searches configured sources for packages.
 ### Example 1: Search for PowerShell
 
 ```powershell
-PS C:\> Find-WinGetPackage PowerShell
+Find-WinGetPackage PowerShell
 ```
 
-Searches for PowerShell. The default behavior spans all configured sources and performs a case-insensitive substring match across package identifier, package name, package moniker, and package tags.
+Searches for PowerShell. The default behavior spans all configured sources and performs a
+case-insensitive substring match across package identifier, package name, package moniker, and
+package tags.
 
 ### Example 2: Search for Microsoft.PowerShell by id
 
 ```powershell
-PS C:\> Find-WinGetPackage -Id Microsoft.PowerShell
+Find-WinGetPackage -Id Microsoft.PowerShell
 ```
 
-Search for Microsoft.PowerShell by package identifier. The default behavior spans all configured sources and performs a case-insensitive substring match across package identifiers.
+Search for Microsoft.PowerShell by package identifier. The default behavior spans all configured
+sources and performs a case-insensitive substring match across package identifiers.
 
 ### Example 3: Search for Microsoft.PowerShell by exact id
 
 ```powershell
-PS C:\> Find-WinGetPackage -Id Microsoft.PowerShell -MatchOption Equals
+Find-WinGetPackage -Id Microsoft.PowerShell -MatchOption Equals
 ```
 
-Search for Microsoft.PowerShell by exact package identifier. This search spans all configured sources and performs a case-sensitive match across package identifiers.
+Search for Microsoft.PowerShell by exact package identifier. This search spans all configured
+sources and performs a case-sensitive match across package identifiers.
 
 ## PARAMETERS
 
 ### -Command
-Specifies command used to run package
+
+Specifies command used to run the package
 
 ```yaml
 Type: System.String
@@ -65,6 +71,7 @@ Accept wildcard characters: False
 ```
 
 ### -Count
+
 Specifies maximum number of results to return
 
 ```yaml
@@ -80,6 +87,7 @@ Accept wildcard characters: False
 ```
 
 ### -Id
+
 Specifies search by package identifier
 
 ```yaml
@@ -95,6 +103,7 @@ Accept wildcard characters: False
 ```
 
 ### -MatchOption
+
 Specifies matching logic for search
 
 ```yaml
@@ -111,6 +120,7 @@ Accept wildcard characters: False
 ```
 
 ### -Moniker
+
 Specifies package moniker
 
 ```yaml
@@ -126,6 +136,7 @@ Accept wildcard characters: False
 ```
 
 ### -Name
+
 Specifies package name
 
 ```yaml
@@ -141,6 +152,7 @@ Accept wildcard characters: False
 ```
 
 ### -Query
+
 Specifies query string to search for
 
 ```yaml
@@ -156,6 +168,7 @@ Accept wildcard characters: False
 ```
 
 ### -Source
+
 Specifies WinGet source for search
 
 ```yaml
@@ -171,6 +184,7 @@ Accept wildcard characters: False
 ```
 
 ### -Tag
+
 Specifies tag to search for
 
 ```yaml
@@ -186,7 +200,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

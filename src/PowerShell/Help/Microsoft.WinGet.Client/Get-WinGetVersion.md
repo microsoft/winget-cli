@@ -17,13 +17,15 @@ Get-WinGetVersion [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Get the installed version of WinGet.
 
 ## EXAMPLES
 
 ### Example 1: Default example
+
 ```powershell
-PS C:\> Get-WinGetVersion
+Get-WinGetVersion
 ```
 
 Gets the installed version of WinGet.
@@ -31,7 +33,11 @@ Gets the installed version of WinGet.
 ## PARAMETERS
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

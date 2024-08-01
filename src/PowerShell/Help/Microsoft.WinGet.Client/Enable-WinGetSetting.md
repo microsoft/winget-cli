@@ -8,7 +8,8 @@ schema: 2.0.0
 # Enable-WinGetSetting
 
 ## SYNOPSIS
-Enables an administrative setting.
+
+Enables WinGet administrative settings.
 
 ## SYNTAX
 
@@ -17,6 +18,7 @@ Enable-WinGetSetting [-Name] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Enables an administrative setting. Requires administrator access.
 
 Administrator Settings default to "Disabled" and may be controlled by Group Policy Objects.
@@ -33,8 +35,9 @@ Administrator Settings:
 ## EXAMPLES
 
 ### Example 1
+
 ```powershell
-PS C:\> Enable-WinGetSetting -Name LocalManifestFiles
+Enable-WinGetSetting -Name LocalManifestFiles
 ```
 
 Enables the use of local manifest files.
@@ -42,7 +45,8 @@ Enables the use of local manifest files.
 ## PARAMETERS
 
 ### -Name
-The name of the administrator setting
+
+The name of the WinGet administrator setting
 
 ```yaml
 Type: System.String
@@ -57,7 +61,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -66,6 +74,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### System.Object
+
 ## NOTES
 
 ## RELATED LINKS

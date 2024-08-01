@@ -17,22 +17,26 @@ Remove-WinGetSource -Name <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Removes a configured source.
 
 ## EXAMPLES
 
 ### Example 1: Remove a single source by name
+
 ```powershell
-PS C:\> Remove-WinGetSource -Name msstore
+Remove-WinGetSource -Name msstore
 ```
 
 Removes the "msstore" WinGet source.
 
-> **Note, you can run Reset-WinGetSource to re-add the default sources back to WinGet.**
+> [!NOTE]
+> You can run Reset-WinGetSource to re-add the default sources back to WinGet.
 
 ## PARAMETERS
 
 ### -Name
+
 The name of the source.
 
 ```yaml
@@ -48,7 +52,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -57,6 +65,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### System.Object
+
 ## NOTES
 
 ## RELATED LINKS

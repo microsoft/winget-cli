@@ -13,6 +13,7 @@ Downloads a package.
 ## SYNTAX
 
 ### FoundSet (Default)
+
 ```
 Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
@@ -22,6 +23,7 @@ Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
 ```
 
 ### GivenSet
+
 ```
 Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
  [-Architecture <PSProcessorArchitecture>] [-InstallerType <PSPackageInstallerType>] [-Locale <String>]
@@ -30,21 +32,34 @@ Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
 ```
 
 ## DESCRIPTION
-Downloads a package installer from the pipeline or from a configured source. The package manifest as well as dependencies and their manifests will be included. The default directory if not specified is the Downloads folder.
+
+Downloads a package installer from the pipeline or from a configured source. The package manifest as
+well as dependencies and their manifests will be included. The default directory if not specified is
+the Downloads folder.
+
+If the package is coming from the Microsoft Store, the user initiating the Offline License retrieval
+needs to be a member of one of the following Roles in Azure: Global Administrator, User
+Administrator, or License Administrator. If the user is a member of any of those groups, they will
+receive a copy of the license file.
 
 ## EXAMPLES
 
 ### Example 1: Download Microsoft.PowerShell to the default location
+
 ```powershell
-PS C:\> Export-WinGetPackage -Id Microsoft.PowerShell
+Export-WinGetPackage -Id Microsoft.PowerShell
 ```
 
-This example will download the latest available version of the Microsoft.PowerShell installer (for the current system and default scope) and the manifest to a folder (named by concatenating the package identifier with an underscore and the version number) in the Downloads directory.
+This example will download the latest available version of the Microsoft.PowerShell installer (for
+the current system and default scope) and the manifest to a folder (named by concatenating the
+package identifier with an underscore and the version number) in the Downloads directory.
 
 ## PARAMETERS
 
 ### -AllowHashMismatch
-Allow the download even if the SHA256 hash does not match
+
+Allow the download even if the SHA256 hash for an installer or a dependency does not match the
+SHA256 hash in the WinGet package manifest.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -59,7 +74,8 @@ Accept wildcard characters: False
 ```
 
 ### -Architecture
-Specify the architecture for the installer
+
+Specify the architecture for the WinGet package installer
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSProcessorArchitecture
@@ -75,6 +91,7 @@ Accept wildcard characters: False
 ```
 
 ### -DownloadDirectory
+
 Specify the directory for the download
 
 ```yaml
@@ -90,7 +107,8 @@ Accept wildcard characters: False
 ```
 
 ### -Id
-Specify the package identifier
+
+Specify the WinGet package identifier
 
 ```yaml
 Type: System.String
@@ -105,7 +123,11 @@ Accept wildcard characters: False
 ```
 
 ### -InstallerType
-Specify the installer type
+
+Specify the installer type for the WinGet package installer
+
+> [!NOTE]
+> The installer type must be available in the WinGet package manifest.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageInstallerType
@@ -121,7 +143,11 @@ Accept wildcard characters: False
 ```
 
 ### -Locale
-Specify the installer locale
+
+Specify the installer locale for the WinGet package installer locale
+
+> [!NOTE]
+> The locale must be available in the WinGet package manifest.
 
 ```yaml
 Type: System.String
@@ -136,7 +162,8 @@ Accept wildcard characters: False
 ```
 
 ### -MatchOption
-Specify the match option for a package query
+
+Specify the match option for a WinGet package query
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageFieldMatchOption
@@ -152,7 +179,8 @@ Accept wildcard characters: False
 ```
 
 ### -Moniker
-Specify the moniker
+
+Specify the WinGet package moniker
 
 ```yaml
 Type: System.String
@@ -167,7 +195,8 @@ Accept wildcard characters: False
 ```
 
 ### -Name
-Specify the package name
+
+Specify the WinGet package name
 
 ```yaml
 Type: System.String
@@ -182,6 +211,7 @@ Accept wildcard characters: False
 ```
 
 ### -PSCatalogPackage
+
 Specify PSCatalogPackage
 
 ```yaml
@@ -197,7 +227,10 @@ Accept wildcard characters: False
 ```
 
 ### -Query
-Search string for package
+
+Search string for WinGet package. The query parameter will be used to search across multiple
+properties in a WinGet package manifest. Fields include the package name, package identifier,
+moniker, and tags.
 
 ```yaml
 Type: System.String[]
@@ -212,7 +245,11 @@ Accept wildcard characters: False
 ```
 
 ### -Scope
-Specify installer scope
+
+Specify WinGet package installer scope
+
+> [!NOTE]
+> The installer scope must be available in the WinGet package manifest.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageInstallScope
@@ -228,7 +265,8 @@ Accept wildcard characters: False
 ```
 
 ### -SkipDependencies
-Specify main package without dependencies
+
+Specifes the WinGet package dependencies should not be downloaded.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -243,7 +281,8 @@ Accept wildcard characters: False
 ```
 
 ### -Source
-Specify WinGet source
+
+Specifies WinGet source.
 
 ```yaml
 Type: System.String
@@ -258,7 +297,8 @@ Accept wildcard characters: False
 ```
 
 ### -Version
-Specify package version
+
+Specifies the WinGet package version to download
 
 ```yaml
 Type: System.String
@@ -273,6 +313,7 @@ Accept wildcard characters: False
 ```
 
 ### -Confirm
+
 Prompts you for confirmation before running the cmdlet.
 
 ```yaml
@@ -288,6 +329,7 @@ Accept wildcard characters: False
 ```
 
 ### -WhatIf
+
 Shows what would happen if the cmdlet runs.
 The cmdlet is not run.
 
@@ -304,7 +346,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

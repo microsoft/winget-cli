@@ -29,49 +29,52 @@ Assert-WinGetPackageManager [-Latest] [-IncludePreRelease] [<CommonParameters>]
 Verifies WinGet is installed properly.
 
 > [!NOTE]
-> Information the user should notice even if skimming>**This does not ensure the latest version of
-> WinGet is installed. This just verifies the current installed version correlated with the
-> Microsoft.WinGet.Client module is functional.**
+> This does not ensure the latest version of WinGet is installed. This just verifies the current
+> installed version correlated with the Microsoft.WinGet.Client module is functional.
 
 ## EXAMPLES
 
 ### Example 1: Default usage
 
 ```powershell
-PS C:\> Assert-WinGetPackageManager
+Assert-WinGetPackageManager
 ```
 
-If the current version of WinGet is installed correctly this will return without error.
+If the current version of WinGet is installed correctly this will return without error. This does
+not upgrade WinGet to the latest version.
 
 ### Example 2: Check if latest stable version is installed
 
 ```powershell
-PS C:\> Assert-WinGetPackageManager -Latest
+Assert-WinGetPackageManager -Latest
 ```
 
-If the latest version of WinGet correlated with the Microsoft.WinGet.Client module is installed correctly this will return without error.
+If the latest version of WinGet correlated with the Microsoft.WinGet.Client module is installed
+correctly this will return without error.
 
 ### Example 3: Check if latest preview version is installed
 
 ```powershell
-PS C:\> Assert-WinGetPackageManager -IncludePreRelease
+Assert-WinGetPackageManager -IncludePreRelease
 ```
 
-If a preview version of WinGet correlated with the Microsoft.WinGet.Client module is installed correctly this will return without error.
+If a preview version of WinGet correlated with the Microsoft.WinGet.Client module is installed
+correctly this will return without error.
 
 ### Example 4: Check if specific version is installed
 
 ```powershell
-PS C:\> Assert-WinGetPackageManager -Version v1.8.1911
+Assert-WinGetPackageManager -Version v1.8.1911
 ```
 
-If the specified version of WinGet correlated with the Microsoft.WinGet.Client module is installed correctly this will return without error.
+If the specified version of WinGet correlated with the Microsoft.WinGet.Client module is installed
+correctly this will return without error.
 
 ## PARAMETERS
 
 ### -IncludePreRelease
 
-Includes preview versions of WinGet
+Includes preview versions of WinGet.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -87,7 +90,8 @@ Accept wildcard characters: False
 
 ### -Latest
 
-Verifies the latest version of WinGet correlated with the Microsoft.WinGet.Client module is installed
+Verifies the latest version of WinGet correlated with the Microsoft.WinGet.Client module is
+installed.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -119,7 +123,10 @@ Accept wildcard characters: False
 
 ### CommonParameters
 
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -134,3 +141,5 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
+
+[Get-WinGetVersion](Get-WinGetVersion.md)

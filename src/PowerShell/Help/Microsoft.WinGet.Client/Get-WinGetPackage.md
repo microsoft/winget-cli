@@ -19,6 +19,7 @@ Get-WinGetPackage [-Tag <String>] [-Command <String>] [-Count <UInt32>] [-Id <St
 ```
 
 ## DESCRIPTION
+
 Lists installed packages.
 
 > **Packages with leading "ARP" or "MSIX" are installed on the device, but not correlated with any configured source.
@@ -36,6 +37,7 @@ Lists installed packages.
 ## PARAMETERS
 
 ### -Command
+
 Filter results by their command
 
 ```yaml
@@ -51,6 +53,7 @@ Accept wildcard characters: False
 ```
 
 ### -Count
+
 Limit the number of results
 
 ```yaml
@@ -66,6 +69,7 @@ Accept wildcard characters: False
 ```
 
 ### -Id
+
 Filter results by their package identifier
 
 ```yaml
@@ -81,6 +85,7 @@ Accept wildcard characters: False
 ```
 
 ### -MatchOption
+
 Specify the matching logic
 
 ```yaml
@@ -97,6 +102,7 @@ Accept wildcard characters: False
 ```
 
 ### -Moniker
+
 Filter results by package moniker
 
 ```yaml
@@ -112,6 +118,7 @@ Accept wildcard characters: False
 ```
 
 ### -Name
+
 Filter results by package name
 
 ```yaml
@@ -127,6 +134,7 @@ Accept wildcard characters: False
 ```
 
 ### -Query
+
 Specifies query string to search for
 
 ```yaml
@@ -142,6 +150,7 @@ Accept wildcard characters: False
 ```
 
 ### -Source
+
 Specify the source
 
 ```yaml
@@ -157,6 +166,7 @@ Accept wildcard characters: False
 ```
 
 ### -Tag
+
 Filter by Tag
 
 ```yaml
@@ -172,7 +182,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

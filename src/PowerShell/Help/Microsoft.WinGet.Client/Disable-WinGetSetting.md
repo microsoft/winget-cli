@@ -17,6 +17,7 @@ Disable-WinGetSetting [-Name] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Disables an administrative setting. Requires administrator access.
 
 Administrator Settings default to "Disabled" and may be controlled by Group Policy Objects.
@@ -35,7 +36,7 @@ Administrator Settings:
 ### Example 1: Disable the use of local manifest files
 
 ```powershell
-PS C:\> Disable-WinGetSetting -Name LocalManifestFiles
+Disable-WinGetSetting -Name LocalManifestFiles
 ```
 
 Disables the use of local manifest files.
@@ -43,7 +44,8 @@ Disables the use of local manifest files.
 ## PARAMETERS
 
 ### -Name
-The name of the administrator setting
+
+The name of the WinGet administrator setting
 
 ```yaml
 Type: System.String
@@ -58,7 +60,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -67,6 +73,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### System.Object
+
 ## NOTES
 
 ## RELATED LINKS

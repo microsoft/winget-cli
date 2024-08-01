@@ -17,20 +17,25 @@ Get-WinGetSettings [-AsPlainText] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Get WinGet settings. This includes the user settings file, administrator settings, and the settings schema. For more information about WinGet settings, visit https://aka.ms/winget-settings.
+
+Get WinGet settings. This includes the user settings file, administrator settings, and the settings
+schema. For more information about WinGet settings, visit `https://aka.ms/winget-settings`.
 
 ## EXAMPLES
 
 ### Example 1
+
 ```powershell
-PS C:\> Get-WinGetSettings
+Get-WinGetSettings
 ```
 
-This will display the user settings file location, the administrator settings, and the settings schema URL.
+This will display the user settings file location, the administrator settings, and the settings
+schema URL.
 
 ## PARAMETERS
 
 ### -AsPlainText
+
 Output results as plain text
 
 ```yaml
@@ -46,7 +51,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -55,6 +64,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### System.Object
+
 ## NOTES
 
 ## RELATED LINKS

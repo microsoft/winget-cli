@@ -21,7 +21,7 @@ Verifies WinGet is installed properly.
 Disables an administrative setting.
 
 ### [Enable-WinGetSetting](Enable-WinGetSetting.md)
-Enables an administrative setting.
+Enables WinGet administrative settings.
 
 ### [Export-WinGetPackage](Export-WinGetPackage.md)
 Downloads a package.

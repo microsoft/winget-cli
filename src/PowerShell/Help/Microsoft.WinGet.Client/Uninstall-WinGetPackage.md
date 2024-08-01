@@ -37,25 +37,29 @@ Uninstalls the selected package found by searching the installed packages list.
 ### Example 1: Uninstall a package using a query
 
 ```powershell
-PS C:\> Uninstall-WinGetPackage Microsoft.PowerShell
+Uninstall-WinGetPackage Microsoft.PowerShell
 ```
 
-This sample uninstalls the Microsoft.PowerShell package. No specific property to identify the query string "Microsoft.PowerShell" as a package identifier. This is a convenient short form not requiring the user to pass "-Id".
+This sample uninstalls the Microsoft.PowerShell package. No specific property to identify the query
+string "Microsoft.PowerShell" as a package identifier. This is a convenient short form not requiring
+the user to pass "-Id".
 
 ### Example 2: Uninstall a package by Id
 
 ```powershell
-PS C:\> Uninstall-WinGetPackage -Id Microsoft.PowerShell
+Uninstall-WinGetPackage -Id Microsoft.PowerShell
 ```
 
 This sample uninstalls the Microsoft.PowerShell package by the specifying the package identifier.
 
-> **If more than one source is configured with the same package identifier, the user must disambiguate**
+> [!TIP]
+> If more than one source is configured with the same package identifier, the user must
+> disambiguate. Use the `Source` parameter to specify the WinGet source.
 
 ### Example 3: Uninstall a package by Name
 
 ```powershell
-PS C:\> Uninstall-WinGetPackage -Name "PowerToys (Preview)"
+Uninstall-WinGetPackage -Name "PowerToys (Preview)"
 ```
 
 This sample uninstalls the PowerToys package by the specifying the package name.
@@ -63,10 +67,11 @@ This sample uninstalls the PowerToys package by the specifying the package name.
 ### Example 4: Uninstall a specific version of a package
 
 ```powershell
-PS C:\> Uninstall-WinGetPackage Microsoft.PowerShell -Version 7.4.4.0
+Uninstall-WinGetPackage Microsoft.PowerShell -Version 7.4.4.0
 ```
 
-This sample uninstalls the Microsoft.PowerShell package version 7.4.4.0. No specific property to identify the query string "Microsoft.PowerShell" as a package identifier.
+This sample uninstalls the Microsoft.PowerShell package version 7.4.4.0. No specific property to
+identify the query string "Microsoft.PowerShell" as a package identifier.
 
 ## PARAMETERS
 
@@ -139,7 +144,7 @@ Accept wildcard characters: False
 
 ### -Mode
 
-Specify the installer output mode. Options are "Default", "Silent", and "Interactive".
+Specify the installer output mode.
 
 > **Note: Not all uninstallers support all modes.**
 
@@ -288,7 +293,10 @@ Accept wildcard characters: False
 
 ### CommonParameters
 
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

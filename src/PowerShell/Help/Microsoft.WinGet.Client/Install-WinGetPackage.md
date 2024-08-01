@@ -13,6 +13,7 @@ Installs a WinGet Package.
 ## SYNTAX
 
 ### FoundSet (Default)
+
 ```
 Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Custom <String>]
  [-Location <String>] [-Log <String>] [-Force] [-Header <String>] [-AllowHashMismatch]
@@ -23,6 +24,7 @@ Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Cust
 ```
 
 ### GivenSet
+
 ```
 Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Custom <String>]
  [-Location <String>] [-Log <String>] [-Force] [-Header <String>] [-AllowHashMismatch]
@@ -32,20 +34,25 @@ Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Cust
 ```
 
 ## DESCRIPTION
+
 Installs a WinGet package from a configured source.
 
 ## EXAMPLES
 
 ### Example 1: Install a package using a query
+
 ```powershell
-PS C:\> Install-WinGetPackage Microsoft.PowerShell
+Install-WinGetPackage Microsoft.PowerShell
 ```
 
-This sample installs the Microsoft.PowerShell package. No specific property to identify the query string "Microsoft.PowerShell" as a package identifier. This is a convenient short form not requiring the user to pass "-Id".
+This sample installs the Microsoft.PowerShell package. No specific property to identify the query
+string "Microsoft.PowerShell" as a package identifier. This is a convenient short form not requiring
+the user to pass "-Id".
 
 ### Example 2: Install a package by Id
+
 ```powershell
-PS C:\> Install-WinGetPackage -Id Microsoft.PowerShell
+Install-WinGetPackage -Id Microsoft.PowerShell
 ```
 
 This sample installs the Microsoft.PowerShell package by the specifying the package identifier.
@@ -53,22 +60,26 @@ This sample installs the Microsoft.PowerShell package by the specifying the pack
 > **If more than one source is configured with the same package identifier, the user must disambiguate**
 
 ### Example 3: Install a package by Name
+
 ```powershell
-PS C:\> Install-WinGetPackage -Name "PowerToys (Preview)"
+Install-WinGetPackage -Name "PowerToys (Preview)"
 ```
 
 This sample installs the PowerToys package by the specifying the package name.
 
 ### Example 4: Install a specific version of a package
+
 ```powershell
-PS C:\> Install-WinGetPackage Microsoft.PowerShell -Version 7.4.4.0
+Install-WinGetPackage Microsoft.PowerShell -Version 7.4.4.0
 ```
 
-This sample installs the Microsoft.PowerShell package version 7.4.4.0. No specific property to identify the query string "Microsoft.PowerShell" as a package identifier.
+This sample installs the Microsoft.PowerShell package version 7.4.4.0. No specific property to
+identify the query string "Microsoft.PowerShell" as a package identifier.
 
 ## PARAMETERS
 
 ### -AllowHashMismatch
+
 Allow the install to continue even if the SHA256 has does not match.
 
 ```yaml
@@ -84,6 +95,7 @@ Accept wildcard characters: False
 ```
 
 ### -Architecture
+
 Specify the hardware architecture for the installer.
 
 ```yaml
@@ -100,6 +112,7 @@ Accept wildcard characters: False
 ```
 
 ### -Custom
+
 Arguments to be passed to the installer in addition to those in the manifest.
 
 ```yaml
@@ -115,6 +128,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
+
 Force the installer to run even when other checks WinGet would perform would prevent this action.
 
 ```yaml
@@ -130,6 +144,7 @@ Accept wildcard characters: False
 ```
 
 ### -Header
+
 Custom value to be passed via HTTP header to WinGet REST sources.
 
 ```yaml
@@ -145,6 +160,7 @@ Accept wildcard characters: False
 ```
 
 ### -Id
+
 Specifies the package identifier.
 
 ```yaml
@@ -160,6 +176,7 @@ Accept wildcard characters: False
 ```
 
 ### -InstallerType
+
 Specifies the installer type.
 
 ```yaml
@@ -176,6 +193,7 @@ Accept wildcard characters: False
 ```
 
 ### -Locale
+
 Specifies the installer locale.
 
 ```yaml
@@ -191,6 +209,7 @@ Accept wildcard characters: False
 ```
 
 ### -Location
+
 Specify the install location. This requires support in the installer.
 
 ```yaml
@@ -206,6 +225,7 @@ Accept wildcard characters: False
 ```
 
 ### -Log
+
 Specify the location for the installer log to be written.
 
 ```yaml
@@ -221,6 +241,7 @@ Accept wildcard characters: False
 ```
 
 ### -MatchOption
+
 Specify the match type.
 
 ```yaml
@@ -237,6 +258,7 @@ Accept wildcard characters: False
 ```
 
 ### -Mode
+
 Specify the installer output mode. Options are "Default", "Silent", and "Interactive".
 
 ```yaml
@@ -253,6 +275,7 @@ Accept wildcard characters: False
 ```
 
 ### -Moniker
+
 Specify the package moniker.
 
 ```yaml
@@ -268,6 +291,7 @@ Accept wildcard characters: False
 ```
 
 ### -Name
+
 Specify the package name.
 
 ```yaml
@@ -283,6 +307,7 @@ Accept wildcard characters: False
 ```
 
 ### -Override
+
 Specify arguments to pass to the installer. This will override arguments in the manifest.
 
 ```yaml
@@ -298,6 +323,7 @@ Accept wildcard characters: False
 ```
 
 ### -PSCatalogPackage
+
 WinGet package object.
 
 ```yaml
@@ -313,6 +339,7 @@ Accept wildcard characters: False
 ```
 
 ### -Query
+
 Search string. Wildcards are not supported.
 
 ```yaml
@@ -328,6 +355,7 @@ Accept wildcard characters: False
 ```
 
 ### -Scope
+
 Specify installer scope. Valid values are "Any", "User", "System", "UserOrUnknown", "SystemOrUnknown".
 
 ```yaml
@@ -344,6 +372,7 @@ Accept wildcard characters: False
 ```
 
 ### -SkipDependencies
+
 Skip dependency installation.
 
 ```yaml
@@ -359,6 +388,7 @@ Accept wildcard characters: False
 ```
 
 ### -Source
+
 Specify configured WinGet source.
 
 ```yaml
@@ -374,6 +404,7 @@ Accept wildcard characters: False
 ```
 
 ### -Version
+
 Specify package version.
 
 ```yaml
@@ -389,6 +420,7 @@ Accept wildcard characters: False
 ```
 
 ### -Confirm
+
 Prompts you for confirmation before running the cmdlet.
 
 ```yaml
@@ -404,6 +436,7 @@ Accept wildcard characters: False
 ```
 
 ### -WhatIf
+
 Shows what would happen if the cmdlet runs.
 The cmdlet is not run.
 
@@ -420,7 +453,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

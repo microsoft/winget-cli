@@ -17,19 +17,23 @@ Set-WinGetUserSettings -UserSettings <Hashtable> [-Merge] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Sets the behavior of various WinGet settings. For more information about WinGet settings, visit https://aka.ms/winget-settings.
 
 ## EXAMPLES
 
 ### Example 1: Set progress bar theme.
+
 ```powershell
-PS C:\> Set-WinGetUserSettings -UserSettings @{ visual= @{ progressBar="rainbow"} }
+Set-WinGetUserSettings -UserSettings @{ visual= @{ progressBar="rainbow"} }
 ```
+
 Sets the theme of the progress bar to rainbow.
 
 ### Example 2: Merge install behavior settings.
+
 ```powershell
-PS C:\> Set-WinGetUserSettings -UserSettings @{ installBehavior= @{ preferences= @{ scope = "user"}} } -Merge
+Set-WinGetUserSettings -UserSettings @{ installBehavior= @{ preferences= @{ scope = "user"}} } -Merge
 ```
 
 Appends the user scope preference setting to the existing WinGet settings configuration.
@@ -37,6 +41,7 @@ Appends the user scope preference setting to the existing WinGet settings config
 ## PARAMETERS
 
 ### -Merge
+
 Appends the provided UserSettings input to the existing settings configuration.
 
 ```yaml
@@ -52,6 +57,7 @@ Accept wildcard characters: False
 ```
 
 ### -UserSettings
+
 A hashtable containing the key value pairs representing the WinGet settings.
 
 ```yaml
@@ -67,7 +73,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

@@ -17,13 +17,16 @@ Reset-WinGetSource -Name <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Resets the current WinGet sources to the default source configurations. This command must be executed with administrator permissions.
+
+Resets the current WinGet sources to the default source configurations. This command must be
+executed with administrator permissions.
 
 ## EXAMPLES
 
-### Example 1: Reset the msstore source.
+### Example 1: Reset the msstore source
+
 ```powershell
-PS C:\> Reset-WinGetSource -Name msstore
+Reset-WinGetSource -Name msstore
 ```
 
 This example resets the configured source named 'msstore' by removing it.
@@ -31,6 +34,7 @@ This example resets the configured source named 'msstore' by removing it.
 ## PARAMETERS
 
 ### -Name
+
 The name of the source.
 
 ```yaml
@@ -46,7 +50,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -55,6 +63,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### System.Object
+
 ## NOTES
 
 ## RELATED LINKS

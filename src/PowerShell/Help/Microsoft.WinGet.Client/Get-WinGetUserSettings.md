@@ -17,21 +17,27 @@ Get-WinGetUserSettings [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 Get user settings for WinGet.
 
 ## EXAMPLES
 
 ### Example 1: Default
+
 ```powershell
-PS C:\> Get-WinGetUserSettings
+Get-WinGetUserSettings
 ```
 
-Gets the user settings from the user's settings.json file.
+Gets the WinGet user settings from the user's settings.json file.
 
 ## PARAMETERS
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

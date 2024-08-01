@@ -17,13 +17,15 @@ Get-WinGetSource [[-Name] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+
 List configured WinGet sources.
 
 ## EXAMPLES
 
 ### Example 1: Default example
+
 ```powershell
-PS C:\> Get-WinGetSource
+Get-WinGetSource
 ```
 
 This will list the configured WinGet sources. The two default sources are "msstore" and "winget".
@@ -31,6 +33,7 @@ This will list the configured WinGet sources. The two default sources are "mssto
 ## PARAMETERS
 
 ### -Name
+
 Filter by WinGet source name
 
 ```yaml
@@ -46,7 +49,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable,
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
