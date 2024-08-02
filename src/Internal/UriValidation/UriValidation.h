@@ -4,7 +4,6 @@
 
 namespace AppInstaller::UriValidation
 {
-
     // The decision made based on the Uri validation.
     enum class UriValidationDecision
     {
