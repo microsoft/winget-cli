@@ -116,6 +116,43 @@ namespace AppInstaller::Settings
             (FoldHelper{}, ..., Validate<static_cast<ValuePolicy>(P)>(policiesKey, policies));
         }
 
+
+        std::optional<typename details::ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::value_t> ReadEnums(const Registry::Key& policiesKey)
+        {
+            using Mapping = details::ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>;
+
+            auto enumKey = policiesKey.SubKey(Mapping::KeyName);
+            if (!enumKey.has_value())
+            {
+                return std::nullopt;
+            }
+
+            typename Mapping::value_t map;
+            for (const auto& value : enumKey->Values())
+            {
+                std::optional<Registry::Value> potentialValue = value.Value();
+
+                if (potentialValue)
+                {
+                    auto entry = Mapping::ReadAndValidateItem(value);
+                    if (entry.has_value())
+                    {
+                        map.insert(*entry);
+                    }
+                    else
+                    {
+                        AICLI_LOG(Core, Warning, << "Failed to read Group Policy enum value. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
+                    }
+                }
+                else
+                {
+                    AICLI_LOG(Core, Verbose, << "Group Policy enum value not found. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
+                }
+            }
+
+            return map;
+        }
+
         // Reads a list from a Group Policy.
         // The list is stored in a sub-key of the policies key, and each value in that key is a list item.
         // Cases not considered by this function because we don't use them:
@@ -259,6 +296,11 @@ namespace AppInstaller::Settings
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AllowedSources);
         POLICY_MAPPING_DEFAULT_READ(ValuePolicy::DefaultProxy);
 
+        std::optional<typename ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::value_t> ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::ReadAndValidate(const Registry::Key& policiesKey)
+        {
+            return ReadEnums(policiesKey);
+        }
+
         std::nullopt_t ValuePolicyMapping<ValuePolicy::None>::ReadAndValidate(const Registry::Key&)
         {
             return std::nullopt;
@@ -291,6 +333,48 @@ namespace AppInstaller::Settings
         std::optional<SourceFromPolicy> ValuePolicyMapping<ValuePolicy::AllowedSources>::ReadAndValidateItem(const Registry::Value& item)
         {
             return ReadSourceFromRegistryValue(item);
+        }
+
+        std::optional<std::pair<const ConfigurationAllowedZonesOptions, bool>> ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::ReadAndValidateItem(const Registry::ValueList::ValueRef& entry)
+        {
+            auto name = entry.Name();
+            if (name == "LocalMachine")
+            {
+                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>();
+                auto value = data.value_or(true);
+                return std::make_pair(ConfigurationAllowedZonesOptions::LocalMachine, value);
+            }
+
+            if (name == "Intranet")
+            {
+                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>();
+                auto value = data.value_or(true);
+                return std::make_pair(ConfigurationAllowedZonesOptions::Intranet, value);
+            }
+
+            if (name == "TrustedSites")
+            {
+                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>();
+                auto value = data.value_or(true);
+                return std::make_pair(ConfigurationAllowedZonesOptions::Trusted, value);
+            }
+
+            if (name == "Internet")
+            {
+                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>();
+                auto value = data.value_or(true);
+                return std::make_pair(ConfigurationAllowedZonesOptions::Internet, value);
+            }
+
+            if (name == "UntrustedSites")
+            {
+                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>();
+                auto value = data.value_or(true);
+                return std::make_pair(ConfigurationAllowedZonesOptions::Untrusted, value);
+            }
+
+            AICLI_LOG(Core, Warning, << "Unknown value in ConfigurationAllowedZones: " << name);
+            return std::nullopt;
         }
     }
 

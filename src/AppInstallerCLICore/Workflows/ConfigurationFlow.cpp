@@ -15,6 +15,8 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/SelfManagement.h>
 #include <winrt/Microsoft.Management.Configuration.h>
+#include <urlmon.h>
+#include "../Internal/UriValidation/UriValidation.h"
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -959,6 +961,62 @@ namespace AppInstaller::CLI::Workflow
             set.Path(absolutePath.wstring());
         }
 
+        // Get Uri zone for a given uri or file path.
+        Settings::ConfigurationAllowedZonesOptions GetUriZone(const std::string& uri)
+        {
+            DWORD dwZone;
+            auto pInternetSecurityManager = winrt::create_instance<IInternetSecurityManager>(CLSID_InternetSecurityManager, CLSCTX_ALL);
+            pInternetSecurityManager->MapUrlToZone(std::wstring(uri.begin(), uri.end()).c_str(), &dwZone, 0);
+
+            // Treat all zones higher than untrusted as untrusted
+            if (dwZone > static_cast<DWORD>(Settings::ConfigurationAllowedZonesOptions::Untrusted))
+            {
+                return Settings::ConfigurationAllowedZonesOptions::Untrusted;
+            }
+
+            return static_cast<Settings::ConfigurationAllowedZonesOptions>(dwZone);
+        }
+
+        HRESULT ValidateGroupPolicy(Execution::Context& context, const Settings::ConfigurationAllowedZonesOptions zone)
+        {
+            auto configurationPolicies = Settings::GroupPolicies().GetValue<Settings::ValuePolicy::ConfigurationAllowedZones>();
+            if (!configurationPolicies.has_value())
+            {
+                AICLI_LOG(Config, Warning, << "ConfigurationAllowedZones policy is not set");
+                return NO_ERROR;
+            }
+
+            if (configurationPolicies->find(zone) == configurationPolicies->end())
+            {
+                AICLI_LOG(Config, Error, << "Configuration is not configured in the zone " << zone);
+                return NO_ERROR;
+            }
+
+            auto isAllowed = configurationPolicies->at(zone);
+            AICLI_LOG(Config, Error, << "Configuration is configured in the zone " << zone << " with value " << isAllowed);
+            if(!isAllowed)
+            {
+                context.Reporter.Error() << std::endl << "Configuration is disabled for Zone: " << zone << std::endl;
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+            }
+
+            return NO_ERROR;
+        }
+
+        HRESULT ValidateSmartScreen(Execution::Context& context, const std::string& url)
+        {
+            auto response = AppInstaller::UriValidation::UriValidation(url);
+            switch (response)
+            {
+            case AppInstaller::UriValidation::UriValidationResult::Block:
+                context.Reporter.Error() << std::endl << "Blocked by smart screen" << std::endl;
+                return ERROR_NOT_SUPPORTED;
+            case AppInstaller::UriValidation::UriValidationResult::Allow:
+            default:
+                return NO_ERROR;
+            }
+        }
+
         void OpenConfigurationSet(Execution::Context& context, const std::string& argPath, bool allowRemote)
         {
             auto progressScope = context.Reporter.BeginAsyncProgress(true);
@@ -975,6 +1033,24 @@ namespace AppInstaller::CLI::Workflow
                 {
                     AICLI_LOG(Config, Error, << "Remote files are not supported");
                     AICLI_TERMINATE_CONTEXT(ERROR_NOT_SUPPORTED);
+                }
+
+                // Get url zone
+                auto zone = GetUriZone(argPath);
+                auto groupPolicyValidation = ValidateGroupPolicy(context, zone);
+                if(groupPolicyValidation != NO_ERROR)
+                {
+                    AICLI_TERMINATE_CONTEXT(groupPolicyValidation);
+                }
+
+                // For internet zone, run smart screen check
+                if(zone == Settings::ConfigurationAllowedZonesOptions::Internet)
+                {
+                    auto smartScreenValidation = ValidateSmartScreen(context, argPath);
+                    if(smartScreenValidation != NO_ERROR)
+                    {
+                        AICLI_TERMINATE_CONTEXT(smartScreenValidation);
+                    }
                 }
 
                 std::ostringstream stringStream;
