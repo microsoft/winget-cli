@@ -350,9 +350,9 @@ namespace AppInstaller::Settings
 
             CONFIGURATION_ALLOWED_ZONES_READ(LocalMachine);
             CONFIGURATION_ALLOWED_ZONES_READ(Intranet);
-            CONFIGURATION_ALLOWED_ZONES_READ(Trusted);
+            CONFIGURATION_ALLOWED_ZONES_READ(TrustedSites);
             CONFIGURATION_ALLOWED_ZONES_READ(Internet);
-            CONFIGURATION_ALLOWED_ZONES_READ(Untrusted);
+            CONFIGURATION_ALLOWED_ZONES_READ(UntrustedSites);
 #undef CONFIGURATION_ALLOWED_ZONES_READ
 
             AICLI_LOG(Core, Warning, << "Unknown value in ConfigurationAllowedZones: " << entry.Name());

@@ -969,9 +969,9 @@ namespace AppInstaller::CLI::Workflow
             pInternetSecurityManager->MapUrlToZone(AppInstaller::Utility::ConvertToUTF16(uri).c_str(), &dwZone, 0);
 
             // Treat all zones higher than untrusted as untrusted
-            if (dwZone > static_cast<DWORD>(Settings::ConfigurationAllowedZonesOptions::Untrusted))
+            if (dwZone > static_cast<DWORD>(Settings::ConfigurationAllowedZonesOptions::UntrustedSites))
             {
-                return Settings::ConfigurationAllowedZonesOptions::Untrusted;
+                return Settings::ConfigurationAllowedZonesOptions::UntrustedSites;
             }
 
             return static_cast<Settings::ConfigurationAllowedZonesOptions>(dwZone);

@@ -32,9 +32,9 @@ namespace AppInstaller::Settings
     {
         LocalMachine = 0,
         Intranet = 1,
-        Trusted = 2,
+        TrustedSites = 2,
         Internet = 3,
-        Untrusted = 4,
+        UntrustedSites = 4,
     };
 
     // A policy that acts as a toggle to enable or disable a feature.
