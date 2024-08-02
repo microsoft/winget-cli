@@ -966,7 +966,7 @@ namespace AppInstaller::CLI::Workflow
         {
             DWORD dwZone;
             auto pInternetSecurityManager = winrt::create_instance<IInternetSecurityManager>(CLSID_InternetSecurityManager, CLSCTX_ALL);
-            pInternetSecurityManager->MapUrlToZone(std::wstring(uri.begin(), uri.end()).c_str(), &dwZone, 0);
+            pInternetSecurityManager->MapUrlToZone(AppInstaller::Utility::ConvertToUTF16(uri).c_str(), &dwZone, 0);
 
             // Treat all zones higher than untrusted as untrusted
             if (dwZone > static_cast<DWORD>(Settings::ConfigurationAllowedZonesOptions::Untrusted))
@@ -977,44 +977,63 @@ namespace AppInstaller::CLI::Workflow
             return static_cast<Settings::ConfigurationAllowedZonesOptions>(dwZone);
         }
 
-        HRESULT ValidateGroupPolicy(Execution::Context& context, const Settings::ConfigurationAllowedZonesOptions zone)
+        // Validate group policy for a given zone.
+        bool IsBlockedByGroupPolicy(Execution::Context& context, const Settings::ConfigurationAllowedZonesOptions zone)
         {
             auto configurationPolicies = Settings::GroupPolicies().GetValue<Settings::ValuePolicy::ConfigurationAllowedZones>();
             if (!configurationPolicies.has_value())
             {
                 AICLI_LOG(Config, Warning, << "ConfigurationAllowedZones policy is not set");
-                return NO_ERROR;
+                return false;
             }
 
             if (configurationPolicies->find(zone) == configurationPolicies->end())
             {
-                AICLI_LOG(Config, Error, << "Configuration is not configured in the zone " << zone);
-                return NO_ERROR;
+                AICLI_LOG(Config, Warning, << "Configuration is not configured in the zone " << zone);
+                return false;
             }
 
             auto isAllowed = configurationPolicies->at(zone);
-            AICLI_LOG(Config, Error, << "Configuration is configured in the zone " << zone << " with value " << isAllowed);
             if(!isAllowed)
             {
-                context.Reporter.Error() << std::endl << "Configuration is disabled for Zone: " << zone << std::endl;
-                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+                context.Reporter.Error() << "Configuration is disabled for Zone: " << zone << std::endl;
+                return true;
             }
 
-            return NO_ERROR;
+            AICLI_LOG(Config, Info, << "Configuration is configured in zone " << zone << " with value " << (isAllowed ? "allowed" : "blocked"));
+            return false;
         }
 
-        HRESULT ValidateSmartScreen(Execution::Context& context, const std::string& url)
+        // Validate smart screen for a given url.
+        bool IsBlockedBySmartScreen(Execution::Context& context, const std::string& url)
         {
             auto response = AppInstaller::UriValidation::UriValidation(url);
             switch (response.Decision())
             {
             case AppInstaller::UriValidation::UriValidationDecision::Block:
                 context.Reporter.Error() << std::endl << "Blocked by smart screen" << std::endl << "Feedback: " << response.Feedback() << std::endl;
-                return ERROR_NOT_SUPPORTED;
+                return true;
             case AppInstaller::UriValidation::UriValidationDecision::Allow:
             default:
-                return NO_ERROR;
+                return false;
             }
+        }
+
+        // Evaluate a given uri for configuration.
+        HRESULT EvaluateUri(Execution::Context& context, const std::string& uri)
+        {
+            auto zone = GetUriZone(uri);
+            if(IsBlockedByGroupPolicy(context, zone))
+            {
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+            }
+
+            if(zone == Settings::ConfigurationAllowedZonesOptions::Internet && IsBlockedBySmartScreen(context, uri))
+            {
+                return APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE;
+            }
+
+            return NO_ERROR;
         }
 
         void OpenConfigurationSet(Execution::Context& context, const std::string& argPath, bool allowRemote)
@@ -1035,22 +1054,11 @@ namespace AppInstaller::CLI::Workflow
                     AICLI_TERMINATE_CONTEXT(ERROR_NOT_SUPPORTED);
                 }
 
-                // Get url zone
-                auto zone = GetUriZone(argPath);
-                auto groupPolicyValidation = ValidateGroupPolicy(context, zone);
-                if(groupPolicyValidation != NO_ERROR)
+                auto uriValidation = EvaluateUri(context, argPath);
+                if (uriValidation != NO_ERROR)
                 {
-                    AICLI_TERMINATE_CONTEXT(groupPolicyValidation);
-                }
-
-                // For internet zone, run smart screen check
-                if(zone == Settings::ConfigurationAllowedZonesOptions::Internet)
-                {
-                    auto smartScreenValidation = ValidateSmartScreen(context, argPath);
-                    if(smartScreenValidation != NO_ERROR)
-                    {
-                        AICLI_TERMINATE_CONTEXT(smartScreenValidation);
-                    }
+                    AICLI_LOG(Config, Error, << "URI validation blocked this uri: " << argPath);
+                    AICLI_TERMINATE_CONTEXT(uriValidation);
                 }
 
                 std::ostringstream stringStream;

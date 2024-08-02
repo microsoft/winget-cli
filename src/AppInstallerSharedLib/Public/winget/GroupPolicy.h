@@ -35,7 +35,6 @@ namespace AppInstaller::Settings
         Trusted = 2,
         Internet = 3,
         Untrusted = 4,
-        // 4+ are treated as untrusted
     };
 
     // A policy that acts as a toggle to enable or disable a feature.

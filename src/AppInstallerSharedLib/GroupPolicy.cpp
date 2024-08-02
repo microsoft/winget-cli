@@ -117,9 +117,10 @@ namespace AppInstaller::Settings
         }
 
 
-        std::optional<typename details::ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::value_t> ReadEnums(const Registry::Key& policiesKey)
+        template<ValuePolicy P>
+        std::optional<typename details::ValuePolicyMapping<P>::value_t> ReadEnums(const Registry::Key& policiesKey)
         {
-            using Mapping = details::ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>;
+            using Mapping = details::ValuePolicyMapping<P>;
 
             auto enumKey = policiesKey.SubKey(Mapping::KeyName);
             if (!enumKey.has_value())
@@ -292,14 +293,16 @@ namespace AppInstaller::Settings
             return ReadList<_policy_>(policiesKey); \
         }
 
+#define POLICY_MAPPING_DEFAULT_ENUM_READ(_policy_) \
+        std::optional<typename ValuePolicyMapping<_policy_>::value_t> ValuePolicyMapping<_policy_>::ReadAndValidate(const Registry::Key& policiesKey) \
+        { \
+            return ReadEnums<_policy_>(policiesKey); \
+        }
+
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AdditionalSources);
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AllowedSources);
         POLICY_MAPPING_DEFAULT_READ(ValuePolicy::DefaultProxy);
-
-        std::optional<typename ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::value_t> ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::ReadAndValidate(const Registry::Key& policiesKey)
-        {
-            return ReadEnums(policiesKey);
-        }
+        POLICY_MAPPING_DEFAULT_ENUM_READ(ValuePolicy::ConfigurationAllowedZones);
 
         std::nullopt_t ValuePolicyMapping<ValuePolicy::None>::ReadAndValidate(const Registry::Key&)
         {
@@ -337,43 +340,22 @@ namespace AppInstaller::Settings
 
         std::optional<std::pair<const ConfigurationAllowedZonesOptions, bool>> ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::ReadAndValidateItem(const Registry::ValueList::ValueRef& entry)
         {
-            auto name = entry.Name();
-            if (name == "LocalMachine")
-            {
-                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>();
-                auto value = data.value_or(true);
-                return std::make_pair(ConfigurationAllowedZonesOptions::LocalMachine, value);
+#define CONFIGURATION_ALLOWED_ZONES_READ(_zone_) \
+            if (entry.Name() == #_zone_) \
+            { \
+                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>(); \
+                auto value = data.value_or(true); \
+                return std::make_pair(ConfigurationAllowedZonesOptions::_zone_, value); \
             }
 
-            if (name == "Intranet")
-            {
-                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>();
-                auto value = data.value_or(true);
-                return std::make_pair(ConfigurationAllowedZonesOptions::Intranet, value);
-            }
+            CONFIGURATION_ALLOWED_ZONES_READ(LocalMachine);
+            CONFIGURATION_ALLOWED_ZONES_READ(Intranet);
+            CONFIGURATION_ALLOWED_ZONES_READ(Trusted);
+            CONFIGURATION_ALLOWED_ZONES_READ(Internet);
+            CONFIGURATION_ALLOWED_ZONES_READ(Untrusted);
+#undef CONFIGURATION_ALLOWED_ZONES_READ
 
-            if (name == "TrustedSites")
-            {
-                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>();
-                auto value = data.value_or(true);
-                return std::make_pair(ConfigurationAllowedZonesOptions::Trusted, value);
-            }
-
-            if (name == "Internet")
-            {
-                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>();
-                auto value = data.value_or(true);
-                return std::make_pair(ConfigurationAllowedZonesOptions::Internet, value);
-            }
-
-            if (name == "UntrustedSites")
-            {
-                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>();
-                auto value = data.value_or(true);
-                return std::make_pair(ConfigurationAllowedZonesOptions::Untrusted, value);
-            }
-
-            AICLI_LOG(Core, Warning, << "Unknown value in ConfigurationAllowedZones: " << name);
+            AICLI_LOG(Core, Warning, << "Unknown value in ConfigurationAllowedZones: " << entry.Name());
             return std::nullopt;
         }
     }
