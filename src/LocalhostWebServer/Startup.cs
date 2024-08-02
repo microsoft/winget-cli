@@ -29,6 +29,8 @@ namespace LocalhostWebServer
 
         public static string TestDataPath { get; set; }
 
+        public static bool ExitBeforeRun { get; set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;

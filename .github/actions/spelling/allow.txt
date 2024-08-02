@@ -17,6 +17,7 @@ appxsdk
 APSTUDIO
 ARRAYSIZE
 artifactstagingdirectory
+Asn
 aspirational
 Authenticode
 AUTOLISTEN
