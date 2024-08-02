@@ -15,8 +15,8 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/SelfManagement.h>
 #include <winrt/Microsoft.Management.Configuration.h>
+#include <UriValidation/UriValidation.h>
 #include <urlmon.h>
-#include "../Internal/UriValidation/UriValidation.h"
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -1006,12 +1006,12 @@ namespace AppInstaller::CLI::Workflow
         HRESULT ValidateSmartScreen(Execution::Context& context, const std::string& url)
         {
             auto response = AppInstaller::UriValidation::UriValidation(url);
-            switch (response)
+            switch (response.Decision())
             {
-            case AppInstaller::UriValidation::UriValidationResult::Block:
-                context.Reporter.Error() << std::endl << "Blocked by smart screen" << std::endl;
+            case AppInstaller::UriValidation::UriValidationDecision::Block:
+                context.Reporter.Error() << std::endl << "Blocked by smart screen" << std::endl << "Feedback: " << response.Feedback() << std::endl;
                 return ERROR_NOT_SUPPORTED;
-            case AppInstaller::UriValidation::UriValidationResult::Allow:
+            case AppInstaller::UriValidation::UriValidationDecision::Allow:
             default:
                 return NO_ERROR;
             }

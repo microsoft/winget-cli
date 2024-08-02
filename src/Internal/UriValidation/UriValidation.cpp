@@ -8,6 +8,7 @@ namespace AppInstaller::UriValidation
 {
     UriValidationResult UriValidation(const std::string&)
     {
-        return UriValidationResult::Allow;
+        // In Dev mode, allow all URIs
+        return UriValidationResult(UriValidationDecision::Allow, std::string());
     }
 }
