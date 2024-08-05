@@ -1019,6 +1019,12 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        bool IsSmartScreenRequired(Settings::ConfigurationAllowedZonesOptions zone)
+        {
+            return zone == Settings::ConfigurationAllowedZonesOptions::Internet
+                || zone == Settings::ConfigurationAllowedZonesOptions::UntrustedSites;
+        }
+
         // Evaluate a given uri for configuration.
         HRESULT EvaluateUri(Execution::Context& context, const std::string& uri)
         {
@@ -1028,7 +1034,7 @@ namespace AppInstaller::CLI::Workflow
                 return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
             }
 
-            if(zone == Settings::ConfigurationAllowedZonesOptions::Internet && IsBlockedBySmartScreen(context, uri))
+            if (IsSmartScreenRequired(zone) && IsBlockedBySmartScreen(context, uri))
             {
                 return APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE;
             }
