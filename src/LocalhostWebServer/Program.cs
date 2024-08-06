@@ -164,7 +164,7 @@ namespace LocalhostWebServer
             foreach (string file in files)
             {
                 string dest = Path.Combine(destDir, Path.GetFileName(file));
-                File.Copy(file, dest);
+                File.Copy(file, dest, overwrite: true);
             }
 
             string[] directories = Directory.GetDirectories(sourceDir);

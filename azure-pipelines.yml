@@ -140,7 +140,7 @@ jobs:
       platform: '$(buildPlatform)'
       solution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
       configuration: '$(buildConfiguration)'
-      msbuildArguments: '/p:AppxPackageOutput="$(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix"
+      msbuildArguments: '/p:AppxPackageOutput="$(artifactsDir)\E2ETests\TestData\AppInstallerTestMsixInstaller.msix"
                          /p:AppxBundle=Never
                          /p:UapAppxPackageBuildMode=SideLoadOnly
                          /p:AppxPackageSigningEnabled=false'
@@ -255,22 +255,17 @@ jobs:
       SourceFolder: '$(buildOutDir)\LocalhostWebServer'
       TargetFolder: '$(artifactsDir)\E2ETests\LocalhostWebServer'
 
-    # Invoke E2E setup to generate the TestLocalIndex; could optimize out some of its steps if needed
-  - template: templates/e2e-setup.yml
-    parameters:
-      sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(artifactsDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json -TestDataPath $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer -ExitBeforeRun'
-
-  - task: CopyFiles@2
-    displayName: 'Copy TestLocalIndex'
-    inputs:
-      SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
-      TargetFolder: '$(artifactsDir)\E2ETests\TestLocalIndex'
-
   - task: CopyFiles@2
     displayName: 'Copy TestData'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestData'
+
+  - task: CopyFiles@2
+    displayName: 'Copy AppInstallerTestExeInstaller.exe'
+    inputs:
+      Contents: AppInstallerTestExeInstaller.exe
+      SourceFolder: '$(buildOutDir)\AppInstallerTestExeInstaller'
       TargetFolder: '$(artifactsDir)\E2ETests\TestData'
 
   - task: CopyFiles@2
@@ -301,28 +296,6 @@ jobs:
       scanType: 'Register'
       verbosity: 'Verbose'
       alertWarningLevel: 'High'
-
-  # Run BimSkim for all the binaries
-  - task: BinSkim@4
-    displayName: 'Run BinSkim '
-    inputs:
-      arguments: 'analyze
-        "$(buildOutDir)\AppInstallerCLI\winget.exe"
-        "$(buildOutDir)\WinGetUtil\WinGetUtil.dll"
-        "$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.dll"
-        "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
-        "$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\WinGetUtil*Interop.dll"
-        "$(buildOutDir)\UndockedRegFreeWinRT\winrtact.dll"
-        "$(buildOutDir)\Microsoft.WinGet.Client.Cmdlets\Microsoft.WinGet.Client*.dll"
-        "$(buildOutDir)\ConfigurationRemotingServer\ConfigurationRemoting*Server.dll"
-        "$(buildOutDir)\ConfigurationRemotingServer\ConfigurationRemoting*Server.exe"
-        "$(buildOutDir)\ConfigurationRemotingServer\Microsoft.Management.Configuration*.dll"
-        "$(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration*.dll"
-        "$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration*.dll"
-        --config default --recurse'
-
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@3
-    displayName: 'Publish Security Analysis Logs'
 
 # Test job runs tests using build artifacts
 
@@ -431,7 +404,7 @@ jobs:
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(buildOutDir)\E2ETests\TestLocalIndex -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(buildOutDir)\E2ETests\TestData\localsource.json -TestDataPath $(buildOutDir)\E2ETests\TestData'
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -511,6 +484,10 @@ jobs:
       arguments: '-TargetLocation $(artifactsDir)\ConfigOOPTestsLog'
     condition: succeededOrFailed()
 
+  - powershell: Get-Process LocalhostWebServer | Stop-Process
+    displayName: Stop LocalhostWebServer
+    condition: succeededOrFailed()
+
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
@@ -524,6 +501,8 @@ jobs:
   timeoutInMinutes: 120
   dependsOn: 'Build'
   condition: succeeded('Build')
+  variables:
+    buildOutDir: $(Pipeline.Workspace)\Build.x64Release
 
   steps:
   - task: DownloadPipelineArtifact@2
@@ -532,7 +511,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy x64 PowerShell Binaries to Output'
     inputs:
-      SourceFolder: '$(Pipeline.Workspace)\Build.x64release\PowerShell'
+      SourceFolder: '$(buildOutDir)\PowerShell'
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
@@ -566,20 +545,24 @@ jobs:
       targetType: 'inline'
       script: |
         Get-ChildItem AppxPackages\AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\x64 -Filter *.appx | %{ Add-AppxPackage $_.FullName }
-      workingDirectory: $(Pipeline.Workspace)\Build.x64release\
+      workingDirectory: $(buildOutDir)
 
   - template: templates/e2e-setup.yml
     parameters:
       sourceDir: $(Build.SourcesDirectory)
-      localhostWebServerArgs: '-BuildRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer -StaticFileRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex -SourceCert $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTest.cer'
+      localhostWebServerArgs: '-BuildRoot $(buildOutDir)\E2ETests\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -LocalSourceJson $(buildOutDir)\E2ETests\TestData\localsource.json -TestDataPath $(buildOutDir)\E2ETests\TestData'
 
-  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
+  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(buildOutDir)\DevPackage
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
     displayName: Run PowerShell 7 Tests
 
   - powershell: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\WPPesterTest
     workingDirectory: $(Build.SourcesDirectory)\src\PowerShell\tests\
     displayName: Run Windows PowerShell Tests
+    condition: succeededOrFailed()
+
+  - powershell: Get-Process LocalhostWebServer | Stop-Process
+    displayName: Stop LocalhostWebServer
     condition: succeededOrFailed()
 
   - task: PublishTestResults@2
