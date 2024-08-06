@@ -31,7 +31,7 @@ STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, _Outptr_ LPVOID
 
     if (Factory::IsCLSID(rclsid))
     {
-        result = winrt::make<Factory>().as<winrt::Windows::Foundation::IUnknown>();
+        result = winrt::make<Factory>(rclsid).as<winrt::Windows::Foundation::IUnknown>();
     }
 
     if (result)
@@ -58,7 +58,7 @@ STDAPI DllGetActivationFactory(HSTRING classId, void** factory) try
 
     if (Factory::IsCLSID(classId))
     {
-        result = winrt::make<Factory>().as<winrt::Windows::Foundation::IUnknown>();
+        result = winrt::make<Factory>(classId).as<winrt::Windows::Foundation::IUnknown>();
     }
 
     if (result)

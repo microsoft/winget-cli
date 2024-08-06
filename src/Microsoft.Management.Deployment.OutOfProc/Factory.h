@@ -8,9 +8,10 @@
 
 namespace Microsoft::Management::Deployment::OutOfProc
 {
-    struct Factory : winrt::implements<Factory, winrt::Windows::Foundation::IActivationFactory, IClassFactory>
+    struct Factory : winrt::implements<Factory, IClassFactory, winrt::Windows::Foundation::IActivationFactory>
     {
-        Factory();
+        Factory(const GUID& clsid);
+        Factory(HSTRING clsid);
         ~Factory();
 
         // Returns true if the reference count is not 0; false if it is.
@@ -37,5 +38,7 @@ namespace Microsoft::Management::Deployment::OutOfProc
         static void DecrementRefCount();
 
         static std::atomic<int32_t> s_referenceCount;
+
+        GUID m_clsid;
     };
 }
