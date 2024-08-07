@@ -28,7 +28,7 @@ Assert-WinGetPackageManager [-Latest] [-IncludePreRelease] [<CommonParameters>]
 
 ## DESCRIPTION
 
-Verifies WinGet is installed properly.
+Verifies that WinGet is installed properly.
 
 > [!NOTE]
 > This does not ensure the latest version of WinGet is installed. This just verifies the current
