@@ -20,18 +20,20 @@ Disable-WinGetSetting [-Name] <String> [<CommonParameters>]
 
 ## DESCRIPTION
 
-Disables an administrative setting. Requires administrator access.
+This command disables an administrative setting. The command must be run from an elevated session
+using the **Run as Administrator** option.
 
-Administrator Settings default to "Disabled" and may be controlled by Group Policy Objects.
+This command support the following administrative settings:
 
-Administrator Settings:
+- LocalManifestFiles
+- BypassCertificatePinningForMicrosoftStore
+- InstallerHashOverride
+- LocalArchiveMalwareScanOverride
+- ProxyCommandLineOptions
+- DefaultProxy
 
-* LocalManifestFiles
-* BypassCertificatePinningForMicrosoftStore
-* InstallerHashOverride
-* LocalArchiveMalwareScanOverride
-* ProxyCommandLineOptions
-* DefaultProxy
+Administrative settings are disabled by default. Administrative settings can also be managed using
+Group Policy objects.
 
 ## EXAMPLES
 
@@ -41,13 +43,13 @@ Administrator Settings:
 Disable-WinGetSetting -Name LocalManifestFiles
 ```
 
-Disables the use of local manifest files.
+This example shows how to disable the use of local manifest files.
 
 ## PARAMETERS
 
 ### -Name
 
-The name of the WinGet administrator setting
+The name of the WinGet administrative setting.
 
 ```yaml
 Type: System.String
@@ -82,4 +84,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 [Get-WinGetSettings](Get-WinGetSettings.md)
 
-[Set-WinGetSetting](Set-WinGetSetting.md)
+[Set-WinGetUserSettings](Set-WinGetUserSettings.md)

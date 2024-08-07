@@ -10,7 +10,7 @@ title: Assert-WinGetPackageManager
 # Assert-WinGetPackageManager
 
 ## SYNOPSIS
-Verifies WinGet is installed properly.
+Verifies that WinGet is installed properly.
 
 ## SYNTAX
 
@@ -31,8 +31,9 @@ Assert-WinGetPackageManager [-Latest] [-IncludePreRelease] [<CommonParameters>]
 Verifies that WinGet is installed properly.
 
 > [!NOTE]
-> This does not ensure the latest version of WinGet is installed. This just verifies the current
-> installed version correlated with the Microsoft.WinGet.Client module is functional.
+> The cmdlet doesn't ensure that the latest version of WinGet is installed. It just verifies that
+> the installed version of Winget is supported by installed version of the Microsoft.WinGet.Client
+> module.
 
 ## EXAMPLES
 
@@ -42,8 +43,7 @@ Verifies that WinGet is installed properly.
 Assert-WinGetPackageManager
 ```
 
-If the current version of WinGet is installed correctly this will return without error. This does
-not upgrade WinGet to the latest version.
+If the current version of WinGet is installed correctly, the command returns without error.
 
 ### Example 2: Check if latest stable version is installed
 
@@ -51,8 +51,8 @@ not upgrade WinGet to the latest version.
 Assert-WinGetPackageManager -Latest
 ```
 
-If the latest version of WinGet correlated with the Microsoft.WinGet.Client module is installed
-correctly this will return without error.
+If the latest version of WinGet is compatible with the installed Microsoft.WinGet.Client module, the
+command returns without error.
 
 ### Example 3: Check if latest preview version is installed
 
@@ -60,8 +60,8 @@ correctly this will return without error.
 Assert-WinGetPackageManager -IncludePreRelease
 ```
 
-If a preview version of WinGet correlated with the Microsoft.WinGet.Client module is installed
-correctly this will return without error.
+If the prerelease version of WinGet is compatible with the installed Microsoft.WinGet.Client module,
+the command returns without error.
 
 ### Example 4: Check if specific version is installed
 
@@ -69,14 +69,14 @@ correctly this will return without error.
 Assert-WinGetPackageManager -Version v1.8.1911
 ```
 
-If the specified version of WinGet correlated with the Microsoft.WinGet.Client module is installed
-correctly this will return without error.
+If the specified version of WinGet is compatible with the installed Microsoft.WinGet.Client module,
+the command returns without error.
 
 ## PARAMETERS
 
 ### -IncludePreRelease
 
-Includes preview versions of WinGet.
+Include preview versions of WinGet.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -92,8 +92,8 @@ Accept wildcard characters: False
 
 ### -Latest
 
-Verifies the latest version of WinGet correlated with the Microsoft.WinGet.Client module is
-installed.
+Verify that the latest version of WinGet is compatible with the installed version of the
+Microsoft.WinGet.Client module.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -109,7 +109,7 @@ Accept wildcard characters: False
 
 ### -Version
 
-Verifies a specific version of WinGet is installed.
+Verify that a specific version of WinGet is installed correctly.
 
 ```yaml
 Type: System.String
