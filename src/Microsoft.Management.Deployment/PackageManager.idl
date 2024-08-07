@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(10)]
+    [contractversion(11)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -150,6 +150,72 @@ namespace Microsoft.Management.Deployment
         /// This value's meaning will require knowledge of the specific uninstaller or install technology.
         UInt32 UninstallerErrorCode { get; };
     }
+
+    /// State of the repair
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum PackageRepairProgressState
+    {
+        /// The repair is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
+        /// state will prevent the package from repairing.
+        Queued,
+        /// The repair is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not
+        /// stop the repair or the post repair steps.
+        Repairing,
+        /// The repair has completed and cleanup actions are in progress. Cancellation of the 
+        /// IAsyncOperationWithProgress in this state will not stop cleanup or roll back the repair.
+        PostRepair,
+        /// The operation has completed.
+        Finished,
+    };
+
+    /// Progress object for the repair
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    struct RepairProgress
+    {
+        /// State of the repair
+        PackageRepairProgressState State;
+
+        /// Repair percentage if known.
+        Double RepairCompletionProgress;
+    };
+
+    /// Status of the repair call
+    /// Implementation Note: Errors mapped from AppInstallerErrors.h
+    /// DESIGN NOTE: RepairResultStatus from AppInstallerErrors.h is not implemented in V1.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum RepairResultStatus
+    {
+        Ok,
+        BlockedByPolicy,
+        CatalogError,
+        InternalError,
+        InvalidOptions,
+        RepairError,
+        ManifestError,
+        NoApplicableInstallers,
+        PackageAgreementsNotAccepted,
+    };
+
+    /// Result of the repair
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass RepairResult
+    {
+       /// Used by a caller to correlate the repair with a caller's data.
+       String CorrelationData { get; };
+
+       /// Whether a restart is required to complete the repair.
+       Boolean RebootRequired { get; };
+
+       /// Batched error code, example APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED
+       RepairResultStatus Status { get; };
+
+       /// The error code of the overall operation.
+       HRESULT ExtendedErrorCode { get; };
+
+       /// The error code from the repair attempt. Only valid if the Status is RepairError.
+       /// This value's meaning will require knowledge of the specific repairer or repair technology.
+       UInt32 InstallerErrorCode { get; };
+     }
 
     /// State of the download
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
@@ -1071,6 +1137,57 @@ namespace Microsoft.Management.Deployment
         String CorrelationData;
     }
 
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum PackageRepairMode
+    {
+        /// The default experience for the installer. Installer may show some UI.
+        Default,
+        /// Runs the installer in silent mode. This suppresses the installer's UI to the extent 
+        /// possible (installer may still show some required UI).
+        Silent,
+        /// Runs the installer in interactive mode.
+        Interactive,
+    };
+
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    enum PackageRepairScope
+    {
+        /// Use default repair behavior.
+        Any,
+        /// Repair for current user. Currently only applicable to msix.
+        User,
+        /// Repair for all users.
+        System,
+    };
+
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+    runtimeclass RepairOptions
+    {
+        RepairOptions();
+
+        /// Optionally specifies the version from the package to repair. If unspecified the version matching 
+        /// CatalogPackage.GetLatestVersion() is used.
+        PackageVersionId PackageVersionId;
+
+        /// The package Repair scope.
+        PackageRepairScope PackageRepairScope;
+
+        /// The package repair mode.
+        PackageRepairMode PackageRepairMode;
+
+        /// Optional parameter specifying the directory where installers are downloaded when the repair behavior is of type Installer.
+        String DownloadDirectory;
+
+        /// Optional parameter specifying Accept the package agreements required for download.
+        Boolean AcceptPackageAgreements;
+
+        /// Used by a caller to correlate the download with a caller's data.
+        /// The string must be JSON encoded.
+        String CorrelationData;
+
+        String LogOutputPath;
+    }
+
     /// IMPLEMENTATION NOTE: Documentation from AppInstaller::Manifest::Documentation
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     runtimeclass Documentation
@@ -1255,6 +1372,15 @@ namespace Microsoft.Management.Deployment
 
             // Get download progress
             Windows.Foundation.IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> GetDownloadProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 11)]
+        {
+            // Repair the specified package
+            Windows.Foundation.IAsyncOperationWithProgress<RepairResult, RepairProgress> RepairPackageAsync(CatalogPackage package, RepairOptions options);
+
+            // Get repair progress
+            Windows.Foundation.IAsyncOperationWithProgress<RepairResult, RepairProgress> GetRepairProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
         }
     }
 

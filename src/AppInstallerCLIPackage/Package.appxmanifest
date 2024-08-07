@@ -78,6 +78,8 @@
               </com:Class>
               <com:Class Id ="6484A61D-50FA-41F0-B71E-F4370C6EB37C" DisplayName="AuthenticationArguments Server">
               </com:Class>
+              <com:Class Id ="E62BB1E7-C7B2-4AEC-9E28-FB649B30FF03" DisplayName="RepairOptions Server">
+              </com:Class>
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>

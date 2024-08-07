@@ -1066,5 +1066,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return GetPackageOperation<Deployment::DownloadResult, Deployment::PackageDownloadProgress, Deployment::DownloadOptions, Deployment::PackageDownloadProgressState>(true, std::move(queueItem));
     }
 
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RepairResult, winrt::Microsoft::Management::Deployment::RepairProgress> PackageManager::RepairPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::RepairOptions options)
+    {
+        return winrt::Windows::Foundation::IAsyncOperationWithProgress<Deployment::RepairResult, winrt::Microsoft::Management::Deployment::RepairProgress>();
+    }
+
+    winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::RepairResult, winrt::Microsoft::Management::Deployment::RepairProgress> PackageManager::GetRepairProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
+    {
+        return winrt::Windows::Foundation::IAsyncOperationWithProgress<Deployment::RepairResult, winrt::Microsoft::Management::Deployment::RepairProgress>();
+    }
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);
 }
