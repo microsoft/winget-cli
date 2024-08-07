@@ -15,6 +15,8 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/SelfManagement.h>
 #include <winrt/Microsoft.Management.Configuration.h>
+#include <UriValidation/UriValidation.h>
+#include <urlmon.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -959,6 +961,87 @@ namespace AppInstaller::CLI::Workflow
             set.Path(absolutePath.wstring());
         }
 
+        // Get Uri zone for a given uri or file path.
+        Settings::ConfigurationAllowedZonesOptions GetUriZone(const std::string& uri)
+        {
+            DWORD dwZone;
+            auto pInternetSecurityManager = winrt::create_instance<IInternetSecurityManager>(CLSID_InternetSecurityManager, CLSCTX_ALL);
+            pInternetSecurityManager->MapUrlToZone(AppInstaller::Utility::ConvertToUTF16(uri).c_str(), &dwZone, 0);
+
+            // Treat all zones higher than untrusted as untrusted
+            if (dwZone > static_cast<DWORD>(Settings::ConfigurationAllowedZonesOptions::UntrustedSites))
+            {
+                return Settings::ConfigurationAllowedZonesOptions::UntrustedSites;
+            }
+
+            return static_cast<Settings::ConfigurationAllowedZonesOptions>(dwZone);
+        }
+
+        // Validate group policy for a given zone.
+        bool IsBlockedByGroupPolicy(Execution::Context& context, const Settings::ConfigurationAllowedZonesOptions zone)
+        {
+            auto configurationPolicies = Settings::GroupPolicies().GetValue<Settings::ValuePolicy::ConfigurationAllowedZones>();
+            if (!configurationPolicies.has_value())
+            {
+                AICLI_LOG(Config, Warning, << "ConfigurationAllowedZones policy is not set");
+                return false;
+            }
+
+            if (configurationPolicies->find(zone) == configurationPolicies->end())
+            {
+                AICLI_LOG(Config, Warning, << "Configuration is not configured in the zone " << zone);
+                return false;
+            }
+
+            auto isAllowed = configurationPolicies->at(zone);
+            if(!isAllowed)
+            {
+                context.Reporter.Error() << "Configuration is disabled for Zone: " << zone << std::endl;
+                return true;
+            }
+
+            AICLI_LOG(Config, Info, << "Configuration is configured in zone " << zone << " with value " << (isAllowed ? "allowed" : "blocked"));
+            return false;
+        }
+
+        // Validate smart screen for a given url.
+        bool IsBlockedBySmartScreen(Execution::Context& context, const std::string& url)
+        {
+            auto response = AppInstaller::UriValidation::UriValidation(url);
+            switch (response.Decision())
+            {
+            case AppInstaller::UriValidation::UriValidationDecision::Block:
+                context.Reporter.Error() << std::endl << "Blocked by smart screen" << std::endl << "Feedback: " << response.Feedback() << std::endl;
+                return true;
+            case AppInstaller::UriValidation::UriValidationDecision::Allow:
+            default:
+                return false;
+            }
+        }
+
+        bool IsSmartScreenRequired(Settings::ConfigurationAllowedZonesOptions zone)
+        {
+            return zone == Settings::ConfigurationAllowedZonesOptions::Internet
+                || zone == Settings::ConfigurationAllowedZonesOptions::UntrustedSites;
+        }
+
+        // Evaluate a given uri for configuration.
+        HRESULT EvaluateUri(Execution::Context& context, const std::string& uri)
+        {
+            auto zone = GetUriZone(uri);
+            if(IsBlockedByGroupPolicy(context, zone))
+            {
+                return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+            }
+
+            if (IsSmartScreenRequired(zone) && IsBlockedBySmartScreen(context, uri))
+            {
+                return APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE;
+            }
+
+            return NO_ERROR;
+        }
+
         void OpenConfigurationSet(Execution::Context& context, const std::string& argPath, bool allowRemote)
         {
             auto progressScope = context.Reporter.BeginAsyncProgress(true);
@@ -975,6 +1058,13 @@ namespace AppInstaller::CLI::Workflow
                 {
                     AICLI_LOG(Config, Error, << "Remote files are not supported");
                     AICLI_TERMINATE_CONTEXT(ERROR_NOT_SUPPORTED);
+                }
+
+                auto uriValidation = EvaluateUri(context, argPath);
+                if (uriValidation != NO_ERROR)
+                {
+                    AICLI_LOG(Config, Error, << "URI validation blocked this uri: " << argPath);
+                    AICLI_TERMINATE_CONTEXT(uriValidation);
                 }
 
                 std::ostringstream stringStream;

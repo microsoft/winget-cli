@@ -122,6 +122,10 @@ If you disable this setting, users will not be able to use the Windows Package M
 If you disable or do not configure this setting, no proxy will be used by default.
 
 If you enable this setting, the specified proxy will be used by default.</string>
+      <string id="EnableDSCAllowedZones">Enable App Installer Allowed Zones for DSC</string>
+      <string id="EnableDSCAllowedZonesExplanation"></string>
+      <string id="ZoneAllowed">Allow</string>
+      <string id="ZoneBlocked">Block</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -137,6 +141,13 @@ If you enable this setting, the specified proxy will be used by default.</string
         <textBox refId="WindowsPackageManagerDefaultProxy">
           <label>Default Proxy</label>
         </textBox>
+      </presentation>
+      <presentation id="DSCAllowedZones">
+        <dropdownList refId="LocalMachine" noSort="true" defaultItem="1">Local Machine</dropdownList>
+        <dropdownList refId="Intranet" noSort="true" defaultItem="1">Intranet</dropdownList>
+        <dropdownList refId="TrustedSites" noSort="true" defaultItem="1">Trusted Sites</dropdownList>
+        <dropdownList refId="Internet" noSort="true" defaultItem="1">Internet</dropdownList>
+        <dropdownList refId="UntrustedSites" noSort="true" defaultItem="0">Untrusted Sites</dropdownList>
       </presentation>
     </presentationTable>
   </resources>
