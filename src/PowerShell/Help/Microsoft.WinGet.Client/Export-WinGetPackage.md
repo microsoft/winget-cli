@@ -230,9 +230,13 @@ Accept wildcard characters: False
 
 ### -Query
 
-Search string for WinGet package. The query parameter will be used to search across multiple
-properties in a WinGet package manifest. Fields include the package name, package identifier,
-moniker, and tags.
+One or more strings to search for in the WinGet package. The command searches for matching strings
+in the following properties of the package manifest:
+
+- `PackageName`
+- `PackageIdentifier`
+- `Moniker`
+- `Tags`
 
 ```yaml
 Type: System.String[]
