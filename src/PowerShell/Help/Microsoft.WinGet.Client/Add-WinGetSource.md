@@ -70,8 +70,8 @@ Accept wildcard characters: False
 
 ### -Type
 
-The type of the WinGet source. Most sources will be `Microsoft.Rest`. The WinGet community
-repository is `Microsoft.PreIndexed.Package`.
+The type of the WinGet source. Most sources are `Microsoft.Rest`. The WinGet community repository
+is `Microsoft.PreIndexed.Package`.
 
 ```yaml
 Type: System.String
