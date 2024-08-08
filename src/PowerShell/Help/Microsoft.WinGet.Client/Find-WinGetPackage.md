@@ -10,7 +10,7 @@ title: Find-WinGetPackage
 # Find-WinGetPackage
 
 ## SYNOPSIS
-Searches configured sources for packages.
+Searches for packages from configured sources.
 
 ## SYNTAX
 
@@ -22,7 +22,7 @@ Find-WinGetPackage [-Tag <String>] [-Command <String>] [-Count <UInt32>] [-Id <S
 
 ## DESCRIPTION
 
-Searches configured sources for packages.
+Searches for packages from configured sources.
 
 ## EXAMPLES
 
@@ -32,9 +32,16 @@ Searches configured sources for packages.
 Find-WinGetPackage PowerShell
 ```
 
-Searches for PowerShell. The default behavior spans all configured sources and performs a
-case-insensitive substring match across package identifier, package name, package moniker, and
-package tags.
+This example shows how to search for packages related to PowerShell. By default, the command
+searches all configured sources. The command compares the value provided to the following package
+manifest properties:
+
+- `PackageIdentifier`
+- `PackageName`
+- `Moniker`
+- `Tags`
+
+The command does a case-insensitive substring comparison of these properties.
 
 ### Example 2: Search for Microsoft.PowerShell by id
 
@@ -42,8 +49,9 @@ package tags.
 Find-WinGetPackage -Id Microsoft.PowerShell
 ```
 
-Search for Microsoft.PowerShell by package identifier. The default behavior spans all configured
-sources and performs a case-insensitive substring match across package identifiers.
+This example shows how to search for packages by package identifier. By default, the command
+searches all configured sources. The command performs a case-insensitive substring match against the
+**PackageIdentifier** property of the packages.
 
 ### Example 3: Search for Microsoft.PowerShell by exact id
 
@@ -51,8 +59,9 @@ sources and performs a case-insensitive substring match across package identifie
 Find-WinGetPackage -Id Microsoft.PowerShell -MatchOption Equals
 ```
 
-Search for Microsoft.PowerShell by exact package identifier. This search spans all configured
-sources and performs a case-sensitive match across package identifiers.
+This example shows how to search for packages by exact package identifier. By default, the command
+searches all configured sources. The command performs a case-sensitive full text match against the
+**PackageIdentifier** property of the packages.
 
 ## PARAMETERS
 
@@ -74,7 +83,7 @@ Accept wildcard characters: False
 
 ### -Count
 
-Specifies maximum number of results to return
+Specify the maximum number of results to return.
 
 ```yaml
 Type: System.UInt32
@@ -90,7 +99,7 @@ Accept wildcard characters: False
 
 ### -Id
 
-Specifies search by package identifier
+Specify the package identifier to search for. By default, the command does a case-insensitive substring match.
 
 ```yaml
 Type: System.String
@@ -106,7 +115,12 @@ Accept wildcard characters: False
 
 ### -MatchOption
 
-Specifies matching logic for search
+Specify matching logic used for search. The parameter accepts the following values:
+
+- `Equals`
+- `EqualsCaseInsensitive`
+- `StartsWithCaseInsensitive`
+- `ContainsCaseInsensitive`
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageFieldMatchOption
@@ -123,7 +137,7 @@ Accept wildcard characters: False
 
 ### -Moniker
 
-Specifies package moniker
+Specify the moniker of the package you are searching for.
 
 ```yaml
 Type: System.String
@@ -139,7 +153,7 @@ Accept wildcard characters: False
 
 ### -Name
 
-Specifies package name
+Specify the name of the package to search for.
 
 ```yaml
 Type: System.String
@@ -155,7 +169,14 @@ Accept wildcard characters: False
 
 ### -Query
 
-Specifies query string to search for
+Specify one or more strings to search for. By default, the command searches all configured sources.
+The command compares the value provided to the following package manifest properties:
+- `PackageIdentifier`
+- `PackageName`
+- `Moniker`
+- `Tags`
+
+The command does a case-insensitive substring comparison of these properties.
 
 ```yaml
 Type: System.String[]
@@ -171,7 +192,7 @@ Accept wildcard characters: False
 
 ### -Source
 
-Specifies WinGet source for search
+Specify the name of the WinGet source to search. The most common sources are `msstore` and `winget`.
 
 ```yaml
 Type: System.String
@@ -187,7 +208,7 @@ Accept wildcard characters: False
 
 ### -Tag
 
-Specifies tag to search for
+Specify a package tag to search for.
 
 ```yaml
 Type: System.String

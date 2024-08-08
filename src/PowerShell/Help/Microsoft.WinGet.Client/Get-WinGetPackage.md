@@ -22,9 +22,9 @@ Get-WinGetPackage [-Tag <String>] [-Command <String>] [-Count <UInt32>] [-Id <St
 
 ## DESCRIPTION
 
-Lists installed packages.
-
-> **Packages with leading "ARP" or "MSIX" are installed on the device, but not correlated with any configured source.
+This command lists all of the packages installed on your system. The output includes packages
+installed from WinGet sources and packages installed by other methods. Packages that have package
+identifiers starting with `MSIX` or `ARP` were not installed from a WinGet source.
 
 ## EXAMPLES
 
@@ -34,13 +34,14 @@ Lists installed packages.
 Get-WinGetPackage
 ```
 
-Lists installed packages.
+This example shows how to list all packages installed on your system.
 
 ## PARAMETERS
 
 ### -Command
 
-Filter results by their command
+Specify the name of the command contained in the package. The command filters the results to
+packages that match this value.
 
 ```yaml
 Type: System.String
@@ -56,7 +57,7 @@ Accept wildcard characters: False
 
 ### -Count
 
-Limit the number of results
+Limits the number of items returned by the command.
 
 ```yaml
 Type: System.UInt32
@@ -72,7 +73,8 @@ Accept wildcard characters: False
 
 ### -Id
 
-Filter results by their package identifier
+Specify the package identifier for the package you want to list. By default, the command does a
+case-insensitive substring comparison on the package identifier.
 
 ```yaml
 Type: System.String
@@ -88,7 +90,12 @@ Accept wildcard characters: False
 
 ### -MatchOption
 
-Specify the matching logic
+Specify matching logic used for search. The parameter accepts the following values:
+
+- `Equals`
+- `EqualsCaseInsensitive`
+- `StartsWithCaseInsensitive`
+- `ContainsCaseInsensitive`
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageFieldMatchOption
@@ -105,7 +112,7 @@ Accept wildcard characters: False
 
 ### -Moniker
 
-Filter results by package moniker
+Specify the moniker of the package you want to list.
 
 ```yaml
 Type: System.String
@@ -121,7 +128,8 @@ Accept wildcard characters: False
 
 ### -Name
 
-Filter results by package name
+Specify the name of the package to list. By default, the command does a case-insensitive comparison
+of the package name.
 
 ```yaml
 Type: System.String
@@ -137,7 +145,15 @@ Accept wildcard characters: False
 
 ### -Query
 
-Specifies query string to search for
+Specify one or more strings to search for. By default, the command searches all configured sources.
+The command compares the value provided to the following package manifest properties:
+
+- `PackageIdentifier`
+- `PackageName`
+- `Moniker`
+- `Tags`
+
+The command does a case-insensitive substring comparison of these properties.
 
 ```yaml
 Type: System.String[]
@@ -153,7 +169,7 @@ Accept wildcard characters: False
 
 ### -Source
 
-Specify the source
+Specify the name of the WinGet source of the package.
 
 ```yaml
 Type: System.String
@@ -169,7 +185,7 @@ Accept wildcard characters: False
 
 ### -Tag
 
-Filter by Tag
+Specify a package tag to search for.
 
 ```yaml
 Type: System.String
