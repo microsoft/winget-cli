@@ -208,6 +208,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VcpkgCustomTriplets", "Vcpk
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Management.Deployment.OutOfProc", "Microsoft.Management.Deployment.OutOfProc\Microsoft.Management.Deployment.OutOfProc.vcxproj", "{0BA531C8-CF0C-405B-8221-0FE51BA529D1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2B00D362-AC92-41F3-A8D2-5B1599BDCA01} = {2B00D362-AC92-41F3-A8D2-5B1599BDCA01}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
