@@ -15,6 +15,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// Gets winget's user settings.
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.UserSettings)]
+    [Alias(gwgus)]
     [OutputType(typeof(Hashtable))]
     public sealed class GetUserSettingsCmdlet : PSCmdlet
     {

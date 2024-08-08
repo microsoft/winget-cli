@@ -14,6 +14,7 @@ namespace Microsoft.WinGet.Client.Cmdlets
     /// Removes a source. Requires admin.
     /// </summary>
     [Cmdlet(VerbsCommon.Remove, Constants.WinGetNouns.Source)]
+    [Alias(rwgs)]
     public sealed class RemoveSourceCmdlet : PSCmdlet
     {
         /// <summary>

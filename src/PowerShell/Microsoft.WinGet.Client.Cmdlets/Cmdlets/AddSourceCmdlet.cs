@@ -15,6 +15,7 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
     /// Adds a source. Requires admin.
     /// </summary>
     [Cmdlet(VerbsCommon.Add, Constants.WinGetNouns.Source)]
+    [Alias(awgs)]
     public sealed class AddSourceCmdlet : PSCmdlet
     {
         /// <summary>
