@@ -112,6 +112,7 @@
 ^src/cpprestsdk/
 ^src/JsonCppLib/
 ^src/PowerShell/ExternalModules/PowerShellGet/2\.2\.5/Modules/
+^src/PowerShell/Help/markdownlint.yaml$
 ^src/PureLib/
 ^src/SfsClient/
 ^src/UndockedRegFreeWinRT/
