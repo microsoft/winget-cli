@@ -16,6 +16,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// settings with the input settings. Otherwise, overwrites the input settings.
     /// </summary>
     [Cmdlet(VerbsCommon.Set, Constants.WinGetNouns.UserSettings)]
+    [Alias(swgus)]
     [OutputType(typeof(Hashtable))]
     public sealed class SetUserSettingsCmdlet : PSCmdlet
     {

@@ -14,6 +14,7 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
     /// Gets winget settings.
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Settings)]
+    [Alias(gwgse)]
     public sealed class GetSettingsCmdlet : PSCmdlet
     {
         /// <summary>
