@@ -15,6 +15,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     /// Removes the given configuration set from history.
     /// </summary>
     [Cmdlet(VerbsCommon.Remove, "WinGetConfigurationHistory")]
+    [Alias(rwgch)]
     public sealed class RemoveWinGetConfigurationHistoryCmdlet : PSCmdlet
     {
         /// <summary>
