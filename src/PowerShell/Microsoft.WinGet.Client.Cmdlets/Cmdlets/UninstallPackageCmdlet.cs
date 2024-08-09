@@ -21,6 +21,7 @@ namespace Microsoft.WinGet.Client.Commands
         Constants.WinGetNouns.Package,
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
+    [Alias("uswgp")]
     [OutputType(typeof(PSUninstallResult))]
     public sealed class UninstallPackageCmdlet : PackageCmdlet
     {

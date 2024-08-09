@@ -15,6 +15,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// Retrieves the list of configured sources.
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Source)]
+    [Alias("gwgso")]
     [OutputType(typeof(PSSourceResult))]
     public sealed class GetSourceCmdlet : PSCmdlet
     {

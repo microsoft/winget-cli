@@ -10,7 +10,7 @@
     PowerShellVersion = '7.2.8'
 
     FunctionsToExport = @()
-    AliasesToExport = @()
+    AliasesToExport      = @('cmpwgc', 'cnwgc', 'ctwgcy', 'gwgc', 'gwgcd', 'iwgc', 'rwgch', 'sawgc', 'spwgc','twgc')
 
     CmdletsToExport = @(
         "Complete-WinGetConfiguration"
