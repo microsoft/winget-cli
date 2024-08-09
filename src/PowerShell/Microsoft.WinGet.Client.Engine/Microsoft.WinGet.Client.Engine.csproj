@@ -1,0 +1,122 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
+    <!-- Keep in sync with attributes in AssemblyInfo.cs -->
+    <TargetWindowsVersion>10.0.22000.0</TargetWindowsVersion>
+    <CoreFramework>net6.0-windows$(TargetWindowsVersion)</CoreFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DesktopFramework>net48</DesktopFramework>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <LangVersion>10</LangVersion>
+    <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
+    <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
+    <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
+    <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.Engine.xml</DocumentationFile>
+    <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(UseProdCLSIDs)' == 'true'">
+    <DefineConstants>$(DefineConstants);USE_PROD_CLSIDS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\CommonFiles\PowerShellCmdlet.cs" Link="PowerShellCmdlet.cs" />
+    <Compile Include="..\CommonFiles\StreamType.cs" Link="StreamType.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Octokit" Version="4.0.3" />
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    <PackageReference Include="Semver" Version="2.3.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xlang\UndockedRegFreeWinRT\src\UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.WinGet.SharedLib\Microsoft.WinGet.SharedLib.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- Disable warning for CS1591 because auto generated Microsoft.Management.Deployment -->
+    <!-- For our code, we still have stylecops acting on it. -->
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifier>win10</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <DefineConstants>$(DefineConstants);POWERSHELL_WINDOWS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.WinGet.Resources</CustomToolNamespace>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
+    <CsWinRTWindowsMetadata>$(TargetWindowsVersion)</CsWinRTWindowsMetadata>
+    <!-- Ensure Support for Windows 10, Version 1809 -->
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+  </PropertyGroup>
+
+</Project>

@@ -101,7 +101,6 @@
         "msi",
         "appx",
         "exe",
-        "zip",
         "inno",
         "nullsoft",
         "wix",
@@ -606,6 +605,9 @@
         "RequireExplicitUpgrade": {
           "$ref": "#/definitions/RequireExplicitUpgrade"
         },
+        "DisplayInstallWarnings": {
+          "$ref": "#/definitions/DisplayInstallWarnings"
+        },
         "UnsupportedOSArchitectures": {
           "$ref": "#/definitions/UnsupportedOSArchitectures"
         },
@@ -821,6 +823,9 @@
     },
     "RequireExplicitUpgrade": {
       "$ref": "#/definitions/RequireExplicitUpgrade"
+    },
+    "DisplayInstallWarnings": {
+      "$ref": "#/definitions/DisplayInstallWarnings"
     },
     "UnsupportedOSArchitectures": {
       "$ref": "#/definitions/UnsupportedOSArchitectures"

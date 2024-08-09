@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Certificates">
+      <UniqueIdentifier>{ad622b6a-16bb-4e32-921c-f1d6505fc0ed}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)StoreRoot1.cer">
+      <Filter>Certificates</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)StoreIntermediate1.cer">
+      <Filter>Certificates</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)StoreLeaf1.cer">
+      <Filter>Certificates</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)StoreRoot2.cer">
+      <Filter>Certificates</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)StoreIntermediate2.cer">
+      <Filter>Certificates</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)StoreLeaf2.cer">
+      <Filter>Certificates</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)CertificateResources.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="$(MSBuildThisFileDirectory)CertificateResources.rc" />
+  </ItemGroup>
+</Project>

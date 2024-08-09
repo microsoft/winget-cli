@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "ExecutionContext.h"
 #include "ExecutionArgs.h"
 #include <winget/Manifest.h>
 #include <winget/RepositorySearch.h>
@@ -25,6 +26,7 @@ namespace AppInstaller::CLI::Workflow
         Scope = 0x20,
         MachineArchitecture = 0x40,
         Market = 0x80,
+        InstallerType = 0x100,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(InapplicabilityFlags);
@@ -51,6 +53,18 @@ namespace AppInstaller::CLI::Workflow
             std::string_view m_name;
         };
 
+        // The result of ComparisonField::IsFirstBetter
+        enum class ComparisonResult
+        {
+            // The first input is not better than the second input.
+            Negative,
+            // The first input is somewhat better than the second input.
+            // If another comparison has a strong positive result, it will override a weak result.
+            WeakPositive,
+            // The first input is definitely better than the second input.
+            StrongPositive,
+        };
+
         // An interface for defining new comparisons based on user inputs.
         struct ComparisonField : public FilterField
         {
@@ -59,7 +73,7 @@ namespace AppInstaller::CLI::Workflow
             virtual ~ComparisonField() = default;
 
             // Determines if the first installer is a better choice based on this field alone.
-            virtual bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) = 0;
+            virtual ComparisonResult IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) = 0;
         };
     }
 

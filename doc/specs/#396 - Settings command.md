@@ -23,7 +23,7 @@ Add ability for user to set their own preferences.
 
 The WinGet settings file needs to be in a readable format for users. We considered using other options, like the registry, but having a file makes it more accessible to users.
 
-#### Option 1: YAML 
+#### Option 1: YAML
 
 WinGet already knows how to handle YAML files via yaml-cpp. To follow the manifest style, the properties will be PascalCased.
 
@@ -42,7 +42,7 @@ Based on this information we are going to use JSON and jsoncpp as a parser. For 
 
 WinGet can either run in package context or not. That means the location of the settings file will be determined depending on the context.
 
-Package Context: %LOCALAPPDATA%\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json. For more about UWP file system see [this](https://docs.microsoft.com/windows/uwp/get-started/fileio-learning-track#access-the-file-system) 
+Package Context: %LOCALAPPDATA%\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json. For more about UWP file system see [this](https://docs.microsoft.com/windows/uwp/get-started/fileio-learning-track#access-the-file-system)
 
 Non-package context: %LOCALAPPDATA%\Microsoft\Winget\settings.json
 
@@ -57,7 +57,7 @@ Options:
 
 A command is a better option than having an argument, for example `winget --settings`, because it let us add more commands into it in the future such as set and unset.
 
-The expectation is that when the user enters `winget settings` the settings file will be opened in the user's default text editor via ShellExecute. If the user doesn't have any file type association with `.json`, the default will be to open it with notepad.exe 
+The expectation is that when the user enters `winget settings` the settings file will be opened in the user's default text editor via ShellExecute. If the user doesn't have any file type association with `.json`, the default will be to open it with notepad.exe
 
 There will also be a telemetry point added into the command as the other commands have.
 
@@ -90,9 +90,9 @@ Since the settings file doesn't exist at this time, we can't force the creation 
 These leave us with three different sources of settings in order of importance:
 1. settings.json
 2. settings.json.backup
-3. Default settings 
+3. Default settings
 
-Setting will be loaded as following: 
+Setting will be loaded as following:
 
 ```
 if settings exists and valid
@@ -103,9 +103,9 @@ else
     use default settings
 ```
 
-Where valid means that syntax and semantic checks pass. For now, semantics checks will be part of the validation. If one setting is semantically incorrect and we fallback to backup proves to be annoying to users, checks can be relaxed so that only syntax failures are fatal and semantic errors are warnings. We could also in the future add a `winget settings validate` to improve the experience. 
+Where valid means that syntax and semantic checks pass. For now, semantics checks will be part of the validation. If one setting is semantically incorrect and we fallback to backup proves to be annoying to users, checks can be relaxed so that only syntax failures are fatal and semantic errors are warnings. We could also in the future add a `winget settings validate` to improve the experience.
 
-We cannot force the user to upgrade, so it is possible for someone to add a setting for a future version that is not supported. There is not an easy way to detect it which means that loading the settings will warn of an unknown property. The user will need to verify the documentation and the version of winget that is running via `winget --info`. 
+We cannot force the user to upgrade, so it is possible for someone to add a setting for a future version that is not supported. There is not an easy way to detect it which means that loading the settings will warn of an unknown property. The user will need to verify the documentation and the version of winget that is running via `winget --info`.
 
 #### Errors and Warnings
 
@@ -151,9 +151,9 @@ The author of this document firmly believes that `--plain` must be replaced with
 
 ### Source auto update
 
-Currently, WinGet updates the source after 5 minutes. This setting will will enable users to set the timeout in minutes.
+Currently, WinGet updates the source after 5 minutes. This setting will enable users to set the timeout in minutes.
 
-Value must be integers with a minimum of 0. An arbitrary limit limit can be set but is not strictly necessary. A value of 0 indicates no update.
+Value must be integers with a minimum of 0. An arbitrary limit can be set but is not strictly necessary. A value of 0 indicates no update.
 
 ```
   "Source": {

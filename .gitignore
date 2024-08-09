@@ -20,6 +20,8 @@ settings.json
 [Rr]eleases/
 x64/
 x86/
+AnyCPU/
+Fuzzing/
 bld/
 [Bb]in/
 [Oo]bj/
@@ -168,13 +170,13 @@ publish/
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
-# Note: Comment the next line if you want to checkin your web deploy settings,
+# Note: Comment the next line if you want to check in your web deploy settings,
 # but database connection strings (with potential passwords) will be unencrypted
 *.pubxml
 *.publishproj
 
 # Microsoft Azure Web App publish settings. Comment the next line if you want to
-# checkin your Azure Web App publish settings, but sensitive information contained
+# check in your Azure Web App publish settings, but sensitive information contained
 # in these scripts will be unencrypted
 PublishScripts/
 
@@ -189,6 +191,9 @@ PublishScripts/
 # NuGet v3's project.json files produces more ignorable files
 *.nuget.props
 *.nuget.targets
+
+# Vcpkg install directory
+**/vcpkg_installed/*
 
 # Microsoft Azure Build Output
 csx/
@@ -329,3 +334,18 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# Generated files from WinGetServer.idl
+**/WinGetServer/WinGetServer.h
+**/WinGetServer/WinGetServer_c.c
+**/WinGetServer/WinGetServer_s.c
+
+# Crescendo generated module files
+src/PowerShell/Microsoft.WinGet.Client/Crescendo/*.psd1
+src/PowerShell/Microsoft.WinGet.Client/Crescendo/*.psm1
+
+# Dev PowerShell module path
+src/PowerShell/scripts/Module
+
+# Interop nuget
+src/WinGetUtilInterop/scripts/Nuget*

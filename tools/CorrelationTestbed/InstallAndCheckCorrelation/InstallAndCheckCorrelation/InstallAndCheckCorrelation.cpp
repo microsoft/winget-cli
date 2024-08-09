@@ -13,6 +13,9 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
+
+#include <WinGetUtil.h>
 
 using namespace std::string_view_literals;
 using namespace winrt::Microsoft::Management::Deployment;
@@ -31,33 +34,46 @@ struct JSONPair
 };
 
 template <typename T>
-struct JSONQuote
+struct JSONControl
 {
-    constexpr static bool value = true;
+    constexpr static bool quote = true;
+    constexpr static bool output = true;
 };
 
 template <>
-struct JSONQuote<HRESULT>
+struct JSONControl<HRESULT>
 {
-    constexpr static bool value = false;
+    constexpr static bool quote = false;
+    constexpr static bool output = true;
 };
 
 template <>
-struct JSONQuote<bool>
+struct JSONControl<bool>
 {
-    constexpr static bool value = false;
+    constexpr static bool quote = false;
+    constexpr static bool output = true;
+};
+
+template <>
+struct JSONControl<nullptr_t>
+{
+    constexpr static bool quote = false;
+    constexpr static bool output = false;
 };
 
 template <typename T>
 std::ostream& operator<<(std::ostream& out, const JSONPair<T>& pair)
 {
     out << '"' << pair.Name << "\": ";
-    if (JSONQuote<T>::value)
+    if (JSONControl<T>::quote)
     {
         out << '"';
     }
-    out << pair.Value;
-    if (JSONQuote<T>::value)
+    if (JSONControl<T>::output)
+    {
+        out << pair.Value;
+    }
+    if (JSONControl<T>::quote)
     {
         out << '"';
     }
@@ -128,6 +144,9 @@ struct Main
     std::string packageIdentifier;
     std::string sourceName;
     std::filesystem::path outputPath;
+    bool metadataCollection = false;
+    std::filesystem::path wingetUtilPath;
+    std::filesystem::path sys32Path;
     bool useDevCLSIDs = false;
     bool onlyCorrelate = false;
 
@@ -153,6 +172,15 @@ struct Main
             else if ("-out"sv == argv[i] && i + 1 < argc)
             {
                 outputPath = argv[++i];
+            }
+            else if ("-meta"sv == argv[i] && i + 1 < argc)
+            {
+                metadataCollection = true;
+                wingetUtilPath = argv[++i];
+            }
+            else if ("-sys32"sv == argv[i] && i + 1 < argc)
+            {
+                sys32Path = argv[++i];
             }
             else if ("-dev"sv == argv[i])
             {
@@ -266,6 +294,99 @@ struct Main
             error = "A source name must be supplied, use -src";
             return;
         }
+
+        if (metadataCollection && sys32Path.empty())
+        {
+            hr = E_INVALIDARG;
+            error = "Metadata collection requires mapping in the host's System32";
+            return;
+        }
+    }
+
+    using WinGetBeginInstallerMetadataCollectionPtr = HRESULT (__stdcall *)(
+        WINGET_STRING inputJSON,
+        WINGET_STRING logFilePath,
+        WinGetBeginInstallerMetadataCollectionOptions options,
+        WINGET_INSTALLER_METADATA_COLLECTION_HANDLE* collectionHandle);
+
+    using WinGetCompleteInstallerMetadataCollectionPtr = HRESULT(__stdcall*)(
+        WINGET_INSTALLER_METADATA_COLLECTION_HANDLE collectionHandle,
+        WINGET_STRING outputFilePath,
+        WinGetCompleteInstallerMetadataCollectionOptions options);
+
+    WinGetBeginInstallerMetadataCollectionPtr WinGetBeginInstallerMetadataCollection = nullptr;
+    WinGetCompleteInstallerMetadataCollectionPtr WinGetCompleteInstallerMetadataCollection = nullptr;
+    WINGET_INSTALLER_METADATA_COLLECTION_HANDLE MetadataCollectionHandle = nullptr;
+
+    void LoadWingetUtil()
+    {
+        AddDllDirectory(sys32Path.wstring().c_str());
+        HMODULE wingetutilModule = LoadLibraryExW(wingetUtilPath.wstring().c_str(), nullptr, LOAD_LIBRARY_SEARCH_USER_DIRS);
+        if (!wingetutilModule)
+        {
+            hr = HRESULT_FROM_WIN32(GetLastError());
+            return;
+        }
+
+        this->WinGetBeginInstallerMetadataCollection = reinterpret_cast<WinGetBeginInstallerMetadataCollectionPtr>(GetProcAddress(wingetutilModule, "WinGetBeginInstallerMetadataCollection"));
+        if (!this->WinGetBeginInstallerMetadataCollection)
+        {
+            hr = HRESULT_FROM_WIN32(GetLastError());
+            return;
+        }
+
+        this->WinGetCompleteInstallerMetadataCollection = reinterpret_cast<WinGetCompleteInstallerMetadataCollectionPtr>(GetProcAddress(wingetutilModule, "WinGetCompleteInstallerMetadataCollection"));
+        if (!this->WinGetCompleteInstallerMetadataCollection)
+        {
+            hr = HRESULT_FROM_WIN32(GetLastError());
+            return;
+        }
+    }
+
+    void BeginMetadataCollection()
+    {
+        std::filesystem::path metadataInputPath = outputPath.parent_path();
+        metadataInputPath /= "metadata_input.json";
+        std::ofstream stream{ metadataInputPath };
+
+        stream << "{" << std::endl;
+        stream << JSONPair{ "supportedMetadataVersion", "1.2"};
+        // TODO: Could theoretically produce this if we could enumerate the data via COM
+        // stream << JSONPair{ "currentMetadata", "" };
+        stream << JSONPair{ "submissionData", nullptr, false } << "\n{\n";
+        stream << JSONPair{ "submissionIdentifier", packageIdentifier, false };
+        stream << "\n},\n";
+        stream << JSONPair{ "packageData", nullptr, false } << "\n{\n";
+        stream << JSONPair{ "installerHash", "none" };
+            stream << JSONPair{ "DefaultLocale", nullptr, false } << "\n{\n";
+            stream << JSONPair{ "PackageLocale", "x-neutral" };
+            stream << JSONPair{ "PackageName", packageName };
+            stream << JSONPair{ "Publisher", packagePublisher, false };
+            stream << "\n}\n";
+        stream << "\n},\n";
+        // Keep at the end to prevent a dangling comma
+        stream << JSONPair{ "version", "1.0", false } << "}" << std::endl;
+
+        std::filesystem::path metadataLogPath = outputPath.parent_path();
+        metadataLogPath /= "metadata_log.txt";
+
+        hr = this->WinGetBeginInstallerMetadataCollection(metadataInputPath.wstring().c_str(), metadataLogPath.wstring().c_str(), WinGetBeginInstallerMetadataCollectionOption_InputIsFilePath, &MetadataCollectionHandle);
+        if (FAILED(hr))
+        {
+            return;
+        }
+    }
+
+    void CompleteMetadataCollection()
+    {
+        std::filesystem::path metadataOutputPath = outputPath.parent_path();
+        metadataOutputPath /= "metadata_output.json";
+
+        hr = this->WinGetCompleteInstallerMetadataCollection(MetadataCollectionHandle, metadataOutputPath.wstring().c_str(), WinGetCompleteInstallerMetadataCollectionOption_None);
+        if (FAILED(hr))
+        {
+            return;
+        }
     }
 
     void Install()
@@ -306,7 +427,9 @@ struct Main
             if (findResult.Status() != FindPackagesResultStatus::Ok)
             {
                 hr = E_FAIL;
-                error = "Error finding packages";
+                std::ostringstream stream;
+                stream << "Error " << static_cast<int>(findResult.Status()) << " finding package";
+                error = std::move(stream).str();
                 return;
             }
 
@@ -325,10 +448,15 @@ struct Main
             action = "Inspect package";
             auto installVersion = package.DefaultInstallVersion();
             packageName = ConvertToUTF8(installVersion.DisplayName());
-            if (useDevCLSIDs)
+            packagePublisher = ConvertToUTF8(installVersion.Publisher());
+
+            if (metadataCollection)
             {
-                // Publisher is not yet available on the release version; make this unconditional when it is
-                packagePublisher = ConvertToUTF8(installVersion.Publisher());
+                BeginMetadataCollection();
+                if (FAILED(hr))
+                {
+                    return;
+                }
             }
 
             if (!onlyCorrelate)
@@ -340,6 +468,7 @@ struct Main
                 installOptions.PackageInstallMode(PackageInstallMode::Silent);
 
                 std::cout << "Beginning to install " << packageIdentifier << " (" << packageName << ") from " << sourceName << "..." << std::endl;
+                action = "Install package";
                 auto installOperation = packageManager.InstallPackageAsync(package, installOptions);
 
                 if (installOperation.wait_for(std::chrono::minutes(10)) != AsyncStatus::Completed)
@@ -354,6 +483,15 @@ struct Main
                 {
                     hr = installResult.ExtendedErrorCode();
                     error = "Error installing package";
+                    return;
+                }
+            }
+
+            if (metadataCollection)
+            {
+                CompleteMetadataCollection();
+                if (FAILED(hr))
+                {
                     return;
                 }
             }
@@ -435,11 +573,7 @@ struct Main
             {
                 correlatePackageKnown = true;
                 packageKnownName = ConvertToUTF8(installed.DisplayName());
-                if (useDevCLSIDs)
-                {
-                    // Publisher is not yet available on the release version; make this unconditional when it is
-                    packageKnownPublisher = ConvertToUTF8(installed.Publisher());
-                }
+                packageKnownPublisher = ConvertToUTF8(installed.Publisher());
             }
         }
         catch (const winrt::hresult_error& hre)
@@ -520,11 +654,7 @@ struct Main
                     {
                         correlateArchive = true;
                         archiveName = ConvertToUTF8(installed.DisplayName());
-                        if (useDevCLSIDs)
-                        {
-                            // Publisher is not yet available on the release version; make this unconditional when it is
-                            archivePublisher = ConvertToUTF8(installed.Publisher());
-                        }
+                        archivePublisher = ConvertToUTF8(installed.Publisher());
                         break;
                     }
                 }
@@ -573,6 +703,15 @@ struct Main
         if (FAILED(hr))
         {
             return;
+        }
+
+        if (metadataCollection)
+        {
+            LoadWingetUtil();
+            if (FAILED(hr))
+            {
+                return;
+            }
         }
 
         auto co_uninitialize = wil::CoInitializeEx();

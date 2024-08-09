@@ -13,16 +13,23 @@ namespace AppInstaller::CLI
 
     namespace
     {
-        constexpr Utility::LocIndView s_ArgumentName_Enable = "enable"_liv;
-        constexpr Utility::LocIndView s_ArgumentName_Disable = "disable"_liv;
-        constexpr Utility::LocIndView s_ArgName_EnableAndDisable = "enable|disable"_liv;
+        Utility::LocIndView s_SettingsCommand_HelpLink = "https://aka.ms/winget-settings"_liv;
+    }
+
+    std::vector<std::unique_ptr<Command>> SettingsCommand::GetCommands() const
+    {
+        return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
+            std::make_unique<SettingsExportCommand>(FullName()),
+            std::make_unique<SettingsSetCommand>(FullName()),
+            std::make_unique<SettingsResetCommand>(FullName()),
+            });
     }
 
     std::vector<Argument> SettingsCommand::GetArguments() const
     {
         return {
-            Argument{ s_ArgumentName_Enable, Argument::NoAlias, Execution::Args::Type::AdminSettingEnable, Resource::String::AdminSettingEnableDescription, ArgumentType::Standard, Argument::Visibility::Help },
-            Argument{ s_ArgumentName_Disable, Argument::NoAlias, Execution::Args::Type::AdminSettingDisable, Resource::String::AdminSettingDisableDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::AdminSettingEnable, Resource::String::AdminSettingEnableDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::AdminSettingDisable, Resource::String::AdminSettingDisableDescription, ArgumentType::Standard, Argument::Visibility::Help },
         };
     }
 
@@ -36,26 +43,30 @@ namespace AppInstaller::CLI
         return { Resource::String::SettingsCommandLongDescription };
     }
 
-    std::string SettingsCommand::HelpLink() const
+    Utility::LocIndView SettingsCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-settings";
+        return s_SettingsCommand_HelpLink;
     }
 
     void SettingsCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && execArgs.Contains(Execution::Args::Type::AdminSettingDisable))
+        // Get admin setting string for all available options except Unknown
+        std::vector<Utility::LocIndString> adminSettingList;
+        for (auto setting : GetAllSequentialEnumValues(BoolAdminSetting::Unknown))
         {
-            throw CommandException(Resource::String::TooManyAdminSettingArgumentsError, s_ArgName_EnableAndDisable);
+            adminSettingList.emplace_back(AdminSettingToString(setting));
         }
 
-        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
+        Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
+
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && BoolAdminSetting::Unknown == StringToBoolAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
         {
-            throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Enable, { "LocalManifestFiles"_lis });
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingEnable).Name, validOptions));
         }
 
-        if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
+        if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && BoolAdminSetting::Unknown == StringToBoolAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
         {
-            throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Disable, { "LocalManifestFiles"_lis });
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingDisable).Name, validOptions));
         }
     }
 
@@ -78,5 +89,125 @@ namespace AppInstaller::CLI
         {
             context << Workflow::OpenUserSetting;
         }
+    }
+
+    Resource::LocString SettingsExportCommand::ShortDescription() const
+    {
+        return { Resource::String::SettingsExportCommandShortDescription };
+    }
+
+    Resource::LocString SettingsExportCommand::LongDescription() const
+    {
+        return { Resource::String::SettingsExportCommandLongDescription };
+    }
+
+    Utility::LocIndView SettingsExportCommand::HelpLink() const
+    {
+        return s_SettingsCommand_HelpLink;
+    }
+
+    void SettingsExportCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::ExportSettings;
+    }
+
+    std::vector<Argument> SettingsSetCommand::GetArguments() const
+    {
+        return {
+            Argument { Execution::Args::Type::SettingName, Resource::String::SettingNameArgumentDescription, ArgumentType::Positional, true },
+            Argument { Execution::Args::Type::SettingValue, Resource::String::SettingValueArgumentDescription, ArgumentType::Positional, true },
+        };
+    }
+
+    Resource::LocString SettingsSetCommand::ShortDescription() const
+    {
+        return { Resource::String::SettingsSetCommandShortDescription };
+    }
+
+    Resource::LocString SettingsSetCommand::LongDescription() const
+    {
+        return { Resource::String::SettingsSetCommandLongDescription };
+    }
+
+    Utility::LocIndView SettingsSetCommand::HelpLink() const
+    {
+        return s_SettingsCommand_HelpLink;
+    }
+
+    void SettingsSetCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        // Get admin setting string for all available options except Unknown
+        std::vector<Utility::LocIndString> adminSettingList;
+        for (auto setting : GetAllSequentialEnumValues(StringAdminSetting::Unknown))
+        {
+            adminSettingList.emplace_back(AdminSettingToString(setting));
+        }
+
+        Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
+
+        if (StringAdminSetting::Unknown == StringToStringAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName)))
+        {
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name, validOptions));
+        }
+    }
+
+    void SettingsSetCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::EnsureRunningAsAdmin <<
+            Workflow::SetAdminSetting;
+    }
+
+    std::vector<Argument> SettingsResetCommand::GetArguments() const
+    {
+        return {
+            Argument { Execution::Args::Type::SettingName, Resource::String::SettingNameArgumentDescription, ArgumentType::Positional, true },
+        };
+    }
+
+    Resource::LocString SettingsResetCommand::ShortDescription() const
+    {
+        return { Resource::String::SettingsResetCommandShortDescription };
+    }
+
+    Resource::LocString SettingsResetCommand::LongDescription() const
+    {
+        return { Resource::String::SettingsResetCommandLongDescription };
+    }
+
+    Utility::LocIndView SettingsResetCommand::HelpLink() const
+    {
+        return s_SettingsCommand_HelpLink;
+    }
+
+    void SettingsResetCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        // Get admin setting string for all available options except Unknown.
+        // We accept both bool and string settings
+        std::vector<Utility::LocIndString> adminSettingList;
+        for (auto setting : GetAllSequentialEnumValues(BoolAdminSetting::Unknown))
+        {
+            adminSettingList.emplace_back(AdminSettingToString(setting));
+        }
+        for (auto setting : GetAllSequentialEnumValues(StringAdminSetting::Unknown))
+        {
+            adminSettingList.emplace_back(AdminSettingToString(setting));
+        }
+
+        Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
+
+        if (StringAdminSetting::Unknown == StringToStringAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName))
+            && BoolAdminSetting::Unknown == StringToBoolAdminSetting(execArgs.GetArg(Execution::Args::Type::SettingName)))
+        {
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::SettingName).Name, validOptions));
+        }
+    }
+
+    void SettingsResetCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::EnsureRunningAsAdmin <<
+            Workflow::ResetAdminSetting;
     }
 }

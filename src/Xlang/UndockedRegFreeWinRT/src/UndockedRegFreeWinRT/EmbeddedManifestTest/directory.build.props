@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <CppWinrtVerbosity>high</CppWinrtVerbosity>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TestComponent\TestComponent.vcxproj" />
+    <ProjectReference Include="..\EmbeddedTestComponent\EmbeddedTestComponent.vcxproj" />
+  </ItemGroup>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+</Project>

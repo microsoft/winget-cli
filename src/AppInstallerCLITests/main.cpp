@@ -7,12 +7,13 @@
 #include <string>
 #include <vector>
 
-#include <Public/AppInstallerLogging.h>
+#include <AppInstallerLogging.h>
+#include <AppInstallerFileLogger.h>
 #include <Public/AppInstallerTelemetry.h>
 #include <Telemetry/TraceLogging.h>
 
 #include "TestCommon.h"
-#include "TestHooks.h"
+#include "TestSettings.h"
 
 using namespace winrt;
 using namespace Windows::Foundation;
@@ -20,7 +21,7 @@ using namespace std::string_literals;
 using namespace AppInstaller;
 
 
-// Logs the the AppInstaller log target to break up individual tests
+// Logs the AppInstaller log target to break up individual tests
 struct LoggingBreakListener : public Catch::TestEventListenerBase
 {
     using TestEventListenerBase::TestEventListenerBase;
@@ -89,12 +90,12 @@ int main(int argc, char** argv)
         }
         else if ("-log"s == argv[i])
         {
-            Logging::AddFileLogger();
+            Logging::FileLogger::Add();
         }
         else if ("-logto"s == argv[i])
         {
             ++i;
-            Logging::AddFileLogger(std::filesystem::path{ argv[i] });
+            Logging::FileLogger::Add(std::filesystem::path{ argv[i] });
         }
         else if ("-tdd"s == argv[i])
         {
@@ -134,7 +135,7 @@ int main(int argc, char** argv)
 
     // Enable logging, to force log string building to run.
     // Disable SQL by default, as it generates 10s of MBs of log file and
-    // increases the the full test run time by 60% or more.
+    // increases the full test run time by 60% or more.
     // By not creating a log target, it will all be thrown away.
     Logging::Log().EnableChannel(Logging::Channel::All);
     if (!keepSQLLogging)
@@ -149,12 +150,10 @@ int main(int argc, char** argv)
     // Forcibly enable event writing to catch bugs in that code
     g_IsTelemetryProviderEnabled = true;
 
-    // Force all tests to run against settings inside this container.
-    // This prevents test runs from trashing the users actual settings.
-    Runtime::TestHook_SetPathOverride(Runtime::PathName::LocalState, Runtime::GetPathTo(Runtime::PathName::LocalState) / "Tests");
-    Runtime::TestHook_SetPathOverride(Runtime::PathName::UserFileSettings, Runtime::GetPathTo(Runtime::PathName::UserFileSettings) / "Tests");
-    Runtime::TestHook_SetPathOverride(Runtime::PathName::StandardSettings, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "Tests");
-    Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettings, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "WinGet_SecureSettings_Tests");
+    TestCommon::SetTestPathOverrides();
+
+    // Remove any existing settings files in the new tests path
+    TestCommon::UserSettingsFileGuard settingsGuard;
 
     int result = Catch::Session().run(static_cast<int>(args.size()), args.data());
 

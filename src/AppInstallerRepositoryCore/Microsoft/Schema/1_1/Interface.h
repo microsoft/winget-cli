@@ -11,7 +11,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
     struct Interface : public V1_0::Interface
     {
         // Version 1.0
-        Schema::Version GetVersion() const override;
+        SQLite::Version GetVersion() const override;
         void CreateTables(SQLite::Connection& connection, CreateOptions options) override;
         SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
@@ -19,15 +19,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         void PrepareForPackaging(SQLite::Connection& connection) override;
         bool CheckConsistency(const SQLite::Connection& connection, bool log) const override;
         SearchResult Search(const SQLite::Connection& connection, const SearchRequest& request) const override;
-        std::vector<std::string> GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const override;
+        std::vector<std::string> GetMultiPropertyByPrimaryId(const SQLite::Connection& connection, SQLite::rowid_t primaryId, PackageVersionMultiProperty property) const override;
 
         // Version 1.1
         MetadataResult GetMetadataByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId) const override;
         void SetMetadataByManifestId(SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMetadata metadata, std::string_view value) override;
 
+        // Version 1.7
+        void DropTables(SQLite::Connection& connection) override;
+
     protected:
         std::unique_ptr<V1_0::SearchResultsTable> CreateSearchResultsTable(const SQLite::Connection& connection) const override;
         void PerformQuerySearch(V1_0::SearchResultsTable& resultsTable, const RequestMatch& query) const override;
+        V1_0::OneToManyTableSchema GetOneToManyTableSchema() const override;
+
         virtual SearchResult SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const;
         virtual void PrepareForPackaging(SQLite::Connection& connection, bool vacuum);
 

@@ -9,6 +9,24 @@ using namespace AppInstaller::Settings;
 
 namespace TestCommon
 {
+    namespace
+    {
+        void DeleteUserSettingsFilesInternal()
+        {
+            auto settingsPath = UserSettings::SettingsFilePath();
+            if (std::filesystem::exists(settingsPath))
+            {
+                std::filesystem::remove(settingsPath);
+            }
+
+            auto settingsBackupPath = GetPathTo(Stream::BackupUserSettings);
+            if (std::filesystem::exists(settingsBackupPath))
+            {
+                std::filesystem::remove(settingsBackupPath);
+            }
+        }
+    }
+
     void SetSetting(const AppInstaller::Settings::StreamDefinition& stream, std::string_view value)
     {
         REQUIRE(Stream{ stream }.Set(value));
@@ -24,19 +42,19 @@ namespace TestCommon
         return Stream{ stream }.GetPath();
     }
 
-    void DeleteUserSettingsFiles()
+    UserSettingsFileGuard::UserSettingsFileGuard()
     {
-        auto settingsPath = UserSettings::SettingsFilePath();
-        if (std::filesystem::exists(settingsPath))
-        {
-            std::filesystem::remove(settingsPath);
-        }
+        DeleteUserSettingsFilesInternal();
+    }
 
-        auto settingsBackupPath = GetPathTo(Stream::BackupUserSettings);
-        if (std::filesystem::exists(settingsBackupPath))
-        {
-            std::filesystem::remove(settingsBackupPath);
-        }
+    UserSettingsFileGuard::~UserSettingsFileGuard()
+    {
+        DeleteUserSettingsFilesInternal();
+    }
+
+    [[nodiscard]] UserSettingsFileGuard DeleteUserSettingsFiles()
+    {
+        return {};
     }
 
     GroupPolicyTestOverride::GroupPolicyTestOverride(const AppInstaller::Registry::Key& key) : GroupPolicy(key)

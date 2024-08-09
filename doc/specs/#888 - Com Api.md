@@ -6,7 +6,7 @@ make use of that functionality. The API will be preferred by callers that want t
 and completion events, and UWP packages that do not have permission to launch command line processes.
 The goal for this api is to provide the full set of install functionality possible using the Windows
 Package Manager command line. The command line is documented at
-https://docs.microsoft.com/en-us/windows/package-manager/winget/
+https://docs.microsoft.com/windows/package-manager/winget/
 
 # 2. Description
 
@@ -56,7 +56,7 @@ be used to get availability information or start an install.
     CatalogPackage MainPage::FindPackageOnBackgroundThread()
     {
         PackageManager packageManager = CreatePackageManager();
-        PackageCatalogReference catalogRef{ 
+        PackageCatalogReference catalogRef{
             packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog::OpenWindowsCatalog) };
         ConnectResult connectResult = catalogRef.Connect();
         if (connectResult.Status() != ConnectResultStatus::Ok)
@@ -83,7 +83,7 @@ be used to get availability information or start an install.
     }
 
     // Sample of using async methods.
-    IAsyncOperation<CatalogPackage> MainPage::FindPackageInCatalogAsync(PackageCatalog catalog, 
+    IAsyncOperation<CatalogPackage> MainPage::FindPackageInCatalogAsync(PackageCatalog catalog,
             std::wstring packageId)
     {
         FindPackagesOptions findPackagesOptions = CreateFindPackagesOptions();
@@ -105,7 +105,7 @@ be used to get availability information or start an install.
     IAsyncOperation<CatalogPackage> MainPage::FindPackageAsync()
     {
         PackageManager packageManager = CreatePackageManager();
-        PackageCatalogReference catalogRef{ 
+        PackageCatalogReference catalogRef{
             packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog::OpenWindowsCatalog) };
         ConnectResult connectResult = catalogRef.Connect();
         if (connectResult.Status() != ConnectResultStatus::Ok)
@@ -131,8 +131,8 @@ be used to get availability information or start an install.
     }
 
      IAsyncAction UpdateUIProgress(
-        InstallProgress progress, 
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar, 
+        InstallProgress progress,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
         co_await winrt::resume_foreground(progressBar.Dispatcher());
@@ -167,10 +167,10 @@ be used to get availability information or start an install.
 
     // This method is called from a background thread.
     IAsyncAction UpdateUIForInstall(
-        IAsyncOperationWithProgress<InstallResult, InstallProgress> installPackageOperation, 
+        IAsyncOperationWithProgress<InstallResult, InstallProgress> installPackageOperation,
         winrt::Windows::UI::Xaml::Controls::Button installButton,
         winrt::Windows::UI::Xaml::Controls::Button cancelButton,
-        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar, 
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
         if (installPackageOperation)
@@ -253,7 +253,7 @@ be used to get availability information or start an install.
         co_await winrt::resume_background();
 
         PackageManager packageManager = CreatePackageManager();
-        PackageCatalogReference catalogRef{ 
+        PackageCatalogReference catalogRef{
             packageManager.GetPredefinedPackageCatalog(PredefinedPackageCatalog::OpenWindowsCatalog) };
         ConnectResult connectResult = catalogRef.Connect();
         if (connectResult.Status() != ConnectResultStatus::Ok)
@@ -323,13 +323,13 @@ Notes have been added inline throughout the api details.
 For this api there are multiple similar apis that are
 relevant with regard to naming and consistency. There is the Windows Package Manager command line which uses
 "source" to describe the various repositories that can host packages and "search" to describe looking up an app.
-https://docs.microsoft.com/en-us/windows/package-manager/winget/
+https://docs.microsoft.com/windows/package-manager/winget/
 There is the Windows::ApplicationModel::PackageCatalog which exists as a Windows API for installing packages
 and monitoring their installation progress.
-https://docs.microsoft.com/en-us/uwp/api/windows.applicationmodel.packagecatalog?view=winrt-19041
+https://docs.microsoft.com/uwp/api/windows.applicationmodel.packagecatalog?view=winrt-19041
 And there is Windows.Management.Deployment.PackageManager which allows packages with the packageManagement
 capability to install msix apps and uses "Find" to describe looking up an app
-https://docs.microsoft.com/en-us/uwp/api/windows.management.deployment.packagemanager?view=winrt-19041
+https://docs.microsoft.com/uwp/api/windows.management.deployment.packagemanager?view=winrt-19041
 
 This API has aligned with those Windows APIs in using \*Catalog and Find.
 
@@ -345,16 +345,16 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     enum PackageInstallProgressState
     {
-        /// The install is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
+        /// The install is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this
         /// state will prevent the package from downloading or installing.
         Queued,
-        /// The installer is downloading. Cancellation of the IAsyncOperationWithProgress in this state will 
+        /// The installer is downloading. Cancellation of the IAsyncOperationWithProgress in this state will
         /// end the download and prevent the package from installing.
         Downloading,
         /// The install is in progress. Cancellation of the IAsyncOperationWithProgress in this state will not
         /// stop the installation or the post install cleanup.
         Installing,
-        /// The installer has completed and cleanup actions are in progress. Cancellation of the 
+        /// The installer has completed and cleanup actions are in progress. Cancellation of the
         /// IAsyncOperationWithProgress in this state will not stop cleanup or roll back the install.
         PostInstall,
         /// The operation has completed.
@@ -362,7 +362,7 @@ namespace Microsoft.Management.Deployment
     };
 
     /// Progress object for the install
-    /// DESIGN NOTE: percentage for the install as a whole is purposefully not included as there is no way to 
+    /// DESIGN NOTE: percentage for the install as a whole is purposefully not included as there is no way to
     /// estimate progress when the installer is running.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     struct InstallProgress
@@ -437,11 +437,11 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageCatalogInfo
     {
-        /// The package catalog's unique identifier. 
+        /// The package catalog's unique identifier.
         /// SAMPLE VALUES: For OpenWindowsCatalog "Microsoft.Winget.Source_8wekyb3d8bbwe"
         /// For contoso sample on msdn "contoso"
         String Id { get; };
-        /// The name of the package catalog. 
+        /// The name of the package catalog.
         /// SAMPLE VALUES: For OpenWindowsCatalog "winget".
         /// For contoso sample on msdn "contoso"
         String Name { get; };
@@ -507,7 +507,7 @@ namespace Microsoft.Management.Deployment
         PackageCatalog PackageCatalog { get; };
 
         /// DESIGN NOTE:
-        /// GetManifest from IPackageVersion in AppInstallerRepositorySearch is not implemented in V1. That class has 
+        /// GetManifest from IPackageVersion in AppInstallerRepositorySearch is not implemented in V1. That class has
         /// a lot of fields and no one requesting it.
         /// Gets the manifest of this package version.
         /// virtual Manifest::Manifest GetManifest() = 0;
@@ -649,7 +649,7 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.Collections.IVectorView<MatchResult> Matches { get; };
 
         /// If true, the results were truncated by the given ResultLimit
-        /// USAGE NOTE: Windows Package Manager does not support result pagination, there is no way to continue 
+        /// USAGE NOTE: Windows Package Manager does not support result pagination, there is no way to continue
         /// getting more results.
         Boolean WasLimitExceeded{ get; };
     }
@@ -660,8 +660,8 @@ namespace Microsoft.Management.Deployment
     {
         FindPackagesOptions();
 
-        /// DESIGN NOTE: 
-        /// This class maps to SearchRequest from  AppInstallerRepositorySearch.h 
+        /// DESIGN NOTE:
+        /// This class maps to SearchRequest from  AppInstallerRepositorySearch.h
         /// That class is a container for data used to filter the available manifests in an package catalog.
         /// Its properties can be thought of as:
         /// (Query || Selectors...) && Filters...
@@ -723,7 +723,7 @@ namespace Microsoft.Management.Deployment
         /// The details of the package catalog if it is not a composite.
         PackageCatalogInfo Info { get; };
 
-        /// Opens a catalog. Required before searching. For remote catalogs (i.e. not Installed and Installing) this 
+        /// Opens a catalog. Required before searching. For remote catalogs (i.e. not Installed and Installing) this
         /// may require downloading information from a server.
         Windows.Foundation.IAsyncOperation<ConnectResult> ConnectAsync();
         ConnectResult Connect();
@@ -774,7 +774,7 @@ namespace Microsoft.Management.Deployment
     {
         /// The default experience for the installer. Installer may show some UI.
         Default,
-        /// Runs the installer in silent mode. This suppresses the installer's UI to the extent 
+        /// Runs the installer in silent mode. This suppresses the installer's UI to the extent
         /// possible (installer may still show some required UI).
         Silent,
         /// Runs the installer in interactive mode.
@@ -788,21 +788,23 @@ namespace Microsoft.Management.Deployment
     {
         InstallOptions();
 
-        /// Optionally specifies the version from the package to install. If unspecified the version matching 
+        /// Optionally specifies the version from the package to install. If unspecified the version matching
         /// CatalogPackage.GetLatestVersion() is used.
         PackageVersionId PackageVersionId;
 
         /// Specifies alternate location to install package (if supported).
         String PreferredInstallLocation;
-        /// User or Machine. 
+        /// User or Machine.
         PackageInstallScope PackageInstallScope;
         /// Silent, Interactive, or Default
         PackageInstallMode PackageInstallMode;
-        /// Directs the logging to a log file. If provided, the installer must have have write access to the file 
+        /// Directs the logging to a log file. If provided, the installer must have write access to the file
         String LogOutputPath;
         /// Continues the install even if the hash in the catalog does not match the linked installer.
         Boolean AllowHashMismatch;
-        /// A string that will be passed to the installer. 
+        /// Allows Store installs when Store Client is disabled.
+        Boolean BypassIsStoreClientBlockedPolicyCheck;
+        /// A string that will be passed to the installer.
         /// IMPLEMENTATION NOTE: maps to "--override" in the winget cmd line
         String ReplacementInstallerArguments;
 
@@ -819,8 +821,8 @@ namespace Microsoft.Management.Deployment
         PackageManager();
 
         /// Get the available catalogs. Each source will have a separate catalog.
-        /// This does not open the catalog. These catalogs can be used individually or merged with CreateCompositePackageCatalogAsync. 
-        /// IMPLEMENTATION NOTE: This is a list of sources returned by Windows Package Manager source list 
+        /// This does not open the catalog. These catalogs can be used individually or merged with CreateCompositePackageCatalogAsync.
+        /// IMPLEMENTATION NOTE: This is a list of sources returned by Windows Package Manager source list
         Windows.Foundation.Collections.IVectorView<PackageCatalogReference> GetPackageCatalogs();
         /// Get a built in catalog
         PackageCatalogReference GetPredefinedPackageCatalog(PredefinedPackageCatalog predefinedPackageCatalog);
@@ -836,7 +838,7 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.IAsyncOperationWithProgress<InstallResult, InstallProgress> InstallPackageAsync(CatalogPackage package, InstallOptions options);
     }
 
-    /// Force midl3 to generate vector marshalling info. 
+    /// Force midl3 to generate vector marshalling info.
     declare
     {
         interface Windows.Foundation.Collections.IVector<PackageCatalog>;

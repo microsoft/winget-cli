@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct UninstallCommand final : public Command
     {
-        UninstallCommand(std::string_view parent) : Command("uninstall", parent) {}
+        UninstallCommand(std::string_view parent) : Command("uninstall", { "remove", "rm" }, parent) {}
 
         std::vector<Argument> GetArguments() const override;
 
@@ -16,7 +16,7 @@ namespace AppInstaller::CLI
 
         void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
 
-        std::string HelpLink() const override;
+        Utility::LocIndView HelpLink() const override;
 
     protected:
         void ValidateArgumentsInternal(Execution::Args& execArgs) const override;

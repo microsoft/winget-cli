@@ -16,6 +16,7 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\packages\packages.schema.1.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\packages\packages.schema.2.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\settings\settings.export.schema.0.1.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\settings\settings.schema.0.2.json" />
   </ItemGroup>
   <ItemGroup>

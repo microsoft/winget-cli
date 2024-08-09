@@ -1,0 +1,123 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
+    <!-- Keep in sync with attributes in AssemblyInfo.cs -->
+    <CoreFramework>net6.0-windows10.0.22000.0</CoreFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DesktopFramework>net48</DesktopFramework>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <LangVersion>10</LangVersion>
+    <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
+    <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
+    <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
+    <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.Cmdlets.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\CommonFiles\WinGetAssemblyLoadContext.cs" Link="WinGetAssemblyLoadContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <DefineConstants>POWERSHELL_WINDOWS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifier>win10</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <!-- This project doesn't reference it directly, but if I don't add it here it will fail with NETSDK1130 *.winmd cannot be referenced. -->
+  <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.WinGet.Client.Engine\Microsoft.WinGet.Client.Engine.csproj" />
+  </ItemGroup>
+
+  <!-- This project doesn't reference CSWinRT, but specify this everywhere it will fail with NETSDK1130 and MSB3271. -->
+  <PropertyGroup>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+  </PropertyGroup>
+
+  <!-- Build PowerShell Module -->
+  <PropertyGroup>
+    <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell\Microsoft.WinGet.Client</PowerShellModuleOutputDirectory>
+    <PowerShellModuleRuntimesDir>$(PowerShellModuleOutputDirectory)\$(TargetFramework)</PowerShellModuleRuntimesDir>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PowerShellModuleSharedDependencies>$(PowerShellModuleRuntimesDir)\SharedDependencies</PowerShellModuleSharedDependencies>
+    <PowerShellModuleDirectDependencies>$(PowerShellModuleRuntimesDir)\DirectDependencies</PowerShellModuleDirectDependencies>
+  </PropertyGroup>
+
+  <!-- psd1 and ps1xml-->
+  <Target Name="CopyModuleFiles" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <ModuleFiles Include="$(ProjectDir)\..\Microsoft.WinGet.Client\ModuleFiles\**\*.*" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying PowerShell module files to '$(PowerShellModuleOutputDirectory)'" />
+    <Copy SourceFiles="@(ModuleFiles)" DestinationFiles="$(PowerShellModuleOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)" />
+  </Target>
+
+  <!-- Main binaries -->
+  <Target Name="CopyWinGetBinaries" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.dll" />
+      <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" Condition="'$(Configuration)' == 'Debug'" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying CopyWinGetBinaries: '@(ModuleWinGetFile)'" />
+    <Copy SourceFiles="@(ModuleWinGetFile)" DestinationFolder="$(PowerShellModuleRuntimesDir)" />
+  </Target>
+
+  <!-- Direct dependencies -->
+  <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
+      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" Condition="'$(Configuration)' == 'Debug'" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying direct dependencies: '@(ModuleDirectDependency)'" />
+    <Copy SourceFiles="@(ModuleDirectDependency)" DestinationFolder="$(PowerShellModuleDirectDependencies)" />
+  </Target>
+
+  <!-- Shared managed dependencies -->
+  <Target Name="CopyManagedDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ManagedDependency Include="$(OutputPath)Newtonsoft.Json.dll" />
+      <ManagedDependency Include="$(OutputPath)Octokit.dll" />
+      <ManagedDependency Include="$(OutputPath)Microsoft.WinGet.SharedLib.dll" />
+      <ManagedDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+      <ManagedDependency Include="$(OutputPath)WinRT.Runtime.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+      <ManagedDependency Include="$(OutputPath)Microsoft.Win32.Registry.dll" Condition="'$(TargetFramework)' == '$(DesktopFramework)'" />
+      <ManagedDependency Include="$(OutputPath)Semver.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying managed shared dependencies: '@(ManagedDependency)'" />
+    <Copy SourceFiles="@(ManagedDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />
+  </Target>
+
+</Project>
+

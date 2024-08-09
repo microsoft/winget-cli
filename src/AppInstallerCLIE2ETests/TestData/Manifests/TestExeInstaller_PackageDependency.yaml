@@ -1,0 +1,22 @@
+PackageIdentifier: AppInstallerTest.PackageDependency
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: TestPackageDependency
+ShortDescription: Installs a package with a package dependency.
+Publisher: AppInstallerTest
+License: testLicense
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    InstallerSwitches:
+      Silent: /exesilent
+      SilentWithProgress: /exeswp
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+    Dependencies:
+      PackageDependencies:
+      - PackageIdentifier: AppInstallerTest.TestPortableExe
+ManifestType: singleton
+ManifestVersion: 1.4.0

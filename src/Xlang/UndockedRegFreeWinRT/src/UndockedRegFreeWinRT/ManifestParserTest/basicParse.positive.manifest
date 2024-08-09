@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity
+      type="win32"
+      name="FakeAssemblyName"
+      version="1.0.0.0" />
+
+  <file name="FakeDllName.dll">
+    <activatableClass
+        name="FakeActivatableClass"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+    <activatableClass
+        name="FakeActivatableClass2"
+        threadingModel="mta"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+    <activatableClass
+        name="FakeActivatableClass3"
+        threadingModel="sta"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+    <activatableClass
+        name="FakeActivatableClass4"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+  </file>
+  <file name="OtherFakeDllName.dll">
+    <activatableClass
+        name="OtherFakeActivatableClass"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+    <activatableClass
+        name="OtherFakeActivatableClass2"
+        threadingModel="mta"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+  </file>
+</assembly>

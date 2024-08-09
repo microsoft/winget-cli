@@ -18,8 +18,8 @@ namespace AppInstaller::Utility::HttpStream
     class HttpLocalCache
     {
     public:
-        const UINT32 PAGE_SIZE = 2 << 16;   // each entry in the cache is 64 KB
-        const UINT32 MAX_PAGES = 200;       // cache size capped at 12.5 MB (200 * 64KB)
+        static constexpr UINT32 PAGE_SIZE = 2 << 16;   // each entry in the cache is 64 KB
+        static constexpr UINT32 MAX_PAGES = 200;       // cache size capped at 12.5 MB (200 * 64KB)
 
         // Returns a buffer matching the requested range by reading the parts of the range that are cached
         // and downloading the rest using the provided httpClientWrapper object
@@ -47,7 +47,7 @@ namespace AppInstaller::Utility::HttpStream
 
         void VacateStaleEntriesFromCache();
 
-        std::future<void> DownloadAndSaveToCacheAysnc(
+        std::future<void> DownloadAndSaveToCacheAsync(
             const std::vector<ULONG64> unsatisfiablePages,
             HttpClientWrapper* httpClientWrapper,
             const winrt::Windows::Storage::Streams::InputStreamOptions httpInputStreamOptions);

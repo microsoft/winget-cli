@@ -1,0 +1,32 @@
+[submodule "thirdparty/picojson"]
+	path = thirdparty/picojson
+	url = https://github.com/tristanpenman/picojson.git
+	shallow = true
+[submodule "thirdparty/rapidjson"]
+	path = thirdparty/rapidjson
+	url = https://github.com/Tencent/rapidjson.git
+	shallow = true
+[submodule "thirdparty/nlohmann-json"]
+	path = thirdparty/nlohmann-json
+	url = https://github.com/nlohmann/json.git
+	shallow = true
+[submodule "thirdparty/yaml-cpp"]
+	path = thirdparty/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git
+	shallow = true
+[submodule "thirdparty/jsoncpp"]
+	path = thirdparty/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp.git
+	shallow = true
+[submodule "thirdparty/json11"]
+	path = thirdparty/json11
+	url = https://github.com/dropbox/json11.git
+	shallow = true
+[submodule "thirdparty/googletest"]
+	path = thirdparty/googletest
+	url = https://github.com/google/googletest.git
+	shallow = true
+[submodule "thirdparty/JSON-Schema-Test-Suite"]
+	path = thirdparty/JSON-Schema-Test-Suite
+	url = https://github.com/json-schema-org/JSON-Schema-Test-Suite.git
+	shallow = true

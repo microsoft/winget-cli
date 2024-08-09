@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-
 #include "AppInstallerStrings.h"
 #include "AppInstallerVersions.h"
 
@@ -60,15 +59,5 @@ namespace AppInstaller::Msix
         std::optional<OSVersion> GetMinimumOSVersionForSupportedPlatforms() const;
     private:
         Microsoft::WRL::ComPtr<IAppxManifestReader> m_manifestReader;
-    };
-
-    // MSIX manifest cache
-    struct MsixPackageManifestCache
-    {
-        // Construct MSIX manifest or fetch it from cache
-        const std::vector<MsixPackageManifest>& GetAppPackageManifests(std::string url);
-    private:
-        // Map installer url to a vector of msix package manifests
-        std::map<std::string, std::vector<MsixPackageManifest>> m_msixManifests;
     };
 }

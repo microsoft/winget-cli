@@ -1,4 +1,3 @@
-
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
@@ -7,12 +6,31 @@
 #include <winrt/Windows.Security.Authorization.AppCapabilityAccess.h>
 #include <appmodel.h>
 #include <Helpers.h>
+#include <winget/Security.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    namespace
+    {
+        static std::optional<std::string> s_callerName;
+        static wil::srwlock s_callerNameLock;
+    }
+
+    void SetComCallerName(std::string name)
+    {
+        auto lock = s_callerNameLock.lock_exclusive();
+        s_callerName.emplace(std::move(name));
+    }
+
+    std::string GetComCallerName(std::string defaultNameIfNotSet)
+    {
+        auto lock = s_callerNameLock.lock_shared();
+        return s_callerName.has_value() ? s_callerName.value() : defaultNameIfNotSet;
+    }
+
     std::pair<HRESULT, DWORD> GetCallerProcessId()
     {
         RPC_STATUS rpcStatus = RPC_S_OK;
@@ -53,13 +71,34 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     HRESULT EnsureProcessHasCapability(Capability requiredCapability, DWORD callerProcessId)
     {
-        // Get the caller process id and use it to check if the caller has permissions to access the feature.
-        winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus status = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::DeniedBySystem;
+        bool allowed = false;
 
-        auto capability = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapability::CreateWithProcessIdForUser(nullptr, GetStringForCapability(requiredCapability), callerProcessId);
-        status = capability.CheckAccess();
+        if (winrt::Windows::Foundation::Metadata::ApiInformation::IsTypePresent(winrt::name_of<winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapability>()))
+        {
+            // Get the caller process id and use it to check if the caller has permissions to access the feature.
+            winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus status = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::DeniedBySystem;
 
-        return (status != winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::Allowed ? E_ACCESSDENIED : S_OK);
+            auto capability = winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapability::CreateWithProcessIdForUser(nullptr, GetStringForCapability(requiredCapability), callerProcessId);
+            status = capability.CheckAccess();
+
+            allowed = (status == winrt::Windows::Security::Authorization::AppCapabilityAccess::AppCapabilityAccessStatus::Allowed);
+        }
+        else
+        {
+            // If AppCapability is not present, require at least medium IL callers
+            auto requiredIntegrityLevel = AppInstaller::Security::IntegrityLevel::Medium;
+
+            if (callerProcessId != GetCurrentProcessId())
+            {
+                allowed = AppInstaller::Security::IsCOMCallerIntegrityLevelAtLeast(requiredIntegrityLevel);
+            }
+            else
+            {
+                allowed = AppInstaller::Security::IsCurrentIntegrityLevelAtLeast(requiredIntegrityLevel);
+            }
+        }
+
+        return (allowed ? S_OK : E_ACCESSDENIED);
     }
 
     HRESULT EnsureComCallerHasCapability(Capability requiredCapability)
@@ -99,5 +138,55 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
 
         return {};
+    }
+
+    std::string GetCallerName()
+    {
+        // See if caller name is set by caller
+        std::string callerName = GetComCallerName("");
+
+        // Get process string
+        if (callerName.empty())
+        {
+            try
+            {
+                auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+                if (SUCCEEDED(hrGetCallerId))
+                {
+                    callerName = AppInstaller::Utility::ConvertToUTF8(TryGetCallerProcessInfo(callerProcessId));
+                }
+            }
+            CATCH_LOG();
+        }
+
+        if (callerName.empty())
+        {
+            callerName = "UnknownComCaller";
+        }
+
+        return callerName;
+    }
+
+    bool IsBackgroundProcessForPolicy()
+    {
+        bool isBackgroundProcessForPolicy = false;
+        try
+        {
+            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+            if (SUCCEEDED(hrGetCallerId) && callerProcessId != GetCurrentProcessId())
+            {
+                // OutOfProc case, we check for explorer.exe
+                auto callerNameWide = AppInstaller::Utility::ConvertToUTF16(GetCallerName());
+                auto processName = AppInstaller::Utility::ConvertToUTF8(std::filesystem::path{ callerNameWide }.filename().wstring());
+                if (::AppInstaller::Utility::CaseInsensitiveEquals("explorer.exe", processName) ||
+                    ::AppInstaller::Utility::CaseInsensitiveEquals("taskhostw.exe", processName))
+                {
+                    isBackgroundProcessForPolicy = true;
+                }
+            }
+        }
+        CATCH_LOG();
+
+        return isBackgroundProcessForPolicy;
     }
 }

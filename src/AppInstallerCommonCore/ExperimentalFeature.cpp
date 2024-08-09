@@ -38,10 +38,16 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFExperimentalCmd>() || userSettings.Get<Setting::EFExperimentalArg>();
             case ExperimentalFeature::Feature::ExperimentalArg:
                 return userSettings.Get<Setting::EFExperimentalArg>();
-            case ExperimentalFeature::Feature::Dependencies:
-                return userSettings.Get<Setting::EFDependencies>();
             case ExperimentalFeature::Feature::DirectMSI:
                 return userSettings.Get<Setting::EFDirectMSI>();
+            case ExperimentalFeature::Feature::Resume:
+                return userSettings.Get<Setting::EFResume>();
+            case ExperimentalFeature::Feature::Configuration03:
+                return userSettings.Get<Setting::EFConfiguration03>();
+            case ExperimentalFeature::Feature::ConfigureSelfElevation:
+                return userSettings.Get<Setting::EFConfigureSelfElevation>();
+            case ExperimentalFeature::Feature::ConfigureExport:
+                return userSettings.Get<Setting::EFConfigureExport>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -69,10 +75,16 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Command Sample", "experimentalCmd", "https://aka.ms/winget-settings", Feature::ExperimentalCmd };
         case Feature::ExperimentalArg:
             return ExperimentalFeature{ "Argument Sample", "experimentalArg", "https://aka.ms/winget-settings", Feature::ExperimentalArg };
-        case Feature::Dependencies:
-            return ExperimentalFeature{ "Show Dependencies Information", "dependencies", "https://aka.ms/winget-settings", Feature::Dependencies };
         case Feature::DirectMSI:
             return ExperimentalFeature{ "Direct MSI Installation", "directMSI", "https://aka.ms/winget-settings", Feature::DirectMSI };
+        case Feature::Resume:
+            return ExperimentalFeature{ "Resume", "resume", "https://aka.ms/winget-settings", Feature::Resume };
+        case Feature::Configuration03:
+            return ExperimentalFeature{ "Configuration Schema 0.3", "configuration03", "https://aka.ms/winget-settings", Feature::Configuration03 };
+        case Feature::ConfigureSelfElevation:
+            return ExperimentalFeature{ "Configure Self Elevation", "configureSelfElevate", "https://aka.ms/winget-settings", Feature::ConfigureSelfElevation };
+        case Feature::ConfigureExport:
+            return ExperimentalFeature{ "Configure Export", "configureExport", "https://aka.ms/winget-settings", Feature::ConfigureExport };
         default:
             THROW_HR(E_UNEXPECTED);
         }

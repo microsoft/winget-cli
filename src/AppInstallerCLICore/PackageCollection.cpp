@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-
 #include "PackageCollection.h"
 
-#include "AppInstallerRuntime.h"
-#include "winget/JsonSchemaValidation.h"
+#include <AppInstallerLogging.h>
+#include <AppInstallerRuntime.h>
+#include <winget/JsonSchemaValidation.h>
 
 #include "PackagesSchema.h"
 

@@ -19,6 +19,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void LogOutputPath(hstring const& value);
         hstring CorrelationData();
         void CorrelationData(hstring const& value);
+        bool Force();
+        void Force(bool value);
+        winrt::Microsoft::Management::Deployment::PackageUninstallScope PackageUninstallScope();
+        void PackageUninstallScope(winrt::Microsoft::Management::Deployment::PackageUninstallScope const& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -26,6 +30,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageUninstallMode m_packageUninstallMode = winrt::Microsoft::Management::Deployment::PackageUninstallMode::Default;
         std::wstring m_logOutputPath = L"";
         std::wstring m_correlationData = L"";
+        bool m_force = false;
+        winrt::Microsoft::Management::Deployment::PackageUninstallScope m_packageUninstallScope = winrt::Microsoft::Management::Deployment::PackageUninstallScope::Any;
 #endif
     };
 }

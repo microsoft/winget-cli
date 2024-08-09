@@ -28,7 +28,6 @@ config.h*
 /configure
 stamp-h1
 !config/config.h.in
-/packaging/
 /tests/run-dumper
 /tests/run-emitter
 /tests/run-emitter-test-suite

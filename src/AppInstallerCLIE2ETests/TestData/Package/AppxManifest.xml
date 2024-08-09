@@ -9,10 +9,8 @@
             Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
             Version="2020.805.713.335" />
 
-  <!-- Commit in which this package was based on 0563b4dd28f58985a8e60762ede9824f1b7ea310-->
-
   <Properties>
-    <DisplayName>WinGet Source</DisplayName>
+    <DisplayName>WinGet E2E Source</DisplayName>
     <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
     <Logo>Assets\AppPackageStoreLogo.png</Logo>
   </Properties>
@@ -23,10 +21,10 @@
 
   <Applications>
     <Application Id="SourceData">
-      <uap:VisualElements DisplayName="WinGet Source"
+      <uap:VisualElements DisplayName="WinGet E2E Source"
                           Square150x150Logo="Assets\AppPackageStoreLogo.scale-150.png"
                           Square44x44Logo="Assets\AppPackageStoreLogo.scale-100.png"
-                          Description="WinGet Source"
+                          Description="WinGet E2E Source"
                           BackgroundColor="#0078d7"
                           AppListEntry="none" />
       <Extensions>

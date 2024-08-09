@@ -1,0 +1,8 @@
+properties:
+    configurationVersion: 0.2
+    resources:
+      - resource: moduleThatDoesNotExist/resourceThatDoesNotExist
+        directives:
+          repository: AppInstallerCLIE2ETestsRepo
+        settings:
+          key: Foo

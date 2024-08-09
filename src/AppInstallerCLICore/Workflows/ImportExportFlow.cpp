@@ -5,8 +5,11 @@
 #include "ImportExportFlow.h"
 #include "UpdateFlow.h"
 #include "PackageCollection.h"
+#include "DependenciesFlow.h"
 #include "WorkflowBase.h"
 #include <winget/RepositorySearch.h>
+#include <winget/Runtime.h>
+#include <winget/PackageVersionSelection.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -58,20 +61,22 @@ namespace AppInstaller::CLI::Workflow
         // If requested, checks that the installed version is available and reports a warning if it is not.
         std::shared_ptr<IPackageVersion> GetAvailableVersionForInstalledPackage(
             Execution::Context& context,
-            std::shared_ptr<IPackage> package,
-            std::string_view version,
-            std::string_view channel,
+            std::shared_ptr<ICompositePackage> package,
+            Utility::LocIndView version,
+            Utility::LocIndView channel,
             bool checkVersion)
         {
+            std::shared_ptr<IPackageVersionCollection> availableVersions = GetAvailableVersionsForInstalledVersion(package);
+
             if (!checkVersion)
             {
-                return package->GetLatestAvailableVersion();
+                return availableVersions->GetLatestVersion();
             }
 
-            auto availablePackageVersion = package->GetAvailableVersion({ "", version, channel });
+            auto availablePackageVersion = availableVersions->GetVersion({ "", version, channel });
             if (!availablePackageVersion)
             {
-                availablePackageVersion = package->GetLatestAvailableVersion();
+                availablePackageVersion = availableVersions->GetLatestVersion();
                 if (availablePackageVersion)
                 {
                     // Warn installed version is not available.
@@ -81,10 +86,7 @@ namespace AppInstaller::CLI::Workflow
                         << "Installed package version is not available."
                         << " Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Version [" << version << "], Channel [" << channel << "]"
                         << ". Found Version [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "], Channel [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "]");
-                    context.Reporter.Warn()
-                        << Resource::String::InstalledPackageVersionNotAvailable
-                        << ' ' << availablePackageVersion->GetProperty(PackageVersionProperty::Id)
-                        << ' ' << version << ' ' << channel << std::endl;
+                    context.Reporter.Warn() << Resource::String::InstalledPackageVersionNotAvailable(availablePackageVersion->GetProperty(PackageVersionProperty::Id), version, channel) << std::endl;
                 }
             }
 
@@ -101,17 +103,17 @@ namespace AppInstaller::CLI::Workflow
         auto& exportedSources = exportedPackages.Sources;
         for (const auto& packageMatch : searchResult.Matches)
         {
-            auto installedPackageVersion = packageMatch.Package->GetInstalledVersion();
+            auto installedPackageVersion = GetInstalledVersion(packageMatch.Package);
             auto version = installedPackageVersion->GetProperty(PackageVersionProperty::Version);
             auto channel = installedPackageVersion->GetProperty(PackageVersionProperty::Channel);
 
             // Find an available version of this package to determine its source.
-            auto availablePackageVersion = GetAvailableVersionForInstalledPackage(context, packageMatch.Package, version, channel, includeVersions);
+            auto availablePackageVersion = GetAvailableVersionForInstalledPackage(context, packageMatch.Package, Utility::LocIndView{ version }, Utility::LocIndView{ channel }, includeVersions);
             if (!availablePackageVersion)
             {
                 // Report package not found and move to next package.
                 AICLI_LOG(CLI, Warning, << "No available version of package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] was found to export");
-                context.Reporter.Warn() << Resource::String::InstalledPackageNotAvailable << ' ' << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << std::endl;
+                context.Reporter.Warn() << Resource::String::InstalledPackageNotAvailable(installedPackageVersion->GetProperty(PackageVersionProperty::Name)) << std::endl;
                 continue;
             }
 
@@ -123,7 +125,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 // Report that the package requires accepting license terms
                 AICLI_LOG(CLI, Warning, << "Package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] requires license agreement to install");
-                context.Reporter.Warn() << Resource::String::ExportedPackageRequiresLicenseAgreement << ' ' << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << std::endl;
+                context.Reporter.Warn() << Resource::String::ExportedPackageRequiresLicenseAgreement(installedPackageVersion->GetProperty(PackageVersionProperty::Name)) << std::endl;
             }
 
             // Find the exported source for this package
@@ -231,7 +233,9 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 AICLI_LOG(CLI, Error, << "Missing required source: " << requiredSource.Details.Name);
-                context.Reporter.Warn() << Resource::String::ImportSourceNotInstalled << ' ' << requiredSource.Details.Name << std::endl;
+                context.Reporter.Warn()
+                    << Resource::String::ImportSourceNotInstalled(Utility::LocIndView{ requiredSource.Details.Name })
+                    << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
             }
 
@@ -243,11 +247,10 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void SearchPackagesForImport(Execution::Context& context)
+    void GetSearchRequestsForImport(Execution::Context& context)
     {
         const auto& sources = context.Get<Execution::Data::Sources>();
-        std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
-        bool foundAll = true;
+        std::vector<std::unique_ptr<Execution::Context>> packageSubContexts;
 
         // Look for the packages needed from each source independently.
         // If a package is available from multiple sources, this ensures we will get it from the right one.
@@ -263,7 +266,7 @@ namespace AppInstaller::CLI::Workflow
             // Search for all the packages in the source.
             // Each search is done in a sub context to search everything regardless of previous failures.
             Repository::Source source{ context.Get<Execution::Data::Source>(), *sourceItr, CompositeSearchBehavior::AllPackages };
-            AICLI_LOG(CLI, Info, << "Searching for packages requested from source [" << requiredSource.Details.Identifier << "]");
+            AICLI_LOG(CLI, Info, << "Identifying packages requested from source [" << requiredSource.Details.Identifier << "]");
             for (const auto& packageRequest : requiredSource.Packages)
             {
                 AICLI_LOG(CLI, Info, << "Searching for package [" << packageRequest.Id << "]");
@@ -277,74 +280,48 @@ namespace AppInstaller::CLI::Workflow
                 auto previousThreadGlobals = searchContext.SetForCurrentThread();
 
                 searchContext.Add<Execution::Data::Source>(source);
-                searchContext.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
+                searchContext.Add<Execution::Data::SearchRequest>(std::move(searchRequest));
 
-                // TODO: In the future, it would be better to not have to convert back and forth from a string
-                searchContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(packageRequest.Scope));
-
-                // Find the single version we want is available
-                searchContext <<
-                    Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(false) <<
-                    Workflow::GetManifestWithVersionFromPackage(packageRequest.VersionAndChannel) <<
-                    Workflow::GetInstalledPackageVersion <<
-                    Workflow::SelectInstaller <<
-                    Workflow::EnsureApplicableInstaller;
-
-                if (searchContext.Contains(Execution::Data::InstalledPackageVersion) && searchContext.Get<Execution::Data::InstalledPackageVersion>())
+                if (packageRequest.Scope != Manifest::ScopeEnum::Unknown)
                 {
-                    searchContext << Workflow::EnsureUpdateVersionApplicable;
+                    // TODO: In the future, it would be better to not have to convert back and forth from a string
+                    searchContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(packageRequest.Scope));
                 }
 
-                if (searchContext.IsTerminated())
+                auto versionString = packageRequest.VersionAndChannel.GetVersion().ToString();
+                if (!versionString.empty())
                 {
-                    if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
-                    {
-                        // This means that the subcontext being terminated is due to an overall abort
-                        context.Reporter.Info() << Resource::String::Cancelled << std::endl;
-                        return;
-                    }
-                    else if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
-                    {
-                        AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
-                        context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled << ' ' << packageRequest.Id << std::endl;
-                        continue;
-                    }
-                    else
-                    {
-                        AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << packageRequest.VersionAndChannel.ToString());
-                        context.Reporter.Info() << Resource::String::ImportSearchFailed << ' ' << packageRequest.Id << std::endl;
-
-                        // Keep searching for the remaining packages and only fail at the end.
-                        foundAll = false;
-                        continue;
-                    }
+                    searchContext.Args.AddArg(Execution::Args::Type::Version, versionString);
                 }
 
-                packagesToInstall.emplace_back(std::move(searchContextPtr));
+                auto channelString = packageRequest.VersionAndChannel.GetChannel().ToString();
+                if (!channelString.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::Channel, channelString);
+                }
+
+                packageSubContexts.emplace_back(std::move(searchContextPtr));
             }
         }
 
-        if (!foundAll)
-        {
-            AICLI_LOG(CLI, Info, << "Could not find one or more packages for import");
-            if (context.Args.Contains(Execution::Args::Type::IgnoreUnavailable))
-            {
-                AICLI_LOG(CLI, Info, << "Ignoring unavailable packages due to command line argument");
-            }
-            else
-            {
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
-            }
-        }
-
-        context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
+        context.Add<Execution::Data::PackageSubContexts>(std::move(packageSubContexts));
     }
 
     void InstallImportedPackages(Execution::Context& context)
     {
-        context << Workflow::InstallMultiplePackages(
-            Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED, {}, true, true);
+        // Inform all dependencies here. During SubContexts processing, dependencies are ignored.
+        auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
+        Manifest::DependencyList allDependencies;
+        for (auto& packageContext : packageSubContexts)
+        {
+            allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
+        }
+        context.Add<Execution::Data::Dependencies>(allDependencies);
+
+        context <<
+            Workflow::ReportDependencies(Resource::String::ImportCommandReportDependencies) <<
+            Workflow::ProcessMultiplePackages(
+                Resource::String::ImportCommandReportDependencies, APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED, {}, true, true);
 
         if (context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_IMPORT_INSTALL_FAILED)
         {

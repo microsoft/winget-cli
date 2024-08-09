@@ -13,11 +13,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         Interface(Utility::NormalizationVersion normVersion = Utility::NormalizationVersion::Initial);
 
         // Version 1.0
-        Schema::Version GetVersion() const override;
+        SQLite::Version GetVersion() const override;
         void CreateTables(SQLite::Connection& connection, CreateOptions options) override;
         SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
-        
+
     protected:
         // Gets a property already knowing that the manifest id is valid.
         std::optional<std::string> GetPropertyByManifestIdInternal(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionProperty property) const override;

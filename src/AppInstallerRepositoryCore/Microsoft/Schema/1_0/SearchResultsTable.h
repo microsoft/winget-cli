@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
-#include "SQLiteTempTable.h"
+#include <winget/SQLiteWrapper.h>
+#include <winget/SQLiteTempTable.h>
 #include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Public/winget/RepositorySearch.h"
 

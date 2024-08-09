@@ -42,7 +42,6 @@ namespace AppInstaller::Repository
         {
             friend PackageTrackingCatalog;
 
-            Version();
             Version(const Version&);
             Version& operator=(const Version&);
             Version(Version&&) noexcept;
@@ -54,8 +53,9 @@ namespace AppInstaller::Repository
 
         private:
             struct implementation;
-            Version(std::shared_ptr<implementation>&& value);
+            Version(PackageTrackingCatalog& catalog, std::shared_ptr<implementation>&& value);
             std::shared_ptr<implementation> m_implementation;
+            PackageTrackingCatalog& m_catalog;
         };
 
         // Records an installation of the given package.

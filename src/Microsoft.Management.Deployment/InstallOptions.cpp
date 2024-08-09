@@ -60,6 +60,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_packageInstallMode = value;
     }
+    winrt::Microsoft::Management::Deployment::PackageInstallerType InstallOptions::InstallerType()
+    {
+        return m_installerType;
+    }
+    void InstallOptions::InstallerType(winrt::Microsoft::Management::Deployment::PackageInstallerType const& value)
+    {
+        m_installerType = value;
+    }
     hstring InstallOptions::LogOutputPath()
     {
         return hstring(m_logOutputPath);
@@ -76,6 +84,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_allowHashMismatch = value;
     }
+    bool InstallOptions::BypassIsStoreClientBlockedPolicyCheck()
+    {
+        return m_bypassIsStoreClientBlockedPolicyCheck;
+    }
+    void InstallOptions::BypassIsStoreClientBlockedPolicyCheck(bool value)
+    {
+        m_bypassIsStoreClientBlockedPolicyCheck = value;
+    }
     hstring InstallOptions::ReplacementInstallerArguments()
     {
         return hstring(m_replacementInstallerArguments);
@@ -83,6 +99,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     void InstallOptions::ReplacementInstallerArguments(hstring const& value)
     {
         m_replacementInstallerArguments = value;
+    }
+    hstring InstallOptions::AdditionalInstallerArguments()
+    {
+        return hstring(m_additionalInstallerArguments);
+    }
+    void InstallOptions::AdditionalInstallerArguments(hstring const& value)
+    {
+        m_additionalInstallerArguments = value;
     }
     hstring InstallOptions::CorrelationData()
     {
@@ -112,6 +136,29 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_allowUpgradeToUnknownVersion = value;
     }
-
+    bool InstallOptions::Force()
+    {
+        return m_force;
+    }
+    void InstallOptions::Force(bool value)
+    {
+        m_force = value;
+    }
+    void InstallOptions::AcceptPackageAgreements(bool value)
+    {
+        m_acceptPackageAgreements = value;
+    }
+    bool InstallOptions::AcceptPackageAgreements()
+    {
+        return m_acceptPackageAgreements;
+    }
+    void InstallOptions::SkipDependencies(bool value)
+    {
+        m_skipDependencies = value;
+    }
+    bool InstallOptions::SkipDependencies()
+    {
+        return m_skipDependencies;
+    }
     CoCreatableMicrosoftManagementDeploymentClass(InstallOptions);
 }

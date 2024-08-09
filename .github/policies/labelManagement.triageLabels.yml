@@ -1,0 +1,115 @@
+id: labelAdded.triageLabels
+name: GitOps.PullRequestIssueManagement
+description: Handlers for triaging issues when various labels are applied from Triage
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: >-
+          When specific labels are added to an issue
+          * Remove the Needs-Triage label
+        if:
+          - payloadType: Issues
+          - or:
+              - labelAdded:
+                  label: Area-Accessibility
+              - labelAdded:
+                  label: Area-Architecture
+              - labelAdded:
+                  label: Area-Build
+              - labelAdded:
+                  label: Area-COM-API
+              - labelAdded:
+                  label: Area-External
+              - labelAdded:
+                  label: Area-GPO
+              - labelAdded:
+                  label: Area-Input
+              - labelAdded:
+                  label: Area-Localization
+              - labelAdded:
+                  label: Area-Manifest
+              - labelAdded:
+                  label: Area-Matching
+              - labelAdded:
+                  label: Area-Output
+              - labelAdded:
+                  label: Area-Path
+              - labelAdded:
+                  label: Area-Performance
+              - labelAdded:
+                  label: Area-Scope
+              - labelAdded:
+                  label: Area-Settings
+              - labelAdded:
+                  label: Area-Sorting
+              - labelAdded:
+                  label: Area-User-Interface
+              - labelAdded:
+                  label: Blocking-Issue
+              - labelAdded:
+                  label: Breaking-Change
+              - labelAdded:
+                  label: Command-Configure
+              - labelAdded:
+                  label: Command-Download
+              - labelAdded:
+                  label: Command-Export
+              - labelAdded:
+                  label: Command-Import
+              - labelAdded:
+                  label: Command-Install
+              - labelAdded:
+                  label: Command-List
+              - labelAdded:
+                  label: Command-Pin
+              - labelAdded:
+                  label: Command-Search
+              - labelAdded:
+                  label: Command-Show
+              - labelAdded:
+                  label: Command-Source
+              - labelAdded:
+                  label: Command-Uninstall
+              - labelAdded:
+                  label: Command-Upgrade
+              - labelAdded:
+                  label: Command-Validate
+              - labelAdded:
+                  label: Dependencies
+              - labelAdded:
+                  label: DSC-Resource
+              - labelAdded:
+                  label: Experimental
+              - labelAdded:
+                  label: Hardware
+              - labelAdded:
+                  label: In-PR
+              - labelAdded:
+                  label: Interactive-Only-Installer
+              - labelAdded:
+                  label: msstore
+              - labelAdded:
+                  label: Needs-Attention
+              - labelAdded:
+                  label: Needs-Author-Feedback
+              - labelAdded:
+                  label: Portable
+              - labelAdded:
+                  label: PowerShell
+              - labelAdded:
+                  label: Public-Service-Announcement
+              - labelAdded:
+                  label: Side-By-Side
+              - labelAdded:
+                  label: Zipped-Binary
+        then:
+          - removeLabel:
+              label: Needs-Triage
+        # The policy service should trigger even when the label was added by the policy service
+        triggerOnOwnActions: true
+onFailure:
+onSuccess:

@@ -1,0 +1,37 @@
+{
+  "ConfigVersion": 3,
+  "Entries": [
+    {
+      "JobNotificationEmail": "peetdev@microsoft.com",
+      "Skip": false,
+      "Fuzzer": {
+        "$type": "libfuzzer",
+        "FuzzingHarnessExecutableName": "WinGetYamlFuzzing.exe"
+      },
+      "OneFuzzJobs": [
+        {
+          "ProjectName": "winget-fuzzing",
+          "TargetName": "yamlFuzzer"
+        }
+      ],
+      "JobDependencies": [
+        "WinGetYamlFuzzing.exe",
+        "WinGetYamlFuzzing.pdb",
+        "WinGetYamlFuzzing.lib",
+        "clang_rt.asan_dynamic*.dll"
+      ],
+      "AdoTemplate": {
+        "Org": "microsoft",
+        "Project": "OS",
+        "AssignedTo": "ryfu@microsoft.com",
+        "AreaPath": "OS\\Windows Client and Services\\ADEPT\\E4D-Engineered for Developers\\InstaDev",
+        "IterationPath": "OS"
+      },
+      "codeCoverage": {
+        "org": "ms",
+        "project": "winget-cli",
+        "pipelineId": "630"
+      }
+    }
+  ]
+}

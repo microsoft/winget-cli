@@ -1,0 +1,19 @@
+# Test manifest for upgrading a package with an unknown version.
+PackageIdentifier: AppInstallerCliTest.TestExeUnknownVersion
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test Exe Unknown Version
+Publisher: Microsoft Corporation
+AppMoniker: AICLITestExe
+License: Test
+Switches:
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+  Update: /update
+Installers: 
+    - Architecture: x64
+      InstallerUrl: https://ThisIsNotUsed
+      InstallerType: exe
+      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+ManifestType: singleton
+ManifestVersion: 1.3.0

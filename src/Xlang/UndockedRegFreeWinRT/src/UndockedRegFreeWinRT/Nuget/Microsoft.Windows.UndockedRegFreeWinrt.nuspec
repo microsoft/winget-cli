@@ -1,0 +1,33 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata minClientVersion="2.5">
+    <id>Microsoft.Windows.UndockedRegFreeWinrt</id>
+    <version>1.0.0.0</version>
+    <title>Regfree WinRT Build Support</title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Regfree WinRT enables using WinRT types from unpackaged applications, a feature that is available starting on Windows version 1903 and above. This nuget package backfills this functionality to previous Windows versions down to RS2.</description>
+    <releaseNotes></releaseNotes>
+    <tags>regfree WinRT</tags>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <license type="file">LICENSE</license>
+    <projectUrl>https://github.com/Microsoft/xlang</projectUrl>
+  </metadata>
+  <files>
+    <file src="LICENSE"/>
+    <file src="Microsoft.Windows.UndockedRegFreeWinrt.targets" target="build\native"/>
+    <file src="Microsoft.Windows.UndockedRegFreeWinrt.targets" target="build\net45"/>
+    <file src="Microsoft.Windows.UndockedRegFreeWinrt.targets" target="build\netcoreapp2.0"/>
+    <file src="readme.txt"/>
+    <file src="$winrtactx64release$" target="runtimes\x64\release\"/>
+    <file src="$winrtactx64debug$" target="runtimes\x64\debug\"/>
+    <file src="$winrtactx86release$" target="runtimes\x86\release\"/>
+    <file src="$winrtactx86debug$" target="runtimes\x86\debug\"/>
+    <file src="$mwinrtactx64release$" target="lib\netstandard2.0"/>
+    <file src="$winrtactlibx64release$" target="runtimes\x64\release\"/>
+    <file src="$winrtactlibx64debug$" target="runtimes\x64\debug\"/>
+    <file src="$winrtactlibx86release$" target="runtimes\x86\release\"/>
+    <file src="$winrtactlibx86debug$" target="runtimes\x86\debug\"/>
+  </files>
+</package>

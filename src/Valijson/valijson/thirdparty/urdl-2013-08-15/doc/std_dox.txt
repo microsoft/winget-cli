@@ -1,7 +1,0 @@
-/**
-\class std::basic_istream
-*/
-
-/**
-\class std::streambuf
-*/

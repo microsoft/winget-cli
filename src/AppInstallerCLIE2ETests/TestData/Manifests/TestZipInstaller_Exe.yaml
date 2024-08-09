@@ -1,0 +1,26 @@
+PackageIdentifier: AppInstallerTest.TestZipInstallerWithExe
+PackageVersion: 1.0.0.0
+PackageName: TestZipInstallerWithExe
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for installing a zip with exe.
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestZipInstaller/AppInstallerTestZipInstaller.zip
+    InstallerType: zip
+    ProductCode: '{E1880465-8CC2-4033-90AE-DE4E7FDBA26E}'
+    InstallerSha256: <ZIPHASH>
+    NestedInstallerType: exe
+    NestedInstallerFiles:
+      - RelativeFilePath: AppInstallerTestExeInstaller.exe
+    InstallerSwitches:
+      Custom: /execustom /productID {E1880465-8CC2-4033-90AE-DE4E7FDBA26E}
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+ManifestType: singleton
+ManifestVersion: 1.4.0

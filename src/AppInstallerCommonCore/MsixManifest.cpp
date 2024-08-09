@@ -108,20 +108,4 @@ namespace AppInstaller::Msix
 
         return Other;
     }
-
-    const std::vector<MsixPackageManifest>& MsixPackageManifestCache::GetAppPackageManifests(std::string url)
-    {
-        // If an installer url has already been processed, then use the cached result
-        auto installerIter = m_msixManifests.find(url);
-        if (installerIter != m_msixManifests.end())
-        {
-            return installerIter->second;
-        }
-
-        MsixInfo msixInfo(url);
-
-        // Cache installer url result
-        m_msixManifests[url] = msixInfo.GetAppPackageManifests();
-        return m_msixManifests[url];
-    }
 }

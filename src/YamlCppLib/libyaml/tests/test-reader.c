@@ -103,7 +103,7 @@ test_case utf8_sequences[] = {
 
 test_case boms[] = {
     
-    /* {"title", "test!", lenth}, */
+    /* {"title", "test!", length}, */
     
     {"no bom (utf-8)", "Hi is \xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82!", 13},
     {"bom (utf-8)", "\xef\xbb\xbfHi is \xd0\x9f\xd1\x80\xd0\xb8\xd0\xb2\xd0\xb5\xd1\x82!", 13},

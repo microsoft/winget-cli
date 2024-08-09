@@ -1,0 +1,40 @@
+PackageIdentifier: AppInstallerTest.TestMultipleInstallers
+PackageVersion: 1.0.0.0
+PackageName: TestMultipleInstallers
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test manifest with multiple installers
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: nullsoft
+    InstallerSha256: <EXEHASH>
+    Scope: user
+    InstallerSwitches:
+        InstallLocation: /InstallDir <INSTALLPATH>
+  - Architecture: x86
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi
+    InstallerSha256: <MSIHASH>
+    InstallerType: msi
+    ProductCode: '{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}'
+    Scope: machine
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestZipInstaller/AppInstallerTestZipInstaller.zip
+    InstallerType: zip
+    InstallerLocale: zh-CN
+    ProductCode: '{E1880465-8CC2-4033-90AE-DE4E7FDBA26E}'
+    InstallerSha256: <ZIPHASH>
+    NestedInstallerType: exe
+    NestedInstallerFiles:
+      - RelativeFilePath: AppInstallerTestExeInstaller.exe
+    InstallerSwitches:
+      Custom: /execustom /productID {E1880465-8CC2-4033-90AE-DE4E7FDBA26E}
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+ManifestType: singleton
+ManifestVersion: 1.4.0

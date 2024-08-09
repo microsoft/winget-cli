@@ -7,6 +7,8 @@ namespace AppInstaller::Repository
 {
     struct CompositeSource : public ISource
     {
+        static constexpr ISourceType SourceType = ISourceType::CompositeSource;
+
         explicit CompositeSource(std::string identifier);
 
         CompositeSource(const CompositeSource&) = delete;
@@ -29,6 +31,9 @@ namespace AppInstaller::Repository
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
+
+        // Casts to the requested type.
+        void* CastTo(ISourceType type) override;
 
         // ~ISource
 
@@ -54,6 +59,6 @@ namespace AppInstaller::Repository
         Source m_installedSource;
         std::vector<Source> m_availableSources;
         SourceDetails m_details;
-        CompositeSearchBehavior m_searchBehavior;
+        CompositeSearchBehavior m_searchBehavior = CompositeSearchBehavior::Installed;
     };
 }

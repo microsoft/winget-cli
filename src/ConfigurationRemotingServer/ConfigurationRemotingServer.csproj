@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <Platforms>x64;x86;arm;arm64</Platforms>
+    <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifiers>win10-x64;win10-x86;win10-arm;win10-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x64' ">
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <RuntimeIdentifier>win10-x86</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm' ">
+    <RuntimeIdentifier>win10-arm</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm64' ">
+    <RuntimeIdentifier>win10-arm64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj" />
+  </ItemGroup>
+
+  <Target Name="PwshFiles" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <RefFiles Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\ref\**\*.*" />
+      <WinModuleFiles Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\Modules\**\*.*" />
+      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
+      <RefFiles Condition="!Exists(@(RefFiles))" Include="$(OutputPath)..\Microsoft.Management.Configuration.Processor\ref\**\*.*" />
+      <WinModuleFiles Condition="!Exists(@(WinModuleFiles))" Include="$(OutputPath)..\Microsoft.Management.Configuration.Processor\Modules\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RefFiles)" DestinationFolder="$(OutputPath)\ref\" />
+    <Copy SourceFiles="@(WinModuleFiles)" DestinationFolder="$(OutputPath)\Modules\%(RecursiveDir)\" />
+  </Target>
+
+</Project>

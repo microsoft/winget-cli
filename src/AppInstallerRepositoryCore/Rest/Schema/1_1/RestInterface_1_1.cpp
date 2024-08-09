@@ -2,16 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Rest/Schema/1_1/Interface.h"
-#include "Rest/Schema/IRestClient.h"
-#include "Rest/Schema/HttpClientHelper.h"
-#include <winget/JsonUtil.h>
-#include "Rest/Schema/RestHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
-#include "Rest/Schema/1_1/Json/ManifestDeserializer.h"
-#include "Rest/Schema/1_1/Json/SearchRequestSerializer.h"
+#include "Rest/Schema/IRestClient.h"
+#include <winget/HttpClientHelper.h>
+#include <winget/JsonUtil.h>
 
 using namespace std::string_view_literals;
-using namespace AppInstaller::Repository::Rest::Schema::V1_1::Json;
 
 namespace AppInstaller::Repository::Rest::Schema::V1_1
 {
@@ -29,9 +25,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
     Interface::Interface(
         const std::string& restApi,
+        const Http::HttpClientHelper& httpClientHelper,
         IRestClient::Information information,
-        const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders,
-        const HttpClientHelper& httpClientHelper) : V1_0::Interface(restApi, httpClientHelper), m_information(std::move(information))
+        const Http::HttpClientHelper::HttpRequestHeaders& additionalHeaders) : V1_0::Interface(restApi, httpClientHelper), m_information(std::move(information))
     {
         m_requiredRestApiHeaders[JSON::GetUtilityString(ContractVersion)] = JSON::GetUtilityString(Version_1_1_0.ToString());
 
@@ -130,8 +126,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
             }
         }
 
-        SearchRequestSerializer serializer;
-        return serializer.Serialize(resultSearchRequest);
+        return V1_0::Interface::GetValidatedSearchBody(resultSearchRequest);
     }
 
     IRestClient::SearchResult Interface::GetSearchResult(const web::json::value& searchResponseObject) const
@@ -155,8 +150,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
     std::vector<Manifest::Manifest> Interface::GetParsedManifests(const web::json::value& manifestsResponseObject) const
     {
-        ManifestDeserializer manifestDeserializer;
-        auto result = manifestDeserializer.Deserialize(manifestsResponseObject);
+        auto result = V1_0::Interface::GetParsedManifests(manifestsResponseObject);
 
         if (result.size() == 0)
         {

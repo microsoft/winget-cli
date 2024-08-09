@@ -18,6 +18,9 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\packages\packages.schema.2.0.json">
       <Filter>packages</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\settings\settings.export.schema.0.1.json">
+      <Filter>settings</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />

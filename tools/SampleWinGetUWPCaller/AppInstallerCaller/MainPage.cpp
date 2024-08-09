@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "MainPage.h"
 #include "MainPage.g.cpp"
 
@@ -23,6 +23,7 @@ const CLSID CLSID_InstallOptions = { 0x1095f097, 0xEB96, 0x453B, 0xB4, 0xE6, 0x1
 const CLSID CLSID_FindPackagesOptions = { 0x572DED96, 0x9C60, 0x4526, { 0x8F, 0x92, 0xEE, 0x7D, 0x91, 0xD3, 0x8C, 0x1A } }; //572DED96-9C60-4526-8F92-EE7D91D38C1A
 const CLSID CLSID_PackageMatchFilter = { 0xD02C9DAF, 0x99DC, 0x429C, { 0xB5, 0x03, 0x4E, 0x50, 0x4E, 0x4A, 0xB0, 0x00 } }; //D02C9DAF-99DC-429C-B503-4E504E4AB000
 const CLSID CLSID_CreateCompositePackageCatalogOptions = { 0x526534B8, 0x7E46, 0x47C8, { 0x84, 0x16, 0xB1, 0x68, 0x5C, 0x32, 0x7D, 0x37 } }; //526534B8-7E46-47C8-8416-B1685C327D37
+const CLSID CLSID_DownloadOptions = { 0X4CBABE76, 0X7322, 0X4BE4, {0X9C, 0XEA, 0X25, 0X89, 0XA8, 0X06, 0X82, 0XDC} };  //4CBABE76-7322-4BE4-9CEA-2589A80682DC
 
 // CLSIDs for WinGetDev package
 const CLSID CLSID_PackageManager2 = { 0x74CB3139, 0xB7C5, 0x4B9E, { 0x93, 0x88, 0xE6, 0x61, 0x6D, 0xEA, 0x28, 0x8C } };  //74CB3139-B7C5-4B9E-9388-E6616DEA288C
@@ -30,6 +31,7 @@ const CLSID CLSID_InstallOptions2 = { 0x44FE0580, 0x62F7, 0x44D4, 0x9E, 0x91, 0x
 const CLSID CLSID_FindPackagesOptions2 = { 0x1BD8FF3A, 0xEC50, 0x4F69, { 0xAE, 0xEE, 0xDF, 0x4C, 0x9D, 0x3B, 0xAA, 0x96 } }; //1BD8FF3A-EC50-4F69-AEEE-DF4C9D3BAA96
 const CLSID CLSID_PackageMatchFilter2 = { 0x3F85B9F4, 0x487A, 0x4C48, { 0x90, 0x35, 0x29, 0x03, 0xF8, 0xA6, 0xD9, 0xE8 } }; //3F85B9F4-487A-4C48-9035-2903F8A6D9E8
 const CLSID CLSID_CreateCompositePackageCatalogOptions2 = { 0xEE160901, 0xB317, 0x4EA7, { 0x9C, 0xC6, 0x53, 0x55, 0xC6, 0xD7, 0xD8, 0xA7 } }; //EE160901-B317-4EA7-9CC6-5355C6D7D8A7
+const CLSID CLSID_DownloadOptions2 = { 0X8EF324ED, 0X367C, 0X4880, {0X83, 0XE5, 0XBB, 0X2A, 0XBD, 0X0B, 0X72, 0XF6} };  //8EF324ED-367C-4880-83E5-BB2ABD0B72F6
 
 namespace winrt::AppInstallerCaller::implementation
 {
@@ -75,6 +77,13 @@ namespace winrt::AppInstallerCaller::implementation
             return winrt::create_instance<PackageMatchFilter>(CLSID_PackageMatchFilter2, CLSCTX_ALL);
         }
         return winrt::create_instance<PackageMatchFilter>(CLSID_PackageMatchFilter, CLSCTX_ALL);
+    }
+    DownloadOptions MainPage::CreateDownloadOptions() {
+        if (m_useDev)
+        {
+            return winrt::create_instance<DownloadOptions>(CLSID_DownloadOptions2, CLSCTX_ALL);
+        }
+        return winrt::create_instance<DownloadOptions>(CLSID_DownloadOptions, CLSCTX_ALL);
     }
 
     IAsyncOperation<PackageCatalog> MainPage::FindSourceAsync(std::wstring packageSource)
@@ -130,6 +139,19 @@ namespace winrt::AppInstallerCaller::implementation
         return packageManager.InstallPackageAsync(package, installOptions);
     }
 
+    IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> MainPage::DownloadPackage(CatalogPackage package, std::wstring downloadDirectory)
+    {
+        PackageManager packageManager = CreatePackageManager();
+        DownloadOptions downloadOptions = CreateDownloadOptions();
+
+        if (!downloadDirectory.empty())
+        {
+            downloadOptions.DownloadDirectory(downloadDirectory);
+        }
+
+        return packageManager.DownloadPackageAsync(package, downloadOptions);
+    }
+
     IAsyncAction UpdateUIProgress(
         InstallProgress progress,
         winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
@@ -157,6 +179,33 @@ namespace winrt::AppInstallerCaller::implementation
             break;
         case PackageInstallProgressState::Finished:
             statusText.Text(L"Finished install.");
+            progressBar.IsIndeterminate(false);
+            break;
+        default:
+            statusText.Text(L"");
+        }
+    }
+
+    IAsyncAction UpdateUIDownloadProgress(
+        PackageDownloadProgress progress,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
+        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        co_await winrt::resume_foreground(progressBar.Dispatcher());
+        progressBar.Value(progress.DownloadProgress * 100);
+
+        std::wstring downloadText{ L"Downloading. " };
+        switch (progress.State)
+        {
+        case PackageDownloadProgressState::Queued:
+            statusText.Text(L"Queued");
+            break;
+        case PackageDownloadProgressState::Downloading:
+            downloadText += std::to_wstring(progress.BytesDownloaded) + L" bytes of " + std::to_wstring(progress.BytesRequired);
+            statusText.Text(downloadText);
+            break;
+        case PackageDownloadProgressState::Finished:
+            statusText.Text(L"Finished download.");
             progressBar.IsIndeterminate(false);
             break;
         default:
@@ -233,6 +282,74 @@ namespace winrt::AppInstallerCaller::implementation
             std::wostringstream failText;
             failText << L"Install failed: " << installResult.ExtendedErrorCode() << L" [" << installResult.InstallerErrorCode() << L"]";
             installButton.Content(box_value(L"Install"));
+            statusText.Text(failText.str());
+        }
+    }
+
+    // This method is called from a background thread.
+    IAsyncAction UpdateUIForDownload(
+        IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> operation,
+        winrt::Windows::UI::Xaml::Controls::Button downloadButton,
+        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
+        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        operation.Progress([=](
+            IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> const& /* sender */,
+            PackageDownloadProgress const& progress)
+            {
+                UpdateUIDownloadProgress(progress, progressBar, statusText).get();
+            });
+
+        winrt::hresult downloadOperationHr = S_OK;
+        std::wstring errorMessage{ L"Unknown Error" };
+        DownloadResult downloadResult{ nullptr };
+        try
+        {
+            downloadResult = co_await operation;
+        }
+        catch (hresult_canceled const&)
+        {
+            errorMessage = L"Cancelled";
+            OutputDebugString(L"Operation was cancelled");
+        }
+        catch (...)
+        {
+            // Operation failed
+            // Example: HRESULT_FROM_WIN32(ERROR_DISK_FULL).
+            downloadOperationHr = winrt::to_hresult();
+            // Example: "There is not enough space on the disk."
+            errorMessage = winrt::to_message();
+            OutputDebugString(L"Operation failed");
+        }
+
+        // Switch back to ui thread context.
+        co_await winrt::resume_foreground(progressBar.Dispatcher());
+
+        cancelButton.IsEnabled(false);
+        downloadButton.IsEnabled(true);
+        progressBar.IsIndeterminate(false);
+
+        if (operation.Status() == AsyncStatus::Canceled)
+        {
+            downloadButton.Content(box_value(L"Retry"));
+            statusText.Text(L"Download cancelled.");
+        }
+        if (operation.Status() == AsyncStatus::Error || downloadResult == nullptr)
+        {
+            downloadButton.Content(box_value(L"Retry"));
+            statusText.Text(errorMessage);
+        }
+        else if (downloadResult.Status() == DownloadResultStatus::Ok)
+        {
+            downloadButton.Content(box_value(L"Download"));
+            statusText.Text(L"Finished.");
+        }
+        else
+        {
+            std::wostringstream failText;
+            failText << L"Download failed: " << downloadResult.ExtendedErrorCode();
+            downloadButton.Content(box_value(L"Download"));
             statusText.Text(failText.str());
         }
     }
@@ -412,8 +529,48 @@ namespace winrt::AppInstallerCaller::implementation
         }
     }
 
+    IAsyncAction MainPage::StartDownload(
+        winrt::Windows::UI::Xaml::Controls::Button button,
+        winrt::Windows::UI::Xaml::Controls::Button cancelButton,
+        winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
+        winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
+    {
+        button.IsEnabled(false);
+        cancelButton.IsEnabled(true);
+        int32_t selectedIndex = catalogsListBox().SelectedIndex();
+
+        co_await winrt::resume_background();
+
+        if (selectedIndex < 0)
+        {
+            co_await winrt::resume_foreground(button.Dispatcher());
+            button.IsEnabled(false);
+            statusText.Text(L"No catalog selected to download.");
+            co_return;
+        }
+
+        // Get the remote catalog
+        PackageCatalogReference selectedRemoteCatalogRef = m_packageCatalogs.GetAt(selectedIndex);
+        ConnectResult remoteConnectResult{ co_await selectedRemoteCatalogRef.ConnectAsync() };
+        PackageCatalog selectedRemoteCatalog = remoteConnectResult.PackageCatalog();
+        if (!selectedRemoteCatalog)
+        {
+            co_await winrt::resume_foreground(progressBar.Dispatcher());
+            statusText.Text(L"Connecting to catalog failed.");
+            co_return;
+        }
+        FindPackagesResult findPackagesResult{ TryFindPackageInCatalogAsync(selectedRemoteCatalog, m_installAppId).get() };
+        winrt::IVectorView<MatchResult> matches = findPackagesResult.Matches();
+        if (matches.Size() > 0)
+        {
+            m_downloadPackageOperation = DownloadPackage(matches.GetAt(0).CatalogPackage(), m_downloadDirectory);
+            UpdateUIForDownload(m_downloadPackageOperation, button, cancelButton, progressBar, statusText);
+        }
+    }
+
     IAsyncAction MainPage::FindPackage(
         winrt::Windows::UI::Xaml::Controls::Button installButton,
+        winrt::Windows::UI::Xaml::Controls::Button downloadButton,
         winrt::Windows::UI::Xaml::Controls::ProgressBar progressBar,
         winrt::Windows::UI::Xaml::Controls::TextBlock statusText)
     {
@@ -462,7 +619,8 @@ namespace winrt::AppInstallerCaller::implementation
             {
                 co_await winrt::resume_foreground(installButton.Dispatcher());
                 installButton.IsEnabled(true);
-                statusText.Text(L"Found the package to install.");
+                downloadButton.IsEnabled(true);
+                statusText.Text(L"Found the package to install or download.");
             }
         }
         else
@@ -478,10 +636,12 @@ namespace winrt::AppInstallerCaller::implementation
     {
         m_installAppId = catalogIdTextBox().Text();
         installButton().IsEnabled(false);
+        downloadButton().IsEnabled(false);
         cancelButton().IsEnabled(false);
         installStatusText().Text(L"Looking for package.");
-        FindPackage(installButton(), installProgressBar(), installStatusText());
+        FindPackage(installButton(), downloadButton(), installProgressBar(), installStatusText());
     }
+
     void MainPage::InstallButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
         if (m_installPackageOperation == nullptr || m_installPackageOperation.Status() != AsyncStatus::Started)
@@ -497,6 +657,25 @@ namespace winrt::AppInstallerCaller::implementation
             m_installPackageOperation.Cancel();
         }
     }
+
+    void MainPage::DownloadButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    {
+        m_downloadDirectory = downloadDirectoryTextBox().Text();
+
+        if (m_downloadPackageOperation == nullptr || m_downloadPackageOperation.Status() != AsyncStatus::Started)
+        {
+            StartDownload(downloadButton(), downloadCancelButton(), downloadProgressBar(), downloadStatusText());
+        }
+    }
+
+    void MainPage::DownloadCancelButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    {
+        if (m_downloadPackageOperation && m_downloadPackageOperation.Status() == AsyncStatus::Started)
+        {
+            m_downloadPackageOperation.Cancel();
+        }
+    }
+
     void MainPage::RefreshInstalledButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
         GetInstalledPackages(installedStatusText());

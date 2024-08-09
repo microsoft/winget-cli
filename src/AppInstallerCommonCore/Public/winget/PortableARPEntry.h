@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Registry.h"
+#include <winget/Registry.h>
 #include "Manifest.h"
 
 namespace AppInstaller::Registry::Portable
@@ -23,6 +23,7 @@ namespace AppInstaller::Registry::Portable
         WinGetInstallerType,
         WinGetPackageIdentifier,
         WinGetSourceIdentifier,
+        InstallDirectoryAddedToPath,
     };
 
     std::wstring_view ToString(PortableValueName valueName);
@@ -32,8 +33,6 @@ namespace AppInstaller::Registry::Portable
         PortableARPEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
 
         std::optional<Value> operator[](PortableValueName valueName) const;
-
-        bool IsSamePortablePackageEntry(const std::string& packageId, const std::string& sourceId);
 
         bool Exists() { return m_exists; }
 
@@ -46,9 +45,11 @@ namespace AppInstaller::Registry::Portable
         Registry::Key GetKey() { return m_key; };
         Manifest::ScopeEnum GetScope() { return m_scope; };
         Utility::Architecture GetArchitecture() { return m_arch; };
+        std::string GetProductCode() { return m_productCode; };
 
     private:
         bool m_exists = false;
+        std::string m_productCode;
         Key m_key;
         HKEY m_root;
         std::wstring m_subKey;

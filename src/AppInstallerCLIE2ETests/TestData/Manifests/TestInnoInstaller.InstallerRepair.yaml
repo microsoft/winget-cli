@@ -1,0 +1,19 @@
+PackageIdentifier: AppInstallerTest.TestInstallerRepair
+PackageVersion: 2.0.0.0
+PackageLocale: en-US
+PackageName: TestInstallerRepair
+Publisher: AppInstallerTest
+RepairBehavior: installer
+Installers:
+    - Architecture: x86
+      InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+      InstallerType: inno
+      InstallerSha256: <EXEHASH>
+      ProductCode: '{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}'
+      ElevationRequirement: elevationRequired
+      InstallerSwitches:
+        InstallLocation: /InstallDir <INSTALLPATH>
+        Custom: /Version 2.0.0.0 /DisplayName TestInstallerRepair /UseHKLM
+        Repair: /repair /UseHKLM
+ManifestType: singleton
+ManifestVersion: 1.7.0

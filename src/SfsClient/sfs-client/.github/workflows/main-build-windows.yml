@@ -1,0 +1,45 @@
+name: Main Build (Windows)
+
+on:
+  push:
+    branches: [ "main" ]
+
+# Permissions and environment values to be able to update the dependency graph with vcpkg information
+permissions:
+  contents: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  VCPKG_FEATURE_FLAGS: dependencygraph
+
+jobs:
+  build-windows:
+    runs-on: 'windows-latest'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Winget
+        uses: ./.github/workflows/install-winget
+
+      - name: Setup
+        shell: pwsh
+        run: .\scripts\Setup.ps1 -NoBuildTools
+
+      - name: Build and Test (no test overrides)
+        shell: pwsh
+        run: |
+          .\scripts\Build.ps1
+          .\scripts\Test.ps1 -OutputOnFailure
+
+      - name: Build and Test (with test overrides)
+        shell: pwsh
+        run: |
+          .\scripts\Build.ps1 -EnableTestOverrides
+          .\scripts\Test.ps1 -OutputOnFailure
+
+      - name: Build and Test (Release)
+        shell: pwsh
+        run: |
+            .\scripts\Build.ps1 -BuildType Release
+            .\scripts\Test.ps1 -OutputOnFailure

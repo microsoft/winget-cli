@@ -20,6 +20,11 @@ namespace AppInstaller::Repository::Microsoft
         // The factory for the predefined installing source.
         struct PredefinedWriteableSourceFactoryImpl : public ISourceFactory
         {
+            std::string_view TypeName() const override final
+            {
+                return PredefinedWriteableSourceFactory::Type();
+            }
+
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final;
 
             bool Add(SourceDetails&, IProgressCallback&) override final
@@ -60,10 +65,10 @@ namespace AppInstaller::Repository::Microsoft
                 std::call_once(g_InstallingSourceOnceFlag,
                     [&]()
                     {
-                        // Create an in memory index
-                        SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
+                        // Create an in memory index without paths or dependencies
+                        SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless | SQLiteIndex::CreateOptions::DisableDependenciesSupport);
 
-                        g_sharedSource = std::make_shared<SQLiteIndexWriteableSource>(m_details, std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
+                        g_sharedSource = std::make_shared<SQLiteIndexWriteableSource>(m_details, std::move(index), true);
                     });
 
                 return g_sharedSource;

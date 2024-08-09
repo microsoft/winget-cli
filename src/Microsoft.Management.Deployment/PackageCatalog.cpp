@@ -121,7 +121,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Microsoft::Management::Deployment::FindPackagesResult PackageCatalog::FindPackages(winrt::Microsoft::Management::Deployment::FindPackagesOptions const& options)
     {
-        winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::Ok;
         bool isTruncated = false;
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::MatchResult> matches{ winrt::single_threaded_vector<Microsoft::Management::Deployment::MatchResult>() };
         ::AppInstaller::Repository::SearchRequest searchRequest;

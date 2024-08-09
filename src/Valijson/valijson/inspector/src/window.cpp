@@ -47,8 +47,10 @@ Window::Window(QWidget * parent)
     setCentralWidget(verticalSplitter);
     setStatusBar(statusBar);
 
-    connect(m_documentEditor, SIGNAL(textChanged()), this, SLOT(refreshDocumentJson()));
-    connect(m_schemaEditor, SIGNAL(textChanged()), this, SLOT(refreshSchemaJson()));
+    connect(m_documentEditor, SIGNAL(textChanged()), this, SLOT(refreshJson()));
+    connect(m_schemaEditor, SIGNAL(textChanged()), this, SLOT(refreshJson()));
+
+    refreshJson();
 }
 
 QTextEdit * Window::createEditor(bool readOnly)
@@ -114,46 +116,61 @@ QToolBar * Window::createToolBar()
     return toolbar;
 }
 
-void Window::refreshDocumentJson()
+void Window::refreshJson()
 {
-    QJsonParseError error;
-    m_document = QJsonDocument::fromJson(m_documentEditor->toPlainText().toUtf8(), &error);
-    if (m_document.isNull()) {
-        m_errors->setText(error.errorString());
-        return;
-    }
+    QString errors;
+    m_errors->setText("");
 
-    if (m_schema) {
-        validate();
+    const auto schema = m_schemaEditor->toPlainText().toUtf8();
+    const auto doc = m_documentEditor->toPlainText().toUtf8();
+
+    if (schema.isEmpty()) {
+        if (doc.isEmpty()) {
+            m_errors->setText(
+              "Please provide a schema and a document to be validated.\n\n"
+              "Note that this example uses QtJson, which does not consider non-array and "
+              "non-object values to be valid JSON documents.");
+            return;
+        } else {
+            errors += "Schema error: must not be empty\n\n";
+        }
     } else {
-        m_errors->setText("");
+        QJsonParseError error;
+        m_schemaJson = QJsonDocument::fromJson(schema, &error);
+        if (m_schemaJson.isNull()) {
+            errors += QString("Schema error: ") + error.errorString() + "\n\n";
+        }
     }
-}
 
-void Window::refreshSchemaJson()
-{
-    QJsonParseError error;
-    auto schemaDoc = QJsonDocument::fromJson(m_schemaEditor->toPlainText().toUtf8(), &error);
-    if (schemaDoc.isNull()) {
-        m_errors->setText(error.errorString());
-        return;
+    if (doc.isEmpty()) {
+        if (!schema.isEmpty()) {
+            errors += "Document error: must not be empty\n\n";
+        }
+    } else {
+        QJsonParseError error;
+        m_documentJson = QJsonDocument::fromJson(doc, &error);
+        if (m_documentJson.isNull()) {
+            errors += QString("Document error: ") + error.errorString() + "\n\n";
+        }
+    }
+
+    if (!errors.isEmpty()) {
+      m_errors->setText(errors);
+      return;
     }
 
     try {
-        valijson::adapters::QtJsonAdapter adapter(schemaDoc.object());
+        valijson::adapters::QtJsonAdapter adapter(m_schemaJson.object());
         valijson::SchemaParser parser;
         delete m_schema;
         m_schema = new valijson::Schema();
         parser.populateSchema(adapter, *m_schema);
-        m_errors->setText("");
-
-    } catch (std::runtime_error error) {
+        validate();
+    } catch (std::runtime_error & error) {
         delete m_schema;
         m_schema = nullptr;
-        m_errors->setText(error.what());
+        m_errors->setText(QString("Schema error: ") + error.what());
     }
-
-    validate();
 }
 
 void Window::showOpenDocumentDialog()
@@ -180,7 +197,7 @@ void Window::validate()
 {
     valijson::ValidationResults results;
     valijson::Validator validator;
-    valijson::adapters::QtJsonAdapter adapter(m_document.object());
+    valijson::adapters::QtJsonAdapter adapter(m_documentJson.object());
 
     if (validator.validate(*m_schema, adapter, &results)) {
         m_errors->setText("Document is valid.");
@@ -192,11 +209,11 @@ void Window::validate()
     std::stringstream ss;
     while (results.popError(error)) {
         std::string context;
-        for (auto itr = error.context.begin(); itr != error.context.end(); itr++) {
-            context += *itr;
+        for (auto & itr : error.context) {
+            context += itr;
         }
 
-        ss << "Error #" << errorNum << std::endl
+        ss << "Validation error #" << errorNum << std::endl
             << "  context: " << context << std::endl
             << "  desc:    " << error.description << std::endl;
         ++errorNum;

@@ -40,13 +40,13 @@ namespace AppInstaller::CLI::Execution
         {
             Reporter.SetChannel(Reporter::Channel::Disabled);
             Reporter.SetProgressSink(this);
-            SetFlags(CLI::Execution::ContextFlag::AgreementsAcceptedByCaller);
+            SetFlags(CLI::Execution::ContextFlag::DisableInteractivity);
         }
 
         COMContext(std::ostream& out, std::istream& in) : CLI::Execution::Context(out, in)
         {
             Reporter.SetProgressSink(this);
-            SetFlags(CLI::Execution::ContextFlag::AgreementsAcceptedByCaller);
+            SetFlags(CLI::Execution::ContextFlag::DisableInteractivity);
         }
 
         ~COMContext() = default;
@@ -54,6 +54,7 @@ namespace AppInstaller::CLI::Execution
         // IProgressSink
         void BeginProgress() override;
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
+        void SetProgressMessage(std::string_view message) override;
         void EndProgress(bool) override;
 
         //Execution::Context
@@ -65,7 +66,7 @@ namespace AppInstaller::CLI::Execution
 
         // Set Diagnostic and Telemetry loggers, Wil failure callback
         // This should be called only once per COM Server instance
-        static void SetLoggers();
+        static void SetLoggers(std::optional<AppInstaller::Logging::Channel> channel = std::nullopt, std::optional<AppInstaller::Logging::Level> level = std::nullopt);
 
         // Set COM call context for diagnostic and telemetry loggers
         // This should be called for every COMContext object instance

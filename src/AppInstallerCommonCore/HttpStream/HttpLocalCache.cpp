@@ -28,7 +28,7 @@ namespace AppInstaller::Utility::HttpStream
         FindCachePages(requestedPosition, requestedSize, allPages, unsatisfiablePages);
 
         // download the missing pages
-        co_await DownloadAndSaveToCacheAysnc(
+        co_await DownloadAndSaveToCacheAsync(
             unsatisfiablePages,
             httpClientWrapper,
             httpInputStreamOptions);
@@ -145,7 +145,7 @@ namespace AppInstaller::Utility::HttpStream
 
     // Downloads a chunk of the file, saves it to the cache, and returns the corresponding buffer
     // If the requested size is 0, this method returns an empty buffer without making HTTP calls
-    std::future<void> HttpLocalCache::DownloadAndSaveToCacheAysnc(
+    std::future<void> HttpLocalCache::DownloadAndSaveToCacheAsync(
         const std::vector<ULONG64> unsatisfiablePages,
         HttpClientWrapper* httpClientWrapper,
         InputStreamOptions httpInputStreamOptions)
@@ -217,6 +217,9 @@ namespace AppInstaller::Utility::HttpStream
         UINT32 trimStartIndex,
         UINT32 size)
     {
+        uint32_t bufferLength = originalBuffer.Length();
+        THROW_HR_IF(E_INVALIDARG, trimStartIndex > bufferLength);
+
         originalBuffer.as<::IInspectable>();
 
         // Get the byte array from the IBuffer object
@@ -228,7 +231,7 @@ namespace AppInstaller::Utility::HttpStream
 
         // Create the array of bytes holding the trimmed bytes
         IBuffer trimmedBuffer = CryptographicBuffer::CreateFromByteArray(
-            { byteBuffer + trimStartIndex, byteBuffer + trimStartIndex + size });
+            { byteBuffer + trimStartIndex, std::min(size, bufferLength - trimStartIndex) });
 
         return trimmedBuffer;
     }

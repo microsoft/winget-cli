@@ -1,27 +1,16 @@
-# spelling.yml is blocked per https://github.com/check-spelling/check-spelling/security/advisories/GHSA-g86g-chm8-7r2p
-name: Spell checking
+# spelling.yml is disabled per https://github.com/check-spelling/check-spelling/security/advisories/GHSA-p8r9-69g4-jwqq
+name: Workflow should not run!
 on:
-  pull_request_target:
   push:
-    branches:
-      - "**"
-    tags-ignore:
-      - "**"
+    branches: ''
 
 jobs:
-  spelling:
-    name: Spell checking
+  placeholder:
+    name: Should be disabled
     runs-on: ubuntu-latest
+    if: false
     steps:
-    - name: checkout-merge
-      if: "contains(github.event_name, 'pull_request')"
-      uses: actions/checkout@v2
-      with:
-        ref: refs/pull/${{github.event.pull_request.number}}/merge
-    - name: checkout
-      if: ${{ github.event_name == 'push' }}
-      uses: actions/checkout@v2
-    - uses: check-spelling/check-spelling@v0.0.19
-      id: spelling
-      with:
-        shortest_word: 2
+      - name: Task
+        run: |
+          echo 'Running this task would be bad'
+          exit 1

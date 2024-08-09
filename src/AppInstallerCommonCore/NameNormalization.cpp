@@ -501,4 +501,28 @@ namespace AppInstaller::Utility
     {
         return m_normalizer->NormalizePublisher(publisher);
     }
+
+    std::string NormalizedName::GetNormalizedName(NormalizationField fieldsToInclude) const
+    {
+        std::string result = Name();
+
+        if (WI_IsFlagSet(fieldsToInclude, NormalizationField::Architecture) && m_arch != Utility::Architecture::Unknown)
+        {
+            result += '(' + std::string(Utility::ToString(m_arch)) + ')';
+        }
+
+        return result;
+    }
+
+    NormalizationField NormalizedName::GetNormalizedFields() const
+    {
+        NormalizationField result = NormalizationField::None;
+
+        if (m_arch != Utility::Architecture::Unknown)
+        {
+            result |= NormalizationField::Architecture;
+        }
+
+        return result;
+    }
 }

@@ -1,0 +1,10 @@
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.7.32
+PackageLocale: en-US
+PackageName: MSIX SDK
+License: MIT License
+ShortDescription: This is MSIX SDK
+Description: The MSIX SDK project is an effort to enable developers
+Publisher: Microsoft
+ManifestType: defaultLocale
+ManifestVersion: 1.5.0

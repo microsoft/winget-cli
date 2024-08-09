@@ -17,7 +17,7 @@ maintainer-clean-local:
 	-find ${builddir} -name Makefile.in -exec rm -f '{}' ';'
 
 distclean-local:
-	rm -fr tests/run-test-suite packaging
+	rm -fr tests/run-test-suite
 	-git worktree prune
 
 .PHONY: bootstrap
@@ -43,12 +43,9 @@ ifeq ($(LIBYAML_TEST_SUITE_RUN_REPO),$(LIBYAML_TEST_SUITE_RUN_REPO_DEFAULT))
 	  git clone --branch $(LIBYAML_TEST_SUITE_RUN_BRANCH) $(LIBYAML_TEST_SUITE_RUN_REPO) $@
     endif
 
-packaging:
-	-git branch --track $@ origin/$@
-	git worktree add --force $@ $@
+docker-build:
+	make -C pkg/docker build
 
-docker-dist: packaging
-	make -C $</docker libyaml-dist
+docker-dist:
+	make -C pkg/docker libyaml-dist
 
-docker-test-pyyaml: packaging
-	make -C $</docker test-pyyaml

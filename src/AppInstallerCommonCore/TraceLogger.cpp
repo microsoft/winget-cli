@@ -24,7 +24,7 @@ namespace AppInstaller::Logging
         // Just eat any exceptions here; better to lose logs than functionality
     }
 
-    void TraceLogger::WriteDirect(std::string_view message) noexcept try
+    void TraceLogger::WriteDirect(Channel, Level, std::string_view message) noexcept try
     {
         TraceLoggingWriteActivity(g_hTraceProvider,
             "Diagnostics",
@@ -40,5 +40,10 @@ namespace AppInstaller::Logging
     std::string TraceLogger::GetName() const
     {
         return "Trace";
+    }
+
+    void TraceLogger::Add()
+    {
+        Log().AddLogger(std::make_unique<TraceLogger>());
     }
 }

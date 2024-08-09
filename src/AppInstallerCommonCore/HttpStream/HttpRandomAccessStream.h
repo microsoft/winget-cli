@@ -5,6 +5,8 @@
 #include "HttpClientWrapper.h"
 #include "HttpLocalCache.h"
 
+using namespace std::chrono_literals;
+
 namespace AppInstaller::Utility::HttpStream
 {
     // Provides an implementation of a random access stream over HTTP that supports
@@ -17,8 +19,7 @@ namespace AppInstaller::Utility::HttpStream
         winrt::Windows::Storage::Streams::IInputStream>
     {
     public:
-        static winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::Streams::IRandomAccessStream> CreateAsync(
-            const winrt::Windows::Foundation::Uri& uri);
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Windows::Storage::Streams::IRandomAccessStream> InitializeAsync(const winrt::Windows::Foundation::Uri& uri);
         uint64_t Size() const;
         void Size(uint64_t value);
         uint64_t Position() const;
@@ -32,11 +33,13 @@ namespace AppInstaller::Utility::HttpStream
             winrt::Windows::Storage::Streams::IBuffer buffer,
             uint32_t count,
             winrt::Windows::Storage::Streams::InputStreamOptions options);
+        std::chrono::seconds RetryAfter() const;
 
     private:
         std::shared_ptr<HttpClientWrapper> m_httpHelper;
         std::unique_ptr<HttpLocalCache> m_httpLocalCache;
         unsigned long long m_size = 0;
         unsigned long long m_requestedPosition = 0;
+        std::chrono::seconds m_retryAfter = 0s;
     };
 }

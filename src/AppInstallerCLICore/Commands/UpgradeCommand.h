@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct UpgradeCommand final : public Command
     {
-        UpgradeCommand(std::string_view parent) : Command("upgrade", parent) {}
+        UpgradeCommand(std::string_view parent) : Command("upgrade", { "update" }, parent) {}
 
         std::vector<Argument> GetArguments() const override;
 
@@ -16,7 +16,7 @@ namespace AppInstaller::CLI
 
         void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
 
-        std::string HelpLink() const override;
+        Utility::LocIndView HelpLink() const override;
 
     protected:
         void ValidateArgumentsInternal(Execution::Args& execArgs) const override;

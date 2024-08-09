@@ -12,23 +12,6 @@
 
 namespace AppInstaller::CLI::Execution
 {
-    namespace details
-    {
-        // Gets the column width of the console.
-        inline size_t GetConsoleWidth()
-        {
-            CONSOLE_SCREEN_BUFFER_INFO consoleInfo{};
-            if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo))
-            {
-                return static_cast<size_t>(consoleInfo.dwSize.X);
-            }
-            else
-            {
-                return 120;
-            }
-        }
-    }
-
     // Enables output data in a table format.
     // TODO: Improve for use with sparse data.
     template <size_t FieldCount>
@@ -144,7 +127,7 @@ namespace AppInstaller::CLI::Execution
                 totalRequired += m_columns[i].MaxLength + (m_columns[i].SpaceAfter ? 1 : 0);
             }
 
-            size_t consoleWidth = details::GetConsoleWidth();
+            size_t consoleWidth = GetConsoleWidth();
 
             // If the total space would be too big, shrink them.
             // We don't want to use the last column, lest we auto-wrap

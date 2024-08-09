@@ -4,6 +4,8 @@
 #include "TestCommon.h"
 #include "TestSettings.h"
 #include "winget/GroupPolicy.h"
+#include <AppInstallerStrings.h>
+#include <CertificateResources.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Settings;
@@ -11,10 +13,15 @@ using namespace std::string_view_literals;
 
 namespace
 {
-    std::wstring GetSourceJson(std::wstring_view name, std::wstring_view arg, std::wstring_view type, std::wstring_view data, std::wstring_view identifier)
+    std::wstring GetSourceJson(std::wstring_view name, std::wstring_view arg, std::wstring_view type, std::wstring_view data, std::wstring_view identifier, std::wstring_view trustLevel, std::wstring_view isExplicit, std::wstring_view pinningConfig = {})
     {
         std::wstringstream json;
-        json << L"{ \"Name\":\"" << name << L"\", \"Arg\":\"" << arg << L"\", \"Type\":\"" << type << L"\", \"Data\":\"" << data << L"\", \"Identifier\":\"" << identifier << L"\" }";
+        json << L"{ \"Name\":\"" << name << L"\", \"Arg\":\"" << arg << L"\", \"Type\":\"" << type << L"\", \"Data\":\"" << data << L"\", \"Identifier\":\"" << identifier << L"\", \"TrustLevel\":" << trustLevel << L", \"Explicit\":" << isExplicit;
+        if (!pinningConfig.empty())
+        {
+            json << L", \"CertificatePinning\":" << pinningConfig;
+        }
+        json << " }";
         return json.str();
     }
 }
@@ -118,7 +125,7 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
     {
         // We can read single source correctly
         auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
-        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"source-name", L"source-arg", L"source-type", L"source-data", L"source-identifier"), REG_SZ);
+        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"source-name", L"source-arg", L"source-type", L"source-data", L"source-identifier", L"[\"Trusted\", \"StoreOrigin\"]", L"true"), REG_SZ);
         GroupPolicy groupPolicy{ policiesKey.get() };
 
         auto policy = groupPolicy.GetValue<ValuePolicy::AdditionalSources>();
@@ -129,6 +136,9 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         REQUIRE(policy.value()[0].Type == "source-type");
         REQUIRE(policy.value()[0].Data == "source-data");
         REQUIRE(policy.value()[0].Identifier == "source-identifier");
+        REQUIRE(policy.value()[0].TrustLevel[0] == "Trusted");
+        REQUIRE(policy.value()[0].TrustLevel[1] == "StoreOrigin");
+        REQUIRE(policy.value()[0].Explicit == true);
     }
     SECTION("Missing field")
     {
@@ -191,9 +201,9 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         // We should be able to read multiple values.
         // No specific order is required, but it will likely be the same.
         auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
-        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"s0-name", L"s0-arg", L"s0-type", L"s0-data", L"s0-identifier"), REG_SZ);
-        SetRegistryValue(additionalSourcesKey.get(), L"1", GetSourceJson(L"s1-name", L"s1-arg", L"s1-type", L"s1-data", L"s1-identifier"), REG_SZ);
-        SetRegistryValue(additionalSourcesKey.get(), L"2", GetSourceJson(L"s2-name", L"s2-arg", L"s2-type", L"s2-data", L"s2-identifier"), REG_SZ);
+        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"s0-name", L"s0-arg", L"s0-type", L"s0-data", L"s0-identifier", L"[\"None\"]", L"true"), REG_SZ);
+        SetRegistryValue(additionalSourcesKey.get(), L"1", GetSourceJson(L"s1-name", L"s1-arg", L"s1-type", L"s1-data", L"s1-identifier", L"[\"Trusted\", \"StoreOrigin\"]", L"false"), REG_SZ);
+        SetRegistryValue(additionalSourcesKey.get(), L"2", GetSourceJson(L"s2-name", L"s2-arg", L"s2-type", L"s2-data", L"s2-identifier", L"[\"StoreOrigin\", \"Trusted\"]", L"true"), REG_SZ);
         GroupPolicy groupPolicy{ policiesKey.get() };
 
         auto policy = groupPolicy.GetValue<ValuePolicy::AdditionalSources>();
@@ -205,26 +215,34 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         REQUIRE(policy.value()[0].Type == "s0-type");
         REQUIRE(policy.value()[0].Data == "s0-data");
         REQUIRE(policy.value()[0].Identifier == "s0-identifier");
+        REQUIRE(policy.value()[0].TrustLevel[0] == "None");
+        REQUIRE(policy.value()[0].Explicit == true);
 
         REQUIRE(policy.value()[1].Name == "s1-name");
         REQUIRE(policy.value()[1].Arg == "s1-arg");
         REQUIRE(policy.value()[1].Type == "s1-type");
         REQUIRE(policy.value()[1].Data == "s1-data");
         REQUIRE(policy.value()[1].Identifier == "s1-identifier");
+        REQUIRE(policy.value()[1].TrustLevel[0] == "Trusted");
+        REQUIRE(policy.value()[1].TrustLevel[1] == "StoreOrigin");
+        REQUIRE(policy.value()[1].Explicit == false);
 
         REQUIRE(policy.value()[2].Name == "s2-name");
         REQUIRE(policy.value()[2].Arg == "s2-arg");
         REQUIRE(policy.value()[2].Type == "s2-type");
         REQUIRE(policy.value()[2].Data == "s2-data");
         REQUIRE(policy.value()[2].Identifier == "s2-identifier");
+        REQUIRE(policy.value()[2].TrustLevel[0] == "StoreOrigin");
+        REQUIRE(policy.value()[2].TrustLevel[1] == "Trusted");
+        REQUIRE(policy.value()[2].Explicit == true);
     }
     SECTION("Invalid source in list")
     {
         // If a single source is invalid we should still get all others
         auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
-        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"s0-name", L"s0-arg", L"s0-type", L"s0-data", L"s0-identifier"), REG_SZ);
+        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"s0-name", L"s0-arg", L"s0-type", L"s0-data", L"s0-identifier", L"[\"Trusted\", \"StoreOrigin\"]", L"false"), REG_SZ);
         SetRegistryValue(additionalSourcesKey.get(), L"1", L"not a source", REG_SZ);
-        SetRegistryValue(additionalSourcesKey.get(), L"2", GetSourceJson(L"s2-name", L"s2-arg", L"s2-type", L"s2-data", L"s2-identifier"), REG_SZ);
+        SetRegistryValue(additionalSourcesKey.get(), L"2", GetSourceJson(L"s2-name", L"s2-arg", L"s2-type", L"s2-data", L"s2-identifier", L"[\"StoreOrigin\", \"Trusted\"]", L"true"), REG_SZ);
         GroupPolicy groupPolicy{ policiesKey.get() };
 
         auto policy = groupPolicy.GetValue<ValuePolicy::AdditionalSources>();
@@ -236,12 +254,18 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         REQUIRE(policy.value()[0].Type == "s0-type");
         REQUIRE(policy.value()[0].Data == "s0-data");
         REQUIRE(policy.value()[0].Identifier == "s0-identifier");
+        REQUIRE(policy.value()[0].TrustLevel[0] == "Trusted");
+        REQUIRE(policy.value()[0].TrustLevel[1] == "StoreOrigin");
+        REQUIRE(policy.value()[0].Explicit == false);
 
         REQUIRE(policy.value()[1].Name == "s2-name");
         REQUIRE(policy.value()[1].Arg == "s2-arg");
         REQUIRE(policy.value()[1].Type == "s2-type");
         REQUIRE(policy.value()[1].Data == "s2-data");
         REQUIRE(policy.value()[1].Identifier == "s2-identifier");
+        REQUIRE(policy.value()[1].TrustLevel[0] == "StoreOrigin");
+        REQUIRE(policy.value()[1].TrustLevel[1] == "Trusted");
+        REQUIRE(policy.value()[1].Explicit == true);
     }
     SECTION("Exported JSON")
     {
@@ -252,6 +276,8 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         source.Arg = "json-arg";
         source.Data = "json-data";
         source.Identifier = "json-id";
+        source.TrustLevel = {"Trusted", "StoreOrigin"};
+        source.Explicit = false;
 
         auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AllowedSourcesPolicyKeyName);
         SetRegistryValue(additionalSourcesKey.get(), L"0", AppInstaller::Utility::ConvertToUTF16(source.ToJsonString()));
@@ -265,6 +291,61 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         REQUIRE(policy.value()[0].Type == source.Type);
         REQUIRE(policy.value()[0].Data == source.Data);
         REQUIRE(policy.value()[0].Identifier == source.Identifier);
+        REQUIRE(policy.value()[0].TrustLevel[0] == source.TrustLevel[0]); // Trusted
+        REQUIRE(policy.value()[0].TrustLevel[1] == source.TrustLevel[1]); // StoreOrigin
+        REQUIRE(policy.value()[0].Explicit == source.Explicit);
+    }
+    SECTION("Source with PinningConfiguration")
+    {
+        using namespace AppInstaller::Certificates;
+
+        auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
+
+        PinningDetails rootCert;
+        rootCert.LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2, CERTIFICATE_RESOURCE_TYPE);
+        PinningDetails intermediateCert;
+        intermediateCert.LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2, CERTIFICATE_RESOURCE_TYPE);
+        PinningDetails leafCert;
+        leafCert.LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2, CERTIFICATE_RESOURCE_TYPE);
+
+        auto getBytesString = [](const PinningDetails& details)
+        {
+            std::vector<BYTE> bytes;
+            bytes.assign(details.GetCertificate()->pbCertEncoded, details.GetCertificate()->pbCertEncoded + details.GetCertificate()->cbCertEncoded);
+            return AppInstaller::Utility::ConvertToUTF16(AppInstaller::Utility::ConvertToHexString(bytes));
+        };
+
+        std::wostringstream pinningConfig;
+        pinningConfig <<
+LR"({
+    "Chains": [{
+        "Chain":[
+            { "Validation": ["publickey"], "EmbeddedCertificate": ")" << getBytesString(rootCert) << LR"(" },
+            { "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << getBytesString(intermediateCert) << LR"(" },
+            { "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << getBytesString(leafCert) << LR"(" }
+        ]
+    }]
+})";
+
+        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"source-name", L"source-arg", L"source-type", L"source-data", L"source-identifier", L"[\"Trusted\", \"StoreOrigin\"]", L"true", pinningConfig.str()), REG_SZ);
+        GroupPolicy groupPolicy{ policiesKey.get() };
+
+        auto policy = groupPolicy.GetValue<ValuePolicy::AdditionalSources>();
+        REQUIRE(policy.has_value());
+        REQUIRE(policy->size() == 1);
+        const auto& sourceInfo = policy.value()[0];
+        REQUIRE(sourceInfo.Name == "source-name");
+        REQUIRE(sourceInfo.Arg == "source-arg");
+        REQUIRE(sourceInfo.Type == "source-type");
+        REQUIRE(sourceInfo.Data == "source-data");
+        REQUIRE(sourceInfo.Identifier == "source-identifier");
+        REQUIRE(sourceInfo.TrustLevel[0] == "Trusted");
+        REQUIRE(sourceInfo.TrustLevel[1] == "StoreOrigin");
+        REQUIRE(sourceInfo.Explicit == true);
+
+        // Use loaded pinning config and validate against leaf certificate
+        REQUIRE(!sourceInfo.PinningConfiguration.IsEmpty());
+        REQUIRE(sourceInfo.PinningConfiguration.Validate(leafCert.GetCertificate()));
     }
 }
 
@@ -312,10 +393,15 @@ TEST_CASE("GroupPolicy_AllEnabled", "[groupPolicy]")
     SetRegistryValue(policiesKey.get(), ExperimentalFeaturesPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), LocalManifestsPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), EnableHashOverridePolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), EnableLocalArchiveMalwareScanOverridePolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), DefaultSourcePolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), MSStoreSourcePolicyValueName, 1);;
     SetRegistryValue(policiesKey.get(), AdditionalSourcesPolicyValueName, 1);
     SetRegistryValue(policiesKey.get(), AllowedSourcesPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), BypassCertificatePinningForMicrosoftStoreValueName, 1);
+    SetRegistryValue(policiesKey.get(), EnableWindowsPackageManagerCommandLineInterfaces, 1);
+    SetRegistryValue(policiesKey.get(), ConfigurationPolicyValueName, 1);
+    SetRegistryValue(policiesKey.get(), ProxyCommandLineOptionsPolicyValueName, 1);
 
     GroupPolicy groupPolicy{ policiesKey.get() };
     for (const auto& policy : TogglePolicy::GetAllPolicies())

@@ -1,4 +1,4 @@
-unqouted: string
+unquoted: string
 literal-block: |
     This entire block of text will be the value of the 'literal-block' key,
     with line breaks being preserved.

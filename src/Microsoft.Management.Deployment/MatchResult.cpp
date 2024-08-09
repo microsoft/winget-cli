@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include <mutex>
 #include <winget/RepositorySource.h>
 #include "MatchResult.h"
 #include "MatchResult.g.cpp"

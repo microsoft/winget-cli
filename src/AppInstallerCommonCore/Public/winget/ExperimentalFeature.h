@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <type_traits>
+#include "AppInstallerStrings.h"
 
 namespace AppInstaller::Settings
 {
@@ -20,9 +21,12 @@ namespace AppInstaller::Settings
         enum class Feature : unsigned
         {
             None = 0x0,
-            Dependencies = 0x1,
             // Before making DirectMSI non-experimental, it should be part of manifest validation.
-            DirectMSI = 0x2,
+            DirectMSI = 0x1,
+            Resume = 0x2,
+            Configuration03 = 0x4,
+            ConfigureSelfElevation = 0x8,
+            ConfigureExport = 0x10,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command
@@ -54,13 +58,13 @@ namespace AppInstaller::Settings
         static std::vector<ExperimentalFeature> GetAllFeatures();
 
         std::string_view Name() const { return m_name; }
-        std::string_view JsonName() const { return m_jsonName; }
+        Utility::LocIndView JsonName() const { return m_jsonName; }
         std::string_view Link() const { return m_link; }
         Feature GetFeature() const { return m_feature; }
 
     private:
         std::string_view m_name;
-        std::string_view m_jsonName;
+        Utility::LocIndView m_jsonName;
         std::string_view m_link;
         Feature m_feature;
     };

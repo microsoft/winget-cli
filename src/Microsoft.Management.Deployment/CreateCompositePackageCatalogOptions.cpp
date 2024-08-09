@@ -25,6 +25,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_compositeSearchBehavior = value;
     }
+    winrt::Microsoft::Management::Deployment::PackageInstallScope CreateCompositePackageCatalogOptions::InstalledScope()
+    {
+        return m_installedScope;
+    }
+    void CreateCompositePackageCatalogOptions::InstalledScope(winrt::Microsoft::Management::Deployment::PackageInstallScope const& value)
+    {
+        m_installedScope = value;
+    }
 
     CoCreatableMicrosoftManagementDeploymentClass(CreateCompositePackageCatalogOptions);
 }

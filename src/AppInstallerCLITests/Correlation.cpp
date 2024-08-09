@@ -113,7 +113,8 @@ ResultSummary EvaluateDataSetWithHeuristic(const DataSet& dataSet, IARPMatchConf
     for (const auto& testCase : dataSet.TestCases)
     {
         arpEntries.push_back(GetARPEntryFromTestCase(testCase, /* isNew */ true));
-        auto match = FindARPEntryForNewlyInstalledPackageWithHeuristics(GetManifestFromTestCase(testCase), arpEntries, correlationAlgorithm);
+        ARPHeuristicsCorrelationResult correlationResult = FindARPEntryForNewlyInstalledPackageWithHeuristics(GetManifestFromTestCase(testCase), arpEntries, correlationAlgorithm);
+        auto match = correlationResult.Package;
         arpEntries.pop_back();
 
         if (match)

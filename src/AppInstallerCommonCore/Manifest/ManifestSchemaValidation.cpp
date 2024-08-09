@@ -6,6 +6,7 @@
 #include "winget/ManifestCommon.h"
 #include "winget/ManifestSchemaValidation.h"
 #include "winget/ManifestYamlParser.h"
+#include "winget/Resources.h"
 
 #include <ManifestSchema.h>
 
@@ -31,6 +32,7 @@ namespace AppInstaller::Manifest::YamlParser
             { "RequireExplicitUpgrade"sv, YamlScalarType::Bool },
             { "DisplayInstallWarnings"sv, YamlScalarType::Bool },
             { "InstallerReturnCode"sv, YamlScalarType::Int },
+            { "DownloadCommandProhibited", YamlScalarType::Bool }
         };
 
         YamlScalarType GetManifestScalarValueType(const std::string& key)
@@ -101,15 +103,45 @@ namespace AppInstaller::Manifest::YamlParser
     {
         int idx = MANIFESTSCHEMA_NO_RESOURCE;
         std::map<ManifestTypeEnum, int> resourceMap;
-        
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_7 })
         {
             resourceMap = {
-                { ManifestTypeEnum::Singleton, IDX_MANIFEST_SCHEMA_V1_3_SINGLETON },
-                { ManifestTypeEnum::Version, IDX_MANIFEST_SCHEMA_V1_3_VERSION },
-                { ManifestTypeEnum::Installer, IDX_MANIFEST_SCHEMA_V1_3_INSTALLER },
-                { ManifestTypeEnum::DefaultLocale, IDX_MANIFEST_SCHEMA_V1_3_DEFAULTLOCALE },
-                { ManifestTypeEnum::Locale, IDX_MANIFEST_SCHEMA_V1_3_LOCALE },
+                { ManifestTypeEnum::Singleton, IDX_MANIFEST_SCHEMA_V1_7_SINGLETON },
+                { ManifestTypeEnum::Version, IDX_MANIFEST_SCHEMA_V1_7_VERSION },
+                { ManifestTypeEnum::Installer, IDX_MANIFEST_SCHEMA_V1_7_INSTALLER },
+                { ManifestTypeEnum::DefaultLocale, IDX_MANIFEST_SCHEMA_V1_7_DEFAULTLOCALE },
+                { ManifestTypeEnum::Locale, IDX_MANIFEST_SCHEMA_V1_7_LOCALE },
+            };
+        } 
+        else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_6 })
+        {
+            resourceMap = {
+                { ManifestTypeEnum::Singleton, IDX_MANIFEST_SCHEMA_V1_6_SINGLETON },
+                { ManifestTypeEnum::Version, IDX_MANIFEST_SCHEMA_V1_6_VERSION },
+                { ManifestTypeEnum::Installer, IDX_MANIFEST_SCHEMA_V1_6_INSTALLER },
+                { ManifestTypeEnum::DefaultLocale, IDX_MANIFEST_SCHEMA_V1_6_DEFAULTLOCALE },
+                { ManifestTypeEnum::Locale, IDX_MANIFEST_SCHEMA_V1_6_LOCALE },
+            };
+        }
+        else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_5 })
+        {
+            resourceMap = {
+                { ManifestTypeEnum::Singleton, IDX_MANIFEST_SCHEMA_V1_5_SINGLETON },
+                { ManifestTypeEnum::Version, IDX_MANIFEST_SCHEMA_V1_5_VERSION },
+                { ManifestTypeEnum::Installer, IDX_MANIFEST_SCHEMA_V1_5_INSTALLER },
+                { ManifestTypeEnum::DefaultLocale, IDX_MANIFEST_SCHEMA_V1_5_DEFAULTLOCALE },
+                { ManifestTypeEnum::Locale, IDX_MANIFEST_SCHEMA_V1_5_LOCALE },
+            };
+        }
+        else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
+        {
+            resourceMap = {
+                { ManifestTypeEnum::Singleton, IDX_MANIFEST_SCHEMA_V1_4_SINGLETON },
+                { ManifestTypeEnum::Version, IDX_MANIFEST_SCHEMA_V1_4_VERSION },
+                { ManifestTypeEnum::Installer, IDX_MANIFEST_SCHEMA_V1_4_INSTALLER },
+                { ManifestTypeEnum::DefaultLocale, IDX_MANIFEST_SCHEMA_V1_4_DEFAULTLOCALE },
+                { ManifestTypeEnum::Locale, IDX_MANIFEST_SCHEMA_V1_4_LOCALE },
             };
         }
         else if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_2 })
@@ -159,7 +191,7 @@ namespace AppInstaller::Manifest::YamlParser
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
 
-        std::string schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(idx), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+        std::string_view schemaStr = Resource::GetResourceAsString(idx, MANIFESTSCHEMA_RESOURCE_TYPE);
         return JsonSchema::LoadSchemaDoc(schemaStr);
     }
 
@@ -171,6 +203,12 @@ namespace AppInstaller::Manifest::YamlParser
 
         for (const auto& entry : manifestList)
         {
+            if (entry.ManifestType == ManifestTypeEnum::Shadow)
+            {
+                // There's no schema for a shadow manifest.
+                continue;
+            }
+
             if (schemaList.find(entry.ManifestType) == schemaList.end())
             {
                 // Copy constructor of valijson::Schema was private
@@ -186,7 +224,7 @@ namespace AppInstaller::Manifest::YamlParser
 
             if (!JsonSchema::Validate(schema, manifestJson, results))
             {
-                errors.emplace_back(ValidationError::MessageWithFile(JsonSchema::GetErrorStringFromResults(results), entry.FileName));
+                errors.emplace_back(ValidationError::MessageContextWithFile(ManifestError::SchemaError, JsonSchema::GetErrorStringFromResults(results), entry.FileName));
             }
         }
 

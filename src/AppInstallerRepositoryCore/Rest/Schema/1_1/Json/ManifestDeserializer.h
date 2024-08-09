@@ -16,5 +16,11 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
         std::optional<Manifest::ManifestInstaller> DeserializeInstaller(const web::json::value& installerJsonObject) const override;
 
         Manifest::InstallerTypeEnum ConvertToInstallerType(std::string_view in) const override;
+
+        virtual Manifest::ExpectedReturnCodeEnum ConvertToExpectedReturnCodeEnum(std::string_view in) const;
+
+        virtual Manifest::ManifestInstaller::ExpectedReturnCodeInfo DeserializeExpectedReturnCodeInfo(const web::json::value& expectedReturnCodeJsonObject) const;
+
+        Manifest::ManifestVer GetManifestVersion() const override;
     };
 }

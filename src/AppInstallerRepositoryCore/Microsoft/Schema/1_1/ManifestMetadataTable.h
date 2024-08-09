@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteWrapper.h"
+#include <winget/SQLiteWrapper.h>
 #include "Microsoft/Schema/ISQLiteIndex.h"
 #include "Public/winget/RepositorySearch.h"
 
@@ -21,6 +21,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 
         // Creates the table in the database.
         static void Create(SQLite::Connection& connection);
+
+        // Drops the table.
+        static void Drop(SQLite::Connection& connection);
 
         // Gets all metadata associated with the given manifest.
         // The table must exist.

@@ -1,8 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "Microsoft/Schema/Version.h"
+#include <winget/SQLiteVersion.h>
+#include <winget/Manifest.h>
+#include <winget/RepositorySearch.h>
 #include <AppInstallerVersions.h>
+#include <winget/Authentication.h>
 #include <vector>
 
 namespace AppInstaller::Repository::Rest::Schema
@@ -22,15 +25,19 @@ namespace AppInstaller::Repository::Rest::Schema
         : PackageIdentifier(std::move(packageIdentifier)), PackageName(std::move(packageName)), Publisher(std::move(publisher)) {}
     };
 
+    // NOTE: When changes are made to VersionInfo struct, remember to update the OptimizedSearch path in RestInterface1_0
+    // where VersionInfo struct was directly created from manifest.
     struct VersionInfo
     {
         AppInstaller::Utility::VersionAndChannel VersionAndChannel;
         std::optional<Manifest::Manifest> Manifest;
         std::vector<std::string> PackageFamilyNames;
         std::vector<std::string> ProductCodes;
+        std::vector<AppInstaller::Utility::Version> ArpVersions;
+        std::vector<std::string> UpgradeCodes;
 
-        VersionInfo(AppInstaller::Utility::VersionAndChannel versionAndChannel, std::optional<Manifest::Manifest> manifest, std::vector<std::string> packageFamilyNames = {}, std::vector<std::string> productCodes = {})
-            : VersionAndChannel(std::move(versionAndChannel)), Manifest(std::move(manifest)), PackageFamilyNames(std::move(packageFamilyNames)), ProductCodes(std::move(productCodes)) {}
+        VersionInfo(AppInstaller::Utility::VersionAndChannel versionAndChannel, std::optional<Manifest::Manifest> manifest, std::vector<std::string> packageFamilyNames = {}, std::vector<std::string> productCodes = {}, std::vector<AppInstaller::Utility::Version> arpVersions = {}, std::vector<std::string> upgradeCodes = {})
+            : VersionAndChannel(std::move(versionAndChannel)), Manifest(std::move(manifest)), PackageFamilyNames(std::move(packageFamilyNames)), ProductCodes(std::move(productCodes)), ArpVersions(std::move(arpVersions)), UpgradeCodes(std::move(upgradeCodes)) {}
     };
 
     // Minimal information retrieved for any search request.
@@ -67,6 +74,7 @@ namespace AppInstaller::Repository::Rest::Schema
         std::vector<std::string> RequiredPackageMatchFields;
         std::vector<std::string> UnsupportedQueryParameters;
         std::vector<std::string> RequiredQueryParameters;
+        Authentication::AuthenticationInfo Authentication;
 
         Information() {}
         Information(std::string sourceId, std::vector<std::string> versions)

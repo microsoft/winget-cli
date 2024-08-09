@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ManifestMetadataTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_1
@@ -47,6 +47,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         createPKIndexBuilder.Execute(connection);
 
         savepoint.Commit();
+    }
+
+    void ManifestMetadataTable::Drop(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder dropTableBuilder;
+        dropTableBuilder.DropTableIfExists(s_ManifestMetadataTable_Table_Name);
+
+        dropTableBuilder.Execute(connection);
     }
 
     ISQLiteIndex::MetadataResult ManifestMetadataTable::GetMetadataByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId)

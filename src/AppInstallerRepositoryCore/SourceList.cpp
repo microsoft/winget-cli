@@ -6,6 +6,10 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
 
+#include <winget/AdminSettings.h>
+#include <winget/Certificates.h>
+#include <CertificateResources.h>
+
 using namespace AppInstaller::Settings;
 using namespace std::string_view_literals;
 
@@ -20,10 +24,13 @@ namespace AppInstaller::Repository
         constexpr std::string_view s_SourcesYaml_Source_Data = "Data"sv;
         constexpr std::string_view s_SourcesYaml_Source_Identifier = "Identifier"sv;
         constexpr std::string_view s_SourcesYaml_Source_IsTombstone = "IsTombstone"sv;
+        constexpr std::string_view s_SourcesYaml_Source_Explicit = "Explicit"sv;
+        constexpr std::string_view s_SourcesYaml_Source_TrustLevel = "TrustLevel"sv;
 
         constexpr std::string_view s_MetadataYaml_Sources = "Sources"sv;
         constexpr std::string_view s_MetadataYaml_Source_Name = "Name"sv;
         constexpr std::string_view s_MetadataYaml_Source_LastUpdate = "LastUpdate"sv;
+        constexpr std::string_view s_MetadataYaml_Source_DoNotUpdateBefore = "DoNotUpdateBefore"sv;
         constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementsIdentifier = "AcceptedAgreementsIdentifier"sv;
         constexpr std::string_view s_MetadataYaml_Source_AcceptedAgreementFields = "AcceptedAgreementFields"sv;
 
@@ -140,7 +147,10 @@ namespace AppInstaller::Repository
             else
             {
                 std::vector<SourceDetailsInternal> result;
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCES_INVALID, !TryReadSourceDetails(setting.GetName(), *sourcesStream, rootName, parse, result));
+                if (!TryReadSourceDetails(setting.GetName(), *sourcesStream, rootName, parse, result))
+                {
+                    AICLI_LOG(YAML, Error, << "Ignoring corrupted source data.");
+                }
                 return result;
             }
         }
@@ -173,6 +183,8 @@ namespace AppInstaller::Repository
                     out << YAML::Key << s_SourcesYaml_Source_Data << YAML::Value << details.Data;
                     out << YAML::Key << s_SourcesYaml_Source_Identifier << YAML::Value << details.Identifier;
                     out << YAML::Key << s_SourcesYaml_Source_IsTombstone << YAML::Value << details.IsTombstone;
+                    out << YAML::Key << s_SourcesYaml_Source_Explicit << YAML::Value << details.Explicit;
+                    out << YAML::Key << s_SourcesYaml_Source_TrustLevel << YAML::Value << static_cast<int64_t>(details.TrustLevel);
                     out << YAML::EndMap;
                 }
             }
@@ -199,9 +211,24 @@ namespace AppInstaller::Repository
 
     void SourceDetailsInternal::CopyMetadataFieldsTo(SourceDetailsInternal& target)
     {
-        target.LastUpdateTime = LastUpdateTime;
+        if (LastUpdateTime > target.LastUpdateTime)
+        {
+            target.LastUpdateTime = LastUpdateTime;
+        }
+
+        if (DoNotUpdateBefore > target.DoNotUpdateBefore)
+        {
+            target.DoNotUpdateBefore = DoNotUpdateBefore;
+        }
+
         target.AcceptedAgreementFields = AcceptedAgreementFields;
         target.AcceptedAgreementsIdentifier = AcceptedAgreementsIdentifier;
+    }
+
+    void SourceDetailsInternal::CopyMetadataFieldsFrom(const SourceDetails& source)
+    {
+        LastUpdateTime = source.LastUpdateTime;
+        DoNotUpdateBefore = source.DoNotUpdateBefore;
     }
 
     std::string_view GetWellKnownSourceName(WellKnownSource source)
@@ -249,6 +276,26 @@ namespace AppInstaller::Repository
         return {};
     }
 
+    std::optional<WellKnownSource> CheckForWellKnownSourceMatch(std::string_view name, std::string_view arg, std::string_view type)
+    {
+        if (name == s_Source_WingetCommunityDefault_Name && arg == s_Source_WingetCommunityDefault_Arg && type == Microsoft::PreIndexedPackageSourceFactory::Type())
+        {
+            return WellKnownSource::WinGet;
+        }
+
+        if (name == s_Source_MSStoreDefault_Name && arg == s_Source_MSStoreDefault_Arg && type == Rest::RestSourceFactory::Type())
+        {
+            return WellKnownSource::MicrosoftStore;
+        }
+
+        if (name == s_Source_DesktopFrameworks_Name && arg == s_Source_DesktopFrameworks_Arg && type == Microsoft::PreIndexedPackageSourceFactory::Type())
+        {
+            return WellKnownSource::DesktopFrameworks;
+        }
+
+        return {};
+    }
+
     SourceDetailsInternal GetWellKnownSourceDetailsInternal(WellKnownSource source)
     {
         switch (source)
@@ -275,6 +322,32 @@ namespace AppInstaller::Repository
             details.Identifier = s_Source_MSStoreDefault_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted;
             details.SupportInstalledSearchCorrelation = false;
+
+            if (!Settings::IsAdminSettingEnabled(Settings::BoolAdminSetting::BypassCertificatePinningForMicrosoftStore))
+            {
+                using namespace AppInstaller::Certificates;
+
+                PinningChain chain;
+                auto chainElement = chain.Root();
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::PublicKey);
+                chainElement = chainElement.Next();
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement = chainElement.Next();
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+
+                PinningChain chain2;
+                auto chainElement2 = chain2.Root();
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::PublicKey);
+                chainElement2 = chainElement2.Next();
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement2 = chainElement2.Next();
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2, CERTIFICATE_RESOURCE_TYPE).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+
+                details.CertificatePinningConfiguration = PinningConfiguration("Microsoft Store Source");
+                details.CertificatePinningConfiguration.AddChain(std::move(chain));
+                details.CertificatePinningConfiguration.AddChain(std::move(chain2));
+            }
+
             return details;
         }
         case WellKnownSource::DesktopFrameworks:
@@ -313,7 +386,7 @@ namespace AppInstaller::Repository
             }
             else
             {
-                AICLI_LOG(Repo, Info, << "GetCurrentSourceRefs: Source named '" << s.Name << "' from origin " << ToString(s.Origin) << " is hidden and is dropped.");
+                AICLI_LOG(Repo, Verbose, << "GetCurrentSourceRefs: Source named '" << s.Name << "' from origin " << ToString(s.Origin) << " is hidden and is dropped.");
             }
         }
 
@@ -567,7 +640,15 @@ namespace AppInstaller::Repository
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Arg, details.Arg)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Data, details.Data)) { return false; }
                     if (!TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_IsTombstone, details.IsTombstone)) { return false; }
+                    TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Explicit, details.Explicit, false);
                     TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_Identifier, details.Identifier, false);
+
+                    int64_t trustLevelValue;
+                    if (TryReadScalar(name, settingValue, source, s_SourcesYaml_Source_TrustLevel, trustLevelValue, false))
+                    {
+                        details.TrustLevel = static_cast<Repository::SourceTrustLevel>(trustLevelValue);
+                    }
+
                     return true;
                 });
 
@@ -588,12 +669,14 @@ namespace AppInstaller::Repository
         {
             if (GroupPolicies().GetState(TogglePolicy::Policy::AdditionalSources) == PolicyState::Enabled)
             {
+                AICLI_LOG(Repo, Verbose, << "Additional sources GP is enabled...");
                 auto additionalSourcesOpt = GroupPolicies().GetValueRef<ValuePolicy::AdditionalSources>();
                 if (additionalSourcesOpt.has_value())
                 {
                     const auto& additionalSources = additionalSourcesOpt->get();
                     for (const auto& additionalSource : additionalSources)
                     {
+                        AICLI_LOG(Repo, Verbose, << "... with configured source " << additionalSource.Name);
                         SourceDetailsInternal details;
                         details.Name = additionalSource.Name;
                         details.Type = additionalSource.Type;
@@ -601,9 +684,31 @@ namespace AppInstaller::Repository
                         details.Data = additionalSource.Data;
                         details.Identifier = additionalSource.Identifier;
                         details.Origin = SourceOrigin::GroupPolicy;
+                        details.Explicit = additionalSource.Explicit;
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                        details.CertificatePinningConfiguration = additionalSource.PinningConfiguration;
+#endif
+                        try
+                        {
+                            details.TrustLevel = Repository::ConvertToSourceTrustLevelFlag(additionalSource.TrustLevel);
+                        }
+                        catch (...)
+                        {
+                            details.TrustLevel = Repository::SourceTrustLevel::None;
+                            AICLI_LOG(Repo, Verbose, << "Invalid source trust level from policy. Trust level set to None.");
+                        }
+
                         result.emplace_back(std::move(details));
                     }
                 }
+                else
+                {
+                    AICLI_LOG(Repo, Verbose, << "... but has no values.");
+                }
+            }
+            else
+            {
+                AICLI_LOG(Repo, Verbose, << "Additional sources GP is not enabled.");
             }
         }
         break;
@@ -640,9 +745,17 @@ namespace AppInstaller::Repository
                 details.Origin = SourceOrigin::Metadata;
                 std::string_view name = m_metadataStream.GetName();
                 if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_Name, details.Name)) { return false; }
+
                 int64_t lastUpdateInEpoch{};
                 if (!TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_LastUpdate, lastUpdateInEpoch)) { return false; }
                 details.LastUpdateTime = Utility::ConvertUnixEpochToSystemClock(lastUpdateInEpoch);
+
+                int64_t doNotUpdateBeforeInEpoch{};
+                if (TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_DoNotUpdateBefore, doNotUpdateBeforeInEpoch, false))
+                {
+                    details.DoNotUpdateBefore = Utility::ConvertUnixEpochToSystemClock(doNotUpdateBeforeInEpoch);
+                }
+
                 TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementsIdentifier, details.AcceptedAgreementsIdentifier, false);
                 TryReadScalar(name, settingValue, source, s_MetadataYaml_Source_AcceptedAgreementFields, details.AcceptedAgreementFields, false);
                 return true;
@@ -661,6 +774,7 @@ namespace AppInstaller::Repository
             out << YAML::BeginMap;
             out << YAML::Key << s_MetadataYaml_Source_Name << YAML::Value << details.Name;
             out << YAML::Key << s_MetadataYaml_Source_LastUpdate << YAML::Value << Utility::ConvertSystemClockToUnixEpoch(details.LastUpdateTime);
+            out << YAML::Key << s_MetadataYaml_Source_DoNotUpdateBefore << YAML::Value << Utility::ConvertSystemClockToUnixEpoch(details.DoNotUpdateBefore);
             out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementsIdentifier << YAML::Value << details.AcceptedAgreementsIdentifier;
             out << YAML::Key << s_MetadataYaml_Source_AcceptedAgreementFields << YAML::Value << details.AcceptedAgreementFields;
             out << YAML::EndMap;

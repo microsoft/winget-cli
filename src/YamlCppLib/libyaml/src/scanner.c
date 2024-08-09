@@ -273,7 +273,7 @@
  * The tokens BLOCK-SEQUENCE-START and BLOCK-MAPPING-START denote indentation
  * increase that precedes a block collection (cf. the INDENT token in Python).
  * The token BLOCK-END denote indentation decrease that ends a block collection
- * (cf. the DEDENT token in Python).  However YAML has some syntax pecularities
+ * (cf. the DEDENT token in Python).  However YAML has some syntax peculiarities
  * that makes detections of these tokens more complex.
  *
  * The tokens BLOCK-ENTRY, KEY, and VALUE are used to represent the indicators
@@ -3287,7 +3287,7 @@ yaml_parser_scan_flow_scalar(yaml_parser_t *parser, yaml_token_t *token,
 
         /* Check if we are at the end of the scalar. */
 
-        /* Fix for crash unitialized value crash
+        /* Fix for crash uninitialized value crash
          * Credit for the bug and input is to OSS Fuzz
          * Credit for the fix to Alex Gaynor
          */

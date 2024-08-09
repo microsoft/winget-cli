@@ -1,0 +1,46 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies Condition="'$(Configuration)' == 'Debug' And ('$(Platform)' == 'Win32' Or '$(Platform)' == 'x86')">$(MSBuildThisFileDirectory)..\..\runtimes\x86\debug\winrtact.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)' == 'Release' And ('$(Platform)' == 'Win32' Or '$(Platform)' == 'x86')">$(MSBuildThisFileDirectory)..\..\runtimes\x86\release\winrtact.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)' == 'Debug' And '$(Platform)' == 'x64'">$(MSBuildThisFileDirectory)..\..\runtimes\x64\debug\winrtact.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)' == 'Release' And '$(Platform)' == 'x64'">$(MSBuildThisFileDirectory)..\..\runtimes\x64\release\winrtact.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)' == 'Debug' And '$(Platform)' == 'ARM64'">$(MSBuildThisFileDirectory)..\..\runtimes\arm64\debug\winrtact.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Configuration)' == 'Release' And '$(Platform)' == 'ARM64'">$(MSBuildThisFileDirectory)..\..\runtimes\arm64\release\winrtact.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ForceSymbolReferences Condition="'$(Platform)' == 'Win32' Or '$(Platform)' == 'x86'">_winrtact_Initialize@0;%(ForceSymbolReferences)</ForceSymbolReferences>
+      <ForceSymbolReferences Condition="'$(Platform)' == 'x64'">winrtact_Initialize;%(ForceSymbolReferences)</ForceSymbolReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  
+  <!-- x86 -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' And ('$(Platform)' == 'Win32' Or '$(Platform)' == 'x86')">
+    <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\x86\debug\winrtact.dll" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release' And ('$(Platform)' == 'Win32' Or '$(Platform)' == 'x86')">
+    <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\x86\release\winrtact.dll" />
+  </ItemGroup>
+
+  <!-- x64 -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' And '$(Platform)' == 'x64'">
+    <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\x64\debug\winrtact.dll" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release' And '$(Platform)' == 'x64'">
+    <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\x64\release\winrtact.dll" />
+  </ItemGroup>
+
+  <!-- arm64 -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug' And '$(Platform)' == 'ARM64'">
+    <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\arm64\debug\winrtact.dll" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release' And '$(Platform)' == 'ARM64'">
+    <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\..\runtimes\arm64\release\winrtact.dll" />
+  </ItemGroup>
+
+
+  <!--AnyCPU Not Supported -->
+  <Target Name="BeforeBuild" Condition="'$(Platform)' == 'AnyCPU'" >
+        <Warning Text="Please change your app project architecture to x86 or x64 or arm64 in the Configuration Manager."/>
+  </Target>
+
+</Project>

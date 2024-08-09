@@ -30,9 +30,9 @@ Found Notepad++ [Notepad++.Notepad++]
 This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
 This package requires the following dependencies:
-  - Windows Feature: 
+  - Windows Feature:
       Hyper-V
-  - Package: 
+  - Package:
       Microsoft.WindowsTerminal
 Downloading https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v7.9.5/npp.7.9.5.Installer.x64.exe
 Successfully verified installer hash
@@ -58,9 +58,9 @@ Installer:
   Download Url: https://github.com/notepad-plus-plus/notepad-plus-plus/releases/download/v7.9.5/npp.7.9.5.Installer.x64.exe
   SHA256: 4881548cd86491b453520e83c19292c93b9c6ce485a1f9eb9301e3913a9baced
   Dependencies:
-    - Windows Feature: 
+    - Windows Feature:
         Hyper-V
-    - Package: 
+    - Package:
         Microsoft.WindowsTerminal
 ```
 
@@ -72,9 +72,9 @@ Found Notepad++ [Notepad++.Notepad++]
 This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
 This package requires the following dependencies:
-  - Windows Feature: 
+  - Windows Feature:
       Hyper-V
-  - Package: 
+  - Package:
       Microsoft.WindowsTerminal
 Successfully verified installer hash
 Starting package install...
@@ -88,9 +88,9 @@ Uninstall needs more work as we don't have the actual installer to get the depen
 Will gather and report dependencies for all of the installers found. Will not check if they are valid nor if there are duplicates.
 ```
 Manifest has the following dependencies that were not validated; ensure that they are valid:
-  - Windows Feature: 
+  - Windows Feature:
       Hyper-V
-  - Package: 
+  - Package:
       Microsoft.WindowsTerminal
 Manifest validation succeeded.
 ```
@@ -99,14 +99,14 @@ Manifest validation succeeded.
 Will gather all the dependencies from the packages included in the import and show them together before starting.
 ```
 The packages found in this import have the following dependencies:
-  - Windows Feature: 
+  - Windows Feature:
       Hyper-V
       Containers
-  - Windows Libraries: 
+  - Windows Libraries:
       Microsoft.WinJS
-  - Package: 
+  - Package:
       Microsoft.WindowsTerminal
-  - External: 
+  - External:
       JDK-11.0.10
 Found  [Notepad++.Notepad++]
 This application is licensed to you by its owner.
@@ -125,7 +125,7 @@ Successfully installed
 
 ## Capabilities
 It's only an informational feature, will not check if the dependency is a valid one, nor if the source is available.
-If a dependency is declared more than once (for example when gathering all dependencies in an import) it will only show the highest minimum version needed. 
+If a dependency is declared more than once (for example when gathering all dependencies in an import) it will only show the highest minimum version needed.
 
 Keep in mind dependencies can be declared on the root manifest and on each of the installers. If they happen to be declared in both, installer's dependencies will override those of the manifest. With the manifest's dependencies working as a default whenever installer's dependencies are not declared.
 

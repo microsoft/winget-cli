@@ -38,4 +38,7 @@ Jordan Bayles (jophba), jophba@chromium.org
 	JsonCpp owner
 
 Matt Young (matty0ung), <mfsy@yahoo.com>
-  Adapter for Boost.JSON parser library
+	Adapter for Boost.JSON parser library
+
+Pras Velagapudi (psigen), <psigen@gmail.com>
+	Adapter for yaml-cpp parser library

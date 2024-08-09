@@ -24,6 +24,7 @@ namespace AppInstaller::CLI::Workflow
     void GetInstallerDownloadPath(Execution::Context& context);
 
     // Downloads the file referenced by the Installer.
+    // This workflow task is also used by MSStoreDownload task.
     // Required Args: None
     // Inputs: Installer, Manifest
     // Outputs: HashPair, InstallerPath
@@ -66,4 +67,22 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallerPath
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
+
+    // Sets the target download directory location if applicable.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: None
+    void SetDownloadDirectory(Execution::Context& context);
+
+    // Exports the manifest yaml file for the downloaded package installer. Only applies to the 'winget download' command.
+    // Required Args: None
+    // Inputs: Manifest, Installer, DownloadDirectory
+    // Outputs: None
+    void ExportManifest(Execution::Context& context);
+
+    // This method ensures requirements of download for later offline installation.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void EnsureSupportForDownload(Execution::Context& context);
 }

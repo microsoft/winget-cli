@@ -3,17 +3,16 @@
 #include "pch.h"
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/IRestClient.h"
-#include "Rest/Schema/HttpClientHelper.h"
+#include <winget/HttpClientHelper.h>
 #include <winget/JsonUtil.h>
+#include <winget/ManifestJSONParser.h>
 #include <winget/ManifestValidation.h>
-#include "Rest/Schema/RestHelper.h"
+#include <winget/Rest.h>
 #include "Rest/Schema/CommonRestConstants.h"
-#include "Rest/Schema/1_0/Json/ManifestDeserializer.h"
-#include "Rest/Schema/1_0/Json/SearchResponseDeserializer.h"
-#include "Rest/Schema/1_0/Json/SearchRequestSerializer.h"
+#include "Rest/Schema/SearchResponseParser.h"
+#include "Rest/Schema/SearchRequestComposer.h"
 
 using namespace std::string_view_literals;
-using namespace AppInstaller::Repository::Rest::Schema::V1_0::Json;
 
 namespace AppInstaller::Repository::Rest::Schema::V1_0
 {
@@ -25,28 +24,40 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         utility::string_t GetSearchEndpoint(const std::string& restApiUri)
         {
-            return RestHelper::AppendPathToUri(JSON::GetUtilityString(restApiUri), JSON::GetUtilityString(ManifestSearchPostEndpoint));
+            return AppInstaller::Rest::AppendPathToUri(AppInstaller::JSON::GetUtilityString(restApiUri), AppInstaller::JSON::GetUtilityString(ManifestSearchPostEndpoint));
         }
 
         utility::string_t GetManifestByVersionEndpoint(
             const std::string& restApiUri, const std::string& packageId, const std::map<std::string_view, std::string>& queryParameters)
         {
-            utility::string_t getManifestEndpoint = RestHelper::AppendPathToUri(
-                JSON::GetUtilityString(restApiUri), JSON::GetUtilityString(ManifestByVersionAndChannelGetEndpoint));
+            utility::string_t getManifestEndpoint = AppInstaller::Rest::AppendPathToUri(
+                AppInstaller::JSON::GetUtilityString(restApiUri), AppInstaller::JSON::GetUtilityString(ManifestByVersionAndChannelGetEndpoint));
 
-            utility::string_t getManifestWithPackageIdPath = RestHelper::AppendPathToUri(getManifestEndpoint, JSON::GetUtilityString(packageId));
+            utility::string_t getManifestWithPackageIdPath = AppInstaller::Rest::AppendPathToUri(getManifestEndpoint, AppInstaller::JSON::GetUtilityString(packageId));
 
             // Create the endpoint with query parameters
-            return RestHelper::AppendQueryParamsToUri(getManifestWithPackageIdPath, queryParameters);
+            return AppInstaller::Rest::AppendQueryParamsToUri(getManifestWithPackageIdPath, queryParameters);
+        }
+
+        std::optional<utility::string_t> GetContinuationToken(const web::json::value& jsonObject)
+        {
+            std::optional<std::string> continuationToken = AppInstaller::JSON::GetRawStringValueFromJsonNode(jsonObject, AppInstaller::JSON::GetUtilityString(ContinuationToken));
+
+            if (continuationToken)
+            {
+                return utility::conversions::to_string_t(continuationToken.value());
+            }
+
+            return {};
         }
     }
 
-    Interface::Interface(const std::string& restApi, const HttpClientHelper& httpClientHelper) : m_restApiUri(restApi), m_httpClientHelper(httpClientHelper)
+    Interface::Interface(const std::string& restApi, const Http::HttpClientHelper& httpClientHelper) : m_restApiUri(restApi), m_httpClientHelper(httpClientHelper)
     {
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(JSON::GetUtilityString(restApi)));
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !AppInstaller::Rest::IsValidUri(AppInstaller::JSON::GetUtilityString(restApi)));
 
         m_searchEndpoint = GetSearchEndpoint(m_restApiUri);
-        m_requiredRestApiHeaders.emplace(JSON::GetUtilityString(ContractVersion), JSON::GetUtilityString(Version_1_0_0.ToString()));
+        m_requiredRestApiHeaders.emplace(AppInstaller::JSON::GetUtilityString(ContractVersion), AppInstaller::JSON::GetUtilityString(Version_1_0_0.ToString()));
     }
 
     Utility::Version Interface::GetVersion() const
@@ -74,16 +85,16 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
     {
         SearchResult results;
         utility::string_t continuationToken;
-        std::unordered_map<utility::string_t, utility::string_t> searchHeaders = m_requiredRestApiHeaders;
+        Http::HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;
         do
         {
             if (!continuationToken.empty())
             {
                 AICLI_LOG(Repo, Verbose, << "Received continuation token. Retrieving more results.");
-                searchHeaders.insert_or_assign(JSON::GetUtilityString(ContinuationToken), continuationToken);
+                searchHeaders.insert_or_assign(AppInstaller::JSON::GetUtilityString(ContinuationToken), continuationToken);
             }
 
-            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders);
+            std::optional<web::json::value> jsonObject = m_httpClientHelper.HandlePost(m_searchEndpoint, GetValidatedSearchBody(request), searchHeaders, GetAuthHeaders());
 
             utility::string_t ct;
             if (jsonObject)
@@ -99,7 +110,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
                 }
 
                 std::move(currentResult.Matches.begin(), std::next(currentResult.Matches.begin(), insertElements), std::inserter(results.Matches, results.Matches.end()));
-                ct = RestHelper::GetContinuationToken(jsonObject.value()).value_or(L"");
+                ct = GetContinuationToken(jsonObject.value()).value_or(L"");
             }
 
             continuationToken = ct;
@@ -181,28 +192,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             std::vector<VersionInfo> versions;
             for (auto& manifestVersion : manifests)
             {
-                std::vector<std::string> packageFamilyNames;
-                std::vector<std::string> productCodes;
-
-                for (auto& installer : manifestVersion.Installers)
-                {
-                    if (!installer.PackageFamilyName.empty())
-                    {
-                        packageFamilyNames.emplace_back(installer.PackageFamilyName);
-                    }
-
-                    if (!installer.ProductCode.empty())
-                    {
-                        productCodes.emplace_back(installer.ProductCode);
-                    }
-                }
-
-                std::vector<std::string> uniquePackageFamilyNames = RestHelper::GetUniqueItems(packageFamilyNames);
-                std::vector<std::string> uniqueProductCodes = RestHelper::GetUniqueItems(productCodes);
+                auto packageFamilyNames = manifestVersion.GetPackageFamilyNames();
+                auto productCodes = manifestVersion.GetProductCodes();
+                auto arpVersionRange = manifestVersion.GetArpVersionRange();
+                auto upgradeCodes = manifestVersion.GetUpgradeCodes();
 
                 versions.emplace_back(
-                    VersionInfo{ AppInstaller::Utility::VersionAndChannel {manifestVersion.Version, manifestVersion.Channel},
-                    manifestVersion, std::move(uniquePackageFamilyNames), std::move(uniqueProductCodes) });
+                    VersionInfo{
+                        AppInstaller::Utility::VersionAndChannel {manifestVersion.Version, manifestVersion.Channel},
+                        manifestVersion,
+                        std::vector<std::string>{ packageFamilyNames.begin(), packageFamilyNames.end()},
+                        std::vector<std::string>{ productCodes.begin(), productCodes.end()},
+                        arpVersionRange.IsEmpty() ? std::vector<Utility::Version>{} : std::vector<Utility::Version>{ arpVersionRange.GetMinVersion(), arpVersionRange.GetMaxVersion() },
+                        std::vector<std::string>{ upgradeCodes.begin(), upgradeCodes.end()} });
             }
 
             Package package = Package{ std::move(packageInfo), std::move(versions) };
@@ -218,8 +220,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
         std::vector<Manifest::Manifest> results;
         utility::string_t continuationToken;
-        std::unordered_map<utility::string_t, utility::string_t> searchHeaders = m_requiredRestApiHeaders;
-        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), m_requiredRestApiHeaders);
+        Http::HttpClientHelper::HttpRequestHeaders searchHeaders = m_requiredRestApiHeaders;
+        std::optional<web::json::value> jsonObject = m_httpClientHelper.HandleGet(GetManifestByVersionEndpoint(m_restApiUri, packageId, validatedParams), searchHeaders, GetAuthHeaders());
 
         if (!jsonObject)
         {
@@ -241,7 +243,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             {
                 if (error.ErrorLevel == Manifest::ValidationError::Level::Error)
                 {
-                    AICLI_LOG(Repo, Error, << "Received manifest contains validation error: " << error.Message);
+                    AICLI_LOG(Repo, Error, << "Received manifest contains validation error: " << error.GetErrorMessage());
                     errors++;
                 }
             }
@@ -261,19 +263,24 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
 
     web::json::value Interface::GetValidatedSearchBody(const SearchRequest& searchRequest) const
     {
-        SearchRequestSerializer serializer;
-        return serializer.Serialize(searchRequest);
+        SearchRequestComposer searchRequestComposer{ GetVersion() };
+        return searchRequestComposer.Serialize(searchRequest);
     }
 
     IRestClient::SearchResult Interface::GetSearchResult(const web::json::value& searchResponseObject) const
     {
-        SearchResponseDeserializer searchResponseDeserializer;
-        return searchResponseDeserializer.Deserialize(searchResponseObject);
+        SearchResponseParser searchResponseParser{ GetVersion() };
+        return searchResponseParser.Deserialize(searchResponseObject);
     }
 
     std::vector<Manifest::Manifest> Interface::GetParsedManifests(const web::json::value& manifestsResponseObject) const
     {
-        ManifestDeserializer manifestDeserializer;
-        return manifestDeserializer.Deserialize(manifestsResponseObject);
+        JSON::ManifestJSONParser manifestParser{ GetVersion() };
+        return manifestParser.Deserialize(manifestsResponseObject);
+    }
+
+    Http::HttpClientHelper::HttpRequestHeaders Interface::GetAuthHeaders() const
+    {
+        return {};
     }
 }

@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     }
 
     // Perform validation
-    Validator validator(Validator::kWeakTypes);
+    Validator validator(Validator::kStrongTypes);
     ValidationResults results;
     RapidJsonAdapter targetDocumentAdapter(targetDocument);
     if (!validator.validate(schema, targetDocumentAdapter, &results)) {
