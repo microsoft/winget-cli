@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "InstallingPackageView.g.h"
+#include "ActivePackageView.g.h"
 
 namespace winrt::WinGetUWPCaller::implementation
 {
-    struct InstallingPackageView : InstallingPackageViewT<InstallingPackageView>
+    struct ActivePackageView : ActivePackageViewT<ActivePackageView>
     {
         using AsyncOperation_t = winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::InstallResult, winrt::Microsoft::Management::Deployment::InstallProgress>;
 
-        InstallingPackageView() = default;
+        ActivePackageView() = default;
 
         winrt::Microsoft::Management::Deployment::CatalogPackage Package();
         void Package(winrt::Microsoft::Management::Deployment::CatalogPackage const& value);
@@ -36,7 +36,7 @@ namespace winrt::WinGetUWPCaller::implementation
 
 namespace winrt::WinGetUWPCaller::factory_implementation
 {
-    struct InstallingPackageView : InstallingPackageViewT<InstallingPackageView, implementation::InstallingPackageView>
+    struct ActivePackageView : ActivePackageViewT<ActivePackageView, implementation::ActivePackageView>
     {
     };
 }

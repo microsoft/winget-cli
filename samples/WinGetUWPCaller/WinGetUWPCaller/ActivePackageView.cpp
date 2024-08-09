@@ -1,52 +1,52 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "InstallingPackageView.h"
-#include "InstallingPackageView.g.cpp"
+#include "ActivePackageView.h"
+#include "ActivePackageView.g.cpp"
 #include <winrt/Windows.UI.Core.h>
 
 namespace winrt::WinGetUWPCaller::implementation
 {
-    winrt::Microsoft::Management::Deployment::CatalogPackage InstallingPackageView::Package()
+    winrt::Microsoft::Management::Deployment::CatalogPackage ActivePackageView::Package()
     {
         return m_package;
     }
 
-    void InstallingPackageView::Package(winrt::Microsoft::Management::Deployment::CatalogPackage const& value)
+    void ActivePackageView::Package(winrt::Microsoft::Management::Deployment::CatalogPackage const& value)
     {
         m_package = value;;
     }
 
-    InstallingPackageView::AsyncOperation_t InstallingPackageView::AsyncOperation()
+    ActivePackageView::AsyncOperation_t ActivePackageView::AsyncOperation()
     {
         return m_asyncOperation;
     }
 
     winrt::Windows::Foundation::IAsyncAction UpdateUIProgress(
         winrt::Microsoft::Management::Deployment::InstallProgress progress,
-        WinGetUWPCaller::InstallingPackageView view)
+        WinGetUWPCaller::ActivePackageView view)
     {
         co_await winrt::resume_foreground(view.Dispatcher());
         view.Progress(progress.DownloadProgress * 100);
     }
 
-    void InstallingPackageView::AsyncOperation(InstallingPackageView::AsyncOperation_t const& value)
+    void ActivePackageView::AsyncOperation(ActivePackageView::AsyncOperation_t const& value)
     {
         m_asyncOperation = value;
         m_asyncOperation.Progress([=](
-            InstallingPackageView::AsyncOperation_t const& /* sender */,
+            ActivePackageView::AsyncOperation_t const& /* sender */,
             winrt::Microsoft::Management::Deployment::InstallProgress const& progress)
             {
                 UpdateUIProgress(progress, *this);
             });
     }
 
-    double InstallingPackageView::Progress()
+    double ActivePackageView::Progress()
     {
         return m_progress;
     }
 
-    void InstallingPackageView::Progress(double value)
+    void ActivePackageView::Progress(double value)
     {
         if (m_progress != value)
         {
@@ -55,32 +55,32 @@ namespace winrt::WinGetUWPCaller::implementation
         }
     }
 
-    hstring InstallingPackageView::StatusText()
+    hstring ActivePackageView::StatusText()
     {
         return m_text;
     }
 
-    void InstallingPackageView::StatusText(hstring const& value)
+    void ActivePackageView::StatusText(hstring const& value)
     {
         m_text = value;
     }
 
-    winrt::Windows::UI::Core::CoreDispatcher InstallingPackageView::Dispatcher()
+    winrt::Windows::UI::Core::CoreDispatcher ActivePackageView::Dispatcher()
     {
         return m_dispatcher;
     }
 
-    void InstallingPackageView::Dispatcher(winrt::Windows::UI::Core::CoreDispatcher const& value)
+    void ActivePackageView::Dispatcher(winrt::Windows::UI::Core::CoreDispatcher const& value)
     {
         m_dispatcher = value;
     }
 
-    winrt::event_token InstallingPackageView::PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& handler)
+    winrt::event_token ActivePackageView::PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& handler)
     {
         return m_propertyChanged.add(handler);
     }
 
-    void InstallingPackageView::PropertyChanged(winrt::event_token const& token)
+    void ActivePackageView::PropertyChanged(winrt::event_token const& token)
     {
         m_propertyChanged.remove(token);
     }

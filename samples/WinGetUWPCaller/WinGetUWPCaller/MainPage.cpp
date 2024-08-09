@@ -24,7 +24,7 @@ namespace winrt::WinGetUWPCaller::implementation
         InitializeComponent();
         m_packageCatalogs = winrt::single_threaded_observable_vector<PackageCatalogReference>();
         m_installedPackages = winrt::single_threaded_observable_vector<CatalogPackage>();
-        m_installingPackageViews = winrt::single_threaded_observable_vector<WinGetUWPCaller::InstallingPackageView>();
+        m_activePackageViews = winrt::single_threaded_observable_vector<WinGetUWPCaller::ActivePackageView>();
     }
 
     IAsyncOperation<PackageCatalog> MainPage::FindSourceAsync(std::wstring packageSource)
@@ -295,7 +295,7 @@ namespace winrt::WinGetUWPCaller::implementation
         }
     }
 
-    IAsyncAction MainPage::GetSources(winrt::Windows::UI::Xaml::Controls::Button button)
+    IAsyncAction MainPage::GetCatalogs(winrt::Windows::UI::Xaml::Controls::Button button)
     {
         co_await winrt::resume_background();
 
@@ -413,17 +413,17 @@ namespace winrt::WinGetUWPCaller::implementation
 
         co_await winrt::resume_foreground(statusText.Dispatcher());
 
-        m_installingPackageViews.Clear();
+        m_activePackageViews.Clear();
         for (auto const match : matches)
         {
-            WinGetUWPCaller::InstallingPackageView installingView;
-            installingView.Package(match.CatalogPackage());
-            auto installOperation = packageManager.GetInstallProgress(installingView.Package(), selectedRemoteCatalog.Info());
+            WinGetUWPCaller::ActivePackageView activeView;
+            activeView.Package(match.CatalogPackage());
+            auto installOperation = packageManager.GetInstallProgress(activeView.Package(), selectedRemoteCatalog.Info());
             if (installOperation)
             {
-                installingView.Dispatcher(statusText.Dispatcher());
-                installingView.AsyncOperation(installOperation);
-                m_installingPackageViews.Append(installingView);
+                activeView.Dispatcher(statusText.Dispatcher());
+                activeView.AsyncOperation(installOperation);
+                m_activePackageViews.Append(activeView);
             }
         }
 
@@ -575,19 +575,34 @@ namespace winrt::WinGetUWPCaller::implementation
 
     void MainPage::SearchButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        m_installAppId = catalogIdTextBox().Text();
+        m_installAppId = queryTextBox().Text();
         installButton().IsEnabled(false);
         downloadButton().IsEnabled(false);
         cancelButton().IsEnabled(false);
-        installStatusText().Text(L"Looking for package.");
-        FindPackage(installButton(), downloadButton(), installProgressBar(), installStatusText());
+        operationStatusText().Text(L"Looking for package.");
+        FindPackage(installButton(), downloadButton(), operationProgressBar(), operationStatusText());
     }
 
     void MainPage::InstallButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
         if (m_installPackageOperation == nullptr || m_installPackageOperation.Status() != AsyncStatus::Started)
         {
-            StartInstall(installButton(), cancelButton(), installProgressBar(), installStatusText());
+            StartInstall(installButton(), cancelButton(), operationProgressBar(), operationStatusText());
+        }
+    }
+
+    void MainPage::UpgradeButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    {
+        throw_hresult(E_NOTIMPL);
+    }
+
+    void MainPage::DownloadButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    {
+        m_downloadDirectory = downloadDirectoryTextBox().Text();
+
+        if (m_downloadPackageOperation == nullptr || m_downloadPackageOperation.Status() != AsyncStatus::Started)
+        {
+            StartDownload(downloadButton(), cancelButton(), operationProgressBar(), operationStatusText());
         }
     }
 
@@ -599,60 +614,35 @@ namespace winrt::WinGetUWPCaller::implementation
         }
     }
 
-    void MainPage::DownloadButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    void MainPage::UninstallButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        m_downloadDirectory = downloadDirectoryTextBox().Text();
-
-        if (m_downloadPackageOperation == nullptr || m_downloadPackageOperation.Status() != AsyncStatus::Started)
-        {
-            StartDownload(downloadButton(), downloadCancelButton(), downloadProgressBar(), downloadStatusText());
-        }
-    }
-
-    void MainPage::DownloadCancelButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
-    {
-        if (m_downloadPackageOperation && m_downloadPackageOperation.Status() == AsyncStatus::Started)
-        {
-            m_downloadPackageOperation.Cancel();
-        }
+        throw_hresult(E_NOTIMPL);
     }
 
     void MainPage::RefreshInstalledButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
         GetInstalledPackages(installedStatusText());
     }
-    void MainPage::ClearInstalledButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
+    void MainPage::RefreshActiveButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        m_installedPackages.Clear();
-    }
-    void MainPage::RefreshInstallingButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
-    {
-        GetInstallingPackages(installingStatusText());
-    }
-    void MainPage::ClearInstallingButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
-    {
-        m_installingPackageViews.Clear();
+        GetInstallingPackages(operationStatusText());
     }
 
-    void MainPage::ToggleDevSwitchToggled(IInspectable const&, winrt::Windows::UI::Xaml::RoutedEventArgs const&)
+    void MainPage::LoadCatalogsButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
-        m_useDev = toggleDevSwitch().IsOn();
-    }
-    void MainPage::FindSourcesButtonClickHandler(IInspectable const&, RoutedEventArgs const&)
-    {
-        GetSources(installButton());
+        GetCatalogs(installButton());
     }
 
     Windows::Foundation::Collections::IObservableVector<Microsoft::Management::Deployment::PackageCatalogReference> MainPage::PackageCatalogs()
     {
         return m_packageCatalogs;
     }
-    Windows::Foundation::Collections::IObservableVector<Microsoft::Management::Deployment::CatalogPackage> MainPage::InstalledApps()
+    Windows::Foundation::Collections::IObservableVector<Microsoft::Management::Deployment::CatalogPackage> MainPage::InstalledPackages()
     {
         return m_installedPackages;
     }
-    Windows::Foundation::Collections::IObservableVector<WinGetUWPCaller::InstallingPackageView> MainPage::InstallingPackages()
+    Windows::Foundation::Collections::IObservableVector<WinGetUWPCaller::ActivePackageView> MainPage::ActivePackages()
     {
-        return m_installingPackageViews;
+        return m_activePackageViews;
     }
 }
