@@ -18,7 +18,7 @@ namespace Microsoft.WinGet.Client.Commands
         VerbsDiagnostic.Repair,
         Constants.WinGetNouns.WinGetPackageManager,
         DefaultParameterSetName = Constants.IntegrityVersionSet)]
-    [Alias(rpdwgpm)]
+    [Alias("rpdwgpm")]
     [OutputType(typeof(int))]
     public class RepairWinGetPackageManagerCmdlet : WinGetPackageManagerCmdlet
     {

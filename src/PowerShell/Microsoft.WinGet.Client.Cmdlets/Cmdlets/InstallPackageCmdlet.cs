@@ -20,7 +20,7 @@ namespace Microsoft.WinGet.Client.Commands
         Constants.WinGetNouns.Package,
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
-    [Alias(iswgp)]
+    [Alias("iswgp")]
     [OutputType(typeof(PSInstallResult))]
     public sealed class InstallPackageCmdlet : InstallCmdlet
     {

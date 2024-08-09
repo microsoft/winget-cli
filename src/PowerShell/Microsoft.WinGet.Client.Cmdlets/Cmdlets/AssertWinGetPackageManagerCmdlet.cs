@@ -18,7 +18,7 @@ namespace Microsoft.WinGet.Client.Commands
         VerbsLifecycle.Assert,
         Constants.WinGetNouns.WinGetPackageManager,
         DefaultParameterSetName = Constants.IntegrityVersionSet)]
-    [Alias(awgpm)]
+    [Alias("awgpm")]
     public class AssertWinGetPackageManagerCmdlet : WinGetPackageManagerCmdlet
     {
         /// <summary>

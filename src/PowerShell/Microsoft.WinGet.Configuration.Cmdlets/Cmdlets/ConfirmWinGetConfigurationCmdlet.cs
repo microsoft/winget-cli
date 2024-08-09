@@ -15,7 +15,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     /// Validates winget configuration.
     /// </summary>
     [Cmdlet(VerbsLifecycle.Confirm, "WinGetConfiguration")]
-    [Alias(cnwgc)]
+    [Alias("cnwgc")]
     public class ConfirmWinGetConfigurationCmdlet : PSCmdlet
     {
         private ConfigurationCommand runningCommand = null;
