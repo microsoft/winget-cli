@@ -20,7 +20,7 @@ namespace Microsoft.WinGet.Client.Commands
         Constants.WinGetNouns.Package,
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
-    [Alias(udwgp)]
+    [Alias("udwgp")]
     [OutputType(typeof(PSInstallResult))]
     public sealed class UpdatePackageCmdlet : InstallCmdlet
     {

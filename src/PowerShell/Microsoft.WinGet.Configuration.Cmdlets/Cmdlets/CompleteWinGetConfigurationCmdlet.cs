@@ -16,7 +16,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     /// Waits for completion.
     /// </summary>
     [Cmdlet(VerbsLifecycle.Complete, "WinGetConfiguration")]
-    [Alias(cmpwgc)]
+    [Alias("cmpwgc")]
     public sealed class CompleteWinGetConfigurationCmdlet : PSCmdlet
     {
         private ConfigurationCommand runningCommand = null;

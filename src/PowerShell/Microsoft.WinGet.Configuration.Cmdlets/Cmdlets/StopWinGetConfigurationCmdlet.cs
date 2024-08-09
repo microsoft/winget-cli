@@ -15,7 +15,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     /// Cancels a configuration previously started by Start-WinGetConfiguration.
     /// </summary>
     [Cmdlet(VerbsLifecycle.Stop, "WinGetConfiguration")]
-    [Alias(spwgc)]
+    [Alias("spwgc")]
     public sealed class StopWinGetConfigurationCmdlet : PSCmdlet
     {
         /// <summary>

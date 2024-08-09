@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
     /// Disables an admin setting. Requires admin.
     /// </summary>
     [Cmdlet(VerbsLifecycle.Disable, Constants.WinGetNouns.Setting)]
-    [Alias(dwgs)]
+    [Alias("dwgs")]
     public sealed class DisableSettingCmdlet : PSCmdlet
     {
         /// <summary>

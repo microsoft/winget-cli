@@ -16,7 +16,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     /// Gets the details for the units in a configuration set.
     /// </summary>
     [Cmdlet(VerbsCommon.Get, "WinGetConfigurationDetails")]
-    [Alias(gwgcd)]
+    [Alias("gwgcd")]
     public sealed class GetWinGetConfigurationDetailsCmdlet : PSCmdlet
     {
         private ConfigurationCommand runningCommand = null;

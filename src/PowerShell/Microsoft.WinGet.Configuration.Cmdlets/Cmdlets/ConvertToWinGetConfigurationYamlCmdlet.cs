@@ -15,7 +15,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     /// Serializes a PSConfigurationSet to a YAML string.
     /// </summary>
     [Cmdlet(VerbsData.ConvertTo, "WinGetConfigurationYaml")]
-    [Alias(ctwgcy)]
+    [Alias("ctwgcy")]
     public sealed class ConvertToWinGetConfigurationYamlCmdlet : PSCmdlet
     {
         /// <summary>
