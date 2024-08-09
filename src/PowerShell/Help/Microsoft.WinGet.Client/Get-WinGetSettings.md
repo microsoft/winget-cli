@@ -51,13 +51,13 @@ Get-WinGetSettings | Select-Object -ExpandProperty adminSettings
 ```
 
 ```Output
-Name                           Value
-----                           -----
-ProxyCommandLineOptions        False
-LocalArchiveMalwareScanOverri… False
-InstallerHashOverride          False
-BypassCertificatePinningForMi… False
-LocalManifestFiles             False
+Name                                      Value
+----                                      -----
+InstallerHashOverride                     False
+ProxyCommandLineOptions                   False
+BypassCertificatePinningForMicrosoftStore False
+LocalArchiveMalwareScanOverride           False
+LocalManifestFiles                        True
 ```
 
 ## PARAMETERS

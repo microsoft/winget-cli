@@ -40,7 +40,7 @@ Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Cust
 This command installs a WinGet package from a configured source. The command includes parameters
 to specify values used to search for packages in the configured sources. By default, the command
 searches all sources. By default, all string-based searches are case-insensitive substring searches.
-Wildards are not supported. You can change the search behavior using the **MatchOption** parameter.
+Wildcards are not supported. You can change the search behavior using the **MatchOption** parameter.
 
 ## EXAMPLES
 
