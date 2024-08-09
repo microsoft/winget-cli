@@ -257,7 +257,8 @@ Accept wildcard characters: False
 
 ### -PSCatalogPackage
 
-Specify PSCatalogPackage
+Provide **PSCatalogPackage** object. You can get a **PSCatalogPackage** object by using the
+`Find-WinGetPackage` command.
 
 ```yaml
 Type: Microsoft.WinGet.Client.Engine.PSObjects.PSCatalogPackage

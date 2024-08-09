@@ -121,7 +121,7 @@ Accept wildcard characters: False
 
 ### -Custom
 
-Use this paramater to pass additional arguments to the installer. The parameter takes a single
+Use this parameter to pass additional arguments to the installer. The parameter takes a single
 string value. To add multiple arguments, include the arguments in the string. The arguments must be
 provided in the format expected by the installer. If the string contains spaces, it must be enclosed
 in quotes. This string is added to the arguments defined in the package manifest.
@@ -253,7 +253,7 @@ Accept wildcard characters: False
 
 ### -Log
 
-Specify the location for the installer log to be written.
+Specify the location for the installer log. The value can be a fully-qualified or relative path and must include the file name. For example: `$env:TEMP\package.log`.
 
 ```yaml
 Type: System.String

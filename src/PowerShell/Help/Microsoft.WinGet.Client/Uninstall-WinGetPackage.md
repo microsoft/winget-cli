@@ -34,7 +34,7 @@ Uninstall-WinGetPackage [-Mode <PSPackageUninstallMode>] [-Force] [-Log <String>
 
 This command uninstalls a WinGet package from your computer. The command includes parameters to
 specify values used to search for installed packages. By default, all string-based searches are
-case-insensitive substring searches. Wildards are not supported. You can change the search behavior
+case-insensitive substring searches. Wildcards are not supported. You can change the search behavior
 using the **MatchOption** parameter.
 
 ## EXAMPLES
@@ -114,7 +114,7 @@ Accept wildcard characters: False
 
 ### -Log
 
-Specify log location for uninstall.
+Specify the location for the uninstaller log. The value can be a fully-qualified or relative path and must include the file name. For example: `$env:TEMP\package.log`.
 
 > **Note: Not all uninstallers support this option.**
 

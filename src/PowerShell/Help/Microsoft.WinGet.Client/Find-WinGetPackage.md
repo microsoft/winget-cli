@@ -67,7 +67,7 @@ searches all configured sources. The command performs a case-sensitive full text
 
 ### -Command
 
-Specifies command used to run the package
+Specify the name of the command defined in the package manifest.
 
 ```yaml
 Type: System.String

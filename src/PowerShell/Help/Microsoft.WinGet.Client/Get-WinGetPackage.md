@@ -40,8 +40,7 @@ This example shows how to list all packages installed on your system.
 
 ### -Command
 
-Specify the name of the command contained in the package. The command filters the results to
-packages that match this value.
+Specify the name of the command defined in the package manifest.
 
 ```yaml
 Type: System.String

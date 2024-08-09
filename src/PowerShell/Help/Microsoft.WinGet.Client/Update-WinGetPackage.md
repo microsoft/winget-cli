@@ -39,9 +39,7 @@ Update-WinGetPackage [-IncludeUnknown] [-Mode <PSPackageInstallMode>] [-Override
 
 This command searches the packages installed on your system and installs a newer version of the
 matching WinGet package. The command includes parameters to specify values used to search for
-packages in the configured sources. By default, the command searches all sources. By default, all
-string-based searches are case-insensitive substring searches. Wildards are not supported. You can
-change the search behavior using the **MatchOption** parameter.
+packages in the configured sources. By default, the command searches all sources. By default, all string-based searches are case-insensitive substring searches. Wildcards are not supported. You can change the search behavior using the **MatchOption** parameter.
 
 ## EXAMPLES
 
@@ -128,7 +126,7 @@ Accept wildcard characters: False
 
 ### -Custom
 
-Use this paramater to pass additional arguments to the installer. The parameter takes a single
+Use this parameter to pass additional arguments to the installer. The parameter takes a single
 string value. To add multiple arguments, include the arguments in the string. The arguments must be
 provided in the format expected by the installer. If the string contains spaces, it must be enclosed
 in quotes. This string is added to the arguments defined in the package manifest.
@@ -278,7 +276,7 @@ Accept wildcard characters: False
 
 ### -Log
 
-Specify the location for the installer log.
+Specify the location for the installer log. The value can be a fully-qualified or relative path and must include the file name. For example: `$env:TEMP\package.log`.
 
 > **Note: Not all installers support this property.**
 
