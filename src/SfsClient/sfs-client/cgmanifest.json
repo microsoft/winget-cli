@@ -37,7 +37,7 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/curl/curl",
-          "commitHash": "fd567d4f06857f4fc8e2f64ea727b1318f76ad33"
+          "commitHash": "83bedbd730d62b83744cc26fa0433d3f6e2e4cd6"
         }
       },
       "developmentDependency": false
@@ -56,7 +56,7 @@
           "type": "git",
           "git": {
             "repositoryUrl": "https://github.com/curl/curl",
-            "commitHash": "fd567d4f06857f4fc8e2f64ea727b1318f76ad33"
+            "commitHash": "83bedbd730d62b83744cc26fa0433d3f6e2e4cd6"
           }
         }
       ]
@@ -75,7 +75,7 @@
           "type": "git",
           "git": {
             "repositoryUrl": "https://github.com/curl/curl",
-            "commitHash": "fd567d4f06857f4fc8e2f64ea727b1318f76ad33"
+            "commitHash": "83bedbd730d62b83744cc26fa0433d3f6e2e4cd6"
           }
         }
       ]
