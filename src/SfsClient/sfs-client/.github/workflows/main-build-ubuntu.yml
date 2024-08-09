@@ -1,0 +1,38 @@
+name: Main Build (Ubuntu)
+
+on:
+  push:
+    branches: [ "main" ]
+
+# Permissions and environment values to be able to update the dependency graph with vcpkg information
+permissions:
+  contents: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  VCPKG_FEATURE_FLAGS: dependencygraph
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        run: source ./scripts/setup.sh
+
+      - name: Build and Test (no test overrides)
+        run: |
+          ./scripts/build.sh
+          ./scripts/test.sh --output-on-failure
+
+      - name: Build and Test (with test overrides)
+        run: |
+          ./scripts/build.sh --enable-test-overrides
+          ./scripts/test.sh --output-on-failure
+
+      - name: Build and Test (Release)
+        run: |
+          ./scripts/build.sh --build-type Release
+          ./scripts/test.sh --output-on-failure

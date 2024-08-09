@@ -1,0 +1,24 @@
+PackageIdentifier: AppInstallerCliTest.TestExeInstaller.MultipleDependencies
+PackageVersion: 1.0.0.0
+PackageName: AppInstaller Test Installer
+PackageLocale: en-US
+Publisher: Microsoft Corporation
+ShortDescription: Installs exe installer with multiple dependencies
+Moniker: AICLITestExe
+License: Test
+InstallerSwitches:
+  Custom: /custom
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+  Upgrade: /upgrade
+Installers: 
+    - Architecture: x86
+      InstallerUrl: https://ThisIsNotUsed
+      InstallerType: exe
+      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+      Dependencies:
+        PackageDependencies:
+        - PackageIdentifier: Dependency1
+        - PackageIdentifier: Dependency2
+ManifestType: singleton
+ManifestVersion: 1.3.0

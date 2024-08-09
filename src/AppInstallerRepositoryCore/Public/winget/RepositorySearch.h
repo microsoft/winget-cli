@@ -46,6 +46,7 @@ namespace AppInstaller::Repository
         Tag,
         PackageFamilyName,
         ProductCode,
+        UpgradeCode,
         NormalizedNameAndPublisher,
         Market,
         Unknown = 9999
@@ -93,6 +94,17 @@ namespace AppInstaller::Repository
         }
     };
 
+    // The search purpose of the search request.
+    enum class SearchPurpose
+    {
+        // Default search purpose.
+        Default,
+        // The result is used for correlation to an installed package.
+        CorrelationToInstalled,
+        // The result is used for correlation to an available package.
+        CorrelationToAvailable,
+    };
+
     // Container for data used to filter the available manifests in a source.
     // It can be thought of as:
     //  (Query || Inclusions...) && Filters...
@@ -110,6 +122,9 @@ namespace AppInstaller::Repository
 
         // Specific fields used to filter the data further.
         std::vector<PackageMatchFilter> Filters;
+
+        // The search purpose of the search request.
+        SearchPurpose Purpose = SearchPurpose::Default;
 
         // The maximum number of results to return.
         // The default of 0 will place no limit.
@@ -137,6 +152,7 @@ namespace AppInstaller::Repository
         Publisher,
         ArpMinVersion,
         ArpMaxVersion,
+        Moniker,
     };
 
     // A property of a package version that can have multiple values.
@@ -146,6 +162,8 @@ namespace AppInstaller::Repository
         PackageFamilyName,
         // The product codes associated with the package version.
         ProductCode,
+        // The upgrade codes associated with the package version.
+        UpgradeCode,
         // TODO: Fully implement these 3; the data is not yet in the index source (name and publisher are hacks and locale is not present)
         //       For future usage of these, be aware of the limitations.
         // The package names for the version; ideally these would match in number and order with both Publisher and Locale.
@@ -155,6 +173,10 @@ namespace AppInstaller::Repository
         // The locale of the matching Name and Publisher values; ideally these would match in number and order with both Name and Publisher.
         // May be empty if there is only a single value for Name and Publisher.
         Locale,
+        // The tags associated with a package version.
+        Tag,
+        // The commands associated with a package version.
+        Command,
     };
 
     // A metadata item of a package version. These values are persisted and cannot be changed.
@@ -178,6 +200,19 @@ namespace AppInstaller::Repository
         TrackingWriteTime,
         // The Architecture of an installed package
         InstalledArchitecture,
+        // The pinned state of the installed package
+        // As a package can have multiple pins for multiple sources, this is the strictest pin
+        PinnedState,
+        // The Architecture of user intent
+        UserIntentArchitecture,
+        // The locale of user intent
+        UserIntentLocale,
+        // The standard modify command; which may be interactive
+        StandardModifyCommand,
+        // No Modify flag
+        NoModify,
+        // No Repair flag
+        NoRepair,
     };
 
     // Convert a PackageVersionMetadata to a string.
@@ -212,7 +247,7 @@ namespace AppInstaller::Repository
     {
         PackageVersionKey() = default;
 
-        PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel) :
+        PackageVersionKey(std::string sourceId, Utility::NormalizedString version, Utility::NormalizedString channel) :
             SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)) {}
 
         // The source id that this version came from.
@@ -223,6 +258,20 @@ namespace AppInstaller::Repository
 
         // The channel.
         Utility::NormalizedString Channel;
+
+        bool operator<(const PackageVersionKey& other) const
+        {
+            // Sort using only the version and channel.
+            // The order for the sources depends on the context.
+            return Utility::VersionAndChannel({ Version }, { Channel }) < Utility::VersionAndChannel({ other.Version }, { other.Channel });
+        }
+
+        // Determines if a well defined key (this one) is matched by the provided key.
+        // The provided key may use empty values to indicate no specific matching requirements.
+        bool IsMatch(const PackageVersionKey& other) const;
+
+        // Determines if this version is the simple "latest" targeting version (version and channel are both empty).
+        bool IsDefaultLatest() const;
     };
 
     // A property of a package.
@@ -232,45 +281,97 @@ namespace AppInstaller::Repository
         Name,
     };
 
-    // A package, potentially containing information about it's local state and the available versions.
-    struct IPackage
+    // To allow for runtime casting from IPackage to the specific types, this enum contains all of the IPackage implementations.
+    enum class IPackageType
+    {
+        TestPackage,
+        RestPackage,
+        SQLitePackage1,
+        SQLitePackage2,
+        PinnablePackage,
+        CompositeInstalledPackage,
+    };
+
+    // Contains a collection of package versions.
+    struct IPackageVersionCollection
+    {
+        virtual ~IPackageVersionCollection() = default;
+
+        // Gets all versions of this package.
+        // The versions will be returned in sorted, descending order.
+        //  Ex. { 4, 3, 2, 1 }
+        virtual std::vector<PackageVersionKey> GetVersionKeys() const = 0;
+
+        // Gets a specific version of this package.
+        virtual std::shared_ptr<IPackageVersion> GetVersion(const PackageVersionKey& versionKey) const = 0;
+
+        // A convenience method to effectively call `GetVersion(GetVersionKeys[0])`.
+        virtual std::shared_ptr<IPackageVersion> GetLatestVersion() const = 0;
+    };
+
+    // Contains information about a package and its versions from a single source.
+    struct IPackage : public IPackageVersionCollection
     {
         virtual ~IPackage() = default;
 
         // Gets a property of this package.
         virtual Utility::LocIndString GetProperty(PackageProperty property) const = 0;
 
-        // Gets the installed package information.
-        virtual std::shared_ptr<IPackageVersion> GetInstalledVersion() const = 0;
-
-        // Gets all available versions of this package.
-        // The versions will be returned in sorted, descending order.
-        //  Ex. { 4, 3, 2, 1 }
-        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys() const = 0;
-
-        // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const = 0;
-
-        // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const = 0;
-
-        // Gets a value indicating whether an available version is newer than the installed version.
-        virtual bool IsUpdateAvailable() const = 0;
+        // Gets the source that this package is from.
+        virtual Source GetSource() const = 0;
 
         // Determines if the given IPackage refers to the same package as this one.
         virtual bool IsSame(const IPackage*) const = 0;
+
+        // Gets this object as the requested type, or null if it is not the requested type.
+        virtual const void* CastTo(IPackageType type) const = 0;
     };
+
+    // Contains information about the graph of packages related to a search.
+    struct ICompositePackage
+    {
+        virtual ~ICompositePackage() = default;
+
+        // Gets a property of this package result.
+        virtual Utility::LocIndString GetProperty(PackageProperty property) const = 0;
+
+        // Gets the installed package information.
+        virtual std::shared_ptr<IPackage> GetInstalled() = 0;
+
+        // Gets all of the available packages for this result.
+        // There will be at most one package per source in this list.
+        virtual std::vector<std::shared_ptr<IPackage>> GetAvailable() = 0;
+    };
+
+    // Does the equivalent of a dynamic_cast, but without it to allow RTTI to be disabled.
+    // Example usage:
+    //  bool IsSame(const IPackage* other) const override
+    //  {
+    //      const MyPackage* otherAsMyType = PackageCast<const MyPackage*>(other);
+    //      ...
+    //  }
+    template <typename PackageType>
+    PackageType PackageCast(const IPackage* package)
+    {
+        static_assert(std::is_pointer_v<PackageType>, "The target type of the PackageCast must be a pointer; use the same type as if this were a dynamic_cast.");
+        if (!package)
+        {
+            return nullptr;
+        }
+        using ActualPackageType = std::remove_pointer_t<std::remove_cv_t<PackageType>>;
+        return reinterpret_cast<PackageType>(package->CastTo(ActualPackageType::PackageType));
+    }
 
     // A single result from the search.
     struct ResultMatch
     {
         // The package found by the search request.
-        std::shared_ptr<IPackage> Package;
+        std::shared_ptr<ICompositePackage> Package;
 
         // The highest order field on which the package matched the search.
         PackageMatchFilter MatchCriteria;
 
-        ResultMatch(std::shared_ptr<IPackage> p, PackageMatchFilter f) : Package(std::move(p)), MatchCriteria(std::move(f)) {}
+        ResultMatch(std::shared_ptr<ICompositePackage> p, PackageMatchFilter f) : Package(std::move(p)), MatchCriteria(std::move(f)) {}
     };
 
     // Search result data.

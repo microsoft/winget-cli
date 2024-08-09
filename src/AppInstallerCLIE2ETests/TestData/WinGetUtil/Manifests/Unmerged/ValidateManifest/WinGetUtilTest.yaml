@@ -1,0 +1,5 @@
+PackageIdentifier: AppInstallerTest.WinGetUtilTest
+PackageVersion: "1.0.0.0"
+DefaultLocale: en-US
+ManifestType: version
+ManifestVersion: 1.1.0

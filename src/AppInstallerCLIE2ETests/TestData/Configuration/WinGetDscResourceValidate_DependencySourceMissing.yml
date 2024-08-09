@@ -1,0 +1,13 @@
+properties:
+  configurationVersion: 0.2.0
+  resources:
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: testPackage
+      directives:
+        description: Install Test Package
+        allowPrerelease: true
+      settings:
+        id: AppInstallerTest.TestExeInstaller
+        source: TestSource
+        version: "1.0.1.0"
+ 

@@ -1,0 +1,670 @@
+id: moderatorTriggers
+name: GitOps.PullRequestIssueManagement
+description: Defines the users and permissions for the moderators
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - if:
+          # If the activity sender is any one of the moderators, has Admin permission on the repo, or has Write permissions on the repo. . .
+          - or:
+              - activitySenderHasPermission:
+                  permission: Admin
+              - activitySenderHasPermission:
+                  permission: Write
+              - isActivitySender:
+                  user: stephengillie
+                  issueAuthor: False
+              - isActivitySender:
+                  user: ImJoakim
+                  issueAuthor: False
+              - isActivitySender:
+                  user: ItzLevvie
+                  issueAuthor: False
+              - isActivitySender:
+                  user: jedieaston
+                  issueAuthor: False
+              - isActivitySender:
+                  user: KaranKad
+                  issueAuthor: False
+              - isActivitySender:
+                  user: OfficialEsco
+                  issueAuthor: False
+              - isActivitySender:
+                  user: quhxl
+                  issueAuthor: False
+              - isActivitySender:
+                  user: Trenly
+                  issueAuthor: False
+              - isActivitySender:
+                  user: mdanish-kh
+                  issueAuthor: False
+              - isActivitySender:
+                  user: russellbanks
+                  issueAuthor: False
+        then:
+          # If the payload is an issue_Comment or a Pull_Request_Review_Comment
+          - if:
+              - or:
+                  - payloadType: Issue_Comment
+                  - payloadType: Pull_Request_Review_Comment
+            # Remove the Needs-Triage label
+            # Take different actions based on the comment pattern
+            then:
+              - removeLabel:
+                  label: Needs-Triage
+              # Area-Accessibility
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][aA]ccessibility'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Accessibility
+              # Area-Architecture
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][aA]rchitecture'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Architecture
+              # Area-Build
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][bB]uild'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Build
+              # Area-COM-API
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][cC][oO][mM][\s-][aA][pP][iI]'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-COM-API
+              # Area-External
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][eE]xternal'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-External
+              # Area-GPO
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][gG][pP][oO]'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-GPO
+              # Area-Input
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][iI]nput'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Input
+              # Area-Localization
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][lL]ocalization'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Localization
+              # Area-Manifest
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][mM]anifest'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Manifest
+              # Area-Matching
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][mM]atching'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Matching
+              # Area-Output
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][oO]utput'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Output
+              # Area-Path
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][pP]ath'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Path
+              # Area-Performance
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][pP]erformance'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Performance
+              # Area-Scope
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][sS]cope'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Scope
+              # Area-Settings
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][sS]ettings'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Settings
+              # Area-Sorting
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][sS]orting'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-Sorting
+              # Area-User-Interface
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[aA]rea[\s-][uU]ser[\s-][iI]nterface'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Area-User-Interface
+              # Blocking-Issue
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[bB]locking[\s-][iI]ssue'
+                      isRegex: True
+                then:
+                  - removeLabel:
+                      label: Needs-Author-Feedback
+                  - removeLabel:
+                      label: Needs-Attention
+                  - addLabel:
+                      label: Blocking-Issue
+              # Breaking-Change
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[bB]reaking[\s-][cC]hange'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Breaking-Change
+              # Command-Configure
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][cC]onfigure'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Configure
+              # Command-Download
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][dD]ownload'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Download
+              # Command-Export
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][eE]xport'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Export
+              # Command-Import
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][iI]mport'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Import
+              # Command-Install
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][iI]nstall'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Install
+              # Command-List
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][lL]ist'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-List
+              # Command-Pin
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][pP]in'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Pin
+              # Command-Search
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][sS]earch'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Search
+              # Command-Show
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][sS]how'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Show
+              # Command-Source
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][sS]ource'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Source
+              # Command-Uninstall
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][uU]ninstall'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Uninstall
+              # Command-Upgrade
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][uU]pgrade'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Upgrade
+              # Command-Validate
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ommand[\s-][vV]alidate'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Command-Validate
+              # Context-Elevated-User
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][eE]levated([\s-][uU]ser)?'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Context-Elevated-User
+              # Context-User
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][uU]ser'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Context-User
+              # Context-System
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[cC]ontext[\s-][sS]ystem'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Context-System
+              # Dependencies
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[dD]ependencies'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Dependencies
+              # DSC-Resource
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[dD][sS][cC][\s-][rR]esource'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: DSC-Resource
+              # Experimental
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[eE]xperimental'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Experimental
+              # Hardware
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[hH]ardware'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Hardware
+              # Interactive-Only-Installer
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[iI]nteractive[\s-][oO]nly([\s-][iI]nstaller)?'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Interactive-Only-Installer
+              # Issue-Bug
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[iI]ssue[\s-][bB]ug'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Issue-Bug
+              # Issue-Docs
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[iI]ssue[\s-][dD]ocs'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Issue-Docs
+              # Issue-Feature
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[iI]ssue[\s-][fF]eature'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Issue-Feature
+              # msstore
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[mM][sS][sS]tore'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: msstore
+              # Needs-Attention
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[Nn]eeds[\s-][Aa]ttention'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Needs-Attention
+              # Needs-Author-Feedback
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[Nn]eeds[\s-][Aa]uthor[\s-][fF]eedback'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Needs-Author-Feedback
+              # Needs-Repro
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[Nn]eeds[\s-][Rr]epro'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Needs-Repro
+              # Portable
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[pP]ortable'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Portable
+              # PowerShell
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[pP]ower[sS]hell'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: PowerShell
+              # PSA
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[Pp][Ss][Aa]'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Public-Service-Announcement
+              # Side-By-Side
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[sS]ide[\s-][bB]y[\s-][sS]ide'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Side-By-Side
+              # Zipped-Binary
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[zZ]ip(ped)?[\s-][bB]inary'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Zipped-Binary
+              # Zipped-Binary
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+([wW]indows[\s-])?[sS]andbox'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Windows-Sandbox
+              # Unblocked
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[uU]nblocked'
+                      isRegex: True
+                then:
+                  - removeLabel:
+                      label: Blocking-Issue
+              # Duplicate of #
+              - if:
+                  - commentContains:
+                      pattern: Duplicate\s+of\s+\#?\s*\d+
+                      isRegex: True
+                then:
+                  - addReply:
+                      reply: >-
+                        Hello @${issueAuthor},
+
+
+                        We've identified this as a duplicate of another issue or PR that already exists. This specific instance is being closed in favor of the linked issue. Please add your 👍 to the other issue to raise its priority. Thanks for your contribution!
+
+
+                        Template: msftbot/duplicate/closed
+                  - closeIssue
+                  - removeLabel:
+                      label: Needs-Triage
+                  - removeLabel:
+                      label: Needs-Attention
+                  - removeLabel:
+                      label: Needs-Feedback-Hub
+                  - removeLabel:
+                      label: Needs-Author-Feedback
+                  - addLabel:
+                      label: Resolution-Duplicate
+              # Close with reason <>;
+              - if:
+                  - commentContains:
+                      pattern: "[cC]lose\\s+[wW]ith\\s+[rR]eason\\s*:[\\w\\s\\-\\(\\)\\[\\]\\{\\}\\\\\\/.+=@\\#$%&^*`~|'\",<>?]*(?=;)"
+                      isRegex: True
+                then:
+                  - closeIssue
+                  - removeLabel:
+                      label: Needs-Triage
+                  - removeLabel:
+                      label: Needs-Attention
+                  - removeLabel:
+                      label: Needs-Feedback-Hub
+                  - removeLabel:
+                      label: Needs-Author-Feedback
+              # Reopen with reason <>;
+              - if:
+                  - commentContains:
+                      pattern: "[rR]eopen\\s+[wW]ith\\s+[rR]eason\\s*:[\\w\\s\\-\\(\\)\\[\\]\\{\\}\\\\\\/.+=@\\#$%&^*`~|'\",<>?]*(?=;)"
+                      isRegex: True
+                then:
+                  - reopenIssue
+                  - removeLabel:
+                      label: Resolution-Duplicate
+                  - removeLabel:
+                      label: No-Recent-Activity
+              # Reset-Feedback
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[rR]eset\s+[fF]eedback'
+                      isRegex: True
+                then:
+                  - removeLabel:
+                      label: Needs-Author-Feedback
+                  - removeLabel:
+                      label: Needs-Attention
+              # Reset-Labels
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[rR]eset\s+[lL]abels'
+                      isRegex: True
+                then:
+                  - removeLabel:
+                      label: Area-Accessibility
+                  - removeLabel:
+                      label: Area-Architecture
+                  - removeLabel:
+                      label: Area-Build
+                  - removeLabel:
+                      label: Area-COM-API
+                  - removeLabel:
+                      label: Area-External
+                  - removeLabel:
+                      label: Area-GPO
+                  - removeLabel:
+                      label: Area-Input
+                  - removeLabel:
+                      label: Area-Localization
+                  - removeLabel:
+                      label: Area-Manifest
+                  - removeLabel:
+                      label: Area-Matching
+                  - removeLabel:
+                      label: Area-Output
+                  - removeLabel:
+                      label: Area-Path
+                  - removeLabel:
+                      label: Area-Performance
+                  - removeLabel:
+                      label: Area-Scope
+                  - removeLabel:
+                      label: Area-Settings
+                  - removeLabel:
+                      label: Area-Sorting
+                  - removeLabel:
+                      label: Area-User-Interface
+                  - removeLabel:
+                      label: Blocking-Issue
+                  - removeLabel:
+                      label: Breaking-Change
+                  - removeLabel:
+                      label: Command-Configure
+                  - removeLabel:
+                      label: Command-Download
+                  - removeLabel:
+                      label: Command-Export
+                  - removeLabel:
+                      label: Command-Import
+                  - removeLabel:
+                      label: Command-Install
+                  - removeLabel:
+                      label: Command-List
+                  - removeLabel:
+                      label: Command-Pin
+                  - removeLabel:
+                      label: Command-Search
+                  - removeLabel:
+                      label: Command-Show
+                  - removeLabel:
+                      label: Command-Source
+                  - removeLabel:
+                      label: Command-Uninstall
+                  - removeLabel:
+                      label: Command-Upgrade
+                  - removeLabel:
+                      label: Command-Validate
+                  - removeLabel:
+                      label: Context-Elevated-User
+                  - removeLabel:
+                      label: Context-User
+                  - removeLabel:
+                      label: Context-System
+                  - removeLabel:
+                      label: Dependencies
+                  - removeLabel:
+                      label: DSC-Resource
+                  - removeLabel:
+                      label: Experimental
+                  - removeLabel:
+                      label: Hardware
+                  - removeLabel:
+                      label: In-PR
+                  - removeLabel:
+                      label: Interactive-Only-Installer
+                  - removeLabel:
+                      label: Issue-Bug
+                  - removeLabel:
+                      label: Issue-Docs
+                  - removeLabel:
+                      label: Issue-Feature
+                  - removeLabel:
+                      label: msstore
+                  - removeLabel:
+                      label: Needs-Attention
+                  - removeLabel:
+                      label: Needs-Author-Feedback
+                  - removeLabel:
+                      label: Portable
+                  - removeLabel:
+                      label: PowerShell
+                  - removeLabel:
+                      label: Public-Service-Announcement
+                  - removeLabel:
+                      label: Side-By-Side
+                  - removeLabel:
+                      label: Windows-Sandbox
+                  - removeLabel:
+                      label: Zipped-Binary
+onFailure:
+onSuccess:

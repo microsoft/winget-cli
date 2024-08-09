@@ -7,3 +7,4 @@ doc/html
 .idea
 cmake-build-*
 CMakeFiles/
+.vs

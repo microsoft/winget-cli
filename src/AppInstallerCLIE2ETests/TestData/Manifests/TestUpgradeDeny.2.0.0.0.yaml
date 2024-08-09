@@ -1,0 +1,15 @@
+PackageIdentifier: AppInstallerTest.TestUpgradeDeny
+PackageVersion: 2.0.0.0
+PackageName: TestUpgradeDeny
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for upgrade deny.
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: portable
+    InstallerSha256: <EXEHASH>
+    UpgradeBehavior: deny
+ManifestType: singleton
+ManifestVersion: 1.6.0

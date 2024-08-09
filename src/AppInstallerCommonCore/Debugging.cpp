@@ -57,6 +57,14 @@ namespace AppInstaller::Debugging
                 return EXCEPTION_CONTINUE_SEARCH;
             }
 
+            void WriteMinidump()
+            {
+                std::thread([&]() {
+                    MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), Instance().m_file.get(), MiniDumpNormal, nullptr, nullptr, nullptr);
+                    Instance().m_keepFile = true;
+                    }).join();
+            }
+
         private:
             std::filesystem::path m_filePath;
             wil::unique_handle m_file;
@@ -68,5 +76,10 @@ namespace AppInstaller::Debugging
     {
         // Force object creation and thus enabling of the crash detection.
         SelfInitiatedMinidumpHelper::Instance();
+    }
+
+    void WriteMinidump()
+    {
+        SelfInitiatedMinidumpHelper::Instance().WriteMinidump();
     }
 }

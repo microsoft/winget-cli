@@ -15,7 +15,12 @@ using namespace AppInstaller::CLI::Execution;
 
 std::string GetCommandName(const std::unique_ptr<Command>& command)
 {
-    return std::string{ command->Name() };
+    return std::string{ command->FullName() };
+}
+
+std::vector<std::string_view> GetCommandAliases(const std::unique_ptr<Command>& command)
+{
+    return std::vector<std::string_view> { command->Aliases() };
 }
 
 std::string GetArgumentName(const Argument& arg)
@@ -37,7 +42,7 @@ std::string GetArgumentAlternateName(const Argument& arg)
 
 std::string GetArgumentAlias(const Argument& arg)
 {
-    if (arg.Alias() == Argument::NoAlias)
+    if (arg.Alias() == ArgumentCommon::NoAlias)
     {
         return {};
     }
@@ -45,6 +50,11 @@ std::string GetArgumentAlias(const Argument& arg)
     {
         return std::string(1, arg.Alias());
     }
+}
+
+bool StringIsLowercase(const std::string& s)
+{
+    return Utility::ToLower(s) == s;
 }
 
 template <typename Enumerable, typename Op>
@@ -63,8 +73,7 @@ void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enu
 
         if (requireLower)
         {
-            std::string lowerVal = Utility::ToLower(valString);
-            REQUIRE(valString == lowerVal);
+            REQUIRE(StringIsLowercase(valString));
         }
 
         REQUIRE(values.find(valString) == values.end());
@@ -80,9 +89,42 @@ void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enu
     EnsureStringsAreLowercaseAndNoCollisions(info, e, op, values, requireLower);
 }
 
+template <typename Enumerable, typename Op>
+void EnsureVectorStringViewsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, std::unordered_set<std::string>& values, bool requireLower = true)
+{
+    INFO(info);
+
+    for (const auto& val : e)
+    { 
+        std::vector<std::string_view> aliasVector = op(val);
+        std::vector<std::string> valVector(aliasVector.begin(), aliasVector.end());
+        if (valVector.empty())
+        {
+            continue;
+        }
+        // When op returns a vector, we need to ensure every value in the vector does not cause a collision
+        for (auto& valString : valVector)
+        {
+            INFO(valString);
+
+            if (requireLower)
+            {
+                REQUIRE(StringIsLowercase(valString));
+            }
+
+            REQUIRE(values.find(valString) == values.end());
+            values.emplace(std::move(valString));
+        }
+    }
+}
+
 void EnsureCommandConsistency(const Command& command)
 {
-    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " commands", command.GetCommands(), GetCommandName);
+    // Command names and aliases exist in the same space, so both need to be checked as a set
+    // However, collisions do not occur between levels, so the full name must be used to check for collision
+    std::unordered_set<std::string> allCommandAliasNames; 
+    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " commands", command.GetCommands(), GetCommandName, allCommandAliasNames);
+    EnsureVectorStringViewsAreLowercaseAndNoCollisions(command.FullName() + " aliases", command.GetCommands(), GetCommandAliases, allCommandAliasNames);
 
     auto args = command.GetArguments();
     Argument::GetCommon(args);
@@ -106,6 +148,8 @@ void EnsureCommandConsistency(const Command& command)
     // No = allowed in arguments
     // All positional args should be listed first
     bool foundNonPositional = false;
+    bool queryArgPresent = false;
+    bool multiQueryArgPresent = false;
     for (const auto& arg : command.GetArguments())
     {
         INFO(command.FullName());
@@ -121,7 +165,19 @@ void EnsureCommandConsistency(const Command& command)
         {
             foundNonPositional = true;
         }
+
+        if (arg.ExecArgType() == Execution::Args::Type::Query)
+        {
+            queryArgPresent = true;
+        }
+
+        if (arg.ExecArgType() == Execution::Args::Type::MultiQuery)
+        {
+            multiQueryArgPresent = true;
+        }
     }
+
+    REQUIRE((!queryArgPresent || !multiQueryArgPresent));
 
     // Recurse for all subcommands
     for (const auto& sub : command.GetCommands())
@@ -139,6 +195,7 @@ void EnsureCommandConsistency(const Command& command)
 //  6. All argument alias are lower cased
 //  7. No argument names contain '='
 //  8. All positional arguments are first in the list
+//  9. No command includes both Query and MultiQuery arguments
 TEST_CASE("EnsureCommandTreeConsistency", "[command]")
 {
     RootCommand root;
@@ -160,55 +217,29 @@ struct TestCommand : public Command
 // Matcher that lets us verify CommandExceptions.
 struct CommandExceptionMatcher : public Catch::MatcherBase<CommandException>
 {
-    CommandExceptionMatcher(const std::string &arg) : m_expectedArg(arg) {}
+    CommandExceptionMatcher(CLI::Resource::LocString message) : m_expectedMessage(std::move(message)) {}
 
     bool match(const CommandException& ce) const override
     {
-        const auto& params = ce.Params();
-        return params.size() == 1 && params[0].get() == m_expectedArg;
+        return ce.Message() == m_expectedMessage;
     }
 
     std::string describe() const override
     {
         std::ostringstream result;
-        result << "has param == " << m_expectedArg;
+        result << "has message == " << m_expectedMessage;
         return result.str();
     }
 
 private:
-    std::string m_expectedArg;
+    CLI::Resource::LocString m_expectedMessage;
 };
 
 namespace Catch {
     template<>
     struct StringMaker<CommandException> {
         static std::string convert(CommandException const& ce) {
-            std::string result{ "CommandException{ '" };
-            result += ce.Message().get();
-            result += '\'';
-
-            bool first = true;
-            for (const auto& param : ce.Params())
-            {
-                if (first)
-                {
-                    first = false;
-                    result += ", ['";
-                }
-                else
-                {
-                    result += "', '";
-                }
-                result += param.get();
-            }
-
-            if (!first)
-            {
-                result += "']";
-            }
-
-            result += " }";
-            return result;
+            return Utility::Format("CommandException{ '{0}' }", ce.Message().get());
         }
     };
 }
@@ -221,8 +252,25 @@ void RequireValueParsedToArg(const std::string& value, const Argument& arg, cons
     REQUIRE(value == args.GetArg(arg.ExecArgType()));
 }
 
+void RequireValuesParsedToArg(const std::vector<std::string>& values, Args::Type execArgType, const Args& args)
+{
+    REQUIRE(args.Contains(execArgType));
+    REQUIRE(args.GetCount(execArgType) == values.size());
+
+    auto argValues = args.GetArgs(execArgType);
+    for (size_t i = 0; i < values.size(); ++i)
+    {
+        REQUIRE(argValues->at(i) == values[i]);
+    }
+}
+
+void RequireValuesParsedToArg(const std::vector<std::string>& values, const Argument& arg, const Args& args)
+{
+    RequireValuesParsedToArg(values, arg.ExecArgType(), args);
+}
+
 // Description used for tests; doesn't need to be anything in particular.
-static constexpr Resource::StringId DefaultDesc{ L""sv };
+static constexpr CLI::Resource::StringId DefaultDesc{ L""sv };
 
 TEST_CASE("ParseArguments_MultiplePositional", "[command]")
 {
@@ -271,7 +319,7 @@ TEST_CASE("ParseArguments_TooManyPositional", "[command]")
     std::vector<std::string> values{ "val1", "--", "-std1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[2]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::ExtraPositionalError(Utility::LocIndView{ values[2] }));
 }
 
 TEST_CASE("ParseArguments_InvalidChar", "[command]")
@@ -286,7 +334,7 @@ TEST_CASE("ParseArguments_InvalidChar", "[command]")
     std::vector<std::string> values{ "val1", "-", "-std1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidArgumentSpecifierError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_InvalidAlias", "[command]")
@@ -301,7 +349,7 @@ TEST_CASE("ParseArguments_InvalidAlias", "[command]")
     std::vector<std::string> values{ "val1", "-b", "-std1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidAliasError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_MultiFlag", "[command]")
@@ -336,7 +384,7 @@ TEST_CASE("ParseArguments_FlagThenUnknown", "[command]")
     std::vector<std::string> values{ "val1", "-sr", "val2" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFoundError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_FlagThenNonFlag", "[command]")
@@ -352,7 +400,7 @@ TEST_CASE("ParseArguments_FlagThenNonFlag", "[command]")
     std::vector<std::string> values{ "val1", "-sp", "val2" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFlagError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_NameUsingAliasSpecifier", "[command]")
@@ -368,7 +416,7 @@ TEST_CASE("ParseArguments_NameUsingAliasSpecifier", "[command]")
     std::vector<std::string> values{ "another", "-flag1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFoundError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_AliasWithAdjoinedValue", "[command]")
@@ -417,7 +465,7 @@ TEST_CASE("ParseArguments_AliasWithSeparatedValueMissing", "[command]")
     std::vector<std::string> values{ "-s" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[0]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::MissingArgumentError(Utility::LocIndView{ values[0] }));
 }
 
 TEST_CASE("ParseArguments_NameWithAdjoinedValue", "[command]")
@@ -486,7 +534,7 @@ TEST_CASE("ParseArguments_NameFlagWithAdjoinedValue", "[command]")
     std::vector<std::string> values{ "another", "--flag1=arbitrary" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::FlagContainAdjoinedError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_NameWithSeparatedValue", "[command]")
@@ -520,7 +568,7 @@ TEST_CASE("ParseArguments_NameWithSeparatedValueMissing", "[command]")
     std::vector<std::string> values{ "--pos2" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[0]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::MissingArgumentError(Utility::LocIndView{ values[0] }));
 }
 
 TEST_CASE("ParseArguments_UnknownName", "[command]")
@@ -536,5 +584,81 @@ TEST_CASE("ParseArguments_UnknownName", "[command]")
     std::vector<std::string> values{ "another", "--nope" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidNameError(Utility::LocIndView{ values[1] }));
+}
+
+TEST_CASE("ParseArguments_PositionalWithMultipleValues", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "multi", 'm', Args::Type::MultiQuery, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
+        });
+
+    std::vector<std::string> values{ "value1" "value2", "value3" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    command.ParseArguments(inv, args);
+    RequireValuesParsedToArg(values, command.m_args[0], args);
+}
+
+TEST_CASE("ParseArguments_PositionalWithMultipleValuesAndOtherArgs", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "pos1", 'p', Args::Type::Source, DefaultDesc, ArgumentType::Positional },
+            Argument{ "pos2", 'q', Args::Type::All, DefaultDesc, ArgumentType::Positional },
+            Argument{ "multi", 'm', Args::Type::MultiQuery, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
+            Argument{ "flag", 'f', Args::Type::BlockingPin, DefaultDesc, ArgumentType::Flag },
+        });
+
+    std::vector<std::string> values{ "positional", "-q", "anotherPos", "multiValue1", "multiValue2", "-f" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    command.ParseArguments(inv, args);
+    RequireValueParsedToArg(values[0], command.m_args[0], args);
+    RequireValueParsedToArg(values[2], command.m_args[1], args);
+    RequireValuesParsedToArg({ values[3], values[4] }, command.m_args[2], args);
+    REQUIRE(args.Contains(command.m_args[3].ExecArgType()));
+}
+
+TEST_CASE("ParseArguments_PositionalWithMultipleValuesAndName", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "multi", 'm', Args::Type::MultiQuery, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
+        });
+
+    std::vector<std::string> values{ "--multi", "one", "two", "three" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    command.ParseArguments(inv, args);
+    RequireValuesParsedToArg({ values[1], values[2], values[3] }, command.m_args[0], args);
+}
+
+TEST_CASE("ParseArguments_MultiQueryConvertedToSingleQuery", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "multi", 'm', Args::Type::MultiQuery, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
+        });
+
+    std::vector<std::string> values{ "singleValue" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    // ParseArguments converts MultiQuery args with a single value into Query args
+    command.ParseArguments(inv, args);
+    RequireValuesParsedToArg({ values[0] }, Args::Type::Query, args);
+}
+
+TEST_CASE("ParseArguments_PositionalWithTooManyValues", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "multi", 'm', Args::Type::MultiQuery, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
+        });
+
+    std::vector<std::string> values{ "1", "2", "3", "4", "5", "tooMany" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::ExtraPositionalError(Utility::LocIndView{ values.back() }));
 }

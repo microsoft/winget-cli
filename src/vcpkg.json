@@ -1,0 +1,42 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "dependencies": [
+    "correlation-vector-cpp",
+    {
+      "name": "curl",
+      "features": [
+        "c-ares"
+      ]
+    },
+    "nlohmann-json",
+    "zlib"
+  ],
+  "overrides": [
+    {
+      "name": "c-ares",
+      "version": "1.19.1"
+    },
+    {
+      "name": "correlation-vector-cpp",
+      "version": "1.0"
+    },
+    {
+      "name": "curl",
+      "version": "8.8.0"
+    },
+    {
+      "name": "nlohmann-json",
+      "version": "3.11.3"
+    },
+    {
+      "name": "zlib",
+      "version": "1.3.1"
+    }
+  ],
+  "vcpkg-configuration": {
+    "overlay-triplets": [
+      "./VcpkgCustomTriplets"
+    ]
+  },
+  "builtin-baseline": "1de2026f28ead93ff1773e6e680387643e914ea1"
+}

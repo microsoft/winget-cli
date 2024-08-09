@@ -65,6 +65,8 @@ namespace AppInstaller::Repository::Microsoft
         // The configurable source itself.
         struct ConfigurableTestSource : public ISource
         {
+            static constexpr ISourceType SourceType = ISourceType::ConfigurableTestSource;
+
             ConfigurableTestSource(const SourceDetails& details, const TestSourceConfiguration& config) :
                 m_details(details), m_config(config) {}
 
@@ -76,6 +78,16 @@ namespace AppInstaller::Repository::Microsoft
             {
                 THROW_IF_FAILED(m_config.SearchHR);
                 return {};
+            }
+
+            void* CastTo(ISourceType type) override
+            {
+                if (type == SourceType)
+                {
+                    return this;
+                }
+
+                return nullptr;
             }
 
         private:
@@ -111,6 +123,11 @@ namespace AppInstaller::Repository::Microsoft
         // The actual factory implementation.
         struct ConfigurableTestSourceFactoryImpl : public ISourceFactory
         {
+            std::string_view TypeName() const override final
+            {
+                return ConfigurableTestSourceFactory::Type();
+            }
+
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
                 return std::make_shared<ConfigurableTestSourceReference>(details);

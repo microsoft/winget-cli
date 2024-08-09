@@ -1,0 +1,101 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Keep in sync with attributes in AssemblyInfo.cs -->
+    <TargetFramework>net6.0-windows10.0.22000</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>$(OutputPath)\$(MSBuildProjectName).xml</DocumentationFile>
+    <RuntimeIdentifier>win</RuntimeIdentifier>
+    <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
+    <RootNamespace>Microsoft.WinGet.Configuration</RootNamespace>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\CommonFiles\WinGetAssemblyLoadContext.cs" Link="WinGetAssemblyLoadContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- This project doesn't reference CSWinRT, but specify this everywhere it will fail with NETSDK1130 and MSB3271. -->
+  <PropertyGroup>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.WinGet.Configuration.Engine\Microsoft.WinGet.Configuration.Engine.csproj" />
+  </ItemGroup>
+
+  <!-- Build PowerShell Module -->
+  <PropertyGroup>
+    <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell\Microsoft.WinGet.Configuration</PowerShellModuleOutputDirectory>
+    <PowerShellModuleSharedDependencies>$(PowerShellModuleOutputDirectory)\SharedDependencies</PowerShellModuleSharedDependencies>
+    <PowerShellModuleDirectDependencies>$(PowerShellModuleOutputDirectory)\DirectDependencies</PowerShellModuleDirectDependencies>
+  </PropertyGroup>
+
+  <!-- PowerShell Files-->
+  <Target Name="CopyModuleFiles" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <ModuleFiles Include="$(ProjectDir)\..\Microsoft.WinGet.Configuration\ModuleFiles\**\*.*" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying PowerShell module files to '$(PowerShellModuleOutputDirectory)'" />
+    <Copy SourceFiles="@(ModuleFiles)" DestinationFiles="$(PowerShellModuleOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)" />
+  </Target>
+
+  <!-- Main binaries -->
+  <Target Name="CopyCmdletBinaries" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleCmdletFile Include="$(OutputPath)Microsoft.WinGet.Configuration.Cmdlets.dll" />
+      <ModuleCmdletFile Include="$(OutputPath)Microsoft.WinGet.Configuration.Cmdlets.pdb" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying CopyCmdletBinaries: '@(ModuleCmdletFile)'" />
+    <Copy SourceFiles="@(ModuleCmdletFile)" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
+  </Target>
+
+  <!-- Direct dependencies -->
+  <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Configuration.Engine.dll" />
+      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Configuration.Engine.pdb" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying direct dependencies: '@(ModuleDirectDependency)'" />
+    <Copy SourceFiles="@(ModuleDirectDependency)" DestinationFolder="$(PowerShellModuleDirectDependencies)" />
+  </Target>
+
+  <!-- Shared dependencies -->
+  <Target Name="CopySharedDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleSharedDependency Include="$(OutputPath)Microsoft.Management.Configuration.Processor.dll" />
+      <ModuleSharedDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" />
+      <ModuleSharedDependency Include="$(OutputPath)WinRT.Runtime.dll" />
+      <ModuleSharedDependency Include="$(OutputPath)Microsoft.WinGet.SharedLib.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying shared dependencies: '@(ModuleSharedDependency)'" />
+    <Copy SourceFiles="@(ModuleSharedDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />
+  </Target>
+
+</Project>

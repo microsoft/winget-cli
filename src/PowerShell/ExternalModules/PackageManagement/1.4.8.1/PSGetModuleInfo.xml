@@ -1,0 +1,166 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>Microsoft.PowerShell.Commands.PSRepositoryItemInfo</T>
+      <T>System.Management.Automation.PSCustomObject</T>
+      <T>System.Object</T>
+    </TN>
+    <MS>
+      <S N="Name">PackageManagement</S>
+      <S N="Version">1.4.8.1</S>
+      <S N="Type">Module</S>
+      <S N="Description">PackageManagement (a.k.a. OneGet) is a new way to discover and install software packages from around the web._x000D__x000A_ It is a manager or multiplexor of existing package managers (also called package providers) that unifies Windows package management with a single Windows PowerShell interface. With PackageManagement, you can do the following._x000D__x000A_  - Manage a list of software repositories in which packages can be searched, acquired and installed_x000D__x000A_  - Discover software packages_x000D__x000A_  - Seamlessly install, uninstall, and inventory packages from one or more software repositories</S>
+      <S N="Author">Microsoft Corporation</S>
+      <Obj N="CompanyName" RefId="1">
+        <TN RefId="1">
+          <T>System.Object[]</T>
+          <T>System.Array</T>
+          <T>System.Object</T>
+        </TN>
+        <LST>
+          <S>PowerShellTeam</S>
+          <S>alerickson</S>
+          <S>NateLehman</S>
+          <S>krishnayalavarthi</S>
+          <S>anamnavi</S>
+        </LST>
+      </Obj>
+      <S N="Copyright">(C) Microsoft Corporation. All rights reserved.</S>
+      <DT N="PublishedDate">2022-07-01T21:21:49-07:00</DT>
+      <Nil N="InstalledDate" />
+      <Nil N="UpdatedDate" />
+      <Nil N="LicenseUri" />
+      <URI N="ProjectUri">https://oneget.org/</URI>
+      <Nil N="IconUri" />
+      <Obj N="Tags" RefId="2">
+        <TNRef RefId="1" />
+        <LST>
+          <S>PackageManagement</S>
+          <S>PSEdition_Core</S>
+          <S>PSEdition_Desktop</S>
+          <S>Linux</S>
+          <S>Mac</S>
+          <S>PSModule</S>
+        </LST>
+      </Obj>
+      <Obj N="Includes" RefId="3">
+        <TN RefId="2">
+          <T>System.Collections.Hashtable</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT>
+          <En>
+            <S N="Key">Command</S>
+            <Obj N="Value" RefId="4">
+              <TNRef RefId="1" />
+              <LST>
+                <S>Find-Package</S>
+                <S>Get-Package</S>
+                <S>Get-PackageProvider</S>
+                <S>Get-PackageSource</S>
+                <S>Install-Package</S>
+                <S>Import-PackageProvider</S>
+                <S>Find-PackageProvider</S>
+                <S>Install-PackageProvider</S>
+                <S>Register-PackageSource</S>
+                <S>Set-PackageSource</S>
+                <S>Unregister-PackageSource</S>
+                <S>Uninstall-Package</S>
+                <S>Save-Package</S>
+              </LST>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Function</S>
+            <Obj N="Value" RefId="5">
+              <TNRef RefId="1" />
+              <LST />
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Cmdlet</S>
+            <Obj N="Value" RefId="6">
+              <TNRef RefId="1" />
+              <LST>
+                <S>Find-Package</S>
+                <S>Get-Package</S>
+                <S>Get-PackageProvider</S>
+                <S>Get-PackageSource</S>
+                <S>Install-Package</S>
+                <S>Import-PackageProvider</S>
+                <S>Find-PackageProvider</S>
+                <S>Install-PackageProvider</S>
+                <S>Register-PackageSource</S>
+                <S>Set-PackageSource</S>
+                <S>Unregister-PackageSource</S>
+                <S>Uninstall-Package</S>
+                <S>Save-Package</S>
+              </LST>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">DscResource</S>
+            <Obj N="Value" RefId="7">
+              <TNRef RefId="1" />
+              <LST>
+                <S>MSFT_PackageManagement</S>
+                <S>MSFT_PackageManagementSource</S>
+              </LST>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Workflow</S>
+            <Ref N="Value" RefId="5" />
+          </En>
+          <En>
+            <S N="Key">RoleCapability</S>
+            <Ref N="Value" RefId="5" />
+          </En>
+        </DCT>
+      </Obj>
+      <Nil N="PowerShellGetFormatVersion" />
+      <S N="ReleaseNotes">## 1.4.8.1_x000D__x000A_- Update PackageManagement's strong name signing_x000D__x000A__x000D__x000A_## 1.4.8_x000D__x000A_- Add NuGet as a source when generating nuget.config file for user in the NuGet Provider_x000D__x000A__x000D__x000A_## 1.4.7_x000D__x000A_- Update security protocol to use TLS 1.2_x000D__x000A_- Remove catalog file_x000D__x000A__x000D__x000A_## 1.4.6_x000D__x000A_- Update `HelpInfoUri` to point to the latest content_x000D__x000A__x000D__x000A_## 1.4.5_x000D__x000A_- Bug fix for deadlock when getting parameters in an event_x000D__x000A__x000D__x000A_## 1.4.4_x000D__x000A_- Bug fix when installing modules from private feeds_x000D__x000A__x000D__x000A_ ## 1.4.3_x000D__x000A_- Another bug fix when registering repositories with PowerShellGet_x000D__x000A__x000D__x000A_## 1.4.2_x000D__x000A_- Bug fix for passing credentials from PowerShellGet when registering repositories_x000D__x000A__x000D__x000A_## 1.4.1_x000D__x000A_- Bug fix for using credential provider installed in Visual Studio_x000D__x000A__x000D__x000A_## 1.4_x000D__x000A_- Allow credential persistance for registering private repositories and finding or installing packages from those repositories_x000D__x000A__x000D__x000A_## 1.3.2_x000D__x000A_- Enable bootstrap on PSCore_x000D__x000A_- Bug fix to run on .NET Core 3.0_x000D__x000A__x000D__x000A_## 1.3.1_x000D__x000A_- Targets net452 and netstandard2.0 instead of net451, netcoreapp2.0, and netstandard1.6_x000D__x000A_            _x000D__x000A_## Previous releases are not included in this Changelog</S>
+      <Obj N="Dependencies" RefId="8">
+        <TNRef RefId="1" />
+        <LST />
+      </Obj>
+      <S N="RepositorySourceLocation">https://www.powershellgallery.com/api/v2</S>
+      <S N="Repository">PSGallery</S>
+      <S N="PackageManagementProvider">NuGet</S>
+      <Obj N="AdditionalMetadata" RefId="9">
+        <TN RefId="3">
+          <T>System.Management.Automation.PSCustomObject</T>
+          <T>System.Object</T>
+        </TN>
+        <MS>
+          <S N="copyright">(C) Microsoft Corporation. All rights reserved.</S>
+          <S N="description">PackageManagement (a.k.a. OneGet) is a new way to discover and install software packages from around the web._x000D__x000A_ It is a manager or multiplexor of existing package managers (also called package providers) that unifies Windows package management with a single Windows PowerShell interface. With PackageManagement, you can do the following._x000D__x000A_  - Manage a list of software repositories in which packages can be searched, acquired and installed_x000D__x000A_  - Discover software packages_x000D__x000A_  - Seamlessly install, uninstall, and inventory packages from one or more software repositories</S>
+          <S N="requireLicenseAcceptance">False</S>
+          <S N="releaseNotes">## 1.4.8.1_x000D__x000A_- Update PackageManagement's strong name signing_x000D__x000A__x000D__x000A_## 1.4.8_x000D__x000A_- Add NuGet as a source when generating nuget.config file for user in the NuGet Provider_x000D__x000A__x000D__x000A_## 1.4.7_x000D__x000A_- Update security protocol to use TLS 1.2_x000D__x000A_- Remove catalog file_x000D__x000A__x000D__x000A_## 1.4.6_x000D__x000A_- Update `HelpInfoUri` to point to the latest content_x000D__x000A__x000D__x000A_## 1.4.5_x000D__x000A_- Bug fix for deadlock when getting parameters in an event_x000D__x000A__x000D__x000A_## 1.4.4_x000D__x000A_- Bug fix when installing modules from private feeds_x000D__x000A__x000D__x000A_ ## 1.4.3_x000D__x000A_- Another bug fix when registering repositories with PowerShellGet_x000D__x000A__x000D__x000A_## 1.4.2_x000D__x000A_- Bug fix for passing credentials from PowerShellGet when registering repositories_x000D__x000A__x000D__x000A_## 1.4.1_x000D__x000A_- Bug fix for using credential provider installed in Visual Studio_x000D__x000A__x000D__x000A_## 1.4_x000D__x000A_- Allow credential persistance for registering private repositories and finding or installing packages from those repositories_x000D__x000A__x000D__x000A_## 1.3.2_x000D__x000A_- Enable bootstrap on PSCore_x000D__x000A_- Bug fix to run on .NET Core 3.0_x000D__x000A__x000D__x000A_## 1.3.1_x000D__x000A_- Targets net452 and netstandard2.0 instead of net451, netcoreapp2.0, and netstandard1.6_x000D__x000A_            _x000D__x000A_## Previous releases are not included in this Changelog</S>
+          <S N="isLatestVersion">True</S>
+          <S N="isAbsoluteLatestVersion">True</S>
+          <S N="versionDownloadCount">38794156</S>
+          <S N="downloadCount">128454435</S>
+          <S N="packageSize">1153134</S>
+          <S N="published">7/1/2022 9:21:49 PM -07:00</S>
+          <S N="created">7/1/2022 9:21:49 PM -07:00</S>
+          <S N="lastEdited">7/5/2022 6:42:00 PM -07:00</S>
+          <S N="lastUpdated">3/21/2023 6:34:18 PM -07:00</S>
+          <S N="tags">PackageManagement PSEdition_Core PSEdition_Desktop Linux Mac PSModule PSCmdlet_Find-Package PSCommand_Find-Package PSCmdlet_Get-Package PSCommand_Get-Package PSCmdlet_Get-PackageProvider PSCommand_Get-PackageProvider PSCmdlet_Get-PackageSource PSCommand_Get-PackageSource PSCmdlet_Install-Package PSCommand_Install-Package PSCmdlet_Import-PackageProvider PSCommand_Import-PackageProvider PSCmdlet_Find-PackageProvider PSCommand_Find-PackageProvider PSCmdlet_Install-PackageProvider PSCommand_Install-PackageProvider PSCmdlet_Register-PackageSource PSCommand_Register-PackageSource PSCmdlet_Set-PackageSource PSCommand_Set-PackageSource PSCmdlet_Unregister-PackageSource PSCommand_Unregister-PackageSource PSCmdlet_Uninstall-Package PSCommand_Uninstall-Package PSCmdlet_Save-Package PSCommand_Save-Package PSIncludes_Cmdlet PSDscResource_MSFT_PackageManagement PSDscResource_MSFT_PackageManagementSource PSIncludes_DscResource</S>
+          <S N="developmentDependency">False</S>
+          <S N="updated">2023-03-21T18:34:18Z</S>
+          <S N="NormalizedVersion">1.4.8.1</S>
+          <S N="Authors">Microsoft Corporation</S>
+          <S N="IsPrerelease">false</S>
+          <S N="ItemType">Module</S>
+          <S N="FileList">PackageManagement.nuspec|PackageManagement.format.ps1xml|PackageManagement.psd1|PackageManagement.psm1|PackageManagement.Resources.psd1|PackageProviderFunctions.psm1|DSCResources\PackageManagementDscUtilities.psm1|DSCResources\PackageManagementDscUtilities.strings.psd1|fullclr\Microsoft.PackageManagement.ArchiverProviders.dll|fullclr\Microsoft.PackageManagement.CoreProviders.dll|fullclr\Microsoft.PackageManagement.dll|fullclr\Microsoft.PackageManagement.MetaProvider.PowerShell.dll|fullclr\Microsoft.PackageManagement.MsiProvider.dll|fullclr\Microsoft.PackageManagement.MsuProvider.dll|fullclr\Microsoft.PackageManagement.NuGetProvider.dll|fullclr\Microsoft.PowerShell.PackageManagement.dll|coreclr\netstandard2.0\Microsoft.PackageManagement.ArchiverProviders.dll|coreclr\netstandard2.0\Microsoft.PackageManagement.CoreProviders.dll|coreclr\netstandard2.0\Microsoft.PackageManagement.dll|coreclr\netstandard2.0\Microsoft.PackageManagement.MetaProvider.PowerShell.dll|coreclr\netstandard2.0\Microsoft.PackageManagement.NuGetProvider.dll|coreclr\netstandard2.0\Microsoft.PowerShell.PackageManagement.dll|DSCResources\MSFT_PackageManagement\MSFT_PackageManagement.psm1|DSCResources\MSFT_PackageManagement\MSFT_PackageManagement.schema.mof|DSCResources\MSFT_PackageManagement\MSFT_PackageManagement.strings.psd1|DSCResources\MSFT_PackageManagementSource\MSFT_PackageManagementSource.psm1|DSCResources\MSFT_PackageManagementSource\MSFT_PackageManagementSource.schema.mof|DSCResources\MSFT_PackageManagementSource\MSFT_PackageManagementSource.strings.psd1</S>
+          <S N="GUID">4ae9fd46-338a-459c-8186-07f910774cb8</S>
+          <S N="PowerShellVersion">3.0</S>
+          <S N="CLRVersion">4.0</S>
+          <S N="CompanyName">Microsoft Corporation</S>
+        </MS>
+      </Obj>
+      <S N="InstalledLocation">D:\mspkg\src\PowerShell\ExternalModules\PackageManagement\1.4.8.1</S>
+    </MS>
+  </Obj>
+</Objs>

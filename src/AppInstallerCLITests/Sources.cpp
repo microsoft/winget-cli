@@ -30,6 +30,8 @@ constexpr std::string_view s_SourcesYaml_Source_Name = "Name"sv;
 constexpr std::string_view s_SourcesYaml_Source_Type = "Type"sv;
 constexpr std::string_view s_SourcesYaml_Source_Arg = "Arg"sv;
 constexpr std::string_view s_SourcesYaml_Source_Data = "Data"sv;
+constexpr std::string_view s_SourcesYaml_Source_TrustLevel = "TrustLevel"sv;
+constexpr std::string_view s_SourcesYaml_Source_Explicit = "Explicit"sv;
 constexpr std::string_view s_SourcesYaml_Source_LastUpdate = "LastUpdate"sv;
 
 constexpr std::string_view s_EmptySources = R"(
@@ -172,6 +174,17 @@ Sources:
     IsTombstone: false
 )"sv;
 
+constexpr std::string_view s_SingleSource_TrustLevels_Explicit= R"(
+Sources:
+  - Name: testName
+    Type: testType
+    Arg: testArg
+    Data: testData
+    IsTombstone: false
+    TrustLevel: 3
+    Explicit: true
+)"sv;
+
 namespace
 {
     // Helper to create a simple source.
@@ -195,9 +208,9 @@ namespace
             PackageMatchFilter testMatchFilter1{ PackageMatchField::Id, MatchType::Exact, "test" };
             PackageMatchFilter testMatchFilter2{ PackageMatchField::Name, MatchType::Exact, "test" };
             PackageMatchFilter testMatchFilter3{ PackageMatchField::Id, MatchType::CaseInsensitive, "test" };
-            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter1);
-            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter2);
-            result.Matches.emplace_back(std::shared_ptr<IPackage>(), testMatchFilter3);
+            result.Matches.emplace_back(nullptr, testMatchFilter1);
+            result.Matches.emplace_back(nullptr, testMatchFilter2);
+            result.Matches.emplace_back(nullptr, testMatchFilter3);
             return result;
         }
     };
@@ -286,6 +299,27 @@ TEST_CASE("RepoSources_SingleSource", "[sources]")
     RequireDefaultSourcesAt(sources, 1);
 }
 
+TEST_CASE("RepoSources_SingleSource_TrustLevel_Explicit", "[sources]")
+{
+    SetSetting(Stream::UserSources, s_SingleSource_TrustLevels_Explicit);
+    RemoveSetting(Stream::SourcesMetadata);
+
+    std::vector<SourceDetails> sources = GetSources();
+    REQUIRE(sources.size() == c_DefaultSourceCount + 1);
+
+    REQUIRE(sources[0].Name == "testName");
+    REQUIRE(sources[0].Type == "testType");
+    REQUIRE(sources[0].Arg == "testArg");
+    REQUIRE(sources[0].Data == "testData");
+    REQUIRE(sources[0].Origin == SourceOrigin::User);
+    REQUIRE(sources[0].Explicit == true);
+    REQUIRE(WI_IsFlagSet(sources[0].TrustLevel, SourceTrustLevel::Trusted));
+    REQUIRE(WI_IsFlagSet(sources[0].TrustLevel, SourceTrustLevel::StoreOrigin));
+    REQUIRE(sources[0].LastUpdateTime == ConvertUnixEpochToSystemClock(0));
+
+    RequireDefaultSourcesAt(sources, 1);
+}
+
 TEST_CASE("RepoSources_ThreeSources", "[sources]")
 {
     SetSetting(Stream::UserSources, s_ThreeSources);
@@ -312,14 +346,14 @@ TEST_CASE("RepoSources_InvalidYAML", "[sources]")
 {
     SetSetting(Stream::UserSources, "Name: Value : BAD");
 
-    REQUIRE_THROWS_HR(GetSources(), APPINSTALLER_CLI_ERROR_SOURCES_INVALID);
+    REQUIRE_NOTHROW(GetSources());
 }
 
 TEST_CASE("RepoSources_MissingField", "[sources]")
 {
     SetSetting(Stream::UserSources, s_SingleSource_MissingArg);
 
-    REQUIRE_THROWS_HR(GetSources(), APPINSTALLER_CLI_ERROR_SOURCES_INVALID);
+    REQUIRE_NOTHROW(GetSources());
 }
 
 TEST_CASE("RepoSources_AddSource", "[sources]")
@@ -332,6 +366,8 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     details.Type = "thisIsTheType";
     details.Arg = "thisIsTheArg";
     details.Data = "thisIsTheData";
+    details.TrustLevel = Repository::SourceTrustLevel::None;
+    details.Explicit = false;
 
     bool addCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
@@ -352,6 +388,8 @@ TEST_CASE("RepoSources_AddSource", "[sources]")
     REQUIRE(sources[0].Data == details.Data);
     REQUIRE(sources[0].LastUpdateTime != ConvertUnixEpochToSystemClock(0));
     REQUIRE(sources[0].Origin == SourceOrigin::User);
+    REQUIRE(sources[0].TrustLevel == details.TrustLevel);
+    REQUIRE(sources[0].Explicit == details.Explicit);
 
     RequireDefaultSourcesAt(sources, 1);
 }
@@ -575,6 +613,7 @@ TEST_CASE("RepoSources_UpdateOnOpen", "[sources]")
     bool updateCalledOnFactory = false;
     TestSourceFactory factory{ SourcesTestSource::Create };
     factory.OnUpdate = [&](const SourceDetails&) { updateCalledOnFactory = true; };
+    factory.ShouldUpdateBeforeOpenResult = true;
     TestHook_SetSourceFactoryOverride(type, factory);
 
     SetSetting(Stream::UserSources, s_SingleSource);
@@ -1223,4 +1262,80 @@ TEST_CASE("RepoSources_UpdateSettingsDuringAction_MetadataUpdate", "[sources]")
         auto sources = GetSources();
         REQUIRE(sources.size() == c_DefaultSourceCount);
     }
+}
+
+TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+    RemoveSetting(Stream::UserSources);
+
+    Source storeSource{ WellKnownSource::MicrosoftStore };
+    SourceDetails details = storeSource.GetDetails();
+    REQUIRE(!details.CertificatePinningConfiguration.IsEmpty());
+
+    TestSourceFactory factory{ SourcesTestSource::Create };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
+
+    ProgressCallback progress;
+
+    REQUIRE(storeSource.Remove(progress));
+
+    Source storeAfterRemove{ details.Name };
+    REQUIRE(!storeAfterRemove);
+
+    SECTION("with well known name")
+    {
+        Source addStoreBack{ details.Name, details.Arg, details.Type, Repository::SourceTrustLevel::None, false };
+        REQUIRE(addStoreBack.Add(progress));
+
+        Source storeAfterAdd{ details.Name };
+        REQUIRE(storeAfterAdd);
+        REQUIRE(!storeAfterAdd.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+
+    SECTION("with different name")
+    {
+        std::string newName = details.Name + "_new";
+        Source addStoreBack{ newName, details.Arg, details.Type, Repository::SourceTrustLevel::None, false };
+        REQUIRE(addStoreBack.Add(progress));
+
+        Source storeAfterAdd{ newName };
+        REQUIRE(storeAfterAdd);
+        REQUIRE(storeAfterAdd.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+}
+
+TEST_CASE("RepoSources_GroupPolicy_BypassCertificatePinningForMicrosoftStore", "[sources][groupPolicy]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+
+    SECTION("Not configured")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::NotConfigured);
+        Source source(WellKnownSource::MicrosoftStore);
+        REQUIRE_FALSE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+
+    SECTION("Enabled")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::Enabled);
+        Source source(WellKnownSource::MicrosoftStore);
+        REQUIRE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+
+    SECTION("Disabled")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::Disabled);
+        Source source(WellKnownSource::MicrosoftStore);
+        REQUIRE_FALSE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+}
+
+TEST_CASE("RepoSources_BuiltInDesktopFrameworkSourceAlwaysCreatable", "[sources]")
+{
+    Source source(WellKnownSource::DesktopFrameworks);
+    REQUIRE(source);
 }

@@ -29,16 +29,18 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Sources
     void OpenSourcesForImport(Execution::Context& context);
 
-    // Finds the package versions to install matching their descriptions
+    // Create the search requests and install sub-contexts for all the imported packages.
     // Needs the sources for all packages and the installed source
     // Required Args: None
     // Inputs: PackageCollection, Sources, Source
-    // Outputs: PackagesToInstall
-    void SearchPackagesForImport(Execution::Context& context);
+    // Outputs: PackageSubContexts
+    //   SubContext Inputs: None
+    //   SubContext Outputs: Source, SearchRequest
+    void GetSearchRequestsForImport(Execution::Context& context);
 
     // Installs all the packages found in the import file.
     // Required Args: None
-    // Inputs: PackagesToInstall
+    // Inputs: PackageSubContexts
     // Outputs: None
     void InstallImportedPackages(Execution::Context& context);
 }

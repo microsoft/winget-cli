@@ -1,53 +1,49 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="BaseCommand.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
     using System;
     using System.IO;
-    using System.Threading;
+    using AppInstallerCLIE2ETests.Helpers;
     using Newtonsoft.Json.Linq;
     using NUnit.Framework;
 
+    /// <summary>
+    /// Base command.
+    /// </summary>
     public class BaseCommand
     {
+        /// <summary>
+        /// Set up.
+        /// </summary>
         [OneTimeSetUp]
         public void BaseSetup()
         {
-            ResetTestSource();
+            this.ResetTestSource();
         }
 
+        /// <summary>
+        /// Tear down.
+        /// </summary>
         [OneTimeTearDown]
         public void BaseTeardown()
         {
-            TestCommon.RunAICLICommand("source reset", "--force");
+            TestCommon.TearDownTestSource();
         }
 
-        public void ResetTestSource()
+        /// <summary>
+        /// Reset test source.
+        /// </summary>
+        /// <param name="useGroupPolicyForTestSource">Use group policy from test source.</param>
+        public void ResetTestSource(bool useGroupPolicyForTestSource = false)
         {
-            TestCommon.RunAICLICommand("source reset", "--force");
-            TestCommon.RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
-            TestCommon.RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
-            TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
-            Thread.Sleep(2000);
-        }
-
-        public void ConfigureFeature(string featureName, bool status)
-        {
-            string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
-            JObject settingsJson = JObject.Parse(File.ReadAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath)));
-            JObject experimentalFeatures = (JObject)settingsJson["experimentalFeatures"];
-            experimentalFeatures[featureName] = status;
-
-            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), settingsJson.ToString());
-        }
-
-        public void InitializeAllFeatures(bool status)
-        {
-            ConfigureFeature("experimentalArg", status);
-            ConfigureFeature("experimentalCmd", status);
-            ConfigureFeature("dependencies", status);
-            ConfigureFeature("directMSI", status);
+            // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
+            //       to enable testing it by default.  Until then, leaving this here...
+            TestCommon.SetupTestSource(useGroupPolicyForTestSource);
         }
     }
 }

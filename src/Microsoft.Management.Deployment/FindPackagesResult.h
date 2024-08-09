@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "FindPackagesResult.g.h"
+#include <winrt/Windows.Foundation.Collections.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -11,7 +12,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(
-            winrt::Microsoft::Management::Deployment::FindPackagesResultStatus errorCode,
+            winrt::Microsoft::Management::Deployment::FindPackagesResultStatus status,
             bool wasLimitExceeded, 
             Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::MatchResult> matches);
 #endif

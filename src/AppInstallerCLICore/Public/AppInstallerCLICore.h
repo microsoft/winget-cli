@@ -9,4 +9,7 @@ namespace AppInstaller::CLI
 
     // Initializes the Windows Package Manager COM server.
     void ServerInitialize();
+
+    // Initializations for InProc invocation.
+    void InProcInitialize();
 }

@@ -95,7 +95,7 @@ namespace AppInstaller::Repository::Correlation
             // We use that to scale to [0,1].
             // A smaller distance represents a higher match, so we subtract from 1 for the final score
             double editDistance = distance.At(s1.size() - 1, s2.size() - 1);
-            return 1 - editDistance / (s1.size() + s2.size());
+            return 1 - editDistance / (static_cast<uint64_t>(s1.size()) + static_cast<uint64_t>(s2.size()));
         }
     }
 
@@ -145,8 +145,8 @@ namespace AppInstaller::Repository::Correlation
     {
         // Name and Publisher are available as multi properties, but for ARP entries there will only be 0 or 1 values.
         NameAndPublisher arpNameAndPublisher(
-            NormalizeAndPrepareName(arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Name).get()),
-            NormalizeAndPreparePublisher(arpEntry.Entry->GetInstalledVersion()->GetProperty(PackageVersionProperty::Publisher).get()));
+            NormalizeAndPrepareName(arpEntry.Entry->GetLatestVersion()->GetProperty(PackageVersionProperty::Name).get()),
+            NormalizeAndPreparePublisher(arpEntry.Entry->GetLatestVersion()->GetProperty(PackageVersionProperty::Publisher).get()));
 
         // Get the best score across all localizations
         double bestMatchingScore = 0;

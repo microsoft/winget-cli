@@ -16,7 +16,7 @@ A source provides the data for you to discover and install applications. Only ad
 
 ## Usage
 
-`winget source <sub-command> <options>`
+`winget source [<command>] [<options>]`
 
 ![Source image](images/source.png)
 
@@ -41,16 +41,22 @@ Source supports the following sub-commands for manipulating the sources.
 |  **reset** | Resets **winget** back to the initial configuration.  |
 |  **export** | Export current sources |
 
+For more details on a specific command, pass it the help argument. [-?]
+
 ## Options
 
 The **source** command supports the following options.
 
 | Option  | Description |
 |--------------|-------------|
-|  **-n,--name** | The name to identify the source by. |
-|  **-a,--arg** | The URL or UNC of the source. |
-|  **-t,--type** | The type of source. |
+|  **-n, --name** | The name to identify the source by. |
+|  **-a, --arg** | The URL or UNC of the source. |
+|  **-t, --type** | The type of source. |
 | **-?, --help** |  Gets additional help on this command. |
+| **--wait** | Prompts the user to press any key before exiting. |
+| **--logs, --open-logs** | Open the default logs location. |
+| **--verbose, --verbose-logs** | Enables verbose logging for winget. |
+| **--disable-interactivity** | Disable interactive prompts. |
 
 ## add
 

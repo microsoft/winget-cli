@@ -14,10 +14,15 @@ namespace TestCommon
     const std::wstring ExperimentalFeaturesPolicyValueName = L"EnableExperimentalFeatures";
     const std::wstring LocalManifestsPolicyValueName = L"EnableLocalManifestFiles";
     const std::wstring EnableHashOverridePolicyValueName = L"EnableHashOverride";
+    const std::wstring EnableLocalArchiveMalwareScanOverridePolicyValueName = L"EnableLocalArchiveMalwareScanOverride";
     const std::wstring DefaultSourcePolicyValueName = L"EnableDefaultSource";
     const std::wstring MSStoreSourcePolicyValueName = L"EnableMicrosoftStoreSource";
     const std::wstring AdditionalSourcesPolicyValueName = L"EnableAdditionalSources";
     const std::wstring AllowedSourcesPolicyValueName = L"EnableAllowedSources";
+    const std::wstring BypassCertificatePinningForMicrosoftStoreValueName = L"EnableBypassCertificatePinningForMicrosoftStore";
+    const std::wstring EnableWindowsPackageManagerCommandLineInterfaces = L"EnableWindowsPackageManagerCommandLineInterfaces";
+    const std::wstring ConfigurationPolicyValueName = L"EnableWindowsPackageManagerConfiguration";
+    const std::wstring ProxyCommandLineOptionsPolicyValueName = L"EnableWindowsPackageManagerProxyCommandLineOptions";
 
     const std::wstring SourceUpdateIntervalPolicyValueName = L"SourceAutoUpdateInterval";
     const std::wstring SourceUpdateIntervalPolicyOldValueName = L"SourceAutoUpdateIntervalInMinutes";
@@ -29,7 +34,14 @@ namespace TestCommon
     void RemoveSetting(const AppInstaller::Settings::StreamDefinition& stream);
     std::filesystem::path GetPathTo(const AppInstaller::Settings::StreamDefinition& stream);
 
-    void DeleteUserSettingsFiles();
+    // This type removes the settings file on creation and destruction to ensure that a test that modifies them can do so cleanly.
+    struct UserSettingsFileGuard
+    {
+        UserSettingsFileGuard();
+        ~UserSettingsFileGuard();
+    };
+
+    [[nodiscard]] UserSettingsFileGuard DeleteUserSettingsFiles();
 
     struct UserSettingsTest : AppInstaller::Settings::UserSettings
     {

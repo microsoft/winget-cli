@@ -21,7 +21,7 @@ PWA adoption is extremely important in the Windows app ecosystem. It is also cru
 
 ### System requirements
 
-Windows 10 v2004 or newer  
+Windows 10 v2004 or newer
 Edge latest Canary build
 
 ### PWA YAML manifest
@@ -119,5 +119,5 @@ If the user navigates to the site before launching the installed PWA at least on
 
 ## Resources
 
-Hosted App Model : https://blogs.windows.com/windowsdeveloper/2020/03/19/hosted-app-model/  
+Hosted App Model : https://blogs.windows.com/windowsdeveloper/2020/03/19/hosted-app-model/
 Test Website for generating MSIX for PWA : https://pwabuilder-win-chromium-platform.centralus.cloudapp.azure.com/

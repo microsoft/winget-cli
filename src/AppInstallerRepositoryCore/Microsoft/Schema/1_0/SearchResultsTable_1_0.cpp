@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SearchResultsTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 
 #include "Microsoft/Schema/1_0/IdTable.h"
 #include "Microsoft/Schema/1_0/NameTable.h"
@@ -105,7 +105,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement statement = builder.Prepare(m_connection);
         BindStatementForMatchType(statement, filter, bindIndex);
         statement.Execute();
-        AICLI_LOG(Repo, Verbose, << "Search found " << m_connection.GetChanges() << " rows");
+        AICLI_LOG(SQL, Verbose, << "Search found " << m_connection.GetChanges() << " rows");
     }
 
     void SearchResultsTable::RemoveDuplicateManifestRows()
@@ -128,7 +128,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         EndParenthetical();
 
         builder.Execute(m_connection);
-        AICLI_LOG(Repo, Verbose, << "Removed " << m_connection.GetChanges() << " duplicate rows");
+        AICLI_LOG(SQL, Verbose, << "Removed " << m_connection.GetChanges() << " duplicate rows");
     }
 
     void SearchResultsTable::PrepareToFilter()
@@ -170,7 +170,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement statement = builder.Prepare(m_connection);
         BindStatementForMatchType(statement, filter, bindIndex);
         statement.Execute();
-        AICLI_LOG(Repo, Verbose, << "Filter kept " << m_connection.GetChanges() << " rows");
+        AICLI_LOG(SQL, Verbose, << "Filter kept " << m_connection.GetChanges() << " rows");
     }
 
     void SearchResultsTable::CompleteFilter()
@@ -180,7 +180,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         builder.DeleteFrom(GetQualifiedName()).Where(s_SearchResultsTable_Filter).Equals(false);
 
         builder.Execute(m_connection);
-        AICLI_LOG(Repo, Verbose, << "Filter deleted " << m_connection.GetChanges() << " rows");
+        AICLI_LOG(SQL, Verbose, << "Filter deleted " << m_connection.GetChanges() << " rows");
     }
 
     ISQLiteIndex::SearchResult SearchResultsTable::GetSearchResults(size_t limit)

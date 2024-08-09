@@ -12,7 +12,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         Interface(Utility::NormalizationVersion normVersion = Utility::NormalizationVersion::Initial);
 
         // Version 1.0
-        Schema::Version GetVersion() const override;
+        SQLite::Version GetVersion() const override;
         void CreateTables(SQLite::Connection& connection, CreateOptions options) override;
         SQLite::rowid_t AddManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
         std::pair<bool, SQLite::rowid_t> UpdateManifest(SQLite::Connection& connection, const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath) override;
@@ -22,6 +22,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(const SQLite::Connection& connection, SQLite::rowid_t manifestRowId) const override;
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(const SQLite::Connection& connection, AppInstaller::Manifest::string_t packageId) const override;
+
+        // Version 1.7
+        void DropTables(SQLite::Connection& connection) override;
 
     protected:
         bool NotNeeded(const SQLite::Connection& connection, std::string_view tableName, std::string_view valueName, SQLite::rowid_t id) const override;

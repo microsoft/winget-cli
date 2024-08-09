@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 #include "Microsoft/Schema/1_0/VersionTable.h"
 #include "Microsoft/Schema/1_0/VirtualTableBase.h"
 #include <string_view>

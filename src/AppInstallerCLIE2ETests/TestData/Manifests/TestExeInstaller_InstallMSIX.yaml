@@ -1,0 +1,20 @@
+Id: AppInstallerTest.TestExeInstallerInstallsMSIX
+Name: EXE Installer that Installs MSIX - extra
+Version: 1.0.0.0
+Publisher: AppInstallerTest
+License: Test
+Installers:
+  - Arch: x86
+    Url: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    Sha256: <EXEHASH>
+    InstallerType: exe
+    PackageFamilyName: 6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e_8wekyb3d8bbwe
+    Switches:
+      Custom: /execustom
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+ManifestVersion: 0.1.0

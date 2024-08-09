@@ -1,30 +1,20 @@
+---
+author: Ryan Fu @ryfu-msft
+last updated: 02/07/2024
+---
+
 # WinGetYamlFuzzing
+
 The goal of this project is to create a [libFuzzer](http://llvm.org/docs/LibFuzzer.html) based fuzzer for our YAML manifest parsing.
 
-## Issues
-There is a known issue that is fixed in LLVM 12 for running on Windows, and the only known method to build a successful fuzzer is to manually build a local copy of libFuzzer and link it in to this project.
+This project only supports the `Fuzzing` configuration in either the `x64` or `x86` platform. The build output directory will be located at `$(ProjectDirectory)\src\$(Platform)\Fuzzing\`
 
-## Building
+WinGetYamlFuzzer is compiled with `/fsanitize=fuzzer`. This injects the LibFuzzer main function which invokes `LLVMFuzzerTestOneInput`. The LibFuzzer engine code is statically linked into the WinGetYamlFuzzer executable, which is how OneFuzz will interact with the fuzzer by providing the appropriate command-line arguments.
 
-First, clone https://github.com/llvm/llvm-project/tree/llvmorg-12.0.0-rc4 (last known working).
+The fuzzer and all libraries that it references need to be compiled with ASan and SanCov (along with various SanCov compiler flags). In order to run the fuzzer, the ASan runtime DLL is required. This file is copied to the output directory as a post-build step from `$(VCToolsInstallDir)\bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll​`.
 
-From the local clone, run these commands in `cmd` (modifying VS install location as needed):
-```
-mkdir build
-cd build
-set verbose=1
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-cmake -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" -DCOMPILER_RT_BUILD_BUILTINS=OFF -DCOMPILER_RT_BUILD_CRT=OFF -DCOMPILER_RT_BUILD_SANITIZERS=OFF -DCOMPILER_RT_BUILD_XRAY=OFF -DCOMPILER_RT_BUILD_PROFILE=OFF -DLLVM_TARGETS_TO_BUILD=X86 -Thost=x64 ../llvm
-cmake --build . --target fuzzer --config Release
-mkdir ..\install
-powershell -Command "$file = 'projects\compiler-rt\lib\fuzzer\cmake_install.cmake'; (Get-Content $file) -replace '\$\(Configuration\)', 'Release' | Out-File -Encoding utf8 $file"
-cmake --install . --component fuzzer --config Release -v --prefix ../install
-tree /F ..\install
-```
+## Submitting fuzzing artifacts to OneFuzz
 
-Once this has built, update the project's Linker>Input settings to change the placeholder lib to the location of the `clang_rt.fuzzer-x86_64.lib` file under the install directory.
+The `OneFuzzConfig.json` file contains the information required to submit the fuzzing artifacts. This is where the job dependencies are specified, which includes the fuzzer executable (WinGetYamlFuzzer.exe) and all referenced libraries. This file is copied to the fuzzing build output directory.
 
-## Running
-A script will be added when the issues are resolved and the fuzzer functions out of the box. In order to run it I have been doing the following:
-1. Copy the CLITests TestData YAML files to a new corpus directory.
-2. Run the following command: `WinGetYamlFuzzing.exe -dict=<full path to dictionary.txt in project> <path to corpus directory>`
+The `onefuzz-task@0` task called in our build pipeline yaml file will handle submitting all of the specified fuzzing artifacts to the OneFuzz service which will run the fuzzer and generate ADO bugs to our team if any are encountered. All of the specified job dependencies must be present when submitting to the OneFuzz ADO tas including the OneFuzzConfig.json file.

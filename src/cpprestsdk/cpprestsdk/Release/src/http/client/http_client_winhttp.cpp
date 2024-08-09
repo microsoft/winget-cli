@@ -2039,6 +2039,18 @@ private:
             case WINHTTP_CALLBACK_STATUS_SENDING_REQUEST:
             {
                 p_request_context->on_send_request_validate_cn();
+
+                try
+                {
+                    p_request_context->m_http_client->client_config().invoke_nativehandle_servercertificate_validation(hRequestHandle);
+                }
+                catch (...)
+                {
+                    p_request_context->report_exception(std::current_exception());
+                    p_request_context->cleanup();
+                    return;
+                }
+
                 return;
             }
             case WINHTTP_CALLBACK_STATUS_SECURE_FAILURE:

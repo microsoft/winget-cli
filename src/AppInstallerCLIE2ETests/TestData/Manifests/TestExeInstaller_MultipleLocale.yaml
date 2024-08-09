@@ -1,0 +1,63 @@
+# Manifest for verifying multiple locales
+PackageIdentifier: AppInstallerTest.MultipleLocale
+PackageVersion: 1.0.0.0
+PackageName: TestMultipleLocale
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: testLicense
+LicenseUrl: https://testLicenseUrl.com
+ShortDescription: testShortDescription
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    InstallerSwitches:
+      Custom: /execustom
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+Agreements:
+  - AgreementLabel: testAgreementLabel
+    Agreement: testAgreementText
+    AgreementUrl: https://testAgreementUrl.net
+Localization:
+- Author: localeAuthor
+  Copyright: localeCopyright
+  License: localeLicense
+  LicenseUrl: https://localeLicenseUrl.com
+  PackageLocale: zh-CN
+  PackageName: localePackageName
+  PackageUrl: https://localePackageUrl.com
+  Publisher: localePublisher
+  PublisherSupportUrl: https://localePublisherSupportUrl.com
+  PublisherUrl: https://localePublisherUrl.com
+  Moniker: localeMoniker
+  PurchaseUrl: https://localePurchaseUrl.com
+  ReleaseNotes: localeReleaseNotes
+  ReleaseNotesUrl: https://localeReleaseNotesUrl.com
+  Agreements:
+  - AgreementLabel: localeAgreementLabel
+    Agreement: localeAgreement
+    AgreementUrl: https://localeAgreementUrl.net
+  Documentations:
+  - DocumentLabel: localeDocumentLabel
+    DocumentUrl: https://localeDocumentUrl.com
+  Icons:
+  - IconUrl: https://localeTestIcon
+    IconFileType: png
+    IconResolution: 32x32
+    IconTheme: light
+    IconSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321
+  Tags:
+  - tag1
+  - tag2
+- PackageLocale: en-GB
+  PackageName: packageNameUK
+  License: licenseUK
+  Publisher: publisherUK
+ManifestType: merged
+ManifestVersion: 1.5.0

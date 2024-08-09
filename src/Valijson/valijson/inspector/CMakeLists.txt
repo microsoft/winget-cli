@@ -1,5 +1,3 @@
-# Reference: http://qt-project.org/doc/qt-5.0/qtdoc/cmake-manual.html
-
 cmake_minimum_required(VERSION 3.0)
 
 # Add folder where are supportive functions
@@ -17,7 +15,7 @@ project(inspector VERSION 1.0)
 fix_project_version()
 
 # Set additional project information
-set(COPYRIGHT "Copyright (c) 2020 Tristan Penman. All rights reserved.")
+set(COPYRIGHT "Copyright (c) 2021 Tristan Penman. All rights reserved.")
 set(IDENTIFIER "com.tristanpenman.valijson.inspector")
 
 set(SOURCE_FILES
@@ -30,10 +28,16 @@ include_directories(SYSTEM ../include)
 
 add_project_meta(META_FILES_TO_INCLUDE)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Widgets REQUIRED)
+
+add_definitions(-DVALIJSON_USE_EXCEPTIONS=1)
 
 add_executable(${PROJECT_NAME} ${OS_BUNDLE} # Expands to WIN32 or MACOS_BUNDLE depending on OS
     ${SOURCE_FILES} ${META_FILES_TO_INCLUDE} ${RESOURCE_FILES}
 )
 
-target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Widgets
+)

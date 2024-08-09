@@ -1,0 +1,13 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
+  "settings": {
+    "maintainabilityRules": {
+      "topLevelTypes": [ "class", "interface" ]
+    },
+    "documentationRules": {
+      "companyName": "Microsoft Corporation",
+      "copyrightText": "    Copyright (c) {companyName}. Licensed under the MIT License.",
+      "headerDecoration": "-----------------------------------------------------------------------------"
+    }
+  }
+}

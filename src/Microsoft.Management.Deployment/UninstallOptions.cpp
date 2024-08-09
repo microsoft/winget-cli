@@ -49,6 +49,22 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_correlationData = value;
     }
+    bool UninstallOptions::Force()
+    {
+        return m_force;
+    }
+    void UninstallOptions::Force(bool value)
+    {
+        m_force = value;
+    }
+    winrt::Microsoft::Management::Deployment::PackageUninstallScope UninstallOptions::PackageUninstallScope()
+    {
+        return m_packageUninstallScope;
+    }
+    void UninstallOptions::PackageUninstallScope(winrt::Microsoft::Management::Deployment::PackageUninstallScope const& value)
+    {
+        m_packageUninstallScope = value;
+    }
 
     CoCreatableMicrosoftManagementDeploymentClass(UninstallOptions);
 }

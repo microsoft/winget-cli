@@ -1,0 +1,38 @@
+{
+  "name": "@ronomon/pure",
+  "version": "1.0.4",
+  "description": "Checks zip files for zip bombs, dangerous compression ratios, spec deviations, malicious archive signatures, mismatching local and central directory headers, ambiguous UTF-8 filenames, directory and symlink traversals, invalid MS-DOS dates, overlapping headers, overflow, underflow, sparseness, accidental buffer bleeds etc.",
+  "main": "binding.node",
+  "files": [
+    "AUTHORS",
+    "binding.c",
+    "binding.gyp",
+    "make-errors.js",
+    "make-signatures.js",
+    "make-tests.js",
+    "pure",
+    "pure.h",
+    "pure_constants.h",
+    "pure_errors.h",
+    "pure_routines.h",
+    "pure_signatures.h",
+    "test.js",
+    "zlib/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ronomon/pure.git"
+  },
+  "keywords": [],
+  "author": "Joran Dirk Greef",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ronomon/pure/issues"
+  },
+  "homepage": "https://github.com/ronomon/pure#readme",
+  "scripts": {
+    "prepublishOnly": "rm -f binding.node",
+    "postinstall": "node-gyp clean",
+    "test": "node test.js"
+  }
+}

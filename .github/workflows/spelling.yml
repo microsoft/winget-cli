@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     if: false
     steps:
-    - name: Task
-      run: |
-        echo 'Running this task would be bad'
-        exit 1
+      - name: Task
+        run: |
+          echo 'Running this task would be bad'
+          exit 1

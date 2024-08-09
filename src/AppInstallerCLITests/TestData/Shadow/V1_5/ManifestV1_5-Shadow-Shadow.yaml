@@ -1,0 +1,26 @@
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.7.32
+ManifestType: shadow
+ManifestVersion: 1.5.0
+PackageLocale: en-US
+Icons:
+  - IconUrl: https://shadowIcon-default
+    IconFileType: ico
+    IconResolution: custom
+    IconTheme: default
+    IconSha256: 1111111111111111111111111111111111111111111111111111111111111111
+Localization:
+  - PackageLocale: en-gb
+    Icons:
+    - IconUrl: https://shadowIcon-en-GB
+      IconFileType: png
+      IconResolution: 32x32
+      IconTheme: light
+      IconSha256: 2222222222222222222222222222222222222222222222222222222222222222
+  - PackageLocale: fr-FR
+    Icons:
+    - IconUrl: https://shadowIcon-fr-FR
+      IconFileType: jpeg
+      IconResolution: 20x20
+      IconTheme: dark
+      IconSha256: 3333333333333333333333333333333333333333333333333333333333333333

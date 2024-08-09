@@ -10,26 +10,52 @@ using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
-using namespace AppInstaller::Repository::SQLite;
+using namespace AppInstaller::SQLite;
+
+using SQLiteVersion = AppInstaller::SQLite::Version;
 
 static std::shared_ptr<SQLiteIndexSource> SimpleTestSetup(const std::string& filePath, SourceDetails& details, Manifest& manifest, std::string& relativePath)
 {
-    SQLiteIndex index = SQLiteIndex::CreateNew(filePath, Schema::Version::Latest());
+    SQLiteVersion latest1 = Version::LatestForMajor(1);
+    SQLiteVersion latest2 = Version::LatestForMajor(2);
+
+    const SQLiteVersion versionToUse = GENERATE_COPY(SQLiteVersion{ latest1 }, SQLiteVersion{ latest2 });
+
+    SQLiteIndex index = SQLiteIndex::CreateNew(filePath, versionToUse);
 
     TestDataFile testManifest("Manifest-Good.yaml");
     manifest = YamlParser::CreateFromPath(testManifest);
 
-    relativePath = testManifest.GetPath().filename().u8string();
+    std::filesystem::path testManifestPath = testManifest.GetPath();
+    relativePath = testManifestPath.filename().u8string();
+
+    TempDirectory sourceFilesDirectory{ "SQLiteIndexSource" };
+    std::filesystem::path sourceFilesDirectoryPath = sourceFilesDirectory.GetPath();
+    std::filesystem::create_directories(sourceFilesDirectoryPath);
+    std::filesystem::copy_file(testManifestPath, sourceFilesDirectoryPath / relativePath);
+    sourceFilesDirectory.Release();
 
     index.AddManifest(manifest, relativePath);
 
     details.Name = "TestName";
     details.Type = "TestType";
-    details.Arg = testManifest.GetPath().parent_path().u8string();
+    details.Arg = sourceFilesDirectoryPath.u8string();
     details.Data = "";
-    details.Identifier = "*SimpleTestSetup";
+    details.Identifier = "SimpleTestSetup";
+
+    if (versionToUse.MajorVersion == 2)
+    {
+        index.SetProperty(SQLiteIndex::Property::IntermediateFileOutputPath, sourceFilesDirectoryPath.u8string());
+    }
+
+    index.PrepareForPackaging();
 
     return std::make_shared<SQLiteIndexSource>(details, std::move(index));
+}
+
+static bool SupportsChannel(const std::shared_ptr<SQLiteIndexSource>& source)
+{
+    return source->GetIndex().GetVersion().MajorVersion == 1;
 }
 
 TEST_CASE("SQLiteIndexSource_Search_IdExactMatch", "[sqliteindexsource]")
@@ -86,7 +112,7 @@ TEST_CASE("SQLiteIndexSource_Id", "[sqliteindexsource]")
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Package);
-    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion();
+    auto latestVersion = results.Matches[0].Package->GetAvailable()[0]->GetLatestVersion();
 
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Id).get() == manifest.Id);
 }
@@ -107,7 +133,7 @@ TEST_CASE("SQLiteIndexSource_Name", "[sqliteindexsource]")
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Package);
-    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion();
+    auto latestVersion = results.Matches[0].Package->GetAvailable()[0]->GetLatestVersion();
 
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Name).get() == manifest.DefaultLocalization.Get<Localization::PackageName>());
 }
@@ -128,11 +154,15 @@ TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Package);
+    REQUIRE(results.Matches[0].Package->GetAvailable().size() == 1);
 
-    auto result = results.Matches[0].Package->GetAvailableVersionKeys();
+    auto result = results.Matches[0].Package->GetAvailable()[0]->GetVersionKeys();
     REQUIRE(result.size() == 1);
     REQUIRE(result[0].Version == manifest.Version);
-    REQUIRE(result[0].Channel == manifest.Channel);
+    if (SupportsChannel(source))
+    {
+        REQUIRE(result[0].Channel == manifest.Channel);
+    }
 }
 
 TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
@@ -151,25 +181,32 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Package);
-    auto package = results.Matches[0].Package.get();
+    REQUIRE(results.Matches[0].Package->GetAvailable().size() == 1);
+    auto package = results.Matches[0].Package->GetAvailable()[0];
 
-    auto specificResultVersion = package->GetAvailableVersion(PackageVersionKey("", manifest.Version, manifest.Channel));
+    auto specificResultVersion = package->GetVersion(PackageVersionKey("", manifest.Version, SupportsChannel(source) ? manifest.Channel : ""));
     REQUIRE(specificResultVersion);
     auto specificResult = specificResultVersion->GetManifest();
     REQUIRE(specificResult.Id == manifest.Id);
     REQUIRE(specificResult.DefaultLocalization.Get<Localization::PackageName>() == manifest.DefaultLocalization.Get<Localization::PackageName>());
     REQUIRE(specificResult.Version == manifest.Version);
-    REQUIRE(specificResult.Channel == manifest.Channel);
+    if (SupportsChannel(source))
+    {
+        REQUIRE(specificResult.Channel == manifest.Channel);
+    }
 
-    auto latestResultVersion = package->GetAvailableVersion(PackageVersionKey("", "", manifest.Channel));
-    REQUIRE(latestResultVersion);
-    auto latestResult = latestResultVersion->GetManifest();
-    REQUIRE(latestResult.Id == manifest.Id);
-    REQUIRE(latestResult.DefaultLocalization.Get<Localization::PackageName>() == manifest.DefaultLocalization.Get<Localization::PackageName>());
-    REQUIRE(latestResult.Version == manifest.Version);
-    REQUIRE(latestResult.Channel == manifest.Channel);
+    if (SupportsChannel(source))
+    {
+        auto latestResultVersion = package->GetVersion(PackageVersionKey("", "", manifest.Channel));
+        REQUIRE(latestResultVersion);
+        auto latestResult = latestResultVersion->GetManifest();
+        REQUIRE(latestResult.Id == manifest.Id);
+        REQUIRE(latestResult.DefaultLocalization.Get<Localization::PackageName>() == manifest.DefaultLocalization.Get<Localization::PackageName>());
+        REQUIRE(latestResult.Version == manifest.Version);
+        REQUIRE(latestResult.Channel == manifest.Channel);
+    }
 
-    auto noResultVersion = package->GetAvailableVersion(PackageVersionKey("", "blargle", "flargle"));
+    auto noResultVersion = package->GetVersion(PackageVersionKey("", "blargle", "flargle"));
     REQUIRE(!noResultVersion);
 }
 
@@ -188,9 +225,11 @@ TEST_CASE("SQLiteIndexSource_IsSame", "[sqliteindexsource]")
 
     auto result1 = source->Search(request);
     REQUIRE(result1.Matches.size() == 1);
+    REQUIRE(result1.Matches[0].Package->GetAvailable().size() == 1);
 
     auto result2 = source->Search(request);
     REQUIRE(result2.Matches.size() == 1);
+    REQUIRE(result2.Matches[0].Package->GetAvailable().size() == 1);
 
-    REQUIRE(result1.Matches[0].Package->IsSame(result2.Matches[0].Package.get()));
+    REQUIRE(result1.Matches[0].Package->GetAvailable()[0]->IsSame(result2.Matches[0].Package->GetAvailable()[0].get()));
 }

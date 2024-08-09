@@ -38,6 +38,8 @@ extern "C"
         SchemaValidation = 0x1,
         // Validate against schema and also perform semantic validation
         SchemaAndSemanticValidation = 0x2,
+        // Use shadow manifest
+        AllowShadowManifest = 0x4,
 
         /// Below options are additional validation behaviors if needed
 
@@ -77,6 +79,13 @@ extern "C"
         ArpVersionValidationFailure = 0x2,
         InstallerValidationFailure = 0x4,
 
+        // Dependencies validation result.
+        SingleManifestPackageHasDependencies = 0x10000,
+        MultiManifestPackageHasDependencies = 0x20000,
+        MissingManifestDependenciesNode = 0x40000,
+        NoSuitableMinVersionDependency = 0x80000,
+        FoundDependencyLoop = 0x100000,
+
         // Internal error meaning validation does not complete as desired.
         InternalError = 0x1000,
     };
@@ -115,6 +124,24 @@ extern "C"
     // Closes the index.
     WINGET_UTIL_API WinGetSQLiteIndexClose(
         WINGET_SQLITE_INDEX_HANDLE index);
+
+    // Migrates the index to the new version specified.
+    WINGET_UTIL_API WinGetSQLiteIndexMigrate(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        UINT32 majorVersion,
+        UINT32 minorVersion);
+
+    enum WinGetSQLiteIndexProperty
+    {
+        WinGetSQLiteIndexProperty_PackageUpdateTrackingBaseTime = 0,
+        WinGetSQLiteIndexProperty_IntermediateFileOutputPath = 1,
+    };
+
+    // Sets the given property on the index.
+    WINGET_UTIL_API WinGetSQLiteIndexSetProperty(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        WinGetSQLiteIndexProperty property,
+        WINGET_STRING value);
 
     // Adds the manifest at the repository relative path to the index.
     // If the function succeeds, the manifest has been added.

@@ -1,0 +1,6 @@
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.7.32
+PackageLocale: en-GB
+Description: The MSIX SDK project is an effort to enable developers UK
+ManifestType: locale
+ManifestVersion: 1.5.0

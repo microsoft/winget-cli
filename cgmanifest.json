@@ -1,50 +1,78 @@
 {
-"Registrations":[
-  {
-    "component": {
-      "type": "git",
-      "git": {
-        "repositoryUrl": "https://github.com/catchorg/Catch2.git",
-        "commitHash": "e1c9d5569dc4135babb9c81891d70a8ba8ed938c"
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json",
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/catchorg/Catch2.git",
+          "commitHash": "e1c9d5569dc4135babb9c81891d70a8ba8ed938c"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/yaml/libyaml.git",
+          "commitHash": "840b65c40675e2d06bf40405ad3f12dec7f35923"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/open-source-parsers/jsoncpp.git",
+          "commitHash": "9be589598595963f94ba264d7b416d0533421106"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/tristanpenman/valijson.git",
+          "commitHash": "0b4771e273a065d437814baf426bcfcafec0f434"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/microsoft/cpprestsdk.git",
+          "commitHash": "122d09549201da5383321d870bed45ecb9e168c5"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/ronomon/pure.git",
+          "commitHash": "fd54913e65338e678440ae66b3b5022ab23b761b"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/madler/zlib.git",
+          "commitHash": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf"
+        }
+      }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/microsoft/sfs-client.git",
+          "commitHash": "ff315ecfa2ef2953d8a808e51e8a61a4e0759180"
+        }
       }
     }
-  },
-  {
-    "component": {
-      "type": "git",
-      "git": {
-        "repositoryUrl": "https://github.com/yaml/libyaml.git",
-        "commitHash": "2c891fc7a770e8ba2fec34fc6b545c672beb37e6"
-      }
-    }
-  },
-  {
-    "component": {
-      "type": "git",
-      "git": {
-        "repositoryUrl": "https://github.com/open-source-parsers/jsoncpp.git",
-        "commitHash": "9be589598595963f94ba264d7b416d0533421106"
-      }
-    }
-  },
-  {
-    "component": {
-      "type": "git",
-      "git": {
-        "repositoryUrl": "https://github.com/tristanpenman/valijson.git",
-        "commitHash": "2dfc7499a31b84edef71189f4247919268ebc74e"
-      }
-    }
-  },
-  {
-    "component": {
-      "type": "git",
-      "git": {
-        "repositoryUrl": "https://github.com/microsoft/cpprestsdk.git",
-        "commitHash": "122d09549201da5383321d870bed45ecb9e168c5"
-      }
-    }
-  }
- ],
- "Version": 1
+  ],
+  "Version": 1
 }

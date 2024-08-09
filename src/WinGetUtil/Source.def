@@ -21,3 +21,5 @@ EXPORTS
     WinGetBeginInstallerMetadataCollection
     WinGetCompleteInstallerMetadataCollection
     WinGetMergeInstallerMetadata
+    WinGetSQLiteIndexMigrate
+    WinGetSQLiteIndexSetProperty

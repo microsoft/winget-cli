@@ -53,7 +53,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
             arpEntry.DisplayVersion = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(DisplayVersion)).value_or("");
             arpEntry.ProductCode = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(ProductCode)).value_or("");
             arpEntry.UpgradeCode = JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(UpgradeCode)).value_or("");
-            arpEntry.InstallerType = Manifest::ConvertToInstallerTypeEnum(JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(InstallerType)).value_or(""));
+            arpEntry.InstallerType = ConvertToInstallerType(JSON::GetRawStringValueFromJsonNode(arpEntryNode, JSON::GetUtilityString(InstallerType)).value_or(""));
 
             // Only add when at least one field is valid
             if (!arpEntry.DisplayName.empty() || !arpEntry.Publisher.empty() || !arpEntry.DisplayVersion.empty() ||
@@ -75,7 +75,83 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
             return InstallerTypeEnum::MSStore;
         }
 
-        return V1_0::Json::ManifestDeserializer::ConvertToInstallerType(in);
+        return V1_0::Json::ManifestDeserializer::ConvertToInstallerType(inStrLower);
+    }
+
+    Manifest::ExpectedReturnCodeEnum ManifestDeserializer::ConvertToExpectedReturnCodeEnum(std::string_view in) const
+    {
+        std::string inStrLower = Utility::ToLower(in);
+        ExpectedReturnCodeEnum result = ExpectedReturnCodeEnum::Unknown;
+
+        if (inStrLower == "packageinuse")
+        {
+            result = ExpectedReturnCodeEnum::PackageInUse;
+        }
+        else if (inStrLower == "installinprogress")
+        {
+            result = ExpectedReturnCodeEnum::InstallInProgress;
+        }
+        else if (inStrLower == "fileinuse")
+        {
+            result = ExpectedReturnCodeEnum::FileInUse;
+        }
+        else if (inStrLower == "missingdependency")
+        {
+            result = ExpectedReturnCodeEnum::MissingDependency;
+        }
+        else if (inStrLower == "diskfull")
+        {
+            result = ExpectedReturnCodeEnum::DiskFull;
+        }
+        else if (inStrLower == "insufficientmemory")
+        {
+            result = ExpectedReturnCodeEnum::InsufficientMemory;
+        }
+        else if (inStrLower == "nonetwork")
+        {
+            result = ExpectedReturnCodeEnum::NoNetwork;
+        }
+        else if (inStrLower == "contactsupport")
+        {
+            result = ExpectedReturnCodeEnum::ContactSupport;
+        }
+        else if (inStrLower == "rebootrequiredtofinish")
+        {
+            result = ExpectedReturnCodeEnum::RebootRequiredToFinish;
+        }
+        else if (inStrLower == "rebootrequiredforinstall")
+        {
+            result = ExpectedReturnCodeEnum::RebootRequiredForInstall;
+        }
+        else if (inStrLower == "rebootinitiated")
+        {
+            result = ExpectedReturnCodeEnum::RebootInitiated;
+        }
+        else if (inStrLower == "cancelledbyuser")
+        {
+            result = ExpectedReturnCodeEnum::CancelledByUser;
+        }
+        else if (inStrLower == "alreadyinstalled")
+        {
+            result = ExpectedReturnCodeEnum::AlreadyInstalled;
+        }
+        else if (inStrLower == "downgrade")
+        {
+            result = ExpectedReturnCodeEnum::Downgrade;
+        }
+        else if (inStrLower == "blockedbypolicy")
+        {
+            result = ExpectedReturnCodeEnum::BlockedByPolicy;
+        }
+
+        return result;
+    }
+
+    Manifest::ManifestInstaller::ExpectedReturnCodeInfo ManifestDeserializer::DeserializeExpectedReturnCodeInfo(const web::json::value& expectedReturnCodeJsonObject) const
+    {
+        ExpectedReturnCodeEnum returnResponse = ConvertToExpectedReturnCodeEnum(JSON::GetRawStringValueFromJsonNode(expectedReturnCodeJsonObject, JSON::GetUtilityString(ReturnResponse)).value_or(""));
+        
+        return { returnResponse, "" };
     }
 
     std::optional<Manifest::ManifestInstaller> ManifestDeserializer::DeserializeInstaller(const web::json::value& installerJsonObject) const
@@ -142,13 +218,13 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
             {
                 for (auto& returnCodeNode : expectedReturnCodesNode.value().get())
                 {
-                    ExpectedReturnCodeEnum returnResponse = Manifest::ConvertToExpectedReturnCodeEnum(JSON::GetRawStringValueFromJsonNode(returnCodeNode, JSON::GetUtilityString(ReturnResponse)).value_or(""));
                     DWORD installerReturnCode = static_cast<DWORD>(JSON::GetRawIntValueFromJsonNode(returnCodeNode, JSON::GetUtilityString(InstallerReturnCode)).value_or(0));
+                    auto returnCodeInfo = DeserializeExpectedReturnCodeInfo(returnCodeNode);
 
                     // Only add when it is valid
-                    if (installerReturnCode != 0 && returnResponse != ExpectedReturnCodeEnum::Unknown)
+                    if (installerReturnCode != 0 && returnCodeInfo.ReturnResponseEnum != ExpectedReturnCodeEnum::Unknown)
                     {
-                        if (!installer.ExpectedReturnCodes.insert({ installerReturnCode, { returnResponse, "" } }).second)
+                        if (!installer.ExpectedReturnCodes.insert({ installerReturnCode, std::move(returnCodeInfo) }).second)
                         {
                             AICLI_LOG(Repo, Error, << "Expected return codes cannot have repeated value.");
                             return {};
@@ -158,7 +234,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
             }
 
             // Populate installer default return codes if not present in ExpectedReturnCodes and InstallerSuccessCodes
-            auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.InstallerType);
+            auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.EffectiveInstallerType());
             for (auto const& defaultReturnCode : defaultReturnCodes)
             {
                 if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end() &&
@@ -210,5 +286,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
         }
 
         return result;
+    }
+
+    Manifest::ManifestVer ManifestDeserializer::GetManifestVersion() const
+    {
+        return Manifest::s_ManifestVersionV1_1;
     }
 }

@@ -4,105 +4,75 @@
 #include "UpgradeCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/MultiQueryFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
-
-using namespace AppInstaller::CLI::Execution;
-using namespace AppInstaller::Manifest;
-using namespace AppInstaller::CLI::Workflow;
+#include <winget/LocIndependent.h>
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::CLI::Workflow;
+    using namespace AppInstaller::Utility::literals;
+
     namespace
     {
-        // Determines whether there are any arguments only used in search queries,
-        // as opposed to listing available upgrades
-        bool HasSearchQueryArguments(Execution::Args& execArgs)
-        {
-            // Note that this does not include Manifest (no search) or source related args (used for listing)
-            return execArgs.Contains(Args::Type::Query) ||
-                execArgs.Contains(Args::Type::Id) ||
-                execArgs.Contains(Args::Type::Name) ||
-                execArgs.Contains(Args::Type::Moniker) ||
-                execArgs.Contains(Args::Type::Version) ||
-                execArgs.Contains(Args::Type::Channel) ||
-                execArgs.Contains(Args::Type::Exact);
-        }
-
-        // Determines whether there are any arguments only used when upgrading a single package,
-        // as opposed to upgrading multiple packages or listing all available upgrades
-        bool HasArgumentsForSinglePackage(Execution::Args& execArgs)
-        {
-            return HasSearchQueryArguments(execArgs) ||
-                execArgs.Contains(Args::Type::Manifest);
-        }
-
-        // Determines whether there are any arguments only used when dealing with multiple packages,
-        // either for upgrading or for listing available upgrades.
-        bool HasArgumentsForMultiplePackages(Execution::Args& execArgs)
-        {
-            return execArgs.Contains(Args::Type::All);  
-        }
-
-        // Determines whether there are any arguments only used as options during an upgrade,
-        // as opposed to listing available upgrades or selecting the packages.
-        bool HasArgumentsForInstallOptions(Execution::Args& execArgs)
-        {
-            return execArgs.Contains(Args::Type::Interactive) ||
-                execArgs.Contains(Args::Type::Silent) ||
-                execArgs.Contains(Args::Type::Log) ||
-                execArgs.Contains(Args::Type::Override) ||
-                execArgs.Contains(Args::Type::InstallLocation) ||
-                execArgs.Contains(Args::Type::HashOverride) ||
-                execArgs.Contains(Args::Type::AcceptPackageAgreements);
-        }
-
-        // Determines whether there are any arguments related to the source.
-        bool HasArgumentsForSource(Execution::Args& execArgs)
-        {
-            return execArgs.Contains(Args::Type::Source) ||
-                execArgs.Contains(Args::Type::CustomHeader) ||
-                execArgs.Contains(Args::Type::AcceptSourceAgreements);
-        }
-
         // Determines whether we should list available upgrades, instead
         // of performing an upgrade
-        bool ShouldListUpgrade(Execution::Args& execArgs)
+        bool ShouldListUpgrade(const Execution::Args& args, ArgTypeCategory argCategories = ArgTypeCategory::None)
         {
-            // Valid arguments for list are only those related to the sources and which packages to include.
+            if (argCategories == ArgTypeCategory::None)
+            {
+                argCategories = Argument::GetCategoriesPresent(args);
+            }
+
+            // Valid arguments for list are only those related to the sources and which packages to include (e.g. --include-unknown).
             // Instead of checking for them, we check that there aren't any other arguments present.
-            return !execArgs.Contains(Args::Type::All) &&
-                !HasArgumentsForSinglePackage(execArgs) &&
-                !HasArgumentsForInstallOptions(execArgs);
+            return !args.Contains(Args::Type::All) &&
+                WI_AreAllFlagsClear(argCategories, ArgTypeCategory::Manifest | ArgTypeCategory::PackageQuery | ArgTypeCategory::InstallerBehavior);
         }
     }
 
     std::vector<Argument> UpgradeCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::Query),
-            Argument::ForType(Args::Type::Manifest),
+            Argument::ForType(Args::Type::MultiQuery),      // -q
+            Argument::ForType(Args::Type::Manifest),        // -m
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
             Argument::ForType(Args::Type::Moniker),
-            Argument::ForType(Args::Type::Version),
+            Argument::ForType(Args::Type::Version),         // -v
             Argument::ForType(Args::Type::Channel),
-            Argument::ForType(Args::Type::Source),
-            Argument::ForType(Args::Type::Exact),
-            Argument::ForType(Args::Type::Interactive),
-            Argument::ForType(Args::Type::Silent),
+            Argument::ForType(Args::Type::Source),          // -s
+            Argument::ForType(Args::Type::Exact),           // -e
+            Argument::ForType(Args::Type::Interactive),     // -i
+            Argument::ForType(Args::Type::Silent),          // -h
             Argument::ForType(Args::Type::Purge),
-            Argument::ForType(Args::Type::Log),
+            Argument::ForType(Args::Type::Log),             // -o
+            Argument::ForType(Args::Type::CustomSwitches),
             Argument::ForType(Args::Type::Override),
-            Argument::ForType(Args::Type::InstallLocation),
+            Argument::ForType(Args::Type::InstallLocation), // -l
+            Argument{ Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument::ForType(Args::Type::InstallArchitecture), // -a
+            Argument::ForType(Args::Type::InstallerType),
+            Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::AllowReboot),
+            Argument::ForType(Args::Type::SkipDependencies),
+            Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
-            Argument::ForType(Execution::Args::Type::CustomHeader),
-            Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
-            Argument{ "include-unknown", Argument::NoAlias, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag }
+            Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AuthenticationMode),
+            Argument::ForType(Args::Type::AuthenticationAccount),
+            Argument{ Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
+            Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
+            Argument{ Args::Type::IncludePinned, Resource::String::IncludePinnedArgumentDescription, ArgumentType::Flag},
+            Argument::ForType(Args::Type::UninstallPrevious),
+            Argument::ForType(Args::Type::Force),
         };
     }
 
@@ -133,7 +103,7 @@ namespace AppInstaller::CLI
 
         switch (valueType)
         {
-        case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
             context <<
                 RequireCompletionWordNonEmpty <<
                 SearchSourceForManyCompletion <<
@@ -148,32 +118,28 @@ namespace AppInstaller::CLI
             context <<
                 CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
             break;
+        case Args::Type::InstallArchitecture:
+        case Args::Type::Locale:
+            // May well move to CompleteWithSingleSemanticsForValue,
+            // but for now output nothing.
+            context <<
+                Workflow::CompleteWithEmptySet;
+            break;
         }
     }
 
-    std::string UpgradeCommand::HelpLink() const
+    Utility::LocIndView UpgradeCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-upgrade";
+        return "https://aka.ms/winget-command-upgrade"_liv;
     }
 
     void UpgradeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::Manifest) &&
-            (HasSearchQueryArguments(execArgs) ||
-                HasArgumentsForMultiplePackages(execArgs) ||
-                HasArgumentsForSource(execArgs)))
-        {
-            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
-        }
+        const auto argCategories = Argument::GetCategoriesAndValidateCommonArguments(execArgs, /* requirePackageSelectionArg */ false);
 
-
-        else if (!ShouldListUpgrade(execArgs) 
-                && !HasSearchQueryArguments(execArgs) 
-                && (execArgs.Contains(Args::Type::Log) ||
-                    execArgs.Contains(Args::Type::Override) ||
-                    execArgs.Contains(Args::Type::InstallLocation) ||
-                    execArgs.Contains(Args::Type::HashOverride) ||
-                    execArgs.Contains(Args::Type::AcceptPackageAgreements)))
+        if (!ShouldListUpgrade(execArgs, argCategories) &&
+            WI_IsFlagClear(argCategories, ArgTypeCategory::PackageQuery) &&
+            WI_IsFlagSet(argCategories, ArgTypeCategory::SingleInstallerBehavior))
         {
             throw CommandException(Resource::String::InvalidArgumentWithoutQueryError);
         }
@@ -193,7 +159,7 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));
 
         if (ShouldListUpgrade(context.Args))
         {
@@ -201,7 +167,7 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
-                EnsureMatchesFromSearchResult(true) <<
+                EnsureMatchesFromSearchResult(OperationType::Upgrade) <<
                 ReportListResult(true);
         }
         else if (context.Args.Contains(Execution::Args::Type::All))
@@ -210,7 +176,7 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
-                EnsureMatchesFromSearchResult(true) <<
+                EnsureMatchesFromSearchResult(OperationType::Upgrade) <<
                 ReportListResult(true) <<
                 UpdateAllApplicable;
         }
@@ -220,7 +186,7 @@ namespace AppInstaller::CLI
             context <<
                 GetManifestFromArg <<
                 SearchSourceUsingManifest <<
-                EnsureOneMatchFromSearchResult(true) <<
+                EnsureOneMatchFromSearchResult(OperationType::Upgrade) <<
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
@@ -229,31 +195,23 @@ namespace AppInstaller::CLI
         }
         else
         {
-            // The remaining case: search for single installed package to update
-            context <<
-                SearchSourceForSingle <<
-                HandleSearchResultFailures <<
-                EnsureOneMatchFromSearchResult(true) <<
-                GetInstalledPackageVersion;
-
-            if (context.Args.Contains(Execution::Args::Type::Version))
+            // The remaining case: search for specific packages to update
+            if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
-                // If version specified, use the version and verify applicability
-                context <<
-                    GetManifestFromPackage <<
-                    EnsureUpdateVersionApplicable <<
-                    SelectInstaller <<
-                    EnsureApplicableInstaller;
+                context << Workflow::InstallOrUpgradeSinglePackage(OperationType::Upgrade);
             }
             else
             {
-                // iterate through available versions to find latest applicable update
-                // This step also populates Manifest and Installer in context data
-                context << SelectLatestApplicableUpdate(true);
+                bool skipDependencies = Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies);
+                context <<
+                    Workflow::GetMultiSearchRequests <<
+                    Workflow::SearchSubContextsForSingle(OperationType::Upgrade) <<
+                    Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
+                    Workflow::ProcessMultiplePackages(
+                        Resource::String::PackageRequiresDependencies,
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED,
+                        {}, true, skipDependencies);
             }
-
-            context <<
-                InstallSinglePackage;
         }
     }
 }

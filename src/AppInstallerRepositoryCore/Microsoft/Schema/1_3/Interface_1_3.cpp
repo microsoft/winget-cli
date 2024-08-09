@@ -14,7 +14,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
     {
     }
 
-    Schema::Version Interface::GetVersion() const
+    SQLite::Version Interface::GetVersion() const
     {
         return { 1, 3 };
     }
@@ -80,8 +80,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_3
         {
         case AppInstaller::Repository::PackageVersionProperty::ManifestSHA256Hash:
         {
-            SQLite::blob_t hash = std::get<0>(V1_0::ManifestTable::GetIdsById<HashVirtualTable>(connection, manifestId));
-            return hash.empty() ? std::optional<std::string>{} : Utility::SHA256::ConvertToString(hash);
+            std::optional<SQLite::blob_t> hash = V1_0::ManifestTable::GetIdById<HashVirtualTable>(connection, manifestId);
+            return (!hash || hash->empty()) ? std::optional<std::string>{} : Utility::SHA256::ConvertToString(hash.value());
         }
         default:
             return V1_2::Interface::GetPropertyByManifestIdInternal(connection, manifestId, property);

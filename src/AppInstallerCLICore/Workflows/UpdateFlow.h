@@ -6,19 +6,19 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Iterates through all available versions from a package and find latest applicable update
+    // Iterates through all available versions from a package and find latest applicable version
     // Required Args: bool indicating whether to report update not found
-    // Inputs: InstalledPackageVersion, Package
+    // Inputs: InstalledPackageVersion?, Package
     // Outputs: Manifest?, Installer?
-    struct SelectLatestApplicableUpdate : public WorkflowTask
+    struct SelectLatestApplicableVersion : public WorkflowTask
     {
-        SelectLatestApplicableUpdate(bool reportUpdateNotFound) :
-            WorkflowTask("SelectLatestApplicableUpdate"), m_reportUpdateNotFound(reportUpdateNotFound) {}
+        SelectLatestApplicableVersion(bool isSinglePackage) :
+            WorkflowTask("SelectLatestApplicableUpdate"), m_isSinglePackage(isSinglePackage) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_reportUpdateNotFound;
+        bool m_isSinglePackage;
     };
 
     // Ensures the update package has higher version than installed
@@ -32,4 +32,34 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: SearchResult
     // Outputs: None
     void UpdateAllApplicable(Execution::Context& context);
+
+    // Select single package version for install or upgrade
+    // Required Args: bool indicating whether the flow is for upgrade
+    // Inputs: Source, SearchResult
+    // Outputs: None
+    struct SelectSinglePackageVersionForInstallOrUpgrade : public WorkflowTask
+    {
+        SelectSinglePackageVersionForInstallOrUpgrade(OperationType operation) :
+            WorkflowTask("SelectSinglePackageVersionForInstallOrUpgrade"), m_operationType(operation) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        mutable OperationType m_operationType;
+    };
+
+    // Install or upgrade a single package
+    // Required Args: bool indicating whether the flow is for upgrade
+    // Inputs: Source
+    // Outputs: None
+    struct InstallOrUpgradeSinglePackage : public WorkflowTask
+    {
+        InstallOrUpgradeSinglePackage(OperationType operation) :
+            WorkflowTask("InstallOrUpgradeSinglePackage"), m_operationType(operation) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        mutable OperationType m_operationType;
+    };
 }

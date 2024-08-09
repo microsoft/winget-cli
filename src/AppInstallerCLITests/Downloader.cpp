@@ -4,6 +4,7 @@
 #include "TestCommon.h"
 #include "AppInstallerDownloader.h"
 #include "AppInstallerSHA256.h"
+#include "HttpStream/HttpLocalCache.h"
 
 using namespace AppInstaller;
 using namespace AppInstaller::Utility;
@@ -67,4 +68,39 @@ TEST_CASE("DownloadInvalidUrl", "[Downloader]")
     ProgressCallback callback;
 
     REQUIRE_THROWS(Download("blargle-flargle-fluff", tempFile.GetPath(), DownloadType::Installer, callback, true));
+}
+
+TEST_CASE("HttpStream_ReadLastFullPage", "[HttpStream]")
+{
+    Microsoft::WRL::ComPtr<IStream> stream;
+    STATSTG stat = { 0 };
+
+    for (size_t i = 0; i < 10; ++i)
+    {
+        stream = GetReadOnlyStreamFromURI("https://cdn.winget.microsoft.com/cache/source.msix");
+
+        stat = { 0 };
+        REQUIRE(stream->Stat(&stat, STATFLAG_NONAME) == S_OK);
+
+        if (stat.cbSize.QuadPart > 0)
+        {
+            break;
+        }
+
+        Sleep(500);
+    }
+
+    {
+        INFO("https://cdn.winget.microsoft.com/cache/source.msix gave back a 0 byte file");
+        REQUIRE(stream);
+    }
+
+    LARGE_INTEGER seek;
+    seek.QuadPart = (stat.cbSize.QuadPart / HttpStream::HttpLocalCache::PAGE_SIZE) * HttpStream::HttpLocalCache::PAGE_SIZE;
+    REQUIRE(stream->Seek(seek, STREAM_SEEK_SET, nullptr) == S_OK);
+
+    std::unique_ptr<BYTE[]> buffer = std::make_unique<BYTE[]>(HttpStream::HttpLocalCache::PAGE_SIZE);
+    ULONG read = 0;
+    REQUIRE(stream->Read(buffer.get(), static_cast<ULONG>(HttpStream::HttpLocalCache::PAGE_SIZE), &read) >= S_OK);
+    REQUIRE(read == (stat.cbSize.QuadPart % HttpStream::HttpLocalCache::PAGE_SIZE));
 }

@@ -1,0 +1,18 @@
+PackageIdentifier: AppInstallerTest.TestZipInstallerWithPortable
+PackageVersion: 1.0.0.0
+PackageName: TestZipInstallerWithPortable
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for installing a zip with portable.
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestZipInstaller/AppInstallerTestZipInstaller.zip
+    InstallerType: zip
+    InstallerSha256: <ZIPHASH>
+    NestedInstallerType: portable
+    NestedInstallerFiles:
+      - RelativeFilePath: AppInstallerTestExeInstaller.exe
+        PortableCommandAlias: TestPortable
+ManifestType: singleton
+ManifestVersion: 1.4.0

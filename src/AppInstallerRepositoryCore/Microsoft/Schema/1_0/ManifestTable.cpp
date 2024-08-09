@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ManifestTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 #include "OneToManyTable.h"
 
 
@@ -63,14 +63,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetIdsById_Statement(
             const SQLite::Connection& connection,
             SQLite::rowid_t id,
-            std::initializer_list<std::string_view> values)
+            std::initializer_list<std::string_view> values,
+            bool stepAndVerify)
         {
             SQLite::Builder::StatementBuilder builder;
             builder.Select(values).From(s_ManifestTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
             SQLite::Statement result = builder.Prepare(connection);
 
-            THROW_HR_IF(E_NOT_SET, !result.Step());
+            if (stepAndVerify)
+            {
+                THROW_HR_IF(E_NOT_SET, !result.Step());
+            }
 
             return result;
         }
@@ -84,7 +88,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             const SQLite::Connection& connection,
             SQLite::rowid_t id,
             std::initializer_list<SQLite::Builder::QualifiedColumn> columns,
-            std::initializer_list<std::string_view> manifestColumnNames)
+            std::initializer_list<std::string_view> manifestColumnNames,
+            bool stepAndVerify)
         {
             THROW_HR_IF(E_UNEXPECTED, manifestColumnNames.size() != columns.size());
 
@@ -108,7 +113,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             SQLite::Statement result = builder.Prepare(connection);
 
-            THROW_HR_IF(E_NOT_SET, !result.Step());
+            if (stepAndVerify)
+            {
+                THROW_HR_IF(E_NOT_SET, !result.Step());
+            }
 
             return result;
         }
@@ -116,6 +124,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         SQLite::Statement ManifestTableGetAllValuesByIds_Statement(
             const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> joinColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
         {
@@ -126,9 +135,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             SQLite::Builder::StatementBuilder builder;
             builder.Select(valueColumns).From(s_ManifestTable_Table_Name);
 
-            for (const auto& valueColumn : valueColumns)
+            for (const auto& joinColumn : joinColumns)
             {
-                builder.Join(valueColumn.Table).On(QCol{ s_ManifestTable_Table_Name, valueColumn.Column }, QCol{ valueColumn.Table, SQLite::RowIDName });
+                builder.Join(joinColumn.Table).On(QCol{ s_ManifestTable_Table_Name, joinColumn.Column }, QCol{ joinColumn.Table, SQLite::RowIDName });
             }
 
             bool isFirst = true;
@@ -157,18 +166,19 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             return select;
         }
 
-        std::vector<std::string> ManifestTableGetAllValuesByIds(
+        std::vector<std::pair<SQLite::rowid_t, std::string>> ManifestTableGetAllValuesByIds(
             const SQLite::Connection& connection,
             std::initializer_list<SQLite::Builder::QualifiedColumn> valueColumns,
+            std::initializer_list<SQLite::Builder::QualifiedColumn> joinColumns,
             std::initializer_list<std::string_view> idColumns,
             std::initializer_list<SQLite::rowid_t> ids)
         {
-            auto select = ManifestTableGetAllValuesByIds_Statement(connection, valueColumns, idColumns, ids);
+            auto select = ManifestTableGetAllValuesByIds_Statement(connection, valueColumns, joinColumns, idColumns, ids);
 
-            std::vector<std::string> result;
+            std::vector<std::pair<SQLite::rowid_t, std::string>> result;
             while (select.Step())
             {
-                result.emplace_back(select.GetColumn<std::string>(0));
+                result.emplace_back(select.GetColumn<SQLite::rowid_t>(0), select.GetColumn<std::string>(1));
             }
             return result;
         }
@@ -203,7 +213,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             }
             else
             {
-                builder.LiteralColumn("");
+                builder.Value(std::string_view{});
             }
 
             builder.As(valueAlias).From(s_ManifestTable_Table_Name);
@@ -273,7 +283,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         {
             using QCol = SQLite::Builder::QualifiedColumn;
 
-            // Build a select statement to find manifest rows containing references to 1:1 tables with non-existent rowids
+            // Build a select statement to find manifest rows containing references to 1:1 tables with nonexistent rowids
             // Such as:
             // Select manifest.rowid, manifest.id, ids.id from manifest left outer join ids on manifest.id = ids.rowid where ids.id is NULL
             SQLite::Builder::StatementBuilder builder;
@@ -421,6 +431,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         }
 
         savepoint.Commit();
+    }
+
+    void ManifestTable::Drop(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder dropTableBuilder;
+        dropTableBuilder.DropTable(s_ManifestTable_Table_Name);
+
+        dropTableBuilder.Execute(connection);
     }
 
     SQLite::rowid_t ManifestTable::Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values)

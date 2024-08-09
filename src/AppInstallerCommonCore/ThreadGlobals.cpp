@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #include "pch.h"
 #include "Public/winget/ThreadGlobals.h"
 
@@ -5,10 +7,7 @@ namespace AppInstaller::ThreadLocalStorage
 {
     using namespace AppInstaller::Logging;
 
-    // Set and return Globals for Current Thread
-    static ThreadGlobals* SetOrGetThreadGlobals(bool setThreadGlobals, ThreadGlobals* pThreadGlobals = nullptr);
-
-    ThreadGlobals::ThreadGlobals(ThreadGlobals& parent, create_sub_thread_globals_t)
+    WingetThreadGlobals::WingetThreadGlobals(WingetThreadGlobals& parent, create_sub_thread_globals_t)
     {
         parent.Initialize();
         m_pDiagnosticLogger = parent.m_pDiagnosticLogger;
@@ -17,26 +16,28 @@ namespace AppInstaller::ThreadLocalStorage
         std::call_once(m_loggerInitOnceFlag, []() {});
     }
 
-    DiagnosticLogger& ThreadGlobals::GetDiagnosticLogger()
+    DiagnosticLogger& WingetThreadGlobals::GetDiagnosticLogger()
     {
         return *(m_pDiagnosticLogger);
     }
 
-    TelemetryTraceLogger& ThreadGlobals::GetTelemetryLogger()
+    void* WingetThreadGlobals::GetTelemetryObject()
+    {
+        return m_pTelemetryLogger.get();
+    }
+
+    TelemetryTraceLogger& WingetThreadGlobals::GetTelemetryLogger()
     {
         return *(m_pTelemetryLogger);
     }
 
-    std::unique_ptr<PreviousThreadGlobals> ThreadGlobals::SetForCurrentThread()
+    std::unique_ptr<PreviousThreadGlobals> WingetThreadGlobals::SetForCurrentThread()
     {
         Initialize();
-
-        std::unique_ptr<PreviousThreadGlobals> p_prevThreadGlobals = std::make_unique<PreviousThreadGlobals>(SetOrGetThreadGlobals(true, this));
-
-        return p_prevThreadGlobals;
+        return ThreadGlobals::SetForCurrentThread();
     }
 
-    void ThreadGlobals::Initialize()
+    void WingetThreadGlobals::Initialize()
     {
         try
         {
@@ -55,29 +56,5 @@ namespace AppInstaller::ThreadLocalStorage
             // May throw std::bad_alloc or any exception thrown by the constructor of TelemetryTraceLogger
             // Loggers are best effort and shouldn't block core functionality. So eat up the exceptions here
         }
-    }
-
-    ThreadGlobals* ThreadGlobals::GetForCurrentThread()
-    {
-        return SetOrGetThreadGlobals(false);
-    }
-
-    ThreadGlobals* SetOrGetThreadGlobals(bool setThreadGlobals, ThreadGlobals* pThreadGlobals)
-    {
-        thread_local AppInstaller::ThreadLocalStorage::ThreadGlobals* t_pThreadGlobals = nullptr;
-
-        if (setThreadGlobals == true)
-        {
-            AppInstaller::ThreadLocalStorage::ThreadGlobals* previous_pThreadGlobals = t_pThreadGlobals;
-            t_pThreadGlobals = pThreadGlobals;
-            return previous_pThreadGlobals;
-        }
-
-        return t_pThreadGlobals;
-    }
-
-    PreviousThreadGlobals::~PreviousThreadGlobals()
-    {
-        std::ignore = SetOrGetThreadGlobals(true, m_previous);
     }
 }

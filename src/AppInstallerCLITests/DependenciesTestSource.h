@@ -157,7 +157,7 @@ namespace TestCommon
             else if (!request.Filters.empty())
             {
                 input = request.Filters[0].Value;
-            }// else: default?
+            }
 
             bool installed = false;
             if (input == "installed1")
@@ -170,7 +170,15 @@ namespace TestCommon
                 return result;
             }
 
-            Manifest manifest = CreateFakeManifestWithDependencies(input);
+            Manifest manifest;
+            if (input == "MultipleDependenciesFromManifest")
+            {
+                manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_MultipleDependencies.yaml"));
+            }
+            else
+            {
+                manifest = CreateFakeManifestWithDependencies(input);
+            }
 
             //TODO:
             // test for installed packages and packages that need upgrades
@@ -180,9 +188,9 @@ namespace TestCommon
                 //auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(
+                        TestCompositePackage::Make(
                             manifest,
-                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            TestCompositePackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
                             std::vector<Manifest>{ manifest },
                             shared_from_this()
                         ),
@@ -192,7 +200,7 @@ namespace TestCommon
             {
                 result.Matches.emplace_back(
                     ResultMatch(
-                        TestPackage::Make(
+                        TestCompositePackage::Make(
                             std::vector<Manifest>{ manifest },
                             shared_from_this()
                         ),

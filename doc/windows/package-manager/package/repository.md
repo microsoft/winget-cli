@@ -93,8 +93,8 @@ After you push your changes, return to [https://github.com/microsoft/winget-pkgs
 
 When you create a **pull request**, this will start an automated process that validates the manifests and verifies your **pull request**. During this process we will run tests against the installer and installed binaries to validate the submission.
 
-We add labels to your **pull request** so you can track its progress.  For more information on labels and the process see [Windows Package Manager validation](winget-validation.md).  
+We add labels to your **pull request** so you can track its progress.  For more information on labels and the process see [Windows Package Manager validation](winget-validation.md).
 
 Once complete, your submission will be manually reviewed by a moderator, and after it is approved, your application will be added to the Windows Package Manager catalog.
 
-If there is ever an error during the process, you will be notified and our labels and bot will assist you in fixing your submission.  For the list of common errors, see [Windows Package Manager validation](winget-validation.md).  
+If there is ever an error during the process, you will be notified and our labels and bot will assist you in fixing your submission.  For the list of common errors, see [Windows Package Manager validation](winget-validation.md).

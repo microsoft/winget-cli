@@ -1,0 +1,103 @@
+id: labelManagement.issueUpdated
+name: GitOps.PullRequestIssueManagement
+description: >-
+  Handlers for when an issue is updated and not closed
+  This primarily includes handlers for comments, reviews, and re-runs
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: Remove "No-Recent-Activity" when a pull request or issue is updated
+        if:
+          - or:
+              - payloadType: Pull_Request
+              - payloadType: Pull_Request_Review
+              - payloadType: Pull_Request_Review_Comment
+              - payloadType: Issue_Comment
+              - payloadType: Issues
+          - not:
+              isAction:
+                action: Closed
+          - hasLabel:
+              label: No-Recent-Activity
+        then:
+          - removeLabel:
+              label: No-Recent-Activity
+        # The policy service should not trigger itself here, or else the label would be removed immediately after being added
+        triggerOnOwnActions: False
+      - description: Clean email replies on every comment
+        if:
+          - payloadType: Issue_Comment
+        then:
+          - cleanEmailReply
+      - description: Remove "Help-Wanted" label when an issue goes into PR
+        if:
+          - payloadType: Issues
+          - labelAdded:
+              label: In-PR
+          - hasLabel:
+              label: Help-Wanted
+        then:
+          - removeLabel:
+              label: Help-Wanted
+      - description: >-
+          If an author responds to an issue which needs author feedback
+          * Remove the Needs-Author-Feedback Label
+          * Add the Needs-Attention Label
+        if:
+          - or:
+              - payloadType: Pull_Request_Review
+              - payloadType: Pull_Request_Review_Comment
+              - payloadType: Issue_Comment
+          - isActivitySender:
+              issueAuthor: True
+          - hasLabel:
+              label: Needs-Author-Feedback
+          - not:
+              isAction:
+                action: Synchronize
+        then:
+          - removeLabel:
+              label: Needs-Author-Feedback
+          - addLabel:
+              label: Needs-Attention
+      - description: >-
+          When changes are requested on a pull request
+          * Disable automerge
+          * Assign to the author
+          * Label with Needs-Author-Feedback
+        if:
+          - payloadType: Pull_Request_Review
+          - isAction:
+              action: Submitted
+          - isReviewState:
+              reviewState: Changes_requested
+        then:
+          - disableAutoMerge
+          - assignTo:
+              author: True
+          - addLabel:
+              label: Needs-Author-Feedback
+      - description: Sync labels from issues on all pull request events
+        if:
+          - payloadType: Pull_Request
+        then:
+          - labelSync:
+              pattern: Issue-
+          - labelSync:
+              pattern: Area-
+          - labelSync:
+              pattern: Priority-
+          - labelSync:
+              pattern: Product-
+          - labelSync:
+              pattern: Severity-
+          - labelSync:
+              pattern: Impact-
+          - inPrLabel:
+              label: In-PR
+onFailure:
+onSuccess:

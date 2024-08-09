@@ -77,4 +77,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: SourceList
     // Outputs: None
     void ExportSourceList(Execution::Context& context);
+
+    // Forces an update to the cache of installed packages.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void ForceInstalledCacheUpdate(Execution::Context& context);
 }

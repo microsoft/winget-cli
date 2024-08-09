@@ -1,7 +1,7 @@
-PackageIdentifier: AppInstallerCliTest.TestInstaller
+PackageIdentifier: AppInstallerCliTest.ExpectedReturnCodes
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
-PackageName: AppInstaller Test Installer
+PackageName: TestExeInstallerWithExpectedReturnCodes
 ShortDescription: AppInstaller Test Installer
 Publisher: Microsoft Corporation
 Moniker: AICLITestExe

@@ -1,0 +1,15 @@
+﻿# Uses the MSI installer; doesn't list the ProductCode, only the UpgradeCode
+PackageIdentifier: AppInstallerTest.TestMsiInstallerUpgradeCode
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: TestMsiInstallerUpgradeCode
+Publisher: AppInstallerTest
+Installers:
+    - Architecture: x86
+      InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi
+      InstallerType: msi
+      InstallerSha256: <MSIHASH>
+      AppsAndFeaturesEntries:
+        - UpgradeCode: '{B9CF9DD5-D46F-4CE0-BFC9-633BF9D3A6F4}'
+ManifestType: singleton
+ManifestVersion: 1.1.0

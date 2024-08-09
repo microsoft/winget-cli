@@ -12,7 +12,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
     {
     }
 
-    Schema::Version Interface::GetVersion() const
+    SQLite::Version Interface::GetVersion() const
     {
         return { 1, 4 };
     }
@@ -102,11 +102,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
         if (vacuum)
         {
-            // Force the database to actually shrink the file size.
-            // This *must* be done outside of an active transaction.
-            SQLite::Builder::StatementBuilder builder;
-            builder.Vacuum();
-            builder.Execute(connection);
+            Vacuum(connection);
         }
     }
 
@@ -117,7 +113,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         // If the v1.3 index was consistent, or if full logging of inconsistency was requested, check the v1.4 data.
         if (result || log)
         {
-            result = DependenciesTable::DependenciesTableCheckConsistency(connection, log) && result;
+            result = DependenciesTable::CheckConsistency(connection, log) && result;
         }
 
         if (result || log)
@@ -138,6 +134,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         return DependenciesTable::GetDependentsById(connection, packageId);
     }
 
+    void Interface::DropTables(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "drop_tables_v1_4");
+
+        V1_2::Interface::DropTables(connection);
+
+        DependenciesTable::Drop(connection);
+
+        savepoint.Commit();
+    }
+
     bool Interface::ValidateDependenciesWithMinVersions(const SQLite::Connection& connection, bool log) const
     {
         try
@@ -154,7 +161,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 {
                     auto versionKeys = GetVersionKeysById(connection, dependency.first);
                     THROW_HR_IF(E_UNEXPECTED, versionKeys.empty());
-                    checkedVersions.emplace(dependency.first, versionKeys[0].GetVersion());
+                    checkedVersions.emplace(dependency.first, versionKeys[0].VersionAndChannel.GetVersion());
                 }
 
                 // If the latest version is less than min version required, fail the validation.

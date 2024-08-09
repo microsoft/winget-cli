@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WindowsPerformanceRecorder Version="1.0" Author="Microsoft Corporation" Copyright="Microsoft Corporation" Company="Microsoft Corporation">
+  <Profiles>
+    <SystemCollector Id="SystemCollector" Name="NT Kernel Logger">
+      <BufferSize Value="1024"/>
+      <Buffers Value="32"/>
+    </SystemCollector>
+    
+    <EventCollector Id="EventCollector_MicrosoftWindowsCOMTrace" Name="MicrosoftWindowsCOMTraceCollector">
+      <BufferSize Value="64" />
+      <Buffers Value="4" />
+    </EventCollector>
+    
+    <SystemProvider Id="SystemProviderVerbose">
+      <Keywords>
+        <Keyword Value="ProcessThread"/>
+      </Keywords>
+    </SystemProvider>
+    
+    <EventProvider Id="EventProvider_MicrosoftWindowsComTraceLog" Name="1AFF6089-E863-4D36-BDFD-3581F07440BE" NonPagedMemory="true" EventKey="true">
+    </EventProvider>
+    <EventProvider Id="EventProvider_MicrosoftWindowsComBaseWpp" Name="bda92ae8-9f11-4d49-ba1d-a4c2abca692e" NonPagedMemory="true" EventKey="true">
+      <Keywords>
+        <Keyword Value="0x3"/>
+      </Keywords>
+    </EventProvider>
+    <EventProvider Id="EventProvider_MicrosoftWindowsDcomScmWpp" Name="9474a749-a98d-4f52-9f45-5b20247e4f01" NonPagedMemory="true" EventKey="true">
+      <Keywords>
+        <Keyword Value="0x3"/>
+      </Keywords>
+    </EventProvider>
+    
+    <Profile Id="MicrosoftWindowsCOMTrace.Verbose.File" Name="MicrosoftWindowsCOMTrace" Description="Microsoft-Windows-COMTrace" LoggingMode="File" DetailLevel="Verbose">
+      <Collectors>
+        <SystemCollectorId Value="SystemCollector">
+          <SystemProviderId Value="SystemProviderVerbose"/>
+        </SystemCollectorId>
+        <EventCollectorId Value="EventCollector_MicrosoftWindowsCOMTrace">
+          <EventProviders>
+            <EventProviderId Value="EventProvider_MicrosoftWindowsComTraceLog" />
+            <EventProviderId Value="EventProvider_MicrosoftWindowsComBaseWpp" />
+            <EventProviderId Value="EventProvider_MicrosoftWindowsDcomScmWpp" />
+          </EventProviders>
+        </EventCollectorId>
+      </Collectors>
+    </Profile>
+    
+  </Profiles>
+</WindowsPerformanceRecorder>

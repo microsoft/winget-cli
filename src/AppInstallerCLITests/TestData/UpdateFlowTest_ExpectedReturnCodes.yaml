@@ -1,0 +1,48 @@
+# Same content with InstallFlowTest_ExpectedReturnCodes.yaml but with higher version
+PackageIdentifier: AppInstallerCliTest.ExpectedReturnCodes
+PackageVersion: 2.0.0.0
+PackageLocale: en-US
+PackageName: TestExeInstallerWithExpectedReturnCodes
+ShortDescription: AppInstaller Test Installer
+Publisher: Microsoft Corporation
+Moniker: AICLITestExe
+License: Test
+Installers:
+    - Architecture: x86
+      InstallerUrl: https://ThisIsNotUsed
+      InstallerType: exe
+      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+      ExpectedReturnCodes:
+          - InstallerReturnCode: 1
+            ReturnResponse: packageInUse
+          - InstallerReturnCode: 2
+            ReturnResponse: installInProgress
+          - InstallerReturnCode: 3
+            ReturnResponse: fileInUse
+          - InstallerReturnCode: 4
+            ReturnResponse: missingDependency
+          - InstallerReturnCode: 5
+            ReturnResponse: diskFull
+          - InstallerReturnCode: 6
+            ReturnResponse: insufficientMemory
+          - InstallerReturnCode: 7
+            ReturnResponse: noNetwork
+          - InstallerReturnCode: 8
+            ReturnResponse: contactSupport
+            ReturnResponseUrl: https://TestReturnResponseUrl
+          - InstallerReturnCode: 9
+            ReturnResponse: rebootRequiredToFinish
+          - InstallerReturnCode: 10
+            ReturnResponse: rebootRequiredForInstall
+          - InstallerReturnCode: 11
+            ReturnResponse: rebootInitiated
+          - InstallerReturnCode: 12
+            ReturnResponse: cancelledByUser
+          - InstallerReturnCode: 13
+            ReturnResponse: alreadyInstalled
+          - InstallerReturnCode: 14
+            ReturnResponse: downgrade
+          - InstallerReturnCode: 15
+            ReturnResponse: blockedByPolicy
+ManifestType: singleton
+ManifestVersion: 1.2.0

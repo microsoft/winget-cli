@@ -7,6 +7,7 @@
 #include <AppInstallerStrings.h>
 #include <Microsoft/PredefinedInstalledSourceFactory.h>
 #include <Microsoft/ARPHelper.h>
+#include <Microsoft/SQLiteIndexSource.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -18,6 +19,7 @@ using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Utility;
 
 using SQLiteIndex = AppInstaller::Repository::Microsoft::SQLiteIndex;
+using SQLiteIndexSource = AppInstaller::Repository::Microsoft::SQLiteIndexSource;
 using Factory = AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory;
 using ARPHelper = AppInstaller::Repository::Microsoft::ARPHelper;
 
@@ -115,11 +117,11 @@ void VerifyMetadataString(const SQLiteIndex::MetadataResult& metadata, PackageVe
 
 void VerifyEntryAgainstIndex(const SQLiteIndex& index, SQLiteIndex::IdType manifestId, const ARPEntry& entry)
 {
-    REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Name) == entry.DisplayName);
-    REQUIRE(index.GetPropertyByManifestId(manifestId, PackageVersionProperty::Version) == entry.DisplayVersion);
+    REQUIRE(index.GetPropertyByPrimaryId(manifestId, PackageVersionProperty::Name) == entry.DisplayName);
+    REQUIRE(index.GetPropertyByPrimaryId(manifestId, PackageVersionProperty::Version) == entry.DisplayVersion);
 
-    REQUIRE(index.GetMultiPropertyByManifestId(manifestId, PackageVersionMultiProperty::PackageFamilyName).empty());
-    auto productCodes = index.GetMultiPropertyByManifestId(manifestId, PackageVersionMultiProperty::ProductCode);
+    REQUIRE(index.GetMultiPropertyByPrimaryId(manifestId, PackageVersionMultiProperty::PackageFamilyName).empty());
+    auto productCodes = index.GetMultiPropertyByPrimaryId(manifestId, PackageVersionMultiProperty::ProductCode);
     REQUIRE(productCodes.size() == 1);
     REQUIRE(productCodes[0] == FoldCase(static_cast<std::string_view>(entry.EntryName)));
 
@@ -143,6 +145,11 @@ std::shared_ptr<ISource> CreatePredefinedInstalledSource(Factory::Filter filter 
 
     auto factory = Factory::Create();
     return factory->Create(details)->Open(progress);
+}
+
+SQLiteIndex CreateMemoryIndex()
+{
+    return SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, SQLite::Version::Latest(), SQLiteIndex::CreateOptions::SupportPathless);
 }
 
 TEST_CASE("ARPHelper_GetARPForArchitecture", "[arphelper][list]")
@@ -294,7 +301,7 @@ TEST_CASE("ARPHelper_PopulateIndexFromKey_Single", "[arphelper][list]")
 
     AddARPEntryToKey(root.get(), helper, entry);
 
-    auto index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET);
+    auto index = CreateMemoryIndex();
     helper.PopulateIndexFromKey(index, key, s_TestScope, "TestArchitecture");
 
     auto result = index.Search({});
@@ -330,7 +337,7 @@ TEST_CASE("ARPHelper_PopulateIndexFromKey_SingleValid", "[arphelper][list]")
         { "Nothing" },
         });
 
-    auto index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET);
+    auto index = CreateMemoryIndex();
     helper.PopulateIndexFromKey(index, key, s_TestScope, "TestArchitecture");
 
     auto result = index.Search({});
@@ -366,7 +373,7 @@ TEST_CASE("ARPHelper_PopulateIndexFromKey_Two", "[arphelper][list]")
     AddARPEntryToKey(root.get(), helper, entry1);
     AddARPEntryToKey(root.get(), helper, entry2);
 
-    auto index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET);
+    auto index = CreateMemoryIndex();
     helper.PopulateIndexFromKey(index, key, s_TestScope, "TestArchitecture");
 
     REQUIRE(index.Search({}).Matches.size() == 2);
@@ -399,4 +406,83 @@ TEST_CASE("PredefinedInstalledSource_Search", "[installed][list]")
     auto results = source->Search(request);
 
     REQUIRE_FALSE(results.Matches.empty());
+}
+
+std::string GetDatabaseIdentifier(const std::shared_ptr<Repository::ISource>& source)
+{
+    return reinterpret_cast<SQLiteIndexSource*>(source->CastTo(ISourceType::SQLiteIndexSource))->GetIndex().GetDatabaseIdentifier();
+}
+
+void RequirePackagesHaveSameNames(std::shared_ptr<ISource>& source1, std::shared_ptr<ISource>& source2)
+{
+    auto result1 = source1->Search({});
+    REQUIRE(!result1.Matches.empty());
+
+    // Ensure that all packages have the same name values
+    for (const auto& match : result1.Matches)
+    {
+        std::string packageId = match.Package->GetProperty(PackageProperty::Id).get();
+        INFO(packageId);
+
+        SearchRequest id2;
+        id2.Inclusions.emplace_back(PackageMatchFilter{ PackageMatchField::Id, MatchType::CaseInsensitive, packageId });
+        auto result2 = source2->Search(id2);
+        REQUIRE(result2.Matches.size() == 1);
+        REQUIRE(match.Package->GetProperty(PackageProperty::Name) == result2.Matches[0].Package->GetProperty(PackageProperty::Name));
+    }
+}
+
+TEST_CASE("PredefinedInstalledSource_Create_Cached", "[installed][list][installed-cache]")
+{
+    auto source1 = CreatePredefinedInstalledSource();
+    auto source2 = CreatePredefinedInstalledSource();
+
+    // Ensure the same identifier (which should mean the cache was not updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source1)
+        ==
+        GetDatabaseIdentifier(source2)
+    );
+
+    RequirePackagesHaveSameNames(source1, source2);
+    RequirePackagesHaveSameNames(source2, source1);
+}
+
+TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate", "[installed][list][installed-cache]")
+{
+    auto source1 = CreatePredefinedInstalledSource();
+    auto source2 = CreatePredefinedInstalledSource(Factory::Filter::NoneWithForcedCacheUpdate);
+
+    // Ensure different identifier (which should mean the cache was updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source1)
+        !=
+        GetDatabaseIdentifier(source2)
+    );
+
+    RequirePackagesHaveSameNames(source1, source2);
+    RequirePackagesHaveSameNames(source2, source1);
+}
+
+TEST_CASE("PredefinedInstalledSource_Create_ForceCacheUpdate_StillCached", "[installed][list][installed-cache]")
+{
+    auto source1 = CreatePredefinedInstalledSource();
+    auto source2 = CreatePredefinedInstalledSource(Factory::Filter::NoneWithForcedCacheUpdate);
+    auto source3 = CreatePredefinedInstalledSource();
+
+    CAPTURE(GetDatabaseIdentifier(source1), GetDatabaseIdentifier(source2), GetDatabaseIdentifier(source3));
+
+    // Ensure different identifier (which should mean the cache was updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source1)
+        !=
+        GetDatabaseIdentifier(source2)
+    );
+
+    // Ensure the same identifier (which should mean the cache was not updated)
+    REQUIRE(
+        GetDatabaseIdentifier(source2)
+        ==
+        GetDatabaseIdentifier(source3)
+    );
 }

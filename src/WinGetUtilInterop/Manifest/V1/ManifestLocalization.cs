@@ -1,8 +1,8 @@
-﻿// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="ManifestLocalization.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.Models.V1
 {
@@ -74,7 +74,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string CopyrightUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets the the package short description.
+        /// Gets or sets the package short description.
         /// </summary>
         public string ShortDescription { get; set; }
 
@@ -102,6 +102,26 @@ namespace Microsoft.WinGetUtil.Models.V1
         /// Gets or sets the release notes url.
         /// </summary>
         public string ReleaseNotesUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the purchase url of the package.
+        /// </summary>
+        public string PurchaseUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the installation notes.
+        /// </summary>
+        public string InstallationNotes { get; set; }
+
+        /// <summary>
+        /// Gets or sets the manifest documentation.
+        /// </summary>
+        public List<ManifestDocumentation> Documentations { get; set; }
+
+        /// <summary>
+        /// Gets or sets the manifest icons information.
+        /// </summary>
+        public List<ManifestIcon> Icons { get; set; }
 
         /// <summary>
         /// Returns a List of strings containing the URIs contained within this localization.
@@ -152,6 +172,28 @@ namespace Microsoft.WinGetUtil.Models.V1
                     if (!string.IsNullOrEmpty(agreement.AgreementUrl))
                     {
                         uris.Add(agreement.AgreementUrl);
+                    }
+                }
+            }
+
+            if (this.Documentations != null)
+            {
+                foreach (var docs in this.Documentations)
+                {
+                    if (!string.IsNullOrEmpty(docs.DocumentUrl))
+                    {
+                        uris.Add(docs.DocumentUrl);
+                    }
+                }
+            }
+
+            if (this.Icons != null)
+            {
+                foreach (var icon in this.Icons)
+                {
+                    if (!string.IsNullOrEmpty(icon.IconUrl))
+                    {
+                        uris.Add(icon.IconUrl);
                     }
                 }
             }

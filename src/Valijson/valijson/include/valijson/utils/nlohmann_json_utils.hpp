@@ -20,7 +20,7 @@ inline bool loadDocument(const std::string &path, nlohmann::json &document)
     }
 
     // Parse schema
-#if VALIJSON_USE_EXCEPTION
+#if VALIJSON_USE_EXCEPTIONS
     try {
         document = nlohmann::json::parse(file);
     } catch (std::invalid_argument const& exception) {

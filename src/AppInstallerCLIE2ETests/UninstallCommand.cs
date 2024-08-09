@@ -1,11 +1,18 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="UninstallCommand.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
-    using NUnit.Framework;
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
+    using NUnit.Framework;
 
+    /// <summary>
+    /// Test uninstall command.
+    /// </summary>
     public class UninstallCommand : BaseCommand
     {
         // Custom product code for overriding the default in the test exe
@@ -20,6 +27,9 @@ namespace AppInstallerCLIE2ETests
         // Package name of the test MSIX package
         private const string UninstallTestMsixName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
 
+        /// <summary>
+        /// Test uninstall exe.
+        /// </summary>
         [Test]
         public void UninstallTestExe()
         {
@@ -29,13 +39,16 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("uninstall", Constants.ExeInstallerPackageId);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(VerifyTestExeUninstalled(installDir));
+            Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
         }
 
+        /// <summary>
+        /// Test uninstall msi.
+        /// </summary>
         [Test]
         public void UninstallTestMsi()
         {
-            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            if (string.IsNullOrEmpty(TestIndex.MsiInstaller))
             {
                 Assert.Ignore("MSI installer not available");
             }
@@ -46,9 +59,12 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("uninstall", Constants.MsiInstallerPackageId);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(VerifyTestMsiUninstalled(installDir));
+            Assert.True(TestCommon.VerifyTestMsiUninstalled(installDir));
         }
 
+        /// <summary>
+        /// Test uninstall msix.
+        /// </summary>
         [Test]
         public void UninstallTestMsix()
         {
@@ -57,9 +73,29 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("uninstall", Constants.MsixInstallerPackageId);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(VerifyTestMsixUninstalled());
+            Assert.True(TestCommon.VerifyTestMsixUninstalled());
         }
 
+        /// <summary>
+        /// Test uninstall msix package with machine scope.
+        /// </summary>
+        [Test]
+        public void UninstallTestMsixMachineScope()
+        {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
+            // Uninstall an MSIX
+            TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope machine");
+            var result = TestCommon.RunAICLICommand("uninstall", $"{Constants.MsixInstallerPackageId} --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            Assert.True(TestCommon.VerifyTestMsixUninstalled(true));
+        }
+
+        /// <summary>
+        /// Test uninstall portable package.
+        /// </summary>
         [Test]
         public void UninstallPortable()
         {
@@ -77,11 +113,14 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
+        /// <summary>
+        /// Test uninstall portable package with product code.
+        /// </summary>
         [Test]
         public void UninstallPortableWithProductCode()
         {
             // Uninstall a Portable with ProductCode
-            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+            string installDir = TestCommon.GetPortablePackagesDirectory();
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
@@ -94,33 +133,64 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
+        /// <summary>
+        /// Test uninstall portable package with modified symlink.
+        /// </summary>
         [Test]
         public void UninstallPortableModifiedSymlink()
         {
-            string packageId, commandAlias;  
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
-            commandAlias = "AppInstallerTestExeInstaller.exe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             TestCommon.RunAICLICommand("install", $"{packageId}");
 
-            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
 
             // Replace symlink with modified symlink
             File.Delete(symlinkPath);
             FileSystemInfo modifiedSymlinkInfo = File.CreateSymbolicLink(symlinkPath, "fakeTargetExe");
+
             var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_PORTABLE_UNINSTALL_FAILED, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Unable to remove Portable package as it has been modified; to override this check use --force"));
+            Assert.True(modifiedSymlinkInfo.Exists, "Modified symlink should still exist");
 
-            // Remove modified symlink as to not interfere with other tests
-            bool modifiedSymlinkExists = modifiedSymlinkInfo.Exists;
-            modifiedSymlinkInfo.Delete();
+            // Try again with --force
+            var result2 = TestCommon.RunAICLICommand("uninstall", $"{packageId} --force");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
+            Assert.True(result2.StdOut.Contains("Portable package has been modified; proceeding due to --force"));
+            Assert.True(result2.StdOut.Contains("Successfully uninstalled"));
 
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(result.StdOut.Contains("Portable symlink not deleted as it was modified and points to a different target exe"));
-            Assert.True(modifiedSymlinkExists, "Modified symlink should still exist");
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
+        /// <summary>
+        /// Test uninstall zip portable package.
+        /// </summary>
+        [Test]
+        public void UninstallZip_Portable()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestZipInstallerWithPortable";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = "TestPortable.exe";
+            fileName = "AppInstallerTestExeInstaller.exe";
+
+            var testResult = TestCommon.RunAICLICommand("install", $"{packageId}");
+            var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
+        }
+
+        /// <summary>
+        /// Test uninstall not indexed.
+        /// </summary>
         [Test]
         public void UninstallNotIndexed()
         {
@@ -132,9 +202,12 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("uninstall", CustomProductCode);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(VerifyTestExeUninstalled(installDir));
+            Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
         }
 
+        /// <summary>
+        /// Test uninstalled app not found.
+        /// </summary>
         [Test]
         public void UninstallAppNotInstalled()
         {
@@ -142,22 +215,6 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("uninstall", $"TestMsixInstaller");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No installed package found matching input criteria."));
-        }
-
-        private bool VerifyTestExeUninstalled(string installDir)
-        {
-            return File.Exists(Path.Combine(installDir, UninstallTestExeUninstalledFile));
-        }
-
-        private bool VerifyTestMsiUninstalled(string installDir)
-        {
-            return !File.Exists(Path.Combine(installDir, UninstallTestMsiInstalledFile));
-        }
-
-        private bool VerifyTestMsixUninstalled()
-        {
-            var result = TestCommon.RunCommandWithResult("powershell", $"Get-AppxPackage {UninstallTestMsixName}");
-            return string.IsNullOrWhiteSpace(result.StdOut);
         }
     }
 }

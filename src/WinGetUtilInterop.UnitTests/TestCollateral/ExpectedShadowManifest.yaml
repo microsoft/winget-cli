@@ -1,0 +1,26 @@
+PackageIdentifier: Package.package
+PackageVersion: 1.0
+ManifestType: shadow
+ManifestVersion: 1.5
+PackageLocale: en-US
+Icons:
+- IconUrl: iconUrl
+  IconFileType: fileType
+  IconResolution: iconResolution
+  IconTheme: iconTheme
+  IconSha256: iconSha256
+Localization:
+- PackageLocale: es-MX
+  Icons:
+  - IconUrl: iconUrl-esMX
+    IconFileType: fileType-esMX
+    IconResolution: iconResolution-esMX
+    IconTheme: iconTheme-esMX
+    IconSha256: iconSha256-esMX
+- PackageLocale: de-DE
+  Icons:
+  - IconUrl: iconUrl-de-DE
+    IconFileType: fileType-de-DE
+    IconResolution: iconResolution-de-DE
+    IconTheme: iconTheme-de-DE
+    IconSha256: iconSha256-de-DE

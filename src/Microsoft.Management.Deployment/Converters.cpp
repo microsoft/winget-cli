@@ -185,8 +185,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             break;
         case APPINSTALLER_CLI_ERROR_UNSUPPORTED_RESTSOURCE:
         case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_DATA:
-        case APPINSTALLER_CLI_ERROR_RESTSOURCE_INTERNAL_ERROR:
-        case APPINSTALLER_CLI_ERROR_RESTSOURCE_UNSUPPORTED_MIME_TYPE:
+        case APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND:
+        case APPINSTALLER_CLI_ERROR_RESTAPI_INTERNAL_ERROR:
+        case APPINSTALLER_CLI_ERROR_RESTAPI_UNSUPPORTED_MIME_TYPE:
         case APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION:
         case APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE:
             resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::CatalogError;
@@ -194,6 +195,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case E_INVALIDARG:
         case APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS:
             resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::InvalidOptions;
+            break;
+        case APPINSTALLER_CLI_ERROR_INVALID_AUTHENTICATION_INFO:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_TYPE_NOT_SUPPORTED:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_FAILED:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_INTERACTIVE_REQUIRED:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_CANCELLED_BY_USER:
+        case APPINSTALLER_CLI_ERROR_AUTHENTICATION_INCORRECT_ACCOUNT:
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::AuthenticationError;
+            break;
+        case HTTP_E_STATUS_DENIED:
+        case HTTP_E_STATUS_FORBIDDEN:
+            resultStatus = winrt::Microsoft::Management::Deployment::FindPackagesResultStatus::AccessDenied;
             break;
         case APPINSTALLER_CLI_ERROR_COMMAND_FAILED:
         case APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX:
@@ -207,21 +220,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     std::optional<::AppInstaller::Utility::Architecture> GetUtilityArchitecture(winrt::Windows::System::ProcessorArchitecture architecture)
     {
-        switch (architecture)
-        {
-        case winrt::Windows::System::ProcessorArchitecture::X86:
-            return ::AppInstaller::Utility::Architecture::X86;
-        case winrt::Windows::System::ProcessorArchitecture::Arm:
-            return ::AppInstaller::Utility::Architecture::Arm;
-        case winrt::Windows::System::ProcessorArchitecture::X64:
-            return ::AppInstaller::Utility::Architecture::X64;
-        case winrt::Windows::System::ProcessorArchitecture::Neutral:
-            return ::AppInstaller::Utility::Architecture::Neutral;
-        case winrt::Windows::System::ProcessorArchitecture::Arm64:
-            return ::AppInstaller::Utility::Architecture::Arm64;
-        }
-
-        return {};
+        return ::AppInstaller::Utility::ConvertToArchitectureEnum(architecture);
     }
 
     std::optional<winrt::Windows::System::ProcessorArchitecture> GetWindowsSystemProcessorArchitecture(::AppInstaller::Utility::Architecture architecture)
@@ -241,5 +240,246 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
 
         return {};
+    }
+
+    std::pair<::AppInstaller::Manifest::ScopeEnum, bool> GetManifestScope(winrt::Microsoft::Management::Deployment::PackageInstallScope scope)
+    {
+        switch (scope)
+        {
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::Any:
+            return std::make_pair(::AppInstaller::Manifest::ScopeEnum::Unknown, false);
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::User:
+            return std::make_pair(::AppInstaller::Manifest::ScopeEnum::User, false);
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::System:
+            return std::make_pair(::AppInstaller::Manifest::ScopeEnum::Machine, false);
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::UserOrUnknown:
+            return std::make_pair(::AppInstaller::Manifest::ScopeEnum::User, true);
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::SystemOrUnknown:
+            return std::make_pair(::AppInstaller::Manifest::ScopeEnum::Machine, true);
+        }
+
+        return std::make_pair(::AppInstaller::Manifest::ScopeEnum::Unknown, false);
+    }
+
+    winrt::Microsoft::Management::Deployment::PackageInstallerType GetDeploymentInstallerType(::AppInstaller::Manifest::InstallerTypeEnum installerType)
+    {
+        switch (installerType)
+        {
+        case ::AppInstaller::Manifest::InstallerTypeEnum::Burn:
+            return Microsoft::Management::Deployment::PackageInstallerType::Burn;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::Exe:
+            return Microsoft::Management::Deployment::PackageInstallerType::Exe;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::Inno:
+            return Microsoft::Management::Deployment::PackageInstallerType::Inno;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::Msi:
+            return Microsoft::Management::Deployment::PackageInstallerType::Msi;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::Msix:
+            return Microsoft::Management::Deployment::PackageInstallerType::Msix;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::MSStore:
+            return Microsoft::Management::Deployment::PackageInstallerType::MSStore;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::Nullsoft:
+            return Microsoft::Management::Deployment::PackageInstallerType::Nullsoft;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::Portable:
+            return Microsoft::Management::Deployment::PackageInstallerType::Portable;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::Wix:
+            return Microsoft::Management::Deployment::PackageInstallerType::Wix;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::Zip:
+            return Microsoft::Management::Deployment::PackageInstallerType::Zip;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::Unknown:
+            return Microsoft::Management::Deployment::PackageInstallerType::Unknown;
+        }
+
+        return Microsoft::Management::Deployment::PackageInstallerType::Unknown;
+    }
+
+    ::AppInstaller::Manifest::InstallerTypeEnum GetManifestInstallerType(winrt::Microsoft::Management::Deployment::PackageInstallerType installerType)
+    {
+        switch (installerType)
+        {
+        case Microsoft::Management::Deployment::PackageInstallerType::Burn:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Burn;
+        case Microsoft::Management::Deployment::PackageInstallerType::Exe:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Exe;
+        case Microsoft::Management::Deployment::PackageInstallerType::Inno:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Inno;
+        case Microsoft::Management::Deployment::PackageInstallerType::Msi:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Msi;
+        case Microsoft::Management::Deployment::PackageInstallerType::Msix:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Msix;
+        case Microsoft::Management::Deployment::PackageInstallerType::MSStore:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::MSStore;
+        case Microsoft::Management::Deployment::PackageInstallerType::Nullsoft:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Nullsoft;
+        case Microsoft::Management::Deployment::PackageInstallerType::Portable:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Portable;
+        case Microsoft::Management::Deployment::PackageInstallerType::Wix:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Wix;
+        case Microsoft::Management::Deployment::PackageInstallerType::Zip:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Zip;
+        case Microsoft::Management::Deployment::PackageInstallerType::Unknown:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Unknown;
+        }
+
+        return ::AppInstaller::Manifest::InstallerTypeEnum::Unknown;
+    }
+
+    winrt::Microsoft::Management::Deployment::PackageInstallerScope GetDeploymentInstallerScope(::AppInstaller::Manifest::ScopeEnum installerScope)
+    {
+        switch (installerScope)
+        {
+        case ::AppInstaller::Manifest::ScopeEnum::User:
+            return Microsoft::Management::Deployment::PackageInstallerScope::User;
+        case ::AppInstaller::Manifest::ScopeEnum::Machine:
+            return Microsoft::Management::Deployment::PackageInstallerScope::System;
+        case ::AppInstaller::Manifest::ScopeEnum::Unknown:
+            return Microsoft::Management::Deployment::PackageInstallerScope::Unknown;
+        }
+
+        return Microsoft::Management::Deployment::PackageInstallerScope::Unknown;
+    }
+
+    ::AppInstaller::Manifest::ScopeEnum GetManifestUninstallScope(winrt::Microsoft::Management::Deployment::PackageUninstallScope scope)
+    {
+        switch (scope)
+        {
+        case winrt::Microsoft::Management::Deployment::PackageUninstallScope::Any:
+            return ::AppInstaller::Manifest::ScopeEnum::Unknown;
+        case winrt::Microsoft::Management::Deployment::PackageUninstallScope::User:
+            return ::AppInstaller::Manifest::ScopeEnum::User;
+        case winrt::Microsoft::Management::Deployment::PackageUninstallScope::System:
+            return ::AppInstaller::Manifest::ScopeEnum::Machine;
+        }
+
+        return ::AppInstaller::Manifest::ScopeEnum::Unknown;
+    }
+
+    winrt::Microsoft::Management::Deployment::ElevationRequirement GetDeploymentElevationRequirement(::AppInstaller::Manifest::ElevationRequirementEnum elevationRequirement)
+    {
+        switch (elevationRequirement)
+        {
+        case ::AppInstaller::Manifest::ElevationRequirementEnum::ElevationRequired:
+            return Microsoft::Management::Deployment::ElevationRequirement::ElevationRequired;
+        case ::AppInstaller::Manifest::ElevationRequirementEnum::ElevationProhibited:
+            return Microsoft::Management::Deployment::ElevationRequirement::ElevationProhibited;
+        case ::AppInstaller::Manifest::ElevationRequirementEnum::ElevatesSelf:
+            return Microsoft::Management::Deployment::ElevationRequirement::ElevatesSelf;
+        case ::AppInstaller::Manifest::ElevationRequirementEnum::Unknown:
+            return Microsoft::Management::Deployment::ElevationRequirement::Unknown;
+        }
+
+        return Microsoft::Management::Deployment::ElevationRequirement::Unknown;
+    }
+
+    winrt::Microsoft::Management::Deployment::IconFileType GetDeploymentIconFileType(::AppInstaller::Manifest::IconFileTypeEnum iconFileType)
+    {
+        switch (iconFileType)
+        {
+        case ::AppInstaller::Manifest::IconFileTypeEnum::Ico:
+            return Microsoft::Management::Deployment::IconFileType::Ico;
+        case ::AppInstaller::Manifest::IconFileTypeEnum::Jpeg:
+            return Microsoft::Management::Deployment::IconFileType::Jpeg;
+        case ::AppInstaller::Manifest::IconFileTypeEnum::Png:
+            return Microsoft::Management::Deployment::IconFileType::Png;
+        }
+
+        return Microsoft::Management::Deployment::IconFileType::Unknown;
+    }
+
+    winrt::Microsoft::Management::Deployment::IconResolution GetDeploymentIconResolution(::AppInstaller::Manifest::IconResolutionEnum iconResolution)
+    {
+        switch (iconResolution)
+        {
+        case ::AppInstaller::Manifest::IconResolutionEnum::Custom:
+            return Microsoft::Management::Deployment::IconResolution::Custom;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square16:
+            return Microsoft::Management::Deployment::IconResolution::Square16;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square20:
+            return Microsoft::Management::Deployment::IconResolution::Square20;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square24:
+            return Microsoft::Management::Deployment::IconResolution::Square24;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square30:
+            return Microsoft::Management::Deployment::IconResolution::Square30;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square32:
+            return Microsoft::Management::Deployment::IconResolution::Square32;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square36:
+            return Microsoft::Management::Deployment::IconResolution::Square36;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square40:
+            return Microsoft::Management::Deployment::IconResolution::Square40;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square48:
+            return Microsoft::Management::Deployment::IconResolution::Square48;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square60:
+            return Microsoft::Management::Deployment::IconResolution::Square60;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square64:
+            return Microsoft::Management::Deployment::IconResolution::Square64;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square72:
+            return Microsoft::Management::Deployment::IconResolution::Square72;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square80:
+            return Microsoft::Management::Deployment::IconResolution::Square80;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square96:
+            return Microsoft::Management::Deployment::IconResolution::Square96;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square256:
+            return Microsoft::Management::Deployment::IconResolution::Square256;
+        }
+
+        return Microsoft::Management::Deployment::IconResolution::Custom;
+    }
+
+    winrt::Microsoft::Management::Deployment::IconTheme GetDeploymentIconTheme(::AppInstaller::Manifest::IconThemeEnum iconTheme)
+    {
+        switch (iconTheme)
+        {
+        case ::AppInstaller::Manifest::IconThemeEnum::Default:
+            return Microsoft::Management::Deployment::IconTheme::Default;
+        case ::AppInstaller::Manifest::IconThemeEnum::Light:
+            return Microsoft::Management::Deployment::IconTheme::Light;
+        case ::AppInstaller::Manifest::IconThemeEnum::Dark:
+            return Microsoft::Management::Deployment::IconTheme::Dark;
+        case ::AppInstaller::Manifest::IconThemeEnum::HighContrast:
+            return Microsoft::Management::Deployment::IconTheme::HighContrast;
+        }
+
+        return Microsoft::Management::Deployment::IconTheme::Unknown;
+    }
+
+    winrt::Microsoft::Management::Deployment::AuthenticationType GetDeploymentAuthenticationType(::AppInstaller::Authentication::AuthenticationType authType)
+    {
+        switch (authType)
+        {
+        case ::AppInstaller::Authentication::AuthenticationType::None:
+            return Microsoft::Management::Deployment::AuthenticationType::None;
+        case ::AppInstaller::Authentication::AuthenticationType::MicrosoftEntraId:
+            return Microsoft::Management::Deployment::AuthenticationType::MicrosoftEntraId;
+        }
+
+        return Microsoft::Management::Deployment::AuthenticationType::Unknown;
+    }
+
+    ::AppInstaller::Authentication::AuthenticationMode GetAuthenticationMode(winrt::Microsoft::Management::Deployment::AuthenticationMode authMode)
+    {
+        switch (authMode)
+        {
+        case winrt::Microsoft::Management::Deployment::AuthenticationMode::Interactive:
+            return ::AppInstaller::Authentication::AuthenticationMode::Interactive;
+        case winrt::Microsoft::Management::Deployment::AuthenticationMode::SilentPreferred:
+            return ::AppInstaller::Authentication::AuthenticationMode::SilentPreferred;
+        case winrt::Microsoft::Management::Deployment::AuthenticationMode::Silent:
+            return ::AppInstaller::Authentication::AuthenticationMode::Silent;
+        }
+
+        return ::AppInstaller::Authentication::AuthenticationMode::Unknown;
+    }
+
+    ::AppInstaller::Authentication::AuthenticationArguments GetAuthenticationArguments(winrt::Microsoft::Management::Deployment::AuthenticationArguments authArgs)
+    {
+        ::AppInstaller::Authentication::AuthenticationArguments result;
+        result.Mode = ::AppInstaller::Authentication::AuthenticationMode::Silent; // Default to silent for com invocations.
+
+        if (authArgs)
+        {
+            result.Mode = GetAuthenticationMode(authArgs.AuthenticationMode());
+            result.AuthenticationAccount = ::AppInstaller::Utility::ConvertToUTF8(authArgs.AuthenticationAccount());
+        }
+
+        return result;
     }
 }

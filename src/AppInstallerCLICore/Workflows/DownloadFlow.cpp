@@ -2,15 +2,23 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DownloadFlow.h"
-#include "winget/Filesystem.h"
-
+#include "MSStoreInstallerHandler.h"
+#include <winget/Filesystem.h>
+#include <AppInstallerDeployment.h>
+#include <AppInstallerDownloader.h>
+#include <AppInstallerRuntime.h>
 #include <AppInstallerMsixInfo.h>
+#include <winget/AdminSettings.h>
+#include <winget/GroupPolicy.h>
+#include <winget/ManifestYamlWriter.h>
+#include <winget/NetworkSettings.h>
 
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Manifest;
     using namespace AppInstaller::Repository;
     using namespace AppInstaller::Utility;
+    using namespace AppInstaller::Settings;
     using namespace std::string_view_literals;
 
     namespace
@@ -33,7 +41,7 @@ namespace AppInstaller::CLI::Workflow
         std::wstring_view GetInstallerFileExtension(Execution::Context& context)
         {
             const auto& installer = context.Get<Execution::Data::Installer>();
-            switch (installer->InstallerType)
+            switch (installer->BaseInstallerType)
             {
             case InstallerTypeEnum::Burn:
             case InstallerTypeEnum::Exe:
@@ -69,7 +77,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Assuming that we find a safe stem value in the URI, use it.
             // This should be extremely common, but just in case fall back to the older name style.
-            if (filename.has_stem() && ((filename.string().size() + installerExtension.size()) < MAX_PATH))
+            if (filename.has_stem() && ((filename.wstring().size() + installerExtension.size()) < MAX_PATH))
             {
                 filename = filename.stem();
             }
@@ -81,7 +89,56 @@ namespace AppInstaller::CLI::Workflow
 
             filename += installerExtension;
 
+            // Make file name suitable for file system path
+            filename = Utility::ConvertToUTF16(Utility::MakeSuitablePathPart(filename.u8string()));
+
             return filename;
+        }
+
+        // Gets the file name for the downloaded installer in the format of {id}_{version}_{architecture}_{scope}_{installerType}_{locale}.
+        std::filesystem::path GetInstallerDownloadOnlyFileName(Execution::Context& context, const std::wstring_view& extension = {})
+        {
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            const auto& installer = context.Get<Execution::Data::Installer>().value();
+
+            std::string packageName = manifest.CurrentLocalization.Get<Localization::PackageName>();
+            std::string architecture{ ToString(installer.Arch) };
+            std::string installerType{ InstallerTypeToString(installer.EffectiveInstallerType()) };
+
+            std::string fileName = packageName;
+
+            if (!Version(manifest.Version).IsUnknown())
+            {
+                fileName += '_' + manifest.Version;
+            }
+
+            if (installer.Scope != ScopeEnum::Unknown)
+            {
+                fileName += '_' + std::string{ ScopeToString(installer.Scope) };
+            }
+
+            fileName += '_' + architecture + '_' + installerType;
+
+            std::string locale = !installer.Locale.empty() ? installer.Locale : manifest.CurrentLocalization.Locale;
+            if (!locale.empty())
+            {
+                fileName += '_' + locale;
+            }
+
+            std::filesystem::path fileNamePath = Utility::ConvertToUTF16(fileName);
+
+            if (!extension.empty())
+            {
+                fileNamePath += extension;
+            }
+            else
+            {
+                fileNamePath += GetInstallerFileExtension(context);
+            }
+
+            // Make file name suitable for file system path
+            fileNamePath = Utility::ConvertToUTF16(Utility::MakeSuitablePathPart(fileNamePath.u8string()));
+            return fileNamePath;
         }
 
         // Try to remove the installer file, ignoring any errors.
@@ -90,6 +147,16 @@ namespace AppInstaller::CLI::Workflow
             try
             {
                 std::filesystem::remove(path);
+
+                // It is assumed that the parent of the installer path will always be a directory
+                // If it isn't, then something went severely wrong. However, we will check that
+                // it is a directory here just to be safe. If it is an empty directory, remove it.
+
+                if (std::filesystem::is_directory(path.parent_path()) &&
+                    std::filesystem::is_empty(path.parent_path()))
+                {
+                    std::filesystem::remove(path.parent_path());
+                }
             }
             catch (const std::exception& e)
             {
@@ -134,16 +201,19 @@ namespace AppInstaller::CLI::Workflow
         context <<
             ReportExecutionStage(ExecutionStage::Download) <<
             CheckForExistingInstaller;
+
         if (context.IsTerminated())
         {
             return;
         }
 
+        bool installerDownloadOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
+
         // CheckForExistingInstaller will set the InstallerPath if found
         if (!context.Contains(Execution::Data::InstallerPath))
         {
             const auto& installer = context.Get<Execution::Data::Installer>().value();
-            switch (installer.InstallerType)
+            switch (installer.BaseInstallerType)
             {
             case InstallerTypeEnum::Exe:
             case InstallerTypeEnum::Burn:
@@ -152,21 +222,35 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Portable: 
             case InstallerTypeEnum::Wix:
+            case InstallerTypeEnum::Zip:
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:
-                if (installer.SignatureSha256.empty())
+                // If the signature hash is provided in the manifest and we are doing an install,
+                // we can just verify signature hash without a full download and do a streaming install.
+                // Even if we have the signature hash, we still do a full download if InstallerDownloadOnly
+                // flag is set, or if we need to use a proxy (as deployment APIs won't use proxy for us).
+                // Finally, we require the digest API for streaming install as well.
+                if (installer.SignatureSha256.empty()
+                    || installerDownloadOnly
+                    || Network().GetProxyUri()
+                    || !Deployment::IsExpectedDigestsSupported())
                 {
                     context << DownloadInstallerFile;
                 }
                 else
                 {
-                    // Signature hash provided. No download needed. Just verify signature hash.
                     context << GetMsixSignatureHash;
                 }
                 break;
             case InstallerTypeEnum::MSStore:
-                // Nothing to do here
+                if (installerDownloadOnly)
+                {
+                    context <<
+                        MSStoreDownload <<
+                        ExportManifest;
+                }
+
                 return;
             default:
                 THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -177,12 +261,17 @@ namespace AppInstaller::CLI::Workflow
             VerifyInstallerHash <<
             UpdateInstallerFileMotwIfApplicable <<
             RenameDownloadedInstaller;
+
+        if (installerDownloadOnly)
+        {
+            context << ExportManifest;
+        }
     }
 
     void CheckForExistingInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
-        if (installer.InstallerType == InstallerTypeEnum::MSStore)
+        if (installer.EffectiveInstallerType() == InstallerTypeEnum::MSStore)
         {
             // No installer is downloaded in this case
             return;
@@ -234,11 +323,12 @@ namespace AppInstaller::CLI::Workflow
         // Use the SHA256 hash of the installer as the identifier for the download
         downloadInfo.ContentId = SHA256::ConvertToString(installer.Sha256);
 
-        context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
+        context.Reporter.Info() << Resource::String::Downloading << ' ' << Execution::UrlEmphasis << installer.Url << std::endl;
 
         std::optional<std::vector<BYTE>> hash;
 
-        const int MaxRetryCount = 2;
+        constexpr int MaxRetryCount = 2;
+        constexpr std::chrono::seconds maximumWaitTimeAllowed = 60s;
         for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
         {
             bool success = false;
@@ -253,6 +343,31 @@ namespace AppInstaller::CLI::Workflow
                     downloadInfo));
 
                 success = true;
+            }
+            catch (const ServiceUnavailableException& sue)
+            {
+                if (retryCount < MaxRetryCount - 1)
+                {
+                    auto waitSecondsForRetry = sue.RetryAfter();
+                    if (waitSecondsForRetry > maximumWaitTimeAllowed)
+                    {
+                        throw;
+                    }
+
+                    bool waitCompleted = context.Reporter.ExecuteWithProgress([&waitSecondsForRetry](IProgressCallback& progress)
+                        {
+                            return ProgressCallback::Wait(progress, waitSecondsForRetry);
+                        });
+
+                    if (!waitCompleted)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    throw;
+                }
             }
             catch (...)
             {
@@ -275,7 +390,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!hash)
         {
-            context.Reporter.Info() << "Package download canceled." << std::endl;
+            context.Reporter.Info() << Resource::String::Cancelled << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
 
@@ -291,25 +406,17 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& installer = context.Get<Execution::Data::Installer>().value();
 
+            // Signature hash is only used for streaming installs, which don't use proxy
             Msix::MsixInfo msixInfo(installer.Url);
-            auto signature = msixInfo.GetSignature();
-
-            auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+            auto signatureHash = msixInfo.GetSignatureHash();
 
             context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
+            context.Add<Execution::Data::MsixDigests>({ std::make_pair(installer.Url, msixInfo.GetDigest()) });
         }
-        catch (const winrt::hresult_error& e)
+        catch (...)
         {
-            if (static_cast<HRESULT>(e.code()) == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
-                HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
-            {
-                // Failed to get signature hash through HttpStream, use download
-                downloadInstead = true;
-            }
-            else
-            {
-                throw;
-            }
+            AICLI_LOG(CLI, Info, << "Failed to get msix signature hash, fall back to direct download.");
+            downloadInstead = true;
         }
 
         if (downloadInstead)
@@ -337,18 +444,18 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Error() << Resource::String::InstallerHashMismatchAdminBlock << std::endl;
             }
+            else if (!Settings::IsAdminSettingEnabled(Settings::BoolAdminSetting::InstallerHashOverride))
+            {
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
+            }
             else if (overrideHashMismatch)
             {
                 context.Reporter.Warn() << Resource::String::InstallerHashMismatchOverridden << std::endl;
                 return;
             }
-            else if (Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::HashOverride))
-            {
-                context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
-            }
             else
             {
-                context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
             }
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
@@ -371,14 +478,20 @@ namespace AppInstaller::CLI::Workflow
 
     void UpdateInstallerFileMotwIfApplicable(Execution::Context& context)
     {
+        // An initial MotW is always set to URLZONE_INTERNET at the time the file is downloaded.
+        // This function may change that to URLZONE_TRUSTED if appropriate
         if (context.Contains(Execution::Data::InstallerPath))
         {
             if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted))
             {
+                // We know the installer already went through multiple scans and we can trust it.
                 Utility::ApplyMotwIfApplicable(context.Get<Execution::Data::InstallerPath>(), URLZONE_TRUSTED);
             }
             else if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerHashMatched))
             {
+                // IAttachmentExecute performs some additional scans before setting MotW, for example invoking anti-virus.
+                // A policy can be set to always mark files from a given domain as trusted, so only do this
+                // on installers with the right hash to prevent trusting unknown installers.
                 const auto& installer = context.Get<Execution::Data::Installer>();
                 HRESULT hr = Utility::ApplyMotwUsingIAttachmentExecuteIfApplicable(context.Get<Execution::Data::InstallerPath>(), installer.value().Url, URLZONE_INTERNET);
 
@@ -416,12 +529,12 @@ namespace AppInstaller::CLI::Workflow
             auto existingFileHash = SHA256::ComputeHash(inStream);
             context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, existingFileHash));
         }
-        else if (installer.InstallerType == InstallerTypeEnum::MSStore)
+        else if (installer.EffectiveInstallerType() == InstallerTypeEnum::MSStore)
         {
             // No installer file in this case
             return;
         }
-        else if (installer.InstallerType == InstallerTypeEnum::Msix && !installer.SignatureSha256.empty())
+        else if (installer.EffectiveInstallerType() == InstallerTypeEnum::Msix && !installer.SignatureSha256.empty())
         {
             // We didn't download the installer file before. Just verify the signature hash again.
             context << GetMsixSignatureHash;
@@ -445,16 +558,40 @@ namespace AppInstaller::CLI::Workflow
         }
 
         auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        std::filesystem::path renamedDownloadedInstaller = installerPath;
-        renamedDownloadedInstaller.replace_filename(GetInstallerPostHashValidationFileName(context));
+        std::filesystem::path renamedDownloadedInstaller;
 
-        if (installerPath == renamedDownloadedInstaller)
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
         {
-            // In case we are reusing an existing downloaded file
-            return;
-        }
+            THROW_HR_IF(E_UNEXPECTED, !context.Contains(Execution::Data::DownloadDirectory));
 
-        Filesystem::RenameFile(installerPath, renamedDownloadedInstaller);
+            std::filesystem::path downloadDirectory = context.Get<Execution::Data::DownloadDirectory>();
+
+            if (!std::filesystem::exists(downloadDirectory))
+            {
+                std::filesystem::create_directories(downloadDirectory);
+            }
+            else
+            {
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_CANNOT_MAKE), !std::filesystem::is_directory(downloadDirectory));
+            }
+
+            renamedDownloadedInstaller = downloadDirectory / GetInstallerDownloadOnlyFileName(context);
+            Filesystem::RenameFile(installerPath, renamedDownloadedInstaller);
+            context.Reporter.Info() << Resource::String::InstallerDownloaded(Utility::LocIndView{ renamedDownloadedInstaller.u8string() }) << std::endl;
+        }
+        else
+        {
+            renamedDownloadedInstaller = installerPath;
+            renamedDownloadedInstaller.replace_filename(GetInstallerPostHashValidationFileName(context));
+
+            if (installerPath == renamedDownloadedInstaller)
+            {
+                // In case we are reusing an existing downloaded file
+                return;
+            }
+
+            Filesystem::RenameFile(installerPath, renamedDownloadedInstaller);
+        }
 
         installerPath.assign(renamedDownloadedInstaller);
         AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);
@@ -468,6 +605,65 @@ namespace AppInstaller::CLI::Workflow
             const auto& path = context.Get<Execution::Data::InstallerPath>();
             AICLI_LOG(CLI, Info, << "Removing installer: " << path);
             RemoveInstallerFile(path);
+        }
+    }
+
+    void SetDownloadDirectory(Execution::Context& context)
+    {
+        if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+        {
+            return;
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::DownloadDirectory))
+        {
+            context.Add<Execution::Data::DownloadDirectory>(std::filesystem::path{ Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::DownloadDirectory)) });
+        }
+        else
+        {
+            std::filesystem::path downloadsDirectory = Settings::User().Get<Settings::Setting::DownloadDefaultDirectory>();
+
+            if (downloadsDirectory.empty())
+            {
+                downloadsDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::UserProfileDownloads);
+            }
+
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            std::string packageDownloadFolderName = manifest.Id;
+            if (!Utility::Version{ manifest.Version }.IsUnknown())
+            {
+                packageDownloadFolderName += '_' + manifest.Version;
+            }
+            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / Utility::ConvertToUTF16(packageDownloadFolderName));
+        }
+    }
+
+    void ExportManifest(Execution::Context& context)
+    {
+        const auto& downloadDirectory = context.Get<Execution::Data::DownloadDirectory>();
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        const auto& installer = context.Get<Execution::Data::Installer>();
+
+        std::filesystem::path manifestFileName = GetInstallerDownloadOnlyFileName(context, L".yaml");
+        auto manifestDownloadPath = downloadDirectory / manifestFileName;
+        YamlWriter::OutputYamlFile(manifest, installer.value(), manifestDownloadPath);
+        AICLI_LOG(CLI, Info, << "Successfully generated manifest yaml. Path: " << manifestDownloadPath);
+    }
+
+    void EnsureSupportForDownload(Execution::Context& context)
+    {
+        // No checks needed if not download installer only.
+        if (WI_IsFlagClear(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+        {
+            return;
+        }
+
+        const auto& installer = context.Get<Execution::Data::Installer>();
+
+        if (installer->DownloadCommandProhibited)
+        {
+            context.Reporter.Error() << Resource::String::InstallerDownloadCommandProhibited << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED);
         }
     }
 }

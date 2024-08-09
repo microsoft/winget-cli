@@ -4,7 +4,7 @@ The Windows Package Manager goes to great lengths to create an excellent user ex
 
 To that end, a key test we use for the Windows Package Manager is to ensure that all installers will install without warnings on a variety of popular antivirus configurations. While Windows provides Defender as a built-in antivirus program, many enterprise customers and users employ a wide range of antivirus software.
 
-Therefore, each submission to the Windows Package Manager will be run through several antivirus programs.  These programs all have different virus detection algorithms for identifying [Potentially unwanted application (PUA)](https://docs.microsoft.com/windows/security/threat-protection/intelligence/criteria) and malware.  
+Therefore, each submission to the Windows Package Manager will be run through several antivirus programs.  These programs all have different virus detection algorithms for identifying [Potentially unwanted application (PUA)](https://docs.microsoft.com/windows/security/threat-protection/intelligence/criteria) and malware.
 
 ## Application failures
 

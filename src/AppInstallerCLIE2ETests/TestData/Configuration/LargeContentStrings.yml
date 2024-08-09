@@ -1,0 +1,22 @@
+properties:
+    configurationVersion: 0.2
+    resources:
+      - resource: xE2EMalicious/E2EMalicious
+        id: firstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirst
+        directives:
+          repository: AppInstallerCLIE2ETestsRepo
+          description: "Line1\nLine2\nLine3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3\nLine4\nLine5\nLine6"
+        settings:
+          key: Foo
+          description: "Line1\nLine2\nLine3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3\nLine4\nLine5\nLine6"
+      - resource: Unknown
+        dependsOn:
+          - firstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirstfirst
+        directives:
+          module: UnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknownUnknown
+          repository: AppInstallerCLIE2ETestsRepo
+          description: "Line1\nLine2\nLine3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3\nLine4\nLine5\nLine6"
+        settings:
+          Path: ${WinGetConfigRoot}\ConfigServerUnexpectedExit.txt
+          Content: Contents!
+          description: "Line1\nLine2\nLine3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3Line3\nLine4\nLine5\nLine6"

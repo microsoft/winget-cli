@@ -159,7 +159,7 @@ namespace AppInstaller::Utility
         }
     }
 
-    Architecture ConvertToArchitectureEnum(const std::string& archStr)
+    Architecture ConvertToArchitectureEnum(std::string_view archStr)
     {
         std::string arch = ToLower(archStr);
         if (arch == "x86")
@@ -183,8 +183,27 @@ namespace AppInstaller::Utility
             return Architecture::Neutral;
         }
 
-        AICLI_LOG(YAML, Info, << "ConvertToArchitectureEnum: Unknown architecture: " << archStr);
+        AICLI_LOG(Core, Info, << "ConvertToArchitectureEnum: Unknown architecture: " << archStr);
         return Architecture::Unknown;
+    }
+
+    std::optional<::AppInstaller::Utility::Architecture> ConvertToArchitectureEnum(winrt::Windows::System::ProcessorArchitecture architecture)
+    {
+        switch (architecture)
+        {
+        case winrt::Windows::System::ProcessorArchitecture::X86:
+            return ::AppInstaller::Utility::Architecture::X86;
+        case winrt::Windows::System::ProcessorArchitecture::Arm:
+            return ::AppInstaller::Utility::Architecture::Arm;
+        case winrt::Windows::System::ProcessorArchitecture::X64:
+            return ::AppInstaller::Utility::Architecture::X64;
+        case winrt::Windows::System::ProcessorArchitecture::Neutral:
+            return ::AppInstaller::Utility::Architecture::Neutral;
+        case winrt::Windows::System::ProcessorArchitecture::Arm64:
+            return ::AppInstaller::Utility::Architecture::Arm64;
+        }
+
+        return {};
     }
 
     LocIndView ToString(Architecture architecture)

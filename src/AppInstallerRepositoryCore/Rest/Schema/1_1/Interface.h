@@ -8,7 +8,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
     // Interface to this schema version exposed through IRestClient.
     struct Interface : public V1_0::Interface
     {
-        Interface(const std::string& restApi, IRestClient::Information information, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders = {}, const HttpClientHelper& httpClientHelper = {});
+        Interface(const std::string& restApi, const Http::HttpClientHelper& helper, IRestClient::Information information, const Http::HttpClientHelper::HttpRequestHeaders& additionalHeaders = {});
 
         Interface(const Interface&) = delete;
         Interface& operator=(const Interface&) = delete;
@@ -31,7 +31,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
         PackageMatchField ConvertStringToPackageMatchField(std::string_view field) const;
 
-    private:
         IRestClient::Information m_information;
     };
 }

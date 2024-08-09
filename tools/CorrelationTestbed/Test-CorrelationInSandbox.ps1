@@ -15,7 +15,13 @@ Param(
   [Parameter(HelpMessage = "The results output path.")]
   [String] $ResultsPath,
   [Parameter(HelpMessage = "The path to registry files that should be injected before the test.")]
-  [String] $RegFileDirectory
+  [String] $RegFileDirectory,
+  [Parameter(HelpMessage = "Indicates that the metadata collection process should be run.")]
+  [Switch] $MetadataCollection,
+  [Parameter(HelpMessage = "The path to WinGetUtil.dll.")]
+  [String] $WingetUtilPath,
+  [Parameter(HelpMessage = "Wait for user input before tearing down each sandbox.")]
+  [Switch] $Wait
 )
 
 $ErrorActionPreference = "Stop"
@@ -65,6 +71,26 @@ Either build the local dev package, or provide the location using -DevPackagePat
   }
 }
 
+# Validate that WinGetUtil.dll exists if metadata collection is requested
+
+if ($MetadataCollection)
+{
+  if (-not $WingetUtilPath)
+  {
+    $WingetUtilPath = Join-Path $PSScriptRoot "..\..\src\x64\Debug\WinGetUtil\WinGetUtil.dll"
+  }
+
+  $WingetUtilPath = [System.IO.Path]::GetFullPath($WingetUtilPath)
+
+  if (-not (Test-Path $WingetUtilPath))
+  {
+    Write-Error -Category InvalidArgument -Message @"
+WinGetUtil.dll does not exist in the path $WingetUtilPath
+Either build the binary, or provide the location using -WingetUtilPath
+"@
+  }
+}
+
 # Check if Windows Sandbox is enabled
 
 if (-Not (Get-Command 'WindowsSandbox' -ErrorAction SilentlyContinue))
@@ -89,12 +115,22 @@ function Close-WindowsSandbox {
       $sandboxServer = Get-Process 'WindowsSandbox' -ErrorAction SilentlyContinue
 
       $sandbox | Stop-Process
-      $sandbox | Wait-Process -Timeout 30
+      $sandbox | Wait-Process -Timeout 120
 
       # Also wait for the server to close
       if ($sandboxServer)
       {
-        $sandboxServer | Wait-Process -Timeout 30
+        try
+        {
+            $sandboxServer | Wait-Process -Timeout 120
+        }
+        catch [System.TimeoutException]
+        {
+            # Force stop the server if it does not automatically stop
+            $sandboxServer | Stop-Process
+            $sandboxServer | Wait-Process -Timeout 120
+        }
+
       }
 
       Write-Host
@@ -136,50 +172,16 @@ $apiLatestUrl = 'https://api.github.com/repos/microsoft/winget-cli/releases/late
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $WebClient = New-Object System.Net.WebClient
 
-function Get-LatestUrl {
-  ((Invoke-WebRequest $apiLatestUrl -UseBasicParsing | ConvertFrom-Json).assets | Where-Object { $_.name -match '^Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle$' }).browser_download_url
-}
-
-function Get-LatestHash {
-  $shaUrl = ((Invoke-WebRequest $apiLatestUrl -UseBasicParsing | ConvertFrom-Json).assets | Where-Object { $_.name -match '^Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.txt$' }).browser_download_url
-
-  $shaFile = Join-Path -Path $tempFolder -ChildPath 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.txt'
-  $WebClient.DownloadFile($shaUrl, $shaFile)
-
-  Get-Content $shaFile
-}
-
-# Hide the progress bar of Invoke-WebRequest
-$oldProgressPreference = $ProgressPreference
-$ProgressPreference = 'SilentlyContinue'
-
-$desktopAppInstaller = @{
-  fileName = 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'
-  url      = $(Get-LatestUrl)
-  hash     = $(Get-LatestHash)
-}
-
-$ProgressPreference = $oldProgressPreference
-
 $vcLibsUwp = @{
   fileName = 'Microsoft.VCLibs.x64.14.00.Desktop.appx'
   url      = 'https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx'
-  hash     = 'A39CEC0E70BE9E3E48801B871C034872F1D7E5E8EEBE986198C019CF2C271040'
+  hash     = '9BFDE6CFCC530EF073AB4BC9C4817575F63BE1251DD75AAA58CB89299697A569'
   folderInLocal = Join-Path ${env:ProgramFiles(x86)} "Microsoft SDKs\Windows Kits\10\ExtensionSDKs\Microsoft.VCLibs.Desktop\14.0\Appx\Retail\x64"
-}
-$uiLibsUwp = @{
-  fileName = 'Microsoft.UI.Xaml.2.7.zip'
-  url = 'https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml/2.7.0'
-  hash = "422FD24B231E87A842C4DAEABC6A335112E0D35B86FAC91F5CE7CF327E36A591"
 }
 
 if ($UseDev)
 {
   $dependencies = @($vcLibsUwp)
-}
-else
-{
-  $dependencies = @($desktopAppInstaller, $vcLibsUwp, $uiLibsUwp)
 }
 
 # Clean temp directory
@@ -235,18 +237,9 @@ foreach ($dependency in $dependencies)
   }
 }
 
-if (-not $UseDev)
-{
-  # Extract Microsoft.UI.Xaml from zip (if freshly downloaded).
-  # This is a workaround until https://github.com/microsoft/winget-cli/issues/1861 is resolved.
-
-  if (-Not (Test-Path (Join-Path -Path $tampFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)))
-  {
-    Expand-Archive -Path $uiLibsUwp.file -DestinationPath ($tempFolder + "\Microsoft.UI.Xaml.2.7") -Force
-  }
-  $uiLibsUwp.file = (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
-  $uiLibsUwp.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
-  Write-Host
+if ($MetadataCollection)
+{ 
+  Copy-Item -Path $WingetUtilPath -Destination $tempFolder -Force
 }
 
 # Copy main script
@@ -262,25 +255,23 @@ foreach ($packageIdentifier in $PackageIdentifiers)
     New-Item -ItemType Directory $outPath  | Out-Null
 
     $outPathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Split-Path -Path $outPath -Leaf)
+    $system32PathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath "hostSystem32"
 
     if ($UseDev)
     {
       $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)')"
     }
-    else
-    {
-      $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)', '$($uiLibsUwp.pathInSandbox)')"
-    }
 
-    $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox'"
+    $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox' -System32Path '$system32PathInSandbox'"
 
     if ($UseDev)
     {
       $bootstrapPs1Content += " -UseDev"
     }
-    else
+    
+    if ($MetadataCollection)
     {
-      $bootstrapPs1Content += " -DesktopAppInstallerPath '$($desktopAppInstaller.pathInSandbox)'"
+      $bootstrapPs1Content += " -MetadataCollection"
     }
 
     $bootstrapPs1FileName = 'Bootstrap.ps1'
@@ -331,6 +322,11 @@ foreach ($packageIdentifier in $PackageIdentifiers)
         <SandboxFolder>$exePathInSandbox</SandboxFolder>
         <ReadOnly>true</ReadOnly>
     </MappedFolder>
+    <MappedFolder>
+        <HostFolder>C:\Windows\System32</HostFolder>
+        <SandboxFolder>$system32PathInSandbox</SandboxFolder>
+        <ReadOnly>true</ReadOnly>
+    </MappedFolder>
     $devPackageXMLFragment
     $regFileDirXMLFragment
     <MappedFolder>
@@ -371,6 +367,11 @@ foreach ($packageIdentifier in $PackageIdentifiers)
           break
         }
         Start-Sleep 1
+    }
+
+    if ($Wait)
+    {
+        Read-Host "Press Enter to close sandbox and continue..."
     }
 
     Close-WindowsSandbox

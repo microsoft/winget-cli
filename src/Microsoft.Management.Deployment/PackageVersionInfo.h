@@ -23,9 +23,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::Collections::IVectorView<hstring> PackageFamilyNames();
         winrt::Windows::Foundation::Collections::IVectorView<hstring> ProductCodes();
         winrt::Microsoft::Management::Deployment::PackageCatalog PackageCatalog();
-        winrt::Microsoft::Management::Deployment::CompareResult CompareToVersion(hstring versionString);
-        // Contract version 4
+        winrt::Microsoft::Management::Deployment::CompareResult CompareToVersion(const hstring& versionString);
+        // Contract 4.0
         bool HasApplicableInstaller(InstallOptions options);
+        // Contract 6.0
+        winrt::Microsoft::Management::Deployment::CatalogPackageMetadata GetCatalogPackageMetadata();
+        winrt::Microsoft::Management::Deployment::CatalogPackageMetadata GetCatalogPackageMetadata(const hstring& preferredLocale);
+        winrt::Microsoft::Management::Deployment::PackageInstallerInfo GetApplicableInstaller(InstallOptions options);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

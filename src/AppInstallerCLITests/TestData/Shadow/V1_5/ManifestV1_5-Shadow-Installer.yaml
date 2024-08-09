@@ -1,0 +1,19 @@
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.7.32
+InstallerLocale: en-US
+Installers:
+  - Architecture: x64
+    InstallerType: exe
+    InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe
+    InstallerSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+    ProductCode: "{Bar}"
+    InstallerSwitches:
+      Custom: /custom
+      SilentWithProgress: /silentwithprogress
+      Silent: /silence
+      Interactive: /interactive
+      Log: /log=<LOGPATH>
+      InstallLocation: /dir=<INSTALLPATH>
+      Upgrade: /upgrade
+ManifestType: installer
+ManifestVersion: 1.5.0

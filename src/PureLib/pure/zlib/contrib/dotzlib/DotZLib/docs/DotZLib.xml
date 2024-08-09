@@ -1,0 +1,603 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DotZLib</name>
+    </assembly>
+    <members>
+        <member name="T:DotZLib.ChecksumGeneratorBase">
+            <summary>
+            Implements the common functionality needed for all <see cref="T:DotZLib.ChecksumGenerator"/>s
+            </summary>
+            <example></example>
+        </member>
+        <member name="F:DotZLib.ChecksumGeneratorBase._current">
+            <summary>
+            The value of the current checksum
+            </summary>
+        </member>
+        <member name="M:DotZLib.ChecksumGeneratorBase.#ctor">
+            <summary>
+            Initializes a new instance of the checksum generator base - the current checksum is
+            set to zero
+            </summary>
+        </member>
+        <member name="M:DotZLib.ChecksumGeneratorBase.#ctor(System.UInt32)">
+            <summary>
+            Initializes a new instance of the checksum generator basewith a specified value
+            </summary>
+            <param name="initialValue">The value to set the current checksum to</param>
+        </member>
+        <member name="M:DotZLib.ChecksumGeneratorBase.Reset">
+            <summary>
+            Resets the current checksum to zero
+            </summary>
+        </member>
+        <member name="P:DotZLib.ChecksumGeneratorBase.Value">
+            <summary>
+            Gets the current checksum value
+            </summary>
+        </member>
+        <member name="M:DotZLib.ChecksumGeneratorBase.Update(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Updates the current checksum with part of an array of bytes
+            </summary>
+            <param name="data">The data to update the checksum with</param>
+            <param name="offset">Where in <c>data</c> to start updating</param>
+            <param name="count">The number of bytes from <c>data</c> to use</param>
+            <exception cref="T:System.ArgumentException">The sum of offset and count is larger than the length of <c>data</c></exception>
+            <exception cref="T:System.NullReferenceException"><c>data</c> is a null reference</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Offset or count is negative.</exception>
+            <remarks>All the other <c>Update</c> methods are implmeneted in terms of this one.
+            This is therefore the only method a derived class has to implement</remarks>
+        </member>
+        <member name="M:DotZLib.ChecksumGeneratorBase.Update(System.Byte[])">
+            <summary>
+            Updates the current checksum with an array of bytes.
+            </summary>
+            <param name="data">The data to update the checksum with</param>
+        </member>
+        <member name="M:DotZLib.ChecksumGeneratorBase.Update(System.String)">
+            <summary>
+            Updates the current checksum with the data from a string
+            </summary>
+            <param name="data">The string to update the checksum with</param>
+            <remarks>The characters in the string are converted by the UTF-8 encoding</remarks>
+        </member>
+        <member name="M:DotZLib.ChecksumGeneratorBase.Update(System.String,System.Text.Encoding)">
+            <summary>
+            Updates the current checksum with the data from a string, using a specific encoding
+            </summary>
+            <param name="data">The string to update the checksum with</param>
+            <param name="encoding">The encoding to use</param>
+        </member>
+        <member name="T:DotZLib.CRC32Checksum">
+            <summary>
+            Implements a CRC32 checksum generator
+            </summary>
+        </member>
+        <member name="M:DotZLib.CRC32Checksum.#ctor">
+            <summary>
+            Initializes a new instance of the CRC32 checksum generator
+            </summary>
+        </member>
+        <member name="M:DotZLib.CRC32Checksum.#ctor(System.UInt32)">
+            <summary>
+            Initializes a new instance of the CRC32 checksum generator with a specified value
+            </summary>
+            <param name="initialValue">The value to set the current checksum to</param>
+        </member>
+        <member name="M:DotZLib.CRC32Checksum.Update(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Updates the current checksum with part of an array of bytes
+            </summary>
+            <param name="data">The data to update the checksum with</param>
+            <param name="offset">Where in <c>data</c> to start updating</param>
+            <param name="count">The number of bytes from <c>data</c> to use</param>
+            <exception cref="T:System.ArgumentException">The sum of offset and count is larger than the length of <c>data</c></exception>
+            <exception cref="T:System.NullReferenceException"><c>data</c> is a null reference</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Offset or count is negative.</exception>
+        </member>
+        <member name="T:DotZLib.AdlerChecksum">
+            <summary>
+            Implements a checksum generator that computes the Adler checksum on data
+            </summary>
+        </member>
+        <member name="M:DotZLib.AdlerChecksum.#ctor">
+            <summary>
+            Initializes a new instance of the Adler checksum generator
+            </summary>
+        </member>
+        <member name="M:DotZLib.AdlerChecksum.#ctor(System.UInt32)">
+            <summary>
+            Initializes a new instance of the Adler checksum generator with a specified value
+            </summary>
+            <param name="initialValue">The value to set the current checksum to</param>
+        </member>
+        <member name="M:DotZLib.AdlerChecksum.Update(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Updates the current checksum with part of an array of bytes
+            </summary>
+            <param name="data">The data to update the checksum with</param>
+            <param name="offset">Where in <c>data</c> to start updating</param>
+            <param name="count">The number of bytes from <c>data</c> to use</param>
+            <exception cref="T:System.ArgumentException">The sum of offset and count is larger than the length of <c>data</c></exception>
+            <exception cref="T:System.NullReferenceException"><c>data</c> is a null reference</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Offset or count is negative.</exception>
+        </member>
+        <member name="T:DotZLib.CircularBuffer">
+            <summary>
+            This class implements a circular buffer
+            </summary>
+        </member>
+        <member name="T:DotZLib.CodecBase">
+            <summary>
+            Implements the common functionality needed for all <see cref="T:DotZLib.Codec"/>s
+            </summary>
+        </member>
+        <member name="F:DotZLib.CodecBase._ztream">
+            <summary>
+            Instance of the internal zlib buffer structure that is
+            passed to all functions in the zlib dll
+            </summary>
+        </member>
+        <member name="F:DotZLib.CodecBase._isDisposed">
+            <summary>
+            True if the object instance has been disposed, false otherwise
+            </summary>
+        </member>
+        <member name="F:DotZLib.CodecBase.kBufferSize">
+            <summary>
+            The size of the internal buffers
+            </summary>
+        </member>
+        <member name="M:DotZLib.CodecBase.#ctor">
+            <summary>
+            Initializes a new instance of the <c>CodeBase</c> class.
+            </summary>
+        </member>
+        <member name="E:DotZLib.CodecBase.DataAvailable">
+            <summary>
+            Occurs when more processed data are available.
+            </summary>
+        </member>
+        <member name="M:DotZLib.CodecBase.OnDataAvailable">
+            <summary>
+            Fires the <see cref="E:DotZLib.CodecBase.DataAvailable"/> event
+            </summary>
+        </member>
+        <member name="M:DotZLib.CodecBase.Add(System.Byte[])">
+            <summary>
+            Adds more data to the codec to be processed.
+            </summary>
+            <param name="data">Byte array containing the data to be added to the codec</param>
+            <remarks>Adding data may, or may not, raise the <c>DataAvailable</c> event</remarks>
+        </member>
+        <member name="M:DotZLib.CodecBase.Add(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds more data to the codec to be processed.
+            </summary>
+            <param name="data">Byte array containing the data to be added to the codec</param>
+            <param name="offset">The index of the first byte to add from <c>data</c></param>
+            <param name="count">The number of bytes to add</param>
+            <remarks>Adding data may, or may not, raise the <c>DataAvailable</c> event</remarks>
+            <remarks>This must be implemented by a derived class</remarks>
+        </member>
+        <member name="M:DotZLib.CodecBase.Finish">
+            <summary>
+            Finishes up any pending data that needs to be processed and handled.
+            </summary>
+            <remarks>This must be implemented by a derived class</remarks>
+        </member>
+        <member name="P:DotZLib.CodecBase.Checksum">
+            <summary>
+            Gets the checksum of the data that has been added so far
+            </summary>
+        </member>
+        <member name="M:DotZLib.CodecBase.Finalize">
+            <summary>
+            Destroys this instance
+            </summary>
+        </member>
+        <member name="M:DotZLib.CodecBase.Dispose">
+            <summary>
+            Releases any unmanaged resources and calls the <see cref="M:DotZLib.CodecBase.CleanUp"/> method of the derived class
+            </summary>
+        </member>
+        <member name="M:DotZLib.CodecBase.CleanUp">
+            <summary>
+            Performs any codec specific cleanup
+            </summary>
+            <remarks>This must be implemented by a derived class</remarks>
+        </member>
+        <member name="M:DotZLib.CodecBase.copyInput(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Copies a number of bytes to the internal codec buffer - ready for proccesing
+            </summary>
+            <param name="data">The byte array that contains the data to copy</param>
+            <param name="startIndex">The index of the first byte to copy</param>
+            <param name="count">The number of bytes to copy from <c>data</c></param>
+        </member>
+        <member name="M:DotZLib.CodecBase.resetOutput">
+            <summary>
+            Resets the internal output buffers to a known state - ready for processing
+            </summary>
+        </member>
+        <member name="M:DotZLib.CodecBase.setChecksum(System.UInt32)">
+            <summary>
+            Updates the running checksum property
+            </summary>
+            <param name="newSum">The new checksum value</param>
+        </member>
+        <member name="T:DotZLib.Deflater">
+            <summary>
+            Implements a data compressor, using the deflate algorithm in the ZLib dll
+            </summary>
+        </member>
+        <member name="M:DotZLib.Deflater.#ctor(DotZLib.CompressLevel)">
+            <summary>
+            Constructs an new instance of the <c>Deflater</c>
+            </summary>
+            <param name="level">The compression level to use for this <c>Deflater</c></param>
+        </member>
+        <member name="M:DotZLib.Deflater.Add(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds more data to the codec to be processed.
+            </summary>
+            <param name="data">Byte array containing the data to be added to the codec</param>
+            <param name="offset">The index of the first byte to add from <c>data</c></param>
+            <param name="count">The number of bytes to add</param>
+            <remarks>Adding data may, or may not, raise the <c>DataAvailable</c> event</remarks>
+        </member>
+        <member name="M:DotZLib.Deflater.Finish">
+            <summary>
+            Finishes up any pending data that needs to be processed and handled.
+            </summary>
+        </member>
+        <member name="M:DotZLib.Deflater.CleanUp">
+            <summary>
+            Closes the internal zlib deflate stream
+            </summary>
+        </member>
+        <member name="T:DotZLib.FlushTypes">
+            <summary>
+            Defines constants for the various flush types used with zlib
+            </summary>
+        </member>
+        <member name="T:DotZLib.CompressLevel">
+            <summary>
+            Defines constants for the available compression levels in zlib
+            </summary>
+        </member>
+        <member name="F:DotZLib.CompressLevel.Default">
+            <summary>
+            The default compression level with a reasonable compromise between compression and speed
+            </summary>
+        </member>
+        <member name="F:DotZLib.CompressLevel.None">
+            <summary>
+            No compression at all. The data are passed straight through.
+            </summary>
+        </member>
+        <member name="F:DotZLib.CompressLevel.Best">
+            <summary>
+            The maximum compression rate available.
+            </summary>
+        </member>
+        <member name="F:DotZLib.CompressLevel.Fastest">
+            <summary>
+            The fastest available compression level.
+            </summary>
+        </member>
+        <member name="T:DotZLib.ZLibException">
+            <summary>
+            The exception that is thrown when an error occurs on the zlib dll
+            </summary>
+        </member>
+        <member name="M:DotZLib.ZLibException.#ctor(System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:DotZLib.ZLibException"/> class with a specified
+            error message and error code
+            </summary>
+            <param name="errorCode">The zlib error code that caused the exception</param>
+            <param name="msg">A message that (hopefully) describes the error</param>
+        </member>
+        <member name="M:DotZLib.ZLibException.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:DotZLib.ZLibException"/> class with a specified
+            error code
+            </summary>
+            <param name="errorCode">The zlib error code that caused the exception</param>
+        </member>
+        <member name="T:DotZLib.ChecksumGenerator">
+            <summary>
+            Declares methods and properties that enables a running checksum to be calculated
+            </summary>
+        </member>
+        <member name="P:DotZLib.ChecksumGenerator.Value">
+            <summary>
+            Gets the current value of the checksum
+            </summary>
+        </member>
+        <member name="M:DotZLib.ChecksumGenerator.Reset">
+            <summary>
+            Clears the current checksum to 0
+            </summary>
+        </member>
+        <member name="M:DotZLib.ChecksumGenerator.Update(System.Byte[])">
+            <summary>
+            Updates the current checksum with an array of bytes
+            </summary>
+            <param name="data">The data to update the checksum with</param>
+        </member>
+        <member name="M:DotZLib.ChecksumGenerator.Update(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Updates the current checksum with part of an array of bytes
+            </summary>
+            <param name="data">The data to update the checksum with</param>
+            <param name="offset">Where in <c>data</c> to start updating</param>
+            <param name="count">The number of bytes from <c>data</c> to use</param>
+            <exception cref="T:System.ArgumentException">The sum of offset and count is larger than the length of <c>data</c></exception>
+            <exception cref="T:System.ArgumentNullException"><c>data</c> is a null reference</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Offset or count is negative.</exception>
+        </member>
+        <member name="M:DotZLib.ChecksumGenerator.Update(System.String)">
+            <summary>
+            Updates the current checksum with the data from a string
+            </summary>
+            <param name="data">The string to update the checksum with</param>
+            <remarks>The characters in the string are converted by the UTF-8 encoding</remarks>
+        </member>
+        <member name="M:DotZLib.ChecksumGenerator.Update(System.String,System.Text.Encoding)">
+            <summary>
+            Updates the current checksum with the data from a string, using a specific encoding
+            </summary>
+            <param name="data">The string to update the checksum with</param>
+            <param name="encoding">The encoding to use</param>
+        </member>
+        <member name="T:DotZLib.DataAvailableHandler">
+            <summary>
+            Represents the method that will be called from a codec when new data
+            are available.
+            </summary>
+            <paramref name="data">The byte array containing the processed data</paramref>
+            <paramref name="startIndex">The index of the first processed byte in <c>data</c></paramref>
+            <paramref name="count">The number of processed bytes available</paramref>
+            <remarks>On return from this method, the data may be overwritten, so grab it while you can.
+            You cannot assume that startIndex will be zero.
+            </remarks>
+        </member>
+        <member name="T:DotZLib.Codec">
+            <summary>
+            Declares methods and events for implementing compressors/decompressors
+            </summary>
+        </member>
+        <member name="E:DotZLib.Codec.DataAvailable">
+            <summary>
+            Occurs when more processed data are available.
+            </summary>
+        </member>
+        <member name="M:DotZLib.Codec.Add(System.Byte[])">
+            <summary>
+            Adds more data to the codec to be processed.
+            </summary>
+            <param name="data">Byte array containing the data to be added to the codec</param>
+            <remarks>Adding data may, or may not, raise the <c>DataAvailable</c> event</remarks>
+        </member>
+        <member name="M:DotZLib.Codec.Add(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds more data to the codec to be processed.
+            </summary>
+            <param name="data">Byte array containing the data to be added to the codec</param>
+            <param name="offset">The index of the first byte to add from <c>data</c></param>
+            <param name="count">The number of bytes to add</param>
+            <remarks>Adding data may, or may not, raise the <c>DataAvailable</c> event</remarks>
+        </member>
+        <member name="M:DotZLib.Codec.Finish">
+            <summary>
+            Finishes up any pending data that needs to be processed and handled.
+            </summary>
+        </member>
+        <member name="P:DotZLib.Codec.Checksum">
+            <summary>
+            Gets the checksum of the data that has been added so far
+            </summary>
+        </member>
+        <member name="T:DotZLib.Info">
+            <summary>
+            Encapsulates general information about the ZLib library
+            </summary>
+        </member>
+        <member name="M:DotZLib.Info.#ctor">
+            <summary>
+            Constructs an instance of the <c>Info</c> class.
+            </summary>
+        </member>
+        <member name="P:DotZLib.Info.HasDebugInfo">
+            <summary>
+            True if the library is compiled with debug info
+            </summary>
+        </member>
+        <member name="P:DotZLib.Info.UsesAssemblyCode">
+            <summary>
+            True if the library is compiled with assembly optimizations
+            </summary>
+        </member>
+        <member name="P:DotZLib.Info.SizeOfUInt">
+            <summary>
+            Gets the size of the unsigned int that was compiled into Zlib
+            </summary>
+        </member>
+        <member name="P:DotZLib.Info.SizeOfULong">
+            <summary>
+            Gets the size of the unsigned long that was compiled into Zlib
+            </summary>
+        </member>
+        <member name="P:DotZLib.Info.SizeOfPointer">
+            <summary>
+            Gets the size of the pointers that were compiled into Zlib
+            </summary>
+        </member>
+        <member name="P:DotZLib.Info.SizeOfOffset">
+            <summary>
+            Gets the size of the z_off_t type that was compiled into Zlib
+            </summary>
+        </member>
+        <member name="P:DotZLib.Info.Version">
+            <summary>
+            Gets the version of ZLib as a string, e.g. "1.2.1"
+            </summary>
+        </member>
+        <member name="T:DotZLib.GZipStream">
+            <summary>
+            Implements a compressed <see cref="T:System.IO.Stream"/>, in GZip (.gz) format.
+            </summary>
+        </member>
+        <member name="M:DotZLib.GZipStream.#ctor(System.String,DotZLib.CompressLevel)">
+            <summary>
+            Creates a new file as a writeable GZipStream
+            </summary>
+            <param name="fileName">The name of the compressed file to create</param>
+            <param name="level">The compression level to use when adding data</param>
+            <exception cref="T:DotZLib.ZLibException">If an error occurred in the internal zlib function</exception>
+        </member>
+        <member name="M:DotZLib.GZipStream.#ctor(System.String)">
+            <summary>
+            Opens an existing file as a readable GZipStream
+            </summary>
+            <param name="fileName">The name of the file to open</param>
+            <exception cref="T:DotZLib.ZLibException">If an error occurred in the internal zlib function</exception>
+        </member>
+        <member name="P:DotZLib.GZipStream.CanRead">
+            <summary>
+            Returns true of this stream can be read from, false otherwise
+            </summary>
+        </member>
+        <member name="P:DotZLib.GZipStream.CanSeek">
+            <summary>
+            Returns false.
+            </summary>
+        </member>
+        <member name="P:DotZLib.GZipStream.CanWrite">
+            <summary>
+            Returns true if this tsream is writeable, false otherwise
+            </summary>
+        </member>
+        <member name="M:DotZLib.GZipStream.Finalize">
+            <summary>
+            Destroys this instance
+            </summary>
+        </member>
+        <member name="M:DotZLib.GZipStream.Dispose">
+            <summary>
+            Closes the external file handle
+            </summary>
+        </member>
+        <member name="M:DotZLib.GZipStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Attempts to read a number of bytes from the stream.
+            </summary>
+            <param name="buffer">The destination data buffer</param>
+            <param name="offset">The index of the first destination byte in <c>buffer</c></param>
+            <param name="count">The number of bytes requested</param>
+            <returns>The number of bytes read</returns>
+            <exception cref="T:System.ArgumentNullException">If <c>buffer</c> is null</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">If <c>count</c> or <c>offset</c> are negative</exception>
+            <exception cref="T:System.ArgumentException">If <c>offset</c>  + <c>count</c> is &gt; buffer.Length</exception>
+            <exception cref="T:System.NotSupportedException">If this stream is not readable.</exception>
+            <exception cref="T:System.ObjectDisposedException">If this stream has been disposed.</exception>
+        </member>
+        <member name="M:DotZLib.GZipStream.ReadByte">
+            <summary>
+            Attempts to read a single byte from the stream.
+            </summary>
+            <returns>The byte that was read, or -1 in case of error or End-Of-File</returns>
+        </member>
+        <member name="M:DotZLib.GZipStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Writes a number of bytes to the stream
+            </summary>
+            <param name="buffer"></param>
+            <param name="offset"></param>
+            <param name="count"></param>
+            <exception cref="T:System.ArgumentNullException">If <c>buffer</c> is null</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">If <c>count</c> or <c>offset</c> are negative</exception>
+            <exception cref="T:System.ArgumentException">If <c>offset</c>  + <c>count</c> is &gt; buffer.Length</exception>
+            <exception cref="T:System.NotSupportedException">If this stream is not writeable.</exception>
+            <exception cref="T:System.ObjectDisposedException">If this stream has been disposed.</exception>
+        </member>
+        <member name="M:DotZLib.GZipStream.WriteByte(System.Byte)">
+            <summary>
+            Writes a single byte to the stream
+            </summary>
+            <param name="value">The byte to add to the stream.</param>
+            <exception cref="T:System.NotSupportedException">If this stream is not writeable.</exception>
+            <exception cref="T:System.ObjectDisposedException">If this stream has been disposed.</exception>
+        </member>
+        <member name="M:DotZLib.GZipStream.SetLength(System.Int64)">
+            <summary>
+            Not supported.
+            </summary>
+            <param name="value"></param>
+            <exception cref="T:System.NotSupportedException">Always thrown</exception>
+        </member>
+        <member name="M:DotZLib.GZipStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary>
+             Not suppported.
+            </summary>
+            <param name="offset"></param>
+            <param name="origin"></param>
+            <returns></returns>
+            <exception cref="T:System.NotSupportedException">Always thrown</exception>
+        </member>
+        <member name="M:DotZLib.GZipStream.Flush">
+            <summary>
+            Flushes the <c>GZipStream</c>.
+            </summary>
+            <remarks>In this implementation, this method does nothing. This is because excessive
+            flushing may degrade the achievable compression rates.</remarks>
+        </member>
+        <member name="P:DotZLib.GZipStream.Position">
+            <summary>
+            Gets/sets the current position in the <c>GZipStream</c>. Not suppported.
+            </summary>
+            <remarks>In this implementation this property is not supported</remarks>
+            <exception cref="T:System.NotSupportedException">Always thrown</exception>
+        </member>
+        <member name="P:DotZLib.GZipStream.Length">
+            <summary>
+            Gets the size of the stream. Not suppported.
+            </summary>
+            <remarks>In this implementation this property is not supported</remarks>
+            <exception cref="T:System.NotSupportedException">Always thrown</exception>
+        </member>
+        <member name="T:DotZLib.Inflater">
+            <summary>
+            Implements a data decompressor, using the inflate algorithm in the ZLib dll
+            </summary>
+        </member>
+        <member name="M:DotZLib.Inflater.#ctor">
+            <summary>
+            Constructs an new instance of the <c>Inflater</c>
+            </summary>
+        </member>
+        <member name="M:DotZLib.Inflater.Add(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Adds more data to the codec to be processed.
+            </summary>
+            <param name="data">Byte array containing the data to be added to the codec</param>
+            <param name="offset">The index of the first byte to add from <c>data</c></param>
+            <param name="count">The number of bytes to add</param>
+            <remarks>Adding data may, or may not, raise the <c>DataAvailable</c> event</remarks>
+        </member>
+        <member name="M:DotZLib.Inflater.Finish">
+            <summary>
+            Finishes up any pending data that needs to be processed and handled.
+            </summary>
+        </member>
+        <member name="M:DotZLib.Inflater.CleanUp">
+            <summary>
+            Closes the internal zlib inflate stream
+            </summary>
+        </member>
+    </members>
+</doc>

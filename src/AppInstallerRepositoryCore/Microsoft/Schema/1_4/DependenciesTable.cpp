@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DependenciesTable.h"
-#include "SQLiteStatementBuilder.h"
+#include <winget/SQLiteStatementBuilder.h>
 #include "winget\DependenciesGraph.h"
 #include "Microsoft/Schema/1_0/OneToOneTable.h"
 #include "Microsoft/Schema/1_0/IdTable.h"
@@ -48,11 +48,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         {
             if (!missingPackageNodes.empty())
             {
-                std::string missingPackages{ missingPackageNodes.begin()->Id };
+                std::string missingPackages{ missingPackageNodes.begin()->Id()};
                 std::for_each(
                     missingPackageNodes.begin() + 1,
                     missingPackageNodes.end(),
-                    [&](auto& dep) { missingPackages.append(", " + dep.Id);  });
+                    [&](auto& dep) { missingPackages.append(", " + dep.Id()); });
                 THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "Missing packages: %hs", missingPackages.c_str());
             }
         }
@@ -70,9 +70,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             {
                 installer.Dependencies.ApplyToType(dependencyType, [&](Manifest::Dependency dependency)
                 {
-                    auto packageRowId = IdTable::SelectIdByValue(connection, dependency.Id);
+                    auto packageRowId = IdTable::SelectIdByValue(connection, dependency.Id());
                     std::optional<Utility::NormalizedString> version;
-                        
+
                     if (!packageRowId.has_value())
                     {
                         missingPackageNodes.emplace_back(dependency);
@@ -116,7 +116,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 deleteStmt.Reset();
                 deleteStmt.Bind(1, row.m_packageRowId);
                 deleteStmt.Bind(2, row.m_manifestRowId);
-                deleteStmt.Execute(true);
+                deleteStmt.Execute();
                 tableUpdated = true;
             }
 
@@ -138,7 +138,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 .Values(Unbound, Unbound, Unbound);
             SQLite::Statement insert = insertBuilder.Prepare(connection);
 
-            
             for (const auto& dep : dependenciesTableRows)
             {
                 insert.Reset();
@@ -155,7 +154,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 
                 insert.Bind(3, dep.m_packageRowId);
 
-                insert.Execute(true);
+                insert.Execute();
                 tableUpdated = true;
             }
 
@@ -237,6 +236,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         savepoint.Commit();
     }
 
+    void DependenciesTable::Drop(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder dropTableBuilder;
+        dropTableBuilder.DropTableIfExists(s_DependenciesTable_Table_Name);
+
+        dropTableBuilder.Execute(connection);
+    }
+
     void DependenciesTable::AddDependencies(SQLite::Connection& connection, const Manifest::Manifest& manifest, SQLite::rowid_t manifestRowId)
     {
         if (!Exists(connection))
@@ -296,8 +303,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             }
         );
 
-        bool tableUpdated = InsertManifestDependencies(connection, toAddDependencies);
-        tableUpdated = RemoveDependenciesByRowIds(connection, toRemoveDependencies) || tableUpdated;
+        bool tableUpdated = RemoveDependenciesByRowIds(connection, toRemoveDependencies);
+        tableUpdated = InsertManifestDependencies(connection, toAddDependencies) || tableUpdated;
         savepoint.Commit();
 
         return tableUpdated;
@@ -327,17 +334,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
 
         StatementBuilder builder;
-        // Find all manifest that depend on this package.
-        // SELECT [dep].[manifest], [pId].[id], [minV].[version] FROM [dependencies] AS [dep] 
-        // JOIN [versions] AS [minV] ON [dep].[min_version] = [minV].[rowid] 
+        // Find all manifest that depend on this package. Use outer join for joining version table as min_version may be NULL.
+        // SELECT [dep].[manifest], [dep].[min_version], [pId].[id], [minV].[version] FROM [dependencies] AS [dep] 
+        // LEFT OUTER JOIN [versions] AS [minV] ON [dep].[min_version] = [minV].[rowid] 
         // JOIN [ids] AS [pId] ON [pId].[rowid] = [dep].[package_id] 
         // WHERE [pId].[id] = ?
         builder.Select()
             .Column(QCol(depTableAlias, s_DependenciesTable_Manifest_Column_Name))
+            .Column(QCol(depTableAlias, s_DependenciesTable_MinVersion_Column_Name))
             .Column(QCol(packageIdAlias, IdTable::ValueName()))
             .Column(QCol(minVersionAlias, VersionTable::ValueName()))
             .From({ s_DependenciesTable_Table_Name }).As(depTableAlias)
-            .Join({ VersionTable::TableName() }).As(minVersionAlias)
+            .LeftOuterJoin({ VersionTable::TableName() }).As(minVersionAlias)
             .On(QCol(depTableAlias, s_DependenciesTable_MinVersion_Column_Name), QCol(minVersionAlias, SQLite::RowIDName))
             .Join({ IdTable::TableName() }).As(packageIdAlias)
             .On(QCol(packageIdAlias, SQLite::RowIDName), QCol(depTableAlias, s_DependenciesTable_PackageId_Column_Name))
@@ -350,8 +358,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
         while (stmt.Step())
         {
+            Utility::NormalizedString version = "";
+            if (!stmt.GetColumnIsNull(1))
+            {
+                // If min_version is not NULL, use the corresponding value from Version table.
+                version = stmt.GetColumn<std::string>(3);
+            }
             resultSet.emplace_back(
-                std::make_pair(stmt.GetColumn<SQLite::rowid_t>(0), Utility::NormalizedString(stmt.GetColumn<std::string>(2))));
+                std::make_pair(stmt.GetColumn<SQLite::rowid_t>(0), std::move(version)));
         }
 
         return resultSet;
@@ -366,14 +380,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
 
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> resultSet;
 
-        // SELECT [dep].[package_id], [minV].[version] FROM [dependencies] AS [dep] 
-        // JOIN [versions] AS [minV] ON [minV].[rowid] = [dep].[min_version]
+        // Use Outer join since min_version could have NULL value. 
+        // SELECT [dep].[package_id], [dep].[min_version], [minV].[version] FROM [dependencies] AS [dep] 
+        // LEFT OUTER JOIN [versions] AS [minV] ON [minV].[rowid] = [dep].[min_version]
         // WHERE [dep].[manifest] = ?
         builder.Select()
             .Column(QCol(depTableAlias, s_DependenciesTable_PackageId_Column_Name))
+            .Column(QCol(depTableAlias, s_DependenciesTable_MinVersion_Column_Name))
             .Column(QCol(minVersionAlias, VersionTable::ValueName()))
             .From({ s_DependenciesTable_Table_Name }).As(depTableAlias)
-            .Join({ VersionTable::TableName() }).As(minVersionAlias)
+            .LeftOuterJoin({ VersionTable::TableName() }).As(minVersionAlias)
             .On(QCol(minVersionAlias, SQLite::RowIDName), QCol(depTableAlias, s_DependenciesTable_MinVersion_Column_Name))
             .Where(QCol(depTableAlias, s_DependenciesTable_Manifest_Column_Name)).Equals(Unbound);
 
@@ -385,9 +401,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             Utility::NormalizedString version = "";
             if (!select.GetColumnIsNull(1))
             {
-                version = select.GetColumn<std::string>(1);
+                // If min_version is not NULL, use the corresponding value from Version table.
+                version = select.GetColumn<std::string>(2);
             }
-            resultSet.emplace(std::make_pair(select.GetColumn<SQLite::rowid_t>(0), version));
+            resultSet.emplace(std::make_pair(select.GetColumn<SQLite::rowid_t>(0), std::move(version)));
         }
 
         return resultSet;
@@ -408,7 +425,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         savepoint.Commit();
     }
     
-    bool DependenciesTable::DependenciesTableCheckConsistency(const SQLite::Connection& connection, bool log)
+    bool DependenciesTable::CheckConsistency(const SQLite::Connection& connection, bool log)
     {
         StatementBuilder builder;
 
@@ -442,7 +459,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
                 break;
             }
 
-            AICLI_LOG(Repo, Info, << "  [INVALID] rowid [" << select.GetColumn<SQLite::rowid_t>(0) << "]");
+            AICLI_LOG(Repo, Info, << "  [INVALID] row in [" << s_DependenciesTable_Table_Name << "] rowid [" << select.GetColumn<SQLite::rowid_t>(0) << "]");
         }
 
         return result;

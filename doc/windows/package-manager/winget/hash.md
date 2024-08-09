@@ -24,9 +24,21 @@ The following arguments are available:
 
 | Argument  | Description |
 |--------------|-------------|
-| **-f,--file** |  The path to the file to be hashed. |
-| **-m,--msix**  | Specifies that the hash command will also create the SHA-256 SignatureSha256 for use with MSIX installers. |
+| **-f, --file** |  The path to the file to be hashed. |
+
+## Options
+
+The following options are available:
+
+| Option | Description |
+|--------|-------------|
+| **-m, --msix**  | Specifies that the hash command will also create the SHA-256 SignatureSha256 for use with MSIX installers. |
 | **-?, --help** |  Gets additional help on this command. |
+| **--wait** | Prompts the user to press any key before exiting |
+| **--logs, --open-logs** | Open the default logs location |
+| **--verbose, --verbose-logs** | Enables verbose logging for winget |
+| **--disable-interactivity** | Disable interactive prompts |
+
 
 ## Related topics
 

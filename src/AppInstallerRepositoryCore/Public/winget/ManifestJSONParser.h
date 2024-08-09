@@ -37,6 +37,9 @@ namespace AppInstaller::Repository::JSON
         // Deserializes the locale node; returning an object if a proper locale was found.
         std::optional<Manifest::ManifestLocalization> DeserializeLocale(const web::json::value& locale) const;
 
+        // Deserializes the InstallationMetadata node; returning an object if a proper InstallationMetadata was found.
+        std::optional<Manifest::InstallationMetadataInfo> DeserializeInstallationMetadata(const web::json::value& installationMetadata) const;
+
     private:
         struct impl;
         std::unique_ptr<impl> m_pImpl;

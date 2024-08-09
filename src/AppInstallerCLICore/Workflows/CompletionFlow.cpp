@@ -70,11 +70,33 @@ namespace AppInstaller::CLI::Workflow
         const std::string& word = context.Get<Data::CompletionData>().Word();
         auto stream = context.Reporter.Completion();
 
-        for (const auto& vc : context.Get<Execution::Data::Package>()->GetAvailableVersionKeys())
+        for (const auto& ap : context.Get<Execution::Data::Package>()->GetAvailable())
         {
-            if (word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Version, word))
+            for (const auto& vc : ap->GetVersionKeys())
             {
-                OutputCompletionString(stream, vc.Version);
+                if (word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Version, word))
+                {
+                    OutputCompletionString(stream, vc.Version);
+                }
+            }
+        }
+    }
+
+    void CompleteWithSearchResultInstalledVersions(Execution::Context& context)
+    {
+        const std::string& word = context.Get<Data::CompletionData>().Word();
+        auto stream = context.Reporter.Completion();
+
+        auto installedPackage = context.Get<Execution::Data::Package>()->GetInstalled();
+
+        if (installedPackage)
+        {
+            for (const auto& vc : installedPackage->GetVersionKeys())
+            {
+                if (word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Version, word))
+                {
+                    OutputCompletionString(stream, vc.Version);
+                }
             }
         }
     }
@@ -86,12 +108,15 @@ namespace AppInstaller::CLI::Workflow
 
         std::vector<std::string> channels;
 
-        for (const auto& vc : context.Get<Execution::Data::Package>()->GetAvailableVersionKeys())
+        for (const auto& ap : context.Get<Execution::Data::Package>()->GetAvailable())
         {
-            if ((word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Channel, word)) &&
-                std::find(channels.begin(), channels.end(), vc.Channel) == channels.end())
+            for (const auto& vc : ap->GetVersionKeys())
             {
-                channels.emplace_back(vc.Channel);
+                if ((word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Channel, word)) &&
+                    std::find(channels.begin(), channels.end(), vc.Channel) == channels.end())
+                {
+                    channels.emplace_back(vc.Channel);
+                }
             }
         }
 
@@ -106,6 +131,7 @@ namespace AppInstaller::CLI::Workflow
         switch (m_type)
         {
         case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
         case Execution::Args::Type::Id:
         case Execution::Args::Type::Name:
         case Execution::Args::Type::Moniker:
@@ -126,6 +152,7 @@ namespace AppInstaller::CLI::Workflow
         switch (m_type)
         {
         case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
             context <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForSingleCompletion <<
@@ -163,14 +190,21 @@ namespace AppInstaller::CLI::Workflow
             // Here we require that the standard search finds a single entry, and we list those versions.
             context <<
                 Workflow::SearchSourceForSingle <<
-                Workflow::EnsureOneMatchFromSearchResult(false) <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Completion) <<
                 Workflow::CompleteWithSearchResultVersions;
+            break;
+        case Execution::Args::Type::TargetVersion:
+            // Here we require that the standard search finds a single entry, and we list the installed versions.
+            context <<
+                Workflow::SearchSourceForSingle <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Completion) <<
+                Workflow::CompleteWithSearchResultInstalledVersions;
             break;
         case Execution::Args::Type::Channel:
             // Here we require that the standard search finds a single entry, and we list those channels.
             context <<
                 Workflow::SearchSourceForSingle <<
-                Workflow::EnsureOneMatchFromSearchResult(false) <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Completion) <<
                 Workflow::CompleteWithSearchResultChannels;
             break;
         case Execution::Args::Type::Source:

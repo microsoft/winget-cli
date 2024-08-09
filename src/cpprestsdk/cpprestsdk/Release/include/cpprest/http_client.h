@@ -362,6 +362,32 @@ public:
         if (m_set_user_nativehandle_options) m_set_user_nativehandle_options(handle);
     }
 
+    /// <summary>
+    /// Sets a callback to enable custom handling when the server certificate is available.
+    /// </summary>
+    /// <remarks>
+    /// The native_handle is the following type depending on the underlying platform:
+    ///     Windows Desktop, WinHTTP - HINTERNET !!! Is only implemented to call in here !!!
+    ///     Windows Runtime, WinRT - IXMLHTTPRequest2 *
+    ///     All other platforms, Boost.Asio:
+    ///         https - boost::asio::ssl::stream<boost::asio::ip::tcp::socket &> *
+    ///         http - boost::asio::ip::tcp::socket *
+    /// </remarks>
+    /// <param name="callback">A user callback allowing for validation of the server certificate.</param>
+    void set_nativehandle_servercertificate_validation(const std::function<void(native_handle)>& callback)
+    {
+        m_nativehandle_servercertificate_validation = callback;
+    }
+
+    /// <summary>
+    /// Invokes a user's callback to validate the server certificate.
+    /// </summary>
+    /// <param name="handle">A internal implementation handle.</param>
+    void invoke_nativehandle_servercertificate_validation(native_handle handle) const
+    {
+        if (m_nativehandle_servercertificate_validation) m_nativehandle_servercertificate_validation(handle);
+    }
+
 #if !defined(_WIN32) && !defined(__cplusplus_winrt) || defined(CPPREST_FORCE_HTTP_CLIENT_ASIO)
     /// <summary>
     /// Sets a callback to enable custom setting of the ssl context, at construction time.
@@ -418,6 +444,7 @@ private:
 
     std::function<void(native_handle)> m_set_user_nativehandle_options;
     std::function<void(native_handle)> m_set_user_nativesessionhandle_options;
+    std::function<void(native_handle)> m_nativehandle_servercertificate_validation;
 
 #if !defined(_WIN32) && !defined(__cplusplus_winrt) || defined(CPPREST_FORCE_HTTP_CLIENT_ASIO)
     std::function<void(boost::asio::ssl::context&)> m_ssl_context_callback;

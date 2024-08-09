@@ -29,9 +29,9 @@ namespace AppInstaller::CLI
         return { Resource::String::ExperimentalCommandLongDescription };
     }
 
-    std::string ExperimentalCommand::HelpLink() const
+    Utility::LocIndView ExperimentalCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-settings";
+        return "https://aka.ms/winget-settings"_liv;
     }
 
     void ExperimentalCommand::ExecuteInternal(Execution::Context& context) const

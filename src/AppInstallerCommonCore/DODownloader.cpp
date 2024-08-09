@@ -258,7 +258,7 @@ namespace AppInstaller::Utility
                 std::optional<UINT64> initialTransferAmount;
                 bool transferChange = false;
 
-                while (!m_progress.IsCancelled())
+                while (!m_progress.IsCancelledBy(CancelReason::Any))
                 {
                     if (!transferChange)
                     {
@@ -273,7 +273,7 @@ namespace AppInstaller::Utility
                     }
 
                     // Since we just finished a wait, check for cancellation before handling anything else
-                    if (m_progress.IsCancelled())
+                    if (m_progress.IsCancelledBy(CancelReason::Any))
                     {
                         return false;
                     }
@@ -387,7 +387,7 @@ namespace AppInstaller::Utility
             });
 
         // Check to handle cancellation between Start and SetCancellationFunction
-        if (progress.IsCancelled())
+        if (progress.IsCancelledBy(CancelReason::Any))
         {
             AICLI_LOG(Core, Info, << "Download cancelled.");
             download.Cancel();

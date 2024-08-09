@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <assemblyIdentity type="win32" name="EmbeddedTestComponent" version="1.0.0.0" />
+  <file name="EmbeddedTestComponent.dll">
+    <activatableClass
+        name="EmbeddedTestComponent.ClassBoth"
+        threadingModel="Both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+    <activatableClass
+        name="EmbeddedTestComponent.ClassSta"
+        threadingModel="sta"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+    <activatableClass
+        name="EmbeddedTestComponent.ClassMta"
+        threadingModel="mta"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+  </file>
+</assembly>

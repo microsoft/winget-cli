@@ -1,0 +1,19 @@
+PackageIdentifier: AppInstallerTest.TestUserScopeInstallRepairInAdminContext
+PackageVersion: 2.0.0.0
+PackageLocale: en-US
+PackageName: TestUserScopeInstallRepairInAdminContext
+Publisher: AppInstallerTest
+RepairBehavior: modify
+Installers:
+    - Architecture: x86
+      InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+      InstallerType: burn
+      InstallerSha256: <EXEHASH>
+      ProductCode: '{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}'
+      ElevationRequirement: elevationRequired
+      InstallerSwitches:
+        InstallLocation: /InstallDir <INSTALLPATH>
+        Custom: /Version 2.0.0.0 /DisplayName TestUserScopeInstallRepairInAdminContext
+        Repair: /repair
+ManifestType: singleton
+ManifestVersion: 1.7.0

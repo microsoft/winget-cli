@@ -17,6 +17,7 @@ namespace AppInstaller::Repository::Correlation
     namespace
     {
         constexpr double MatchingThreshold = 0.5;
+        constexpr double MinimumDifferentiationThreshold = 0.05;
 
         IARPMatchConfidenceAlgorithm& InstanceInternal(std::optional<IARPMatchConfidenceAlgorithm*> algorithmOverride = {})
         {
@@ -57,7 +58,7 @@ namespace AppInstaller::Repository::Correlation
 #endif
 
     // Find the best match using heuristics
-    std::shared_ptr<IPackageVersion> FindARPEntryForNewlyInstalledPackageWithHeuristics(
+    ARPHeuristicsCorrelationResult FindARPEntryForNewlyInstalledPackageWithHeuristics(
         const Manifest::Manifest& manifest,
         const std::vector<ARPEntry>& arpEntries)
     {
@@ -65,46 +66,52 @@ namespace AppInstaller::Repository::Correlation
         return FindARPEntryForNewlyInstalledPackageWithHeuristics(manifest, arpEntries, IARPMatchConfidenceAlgorithm::Instance());
     }
 
-    std::shared_ptr<IPackageVersion> FindARPEntryForNewlyInstalledPackageWithHeuristics(
+    ARPHeuristicsCorrelationResult FindARPEntryForNewlyInstalledPackageWithHeuristics(
         const AppInstaller::Manifest::Manifest& manifest,
         const std::vector<ARPEntry>& arpEntries,
         IARPMatchConfidenceAlgorithm& algorithm)
     {
+        if (arpEntries.empty())
+        {
+            AICLI_LOG(Repo, Warning, << "Empty ARP entries given");
+            return {};
+        }
+
         AICLI_LOG(Repo, Verbose, << "Looking for best match in ARP for manifest " << manifest.Id);
 
         algorithm.Init(manifest);
 
-        std::optional<ARPEntry> bestMatch;
-        double bestScore = 0;
+        ARPHeuristicsCorrelationResult result;
+        result.Measures.reserve(arpEntries.size());
 
         for (const auto& arpEntry : arpEntries)
         {
             auto score = algorithm.ComputeConfidence(arpEntry);
             AICLI_LOG(Repo, Verbose, << "Match confidence for " << arpEntry.Entry->GetProperty(PackageProperty::Id) << ": " << score);
 
-            if (score < MatchingThreshold)
-            {
-                AICLI_LOG(Repo, Verbose, << "Score is lower than threshold");
-                continue;
-            }
-
-            if (!bestMatch || bestScore < score)
-            {
-                bestMatch = arpEntry;
-                bestScore = score;
-            }
+            result.Measures.emplace_back(CorrelationMeasure{ score, arpEntry.Entry->GetLatestVersion() });
         }
 
-        if (bestMatch)
+        std::sort(result.Measures.begin(), result.Measures.end(), [](const CorrelationMeasure& a, const CorrelationMeasure& b) { return a.Measure > b.Measure; });
+
+        if (result.Measures[0].Measure < MatchingThreshold)
         {
-            AICLI_LOG(Repo, Verbose, << "Best match is " << bestMatch->Entry->GetProperty(PackageProperty::Id));
+            AICLI_LOG(Repo, Verbose, << "Maximum score [" << result.Measures[0].Measure << "] is lower than threshold [" << MatchingThreshold << "]");
+            result.Reason = "maximum score below threshold";
+        }
+        else if (result.Measures.size() >= 2 && (result.Measures[0].Measure - result.Measures[1].Measure) < MinimumDifferentiationThreshold)
+        {
+            AICLI_LOG(Repo, Verbose, << "Top two scores, [" << result.Measures[0].Measure << "] and [" << result.Measures[1].Measure << "] are not significantly different [" << MinimumDifferentiationThreshold << "]");
+            result.Reason = "top two scores are not significantly different";
         }
         else
         {
-            AICLI_LOG(Repo, Verbose, << "No ARP entry had a correlation score surpassing the required threshold");
+            AICLI_LOG(Repo, Verbose, << "Best match is " << result.Measures[0].Package->GetProperty(PackageVersionProperty::Id));
+            result.Package = result.Measures[0].Package;
+            result.Reason = "heuristics match";
         }
 
-        return bestMatch ? bestMatch->Entry->GetInstalledVersion() : nullptr;
+        return result;
     }
 
     void ARPCorrelationData::CapturePreInstallSnapshot()
@@ -115,11 +122,11 @@ namespace AppInstaller::Repository::Correlation
 
         for (const auto& entry : preInstallARP.Search({}).Matches)
         {
-            auto installed = entry.Package->GetInstalledVersion();
+            auto installed = entry.Package->GetInstalled()->GetLatestVersion();
             if (installed)
             {
                 m_preInstallSnapshot.emplace_back(std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
+                    installed->GetProperty(PackageVersionProperty::Id),
                     installed->GetProperty(PackageVersionProperty::Version),
                     installed->GetProperty(PackageVersionProperty::Channel)));
             }
@@ -136,29 +143,22 @@ namespace AppInstaller::Repository::Correlation
 
         for (auto& entry : m_postInstallSnapshotSource.Search({}).Matches)
         {
-            auto installed = entry.Package->GetInstalledVersion();
+            auto installed = entry.Package->GetInstalled()->GetLatestVersion();
 
             if (installed)
             {
                 auto entryKey = std::make_tuple(
-                    entry.Package->GetProperty(PackageProperty::Id),
+                    installed->GetProperty(PackageVersionProperty::Id),
                     installed->GetProperty(PackageVersionProperty::Version),
                     installed->GetProperty(PackageVersionProperty::Channel));
 
                 auto itr = std::lower_bound(m_preInstallSnapshot.begin(), m_preInstallSnapshot.end(), entryKey);
-                if (itr == m_preInstallSnapshot.end() || *itr != entryKey)
-                {
-                    m_postInstallSnapshot.emplace_back(entry.Package, true);
-                }
-                else
-                {
-                    m_postInstallSnapshot.emplace_back(entry.Package, false);
-                }
+                m_postInstallSnapshot.emplace_back(entry.Package->GetInstalled(), itr == m_preInstallSnapshot.end() || *itr != entryKey);
             }
         }
     }
 
-    ARPCorrelationResult ARPCorrelationData::CorrelateForNewlyInstalled(const Manifest::Manifest& manifest)
+    ARPCorrelationResult ARPCorrelationData::CorrelateForNewlyInstalled(const Manifest::Manifest& manifest, const ARPCorrelationSettings& settings)
     {
         AICLI_LOG(Repo, Verbose, << "Finding ARP entry matching newly installed package");
 
@@ -188,15 +188,16 @@ namespace AppInstaller::Repository::Correlation
             }
         }
 
-        std::vector<std::string> productCodes;
+        std::set<std::string> productCodes;
+        std::set<std::string> upgradeCodes;
         for (const auto& installer : manifest.Installers)
         {
             if (!installer.ProductCode.empty())
             {
-                if (std::find(productCodes.begin(), productCodes.end(), installer.ProductCode) == productCodes.end())
+                // Add each ProductCode only once
+                if (productCodes.insert(installer.ProductCode).second)
                 {
                     manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
-                    productCodes.emplace_back(installer.ProductCode);
                 }
             }
 
@@ -207,6 +208,16 @@ namespace AppInstaller::Repository::Correlation
                     manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact,
                         appsAndFeaturesEntry.DisplayName,
                         appsAndFeaturesEntry.Publisher.empty() ? defaultPublisher : appsAndFeaturesEntry.Publisher));
+                }
+
+                // Add each ProductCode and UpgradeCode only once;
+                if (!appsAndFeaturesEntry.ProductCode.empty() && productCodes.insert(appsAndFeaturesEntry.ProductCode).second)
+                {
+                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, appsAndFeaturesEntry.ProductCode));
+                }
+                if (!appsAndFeaturesEntry.UpgradeCode.empty() && upgradeCodes.insert(appsAndFeaturesEntry.UpgradeCode).second)
+                {
+                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::UpgradeCode, MatchType::Exact, appsAndFeaturesEntry.UpgradeCode));
                 }
             }
         }
@@ -228,7 +239,7 @@ namespace AppInstaller::Repository::Correlation
             {
                 for (const auto& byManifest : findByManifest.Matches)
                 {
-                    if (change.Entry->IsSame(byManifest.Package.get()))
+                    if (change.Entry->IsSame(byManifest.Package->GetInstalled().get()))
                     {
                         packagesInBoth.emplace_back(change.Entry);
                         break;
@@ -253,14 +264,21 @@ namespace AppInstaller::Repository::Correlation
         result.CountOfIntersectionOfChangesAndMatches = packagesInBoth.size();
 
         // If there is only a single common package (changed and matches), it is almost certainly the correct one.
-        if (packagesInBoth.size() == 1)
+        if (settings.AllowNormalization && packagesInBoth.size() == 1)
         {
-            result.Package = packagesInBoth[0]->GetInstalledVersion();
+            result.Package = packagesInBoth[0]->GetLatestVersion();
+            result.Reason = "normalization match and new/changed";
         }
         // If it wasn't changed but we still find a match, that is the best thing to report.
-        else if (findByManifest.Matches.size() == 1)
+        else if (settings.AllowNormalization && findByManifest.Matches.size() == 1)
         {
-            result.Package = findByManifest.Matches[0].Package->GetInstalledVersion();
+            result.Package = findByManifest.Matches[0].Package->GetInstalled()->GetLatestVersion();
+            result.Reason = "normalization match (not new/changed)";
+        }
+        else if (settings.AllowSingleChange && result.ChangesToARP == 1)
+        {
+            result.Package = std::find_if(m_postInstallSnapshot.begin(), m_postInstallSnapshot.end(), [](const ARPEntry& e) { return e.IsNewOrUpdated; })->Entry->GetLatestVersion();
+            result.Reason = "only new/changed value";
         }
         else
         {
@@ -268,7 +286,7 @@ namespace AppInstaller::Repository::Correlation
             // to try and match the package with some ARP entry by assigning them scores.
             AICLI_LOG(Repo, Verbose, << "No exact ARP match found. Trying to find one with heuristics");
 
-            result.Package = FindARPEntryForNewlyInstalledPackageWithHeuristics(manifest, m_postInstallSnapshot);
+            result = FindARPEntryForNewlyInstalledPackageWithHeuristics(manifest, m_postInstallSnapshot);
         }
 
         return result;

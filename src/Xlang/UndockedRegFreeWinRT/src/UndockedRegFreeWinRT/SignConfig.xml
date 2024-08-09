@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SignConfigXML>
+  <job platform="" configuration="" dest="__OUTPATHROOT__" jobname="Regfree Winrt Tools" approvers="">
+    <file src="__INPATHROOT__\winrtact.dll" signType="400" dest="__OUTPATHROOT__\winrtact.dll" />
+  </job>
+</SignConfigXML>

@@ -1,0 +1,7 @@
+{
+  "first_comment_is_literal": "true",
+  "keyword_case": "upper",
+  "line_ending": "windows",
+  "max_pargs_hwrap": 3,
+  "tab_size": 4
+}

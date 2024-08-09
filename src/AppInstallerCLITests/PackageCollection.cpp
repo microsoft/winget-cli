@@ -50,20 +50,10 @@ namespace
 
         REQUIRE(node.isMember(propertyName));
         REQUIRE(node[propertyName].isString());
-        REQUIRE(node[propertyName].asString() == expectedValue);
-    }
-
-    void ValidateJsonStringPropertyRegex(const Json::Value& node, const std::string& propertyName, std::string_view regex, bool allowMissing = false)
-    {
-        if (allowMissing && !node.isMember(propertyName))
+        if (!expectedValue.empty())
         {
-            return;
+            REQUIRE(node[propertyName].asString() == expectedValue);
         }
-
-        REQUIRE(node.isMember(propertyName));
-        REQUIRE(node[propertyName].isString());
-        const auto& value = AppInstaller::Utility::ConvertToUTF16(node[propertyName].asString());
-        REQUIRE(AppInstaller::Regex::Expression(regex).IsMatch(value));
     }
 
     const Json::Value& GetAndValidateJsonProperty(const Json::Value& node, const std::string& propertyName, Json::ValueType valueType)
@@ -77,13 +67,8 @@ namespace
     {
         ValidateJsonStringProperty(root, s_PackagesJson_Schema, s_PackagesJson_SchemaUri_v2_0);
         ValidateJsonStringProperty(root, s_PackagesJson_WinGetVersion, collection.ClientVersion);
-
-        // valijson does not validate the date-time format, which should follow RFC3339 according to the JSON schema.
-        // Ensure we write something at least reasonable.
-        // The expected format is <Date>T<Time><TimeZone>
-        // with Date="YYYY-MM-DD"; Time="HH:mm:ss.xxx"; TimeZone="Z" or "+HH:mm" or "-HH:mm" (offset from UTC)
-        std::string_view dateTimeRegex = "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]+(Z|[+-][0-9]{2}:[0-9]{2})"sv;
-        ValidateJsonStringPropertyRegex(root, s_PackagesJson_CreationDate, dateTimeRegex);
+        // valijson now validates the date-time format, just check the string property exists.
+        ValidateJsonStringProperty(root, s_PackagesJson_CreationDate, "");
 
         const auto& jsonSources = GetAndValidateJsonProperty(root, s_PackagesJson_Sources, Json::ValueType::arrayValue);
         REQUIRE(jsonSources.size() == collection.Sources.size());
@@ -191,7 +176,7 @@ TEST_CASE("PackageCollection_Read_SingleSource_1_0", "[PackageCollection]")
     auto json = ParseJsonString(R"(
     {
       "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
-      "CreationDate": "2021-01-01T12:00:00.000",
+      "CreationDate": "2021-01-01T12:00:00.000-00:00",
       "Sources": [
         {
           "Packages": [
@@ -242,7 +227,7 @@ TEST_CASE("PackageCollection_Read_SingleSource_2_0", "[PackageCollection]")
     auto json = ParseJsonString(R"(
     {
       "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
-      "CreationDate": "2021-01-01T12:00:00.000",
+      "CreationDate": "2021-01-01T12:00:00.000-00:00",
       "Sources": [
         {
           "Packages": [
@@ -292,7 +277,7 @@ TEST_CASE("PackageCollection_Read_MultipleSources_1_0", "[PackageCollection]")
     auto json = ParseJsonString(R"(
     {
       "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
-      "CreationDate": "2021-01-01T12:00:00.000",
+      "CreationDate": "2021-01-01T12:00:00.000-00:00",
       "WinGetVersion": "1.0.0",
       "Sources": [
         {
@@ -358,7 +343,7 @@ TEST_CASE("PackageCollection_Read_MultipleSources_2_0", "[PackageCollection]")
     auto json = ParseJsonString(R"(
     {
       "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
-      "CreationDate": "2021-01-01T12:00:00.000",
+      "CreationDate": "2021-01-01T12:00:00.000-00:00",
       "WinGetVersion": "1.0.0",
       "Sources": [
         {
@@ -424,7 +409,7 @@ TEST_CASE("PackageCollection_Read_RepeatedSource", "[PackageCollection]")
     auto json = ParseJsonString(R"(
     {
       "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
-      "CreationDate": "2021-01-01T12:00:00.000",
+      "CreationDate": "2021-01-01T12:00:00.000-00:00",
       "WinGetVersion": "1.0.0",
       "Sources": [
         {
@@ -504,7 +489,7 @@ TEST_CASE("PackageCollection_Read_MissingSchema", "[PackageCollection]")
 {
     auto json = ParseJsonString(R"(
     {
-      "CreationDate": "2021-01-01T12:00:00.000",
+      "CreationDate": "2021-01-01T12:00:00.000-00:00",
       "Sources": [
         {
           "Packages": [
@@ -537,7 +522,7 @@ TEST_CASE("PackageCollection_Read_WrongSchema", "[PackageCollection]")
     auto json = ParseJsonString(R"(
     {
       "$schema": "https://aka.ms/winget-settings.schema.json",
-      "CreationDate": "2021-01-01T12:00:00.000",
+      "CreationDate": "2021-01-01T12:00:00.000-00:00",
       "Sources": [
         {
           "Packages": [
@@ -565,7 +550,7 @@ TEST_CASE("PackageCollection_Read_SchemaValidationFail", "[PackageCollection]")
     auto json = ParseJsonString(R"(
     {
       "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
-      "CreationDate": "2021-01-01T12:00:00.000",
+      "CreationDate": "2021-01-01T12:00:00.000-00:00",
       "NotSources": [
         {
           "Packages": [
@@ -596,7 +581,7 @@ TEST_CASE("PackageCollection_Read_SchemaValidationFail_Id", "[PackageCollection]
     auto json = ParseJsonString(R"(
     {
       "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
-      "CreationDate": "2021-01-01T12:00:00.000",
+      "CreationDate": "2021-01-01T12:00:00.000-00:00",
       "Sources": [
         {
           "Packages": [
@@ -624,8 +609,6 @@ TEST_CASE("PackageCollection_Read_SchemaValidationFail_Id", "[PackageCollection]
 
 TEST_CASE("PackageCollection_Read_BadTimeStamp", "[PackageCollection]")
 {
-    // We used to export without padding the creation date with 0s nor adding time zone.
-    // Ensure we don't break with that format.
     auto json = ParseJsonString(R"(
     {
       "$schema": "https://aka.ms/winget-packages.schema.1.0.json",
@@ -651,6 +634,6 @@ TEST_CASE("PackageCollection_Read_BadTimeStamp", "[PackageCollection]")
     auto parseResult = PackagesJson::TryParseJson(json);
     INFO(parseResult.Errors);
 
-    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::Success);
-    REQUIRE(parseResult.Errors.empty());
+    REQUIRE(parseResult.Result == PackagesJson::ParseResult::Type::SchemaValidationFailed);
+    REQUIRE_FALSE(parseResult.Errors.empty());
 }

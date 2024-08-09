@@ -42,10 +42,11 @@ namespace AppInstaller::CLI::Execution
 
     enum class PackageOperationType
     {
-        None,
+        Search,
         Install,
         Upgrade,
         Uninstall,
+        Download,
     };
 
     struct OrchestratorQueueItem
@@ -77,6 +78,7 @@ namespace AppInstaller::CLI::Execution
         bool IsComplete() const { return m_commands.empty(); }
         bool IsApplicableForInstallingSource() const { return m_operationType == PackageOperationType::Install || m_operationType == PackageOperationType::Upgrade; }
         PackageOperationType GetPackageOperationType() const { return m_operationType; }
+        std::string_view GetItemCommandName() const;
 
     private:
         OrchestratorQueueItemState m_state = OrchestratorQueueItemState::NotQueued;
@@ -86,7 +88,7 @@ namespace AppInstaller::CLI::Execution
         std::deque<std::unique_ptr<Command>> m_commands;
         bool m_isOnFirstCommand = true;
         OrchestratorQueue* m_currentQueue = nullptr;
-        PackageOperationType m_operationType = PackageOperationType::None;
+        PackageOperationType m_operationType;
     };
 
     struct OrchestratorQueueItemFactory
@@ -97,6 +99,8 @@ namespace AppInstaller::CLI::Execution
         static std::unique_ptr<OrchestratorQueueItem> CreateItemForUninstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
         // Create queue item for finding existing entry from the orchestrator queue
         static std::unique_ptr<OrchestratorQueueItem> CreateItemForSearch(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
+        // Create queue item for download
+        static std::unique_ptr<OrchestratorQueueItem> CreateItemForDownload(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context);
     };
 
     struct ContextOrchestrator

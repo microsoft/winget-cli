@@ -1,0 +1,28 @@
+PackageIdentifier: AppInstallerTest.RebootRequired
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: TestRebootRequired
+ShortDescription: Emulates an installer that requires a reboot to finish.
+Publisher: Microsoft Corporation
+License: Test
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    InstallerSwitches:
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+    ExpectedReturnCodes:
+      - InstallerReturnCode: 9
+        ReturnResponse: rebootRequiredToFinish
+        ReturnResponseUrl: https://DefaultReturnResponseUrl.com
+      - InstallerReturnCode: 10
+        ReturnResponse: rebootRequiredForInstall
+        ReturnResponseUrl: https://DefaultReturnResponseUrl.com
+ManifestType: singleton
+ManifestVersion: 1.6.0

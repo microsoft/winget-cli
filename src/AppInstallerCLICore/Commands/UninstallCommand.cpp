@@ -5,34 +5,39 @@
 #include "Workflows/UninstallFlow.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/MultiQueryFlow.h"
 #include "Resources.h"
-
-using AppInstaller::CLI::Execution::Args;
-using AppInstaller::CLI::Workflow::ExecutionStage;
 
 namespace AppInstaller::CLI
 {
+    using AppInstaller::CLI::Execution::Args;
+    using namespace AppInstaller::CLI::Workflow;
+
     std::vector<Argument> UninstallCommand::GetArguments() const
     {
         return
         {
-            Argument::ForType(Args::Type::Query),
+            Argument::ForType(Args::Type::MultiQuery),
             Argument::ForType(Args::Type::Manifest),
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
             Argument::ForType(Args::Type::Moniker),
             Argument::ForType(Args::Type::ProductCode),
-            Argument::ForType(Args::Type::Version),
+            Argument::ForType(Args::Type::TargetVersion),
+            Argument::ForType(Args::Type::AllVersions),
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::Exact),
+            Argument{ Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
-            Argument::ForType(Args::Type::HashOverride), // TODO: Replace with proper name when behavior changes.
+            Argument::ForType(Args::Type::Force),
             Argument::ForType(Args::Type::Purge),
             Argument::ForType(Args::Type::Preserve),
             Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::CustomHeader),
+            Argument::ForType(Args::Type::AuthenticationMode),
+            Argument::ForType(Args::Type::AuthenticationAccount),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
         };
     }
@@ -62,7 +67,7 @@ namespace AppInstaller::CLI
 
         switch (valueType)
         {
-        case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
             context <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForManyCompletion <<
@@ -71,7 +76,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Id:
         case Execution::Args::Type::Name:
         case Execution::Args::Type::Moniker:
-        case Execution::Args::Type::Version:
+        case Execution::Args::Type::TargetVersion:
         case Execution::Args::Type::Channel:
         case Execution::Args::Type::Source:
         case Execution::Args::Type::ProductCode:
@@ -81,33 +86,14 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string UninstallCommand::HelpLink() const
+    Utility::LocIndView UninstallCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-uninstall";
+        return "https://aka.ms/winget-command-uninstall"_liv;
     }
 
     void UninstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        Argument::ValidatePackageSelectionArgumentSupplied(execArgs);
-
-        if (execArgs.Contains(Execution::Args::Type::Manifest) &&
-            (execArgs.Contains(Execution::Args::Type::Query) ||
-             execArgs.Contains(Execution::Args::Type::Id) ||
-             execArgs.Contains(Execution::Args::Type::Name) ||
-             execArgs.Contains(Execution::Args::Type::Moniker) ||
-             execArgs.Contains(Execution::Args::Type::ProductCode) ||
-             execArgs.Contains(Execution::Args::Type::Version) ||
-             execArgs.Contains(Execution::Args::Type::Channel) ||
-             execArgs.Contains(Execution::Args::Type::Source) ||
-             execArgs.Contains(Execution::Args::Type::Exact)))
-        {
-            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided, "");
-        }
-
-        if (execArgs.Contains(Execution::Args::Type::Purge) && execArgs.Contains(Execution::Args::Type::Preserve))
-        {
-            throw CommandException(Resource::String::BothPurgeAndPreserveFlagsProvided, "");
-        }
+        Argument::ValidateCommonArguments(execArgs);
     }
 
     void UninstallCommand::ExecuteInternal(Execution::Context& context) const
@@ -118,7 +104,7 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));
 
         // find the uninstaller
         if (context.Args.Contains(Execution::Args::Type::Manifest))
@@ -126,21 +112,28 @@ namespace AppInstaller::CLI
             // --manifest case where new manifest is provided
             context <<
                 Workflow::GetManifestFromArg <<
-                Workflow::ReportManifestIdentity <<
                 Workflow::SearchSourceUsingManifest <<
-                Workflow::EnsureOneMatchFromSearchResult(true);
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Uninstall) <<
+                Workflow::UninstallSinglePackage;
         }
         else
         {
-            // search for a single package to uninstall
-            context <<
-                Workflow::SearchSourceForSingle <<
-                Workflow::HandleSearchResultFailures <<
-                Workflow::EnsureOneMatchFromSearchResult(true) <<
-                Workflow::ReportPackageIdentity;
+            // search for specific packages to uninstall
+            if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
+            {
+                context <<
+                    Workflow::SearchSourceForSingle <<
+                    Workflow::HandleSearchResultFailures <<
+                    Workflow::EnsureOneMatchFromSearchResult(OperationType::Uninstall) <<
+                    Workflow::UninstallSinglePackage;
+            }
+            else
+            {
+                context <<
+                    Workflow::GetMultiSearchRequests <<
+                    Workflow::SearchSubContextsForSingle(OperationType::Uninstall) <<
+                    Workflow::UninstallMultiplePackages;
+            }
         }
-
-        context <<
-            Workflow::UninstallSinglePackage;
     }
 }

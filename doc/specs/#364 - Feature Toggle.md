@@ -71,7 +71,7 @@ This should have no direct impact on accessibility.
 
 ### Security
 
-There should be no security impact directly, although we must remember that any medium IL process will be able to enable any feature by writing to the settings file. But any experimental feature should be created with the intention of becoming released, and so should have it's own security consideration.
+There should be no security impact directly, although we must remember that any medium IL process will be able to enable any feature by writing to the settings file. But any experimental feature should be created with the intention of becoming released, and so should have its own security consideration.
 
 ### Reliability
 

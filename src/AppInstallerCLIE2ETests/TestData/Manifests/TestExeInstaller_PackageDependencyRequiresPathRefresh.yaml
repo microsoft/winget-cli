@@ -1,0 +1,23 @@
+PackageIdentifier: AppInstallerTest.PackageDependencyRequiresPathRefresh
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: TestPackageDependencyWithPathRefresh
+ShortDescription: Installs a portable package dependency that modifies the PATH environment variable during installation, which is then invoked by the main installer.
+Publisher: AppInstallerTest
+License: testLicense
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    InstallerSwitches:
+      Custom: /AliasToExecute testCommand /AliasArguments /NoOperation
+      Silent: /exesilent
+      SilentWithProgress: /exeswp
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+    Dependencies:
+      PackageDependencies:
+      - PackageIdentifier: AppInstallerTest.TestPortableExeWithCommand
+ManifestType: singleton
+ManifestVersion: 1.4.0

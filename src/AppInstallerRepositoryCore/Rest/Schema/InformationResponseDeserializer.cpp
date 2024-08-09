@@ -4,6 +4,7 @@
 #include "Rest/Schema/IRestClient.h"
 #include <winget/JsonUtil.h>
 #include "Rest/Schema/CommonRestConstants.h"
+#include "AuthenticationInfoParser.h"
 #include "InformationResponseDeserializer.h"
 
 namespace AppInstaller::Repository::Rest::Schema
@@ -122,6 +123,8 @@ namespace AppInstaller::Repository::Rest::Schema
             info.UnsupportedPackageMatchFields = JSON::GetRawStringArrayFromJsonNode(dataValue, JSON::GetUtilityString(UnsupportedPackageMatchFields));
             info.RequiredQueryParameters = JSON::GetRawStringArrayFromJsonNode(dataValue, JSON::GetUtilityString(RequiredQueryParameters));
             info.UnsupportedQueryParameters = JSON::GetRawStringArrayFromJsonNode(dataValue, JSON::GetUtilityString(UnsupportedQueryParameters));
+
+            info.Authentication = ParseAuthenticationInfo(dataValue);
 
             return info;
         }

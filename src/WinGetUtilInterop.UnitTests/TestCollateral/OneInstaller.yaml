@@ -12,7 +12,7 @@ Switches:
   InstallLocation: /d=<INSTALLPATH>
 Installers:
   - Arch: x64
-    Url: https://contosa.net/publiccontainer/contosainstaller64.exe
+    Url: https://contoso.com/publiccontainer/contosoinstaller64.exe
     Sha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C83
     Language: en-US
     Scope: user

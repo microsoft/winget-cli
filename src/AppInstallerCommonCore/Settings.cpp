@@ -231,7 +231,7 @@ namespace AppInstaller::Settings
             constexpr static std::string_view NodeName_Sha256 = "SHA256"sv;
 
             SecureSettingsContainer(std::unique_ptr<ISettingsContainer>&& container, const std::string_view& name) :
-                ExchangeSettingsContainer(std::move(container), name), m_secure(GetPathTo(PathName::SecureSettings), name) {}
+                ExchangeSettingsContainer(std::move(container), name), m_secure(GetPathTo(PathName::SecureSettingsForRead), name) {}
 
         private:
             struct VerificationData
@@ -316,6 +316,9 @@ namespace AppInstaller::Settings
 
             bool Set(std::string_view value) override
             {
+                // Force the creation of the secure settings location with appropriate ACLs
+                GetPathTo(PathName::SecureSettingsForWrite);
+
                 bool exchangeResult = ExchangeSettingsContainer::Set(value);
 
                 if (exchangeResult)

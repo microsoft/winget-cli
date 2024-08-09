@@ -8,9 +8,10 @@
 #include <AppInstallerVersions.h>
 #include <AppInstallerErrors.h>
 #include <winget/ManifestValidation.h>
-#include <Public/AppInstallerSHA256.h>
+#include <AppInstallerSHA256.h>
 
 using namespace TestCommon;
+using namespace AppInstaller::Http;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
@@ -56,7 +57,6 @@ namespace
     {
         utility::string_t GetSampleManifest_AllFields()
         {
-            utility::string_t id = L"Foo.Bar";
             return _XPLATSTR(
                 R"delimiter(
         {
@@ -183,7 +183,7 @@ namespace
         })delimiter");
         }
 
-        void VerifyLocalizations_AllFields(Manifest manifest)
+        void VerifyLocalizations_AllFields(const Manifest& manifest)
         {
             REQUIRE(manifest.DefaultLocalization.Locale == "en-US");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Publisher>() == "Foo");
@@ -226,7 +226,7 @@ namespace
             REQUIRE(frenchLocalization.Get<Localization::Tags>().at(2) == "BarFr");
         }
 
-        void VerifyInstallers_AllFields(Manifest manifest)
+        void VerifyInstallers_AllFields(const Manifest& manifest)
         {
             REQUIRE(manifest.Installers.size() == 1);
 
@@ -238,7 +238,7 @@ namespace
             REQUIRE(actualInstaller.Platform.size() == 1);
             REQUIRE(actualInstaller.Platform[0] == PlatformEnum::Desktop);
             REQUIRE(actualInstaller.MinOSVersion == "1078");
-            REQUIRE(actualInstaller.InstallerType == InstallerTypeEnum::Msix);
+            REQUIRE(actualInstaller.BaseInstallerType == InstallerTypeEnum::Msix);
             REQUIRE(actualInstaller.Scope == ScopeEnum::User);
             REQUIRE(actualInstaller.SignatureSha256 == AppInstaller::Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
             REQUIRE(actualInstaller.InstallModes.size() == 1);
@@ -280,7 +280,7 @@ TEST_CASE("Search_GoodResponse", "[RestSource][Interface_1_0]")
               "Publisher": "git",
               "Versions": [
                 {   "PackageVersion": "1.0.0" },
-                {   "PackageVersion": "2.0.0"}]
+                {   "PackageVersion": "2.0.0" }]
             }]
         })delimiter");
 
@@ -395,7 +395,7 @@ TEST_CASE("Search_BadResponse_NotFoundCode", "[RestSource][Interface_1_0]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
     Interface v1{ TestRestUriString, std::move(helper) };
-    REQUIRE_THROWS_HR(v1.Search({}), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
+    REQUIRE_THROWS_HR(v1.Search({}), APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND);
 }
 
 TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource][Interface_1_0]")
@@ -425,7 +425,7 @@ TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource][Interface_1_0]")
     REQUIRE(manifest.Installers.size() == 1);
     REQUIRE(manifest.Installers[0].Arch == Architecture::X64);
     REQUIRE(manifest.Installers[0].Sha256 == AppInstaller::Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
-    REQUIRE(manifest.Installers[0].InstallerType == InstallerTypeEnum::Exe);
+    REQUIRE(manifest.Installers[0].BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(manifest.Installers[0].Url == "https://installer.example.com/foobar.exe");
 }
 
@@ -436,7 +436,7 @@ TEST_CASE("Search_Optimized_NoResponse_NotFoundCode", "[RestSource][Interface_1_
     PackageMatchFilter filter{ PackageMatchField::Id, MatchType::Exact, "Foo" };
     request.Filters.emplace_back(std::move(filter));
     Interface v1{ TestRestUriString, std::move(helper) };
-    REQUIRE_THROWS_HR(v1.Search(request), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
+    REQUIRE_THROWS_HR(v1.Search(request), APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND);
 }
 
 TEST_CASE("GetManifests_GoodResponse", "[RestSource][Interface_1_0]")
@@ -454,6 +454,7 @@ TEST_CASE("GetManifests_GoodResponse", "[RestSource][Interface_1_0]")
     REQUIRE(manifest.Version == "3.0.0abc");
     REQUIRE(manifest.Moniker == "FooBarMoniker");
     REQUIRE(manifest.Channel == "");
+    REQUIRE(manifest.ManifestVersion == AppInstaller::Manifest::ManifestVer{ "1.0.0" });
     sampleManifest.VerifyLocalizations_AllFields(manifest);
     sampleManifest.VerifyInstallers_AllFields(manifest);
 }
@@ -481,7 +482,7 @@ TEST_CASE("GetManifests_NotFoundCode", "[RestSource][Interface_1_0]")
 {
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::NotFound) };
     Interface v1{ TestRestUriString, std::move(helper) };
-    REQUIRE_THROWS_HR(v1.GetManifests("Foo.Bar"), APPINSTALLER_CLI_ERROR_RESTSOURCE_ENDPOINT_NOT_FOUND);
+    REQUIRE_THROWS_HR(v1.GetManifests("Foo.Bar"), APPINSTALLER_CLI_ERROR_RESTAPI_ENDPOINT_NOT_FOUND);
 }
 
 TEST_CASE("GetManifests_GoodResponse_UnknownInstaller", "[RestSource][Interface_1_0]")
@@ -518,8 +519,8 @@ TEST_CASE("GetManifests_GoodResponse_UnknownInstaller", "[RestSource][Interface_
     REQUIRE(manifests.size() == 1);
 
     // Verify manifest is populated and manifest validation passed
-    Manifest manifest = manifests[0];
+    Manifest& manifest = manifests[0];
     REQUIRE(manifest.Installers.size() == 1);
-    REQUIRE(manifest.Installers.at(0).InstallerType == InstallerTypeEnum::Unknown);
+    REQUIRE(manifest.Installers.at(0).BaseInstallerType == InstallerTypeEnum::Unknown);
     REQUIRE(manifest.Installers.at(0).ProductId.empty());
 }

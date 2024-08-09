@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <!--Multi-file manifest which exposes the components in both DLLs.-->
+  <assemblyIdentity
+      type="win32"
+      name="RegFreeWinrtInprocComponents.merged"
+      version="1.0.0.0" />
+
+  <file name="RegFreeWinrtInprocComponents.1.dll">
+    <activatableClass
+        name="RegFreeWinrt.1.threading_both"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+    <activatableClass
+        name="RegFreeWinrt.1.threading_mta"
+        threadingModel="mta"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+    <activatableClass
+        name="RegFreeWinrt.1.threading_sta"
+        threadingModel="sta"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+    <activatableClass
+        name="RegFreeWinrt.SharedName.threading_both"
+        threadingModel="both"
+        xmlns="urn:schemas-microsoft-com:winrt.v1" />
+  </file>
+</assembly>

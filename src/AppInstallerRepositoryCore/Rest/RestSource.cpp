@@ -30,9 +30,11 @@ namespace AppInstaller::Repository::Rest
         };
 
         // The IPackage implementation for Available packages from RestSource.
-        struct AvailablePackage : public std::enable_shared_from_this<AvailablePackage>, public SourceReference, public IPackage
+        struct RestPackage : public std::enable_shared_from_this<RestPackage>, public SourceReference, public IPackage, public ICompositePackage
         {
-            AvailablePackage(const std::shared_ptr<RestSource>& source, IRestClient::Package&& package) :
+            static constexpr IPackageType PackageType = IPackageType::RestPackage;
+
+            RestPackage(const std::shared_ptr<RestSource>& source, IRestClient::Package&& package) :
                 SourceReference(source), m_package(std::move(package))
             {
                 SortVersionsInternal();
@@ -52,12 +54,7 @@ namespace AppInstaller::Repository::Rest
                 }
             }
 
-            std::shared_ptr<IPackageVersion> GetInstalledVersion() const override
-            {
-                return {};
-            }
-
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            std::vector<PackageVersionKey> GetVersionKeys() const override
             {
                 std::shared_ptr<const RestSource> source = GetReferenceSource();
                 std::scoped_lock versionsLock{ m_packageVersionsLock };
@@ -72,30 +69,51 @@ namespace AppInstaller::Repository::Rest
                 return result;
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            std::shared_ptr<IPackageVersion> GetLatestVersion() const override
             {
                 std::scoped_lock versionsLock{ m_packageVersionsLock };
                 return GetLatestVersionInternal();
             }
 
-            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override;
+            std::shared_ptr<IPackageVersion> GetVersion(const PackageVersionKey& versionKey) const override;
 
-            bool IsUpdateAvailable() const override
+            Source GetSource() const override
             {
-                return false;
+                return Source{ GetReferenceSource() };
             }
 
             bool IsSame(const IPackage* other) const override
             {
-                const AvailablePackage* otherAvailablePackage = dynamic_cast<const AvailablePackage*>(other);
+                const RestPackage* otherPackage = PackageCast<const RestPackage*>(other);
 
-                if (otherAvailablePackage)
+                if (otherPackage)
                 {
-                    return GetReferenceSource()->IsSame(otherAvailablePackage->GetReferenceSource().get()) &&
-                        Utility::CaseInsensitiveEquals(m_package.PackageInformation.PackageIdentifier, otherAvailablePackage->m_package.PackageInformation.PackageIdentifier);
+                    return GetReferenceSource()->IsSame(otherPackage->GetReferenceSource().get()) &&
+                        Utility::CaseInsensitiveEquals(m_package.PackageInformation.PackageIdentifier, otherPackage->m_package.PackageInformation.PackageIdentifier);
                 }
 
                 return false;
+            }
+
+            const void* CastTo(IPackageType type) const override
+            {
+                if (type == PackageType)
+                {
+                    return this;
+                }
+
+                return nullptr;
+            }
+
+            // Inherited via ICompositePackage
+            std::shared_ptr<IPackage> GetInstalled() override
+            {
+                return {};
+            }
+
+            std::vector<std::shared_ptr<IPackage>> GetAvailable() override
+            {
+                return std::vector<std::shared_ptr<IPackage>>{ shared_from_this() };
             }
 
             // Helpers for PackageVersion interop
@@ -154,9 +172,9 @@ namespace AppInstaller::Repository::Rest
             }
 
         private:
-            std::shared_ptr<AvailablePackage> NonConstSharedFromThis() const
+            std::shared_ptr<RestPackage> NonConstSharedFromThis() const
             {
-                return const_cast<AvailablePackage*>(this)->shared_from_this();
+                return const_cast<RestPackage*>(this)->shared_from_this();
             }
 
             // Must hold m_packageVersionsLock while calling this
@@ -181,7 +199,7 @@ namespace AppInstaller::Repository::Rest
         struct PackageVersion : public SourceReference, public IPackageVersion
         {
             PackageVersion(
-                const std::shared_ptr<RestSource>& source, std::shared_ptr<AvailablePackage>&& package, IRestClient::VersionInfo versionInfo)
+                const std::shared_ptr<RestSource>& source, std::shared_ptr<RestPackage>&& package, IRestClient::VersionInfo versionInfo)
                 : SourceReference(source), m_package(std::move(package)), m_versionInfo(std::move(versionInfo)) {}
 
             // Inherited via IPackageVersion
@@ -204,7 +222,11 @@ namespace AppInstaller::Repository::Rest
                 case PackageVersionProperty::Publisher:
                     return Utility::LocIndString{ m_package->PackageInfo().Publisher };
                 case PackageVersionProperty::ArpMinVersion:
-                    if (m_versionInfo.Manifest)
+                    if (!m_versionInfo.ArpVersions.empty())
+                    {
+                        return Utility::LocIndString{ m_versionInfo.ArpVersions.front().ToString() };
+                    }
+                    else if (m_versionInfo.Manifest)
                     {
                         auto arpVersionRange = m_versionInfo.Manifest->GetArpVersionRange();
                         return arpVersionRange.IsEmpty() ? Utility::LocIndString{} : Utility::LocIndString{ arpVersionRange.GetMinVersion().ToString() };
@@ -214,7 +236,11 @@ namespace AppInstaller::Repository::Rest
                         return {};
                     }
                 case PackageVersionProperty::ArpMaxVersion:
-                    if (m_versionInfo.Manifest)
+                    if (!m_versionInfo.ArpVersions.empty())
+                    {
+                        return Utility::LocIndString{ m_versionInfo.ArpVersions.back().ToString() };
+                    }
+                    else if (m_versionInfo.Manifest)
                     {
                         auto arpVersionRange = m_versionInfo.Manifest->GetArpVersionRange();
                         return arpVersionRange.IsEmpty() ? Utility::LocIndString{} : Utility::LocIndString{ arpVersionRange.GetMaxVersion().ToString() };
@@ -245,10 +271,19 @@ namespace AppInstaller::Repository::Rest
                         result.emplace_back(Utility::LocIndString{ productCode });
                     }
                     break;
+                case PackageVersionMultiProperty::UpgradeCode:
+                    for (std::string upgradeCode : m_versionInfo.UpgradeCodes)
+                    {
+                        result.emplace_back(Utility::LocIndString{ upgradeCode });
+                    }
+                    break;
                 case PackageVersionMultiProperty::Name:
                     if (m_versionInfo.Manifest)
                     {
-                        BuildPackageVersionMultiPropertyWithFallback<AppInstaller::Manifest::Localization::PackageName>(result);
+                        for (auto name : m_versionInfo.Manifest->GetPackageNames())
+                        {
+                            result.emplace_back(std::move(name));
+                        }
                     }
                     else
                     {
@@ -258,7 +293,10 @@ namespace AppInstaller::Repository::Rest
                 case PackageVersionMultiProperty::Publisher:
                     if (m_versionInfo.Manifest)
                     {
-                        BuildPackageVersionMultiPropertyWithFallback<AppInstaller::Manifest::Localization::Publisher>(result);
+                        for (auto publisher : m_versionInfo.Manifest->GetPublishers())
+                        {
+                            result.emplace_back(std::move(publisher));
+                        }
                     }
                     else
                     {
@@ -320,29 +358,11 @@ namespace AppInstaller::Repository::Rest
             }
 
         private:
-            template<AppInstaller::Manifest::Localization Field>
-            void BuildPackageVersionMultiPropertyWithFallback(std::vector<Utility::LocIndString>& result) const
-            {
-                result.emplace_back(m_versionInfo.Manifest->DefaultLocalization.Get<Field>());
-                for (const auto& loc : m_versionInfo.Manifest->Localizations)
-                {
-                    auto f = loc.Get<Field>();
-                    if (f.empty())
-                    {
-                        result.emplace_back(loc.Get<Field>());
-                    }
-                    else
-                    {
-                        result.emplace_back(std::move(f));
-                    }
-                }
-            }
-
-            std::shared_ptr<AvailablePackage> m_package;
+            std::shared_ptr<RestPackage> m_package;
             IRestClient::VersionInfo m_versionInfo;
         };
 
-        std::shared_ptr<IPackageVersion> AvailablePackage::GetAvailableVersion(const PackageVersionKey& versionKey) const
+        std::shared_ptr<IPackageVersion> RestPackage::GetVersion(const PackageVersionKey& versionKey) const
         {
             std::shared_ptr<RestSource> source = GetReferenceSource();
             std::scoped_lock versionsLock{ m_packageVersionsLock };
@@ -396,7 +416,7 @@ namespace AppInstaller::Repository::Rest
             return packageVersion;
         }
 
-        std::shared_ptr<IPackageVersion> AvailablePackage::GetLatestVersionInternal() const
+        std::shared_ptr<IPackageVersion> RestPackage::GetLatestVersionInternal() const
         {
             return std::make_shared<PackageVersion>(GetReferenceSource(), NonConstSharedFromThis(), m_package.Versions.front());
         }
@@ -422,6 +442,17 @@ namespace AppInstaller::Repository::Rest
         return m_information;
     }
 
+    bool RestSource::QueryFeatureFlag(SourceFeatureFlag flag) const
+    {
+        switch (flag)
+        {
+        case SourceFeatureFlag::ManifestMayContainAdditionalSystemReferenceStrings:
+            return true;
+        }
+
+        return false;
+    }
+
     SearchResult RestSource::Search(const SearchRequest& request) const
     {
         IRestClient::SearchResult results = m_restClient.Search(request);
@@ -430,7 +461,7 @@ namespace AppInstaller::Repository::Rest
         std::shared_ptr<RestSource> sharedThis = NonConstSharedFromThis();
         for (auto& result : results.Matches)
         {
-            std::shared_ptr<IPackage> package = std::make_shared<AvailablePackage>(sharedThis, std::move(result));
+            std::shared_ptr<ICompositePackage> package = std::make_shared<RestPackage>(sharedThis, std::move(result));
 
             // TODO: Improve to use Package match filter to return relevant search results.
             PackageMatchFilter packageFilter{ {}, {}, {} };
@@ -441,6 +472,16 @@ namespace AppInstaller::Repository::Rest
         searchResult.Truncated = results.Truncated;
 
         return searchResult;
+    }
+
+    void* RestSource::CastTo(ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
     }
 
     const RestClient& RestSource::GetRestClient() const

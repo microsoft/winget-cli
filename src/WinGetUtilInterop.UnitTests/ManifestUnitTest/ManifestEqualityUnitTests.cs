@@ -1,10 +1,10 @@
-﻿// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="ManifestEqualityUnitTests.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGetUtil.UnitTests.ManifestUnitTest
+namespace WinGetUtilInterop.UnitTests.ManifestUnitTest
 {
     using System.IO;
     using System.Reflection;

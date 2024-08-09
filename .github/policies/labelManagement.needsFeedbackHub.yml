@@ -1,0 +1,57 @@
+id: labelManagement.needsFeedbackHub
+name: GitOps.PullRequestIssueManagement
+description: Handlers when feedback hub is needed
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: >-
+          When the label "Needs-Feedback-Hub" is added to an issue or a repo admin comments /feedback
+          * Add a reply notifying the issue author
+          * Assign to the author
+          * Label with Needs-Author-Feedback
+          * Remove Needs-Feedback-Hub label
+        if:
+          - or:
+              # Trigger by label add
+              - and:
+                  - payloadType: Issues
+                  - labelAdded:
+                      label: Needs-Feedback-Hub
+              # Trigger by comment
+              - and:
+                  - payloadType: Issue_Comment
+                  - commentContains:
+                      pattern: '\/feedback'
+                      isRegex: True
+                  - or:
+                      - activitySenderHasPermission:
+                          permission: Admin
+                      - activitySenderHasPermission:
+                          permission: Write
+        then:
+          - addReply:
+              reply: >-
+                Hello @${issueAuthor},
+
+
+                Please send us feedback with the Feedback Hub [Windows]+[f] with this issue and paste the link here so we can more easily find your crash information on the back end.
+
+                Please use "Apps" and "Windows Package Manager" for the Category.
+
+
+                The link on the bottom of the feedback report will provide the URL to paste in this Issue to share with us.
+
+
+                Template: msftbot/feedbackHub
+          - assignTo:
+              author: True
+          - addLabel:
+              label: Needs-Author-Feedback
+          - removeLabel:
+              label: Needs-Feedback-Hub
+onFailure:
+onSuccess:

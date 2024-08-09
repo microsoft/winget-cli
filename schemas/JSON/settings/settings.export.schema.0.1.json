@@ -1,0 +1,61 @@
+{
+  "$id": "https://aka.ms/winget-settings-export.schema.json",
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "title": "Microsoft's Windows Package Manager Settings Export Schema",
+  "definitions": {
+    "AdminSettings": {
+      "description": "Administrator settings",
+      "type": "object",
+      "properties": {
+        "BypassCertificatePinningForMicrosoftStore": {
+          "description": "Bypass Certificate Pinning For Microsoft Store",
+          "type": "boolean",
+          "default": false
+        },
+        "LocalManifestFiles": {
+          "description": "Enable installing local manifests.",
+          "type": "boolean",
+          "default": false
+        },
+        "InstallerHashOverride": {
+          "description": "Enable overriding installer hash validation.",
+          "type": "boolean",
+          "default": false
+        },
+        "LocalArchiveMalwareScanOverride": {
+          "description": "Enable overriding malware scan for local archives.",
+          "type": "boolean",
+          "default": false
+        },
+        "ProxyCommandLineOptions": {
+          "description": "Enable using command line options for proxy.",
+          "type": "boolean",
+          "default": false
+        },
+        "DefaultProxy": {
+          "description": "Default proxy.",
+          "type": "string"
+        }
+    },
+    "UserSettingsFile": {
+      "description": "Path for the winget's user settings file.",
+      "type": "string",
+      "maxLength": 32767
+    }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "adminSettings": { "$ref": "#/definitions/AdminSettings" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "userSettingsFile": { "$ref": "#/definitions/UserSettingsFile" }
+      },
+      "additionalItems": true
+    }
+  ],
+  "additionalProperties": true
+}

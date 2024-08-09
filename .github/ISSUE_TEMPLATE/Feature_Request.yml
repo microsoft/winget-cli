@@ -1,6 +1,6 @@
-name: "Feature Request/Idea 🚀"
-description: Suggest a new feature or improvement (this does not mean you have to implement it)
-labels: ["Issue-Feature"]
+name: '🚀 Feature Request / Idea'
+description: Suggest a new feature or improvement (this does not mean you have to implement it).
+labels: ['Issue-Feature']
 body:
   - type: textarea
     attributes:
@@ -13,6 +13,6 @@ body:
   - type: textarea
     attributes:
       label: Proposed technical implementation details
-      placeholder: A clear and concise description of what you want to happen
+      placeholder: A clear and concise description of what you want to happen.
     validations:
       required: false

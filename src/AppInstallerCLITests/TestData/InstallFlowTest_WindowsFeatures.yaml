@@ -1,0 +1,23 @@
+PackageIdentifier: AppInstallerCliTest.WindowsFeatures
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test Installer
+ShortDescription: Installs exe installer with valid Windows Features dependencies
+Publisher: Microsoft Corporation
+License: Test
+Installers:
+    - Architecture: x86
+      InstallerUrl: https://ThisIsNotUsed
+      InstallerType: exe
+      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+      InstallerSwitches:
+        Custom: /custom /scope=machine
+        SilentWithProgress: /silentwithprogress
+        Silent: /silence
+        Update: /update
+      Dependencies:
+        WindowsFeatures:
+        - testFeature1
+        - testFeature2
+ManifestType: singleton
+ManifestVersion: 1.4.0

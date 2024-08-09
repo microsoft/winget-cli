@@ -39,14 +39,16 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Dependencies
     void GetDependenciesInfoForUninstall(Execution::Context& context);
 
-    // Builds the dependency graph.
+    // Builds the dependency graph and creates the sub contexts for each package dependency.
     // Required Args: None
     // Inputs: Manifest, Installer and DependencySource
     // Outputs: Dependencies
-    struct ManagePackageDependencies : public WorkflowTask
+    struct CreateDependencySubContexts : public WorkflowTask
     {
-        ManagePackageDependencies(AppInstaller::StringResource::StringId dependencyReportMessage) :
-            WorkflowTask("ReportDependencies"), m_dependencyReportMessage(dependencyReportMessage) {}
+        CreateDependencySubContexts(
+            AppInstaller::StringResource::StringId dependencyReportMessage) :
+            WorkflowTask("CreateDependencySubContexts"),
+            m_dependencyReportMessage(dependencyReportMessage) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -59,4 +61,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: PackageVersion, Manifest
     // Outputs: DependencySource
     void OpenDependencySource(Execution::Context& context);
+
+    // Enables the Windows Feature dependencies.
+    // Required Args: None
+    // Inputs: Manifest, Installer
+    // Outputs: None
+    void EnableWindowsFeaturesDependencies(Execution::Context& context);
 }

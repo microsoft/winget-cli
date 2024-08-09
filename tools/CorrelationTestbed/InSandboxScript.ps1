@@ -4,7 +4,9 @@ Param(
   [String] $PackageIdentifier,
   [String] $SourceName,
   [String] $OutputPath,
-  [Switch] $UseDev
+  [Switch] $UseDev,
+  [Switch] $MetadataCollection,
+  [String] $System32Path
 )
 
 function Get-ARPTable {
@@ -60,7 +62,9 @@ if ($UseDev)
 }
 else
 {
-  Add-AppxPackage -Path $DesktopAppInstallerPath -DependencyPath $DesktopAppInstallerDependencyPath
+  Install-PackageProvider -Name NuGet -Force | Out-Null
+  Install-Module Microsoft.WinGet.Client -Force | Out-Null
+  Repair-WingetPackageManager -Latest
 }
 
 $originalARP = Get-ARPTable
@@ -73,15 +77,21 @@ Write-Host @"
 
 $installAndCorrelateOutPath = Join-Path $OutputPath "install_and_correlate.json"
 
-$installAndCorrelationExpression = Join-Path $desktopPath "InstallAndCheckCorrelation\InstallAndCheckCorrelation.exe"
-$installAndCorrelationExpression = -join($installAndCorrelationExpression, ' -id "', $PackageIdentifier, '" -src "', $SourceName, '" -out "', $installAndCorrelateOutPath, '"')
+$installAndCheckCorrelationExe = Join-Path $desktopPath "InstallAndCheckCorrelation\InstallAndCheckCorrelation.exe"
+$installAndCheckCorrelationArgs = @('-id', $PackageIdentifier, '-src', $SourceName, '-out', $installAndCorrelateOutPath)
 
 if ($UseDev)
 {
-  $installAndCorrelationExpression = -join($installAndCorrelationExpression, ' -dev')
+  $installAndCheckCorrelationArgs += '-dev'
 }
 
-Invoke-Expression $installAndCorrelationExpression
+if ($MetadataCollection)
+{
+  $wingetUtilPath = Join-Path $PSScriptRoot "WinGetUtil.dll"
+  $installAndCheckCorrelationArgs += ('-meta', $wingetUtilPath, '-sys32', $System32Path)
+}
+
+& $installAndCheckCorrelationExe $installAndCheckCorrelationArgs
 
 Write-Host @"
 

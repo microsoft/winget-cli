@@ -1,0 +1,22 @@
+PackageIdentifier: AppInstallerTest.PathVariableRefresh
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: TestPathVariableRefresh
+ShortDescription: Emulates an installer that invokes a command that only becomes available once the PATH environment variable is refreshed.
+Publisher: Microsoft Corporation
+License: Test
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    InstallerSwitches:
+      Custom: /AliasToExecute testCommand.exe /AliasArguments /NoOperation
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+ManifestType: singleton
+ManifestVersion: 1.4.0

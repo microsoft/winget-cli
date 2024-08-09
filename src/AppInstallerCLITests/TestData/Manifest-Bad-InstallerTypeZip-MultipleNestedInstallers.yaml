@@ -1,0 +1,23 @@
+# Bad manifest. Installer type zip should have exactly one NestedInstaller specified.
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test Installer
+Publisher: Microsoft Corporation
+Moniker: AICLITestExe
+License: Test
+ShortDescription: Test installer for zip with too many nestedInstallers specified.
+Scope: User
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://ThisIsNotUsed
+    InstallerType: zip
+    InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+    NestedInstallerType: msi
+    NestedInstallerFiles:
+      - RelativeFilePath: relativeFilePath1
+        PortableCommandAlias: portableCommandAlias1
+      - RelativeFilePath: relativeFilePath2
+        PortableCommandAlias: portableCommandAlias2
+ManifestType: singleton
+ManifestVersion: 1.4.0

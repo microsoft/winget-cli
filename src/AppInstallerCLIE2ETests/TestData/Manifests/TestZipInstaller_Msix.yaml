@@ -1,0 +1,18 @@
+PackageIdentifier: AppInstallerTest.TestZipInstallerWithMsix
+PackageVersion: 1.0.0.0
+PackageName: TestZipInstallerWithMsix
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for installing a zip with msix.
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestZipInstaller/AppInstallerTestZipInstaller.zip
+    InstallerType: zip
+    ProductCode: '{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}'
+    InstallerSha256: <ZIPHASH>
+    NestedInstallerType: msix
+    NestedInstallerFiles:
+      - RelativeFilePath: AppInstallerTestMsixInstaller.msix
+ManifestType: singleton
+ManifestVersion: 1.4.0

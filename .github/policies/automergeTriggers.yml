@@ -1,0 +1,31 @@
+id: automergeTriggers
+name: GitOps.PullRequestIssueManagement
+description: Handles enabling / disabling automerge
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: Enable Auto Merge when the "AutoMerge" label is present
+        if:
+          - payloadType: Pull_Request
+          - hasLabel:
+              label: AutoMerge
+        then:
+          - enableAutoMerge:
+              mergeMethod: Squash
+      - description: Disable Auto Merge when the "AutoMerge" label is not present
+        if:
+          - payloadType: Pull_Request
+          - or:
+              - labelRemoved:
+                  label: AutoMerge
+              - not:
+                  hasLabel:
+                    label: AutoMerge
+        then:
+          - disableAutoMerge
+onFailure:
+onSuccess:

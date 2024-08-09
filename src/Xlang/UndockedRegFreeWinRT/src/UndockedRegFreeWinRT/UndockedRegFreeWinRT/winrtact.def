@@ -1,0 +1,5 @@
+LIBRARY winrtact
+
+EXPORTS
+    winrtact_Initialize
+    WinGetServerManualActivation_CreateInstance

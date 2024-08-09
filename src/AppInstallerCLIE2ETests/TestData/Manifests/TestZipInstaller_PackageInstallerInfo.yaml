@@ -1,0 +1,21 @@
+# Test manifest for verifying the behavior of retrieving a PackageInstallerInfo COM object.
+PackageIdentifier: AppInstallerTest.PackageInstallerInfo
+PackageVersion: 1.0.0.0
+PackageName: TestPackageInstallerInfo
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for PackageInstallerInfo COM object.
+Installers:
+  - Architecture: x64
+    Scope: User
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestZipInstaller/AppInstallerTestZipInstaller.zip
+    InstallerType: zip
+    InstallerSha256: <EXEHASH>
+    NestedInstallerType: exe
+    NestedInstallerFiles:
+      - RelativeFilePath: AppInstallerTestExeInstaller.exe
+    ElevationRequirement: elevationRequired
+    InstallerLocale: en-US
+ManifestType: singleton
+ManifestVersion: 1.4.0

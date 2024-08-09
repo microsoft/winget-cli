@@ -13,7 +13,7 @@ For [#1287](https://github.com/microsoft/winget-cli/issues/1287)
 As a new step in the pursue of dependency management, the Windows Package Manager will take care of one of the four types of dependencies (Package) for most of the commands. The underlying logic of the code will prove useful when implementing the rest of the types and commands; since it will manage dependencies' graph building and validation, as well as the correct order of installation.
 
 ## Solution Design
-The Windows Package Manager will build the dependencies' graph and corroborate there's not a cyclic dependency, among other validations (depending on the command). 
+The Windows Package Manager will build the dependencies' graph and corroborate there's not a cyclic dependency, among other validations (depending on the command).
 
 ### Install:
 Install command will build the dependency graph at runtime, from installer information. It will report on the other three types of dependencies and manage package type installation/validation (for new/installed dependencies respectively).
@@ -21,7 +21,7 @@ As a best effort, in case a cyclic dependency exists, Windows Package Manager wi
 
 While building the graph, install command will verify:
 * Availability: the package declared as dependency will need to be an existing one.
-* Installed version: it will check for existing versions of the dependency and update if the minimum required version is bigger than the installed. 
+* Installed version: it will check for existing versions of the dependency and update if the minimum required version is bigger than the installed.
 * Version: minimum required version will need to be less or equal to the latest available one.
 
 Information will be shown about failures, existence or installation progress for each of the dependencies required.
@@ -34,9 +34,9 @@ Found Notepad++ [Notepad++.Notepad++]
 This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
 This package requires the following dependencies:
-  - Windows Feature: 
+  - Windows Feature:
       Hyper-V
-  - Package: 
+  - Package:
       Microsoft.WindowsTerminal
 Building package type dependencies' graph:
     No errors or cyclic dependencies found.
@@ -57,14 +57,14 @@ Import command will report all first level dependencies beforehand and after wil
 
 ```
 The packages found in this import have the following dependencies:
-  - Windows Feature: 
+  - Windows Feature:
       Hyper-V
       Containers
-  - Windows Libraries: 
+  - Windows Libraries:
       Microsoft.WinJS
-  - Package: 
+  - Package:
       Microsoft.WindowsTerminal
-  - External: 
+  - External:
       JDK-11.0.10
 Found  [Notepad++.Notepad++]
 This application is licensed to you by its owner.
@@ -94,9 +94,9 @@ Found Notepad++ [Notepad++.Notepad++]
 This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
 This package requires the following dependencies:
-  - Windows Feature: 
+  - Windows Feature:
       Hyper-V
-  - Package: 
+  - Package:
       Microsoft.WindowsTerminal
 Building package type dependencies' graph:
     No errors or cyclic dependencies found.

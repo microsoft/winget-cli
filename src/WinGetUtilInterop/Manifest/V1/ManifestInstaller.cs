@@ -1,12 +1,11 @@
-﻿// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------------
 // <copyright file="ManifestInstaller.cs" company="Microsoft Corporation">
-//     Copyright (c) Microsoft Corporation. All rights reserved.
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 namespace Microsoft.WinGetUtil.Models.V1
 {
-    using System;
     using System.Collections.Generic;
     using YamlDotNet.Serialization;
 
@@ -170,6 +169,41 @@ namespace Microsoft.WinGetUtil.Models.V1
         public List<InstallerExpectedReturnCode> ExpectedReturnCodes { get; set; }
 
         /// <summary>
+        /// Gets or sets the installation metadata.
+        /// </summary>
+        public InstallerInstallationMetadata InstallationMetadata { get; set; }
+
+        /// <summary>
+        /// Gets or sets the nested installer type.
+        /// </summary>
+        public string NestedInstallerType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the nested installer files.
+        /// </summary>
+        public List<InstallerNestedInstallerFile> NestedInstallerFiles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unsupported arguments.
+        /// </summary>
+        public List<string> UnsupportedArguments { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to display install warnings.
+        /// </summary>
+        public bool DisplayInstallWarnings { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the installer is prohibited from being downloaded for offline installation.
+        /// </summary>
+        public bool DownloadCommandProhibited { get; set; }
+
+        /// <summary>
+        /// Gets or sets the repair behavior.
+        /// </summary>
+        public string RepairBehavior { get; set; }
+
+        /// <summary>
         /// Returns a List of strings containing the URIs contained within this installer.
         /// </summary>
         /// <returns>List of strings.</returns>
@@ -226,7 +260,9 @@ namespace Microsoft.WinGetUtil.Models.V1
                    (this.InstallerLocale == other.InstallerLocale) &&
                    (this.Scope == other.Scope) &&
                    (this.InstallerType == other.InstallerType) &&
-                   (this.Switches == other.Switches);
+                   (this.Switches == other.Switches) &&
+                   (this.NestedInstallerType == other.NestedInstallerType) &&
+                   (this.NestedInstallerFiles == other.NestedInstallerFiles);
     }
 
         /// <summary>
@@ -242,7 +278,9 @@ namespace Microsoft.WinGetUtil.Models.V1
                     this.InstallerLocale,
                     this.Scope,
                     this.InstallerType,
-                    this.Switches).GetHashCode();
+                    this.Switches,
+                    this.NestedInstallerType,
+                    this.NestedInstallerFiles).GetHashCode();
         }
     }
 }

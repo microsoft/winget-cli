@@ -8,9 +8,24 @@ namespace AppInstaller::CLI::Workflow
     // Uninstalls a single package. This also does the reporting, user interaction, and recording
     // for single-package uninstallation.
     // RequiredArgs: None
-    // Inputs: InstalledPackageVersion
+    // Inputs: Package
     // Outputs: None
     void UninstallSinglePackage(Execution::Context& context);
+
+    // Uninstalls a single package version. This also does the reporting, user interaction, and recording
+    // for single-package uninstallation.
+    // RequiredArgs: None
+    // Inputs: InstalledPackageVersion
+    // Outputs: None
+    void UninstallSinglePackageVersion(Execution::Context& context);
+
+    // Uninstalls multiple packages.
+    // RequiredArgs: None
+    // Inputs: PackageSubContexts
+    // Outputs: None
+    //   SubContext Inputs: Package
+    //   SubContext Outputs: None
+    void UninstallMultiplePackages(Execution::Context& context);
 
     // Gets the command string or package family names used to uninstall the package.
     // Required Args: None
@@ -58,4 +73,10 @@ namespace AppInstaller::CLI::Workflow
         // Whether the Uninstaller result is an HRESULT. This guides how we show it.
         bool m_isHResult;
     };
+
+    // Verifies that the uninstall operation is supported.
+    // Required Args: None
+    // Inputs: InstalledPackageVersion
+    // Outputs: None
+    void EnsureSupportForUninstall(Execution::Context& context);
 }

@@ -1,0 +1,19 @@
+PackageIdentifier: AppInstallerTest.TestUpgradeAddsDependencyDependent
+PackageVersion: 1.0
+PackageName: TestUpgradeAddsDependencyDependent
+PackageLocale: en-US
+Publisher: Microsoft
+License: Test
+ShortDescription: E2E test for adding a new package dependency during an upgrade.
+Installers:
+  - Architecture: x86
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    UpgradeBehavior: uninstallPrevious
+    ProductCode: '{648274a3-17aa-4731-8bf1-5854ca61e475}'
+    InstallerSwitches:
+      Custom: '/ProductID {648274a3-17aa-4731-8bf1-5854ca61e475}'
+      InstallLocation: /InstallDir <INSTALLPATH>
+ManifestType: singleton
+ManifestVersion: 1.4.0

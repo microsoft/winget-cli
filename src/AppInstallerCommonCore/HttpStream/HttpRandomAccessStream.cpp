@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "HttpRandomAccessStream.h"
+#include "Public/AppInstallerDownloader.h"
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Storage::Streams;
@@ -12,16 +13,23 @@ using namespace winrt::Windows::Storage::Streams;
 // The HRESULTs will be mapped to UI error code by the appropriate component
 namespace AppInstaller::Utility::HttpStream
 {
-    IAsyncOperation<IRandomAccessStream> HttpRandomAccessStream::CreateAsync(const Uri& uri)
+    IAsyncOperation<IRandomAccessStream> HttpRandomAccessStream::InitializeAsync(const Uri& uri)
     {
-        winrt::com_ptr<HttpRandomAccessStream> stream = winrt::make_self<HttpRandomAccessStream>();
+        auto strong_this{ get_strong() };
 
-        stream->m_httpHelper = co_await HttpClientWrapper::CreateAsync(uri);
-        stream->m_size = stream->m_httpHelper->GetFullFileSize();
-        stream->m_httpLocalCache = std::make_unique<HttpLocalCache>();
+        try
+        {
+            strong_this->m_httpHelper = co_await HttpClientWrapper::CreateAsync(uri);
+            strong_this->m_size = strong_this->m_httpHelper->GetFullFileSize();
+            strong_this->m_httpLocalCache = std::make_unique<HttpLocalCache>();
+        }
+        catch (const ServiceUnavailableException& e)
+        {
+            strong_this->m_retryAfter = e.RetryAfter();
+            throw;
+        }
 
-        co_return stream.as<IRandomAccessStream>();
-
+        co_return strong_this.as<IRandomAccessStream>();
     }
 
     uint64_t HttpRandomAccessStream::Size() const
@@ -85,5 +93,10 @@ namespace AppInstaller::Utility::HttpStream
         winrt::check_hresult(ULong64Add(m_requestedPosition, result.Length(), &m_requestedPosition));
 
         co_return result;
+    }
+
+    std::chrono::seconds HttpRandomAccessStream::RetryAfter() const
+    {
+        return m_retryAfter;
     }
 }

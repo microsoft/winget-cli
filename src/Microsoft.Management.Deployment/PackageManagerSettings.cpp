@@ -48,6 +48,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             [&]()
             {
                 success = AppInstaller::Settings::TryInitializeCustomUserSettings(AppInstaller::Utility::ConvertToUTF8(settingsContent));
+                if (success)
+                {
+                    AppInstaller::Logging::Log().EnableChannel(AppInstaller::Settings::User().Get<AppInstaller::Settings::Setting::LoggingChannelPreference>());
+                    AppInstaller::Logging::Log().SetLevel(AppInstaller::Settings::User().Get<AppInstaller::Settings::Setting::LoggingLevelPreference>());
+                }
             });
         return success;
     }

@@ -1,0 +1,14 @@
+key: value
+
+repeatedkey: repeated value
+RepeatedKey: repeated value
+RepeatedKey: repeated value
+
+MergeNode:
+  Custom: /custom
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+
+MergeNode2:
+  silentWithProgress: /silentwithprogress
+  Interactive: /interactive

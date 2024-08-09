@@ -160,7 +160,7 @@ TEST_CASE("SetAndReadSecureSetting_SecureDataRemoved", "[settings]")
     std::string settingValue = ReadEntireStream(*result);
     REQUIRE(value == settingValue);
 
-    std::filesystem::remove(GetPathTo(PathName::SecureSettings) / name.Name);
+    std::filesystem::remove(GetPathTo(PathName::SecureSettingsForRead) / name.Name);
 
     REQUIRE_THROWS_HR(stream.Get(), SPAPI_E_FILE_HASH_NOT_IN_CATALOG);
 }

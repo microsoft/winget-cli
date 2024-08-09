@@ -13,6 +13,7 @@
 #include <winget/ThreadGlobals.h>
 #include <winget/InstallerMetadataCollectionContext.h>
 #include <PackageDependenciesValidation.h>
+#include <public/winget/PackageDependenciesValidationUtil.h>
 #include <ArpVersionValidation.h>
 
 using namespace AppInstaller::Utility;
@@ -27,6 +28,17 @@ namespace
     {
         return potentiallyNullPath ? std::filesystem::path{ potentiallyNullPath } : std::filesystem::path{};
     }
+
+    SQLiteIndex::Property GetSQLiteIndexProperty(WinGetSQLiteIndexProperty property)
+    {
+        switch (property)
+        {
+        case WinGetSQLiteIndexProperty_PackageUpdateTrackingBaseTime: return SQLiteIndex::Property::PackageUpdateTrackingBaseTime;
+        case WinGetSQLiteIndexProperty_IntermediateFileOutputPath: return SQLiteIndex::Property::IntermediateFileOutputPath;
+        }
+
+        THROW_HR(E_INVALIDARG);
+    }
 }
 
 extern "C"
@@ -35,7 +47,7 @@ extern "C"
     {
         THROW_HR_IF(E_INVALIDARG, !logPath);
 
-        thread_local AppInstaller::ThreadLocalStorage::ThreadGlobals threadGlobals;
+        thread_local AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
         thread_local std::once_flag initLogging;
 
         std::call_once(initLogging, []() {
@@ -54,7 +66,7 @@ extern "C"
         if (!AppInstaller::Logging::Log().ContainsLogger(loggerName))
         {
             // Let FileLogger use default file prefix
-            AppInstaller::Logging::AddFileLogger(pathAsPath);
+            AppInstaller::Logging::FileLogger::Add(pathAsPath);
         }
 
         return S_OK;
@@ -84,7 +96,7 @@ extern "C"
         THROW_HR_IF(E_INVALIDARG, !!*index);
 
         std::string filePathUtf8 = ConvertToUTF8(filePath);
-        Schema::Version internalVersion{ majorVersion, minorVersion };
+        AppInstaller::SQLite::Version internalVersion{ majorVersion, minorVersion };
 
         std::unique_ptr<SQLiteIndex> result = std::make_unique<SQLiteIndex>(SQLiteIndex::CreateNew(filePathUtf8, internalVersion));
 
@@ -113,6 +125,34 @@ extern "C"
     WINGET_UTIL_API WinGetSQLiteIndexClose(WINGET_SQLITE_INDEX_HANDLE index) try
     {
         std::unique_ptr<SQLiteIndex> toClose(reinterpret_cast<SQLiteIndex*>(index));
+
+        return S_OK;
+    }
+    CATCH_RETURN()
+
+    WINGET_UTIL_API WinGetSQLiteIndexMigrate(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        UINT32 majorVersion,
+        UINT32 minorVersion) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !index);
+
+        return reinterpret_cast<SQLiteIndex*>(index)->MigrateTo({ majorVersion, minorVersion }) ? S_OK : HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
+    }
+    CATCH_RETURN()
+
+
+    WINGET_UTIL_API WinGetSQLiteIndexSetProperty(
+        WINGET_SQLITE_INDEX_HANDLE index,
+        WinGetSQLiteIndexProperty property,
+        WINGET_STRING value) try
+    {
+        THROW_HR_IF(E_INVALIDARG, !index);
+        THROW_HR_IF(E_INVALIDARG, !value);
+
+        std::string valueUtf8 = ConvertToUTF8(value);
+
+        reinterpret_cast<SQLiteIndex*>(index)->SetProperty(GetSQLiteIndexProperty(property), valueUtf8);
 
         return S_OK;
     }
@@ -290,13 +330,30 @@ extern "C"
                 validateOption.ErrorOnVerifiedPublisherFields = WI_IsFlagSet(option, WinGetCreateManifestOption::ReturnErrorOnVerifiedPublisherFields);
             }
 
+            if (WI_IsFlagSet(option, WinGetCreateManifestOption::AllowShadowManifest))
+            {
+                validateOption.AllowShadowManifest = true;
+            }
+
             std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath, validateOption, mergedManifestPath ? mergedManifestPath : L""));
 
             *manifest = static_cast<WINGET_MANIFEST_HANDLE>(result.release());
+            *succeeded = true;
         }
         catch (const ManifestException& e)
         {
             *succeeded = e.IsWarningOnly();
+            if (*succeeded)
+            {
+                ManifestValidateOption validateOption;
+                if (WI_IsFlagSet(option, WinGetCreateManifestOption::AllowShadowManifest))
+                {
+                    validateOption.AllowShadowManifest = true;
+                }
+
+                std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath, validateOption));
+                *manifest = static_cast<WINGET_MANIFEST_HANDLE>(result.release());
+            }
             if (message)
             {
                 *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
@@ -355,7 +412,13 @@ extern "C"
             }
             catch (const ManifestException& e)
             {
-                WI_SetFlagIf(validationResult, WinGetValidateManifestResult::DependenciesValidationFailure, !e.IsWarningOnly());
+                if (!e.IsWarningOnly())
+                {
+                    validationResult |= WinGetValidateManifestResult::DependenciesValidationFailure;
+                }
+                
+                validationResult |= static_cast<WinGetValidateManifestResult>( AppInstaller::Manifest::GetDependenciesValidationResultFromException(e) );
+              
                 if (message)
                 {
                     validationMessage += e.GetManifestErrorMessage();

@@ -28,7 +28,7 @@ TEST_CASE("ExperimentalFeature None", "[experimentalFeature]")
 
 TEST_CASE("ExperimentalFeature ExperimentalCmd", "[experimentalFeature]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     SECTION("Feature off default")
     {

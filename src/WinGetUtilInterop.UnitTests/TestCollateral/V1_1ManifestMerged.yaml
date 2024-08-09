@@ -30,8 +30,11 @@ Dependencies:
 Description: The MSIX SDK project is an effort to enable developers
 ElevationRequirement: elevatesSelf
 ExpectedReturnCodes:
-- InstallerReturnCode: 10
-  ReturnResponse: packageInUse
+- InstallerReturnCode: 2
+  ReturnResponse: contactSupport
+- InstallerReturnCode: 3
+  ReturnResponse: custom
+  ReturnResponseUrl: https://defaultReturnResponseUrl.com
 FileExtensions:
 - appx
 - msix

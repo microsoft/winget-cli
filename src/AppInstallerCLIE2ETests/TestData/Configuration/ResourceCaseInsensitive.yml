@@ -1,0 +1,9 @@
+properties:
+    configurationVersion: 0.2
+    resources:
+      - resource: xE2ETestResource/e2efileresource
+        directives:
+          repository: AppInstallerCLIE2ETestsRepo
+        settings:
+          Path: ${WinGetConfigRoot}\ResourceCaseInsensitive.txt
+          Content: Contents!

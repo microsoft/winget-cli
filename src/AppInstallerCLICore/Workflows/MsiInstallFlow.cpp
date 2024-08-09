@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "MsiInstallFlow.h"
-#include "winget/MsiExecArguments.h"
+#include <winget/MsiExecArguments.h>
+#include <winget/Runtime.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -51,7 +52,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installResult)
         {
-            context.Reporter.Warn() << Resource::String::InstallationAbandoned << std::endl;
+            context.Reporter.Warn() << Resource::String::InstallAbandoned << std::endl;
             AICLI_TERMINATE_CONTEXT(E_ABORT);
         }
         else
