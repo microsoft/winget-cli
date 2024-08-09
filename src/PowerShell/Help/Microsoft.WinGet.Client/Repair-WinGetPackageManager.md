@@ -10,7 +10,7 @@ title: Repair-WinGetPackageManager
 # Repair-WinGetPackageManager
 
 ## SYNOPSIS
-Repairs the WinGet client.
+Repairs the installation of the WinGet client on your computer.
 
 ## SYNTAX
 
@@ -29,8 +29,9 @@ Repair-WinGetPackageManager [-AllUsers] [-Force] [-Latest] [-IncludePreRelease]
 
 ## DESCRIPTION
 
-Repairs the WinGet client by installing or updating the client to either the latest or a specified
-version. This cmdlet also checks to make sure that the client is in a working state.
+This command repairs the installation of the WinGet client on your computer by installing the
+specified version or the latest version of the client. It ensures that the client is installed in a
+working state.
 
 ## EXAMPLES
 
@@ -40,7 +41,7 @@ version. This cmdlet also checks to make sure that the client is in a working st
 Repair-WinGetPackageManager
 ```
 
-Ensures the current installed version of WinGet is functional.
+Ensures that the current installed version of WinGet is functioning properly.
 
 ### Example 2: Force install the latest version
 
@@ -48,14 +49,16 @@ Ensures the current installed version of WinGet is functional.
 Repair-WinGetPackageManager -Latest -Force
 ```
 
-Installs the latest version of WinGet and ensures it functions properly.
+This example shows how to repair they WinGet client by installing the latest version and ensuring
+it functions properly. The **Force** parameter shuts down the version that is currently running so
+that it can update the application files.
 
 ## PARAMETERS
 
 ### -AllUsers
 
-Indicates that this cmdlet repairs the WinGet client for all user accounts on the computer. To use
-this parameter, you must run the command with administrator permissions.
+Use this parameter to repair the WinGet client for all user accounts on the computer. The command
+must run the command with administrator permissions.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -71,7 +74,8 @@ Accept wildcard characters: False
 
 ### -Force
 
-Force the repair even when other checks WinGet would perform would prevent this action.
+The **Force** parameter shuts down the version that is currently running so that it can update the
+application files.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -87,7 +91,7 @@ Accept wildcard characters: False
 
 ### -IncludePreRelease
 
-Includes prerelease versions of the WinGet client.
+Use this parameter to include prerelease versions of the WinGet client.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -103,7 +107,7 @@ Accept wildcard characters: False
 
 ### -Latest
 
-Installs the latest available version of the WinGet client.
+Use this parameter to install the latest available version of the WinGet client.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -119,7 +123,7 @@ Accept wildcard characters: False
 
 ### -Version
 
-Specify the WinGet client version.
+Use this parameter to specify the specific version of the WinGet client to install.
 
 ```yaml
 Type: System.String

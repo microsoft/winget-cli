@@ -10,7 +10,7 @@ title: Set-WinGetUserSettings
 # Set-WinGetUserSettings
 
 ## SYNOPSIS
-Sets WinGet settings.
+Sets configuration settings of the WinGet client for the current user.
 
 ## SYNTAX
 
@@ -20,7 +20,10 @@ Set-WinGetUserSettings -UserSettings <Hashtable> [-Merge] [<CommonParameters>]
 
 ## DESCRIPTION
 
-Sets the behavior of various WinGet settings. For more information about WinGet settings, see
+This command sets configuration settings of the WinGet client for the current user. The user
+settings file doesn't exist until you set a specific value. The file is stored in
+`$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json`.
+For more information about WinGet settings, see
 [WinGet CLI Settings](https://aka.ms/winget-settings).
 
 ## EXAMPLES
@@ -28,7 +31,11 @@ Sets the behavior of various WinGet settings. For more information about WinGet 
 ### Example 1: Set progress bar theme
 
 ```powershell
-Set-WinGetUserSettings -UserSettings @{ visual= @{ progressBar="rainbow"} }
+Set-WinGetUserSettings -UserSettings @{
+    visual = @{
+        progressBar = 'rainbow'
+    }
+}
 ```
 
 Sets the theme of the progress bar to rainbow.
@@ -36,16 +43,34 @@ Sets the theme of the progress bar to rainbow.
 ### Example 2: Merge install behavior settings
 
 ```powershell
-Set-WinGetUserSettings -UserSettings @{ installBehavior= @{ preferences= @{ scope = "user"}} } -Merge
+Set-WinGetUserSettings  -Merge -UserSettings @{
+    installBehavior = @{
+        preferences = @{
+            scope = 'user'
+        }
+    }
+}
 ```
 
 Appends the user scope preference setting to the existing WinGet settings configuration.
+
+### Example 3: Change multiple settings
+
+```powershell
+Set-WinGetUserSettings -UserSettings @{
+    visual = @{
+        progressBar = 'rainbow'
+        anonymizeDisplayedPaths = $true
+    }
+}
+```
 
 ## PARAMETERS
 
 ### -Merge
 
-Appends the provided UserSettings input to the existing settings configuration.
+By default, the command overwrites the current setting with the values provided. Use this parameter
+to append the new settings to the existing configuration.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter

@@ -295,7 +295,13 @@ Accept wildcard characters: False
 
 ### -Scope
 
-Specify WinGet package installer scope
+Specify WinGet package installer scope. The parameter accepts the following values:
+
+- `Any`
+- `User`
+- `System`
+- `UserOrUnknown`
+- `SystemOrUnknown`
 
 > [!NOTE]
 > The installer scope must be available in the WinGet package manifest.

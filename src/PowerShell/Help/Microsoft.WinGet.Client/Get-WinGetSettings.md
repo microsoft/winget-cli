@@ -10,7 +10,7 @@ title: Get-WinGetSettings
 # Get-WinGetSettings
 
 ## SYNOPSIS
-Gets WinGet settings.
+Gets WinGet configuration settings.
 
 ## SYNTAX
 
@@ -20,19 +20,45 @@ Get-WinGetSettings [-AsPlainText] [<CommonParameters>]
 
 ## DESCRIPTION
 
-Get WinGet settings. This includes the user settings file, administrator settings, and the settings
-schema. For more information about WinGet settings, visit `https://aka.ms/winget-settings`.
+This command gets the WinGet configuration settings. The settings include:
+- the schema
+- administrative settings
+- the location of the user settings file
+For more information about WinGet settings, see
+[WinGet CLI Settings](https://aka.ms/winget-settings).
 
 ## EXAMPLES
 
-### Example 1
+### Example 1 - Display the WinGet configuration settings
 
 ```powershell
 Get-WinGetSettings
 ```
 
-This will display the user settings file location, the administrator settings, and the settings
-schema URL.
+```Output
+
+Name              Value
+----              -----
+$schema           https://aka.ms/winget-settings-export.schema.json
+userSettingsFile  C:\Users\user1\AppData\Local\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\Local…
+adminSettings     {[ProxyCommandLineOptions, False], [LocalArchiveMalwareScanOverride, False], [InstallerH…
+```
+
+### Example 2 - Display the administrative settings in WinGet configuration
+
+```powershell
+Get-WinGetSettings | Select-Object -ExpandProperty adminSettings
+```
+
+```Output
+Name                           Value
+----                           -----
+ProxyCommandLineOptions        False
+LocalArchiveMalwareScanOverri… False
+InstallerHashOverride          False
+BypassCertificatePinningForMi… False
+LocalManifestFiles             False
+```
 
 ## PARAMETERS
 

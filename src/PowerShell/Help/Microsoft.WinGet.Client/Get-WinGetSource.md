@@ -20,23 +20,28 @@ Get-WinGetSource [[-Name] <String>] [<CommonParameters>]
 
 ## DESCRIPTION
 
-List configured WinGet sources.
+Lists the configured WinGet sources.
 
 ## EXAMPLES
 
-### Example 1: Default example
+### Example 1: List all configured WinGet sources
 
 ```powershell
 Get-WinGetSource
 ```
 
-This will list the configured WinGet sources. The two default sources are "msstore" and "winget".
+```Output
+Name    Argument                                      Type
+----    --------                                      ----
+msstore https://storeedgefd.dsx.mp.microsoft.com/v9.0 Microsoft.Rest
+winget  https://cdn.winget.microsoft.com/cache        Microsoft.PreIndexed.Package
+```
 
 ## PARAMETERS
 
 ### -Name
 
-Filter by WinGet source name
+Specify the name of the WinGet source to be displayed.
 
 ```yaml
 Type: System.String

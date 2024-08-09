@@ -37,7 +37,10 @@ Install-WinGetPackage [-Mode <PSPackageInstallMode>] [-Override <String>] [-Cust
 
 ## DESCRIPTION
 
-Installs a WinGet package from a configured source.
+This command installs a WinGet package from a configured source. The command includes parameters
+to specify values used to search for packages in the configured sources. By default, the command
+searches all sources. By default, all string-based searches are case-insensitive substring searches.
+Wildards are not supported. You can change the search behavior using the **MatchOption** parameter.
 
 ## EXAMPLES
 
@@ -47,9 +50,8 @@ Installs a WinGet package from a configured source.
 Install-WinGetPackage Microsoft.PowerShell
 ```
 
-This sample installs the Microsoft.PowerShell package. No specific property to identify the query
-string "Microsoft.PowerShell" as a package identifier. This is a convenient short form not requiring
-the user to pass "-Id".
+This example show how to install a package using a query. The **Query** parameter is positional, so
+you don't need to include the parameter name before the query string.
 
 ### Example 2: Install a package by Id
 
@@ -57,7 +59,9 @@ the user to pass "-Id".
 Install-WinGetPackage -Id Microsoft.PowerShell
 ```
 
-This sample installs the Microsoft.PowerShell package by the specifying the package identifier.
+This example shows how to install a package by the specifying the package identifier.
+If the package identifier is available from more than one source, you must provide additional search
+criteria to select a specific instance of the package.
 
 > **If more than one source is configured with the same package identifier, the user must disambiguate**
 
@@ -67,7 +71,7 @@ This sample installs the Microsoft.PowerShell package by the specifying the pack
 Install-WinGetPackage -Name "PowerToys (Preview)"
 ```
 
-This sample installs the PowerToys package by the specifying the package name.
+This example shows how to install a package by specifying the package name.
 
 ### Example 4: Install a specific version of a package
 
@@ -75,14 +79,16 @@ This sample installs the PowerToys package by the specifying the package name.
 Install-WinGetPackage Microsoft.PowerShell -Version 7.4.4.0
 ```
 
-This sample installs the Microsoft.PowerShell package version 7.4.4.0. No specific property to
-identify the query string "Microsoft.PowerShell" as a package identifier.
+This example shows how to install a specific version of a package using a query. The command does a
+query search for packages matching `Microsoft.PowerShell`. The results of the search a limited to
+matches with the version of `7.4.4.0`.
 
 ## PARAMETERS
 
 ### -AllowHashMismatch
 
-Allow the install to continue even if the SHA256 has does not match.
+Allows you to download package even when the SHA256 hash for an installer or a dependency does not
+match the SHA256 hash in the WinGet package manifest.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -98,7 +104,7 @@ Accept wildcard characters: False
 
 ### -Architecture
 
-Specify the hardware architecture for the installer.
+Specify the processor architecture for the WinGet package installer.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSProcessorArchitecture
@@ -115,7 +121,10 @@ Accept wildcard characters: False
 
 ### -Custom
 
-Arguments to be passed to the installer in addition to those in the manifest.
+Use this paramater to pass additional arguments to the installer. The parameter takes a single
+string value. To add multiple arguments, include the arguments in the string. The arguments must be
+provided in the format expected by the installer. If the string contains spaces, it must be enclosed
+in quotes. This string is added to the arguments defined in the package manifest.
 
 ```yaml
 Type: System.String
@@ -163,7 +172,8 @@ Accept wildcard characters: False
 
 ### -Id
 
-Specifies the package identifier.
+Specify the package identifier to search for. The command does a case-insensitive full text match,
+rather than a substring match.
 
 ```yaml
 Type: System.String
@@ -179,7 +189,19 @@ Accept wildcard characters: False
 
 ### -InstallerType
 
-Specifies the installer type.
+A package may contain multiple installer types. Use this parameter to select the installer you want
+to use. The parameter accepts the following values:
+- `Default`
+- `Inno`
+- `Wix`
+- `Msi`
+- `Nullsoft`
+- `Zip`
+- `Msix`
+- `Exe`
+- `Burn`
+- `MSStore`
+- `Portable`
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageInstallerType
@@ -196,7 +218,9 @@ Accept wildcard characters: False
 
 ### -Locale
 
-Specifies the installer locale.
+Specify the locale of the installer package. The locale must provided in the BCP 47 format, such as
+`en-US`. For more information, see
+[Standard locale names](/globalization/locale/standard-locale-names).
 
 ```yaml
 Type: System.String
@@ -212,7 +236,8 @@ Accept wildcard characters: False
 
 ### -Location
 
-Specify the install location. This requires support in the installer.
+Specify the file path where you want the packed to be installed. The installer must be able to
+support alternate install locations.
 
 ```yaml
 Type: System.String
@@ -244,7 +269,11 @@ Accept wildcard characters: False
 
 ### -MatchOption
 
-Specify the match type.
+Specify the match option for a WinGet package query. This parameter accepts the following values:
+- `Equals`
+- `EqualsCaseInsensitive`
+- `StartsWithCaseInsensitive`
+- `ContainsCaseInsensitive`
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageFieldMatchOption
@@ -261,7 +290,10 @@ Accept wildcard characters: False
 
 ### -Mode
 
-Specify the installer output mode. Options are "Default", "Silent", and "Interactive".
+Specify the output mode for the installer. The parameter accepts the following values:
+- `Default`
+- `Silent`
+- `Interactive`
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageInstallMode
@@ -278,7 +310,8 @@ Accept wildcard characters: False
 
 ### -Moniker
 
-Specify the package moniker.
+Specify the moniker of the WinGet package to install. For example, the moniker for the
+Microsoft.PowerShell package is `pwsh`.
 
 ```yaml
 Type: System.String
@@ -294,7 +327,7 @@ Accept wildcard characters: False
 
 ### -Name
 
-Specify the package name.
+Specify the name of the package to be installed.
 
 ```yaml
 Type: System.String
@@ -310,7 +343,10 @@ Accept wildcard characters: False
 
 ### -Override
 
-Specify arguments to pass to the installer. This will override arguments in the manifest.
+Specify arguments to pass to the installer as a single string. To pass multiple arguments, include
+the arguments in the string. The arguments must be provided in the format expected by the installer.
+If the string contains spaces, it must be enclosed in quotes. This string overrides the arguments in
+the package manifest.
 
 ```yaml
 Type: System.String
@@ -326,7 +362,8 @@ Accept wildcard characters: False
 
 ### -PSCatalogPackage
 
-WinGet package object.
+Provide **PSCatalogPackage** object. You can get a **PSCatalogPackage** object by using the
+`Find-WinGetPackage` command.
 
 ```yaml
 Type: Microsoft.WinGet.Client.Engine.PSObjects.PSCatalogPackage
@@ -342,7 +379,14 @@ Accept wildcard characters: False
 
 ### -Query
 
-Search string. Wildcards are not supported.
+Specify one or more strings to search for. By default, the command searches all configured sources.
+The command compares the value provided to the following package manifest properties:
+	- `PackageIdentifier`
+	- `PackageName`
+	- `Moniker`
+	- `Tags`
+
+The command does a case-insensitive substring comparison of these properties.
 
 ```yaml
 Type: System.String[]
@@ -358,7 +402,16 @@ Accept wildcard characters: False
 
 ### -Scope
 
-Specify installer scope. Valid values are "Any", "User", "System", "UserOrUnknown", "SystemOrUnknown".
+Specify WinGet package installer scope. The parameter accepts the following values:
+
+- `Any`
+- `User`
+- `System`
+- `UserOrUnknown`
+- `SystemOrUnknown`
+
+> [!NOTE]
+> The installer scope must be available in the WinGet package manifest.
 
 ```yaml
 Type: Microsoft.WinGet.Client.PSObjects.PSPackageInstallScope
@@ -375,7 +428,7 @@ Accept wildcard characters: False
 
 ### -SkipDependencies
 
-Skip dependency installation.
+Specifies that the command shouldn't install the WinGet package dependencies.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
@@ -391,7 +444,7 @@ Accept wildcard characters: False
 
 ### -Source
 
-Specify configured WinGet source.
+Specify the name of the WinGet source from which the package should be installed.
 
 ```yaml
 Type: System.String
@@ -407,7 +460,7 @@ Accept wildcard characters: False
 
 ### -Version
 
-Specify package version.
+Specify the version of the package.
 
 ```yaml
 Type: System.String
@@ -439,8 +492,7 @@ Accept wildcard characters: False
 
 ### -WhatIf
 
-Shows what would happen if the cmdlet runs.
-The cmdlet is not run.
+Shows what would happen if the cmdlet runs. The cmdlet isn't run.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter

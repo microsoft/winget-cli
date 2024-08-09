@@ -20,7 +20,7 @@ Get-WinGetVersion [<CommonParameters>]
 
 ## DESCRIPTION
 
-Get the installed version of WinGet.
+Gets the installed version of WinGet.
 
 ## EXAMPLES
 

@@ -10,7 +10,7 @@ title: Test-WinGetUserSettings
 # Test-WinGetUserSettings
 
 ## SYNOPSIS
-Tests WinGet settings.
+Tests the current state of WinGet user settings.
 
 ## SYNTAX
 
@@ -20,31 +20,45 @@ Test-WinGetUserSettings -UserSettings <Hashtable> [-IgnoreNotSet] [<CommonParame
 
 ## DESCRIPTION
 
-Tests whether the provided UserSettings matches the current WinGet settings configuration.
+This command tests the current state of WinGet user settings against a provided set of values.
 
 ## EXAMPLES
 
 ### Example 1: Test for exact match
 
 ```powershell
-Test-WinGetUserSettings -UserSettings @{ installBehavior= @{ preferences= @{ scope = "user"}} }
+Test-WinGetUserSettings -UserSettings @{
+    installBehavior = @{
+        preferences = @{
+            scope = 'user'
+        }
+    }
+}
 ```
 
-Tests if the provided input matches the current WinGet settings configuration. This command will return False if it is not an exact match..
+This example shows how to confirm that your current user settings match specific values. The
+command returns `$false` if it is not an exact match. 
 
 ### Example 2: Test only progress bar setting
 
 ```powershell
-Test-WinGetUserSettings -UserSettings @{ visual= @{ progressBar="rainbow"} } -IgnoreNotSet
+Test-WinGetUserSettings -IgnoreNotSet -UserSettings @{
+    visual = @{
+        progressBar = 'rainbow'
+    }
+}
 ```
 
-Tests if the progress bar theme is set to rainbow. Including the -IgnoreNotSet argument does not include other WinGet settings in the comparison.
+This examples tests whether the progress bar theme is set to `rainbow`. When you use the
+**IgnoreNotSet** parameter, the command only tests the provide values and doesn't include other
+WinGet settings in the comparison.
 
 ## PARAMETERS
 
 ### -IgnoreNotSet
 
-Ignore settings that are not specified in the input.
+When you use the **IgnoreNotSet** parameter, the command only tests the provide values and doesn't
+include other WinGet settings in the comparison.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter

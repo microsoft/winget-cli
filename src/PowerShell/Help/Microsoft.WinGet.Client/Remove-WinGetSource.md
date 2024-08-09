@@ -20,7 +20,8 @@ Remove-WinGetSource -Name <String> [<CommonParameters>]
 
 ## DESCRIPTION
 
-Removes a configured source.
+This command removes a configured WinGet source. By default, there are two sources registered:
+`msstore` and `winget`. You can add more sources using `Add-WinGetSource`.
 
 ## EXAMPLES
 
@@ -30,16 +31,13 @@ Removes a configured source.
 Remove-WinGetSource -Name msstore
 ```
 
-Removes the "msstore" WinGet source.
-
-> [!NOTE]
-> You can run Reset-WinGetSource to re-add the default sources back to WinGet.
+The example shows how to remove a WinGet source by name.
 
 ## PARAMETERS
 
 ### -Name
 
-The name of the source.
+Specify the name of the source to be removed.
 
 ```yaml
 Type: System.String
