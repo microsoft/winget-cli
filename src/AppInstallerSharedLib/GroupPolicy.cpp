@@ -116,6 +116,44 @@ namespace AppInstaller::Settings
             (FoldHelper{}, ..., Validate<static_cast<ValuePolicy>(P)>(policiesKey, policies));
         }
 
+
+        template<ValuePolicy P>
+        std::optional<typename details::ValuePolicyMapping<P>::value_t> ReadEnums(const Registry::Key& policiesKey)
+        {
+            using Mapping = details::ValuePolicyMapping<P>;
+
+            auto enumKey = policiesKey.SubKey(Mapping::KeyName);
+            if (!enumKey.has_value())
+            {
+                return std::nullopt;
+            }
+
+            typename Mapping::value_t map;
+            for (const auto& value : enumKey->Values())
+            {
+                std::optional<Registry::Value> potentialValue = value.Value();
+
+                if (potentialValue)
+                {
+                    auto entry = Mapping::ReadAndValidateItem(value);
+                    if (entry.has_value())
+                    {
+                        map.insert(*entry);
+                    }
+                    else
+                    {
+                        AICLI_LOG(Core, Warning, << "Failed to read Group Policy enum value. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
+                    }
+                }
+                else
+                {
+                    AICLI_LOG(Core, Verbose, << "Group Policy enum value not found. Policy [" << Mapping::KeyName << "], Value [" << value.Name() << ']');
+                }
+            }
+
+            return map;
+        }
+
         // Reads a list from a Group Policy.
         // The list is stored in a sub-key of the policies key, and each value in that key is a list item.
         // Cases not considered by this function because we don't use them:
@@ -255,9 +293,16 @@ namespace AppInstaller::Settings
             return ReadList<_policy_>(policiesKey); \
         }
 
+#define POLICY_MAPPING_DEFAULT_ENUM_READ(_policy_) \
+        std::optional<typename ValuePolicyMapping<_policy_>::value_t> ValuePolicyMapping<_policy_>::ReadAndValidate(const Registry::Key& policiesKey) \
+        { \
+            return ReadEnums<_policy_>(policiesKey); \
+        }
+
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AdditionalSources);
         POLICY_MAPPING_DEFAULT_LIST_READ(ValuePolicy::AllowedSources);
         POLICY_MAPPING_DEFAULT_READ(ValuePolicy::DefaultProxy);
+        POLICY_MAPPING_DEFAULT_ENUM_READ(ValuePolicy::ConfigurationAllowedZones);
 
         std::nullopt_t ValuePolicyMapping<ValuePolicy::None>::ReadAndValidate(const Registry::Key&)
         {
@@ -291,6 +336,27 @@ namespace AppInstaller::Settings
         std::optional<SourceFromPolicy> ValuePolicyMapping<ValuePolicy::AllowedSources>::ReadAndValidateItem(const Registry::Value& item)
         {
             return ReadSourceFromRegistryValue(item);
+        }
+
+        std::optional<std::pair<const ConfigurationAllowedZonesOptions, bool>> ValuePolicyMapping<ValuePolicy::ConfigurationAllowedZones>::ReadAndValidateItem(const Registry::ValueList::ValueRef& entry)
+        {
+#define CONFIGURATION_ALLOWED_ZONES_READ(_zone_) \
+            if (entry.Name() == #_zone_) \
+            { \
+                auto data = entry.Value()->TryGetValue<Registry::Value::Type::DWord>(); \
+                auto value = data.value_or(true); \
+                return std::make_pair(ConfigurationAllowedZonesOptions::_zone_, value); \
+            }
+
+            CONFIGURATION_ALLOWED_ZONES_READ(LocalMachine);
+            CONFIGURATION_ALLOWED_ZONES_READ(Intranet);
+            CONFIGURATION_ALLOWED_ZONES_READ(TrustedSites);
+            CONFIGURATION_ALLOWED_ZONES_READ(Internet);
+            CONFIGURATION_ALLOWED_ZONES_READ(UntrustedSites);
+#undef CONFIGURATION_ALLOWED_ZONES_READ
+
+            AICLI_LOG(Core, Warning, << "Unknown value in ConfigurationAllowedZones: " << entry.Name());
+            return std::nullopt;
         }
     }
 
