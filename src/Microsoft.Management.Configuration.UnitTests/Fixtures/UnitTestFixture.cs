@@ -40,16 +40,22 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
                 throw new DirectoryNotFoundException(this.TestModulesPath);
             }
 
-            string? gitSearchPath = Path.GetDirectoryName(assemblyPath);
+            // Use the environment variable if present, which is how ADO pipelines will find it.
+            string? gitSearchPath = Environment.GetEnvironmentVariable("BUILD_SOURCESDIRECTORY");
 
-            while (!string.IsNullOrEmpty(gitSearchPath))
+            if (string.IsNullOrWhiteSpace(gitSearchPath))
             {
-                if (Directory.Exists(Path.Combine(gitSearchPath, ".git")))
-                {
-                    break;
-                }
+                gitSearchPath = Path.GetDirectoryName(assemblyPath);
 
-                gitSearchPath = Path.GetDirectoryName(gitSearchPath);
+                while (!string.IsNullOrEmpty(gitSearchPath))
+                {
+                    if (Directory.Exists(Path.Combine(gitSearchPath, ".git")))
+                    {
+                        break;
+                    }
+
+                    gitSearchPath = Path.GetDirectoryName(gitSearchPath);
+                }
             }
 
             this.GitRootPath = gitSearchPath ?? throw new DirectoryNotFoundException("git root path");

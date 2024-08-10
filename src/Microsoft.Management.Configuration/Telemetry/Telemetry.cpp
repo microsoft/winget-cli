@@ -263,12 +263,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::string_view action,
         const IConfigurationUnitResultInformation& resultInformation) const noexcept try
     {
-        // We only want to send telemetry for failures of publicly available units.
-        if (!IsTelemetryEnabled() || SUCCEEDED(static_cast<int32_t>(resultInformation.ResultCode())))
+        if (!IsTelemetryEnabled())
         {
             return;
         }
 
+        // We only want to send telemetry for publicly available units.
         IConfigurationUnitProcessorDetails details = unit.Details();
         if (!details || !details.IsPublic())
         {
