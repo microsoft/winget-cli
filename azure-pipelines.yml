@@ -39,6 +39,15 @@ jobs:
       workingDirectory: 'src'
 
 # Build job creates artifacts for use in test jobs
+- job: 'Build'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)'
+      artifact: 'BuildOutput'
+      publishLocation: 'pipeline'
 
 - job: 'Build'
   timeoutInMinutes: 120
