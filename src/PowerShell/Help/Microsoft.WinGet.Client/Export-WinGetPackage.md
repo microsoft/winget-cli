@@ -37,7 +37,7 @@ Export-WinGetPackage [-DownloadDirectory <String>] [-AllowHashMismatch]
 
 This command downloads a WinGet package from a configured source. The command downloads the package,
 its manifest, as well as its dependencies and their manifests. By default, the packages are
-downloaded to the your `Downloads` folder. You can use the **DownloadDirectory** parameter to change
+downloaded to your `Downloads` folder. You can use the **DownloadDirectory** parameter to change
 the location.
 
 For Microsoft Azure users, if the package is coming from the Microsoft Store, the command also

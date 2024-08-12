@@ -22,7 +22,7 @@ Get-WinGetUserSettings [<CommonParameters>]
 
 This command displays the WinGet settings for the current user. The settings are stored in
 `$env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json`.
-This file only exists if you have change a user setting using the `Set-WinGetUserSettings` command.
+This file only exists if you have changed a user setting, for example, using the `Set-WinGetUserSettings` command.
 
 ## EXAMPLES
 

@@ -30,8 +30,9 @@ Repair-WinGetPackageManager [-AllUsers] [-Force] [-Latest] [-IncludePreRelease]
 ## DESCRIPTION
 
 This command repairs the installation of the WinGet client on your computer by installing the
-specified version or the latest version of the client. It ensures that the client is installed in a
-working state.
+specified version or the latest version of the client. This command can also install the WinGet 
+client if it is not already installed on your machine. It ensures that the client is installed 
+in a working state.
 
 ## EXAMPLES
 

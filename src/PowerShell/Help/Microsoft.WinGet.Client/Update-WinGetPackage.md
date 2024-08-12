@@ -126,10 +126,7 @@ Accept wildcard characters: False
 
 ### -Custom
 
-Use this parameter to pass additional arguments to the installer. The parameter takes a single
-string value. To add multiple arguments, include the arguments in the string. The arguments must be
-provided in the format expected by the installer. If the string contains spaces, it must be enclosed
-in quotes. This string is added to the arguments defined in the package manifest.
+Use this parameter to pass additional arguments to the installer. The parameter takes a single string value. To add multiple arguments, include the arguments in the string. The arguments must be provided in the format expected by the installer. If the string contains spaces, it must be enclosed in quotes. This string is added to the arguments defined in the package manifest.
 
 ```yaml
 Type: System.String
@@ -372,10 +369,7 @@ Accept wildcard characters: False
 
 ### -Override
 
-Specify arguments to pass to the installer as a single string. To pass multiple arguments, include
-the arguments in the string. The arguments must be provided in the format expected by the installer.
-If the string contains spaces, it must be enclosed in quotes. This string overrides the arguments in
-the package manifest.
+Use this parameter to override the existing arguments passed to the installer. The parameter takes a single string value. To add multiple arguments, include the arguments in the string. The arguments must be provided in the format expected by the installer. If the string contains spaces, it must be enclosed in quotes. This string overrides the arguments specified in the package manifest.
 
 ```yaml
 Type: System.String

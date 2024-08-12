@@ -21,7 +21,7 @@ Add-WinGetSource -Name <String> -Argument <String> [-Type <String>] [<CommonPara
 ## DESCRIPTION
 
 Adds a new source. A source provides the data for you to discover and install packages. Only add a
-new source if you trust it as a secure location.
+new source if you trust it as a secure location. This command must be executed with administrator permissions.
 
 ## EXAMPLES
 
@@ -38,7 +38,7 @@ This example adds a new REST source to WinGet named `mysource` with the root URL
 
 ### -Argument
 
-The URL or UNC of WinGet source. The source must respond with the WinGet REST source API.
+The URL or UNC of either a pre-indexed WinGet source or a WinGet REST source API.
 
 ```yaml
 Type: System.String
