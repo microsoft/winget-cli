@@ -76,8 +76,8 @@ GetRestAPIBaseUri\(".*"\) == L".*"
 (?:\[`?[0-9a-f]+`?\]\(https:/|)/(?:www\.|)github\.com(?:/[^/\s"]+){2,}(?:/[^/\s")]+)(?:[0-9a-f]+(?:[-0-9a-zA-Z/#.]*|)\b|)
 
 # Compiler flags
-(?:^|[\t ,"'`=(])-[D](?!ata|ependency|epth|esktop|estination|ev|irectory|ownload)
-(?:^|[\t ,"'`=(])-[W](?!ait|in|orking)
+(?:^|[\t ,"'`=(])-[D](?!ata|ebug|ependency|epth|esktop|estination|ev|irectory|ownload)
+(?:^|[\t ,"'`=(])-[W](?!ait|arning|in|orking)
 (?:^|[\t ,"'`=(])-[l](?!og)
 (?:^|[\t ,"'`=(])-[f](?!eatures|ile|ind)
  -T(?=h[a-z]{2,})
