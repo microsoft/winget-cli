@@ -215,6 +215,15 @@ jobs:
       TargetFolder: $(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Configuration\SharedDependencies\$(BuildPlatform)
       flattenFolders: true
 
+  - task: PowerShell@2
+    displayName: Generate Microsoft.WinGet.Client Help Documentation
+    pwsh: true
+    inputs:
+      targetType: 'inline'
+      script: |
+        Install-Module -Name PlatyPS -Force
+        New-ExternalHelp -Path '$(Build.SourcesDirectory)\src\PowerShell\Help\Microsoft.WinGet.Client' -OutputPath '$(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client'
+
   - task: CopyFiles@2
     displayName: 'Copy PowerShell AnyCPU Module Files'
     inputs:
