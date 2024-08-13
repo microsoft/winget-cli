@@ -15,17 +15,25 @@ Resets default WinGet sources.
 ## SYNTAX
 
 ```
-Reset-WinGetSource -Name <String> [<CommonParameters>]
+Reset-WinGetSource [-Name <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
-Resets the current WinGet sources to the default source configurations. This command must be
+Resets the current WinGet sources to the default source configurations. If a source name is specified, that named source is removed. This command must be
 executed with administrator permissions.
 
 ## EXAMPLES
 
-### Example 1: Reset the msstore source
+### Example 1: Reset to default sources
+
+```powershell
+Reset-WinGetSource
+```
+
+This example removes all sources and adds the default sources.
+
+### Example 2: Reset the msstore source
 
 ```powershell
 Reset-WinGetSource -Name msstore
@@ -44,7 +52,7 @@ Type: System.String
 Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)

@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // <copyright file="ResetSourceCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
@@ -20,7 +20,7 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
         /// Gets or sets the name of the source to reset.
         /// </summary>
         [Parameter(
-            Mandatory = true,
+            Mandatory = false,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
         public string Name { get; set; }
@@ -31,7 +31,15 @@ namespace Microsoft.WinGet.Client.Cmdlets.Cmdlets
         protected override void ProcessRecord()
         {
             var command = new CliCommand(this);
-            command.ResetSource(this.Name);
+
+            if (!string.IsNullOrEmpty(this.Name))
+            {
+                command.ResetSourceByName(this.Name);
+            }
+            else
+            {
+                command.ResetSources();
+            }
         }
     }
 }

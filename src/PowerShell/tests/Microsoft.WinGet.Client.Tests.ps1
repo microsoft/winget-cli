@@ -136,6 +136,21 @@ Describe 'Get-WinGetVersion' {
     }
 }
 
+Describe 'Reset-WinGetSource' {
+    BeforeAll {
+        AddTestSource
+    }
+
+    # Requires admin
+    It 'Resets all sources' {
+        Reset-WinGetSource
+    }
+
+    It 'Test source should be removed' {
+        { Get-WinGetSource -Name 'TestSource' } | Should -Throw
+    }
+}
+
 Describe 'Get|Add|Reset-WinGetSource' {
 
     BeforeAll {
