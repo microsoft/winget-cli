@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
 #include <windows.h>
@@ -15,4 +15,10 @@
 #include <winrt/Windows.UI.Xaml.Markup.h>
 #include <winrt/Windows.UI.Xaml.Navigation.h>
 
+#include <initializer_list>
+#include <iomanip>
+#include <mutex>
 #include <sstream>
+#include <string>
+#include <string_view>
+#include <vector>

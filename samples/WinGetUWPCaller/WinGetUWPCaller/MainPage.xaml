@@ -38,6 +38,7 @@
             <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">Select Catalog(s)</TextBlock>
 
             <Button x:Name="loadCatalogsButton" Click="LoadCatalogsButtonClickHandler">Load Catalogs</Button>
+            <TextBlock x:Name="catalogStatusText" Text="" HorizontalAlignment="Center" Margin="0,0,0,20"/>
             <TextBlock>Select catalog(s) to use</TextBlock>
             <ListBox x:Name="catalogsListBox" ItemsSource="{x:Bind PackageCatalogs}" SelectionMode="Multiple" Height="200">
                 <ItemsControl.ItemTemplate>
@@ -50,6 +51,7 @@
 
         <StackPanel Grid.Row="1" Grid.Column="1">
             <TextBlock Style="{StaticResource SubheaderTextBlockStyle}">Package Operations</TextBlock>
+            <TextBlock>Search for a package from the selected catalog(s) and take action on it.</TextBlock>
 
             <StackPanel Orientation="Horizontal">
                 <TextBox x:Name="queryTextBox" Header="Find a package:" PlaceholderText="Query (e.g. Microsoft.Teams)"></TextBox>
