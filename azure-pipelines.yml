@@ -217,9 +217,9 @@ jobs:
 
   - task: PowerShell@2
     displayName: Generate Microsoft.WinGet.Client Help Documentation
-    pwsh: true
     inputs:
-      targetType: 'inline'
+      pwsh: true
+      targetType: inline
       script: |
         Install-Module -Name platyPS -Force
         Import-Module platyPS
