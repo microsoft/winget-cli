@@ -221,7 +221,8 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        Install-Module -Name PlatyPS -Force
+        Install-Module -Name platyPS -Force
+        Import-Module platyPS
         New-ExternalHelp -Path '$(Build.SourcesDirectory)\src\PowerShell\Help\Microsoft.WinGet.Client' -OutputPath '$(buildOutDirAnyCpu)\PowerShell\Microsoft.WinGet.Client'
 
   - task: CopyFiles@2
