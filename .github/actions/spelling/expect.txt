@@ -2,9 +2,7 @@ AAD
 abcd
 abi
 ABORTIFHUNG
-accepteula
 ACCESSDENIED
-ACCESSTOKEN
 acl
 adjacents
 adml
@@ -12,7 +10,6 @@ admx
 AFAIK
 aicli
 AICLIC
-AKV
 allusers
 alreadyinstalled
 AMap
@@ -39,14 +36,12 @@ ASequence
 ashpatil
 Ashwini
 ASwitch
-Asn
 ASYNCRTIMP
 Atest
 ATL
 AType
 AUrl
 auxdata
-azcopy
 azurewebsites
 Baz
 bcp
@@ -87,7 +82,6 @@ CLOSEAPP
 cloudapp
 clsctx
 CMSG
-cobertura
 CODEOWNERS
 codepage
 COINIT
@@ -110,6 +104,7 @@ CPIL
 createmanifestmetadata
 cswinrt
 ctc
+ctest
 CTL
 currentuser
 dacl
@@ -386,7 +381,6 @@ PCs
 pcwsz
 pdb
 PDWORD
-Peet
 peetdev
 PEGI
 pfn
@@ -463,8 +457,6 @@ runtimes
 ryfu
 sacl
 SARL
-sas
-SASURL
 savepoint
 schematab
 Scm
@@ -485,7 +477,6 @@ shellapi
 SHGDN
 SHOWNORMAL
 sid
-Sideload
 SIGNATUREHASH
 silentpreferred
 similarissues
