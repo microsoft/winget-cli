@@ -364,12 +364,12 @@ namespace AppInstaller::CLI::Workflow
             }
         };
 
-        struct InstalledTypeComparator : public details::FilterField
+        struct InstalledTypeFilter : public details::FilterField
         {
-            InstalledTypeComparator(Manifest::InstallerTypeEnum installedType) :
+            InstalledTypeFilter(Manifest::InstallerTypeEnum installedType) :
                 details::FilterField("Installed Type"), m_installedType(installedType) {}
 
-            static std::unique_ptr<InstalledTypeComparator> Create(const Repository::IPackageVersion::Metadata& installationMetadata)
+            static std::unique_ptr<InstalledTypeFilter> Create(const Repository::IPackageVersion::Metadata& installationMetadata)
             {
                 auto installerTypeItr = installationMetadata.find(Repository::PackageVersionMetadata::InstalledType);
                 if (installerTypeItr != installationMetadata.end())
@@ -377,7 +377,7 @@ namespace AppInstaller::CLI::Workflow
                     Manifest::InstallerTypeEnum installedType = Manifest::ConvertToInstallerTypeEnum(installerTypeItr->second);
                     if (installedType != Manifest::InstallerTypeEnum::Unknown)
                     {
-                        return std::make_unique<InstalledTypeComparator>(installedType);
+                        return std::make_unique<InstalledTypeFilter>(installedType);
                     }
                 }
 
@@ -783,7 +783,7 @@ namespace AppInstaller::CLI::Workflow
         // Filters based on the market region of the system
         AddFilter(MarketFilter::Create());
         // Filters based on the installer type compatability, including with AppsAndFeaturesEntry declarations
-        AddFilter(InstalledTypeComparator::Create(installationMetadata));
+        AddFilter(InstalledTypeFilter::Create(installationMetadata));
 
         // Filter order is not important, but comparison order determines priority.
         // Note that all comparators are also filters and their comparison function will only be called on
