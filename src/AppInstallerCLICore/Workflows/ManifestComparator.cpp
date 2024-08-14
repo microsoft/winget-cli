@@ -806,7 +806,7 @@ namespace AppInstaller::CLI::Workflow
         // Filters only if a requirement is present and it cannot be satisfied by the installer (including installer types that we can control scope in code)
         // Only applies when preference exists:
         // Strong if first matches preference and second does not and is not Unknown
-        // Weak if first matchs preference and second is Unknown
+        // Weak if first matches preference and second is Unknown
         AddComparator(ScopeComparator::Create(context));
         // Filters architectures out that are not supported or are not in the preferences/requirements/inputs.
         // Strong if first equals the earliest architecture in the allowed list and second does not [default means the system architecture]
